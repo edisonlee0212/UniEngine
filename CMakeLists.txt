@@ -195,24 +195,13 @@ if (WIN32)
 endif()
 if(NOT ${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR})
 	if (WIN32)
-		if (${CMAKE_BUILD_TYPE} STREQUAL Release)
-			add_custom_command(
-				TARGET uniengine
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy
-				${PROJECT_BINARY_DIR}/uniengine.dll
-				${CMAKE_BINARY_DIR}
-			)
-		elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-			add_custom_command(
-				TARGET uniengine
-				POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy
-				${PROJECT_BINARY_DIR}/uniengined.dll
-				${CMAKE_BINARY_DIR}
-			)
-		endif()
-		
+		add_custom_command(
+			TARGET uniengine
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+			${PROJECT_BINARY_DIR}/uniengine.dll
+			${CMAKE_BINARY_DIR}
+		)	
 	endif()
 	set(UNIENGINE_INCLUDES ${UNIENGINE_INCLUDES_LOCAL} PARENT_SCOPE)
 	set(UNIENGINE_PCH ${UNIENGINE_PCH_LOCAL} PARENT_SCOPE)
