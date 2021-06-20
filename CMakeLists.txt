@@ -7,6 +7,8 @@ project(
 		)
 include(GenerateExportHeader)
 
+option(UNIENGINE_BUILD_EXAMPLES "Build UniEngine Examples" OFF)
+
 # ------------------------------------------------------------------
 # 3rd Party libraries
 # ------------------------------------------------------------------
@@ -135,45 +137,83 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 endif ()
 
 # ------------------------------------------------------------------
-# Testing program
+# Example program
 # ------------------------------------------------------------------
-file(GLOB SAMPLE_CORE_SOURCES_LOCAL "src/core/*.cpp")
+if(${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPLES)
+	file(GLOB SAMPLE_CORE_SOURCES_LOCAL "src/core/*.cpp")
+	file(GLOB PLANET_SOURCES_LOCAL "src/core/Planet/*.cpp")
+	file(GLOB STAR_CLUSTER_SOURCES_LOCAL "src/core/StarCluster/*.cpp")
+	add_library(examples-core
+		${SAMPLE_CORE_SOURCES_LOCAL}
+		${PLANET_SOURCES_LOCAL}
+		${STAR_CLUSTER_SOURCES_LOCAL}
+	)
+	target_precompile_headers(examples-core
+		PRIVATE
+		${UNIENGINE_PCH_LOCAL}
+		)
+	target_include_directories(examples-core
+		PUBLIC
+		${UNIENGINE_INCLUDES_LOCAL}
+		${CMAKE_CURRENT_SOURCE_DIR}/include/core
+	)
+	target_link_libraries(examples-core
+		uniengine
+		)
+	
+	add_executable(Sample
+		src/app/Sample.cpp
+		)
+	target_include_directories(Sample
+		PRIVATE
+		${UNIENGINE_INCLUDES_LOCAL}
+		)
+	target_precompile_headers(Sample
+		PRIVATE
+		${UNIENGINE_PCH_LOCAL}
+		)
+	target_link_libraries(Sample
+		uniengine
+		examples-core
+		)
+	file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(sample-core
-    ${SAMPLE_CORE_SOURCES_LOCAL}
-)
-target_precompile_headers(sample-core
-	PRIVATE
-	${UNIENGINE_PCH_LOCAL}
-	)
-target_include_directories(sample-core
-    PUBLIC
-	${UNIENGINE_INCLUDES_LOCAL}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/core
-)
-target_link_libraries(sample-core
-	uniengine
-	)
+	add_executable(Planet
+		src/app/Planet.cpp
+		)
+	target_include_directories(Planet
+		PRIVATE
+		${UNIENGINE_INCLUDES_LOCAL}
+		)
+	target_precompile_headers(Planet
+		PRIVATE
+		${UNIENGINE_PCH_LOCAL}
+		)
+	target_link_libraries(Planet
+		uniengine
+		examples-core
+		)
 
-add_executable(sample-app
-	src/app/sample-main.cpp
-	)
+	add_executable(StarCluster
+		src/app/StarCluster.cpp
+		)
+	target_include_directories(StarCluster
+		PRIVATE
+		${UNIENGINE_INCLUDES_LOCAL}
+		)
+	target_precompile_headers(StarCluster
+		PRIVATE
+		${UNIENGINE_PCH_LOCAL}
+		)
+	target_link_libraries(StarCluster
+		uniengine
+		examples-core
+		)
+endif()
 
-target_include_directories(sample-app
-	PRIVATE
-	${UNIENGINE_INCLUDES_LOCAL}
-	)
-
-target_precompile_headers(sample-app
-	PRIVATE
-	${UNIENGINE_PCH_LOCAL}
-	)
-
-target_link_libraries(sample-app
-	uniengine
-	sample-core
-	)
-file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# ------------------------------------------------------------------
+# Copy DLLs
+# ------------------------------------------------------------------
 if (WIN32)
 	if (${CMAKE_BUILD_TYPE} STREQUAL Release)
 		add_custom_command(

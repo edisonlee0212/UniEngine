@@ -97,7 +97,7 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     void Deserialize(const YAML::Node &in) override;
     ~CameraComponent() override;
     bool m_drawSkyBox = true;
-    glm::vec3 m_clearColor;
+    glm::vec3 m_clearColor = glm::vec3(0.0f);
     std::shared_ptr<Cubemap> m_skyBox;
     void OnGui() override;
 };
