@@ -222,7 +222,7 @@ void DefaultResources::Load(World *world)
     GLPrograms::GizmoInstancedColoredProgram = std::make_unique<OpenGLUtils::GLProgram>(standardVert, standardFrag);
     GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
-
+    /*
 #pragma region Models &Primitives
     {
         auto model = ResourceManager::LoadModel(
@@ -302,7 +302,7 @@ void DefaultResources::Load(World *world)
         Primitives::Monkey->m_name = "Monkey";
     }
 #pragma endregion
-
+*/
     Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
     Materials::StandardMaterial->m_name = "Standard";
     Materials::StandardMaterial->SetTexture(Textures::StandardTexture);
