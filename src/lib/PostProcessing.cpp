@@ -114,30 +114,30 @@ void UniEngine::Bloom::Init()
     m_separateProgram = std::make_unique<OpenGLUtils::GLProgram>(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomSeparator.frag"))));
 
     m_filterProgram = std::make_unique<OpenGLUtils::GLProgram>(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))));
     m_combineProgram = std::make_unique<OpenGLUtils::GLProgram>(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 460 core\n") +
+            std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
 }
 

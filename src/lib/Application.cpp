@@ -81,7 +81,7 @@ void Application::Init(bool fullScreen)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
     ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 460 core");
+    ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
 #pragma region Internal Systems
     DefaultResources::Load(application.m_world.get());

@@ -259,10 +259,10 @@ void EditorManager::Init()
     GetInstance().m_sceneCameraEntityRecorder->AttachTexture(
         GetInstance().m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
 
-    std::string vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                                  FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     std::string fragShaderCode =
-        std::string("#version 460 core\n") +
+        std::string("#version 450 core\n") +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
 
     auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -272,19 +272,19 @@ void EditorManager::Init()
 
     GetInstance().m_sceneCameraEntityRecorderProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     GetInstance().m_sceneCameraEntityInstancedRecorderProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    fragShaderCode = std::string("#version 460 core\n") +
+    fragShaderCode = std::string("#version 450 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
@@ -292,14 +292,14 @@ void EditorManager::Init()
 
     GetInstance().m_sceneHighlightPrePassProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     GetInstance().m_sceneHighlightPrePassInstancedProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -307,7 +307,7 @@ void EditorManager::Init()
 
     GetInstance().m_sceneHighlightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);

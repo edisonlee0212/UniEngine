@@ -359,10 +359,10 @@ void Galaxy::StarClusterSystem::LateUpdate()
 void Galaxy::StarClusterSystem::OnCreate()
 {
     const auto vertShaderCode =
-        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
     const auto fragShaderCode =
-        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
 
     auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
