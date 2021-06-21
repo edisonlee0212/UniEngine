@@ -64,7 +64,7 @@ Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shar
 }
 
 void ResourceManager::ProcessNode(
-    std::string directory,
+    const std::string& directory,
     std::shared_ptr<OpenGLUtils::GLProgram> shader,
     std::unique_ptr<ModelNode> &modelNode,
     std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
@@ -106,7 +106,7 @@ void ResourceManager::ProcessNode(
 void ResourceManager::ReadMesh(
     unsigned meshIndex,
     std::unique_ptr<ModelNode> &modelNode,
-    std::string directory,
+    const std::string &directory,
     std::shared_ptr<OpenGLUtils::GLProgram> shader,
     std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
     aiMesh *aimesh,

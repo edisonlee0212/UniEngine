@@ -10,7 +10,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
     static void ProcessNode(
-        std::string,
+        const std::string&,
         std::shared_ptr<OpenGLUtils::GLProgram> shader,
         std::unique_ptr<ModelNode> &,
         std::vector<std::shared_ptr<Texture2D>> &,
@@ -19,7 +19,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static void ReadMesh(
         unsigned meshIndex,
         std::unique_ptr<ModelNode> &,
-        std::string directory,
+        const std::string &directory,
         std::shared_ptr<OpenGLUtils::GLProgram> shader,
         std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
         aiMesh *aimesh,
