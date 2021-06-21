@@ -172,10 +172,9 @@ void ResourceManager::ReadMesh(
     // indices.
     for (int i = 0; i < aimesh->mNumFaces; i++)
     {
-        aiFace face = aimesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
-        for (int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+        for (int j = 0; j < aimesh->mFaces[i].mNumIndices; j++)
+            indices.push_back(aimesh->mFaces[i].mIndices[j]);
     }
     // process materials
     aiMaterial *pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
