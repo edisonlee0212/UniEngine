@@ -8,7 +8,6 @@
 #include <ResourceManager.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::SkyboxProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::BackGroundProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ScreenProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedProgram;
@@ -44,50 +43,31 @@ void DefaultResources::Load(World *world)
     for (int i = 0; i < numberOfExtensions; i++)
     {
         const GLubyte *ccc = glGetStringi(GL_EXTENSIONS, i);
-        if (strcmp((char*)ccc, "GL_ARB_bindless_texture") == 0)
+        if (strcmp((char *)ccc, "GL_ARB_bindless_texture") == 0)
         {
             //OpenGLUtils::GetInstance().m_enableBindlessTexture = true;
-            //UNIENGINE_LOG("Bindless texture supported!");
+            // UNIENGINE_LOG("Bindless texture supported!");
         }
     }
-    
+
 #pragma region Shader Includes
-    std::string add = std::string("#extension GL_ARB_bindless_texture : require\n") + 
-                      "#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
-                      "\n#define DIRECTIONAL_LIGHTS_AMOUNT " +
-                      std::to_string(ShaderIncludes::MaxDirectionalLightAmount) + "\n#define POINT_LIGHTS_AMOUNT " +
-                      std::to_string(ShaderIncludes::MaxPointLightAmount) + "\n#define SHADOW_CASCADE_AMOUNT " +
-                      std::to_string(ShaderIncludes::ShadowCascadeAmount) + "\n#define MAX_KERNEL_AMOUNT " +
-                      std::to_string(ShaderIncludes::MaxKernelAmount) + "\n#define SPOT_LIGHTS_AMOUNT " +
-                      std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
+    std::string add;
     if (OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
-        add += "\n#define UE_CAMERA_SKYBOX UE_CAMERA_SKYBOX_BT";
-
-        add += "\n#define UE_SPOT_LIGHT_SM UE_SPOT_LIGHT_SM_BT";
-        add += "\n#define UE_DIRECTIONAL_LIGHT_SM UE_DIRECTIONAL_LIGHT_SM_BT";
-        add += "\n#define UE_POINT_LIGHT_SM UE_POINT_LIGHT_SM_BT";
-
-        add += "\n#define UE_ALBEDO_MAP UE_ALBEDO_MAP_BT";
-        add += "\n#define UE_NORMAL_MAP UE_NORMAL_MAP_BT";
-        add += "\n#define UE_METALLIC_MAP UE_METALLIC_MAP_BT";
-        add += "\n#define UE_ROUGHNESS_MAP UE_ROUGHNESS_MAP_BT";
-        add += "\n#define UE_AO_MAP UE_AO_MAP_BT";
+        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_BT.inc"));
     }
     else
     {
-        add += "\n#define UE_CAMERA_SKYBOX UE_CAMERA_SKYBOX_LEGACY";
-
-        add += "\n#define UE_SPOT_LIGHT_SM UE_SPOT_LIGHT_SM_LEGACY";
-        add += "\n#define UE_DIRECTIONAL_LIGHT_SM UE_DIRECTIONAL_LIGHT_SM_LEGACY";
-        add += "\n#define UE_POINT_LIGHT_SM UE_POINT_LIGHT_SM_LEGACY";
-
-        add += "\n#define UE_ALBEDO_MAP UE_ALBEDO_MAP_LEGACY";
-        add += "\n#define UE_NORMAL_MAP UE_NORMAL_MAP_LEGACY";
-        add += "\n#define UE_METALLIC_MAP UE_METALLIC_MAP_LEGACY";
-        add += "\n#define UE_ROUGHNESS_MAP UE_ROUGHNESS_MAP_LEGACY";
-        add += "\n#define UE_AO_MAP UE_AO_MAP_LEGACY";
+        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_LEGACY.inc"));
     }
+
+    add += "\n#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
+           "\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
+           "\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
+           "\n#define SHADOW_CASCADE_AMOUNT " + std::to_string(ShaderIncludes::ShadowCascadeAmount) +
+           "\n#define MAX_KERNEL_AMOUNT " + std::to_string(ShaderIncludes::MaxKernelAmount) +
+           "\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
+
     ShaderIncludes::Uniform =
         new std::string(add + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform.inc")));
 
@@ -141,12 +121,6 @@ void DefaultResources::Load(World *world)
     GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
     GLPrograms::SkyboxProgram->SetInt("skybox", 0);
     GLPrograms::SkyboxProgram->m_name = "Skybox";
-    skyboxfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-                     std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BackGround.frag")));
-    skyboxfrag->Compile(fragShaderCode);
-    GLPrograms::BackGroundProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
-    GLPrograms::BackGroundProgram->m_name = "Background";
 #pragma endregion
 
 #pragma region Screen Shader

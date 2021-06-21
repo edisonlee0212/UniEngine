@@ -13,7 +13,6 @@ class UNIENGINE_API DefaultResources
     {
       public:
         static std::shared_ptr<OpenGLUtils::GLProgram> ScreenProgram;
-        static std::shared_ptr<OpenGLUtils::GLProgram> BackGroundProgram;
         static OpenGLUtils::GLVAO *ScreenVAO;
 
         static std::shared_ptr<OpenGLUtils::GLVAO> SkyboxVAO;

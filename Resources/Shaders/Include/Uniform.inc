@@ -45,19 +45,6 @@ struct SpotLight {
 	int viewPortYSize;
 };
 
-
-//Camera
-layout (std140, binding = 0) uniform UE_CAMERA
-{
-	mat4 UE_CAMERA_PROJECTION;
-	mat4 UE_CAMERA_VIEW;
-	vec4 UE_CAMERA_RESERVED;
-	vec3 UE_CAMERA_POSITION;
-	vec3 UE_CAMERA_BACKGROUND_COLOR;
-	samplerCube UE_CAMERA_SKYBOX_BT;
-	bool UE_CAMERA_SKYBOX_ENABLED;
-};
-
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
 {
 	int UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT;
@@ -97,49 +84,6 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 	vec4 UE_UNIFORM_KERNEL[MAX_KERNEL_AMOUNT];
 	vec4 UE_GAUSS_KERNEL[MAX_KERNEL_AMOUNT];
 };
-
-layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
-{
-	sampler2DArray UE_DIRECTIONAL_LIGHT_SM_BT;
-	sampler2DArray UE_POINT_LIGHT_SM_BT;
-	sampler2D UE_SPOT_LIGHT_SM_BT;
-
-	sampler2D UE_ALBEDO_MAP_BT;
-	sampler2D UE_NORMAL_MAP_BT;
-	sampler2D UE_METALLIC_MAP_BT;
-	sampler2D UE_ROUGHNESS_MAP_BT;
-	sampler2D UE_AO_MAP_BT;
-
-	bool UE_ALBEDO_MAP_ENABLED;
-	bool UE_NORMAL_MAP_ENABLED;
-	bool UE_METALLIC_MAP_ENABLED;
-	bool UE_ROUGHNESS_MAP_ENABLED;
-	bool UE_AO_MAP_ENABLED;
-	bool UE_APLHA_DISCARD_ENABLED;
-	bool UE_RECEIVE_SHADOW;
-	bool UE_ENABLE_SHADOW;
-		
-	vec4 UE_PBR_ALBEDO;
-	float UE_PBR_METALLIC;
-	float UE_PBR_ROUGHNESS;
-	float UE_PBR_AO;
-	float UE_APLHA_DISCARD_OFFSET;
-
-	samplerCube UE_ENVIRONMENTAL_MAP;
-	bool UE_ENVIRONMENTAL_MAP_ENABLED;
-};
-
-uniform samplerCube UE_CAMERA_SKYBOX_LEGACY;
-
-uniform sampler2DArray UE_DIRECTIONAL_LIGHT_SM_LEGACY;
-uniform sampler2DArray UE_POINT_LIGHT_SM_LEGACY;
-uniform sampler2D UE_SPOT_LIGHT_SM_LEGACY;
-
-uniform sampler2D UE_ALBEDO_MAP_LEGACY;
-uniform sampler2D UE_NORMAL_MAP_LEGACY;
-uniform sampler2D UE_METALLIC_MAP_LEGACY;
-uniform sampler2D UE_ROUGHNESS_MAP_LEGACY;
-uniform sampler2D UE_AO_MAP_LEGACY;
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
