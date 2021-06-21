@@ -1,6 +1,4 @@
 
-
-
 # ------------------------------------------------------------------
 # glfw
 # ------------------------------------------------------------------
@@ -13,15 +11,9 @@ endif()
 set(GLFW_DIR ${3RD_PARTY_DIR}/glfw/ PARENT_SCOPE)
 
 # ------------------------------------------------------------------
-# assimp
+# tinyobjloader
 # ------------------------------------------------------------------
-set(ASSIMP_DIR_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/assimp/include)
-if (WIN32)
-else()
-	find_package(ASSIMP REQUIRED)
-	message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
-endif()
-set(ASSIMP_DIR ${3RD_PARTY_DIR}/assimp/ PARENT_SCOPE)
+set(TINYOBJLOADER_DIR ${3RD_PARTY_DIR}/tinyobjloader/ PARENT_SCOPE)
 
 # ------------------------------------------------------------------
 # yaml

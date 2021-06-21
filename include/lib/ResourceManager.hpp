@@ -14,16 +14,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
         std::unique_ptr<ModelNode> &modelNode,
         std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
-        aiNode *node,
-        const aiScene *scene);
-    static void ReadMesh(
-        unsigned meshIndex,
-        std::unique_ptr<ModelNode> &,
-        const std::string &directory,
-        std::shared_ptr<OpenGLUtils::GLProgram> shader,
-        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
-        aiMesh *importerMesh,
-        const aiScene *scene);
+        const tinyobj::shape_t& shape,
+        const tinyobj::attrib_t& attribute);
     static void AttachChildren(
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
 
@@ -36,10 +28,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::shared_ptr<Model> LoadModel(
         const bool &addResource,
         std::string const &path,
-        std::shared_ptr<OpenGLUtils::GLProgram> shader,
-        const bool &gamma = false,
-        const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes |
-                                aiProcess_FindInvalidData);
+        std::shared_ptr<OpenGLUtils::GLProgram> glProgram
+        );
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,
         const std::string &path,

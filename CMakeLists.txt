@@ -52,12 +52,12 @@ set(UNIENGINE_INCLUDES_LOCAL
 	${CMAKE_CURRENT_SOURCE_DIR}/include/lib
 	${3RD_PARTY_DIR}
 	${GLFW_DIR}/include
-	${ASSIMP_DIR}/include
 	${STB_DIR}
 	${IMGUI_DIR}
 	${GLAD_DIR}
 	${TINYOBJLOADER_DIR}
-	${CMAKE_CURRENT_BINARY_DIR})
+	${CMAKE_CURRENT_BINARY_DIR}
+	${TINYOBJLOADER_DIR})
 
 target_include_directories(uniengine
 	PRIVATE
@@ -78,19 +78,6 @@ if (WIN32)
 		opengl32
 		${GLFW_DIR}glfw3.lib
 		)
-	if (${CMAKE_BUILD_TYPE} STREQUAL Release)
-		target_link_libraries(uniengine
-			${ASSIMP_DIR}assimp-vc142-mt.lib
-			#${ASSIMP_DIR}contrib/irrXML/IrrXML.lib
-			${ASSIMP_DIR}contrib/zlib/zlibstatic.lib
-			)
-	elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-		target_link_libraries(uniengine
-			${ASSIMP_DIR}assimp-vc142-mtd.lib
-			#${ASSIMP_DIR}contrib/irrXML/IrrXMLd.lib
-			${ASSIMP_DIR}contrib/zlib/zlibstaticd.lib
-			)
-	endif()
 	# Compiler settings for Windows platform
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 	target_compile_definitions(uniengine
@@ -110,7 +97,6 @@ elseif (UNIX AND NOT APPLE)
 		Xrandr
 		Xi
 		dl
-		assimp
 		)
 	# Compiler settings for Linux platform
 	if (${CMAKE_BUILD_TYPE} STREQUAL Release)
@@ -214,25 +200,6 @@ endif()
 # ------------------------------------------------------------------
 # Copy DLLs
 # ------------------------------------------------------------------
-if (WIN32)
-	if (${CMAKE_BUILD_TYPE} STREQUAL Release)
-		add_custom_command(
-			TARGET uniengine
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy
-			${3RD_PARTY_DIR}/assimp/assimp-vc142-mt.dll
-			${CMAKE_BINARY_DIR}
-			)
-	elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-		add_custom_command(
-			TARGET uniengine
-			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy
-			${3RD_PARTY_DIR}/assimp/assimp-vc142-mtd.dll
-			${CMAKE_BINARY_DIR}
-			)
-	endif()	
-endif()
 if(NOT ${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR})
 	if (WIN32)
 		add_custom_command(
