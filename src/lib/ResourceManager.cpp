@@ -20,7 +20,6 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     const unsigned &flags)
 {
     UNIENGINE_LOG("Loading model from: " + path);
-    stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene *scene = importer.ReadFile(path, flags);
@@ -66,9 +65,9 @@ Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shar
 
 void ResourceManager::ProcessNode(
     const std::string& directory,
-    std::shared_ptr<OpenGLUtils::GLProgram> shader,
+    std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
     std::unique_ptr<ModelNode> &modelNode,
-    std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
+    std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
     aiNode *node,
     const aiScene *scene)
 {
@@ -77,7 +76,7 @@ void ResourceManager::ProcessNode(
         // the modelNode object only contains indices to index the actual objects in the scene.
         // the scene contains all the data, modelNode is just to keep stuff organized (like relations between nodes).
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        ReadMesh(i, modelNode, directory, shader, Texture2DsLoaded, mesh, scene);
+        ReadMesh(i, modelNode, directory, glProgram, texture2DsLoaded, mesh, scene);
         modelNode->m_localToParent = glm::mat4(
             node->mTransformation.a1,
             node->mTransformation.a2,
@@ -99,7 +98,7 @@ void ResourceManager::ProcessNode(
     for (unsigned i = 0; i < node->mNumChildren; i++)
     {
         std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
-        ProcessNode(directory, shader, childNode, Texture2DsLoaded, node->mChildren[i], scene);
+        ProcessNode(directory, glProgram, childNode, texture2DsLoaded, node->mChildren[i], scene);
         modelNode->m_children.push_back(std::move(childNode));
     }
 }

@@ -10,12 +10,12 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
     static void ProcessNode(
-        const std::string&,
-        std::shared_ptr<OpenGLUtils::GLProgram> shader,
-        std::unique_ptr<ModelNode> &,
-        std::vector<std::shared_ptr<Texture2D>> &,
-        aiNode *,
-        const aiScene *);
+        const std::string &directory,
+        std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
+        std::unique_ptr<ModelNode> &modelNode,
+        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        aiNode *node,
+        const aiScene *scene);
     static void ReadMesh(
         unsigned meshIndex,
         std::unique_ptr<ModelNode> &,
@@ -38,7 +38,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         std::string const &path,
         std::shared_ptr<OpenGLUtils::GLProgram> shader,
         const bool &gamma = false,
-        const unsigned &flags = 0);
+        const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes |
+                                aiProcess_FindInvalidData);
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,
         const std::string &path,

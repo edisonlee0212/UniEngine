@@ -223,15 +223,13 @@ void DefaultResources::Load(World *world)
     GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
 #pragma region Models &Primitives
-    if (false)
+    if (true)
     {
         {
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/quad.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Quad = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Quad);
             Primitives::Quad->m_name = "Quad";
@@ -240,9 +238,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/sphere.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Sphere = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Sphere);
             Primitives::Sphere->m_name = "Sphere";
@@ -251,9 +247,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/cube.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Cube = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Cube);
             Primitives::Cube->m_name = "Cube";
@@ -262,9 +256,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/cone.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Cone = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Cone);
             Primitives::Cone->m_name = "Cone";
@@ -273,9 +265,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/cylinder.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Cylinder = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Cylinder);
             Primitives::Cylinder->m_name = "Cylinder";
@@ -284,9 +274,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/ring.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Ring = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Ring);
             Primitives::Ring->m_name = "Ring";
@@ -295,9 +283,7 @@ void DefaultResources::Load(World *world)
             auto model = ResourceManager::LoadModel(
                 false,
                 FileIO::GetResourcePath("Primitives/monkey.obj"),
-                GLPrograms::StandardProgram,
-                false,
-                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+                GLPrograms::StandardProgram);
             Primitives::Monkey = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
             ResourceManager::Push(Primitives::Monkey);
             Primitives::Monkey->m_name = "Monkey";
