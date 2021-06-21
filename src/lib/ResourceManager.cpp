@@ -117,7 +117,7 @@ void ResourceManager::ReadMesh(
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
     // Walk through each of the mesh's vertices
-    for (unsigned i = 0; i < aimesh->mNumVertices; i++)
+    for (int i = 0; i < aimesh->mNumVertices; i++)
     {
         Vertex vertex;
         glm::vec3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly
@@ -170,11 +170,11 @@ void ResourceManager::ReadMesh(
     }
     // now wak through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex
     // indices.
-    for (unsigned i = 0; i < aimesh->mNumFaces; i++)
+    for (int i = 0; i < aimesh->mNumFaces; i++)
     {
         aiFace face = aimesh->mFaces[i];
         // retrieve all indices of the face and store them in the indices vector
-        for (unsigned j = 0; j < face.mNumIndices; j++)
+        for (int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
     // process materials
