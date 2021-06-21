@@ -109,47 +109,30 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	sampler2D UE_METALLIC_MAP;
 	sampler2D UE_ROUGHNESS_MAP;
 	sampler2D UE_AO_MAP;
-	
-	sampler2D UE_AMBIENT_MAP;
-	sampler2D UE_DIFFUSE_MAP;
-	sampler2D UE_SPECULAR_MAP;
-	sampler2D UE_EMISSIVE_MAP;
-	sampler2D UE_DISPLACEMENT_MAP;
 
-	
-	
 	bool UE_ALBEDO_MAP_ENABLED;
 	bool UE_NORMAL_MAP_ENABLED;
 	bool UE_METALLIC_MAP_ENABLED;
 	bool UE_ROUGHNESS_MAP_ENABLED;
 	bool UE_AO_MAP_ENABLED;
-	
-	bool UE_AMBIENT_MAP_ENABLED;
-	bool UE_DIFFUSE_MAP_ENABLED;
-	bool UE_SPECULAR_MAP_ENABLED;
-	bool UE_EMISSIVE_MAP_ENABLED;
-	bool UE_DISPLACEMENT_MAP_ENABLED;
-	
+	bool UE_APLHA_DISCARD_ENABLED;
+	bool UE_RECEIVE_SHADOW;
+	bool UE_ENABLE_SHADOW;
+		
 	vec4 UE_PBR_ALBEDO;
-	float UE_PBR_SHININESS;
 	float UE_PBR_METALLIC;
 	float UE_PBR_ROUGHNESS;
 	float UE_PBR_AO;
-	float UE_PBR_DISP_SCALE;
-	
-	bool UE_RECEIVE_SHADOW;
-	bool UE_ENABLE_SHADOW;
-	bool UE_APLHA_DISCARD_ENABLED;
 	float UE_APLHA_DISCARD_OFFSET;
 
 	samplerCube UE_ENVIRONMENTAL_MAP;
 	bool UE_ENVIRONMENTAL_MAP_ENABLED;
 };
 
-vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
-vec3 UE_FUNC_DIRECTIONAL_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
-vec3 UE_FUNC_POINT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
-vec3 UE_FUNC_SPOT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_POINT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_SPOT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
 float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3 normal);
 float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
@@ -197,7 +180,7 @@ vec3 UE_FUNC_FRESNEL_SCHLICK(float cosTheta, vec3 F0)
 }
 
 
-vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){
+vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// phase 1: directional lighting
@@ -232,7 +215,7 @@ vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo
 				shadow = 1.0;
 			}
 		}
-		result += UE_FUNC_DIRECTIONAL_LIGHT(shininess, albedo, specular, i, normal, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_DIRECTIONAL_LIGHT(albedo, specular, i, normal, viewDir, metallic, roughness, F0) * shadow;
 	}
 	// phase 2: point lights
 	for(int i = 0; i < UE_POINT_LIGHT_AMOUNT; i++){
@@ -240,7 +223,7 @@ vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo
 		if(calculateShadow && UE_POINT_LIGHTS[i].diffuse.w == 1.0){
 			shadow = UE_FUNC_POINT_LIGHT_SHADOW(i, fragPos, normal);
 		}
-		result += UE_FUNC_POINT_LIGHT(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_POINT_LIGHT(albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
 	}
 	// phase 3: spot light
 	for(int i = 0; i < UE_SPOT_LIGHT_AMOUNT; i++){
@@ -248,13 +231,13 @@ vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, float shininess, vec3 albedo
 		if(calculateShadow && UE_SPOT_LIGHTS[i].diffuse.w == 1.0){
 			shadow = UE_FUNC_SPOT_LIGHT_SHADOW(i, fragPos, normal);
 		}
-		result += UE_FUNC_SPOT_LIGHT(shininess, albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
+		result += UE_FUNC_SPOT_LIGHT(albedo, specular, i, normal, fragPos, viewDir, metallic, roughness, F0) * shadow;
 	}
 	return result;
 }
 
 // calculates the color when using a directional light.
-vec3 UE_FUNC_DIRECTIONAL_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
 	DirectionalLight light = UE_DIRECTIONAL_LIGHTS[i];
 	vec3 lightDir = normalize(-light.direction);
@@ -274,7 +257,7 @@ vec3 UE_FUNC_DIRECTIONAL_LIGHT(float shininess, vec3 albedo, float specular, int
 }
 
 // calculates the color when using a point light.
-vec3 UE_FUNC_POINT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_POINT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
 	PointLight light = UE_POINT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);
@@ -297,7 +280,7 @@ vec3 UE_FUNC_POINT_LIGHT(float shininess, vec3 albedo, float specular, int i, ve
 }
 
 // calculates the color when using a spot light.
-vec3 UE_FUNC_SPOT_LIGHT(float shininess, vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
+vec3 UE_FUNC_SPOT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0)
 {
 	SpotLight light = UE_SPOT_LIGHTS[i];
 	vec3 lightDir = normalize(light.position - fragPos);

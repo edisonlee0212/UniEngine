@@ -30,38 +30,23 @@ struct MaterialSettingsBlock
     GLuint64 m_roughnessMap = 0;
     GLuint64 m_aoMap = 0;
 
-    GLuint64 m_ambient = 0;
-    GLuint64 m_diffuse = 0;
-    GLuint64 m_specular = 0;
-    GLuint64 m_emissive = 0;
-    GLuint64 m_displacement = 0;
-
     int m_albedoEnabled = 0;
     int m_normalEnabled = 0;
     int m_metallicEnabled = 0;
     int m_roughnessEnabled = 0;
     int m_aoEnabled = 0;
-
-    int m_ambientEnabled = 0;
-    int m_diffuseEnabled = 0;
-    int m_specularEnabled = 0;
-    int m_emissiveEnabled = 0;
-    int m_displacementEnabled = 0;
-
+    int m_alphaDiscardEnabled = true;
+    int m_receiveShadow = true;
+    int m_enableShadow = true;
+    
     glm::vec4 m_albedoColorVal = glm::vec4(1.0f);
-    float m_shininessVal = 32.0f;
     float m_metallicVal = 0.5f;
     float m_roughnessVal = 0.5f;
     float m_aoVal = 1.0f;
-    float m_displacementScale = 0.0f;
-
-    int m_receiveShadow = true;
-    int m_enableShadow = true;
-    int m_alphaDiscardEnabled = true;
     float m_alphaDiscardOffset = 0.1f;
-
-    GLuint64 m_environmentalMap = 0;
+    
     int m_environmentalMapEnabled = 0;
+    GLuint64 m_environmentalMap = 0;
 };
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>

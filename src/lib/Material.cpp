@@ -61,7 +61,6 @@ void Material::OnGui()
     }
     if (ImGui::TreeNodeEx("Others##Material"))
     {
-        ImGui::DragFloat("Shininess##Material", &m_shininess, 1.0f, 1.0f, 1024.0f);
         ImGui::Checkbox("Enable alpha discard##Material", &m_alphaDiscardEnabled);
         if (m_alphaDiscardEnabled)
             ImGui::DragFloat("Alpha discard offset##Material", &m_alphaDiscardOffset, 0.01f, 0.0f, 0.99f);

@@ -187,7 +187,6 @@ void ResourceManager::ReadMesh(
     pointMaterial->Get(AI_MATKEY_SHININESS, shininess);
     if (shininess == 0.0f)
         shininess = 32.0f;
-    material->m_shininess = shininess;
     material->SetProgram(shader);
     // PBR
     if (pointMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
@@ -491,7 +490,6 @@ std::shared_ptr<Material> ResourceManager::LoadMaterial(
     const bool &addResource, const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
     auto retVal = std::make_shared<Material>();
-    retVal->m_shininess = 32.0f;
     retVal->SetProgram(program);
     if (addResource)
         Push(retVal);

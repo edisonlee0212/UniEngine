@@ -45,7 +45,6 @@ class UNIENGINE_API Material : public ResourceBehaviour
     MaterialPolygonMode m_polygonMode = MaterialPolygonMode::Fill;
     MaterialCullingMode m_cullingMode = MaterialCullingMode::Back;
     MaterialBlendingMode m_blendingMode = MaterialBlendingMode::Off;
-    float m_shininess = 32.0f;
     float m_metallic = 0.3f;
     float m_roughness = 0.3f;
     float m_ambientOcclusion = 1.0f;

@@ -1614,9 +1614,7 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 {
     GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
     GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
-    GetInstance().m_materialSettings.m_displacementScale = 0.0f;
     GetInstance().m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
-    GetInstance().m_materialSettings.m_shininessVal = material->m_shininess;
     GetInstance().m_materialSettings.m_metallicVal = material->m_metallic;
     GetInstance().m_materialSettings.m_roughnessVal = material->m_roughness;
     GetInstance().m_materialSettings.m_aoVal = material->m_ambientOcclusion;
@@ -1655,7 +1653,7 @@ void RenderManager::BindTextureHandles(const Material *material)
             break;
         case TextureType::AO:
             GetInstance().m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_aoEnabled = static_cast<int>(true);
+            //GetInstance().m_materialSettings.m_aoEnabled = static_cast<int>(true);
             break;
         }
     }
