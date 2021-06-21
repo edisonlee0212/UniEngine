@@ -1614,7 +1614,7 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 {
     GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
     GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
-    GetInstance().m_materialSettings.m_displacementScale = material->m_displacementMapScale;
+    GetInstance().m_materialSettings.m_displacementScale = 0.0f;
     GetInstance().m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
     GetInstance().m_materialSettings.m_shininessVal = material->m_shininess;
     GetInstance().m_materialSettings.m_metallicVal = material->m_metallic;
@@ -1653,29 +1653,9 @@ void RenderManager::BindTextureHandles(const Material *material)
             GetInstance().m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
             GetInstance().m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
             break;
-        case TextureType::Ao:
+        case TextureType::AO:
             GetInstance().m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
             GetInstance().m_materialSettings.m_aoEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Ambient:
-            GetInstance().m_materialSettings.m_ambient = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_ambientEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Diffuse:
-            GetInstance().m_materialSettings.m_diffuse = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_diffuseEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Specular:
-            GetInstance().m_materialSettings.m_specular = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_specularEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Emissive:
-            GetInstance().m_materialSettings.m_emissive = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_emissiveEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Displacement:
-            GetInstance().m_materialSettings.m_displacement = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_displacementEnabled = static_cast<int>(true);
             break;
         }
     }

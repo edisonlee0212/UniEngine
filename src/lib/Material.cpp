@@ -23,14 +23,7 @@ Material::Material()
     m_textures[TextureType::Normal] = nullptr;
     m_textures[TextureType::Metallic] = nullptr;
     m_textures[TextureType::Roughness] = nullptr;
-    m_textures[TextureType::Ao] = nullptr;
-
-    m_textures[TextureType::Ambient] = nullptr;
-    m_textures[TextureType::Diffuse] = nullptr;
-    m_textures[TextureType::Specular] = nullptr;
-    m_textures[TextureType::Emissive] = nullptr;
-    m_textures[TextureType::Displacement] = nullptr;
-
+    m_textures[TextureType::AO] = nullptr;
     m_name = "New material";
 }
 
@@ -62,10 +55,8 @@ void Material::OnGui()
             ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f);
         if (!m_textures[TextureType::Roughness])
             ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f);
-        if (!m_textures[TextureType::Ao])
+        if (!m_textures[TextureType::AO])
             ImGui::DragFloat("AO##Material", &m_ambientOcclusion, 0.01f, 0.0f, 1.0f);
-        if (m_textures[TextureType::Displacement])
-            ImGui::DragFloat("DisplacementMapScale##Material", &m_displacementMapScale, 0.01f, -1.0f, 1.0f);
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Others##Material"))
@@ -138,60 +129,11 @@ void Material::OnGui()
             ImGui::Separator();
             ImGui::Text("AO:");
             ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Ao]);
-            if (m_textures[TextureType::Ao])
-                m_textures[TextureType::Ao]->SetType(TextureType::Ao);
+            EditorManager::DragAndDrop(m_textures[TextureType::AO]);
+            if (m_textures[TextureType::AO])
+                m_textures[TextureType::AO]->SetType(TextureType::AO);
         }
 
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Ambient:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Ambient]);
-            if (m_textures[TextureType::Ambient])
-                m_textures[TextureType::Ambient]->SetType(TextureType::Ambient);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Diffuse:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Diffuse]);
-            if (m_textures[TextureType::Diffuse])
-                m_textures[TextureType::Diffuse]->SetType(TextureType::Diffuse);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Specular:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Specular]);
-            if (m_textures[TextureType::Specular])
-                m_textures[TextureType::Specular]->SetType(TextureType::Specular);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Emissive:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Emissive]);
-            if (m_textures[TextureType::Emissive])
-                m_textures[TextureType::Emissive]->SetType(TextureType::Emissive);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Height:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Displacement]);
-            if (m_textures[TextureType::Displacement])
-                m_textures[TextureType::Displacement]->SetType(TextureType::Displacement);
-        }
         ImGui::TreePop();
     }
 }

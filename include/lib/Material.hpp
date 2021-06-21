@@ -49,7 +49,6 @@ class UNIENGINE_API Material : public ResourceBehaviour
     float m_metallic = 0.3f;
     float m_roughness = 0.3f;
     float m_ambientOcclusion = 1.0f;
-    float m_displacementMapScale = -0.04f;
     glm::vec3 m_albedoColor = glm::vec3(1.0f);
     bool m_alphaDiscardEnabled = true;
     float m_alphaDiscardOffset = 0.01f;

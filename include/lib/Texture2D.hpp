@@ -8,12 +8,7 @@ enum class UNIENGINE_API TextureType
     Normal,
     Metallic,
     Roughness,
-    Ao,
-    Ambient,
-    Diffuse,
-    Specular,
-    Emissive,
-    Displacement
+    AO,
 };
 class UNIENGINE_API Texture2D : public ResourceBehaviour
 {
@@ -27,7 +22,7 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     friend class CameraComponent;
 
   public:
-    Texture2D(TextureType type = TextureType::Diffuse);
+    Texture2D(TextureType type = TextureType::Albedo);
     void SetType(TextureType type);
     TextureType GetType() const;
     glm::vec2 GetResolution() const;

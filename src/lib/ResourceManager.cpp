@@ -213,6 +213,29 @@ void ResourceManager::ReadMesh(
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
+    if (pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+    {
+        aiString str;
+        pointMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
+        bool skip = false;
+        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        {
+            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            {
+                material->SetTexture(Texture2DsLoaded.at(j));
+                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
+                             // (optimization)
+                break;
+            }
+        }
+        if (!skip)
+        { // if Texture2D hasn't been loaded already, load it
+            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Albedo);
+            material->SetTexture(texture2D);
+            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+                                                   // unnecesery load duplicate Texture2Ds.
+        }
+    }
     if (pointMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA) > 0)
     {
         aiString str;
@@ -231,29 +254,6 @@ void ResourceManager::ReadMesh(
         if (!skip)
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Normal);
-            material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
-                                                   // unnecesery load duplicate Texture2Ds.
-        }
-    }
-    if (pointMaterial->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0)
-    {
-        aiString str;
-        pointMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
-        bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
-        {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
-            {
-                material->SetTexture(Texture2DsLoaded.at(j));
-                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
-                             // (optimization)
-                break;
-            }
-        }
-        if (!skip)
-        { // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Emissive);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
@@ -322,54 +322,7 @@ void ResourceManager::ReadMesh(
         }
         if (!skip)
         { // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Ao);
-            material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
-                                                   // unnecesery load duplicate Texture2Ds.
-        }
-    }
-    // Others
-    if (pointMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-    {
-        aiString str;
-        pointMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-        bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
-        {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
-            {
-                material->SetTexture(Texture2DsLoaded.at(j));
-                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
-                             // (optimization)
-                break;
-            }
-        }
-        if (!skip)
-        { // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Diffuse);
-            material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
-                                                   // unnecesery load duplicate Texture2Ds.
-        }
-    }
-    if (pointMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
-    {
-        aiString str;
-        pointMaterial->GetTexture(aiTextureType_SPECULAR, 0, &str);
-        bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
-        {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
-            {
-                material->SetTexture(Texture2DsLoaded.at(j));
-                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
-                             // (optimization)
-                break;
-            }
-        }
-        if (!skip)
-        { // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Specular);
+            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::AO);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
@@ -393,29 +346,6 @@ void ResourceManager::ReadMesh(
         if (!skip)
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Normal);
-            material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
-                                                   // unnecesery load duplicate Texture2Ds.
-        }
-    }
-    if (pointMaterial->GetTextureCount(aiTextureType_DISPLACEMENT) > 0)
-    {
-        aiString str;
-        pointMaterial->GetTexture(aiTextureType_DISPLACEMENT, 0, &str);
-        bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
-        {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
-            {
-                material->SetTexture(Texture2DsLoaded.at(j));
-                skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
-                             // (optimization)
-                break;
-            }
-        }
-        if (!skip)
-        { // if Texture2D hasn't been loaded already, load it
-            auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Displacement);
             material->SetTexture(texture2D);
             Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
@@ -598,7 +528,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
     return retVal;
 }
 
-void ResourceManager::LateUpdate()
+void ResourceManager::OnGui()
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -627,7 +557,7 @@ void ResourceManager::LateUpdate()
                     UNIENGINE_LOG("Loaded model from \"" + filePath);
                 });
 
-                FileIO::OpenFile("Load Texture", ".png,.jpg,.jpeg", [](const std::string &filePath) {
+                FileIO::OpenFile("Load Texture", ".png,.jpg,.jpeg,.tga", [](const std::string &filePath) {
                     LoadTexture(true, filePath);
                     UNIENGINE_LOG("Loaded texture from \"" + filePath);
                 });

@@ -42,7 +42,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,
         const std::string &path,
-        TextureType type = TextureType::Diffuse,
+        TextureType type = TextureType::Albedo,
         const bool &generateMipmap = true,
         const float &gamma = 1.0f);
     static std::shared_ptr<Cubemap> LoadCubemap(
@@ -61,7 +61,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
         const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
         const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
-    static void LateUpdate();
+    static void OnGui();
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
 };
 

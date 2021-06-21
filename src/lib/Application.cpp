@@ -203,7 +203,7 @@ bool Application::LateUpdateInternal()
         return false;
 
     InputManager::LateUpdate();
-    ResourceManager::LateUpdate();
+    ResourceManager::OnGui();
     WindowManager::LateUpdate();
     RenderManager::LateUpdate();
     TransformManager::LateUpdate();
