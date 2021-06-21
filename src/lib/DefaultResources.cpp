@@ -223,82 +223,85 @@ void DefaultResources::Load(World *world)
     GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
 #pragma region Models &Primitives
+    if (false)
     {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/quad.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Quad = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Quad);
-        Primitives::Quad->m_name = "Quad";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/sphere.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Sphere = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Sphere);
-        Primitives::Sphere->m_name = "Sphere";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/cube.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Cube = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Cube);
-        Primitives::Cube->m_name = "Cube";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/cone.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Cone = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Cone);
-        Primitives::Cone->m_name = "Cone";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/cylinder.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Cylinder = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Cylinder);
-        Primitives::Cylinder->m_name = "Cylinder";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/ring.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Ring = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Ring);
-        Primitives::Ring->m_name = "Ring";
-    }
-    {
-        auto model = ResourceManager::LoadModel(
-            false,
-            FileIO::GetResourcePath("Primitives/monkey.obj"),
-            GLPrograms::StandardProgram,
-            false,
-            aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
-        Primitives::Monkey = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
-        ResourceManager::Push(Primitives::Monkey);
-        Primitives::Monkey->m_name = "Monkey";
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/quad.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Quad = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Quad);
+            Primitives::Quad->m_name = "Quad";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/sphere.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Sphere = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Sphere);
+            Primitives::Sphere->m_name = "Sphere";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/cube.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Cube = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Cube);
+            Primitives::Cube->m_name = "Cube";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/cone.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Cone = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Cone);
+            Primitives::Cone->m_name = "Cone";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/cylinder.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Cylinder = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Cylinder);
+            Primitives::Cylinder->m_name = "Cylinder";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/ring.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Ring = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Ring);
+            Primitives::Ring->m_name = "Ring";
+        }
+        {
+            auto model = ResourceManager::LoadModel(
+                false,
+                FileIO::GetResourcePath("Primitives/monkey.obj"),
+                GLPrograms::StandardProgram,
+                false,
+                aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes);
+            Primitives::Monkey = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            ResourceManager::Push(Primitives::Monkey);
+            Primitives::Monkey->m_name = "Monkey";
+        }
     }
 #pragma endregion
 

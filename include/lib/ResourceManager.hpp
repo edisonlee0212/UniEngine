@@ -21,8 +21,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         std::unique_ptr<ModelNode> &,
         const std::string &directory,
         std::shared_ptr<OpenGLUtils::GLProgram> shader,
-        std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
-        aiMesh *aimesh,
+        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        aiMesh *importerMesh,
         const aiScene *scene);
     static void AttachChildren(
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);

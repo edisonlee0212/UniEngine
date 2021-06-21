@@ -109,55 +109,55 @@ void ResourceManager::ReadMesh(
     std::unique_ptr<ModelNode> &modelNode,
     const std::string &directory,
     std::shared_ptr<OpenGLUtils::GLProgram> shader,
-    std::vector<std::shared_ptr<Texture2D>> &Texture2DsLoaded,
-    aiMesh *aimesh,
+    std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+    aiMesh *importerMesh,
     const aiScene *scene)
 {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
     // Walk through each of the mesh's vertices
-    for (int i = 0; i < aimesh->mNumVertices; i++)
+    for (int i = 0; i < importerMesh->mNumVertices; i++)
     {
         Vertex vertex;
         glm::vec3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly
                       // convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
         // positions
-        v3.x = aimesh->mVertices[i].x;
-        v3.y = aimesh->mVertices[i].y;
-        v3.z = aimesh->mVertices[i].z;
+        v3.x = importerMesh->mVertices[i].x;
+        v3.y = importerMesh->mVertices[i].y;
+        v3.z = importerMesh->mVertices[i].z;
         vertex.m_position = v3;
-        if (aimesh->mNormals)
+        if (importerMesh->mNormals)
         {
-            v3.x = aimesh->mNormals[i].x;
-            v3.y = aimesh->mNormals[i].y;
-            v3.z = aimesh->mNormals[i].z;
+            v3.x = importerMesh->mNormals[i].x;
+            v3.y = importerMesh->mNormals[i].y;
+            v3.z = importerMesh->mNormals[i].z;
             vertex.m_normal = v3;
             mask = mask | (1 << 1);
         }
-        if (aimesh->mTangents)
+        if (importerMesh->mTangents)
         {
-            v3.x = aimesh->mTangents[i].x;
-            v3.y = aimesh->mTangents[i].y;
-            v3.z = aimesh->mTangents[i].z;
+            v3.x = importerMesh->mTangents[i].x;
+            v3.y = importerMesh->mTangents[i].y;
+            v3.z = importerMesh->mTangents[i].z;
             vertex.m_tangent = v3;
             mask = mask | (1 << 2);
         }
         glm::vec4 v4;
-        if (aimesh->mColors[0])
+        if (importerMesh->mColors[0])
         {
-            v4.x = aimesh->mColors[0][i].r;
-            v4.y = aimesh->mColors[0][i].g;
-            v4.z = aimesh->mColors[0][i].b;
-            v4.w = aimesh->mColors[0][i].a;
+            v4.x = importerMesh->mColors[0][i].r;
+            v4.y = importerMesh->mColors[0][i].g;
+            v4.z = importerMesh->mColors[0][i].b;
+            v4.w = importerMesh->mColors[0][i].a;
             vertex.m_color = v4;
             mask = mask | (1 << 3);
         }
         glm::vec2 v2;
-        if (aimesh->mTextureCoords[0])
+        if (importerMesh->mTextureCoords[0])
         {
-            v2.x = aimesh->mTextureCoords[0][i].x;
-            v2.y = aimesh->mTextureCoords[0][i].y;
+            v2.x = importerMesh->mTextureCoords[0][i].x;
+            v2.y = importerMesh->mTextureCoords[0][i].y;
             vertex.m_texCoords = v2;
             mask = mask | (1 << 4);
         }
@@ -168,16 +168,16 @@ void ResourceManager::ReadMesh(
         }
         vertices.push_back(vertex);
     }
-    // now wak through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex
+    // now walk through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex
     // indices.
-    for (int i = 0; i < aimesh->mNumFaces; i++)
+    for (int i = 0; i < importerMesh->mNumFaces; i++)
     {
         // retrieve all indices of the face and store them in the indices vector
-        for (int j = 0; j < aimesh->mFaces[i].mNumIndices; j++)
-            indices.push_back(aimesh->mFaces[i].mIndices[j]);
+        for (int j = 0; j < importerMesh->mFaces[i].mNumIndices; j++)
+            indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
     // process materials
-    aiMaterial *pointMaterial = scene->mMaterials[aimesh->mMaterialIndex];
+    aiMaterial *pointMaterial = scene->mMaterials[importerMesh->mMaterialIndex];
 
     auto mesh = std::make_shared<Mesh>();
     mesh->SetVertices(mask, vertices, indices);
@@ -194,11 +194,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -208,7 +208,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Albedo);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -217,11 +217,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -231,7 +231,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Albedo);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -240,11 +240,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -254,7 +254,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Normal);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -263,11 +263,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_METALNESS, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -277,7 +277,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Metallic);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -286,11 +286,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -300,7 +300,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Roughness);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -309,11 +309,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -323,7 +323,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::AO);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
@@ -332,11 +332,11 @@ void ResourceManager::ReadMesh(
         aiString str;
         pointMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
         bool skip = false;
-        for (unsigned j = 0; j < Texture2DsLoaded.size(); j++)
+        for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
         {
-            if (Texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
+            if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + str.C_Str()) == 0)
             {
-                material->SetTexture(Texture2DsLoaded.at(j));
+                material->SetTexture(texture2DsLoaded.at(j));
                 skip = true; // a Texture2D with the same filepath has already been loaded, continue to next one.
                              // (optimization)
                 break;
@@ -346,7 +346,7 @@ void ResourceManager::ReadMesh(
         { // if Texture2D hasn't been loaded already, load it
             auto texture2D = LoadTexture(false, directory + "/" + str.C_Str(), TextureType::Normal);
             material->SetTexture(texture2D);
-            Texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
+            texture2DsLoaded.push_back(texture2D); // store it as Texture2D loaded for entire model, to ensure we won't
                                                    // unnecesery load duplicate Texture2Ds.
         }
     }
