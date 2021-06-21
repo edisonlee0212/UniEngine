@@ -19,6 +19,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     const bool &gamma,
     const unsigned &flags)
 {
+    UNIENGINE_LOG("Loading model from: " + path);
     stbi_set_flip_vertically_on_load(true);
     // read file via ASSIMP
     Assimp::Importer importer;
@@ -26,15 +27,15 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
-        UNIENGINE_LOG("ERROR::ASSIMP::" + std::string(importer.GetErrorString()));
+        UNIENGINE_LOG("Assimp: " + std::string(importer.GetErrorString()));
         return nullptr;
     }
     // retrieve the directory path of the filepath
     std::string directory = path.substr(0, path.find_last_of('/'));
-    std::vector<std::shared_ptr<Texture2D>> Texture2DsLoaded;
+    std::vector<std::shared_ptr<Texture2D>> texture2DsLoaded;
     auto retVal = std::make_shared<Model>();
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
-    ProcessNode(directory, shader, retVal->RootNode(), Texture2DsLoaded, scene->mRootNode, scene);
+    ProcessNode(directory, shader, retVal->RootNode(), texture2DsLoaded, scene->mRootNode, scene);
     if (addResource)
         Push(retVal);
     return retVal;
