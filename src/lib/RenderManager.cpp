@@ -17,6 +17,7 @@ void RenderManager::RenderToCameraDeferred(
     glm::vec3 &maxBound,
     bool calculateBounds)
 {
+    auto &renderManager = GetInstance();
     cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
@@ -25,7 +26,7 @@ void RenderManager::RenderToCameraDeferred(
     const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
     if (owners)
     {
-        auto &program = GetInstance().m_gBufferPrepass;
+        auto &program = renderManager.m_gBufferPrepass;
         program->Bind();
         for (auto owner : *owners)
         {
@@ -57,7 +58,7 @@ void RenderManager::RenderToCameraDeferred(
                     (glm::max)(maxBound.y, center.y + size.y),
                     (glm::max)(maxBound.z, center.z + size.z));
             }
-            GetInstance().m_materialSettings.m_receiveShadow = mmc->m_receiveShadow;
+            renderManager.m_materialSettings.m_receiveShadow = mmc->m_receiveShadow;
             DeferredPrepass(mmc->m_mesh.get(), mmc->m_material.get(), ltw);
         }
     }
@@ -65,7 +66,7 @@ void RenderManager::RenderToCameraDeferred(
     owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
     if (owners)
     {
-        auto &program = GetInstance().m_gBufferInstancedPrepass;
+        auto &program = renderManager.m_gBufferInstancedPrepass;
         program->Bind();
         for (auto owner : *owners)
         {
@@ -98,7 +99,7 @@ void RenderManager::RenderToCameraDeferred(
                     (glm::max)(maxBound.y, center.y + size.y),
                     (glm::max)(maxBound.z, center.z + size.z));
             }
-            GetInstance().m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+            renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
             DeferredPrepassInstanced(
                 particles->m_mesh.get(),
                 particles->m_material.get(),
@@ -110,20 +111,29 @@ void RenderManager::RenderToCameraDeferred(
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
-    Default::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
 
     cameraComponent->Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    GetInstance().m_gBufferLightingPass->Bind();
+    renderManager.m_gBufferLightingPass->Bind();
 
-    cameraComponent->m_gPositionBuffer->Bind(3);
-    cameraComponent->m_gNormalBuffer->Bind(4);
-    cameraComponent->m_gColorSpecularBuffer->Bind(5);
-    cameraComponent->m_gMetallicRoughnessAo->Bind(6);
-    GetInstance().m_gBufferLightingPass->SetInt("gPositionShadow", 3);
-    GetInstance().m_gBufferLightingPass->SetInt("gNormalShininess", 4);
-    GetInstance().m_gBufferLightingPass->SetInt("gAlbedoSpecular", 5);
-    GetInstance().m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 6);
+    cameraComponent->m_gPositionBuffer->Bind(8);
+    cameraComponent->m_gNormalBuffer->Bind(9);
+    cameraComponent->m_gColorSpecularBuffer->Bind(10);
+    cameraComponent->m_gMetallicRoughnessAo->Bind(11);
+    renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 8);
+    renderManager.m_gBufferLightingPass->SetInt("gNormalShininess", 9);
+    renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 10);
+    renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 11);
+    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
+    {
+        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
+        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
+        renderManager.m_spotLightShadowMap->DepthMap()->Bind(2);
+        renderManager.m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
+        renderManager.m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
+        renderManager.m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+    }
     glDrawArrays(GL_TRIANGLES, 0, 6);
     auto res = cameraComponent->GetResolution();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->m_gBuffer->GetFrameBuffer()->Id());
@@ -138,18 +148,11 @@ void RenderManager::RenderBackGround(const std::unique_ptr<CameraComponent> &cam
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(
         GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
-    if (cameraComponent->m_drawSkyBox && cameraComponent->m_skyBox.get())
+    DefaultResources::GLPrograms::SkyboxProgram->Bind();
+    DefaultResources::GLPrograms::SkyboxVAO->Bind();
+    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
-        Default::GLPrograms::SkyboxProgram->Bind();
-        Default::GLPrograms::SkyboxVAO->Bind();
-        cameraComponent->m_skyBox->Texture()->Bind(3);
-        Default::GLPrograms::SkyboxProgram->SetInt("skybox", 3);
-    }
-    else
-    {
-        Default::GLPrograms::BackGroundProgram->Bind();
-        Default::GLPrograms::SkyboxVAO->Bind();
-        Default::GLPrograms::BackGroundProgram->SetFloat3("clearColor", cameraComponent->m_clearColor);
+        DefaultResources::GLPrograms::SkyboxProgram->SetInt("UE_CAMERA_SKYBOX_LEGACY", 0);
     }
     glDrawArrays(GL_TRIANGLES, 0, 36);
     OpenGLUtils::GLVAO::BindDefault();
@@ -190,7 +193,6 @@ void RenderManager::RenderToCameraForward(
             glm::vec3 size = meshBound.Size();
             if (calculateBounds)
             {
-
                 minBound = glm::vec3(
                     (glm::min)(minBound.x, center.x - size.x),
                     (glm::min)(minBound.y, center.y - size.y),
@@ -285,7 +287,7 @@ void RenderManager::Init()
 #pragma region Kernel Setup
     std::vector<glm::vec4> uniformKernel;
     std::vector<glm::vec4> gaussianKernel;
-    for (unsigned int i = 0; i < Default::ShaderIncludes::MaxKernelAmount; i++)
+    for (unsigned int i = 0; i < DefaultResources::ShaderIncludes::MaxKernelAmount; i++)
     {
         uniformKernel.emplace_back(glm::vec4(glm::ballRand(1.0f), 1.0f));
         gaussianKernel.emplace_back(
@@ -308,13 +310,13 @@ void RenderManager::Init()
     GetInstance().m_shadowCascadeInfoBlock.SetBase(4);
 
 #pragma region LightInfoBlocks
-    size_t size = 16 + Default::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
+    size_t size = 16 + DefaultResources::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
     GetInstance().m_directionalLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
     GetInstance().m_directionalLightBlock.SetBase(1);
-    size = 16 + Default::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
+    size = 16 + DefaultResources::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
     GetInstance().m_pointLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
     GetInstance().m_pointLightBlock.SetBase(2);
-    size = 16 + Default::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
+    size = 16 + DefaultResources::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
     GetInstance().m_spotLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
     GetInstance().m_spotLightBlock.SetBase(3);
 #pragma endregion
@@ -326,10 +328,10 @@ void RenderManager::Init()
         std::string("#version 460 core\n") +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMap.vert"));
     std::string fragShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DirectionalLightShadowMap.frag"));
     std::string geomShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
 
     auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -356,9 +358,9 @@ void RenderManager::Init()
     GetInstance().m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(GetInstance().m_shadowMapResolution);
     vertShaderCode = std::string("#version 460 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
-    fragShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PointLightShadowMap.frag"));
-    geomShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    geomShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -382,7 +384,7 @@ void RenderManager::Init()
 #pragma endregion
 #pragma region SpotLight
     GetInstance().m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(GetInstance().m_shadowMapResolution);
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
     fragShaderCode = std::string("#version 460 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
@@ -395,7 +397,7 @@ void RenderManager::Init()
     GetInstance().m_spotLightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -409,7 +411,7 @@ void RenderManager::Init()
     vertShaderCode = std::string("#version 460 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
     fragShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -419,10 +421,10 @@ void RenderManager::Init()
 
     GetInstance().m_gBufferLightingPass = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + +"\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
 
-    fragShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferred.frag"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -432,7 +434,7 @@ void RenderManager::Init()
 
     GetInstance().m_gBufferPrepass = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + +"\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -444,7 +446,7 @@ void RenderManager::Init()
 #pragma region SSAO
     vertShaderCode = std::string("#version 460 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
-    fragShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -517,14 +519,14 @@ void UniEngine::RenderManager::PreUpdate()
                         GetInstance().m_directionalLights[enabledSize].m_diffuse =
                             glm::vec4(dlc->m_diffuse * dlc->m_diffuseBrightness, dlc->m_castShadow);
                         GetInstance().m_directionalLights[enabledSize].m_specular = glm::vec4(0.0f);
-                        for (int split = 0; split < Default::ShaderIncludes::ShadowCascadeAmount; split++)
+                        for (int split = 0; split < DefaultResources::ShaderIncludes::ShadowCascadeAmount; split++)
                         {
                             float splitStart = 0;
                             float splitEnd = GetInstance().m_maxShadowDistance;
                             if (split != 0)
                                 splitStart =
                                     GetInstance().m_maxShadowDistance * GetInstance().m_shadowCascadeSplit[split - 1];
-                            if (split != Default::ShaderIncludes::ShadowCascadeAmount - 1)
+                            if (split != DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
                                 splitEnd =
                                     GetInstance().m_maxShadowDistance * GetInstance().m_shadowCascadeSplit[split];
                             GetInstance().m_lightSettings.m_splitDistance[split] = splitEnd;
@@ -678,7 +680,7 @@ void UniEngine::RenderManager::PreUpdate()
                             GetInstance().m_directionalLights[enabledSize].m_lightFrustumWidth[split] = max;
                             GetInstance().m_directionalLights[enabledSize].m_lightFrustumDistance[split] =
                                 planeDistance;
-                            if (split == Default::ShaderIncludes::ShadowCascadeAmount - 1)
+                            if (split == DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
                                 GetInstance().m_directionalLights[enabledSize].m_reservedParameters =
                                     glm::vec4(dlc->m_lightSize, 0, dlc->m_bias, dlc->m_normalOffset);
                         }
@@ -1612,23 +1614,8 @@ void RenderManager::MaterialPropertySetter(const Material *material, const bool 
 
 void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program)
 {
-    GetInstance().m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
-    GetInstance().m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
-    GetInstance().m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
-    GetInstance().m_materialSettings.m_metallicVal = material->m_metallic;
-    GetInstance().m_materialSettings.m_roughnessVal = material->m_roughness;
-    GetInstance().m_materialSettings.m_aoVal = material->m_ambientOcclusion;
-    GetInstance().m_materialSettings.m_directionalShadowMap =
-        GetInstance().m_directionalLightShadowMap->DepthMapArray()->GetHandle();
-    GetInstance().m_materialSettings.m_pointShadowMap =
-        GetInstance().m_pointLightShadowMap->DepthMapArray()->GetHandle();
-    GetInstance().m_materialSettings.m_spotShadowMap = GetInstance().m_spotLightShadowMap->DepthMap()->GetHandle();
-    GetInstance().m_materialSettingsBuffer->SubData(
-        0, sizeof(MaterialSettingsBlock), &GetInstance().m_materialSettings);
-}
-
-void RenderManager::BindTextureHandles(const Material *material)
-{
+    auto &manager = GetInstance();
+    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     for (const auto &i : material->m_textures)
     {
         if (!i.second || !i.second->Texture())
@@ -1636,32 +1623,107 @@ void RenderManager::BindTextureHandles(const Material *material)
         switch (i.second->m_type)
         {
         case TextureType::Albedo:
-            GetInstance().m_materialSettings.m_albedoMap = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_albedoEnabled = static_cast<int>(true);
+            if (supportBindlessTexture)
+            {
+                manager.m_materialSettings.m_albedoMap = i.second->Texture()->GetHandle();
+            }
+            else
+            {
+                i.second->Texture()->Bind(3);
+                program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+                manager.m_materialSettings.m_albedoMap = 0;
+            }
+            manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
             break;
         case TextureType::Normal:
-            GetInstance().m_materialSettings.m_normalMap = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_normalEnabled = static_cast<int>(true);
+            if (supportBindlessTexture)
+            {
+                manager.m_materialSettings.m_normalMap = i.second->Texture()->GetHandle();
+            }
+            else
+            {
+                i.second->Texture()->Bind(4);
+                program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+                manager.m_materialSettings.m_normalMap = 0;
+            }
+            manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
             break;
         case TextureType::Metallic:
-            GetInstance().m_materialSettings.m_metallicMap = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_metallicEnabled = static_cast<int>(true);
+            if (supportBindlessTexture)
+            {
+                manager.m_materialSettings.m_metallicMap = i.second->Texture()->GetHandle();
+            }
+            else
+            {
+                i.second->Texture()->Bind(5);
+                program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
+                manager.m_materialSettings.m_metallicMap = 0;
+            }
+            manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
             break;
         case TextureType::Roughness:
-            GetInstance().m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
-            GetInstance().m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
+            if (supportBindlessTexture)
+            {
+                manager.m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
+            }
+            else
+            {
+                i.second->Texture()->Bind(6);
+                program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
+                manager.m_materialSettings.m_roughnessMap = 0;
+            }
+            manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
             break;
         case TextureType::AO:
-            GetInstance().m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
-            //GetInstance().m_materialSettings.m_aoEnabled = static_cast<int>(true);
+            if (supportBindlessTexture)
+            {
+                manager.m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
+            }
+            else
+            {
+                i.second->Texture()->Bind(7);
+                program->SetInt("UE_AO_MAP_LEGACY", 7);
+                manager.m_materialSettings.m_aoMap = 0;
+            }
+            manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
             break;
         }
     }
+
+    manager.m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
+    manager.m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
+    manager.m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
+    manager.m_materialSettings.m_metallicVal = material->m_metallic;
+    manager.m_materialSettings.m_roughnessVal = material->m_roughness;
+    manager.m_materialSettings.m_aoVal = material->m_ambientOcclusion;
+    if (supportBindlessTexture)
+    {
+        manager.m_materialSettings.m_directionalShadowMap = manager.m_directionalLightShadowMap->DepthMapArray()->GetHandle();
+        manager.m_materialSettings.m_pointShadowMap = manager.m_pointLightShadowMap->DepthMapArray()->GetHandle();
+        manager.m_materialSettings.m_spotShadowMap = manager.m_spotLightShadowMap->DepthMap()->GetHandle();
+    }else
+    {
+        manager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
+        manager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
+        manager.m_spotLightShadowMap->DepthMap()->Bind(2);
+        program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
+        program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
+        program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+        manager.m_materialSettings.m_directionalShadowMap = 0;
+        manager.m_materialSettings.m_pointShadowMap = 0;
+        manager.m_materialSettings.m_spotShadowMap = 0;
+    }
+
+
+    manager.m_materialSettingsBuffer->SubData(
+        0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }
+
+
 
 void RenderManager::ReleaseTextureHandles(const Material *material)
 {
-    return;
+    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)return;
     for (const auto &i : material->m_textures)
     {
         if (!i.second || !i.second->Texture())
@@ -1694,7 +1756,6 @@ void RenderManager::DeferredPrepass(const Mesh *mesh, const Material *material, 
     }
     MaterialPropertySetter(material, true);
     GetInstance().m_materialSettings = MaterialSettingsBlock();
-    BindTextureHandles(material);
     ApplyMaterialSettings(material, program.get());
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     ReleaseTextureHandles(material);
@@ -1736,7 +1797,6 @@ void RenderManager::DeferredPrepassInstanced(
     }
     MaterialPropertySetter(material, true);
     GetInstance().m_materialSettings = MaterialSettingsBlock();
-    BindTextureHandles(material);
     ApplyMaterialSettings(material, program.get());
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
     ReleaseTextureHandles(material);
@@ -1772,7 +1832,7 @@ void UniEngine::RenderManager::DrawMeshInstanced(
     GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
     auto program = material->m_program.get();
     if (program == nullptr)
-        program = Default::GLPrograms::StandardInstancedProgram.get();
+        program = DefaultResources::GLPrograms::StandardInstancedProgram.get();
     program->Bind();
     program->SetFloat4x4("model", model);
     for (auto j : material->m_floatPropertyList)
@@ -1787,7 +1847,6 @@ void UniEngine::RenderManager::DrawMeshInstanced(
     MaterialPropertySetter(material);
     GetInstance().m_materialSettings = MaterialSettingsBlock();
     GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
-    BindTextureHandles(material);
     ApplyMaterialSettings(material, program);
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
     ReleaseTextureHandles(material);
@@ -1808,7 +1867,7 @@ void UniEngine::RenderManager::DrawMesh(
     GetInstance().m_triangles += mesh->GetTriangleAmount();
     auto program = material->m_program.get();
     if (program == nullptr)
-        program = Default::GLPrograms::StandardProgram.get();
+        program = DefaultResources::GLPrograms::StandardProgram.get();
     program->Bind();
     program->SetFloat4x4("model", model);
     for (auto j : material->m_floatPropertyList)
@@ -1822,7 +1881,6 @@ void UniEngine::RenderManager::DrawMesh(
     GetInstance().m_materialSettings = MaterialSettingsBlock();
     GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
     MaterialPropertySetter(material);
-    BindTextureHandles(material);
     ApplyMaterialSettings(material, program);
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     ReleaseTextureHandles(material);
@@ -1832,9 +1890,9 @@ void UniEngine::RenderManager::DrawMesh(
 void UniEngine::RenderManager::DrawTexture2D(
     const OpenGLUtils::GLTexture2D *texture, const float &depth, const glm::vec2 &center, const glm::vec2 &size)
 {
-    const auto program = Default::GLPrograms::ScreenProgram;
+    const auto program = DefaultResources::GLPrograms::ScreenProgram;
     program->Bind();
-    Default::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
     texture->Bind(0);
     program->SetInt("screenTexture", 0);
     program->SetFloat("depth", depth);
@@ -1876,10 +1934,10 @@ void UniEngine::RenderManager::DrawGizmoMeshInstanced(
     vao->SetAttributeDivisor(14, 1);
     vao->SetAttributeDivisor(15, 1);
 
-    Default::GLPrograms::GizmoInstancedProgram->Bind();
-    Default::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
-    Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
-    Default::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    DefaultResources::GLPrograms::GizmoInstancedProgram->Bind();
+    DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
+    DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
+    DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
     glDrawElementsInstanced(
@@ -1935,9 +1993,9 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     vao->SetAttributeDivisor(14, 1);
     vao->SetAttributeDivisor(15, 1);
 
-    Default::GLPrograms::GizmoInstancedColoredProgram->Bind();
-    Default::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
-    Default::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    DefaultResources::GLPrograms::GizmoInstancedColoredProgram->Bind();
+    DefaultResources::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
+    DefaultResources::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
     glDrawElementsInstanced(
@@ -1970,10 +2028,10 @@ void UniEngine::RenderManager::DrawGizmoMesh(
     mesh->Vao()->DisableAttributeArray(14);
     mesh->Vao()->DisableAttributeArray(15);
 
-    Default::GLPrograms::GizmoProgram->Bind();
-    Default::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
-    Default::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
-    Default::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    DefaultResources::GLPrograms::GizmoProgram->Bind();
+    DefaultResources::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
+    DefaultResources::GLPrograms::GizmoProgram->SetFloat4x4("model", model);
+    DefaultResources::GLPrograms::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
 
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
@@ -2137,7 +2195,7 @@ void RenderManager::DrawGizmoRay(
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-    DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2163,7 +2221,7 @@ void RenderManager::DrawGizmoRays(
     }
 
     DrawGizmoMeshInstanced(
-        Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2183,7 +2241,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2194,7 +2252,7 @@ void RenderManager::DrawGizmoRay(
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                        glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-    DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2216,7 +2274,7 @@ void RenderManager::DrawGizmoRay(
         const glm::mat4 rotationMat = glm::mat4_cast(rotation);
         const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                            glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-        DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
+        DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
     }
 }
 
@@ -2249,7 +2307,7 @@ void RenderManager::DrawGizmoRays(
             models[i] = model;
         }
         DrawGizmoMeshInstanced(
-            Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
+            DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
     }
 }
 
@@ -2280,7 +2338,7 @@ void RenderManager::DrawGizmoRays(
                                glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
             models[i] = model;
         }
-        DrawGizmoMeshInstanced(Default::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+        DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
     }
 }
 
@@ -2302,7 +2360,7 @@ void RenderManager::DrawGizmoRay(
         const glm::mat4 rotationMat = glm::mat4_cast(rotation);
         const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-        DrawGizmoMesh(Default::Primitives::Cylinder.get(), cameraComponent, color, model);
+        DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
     }
 }
 

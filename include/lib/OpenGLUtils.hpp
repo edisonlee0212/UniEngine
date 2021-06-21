@@ -6,7 +6,14 @@ namespace UniEngine
 {
 class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
+    friend class DefaultResources;
+    friend class RenderManager;
+    bool m_enableBindlessTexture = false;
   public:
+    static bool SupportBindlessTexture()
+    {
+        return GetInstance().m_enableBindlessTexture;
+    }
     static void Init();
     static void PreUpdate();
 #pragma region Sub classes

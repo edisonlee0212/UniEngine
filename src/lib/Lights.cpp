@@ -91,7 +91,6 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     m_depthMapArray->SetFloat4(GL_TEXTURE_BORDER_COLOR, borderColor);
-    m_depthMapArray->MakeResident();
     AttachTexture(m_depthMapArray.get(), GL_DEPTH_ATTACHMENT);
 }
 UniEngine::DirectionalLightShadowMap::DirectionalLightShadowMap(size_t resolution)
@@ -123,7 +122,6 @@ void UniEngine::SpotLightShadowMap::Allocate()
     m_depthMap->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_depthMap->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_depthMap->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    m_depthMap->MakeResident();
     AttachTexture(m_depthMap.get(), GL_DEPTH_ATTACHMENT);
 }
 
@@ -156,7 +154,6 @@ void PointLightShadowMap::Allocate()
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    m_depthMapArray->MakeResident();
     AttachTexture(m_depthMapArray.get(), GL_DEPTH_ATTACHMENT);
 }
 

@@ -405,9 +405,16 @@ void CameraInfoBlock::UpdateMatrices(const CameraComponent *camera, glm::vec3 po
         glm::tan(camera->m_fov * 0.5f),
         camera->m_resolutionX / camera->m_resolutionY);
     m_backGroundColor = glm::vec4(camera->m_clearColor, 1.0f);
-    if (camera->m_skyBox)
+    if (camera->m_skyBox && camera->m_drawSkyBox)
     {
-        m_skybox = camera->m_skyBox->Texture()->GetHandle();
+        if (OpenGLUtils::SupportBindlessTexture())
+        {
+            m_skybox = camera->m_skyBox->Texture()->GetHandle();
+        }else
+        {
+            m_skybox = 0;
+            camera->m_skyBox->Texture()->Bind(0);
+        }
         m_skyboxEnabled = true;
     }
     else

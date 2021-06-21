@@ -54,7 +54,7 @@ layout (std140, binding = 0) uniform UE_CAMERA
 	vec4 UE_CAMERA_RESERVED;
 	vec3 UE_CAMERA_POSITION;
 	vec3 UE_CAMERA_BACKGROUND_COLOR;
-	samplerCube UE_CAMERA_SKYBOX;
+	samplerCube UE_CAMERA_SKYBOX_BT;
 	bool UE_CAMERA_SKYBOX_ENABLED;
 };
 
@@ -100,15 +100,15 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 
 layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 {
-	sampler2D UE_SPOT_LIGHT_SM;
-	sampler2DArray UE_DIRECTIONAL_LIGHT_SM;
-	sampler2DArray UE_POINT_LIGHT_SM;
+	sampler2DArray UE_DIRECTIONAL_LIGHT_SM_BT;
+	sampler2DArray UE_POINT_LIGHT_SM_BT;
+	sampler2D UE_SPOT_LIGHT_SM_BT;
 
-	sampler2D UE_ALBEDO_MAP;
-	sampler2D UE_NORMAL_MAP;
-	sampler2D UE_METALLIC_MAP;
-	sampler2D UE_ROUGHNESS_MAP;
-	sampler2D UE_AO_MAP;
+	sampler2D UE_ALBEDO_MAP_BT;
+	sampler2D UE_NORMAL_MAP_BT;
+	sampler2D UE_METALLIC_MAP_BT;
+	sampler2D UE_ROUGHNESS_MAP_BT;
+	sampler2D UE_AO_MAP_BT;
 
 	bool UE_ALBEDO_MAP_ENABLED;
 	bool UE_NORMAL_MAP_ENABLED;
@@ -128,6 +128,18 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	samplerCube UE_ENVIRONMENTAL_MAP;
 	bool UE_ENVIRONMENTAL_MAP_ENABLED;
 };
+
+uniform samplerCube UE_CAMERA_SKYBOX_LEGACY;
+
+uniform sampler2DArray UE_DIRECTIONAL_LIGHT_SM_LEGACY;
+uniform sampler2DArray UE_POINT_LIGHT_SM_LEGACY;
+uniform sampler2D UE_SPOT_LIGHT_SM_LEGACY;
+
+uniform sampler2D UE_ALBEDO_MAP_LEGACY;
+uniform sampler2D UE_NORMAL_MAP_LEGACY;
+uniform sampler2D UE_METALLIC_MAP_LEGACY;
+uniform sampler2D UE_ROUGHNESS_MAP_LEGACY;
+uniform sampler2D UE_AO_MAP_LEGACY;
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);

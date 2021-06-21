@@ -359,10 +359,10 @@ void Galaxy::StarClusterSystem::LateUpdate()
 void Galaxy::StarClusterSystem::OnCreate()
 {
     const auto vertShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + +"\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
     const auto fragShaderCode =
-        std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
 
     auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -379,9 +379,9 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr->m_material = std::make_shared<Material>();
     imr->m_castShadow = false;
     imr->m_receiveShadow = false;
-    imr->m_mesh = Default::Primitives::Cube;
-    imr->m_material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
-    imr->m_material->SetTexture(Default::Textures::StandardTexture);
+    imr->m_mesh = DefaultResources::Primitives::Cube;
+    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    imr->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
     m_rendererFront.SetPrivateComponent(std::move(imr));
     m_rendererFront.SetComponentData(ltw);
 
@@ -391,9 +391,9 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr->m_material = std::make_shared<Material>();
     imr->m_castShadow = false;
     imr->m_receiveShadow = false;
-    imr->m_mesh = Default::Primitives::Cube;
-    imr->m_material->SetProgram(Default::GLPrograms::StandardInstancedProgram);
-    imr->m_material->SetTexture(Default::Textures::StandardTexture);
+    imr->m_mesh = DefaultResources::Primitives::Cube;
+    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    imr->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
     m_rendererBack.SetPrivateComponent(std::move(imr));
     m_rendererBack.SetComponentData(ltw);
 
@@ -435,7 +435,7 @@ void Galaxy::StarClusterSystem::Update()
     // Do not touch below functions.
     m_counter++;
     RenderManager::DrawGizmoMeshInstancedColored(
-        Default::Primitives::Cube.get(),
+        DefaultResources::Primitives::Cube.get(),
         RenderManager::GetMainCamera(),
         m_useFront ? m_frontColors.data() : m_backColors.data(),
         m_useFront ? m_frontMatrices.data() : m_backMatrices.data(),

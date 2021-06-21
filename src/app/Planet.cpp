@@ -74,7 +74,7 @@ int main()
 
 #pragma region Lights
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->SetTexture(Default::Textures::StandardTexture);
+	sharedMat->SetTexture(DefaultResources::Textures::StandardTexture);
 
 	Transform ltw;
 	auto dlc = std::make_unique<DirectionalLight>();
@@ -85,9 +85,9 @@ int main()
 	
 	auto plmmc = std::make_unique<MeshRenderer>();
 	auto plmmc2 = std::make_unique<MeshRenderer>();
-	plmmc->m_mesh = Default::Primitives::Sphere;
+	plmmc->m_mesh = DefaultResources::Primitives::Sphere;
 	plmmc->m_material = sharedMat;
-	plmmc2->m_mesh = Default::Primitives::Sphere;
+	plmmc2->m_mesh = DefaultResources::Primitives::Sphere;
 	plmmc2->m_material = sharedMat;
 	ltw.SetScale(glm::vec3(0.5f));
 

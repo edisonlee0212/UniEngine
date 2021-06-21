@@ -156,7 +156,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent
     glDisable(GL_DEPTH_TEST);
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 
-    Default::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
 
     m_separateProgram->Bind();
 

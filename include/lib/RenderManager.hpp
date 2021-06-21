@@ -20,9 +20,9 @@ struct UNIENGINE_API LightSettingsBlock
 
 struct MaterialSettingsBlock
 {
-    GLuint64 m_spotShadowMap = 0;
     GLuint64 m_directionalShadowMap = 0;
     GLuint64 m_pointShadowMap = 0;
+    GLuint64 m_spotShadowMap = 0;
 
     GLuint64 m_albedoMap = 0;
     GLuint64 m_normalMap = 0;
@@ -69,6 +69,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     friend class RenderTarget;
     size_t m_triangles = 0;
     size_t m_drawCall = 0;
+    friend class DefaultResources;
+    
 
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
 #pragma endregion
@@ -80,9 +82,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     size_t m_shadowMapResolution = 4096;
     OpenGLUtils::GLUBO m_shadowCascadeInfoBlock;
 
-    DirectionalLightInfo m_directionalLights[Default::ShaderIncludes::MaxDirectionalLightAmount];
-    PointLightInfo m_pointLights[Default::ShaderIncludes::MaxPointLightAmount];
-    SpotLightInfo m_spotLights[Default::ShaderIncludes::MaxSpotLightAmount];
+    DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];
+    PointLightInfo m_pointLights[DefaultResources::ShaderIncludes::MaxPointLightAmount];
+    SpotLightInfo m_spotLights[DefaultResources::ShaderIncludes::MaxSpotLightAmount];
 
     std::unique_ptr<OpenGLUtils::GLProgram> m_directionalLightProgram;
     std::unique_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedProgram;
@@ -92,6 +94,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::unique_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedProgram;
 
     friend class EditorManager;
+
     std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
     std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
     std::unique_ptr<SpotLightShadowMap> m_spotLightShadowMap;
@@ -134,13 +137,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
   public:
     bool m_stableFit = true;
     float m_maxShadowDistance = 500;
-    float m_shadowCascadeSplit[Default::ShaderIncludes::ShadowCascadeAmount] = {0.15f, 0.3f, 0.5f, 1.0f};
+    float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = {0.15f, 0.3f, 0.5f, 1.0f};
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
 
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
-    static void BindTextureHandles(const Material *material);
     static void ReleaseTextureHandles(const Material *material);
     static void RenderToCameraDeferred(
         const std::unique_ptr<CameraComponent> &cameraComponent,

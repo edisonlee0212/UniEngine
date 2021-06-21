@@ -84,7 +84,7 @@ void Application::Init(bool fullScreen)
     ImGui_ImplOpenGL3_Init("#version 460 core");
 #pragma endregion
 #pragma region Internal Systems
-    Default::Load(application.m_world.get());
+    DefaultResources::Load(application.m_world.get());
     TransformManager::Init();
     RenderManager::Init();
     EditorManager::Init();
@@ -101,7 +101,7 @@ void Application::Init(bool fullScreen)
     EntityManager::SetComponentData(mainCameraEntity, cameraLtw);
     auto mainCameraComponent = std::make_unique<CameraComponent>();
     RenderManager::SetMainCamera(mainCameraComponent.get());
-    mainCameraComponent->m_skyBox = Default::Textures::DefaultSkybox;
+    mainCameraComponent->m_skyBox = DefaultResources::Textures::DefaultSkybox;
     EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
 
 #pragma endregion

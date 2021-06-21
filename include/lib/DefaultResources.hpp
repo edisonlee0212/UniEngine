@@ -6,7 +6,7 @@ namespace UniEngine
 class Mesh;
 class Material;
 class Cubemap;
-class UNIENGINE_API Default
+class UNIENGINE_API DefaultResources
 {
   public:
     class UNIENGINE_API GLPrograms

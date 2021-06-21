@@ -551,7 +551,7 @@ void ResourceManager::OnGui()
             if (ImGui::BeginMenu("Load"))
             {
                 FileIO::OpenFile("Load Model", ".obj,.gltf,.glb,.blend,.ply,.fbx", [](const std::string &filePath) {
-                    LoadModel(true, filePath, Default::GLPrograms::StandardProgram);
+                    LoadModel(true, filePath, DefaultResources::GLPrograms::StandardProgram);
                     UNIENGINE_LOG("Loaded model from \"" + filePath);
                 });
 

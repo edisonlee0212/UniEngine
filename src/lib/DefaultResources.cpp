@@ -1,3 +1,5 @@
+#include "RenderManager.hpp"
+
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include <FileIO.hpp>
@@ -5,38 +7,50 @@
 #include <Mesh.hpp>
 #include <ResourceManager.hpp>
 using namespace UniEngine;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::SkyboxProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::BackGroundProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::ScreenProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::StandardProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::StandardInstancedProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::GizmoProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::GizmoInstancedProgram;
-std::shared_ptr<OpenGLUtils::GLProgram> Default::GLPrograms::GizmoInstancedColoredProgram;
-OpenGLUtils::GLVAO *Default::GLPrograms::ScreenVAO;
-std::shared_ptr<OpenGLUtils::GLVAO> Default::GLPrograms::SkyboxVAO;
-std::string *Default::ShaderIncludes::Uniform;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::SkyboxProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::BackGroundProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ScreenProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoInstancedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoInstancedColoredProgram;
+OpenGLUtils::GLVAO *DefaultResources::GLPrograms::ScreenVAO;
+std::shared_ptr<OpenGLUtils::GLVAO> DefaultResources::GLPrograms::SkyboxVAO;
+std::string *DefaultResources::ShaderIncludes::Uniform;
 
-std::shared_ptr<Texture2D> Default::Textures::MissingTexture;
-std::shared_ptr<Texture2D> Default::Textures::UV;
-std::shared_ptr<Texture2D> Default::Textures::ObjectIcon;
-std::shared_ptr<Texture2D> Default::Textures::Border;
-std::shared_ptr<Texture2D> Default::Textures::StandardTexture;
-std::shared_ptr<Cubemap> Default::Textures::DefaultSkybox;
+std::shared_ptr<Texture2D> DefaultResources::Textures::MissingTexture;
+std::shared_ptr<Texture2D> DefaultResources::Textures::UV;
+std::shared_ptr<Texture2D> DefaultResources::Textures::ObjectIcon;
+std::shared_ptr<Texture2D> DefaultResources::Textures::Border;
+std::shared_ptr<Texture2D> DefaultResources::Textures::StandardTexture;
+std::shared_ptr<Cubemap> DefaultResources::Textures::DefaultSkybox;
 
-std::shared_ptr<Mesh> Default::Primitives::Sphere;
-std::shared_ptr<Mesh> Default::Primitives::Cube;
-std::shared_ptr<Mesh> Default::Primitives::Quad;
-std::shared_ptr<Mesh> Default::Primitives::Cone;
-std::shared_ptr<Mesh> Default::Primitives::Ring;
-std::shared_ptr<Mesh> Default::Primitives::Cylinder;
-std::shared_ptr<Mesh> Default::Primitives::Monkey;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Sphere;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Cube;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Quad;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Cone;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Ring;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Cylinder;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Monkey;
 
-std::shared_ptr<Material> Default::Materials::StandardMaterial;
-std::shared_ptr<Material> Default::Materials::StandardInstancedMaterial;
+std::shared_ptr<Material> DefaultResources::Materials::StandardMaterial;
+std::shared_ptr<Material> DefaultResources::Materials::StandardInstancedMaterial;
 
-void Default::Load(World *world)
+void DefaultResources::Load(World *world)
 {
+    int numberOfExtensions;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &numberOfExtensions);
+    for (int i = 0; i < numberOfExtensions; i++)
+    {
+        const GLubyte *ccc = glGetStringi(GL_EXTENSIONS, i);
+        if (strcmp((char*)ccc, "GL_ARB_bindless_texture") == 0)
+        {
+            //OpenGLUtils::GetInstance().m_enableBindlessTexture = true;
+            //UNIENGINE_LOG("Bindless texture supported!");
+        }
+    }
+    
 #pragma region Shader Includes
     std::string add = std::string("#extension GL_ARB_bindless_texture : require\n") + 
                       "#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
@@ -46,7 +60,34 @@ void Default::Load(World *world)
                       std::to_string(ShaderIncludes::ShadowCascadeAmount) + "\n#define MAX_KERNEL_AMOUNT " +
                       std::to_string(ShaderIncludes::MaxKernelAmount) + "\n#define SPOT_LIGHTS_AMOUNT " +
                       std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
+    if (OpenGLUtils::GetInstance().m_enableBindlessTexture)
+    {
+        add += "\n#define UE_CAMERA_SKYBOX UE_CAMERA_SKYBOX_BT";
 
+        add += "\n#define UE_SPOT_LIGHT_SM UE_SPOT_LIGHT_SM_BT";
+        add += "\n#define UE_DIRECTIONAL_LIGHT_SM UE_DIRECTIONAL_LIGHT_SM_BT";
+        add += "\n#define UE_POINT_LIGHT_SM UE_POINT_LIGHT_SM_BT";
+
+        add += "\n#define UE_ALBEDO_MAP UE_ALBEDO_MAP_BT";
+        add += "\n#define UE_NORMAL_MAP UE_NORMAL_MAP_BT";
+        add += "\n#define UE_METALLIC_MAP UE_METALLIC_MAP_BT";
+        add += "\n#define UE_ROUGHNESS_MAP UE_ROUGHNESS_MAP_BT";
+        add += "\n#define UE_AO_MAP UE_AO_MAP_BT";
+    }
+    else
+    {
+        add += "\n#define UE_CAMERA_SKYBOX UE_CAMERA_SKYBOX_LEGACY";
+
+        add += "\n#define UE_SPOT_LIGHT_SM UE_SPOT_LIGHT_SM_LEGACY";
+        add += "\n#define UE_DIRECTIONAL_LIGHT_SM UE_DIRECTIONAL_LIGHT_SM_LEGACY";
+        add += "\n#define UE_POINT_LIGHT_SM UE_POINT_LIGHT_SM_LEGACY";
+
+        add += "\n#define UE_ALBEDO_MAP UE_ALBEDO_MAP_LEGACY";
+        add += "\n#define UE_NORMAL_MAP UE_NORMAL_MAP_LEGACY";
+        add += "\n#define UE_METALLIC_MAP UE_METALLIC_MAP_LEGACY";
+        add += "\n#define UE_ROUGHNESS_MAP UE_ROUGHNESS_MAP_LEGACY";
+        add += "\n#define UE_AO_MAP UE_AO_MAP_LEGACY";
+    }
     ShaderIncludes::Uniform =
         new std::string(add + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform.inc")));
 

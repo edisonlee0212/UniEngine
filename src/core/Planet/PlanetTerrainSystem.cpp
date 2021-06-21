@@ -6,8 +6,8 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::_DefaultSurfaceMaterial;
 void Planet::PlanetTerrainSystem::OnCreate()
 {
 	_DefaultSurfaceMaterial = std::make_shared<Material>();
-	_DefaultSurfaceMaterial->SetProgram(Default::GLPrograms::StandardProgram);
-	_DefaultSurfaceMaterial->SetTexture(Default::Textures::Border);
+	_DefaultSurfaceMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+	_DefaultSurfaceMaterial->SetTexture(DefaultResources::Textures::Border);
 }
 
 void Planet::PlanetTerrainSystem::Update()

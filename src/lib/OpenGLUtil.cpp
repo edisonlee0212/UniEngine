@@ -203,6 +203,7 @@ OpenGLUtils::TextureBinding::TextureBinding()
 
 void OpenGLUtils::GLTexture::MakeResidentInternal()
 {
+    assert(GetInstance().m_enableBindlessTexture);
     Bind(0);
     m_handle = glGetTextureHandleARB(m_id);
     glMakeTextureHandleResidentARB(m_handle);
@@ -211,6 +212,7 @@ void OpenGLUtils::GLTexture::MakeResidentInternal()
 
 void OpenGLUtils::GLTexture::MakeNonResidentInternal()
 {
+    assert(GetInstance().m_enableBindlessTexture);
     Bind(0);
     if (m_resident)
     {
@@ -226,6 +228,7 @@ GLint OpenGLUtils::GLTexture::GetMaxAllowedTexture()
 
 GLuint64 OpenGLUtils::GLTexture::GetHandle()
 {
+    assert(GetInstance().m_enableBindlessTexture);
     Bind(0);
     if (!m_resident)
         MakeResident();
@@ -234,11 +237,13 @@ GLuint64 OpenGLUtils::GLTexture::GetHandle()
 
 bool OpenGLUtils::GLTexture::IsResident() const
 {
+    assert(GetInstance().m_enableBindlessTexture);
     return m_resident;
 }
 
 void OpenGLUtils::GLTexture::MakeResident()
 {
+    assert(GetInstance().m_enableBindlessTexture);
     if (!m_resident)
     {
         if (m_currentlyResidentTexture.size() > 1024)
@@ -254,6 +259,7 @@ void OpenGLUtils::GLTexture::MakeResident()
 
 void OpenGLUtils::GLTexture::MakeNonResident()
 {
+    assert(GetInstance().m_enableBindlessTexture);
     for (auto i = m_currentlyResidentTexture.begin(); i != m_currentlyResidentTexture.end(); ++i)
     {
         if (*i == this)
@@ -273,7 +279,7 @@ void OpenGLUtils::GLTexture::Clear(const GLint &level) const
 
 void OpenGLUtils::GLTexture::SetInt(const GLenum &paramName, const GLint &param)
 {
-    if (m_resident)
+    if (GetInstance().m_enableBindlessTexture && m_resident)
     {
         MakeNonResident();
         m_resident = true;
@@ -286,7 +292,7 @@ void OpenGLUtils::GLTexture::SetInt(const GLenum &paramName, const GLint &param)
 
 void OpenGLUtils::GLTexture::SetFloat(const GLenum &paramName, const GLfloat &param)
 {
-    if (m_resident)
+    if (GetInstance().m_enableBindlessTexture && m_resident)
     {
         MakeNonResident();
         m_resident = true;
@@ -299,7 +305,7 @@ void OpenGLUtils::GLTexture::SetFloat(const GLenum &paramName, const GLfloat &pa
 
 void OpenGLUtils::GLTexture::SetFloat4(const GLenum &paramName, const GLfloat *params)
 {
-    if (m_resident)
+    if (GetInstance().m_enableBindlessTexture && m_resident)
     {
         MakeNonResident();
         m_resident = true;

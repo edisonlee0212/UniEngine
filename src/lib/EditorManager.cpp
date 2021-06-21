@@ -259,7 +259,7 @@ void EditorManager::Init()
     GetInstance().m_sceneCameraEntityRecorder->AttachTexture(
         GetInstance().m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
 
-    std::string vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    std::string vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                                  FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     std::string fragShaderCode =
         std::string("#version 460 core\n") +
@@ -272,14 +272,14 @@ void EditorManager::Init()
 
     GetInstance().m_sceneCameraEntityRecorderProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     GetInstance().m_sceneCameraEntityInstancedRecorderProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
@@ -292,14 +292,14 @@ void EditorManager::Init()
 
     GetInstance().m_sceneHighlightPrePassProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     GetInstance().m_sceneHighlightPrePassInstancedProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -307,7 +307,7 @@ void EditorManager::Init()
 
     GetInstance().m_sceneHighlightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 460 core\n") + *Default::ShaderIncludes::Uniform + "\n" +
+    vertShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -456,7 +456,7 @@ void EditorManager::Init()
     GetInstance().m_configFlags += EntityEditorSystem_EnableEntityInspector;
     GetInstance().m_sceneCamera = std::make_unique<CameraComponent>();
     GetInstance().m_sceneCamera->m_drawSkyBox = false;
-    GetInstance().m_sceneCamera->m_skyBox = Default::Textures::DefaultSkybox;
+    GetInstance().m_sceneCamera->m_skyBox = DefaultResources::Textures::DefaultSkybox;
 }
 
 void EditorManager::Destroy()
@@ -901,8 +901,8 @@ void EditorManager::LateUpdate()
                     auto meshRenderer = std::make_unique<MeshRenderer>();
                     meshRenderer->m_mesh = payload_n;
                     meshRenderer->m_material = std::make_shared<Material>();
-                    meshRenderer->m_material->SetTexture(Default::Textures::StandardTexture);
-                    meshRenderer->m_material->SetProgram(Default::GLPrograms::StandardProgram);
+                    meshRenderer->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
+                    meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                     Entity entity = EntityManager::CreateEntity("Mesh");
                     entity.SetComponentData(ltw);
                     entity.SetPrivateComponent(std::move(meshRenderer));

@@ -57,7 +57,7 @@ void Particles::OnGui()
         ImGui::ColorEdit4("Color:##Particles", static_cast<float *>(static_cast<void *>(&m_displayBoundColor)));
         const auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
         RenderManager::DrawGizmoMesh(
-            Default::Primitives::Cube.get(),
+            DefaultResources::Primitives::Cube.get(),
             EditorManager::GetSceneCamera().get(),
             m_displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),
