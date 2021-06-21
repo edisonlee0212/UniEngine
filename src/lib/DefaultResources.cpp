@@ -45,8 +45,8 @@ void DefaultResources::Load(World *world)
         const GLubyte *ccc = glGetStringi(GL_EXTENSIONS, i);
         if (strcmp((char *)ccc, "GL_ARB_bindless_texture") == 0)
         {
-            //OpenGLUtils::GetInstance().m_enableBindlessTexture = true;
-            // UNIENGINE_LOG("Bindless texture supported!");
+            OpenGLUtils::GetInstance().m_enableBindlessTexture = true;
+            UNIENGINE_LOG("Bindless texture supported!");
         }
     }
 
