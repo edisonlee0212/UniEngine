@@ -1,4 +1,4 @@
-#include "FileIO.hpp"
+#include <FileIO.hpp>
 
 #include <CameraComponent.hpp>
 #include <Cubemap.hpp>
@@ -6,6 +6,7 @@
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
 #include <Texture2D.hpp>
+#include <EditorManager.hpp>
 using namespace UniEngine;
 
 CameraInfoBlock CameraComponent::m_cameraInfoBlock;
@@ -371,7 +372,11 @@ void CameraComponent::OnGui()
     if (!m_drawSkyBox)
     {
         ImGui::ColorEdit3("Clear Color", (float *)(void *)&m_clearColor);
+    }else
+    {
+        EditorManager::DragAndDrop(m_skyBox);
     }
+    
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);
     ImGui::DragFloat("Far", &m_farDistance, m_farDistance / 10.0f, m_nearDistance);
     ImGui::DragFloat("FOV", &m_fov, 1.0f, 1, 359);

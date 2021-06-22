@@ -732,6 +732,12 @@ void OpenGLUtils::GLFrameBuffer::ViewPort(const glm::ivec4 &value) const
     glViewport(value[0], value[1], value[2], value[3]);
 }
 
+void OpenGLUtils::GLFrameBuffer::ViewPort(size_t x, size_t y) const
+{
+    Bind();
+    glViewport(0, 0, x, y);
+}
+
 void OpenGLUtils::GLFrameBuffer::Check() const
 {
     Bind();
@@ -851,6 +857,30 @@ void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(
     }
     Bind();
     glNamedFramebufferTextureLayer(m_id, attachPoint, texture->Id(), 0, layer);
+}
+
+void OpenGLUtils::GLFrameBuffer::AttachTexture2D(
+    const GLTexture *texture,
+    const GLenum &attachPoint, const GLenum &texTarget)
+{
+    switch (attachPoint)
+    {
+    case GL_DEPTH_ATTACHMENT:
+        m_depth = true;
+        break;
+    case GL_STENCIL_ATTACHMENT:
+        m_stencil = true;
+        break;
+    case GL_DEPTH_STENCIL_ATTACHMENT:
+        m_depth = true;
+        m_stencil = true;
+        break;
+    default:
+        m_color = true;
+        break;
+    }
+    Bind();
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, texTarget, texture->Id(), 0);
 }
 
 void OpenGLUtils::GLFrameBuffer::Clear()

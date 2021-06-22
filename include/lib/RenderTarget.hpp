@@ -12,9 +12,10 @@ class UNIENGINE_API RenderTarget
     size_t m_resolutionY;
 
   public:
-    void AttachTextureLayer(OpenGLUtils::GLTexture *texture, GLenum attachPoint, GLint layer) const;
-    void AttachTexture(OpenGLUtils::GLTexture *texture, GLenum attachPoint) const;
-    void AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, GLenum attachPoint) const;
+    void AttachTextureLayer(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLint &layer) const;
+    void AttachTexture(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint) const;
+    void AttachTexture2D(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget) const;
+    void AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, const GLenum &attachPoint) const;
     RenderTarget();
     RenderTarget(size_t width, size_t height);
     glm::vec2 GetResolution() const;

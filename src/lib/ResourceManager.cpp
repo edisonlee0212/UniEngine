@@ -507,6 +507,413 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
 }
 
 std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
+    const bool &addResource,
+    const std::string &path,
+    const bool &generateMipmap,
+    const float &gamma)
+{
+    auto &manager = GetInstance();
+    stbi_set_flip_vertically_on_load(true);
+    auto texture2D = std::make_shared<Texture2D>(TextureType::Albedo);
+    const std::string filename = path;
+    texture2D->m_path = filename;
+    int width, height, nrComponents;
+    stbi_ldr_to_hdr_gamma(gamma);
+    float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        texture2D->m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(1, GL_RGB32F, width, height, true);
+        texture2D->m_texture->SetData(0, GL_RGB, GL_FLOAT, data);
+        texture2D->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        texture2D->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        texture2D->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        texture2D->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        stbi_image_free(data);
+
+    }
+    else
+    {
+        UNIENGINE_LOG("Texture failed to load at path: " + filename);
+        stbi_image_free(data);
+        return nullptr;
+    }
+
+#pragma region Conversion
+    // pbr: setup framebuffer
+    // ----------------------
+    size_t resolution = 1024;
+    auto renderTarget = std::make_unique<RenderTarget>(resolution, resolution);
+    auto renderBuffer = std::make_unique<OpenGLUtils::GLRenderBuffer>();
+    renderBuffer->AllocateStorage(GL_DEPTH_COMPONENT24, resolution, resolution);
+    renderTarget->AttachRenderBuffer(renderBuffer.get(), GL_DEPTH_ATTACHMENT);
+    
+    // pbr: setup cubemap to render to and attach to framebuffer
+    // ---------------------------------------------------------
+    auto envCubemap = std::make_unique<OpenGLUtils::GLTextureCubeMap>(1, GL_RGB32F, resolution, resolution, true);
+    envCubemap->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    envCubemap->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    envCubemap->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    envCubemap->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    envCubemap->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // pbr: set up projection and view matrices for capturing data onto the 6 cubemap face directions
+    // ----------------------------------------------------------------------------------------------
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[] = {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
+
+    // pbr: convert HDR equirectangular environment map to cubemap equivalent
+    // ----------------------------------------------------------------------
+    manager.m_2DToCubemapProgram->Bind();
+    manager.m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
+    manager.m_2DToCubemapProgram->SetFloat4x4("projection", captureProjection);
+    texture2D->m_texture->Bind(0);
+    renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        manager.m_2DToCubemapProgram->SetFloat4x4("view", captureViews[i]);
+        renderTarget->AttachTexture2D(envCubemap.get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+        renderTarget->Clear();
+        {
+            unsigned int cubeVAO = 0;
+            unsigned int cubeVBO = 0;
+            // initialize (if necessary)
+            if (cubeVAO == 0)
+            {
+                float vertices[] = {
+                    // back face
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f, // bottom-left
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f, // bottom-right
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f, // bottom-left
+                    -1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f, // top-left
+                    // front face
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f, // bottom-left
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f, // bottom-right
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    -1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f, // top-left
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f, // bottom-left
+                    // left face
+                    -1.0f,
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // top-right
+                    -1.0f,
+                    1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f, // top-left
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // bottom-left
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // bottom-left
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f, // bottom-right
+                    -1.0f,
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // top-right
+                          // right face
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // top-left
+                    1.0f,
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // bottom-right
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    1.0f,
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // bottom-right
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // top-left
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f, // bottom-left
+                    // bottom face
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // top-right
+                    1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f, // top-left
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // bottom-left
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // bottom-left
+                    -1.0f,
+                    -1.0f,
+                    1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f, // bottom-right
+                    -1.0f,
+                    -1.0f,
+                    -1.0f,
+                    0.0f,
+                    -1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // top-right
+                    // top face
+                    -1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // top-left
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // bottom-right
+                    1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    1.0f, // top-right
+                    1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f, // bottom-right
+                    -1.0f,
+                    1.0f,
+                    -1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f, // top-left
+                    -1.0f,
+                    1.0f,
+                    1.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f // bottom-left
+                };
+                glGenVertexArrays(1, &cubeVAO);
+                glGenBuffers(1, &cubeVBO);
+                // fill buffer
+                glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+                // link vertex attributes
+                glBindVertexArray(cubeVAO);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+                glEnableVertexAttribArray(1);
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+                glEnableVertexAttribArray(2);
+                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                glBindVertexArray(0);
+            }
+            // render Cube
+            glBindVertexArray(cubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            OpenGLUtils::GLVAO::BindDefault();
+		}
+    }
+    OpenGLUtils::GLFrameBuffer::BindDefault();
+#pragma endregion
+    auto retVal = std::make_shared<Cubemap>();
+    retVal->m_texture = std::move(envCubemap);
+    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    if (addResource)
+        Push(retVal);
+    return retVal;
+}
+
+std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 	const bool &addResource, const std::vector<std::string> &paths, const bool &generateMipmap, const float &gamma)
 {
 	int width, height, nrComponents;
@@ -559,7 +966,6 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 		texture->GenerateMipMap();
 	auto retVal = std::make_shared<Cubemap>();
 	retVal->m_texture = std::move(texture);
-	retVal->m_paths = paths;
 	retVal->m_name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
 	if (addResource)
 		Push(retVal);
@@ -639,6 +1045,11 @@ void ResourceManager::OnGui()
 					LoadTexture(true, filePath);
 					UNIENGINE_LOG("Loaded texture from \"" + filePath);
 				});
+
+                FileIO::OpenFile("Load Cubemap", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
+                    LoadCubemap(true, filePath);
+                    UNIENGINE_LOG("Loaded texture from \"" + filePath);
+                });
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenu();

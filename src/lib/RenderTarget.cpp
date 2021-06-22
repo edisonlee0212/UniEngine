@@ -35,7 +35,8 @@ float RenderTarget::GetResolutionRatio() const
     return (float)m_resolutionX / (float)m_resolutionY;
 }
 
-void RenderTarget::AttachTextureLayer(OpenGLUtils::GLTexture *texture, GLenum attachPoint, GLint layer) const
+void RenderTarget::AttachTextureLayer(
+    OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLint &layer) const
 {
     if (m_bound)
     {
@@ -45,7 +46,7 @@ void RenderTarget::AttachTextureLayer(OpenGLUtils::GLTexture *texture, GLenum at
     m_frameBuffer->AttachTextureLayer(texture, attachPoint, layer);
 }
 
-void RenderTarget::AttachTexture(OpenGLUtils::GLTexture *texture, GLenum attachPoint) const
+void RenderTarget::AttachTexture(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint) const
 {
     if (m_bound)
     {
@@ -55,7 +56,20 @@ void RenderTarget::AttachTexture(OpenGLUtils::GLTexture *texture, GLenum attachP
     m_frameBuffer->AttachTexture(texture, attachPoint);
 }
 
-void RenderTarget::AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, GLenum attachPoint) const
+void RenderTarget::AttachTexture2D(
+    OpenGLUtils::GLTexture *texture,
+    const GLenum &attachPoint,
+    const GLenum &texTarget) const
+{
+    if (m_bound)
+    {
+        UNIENGINE_ERROR("Error");
+        return;
+    }
+    m_frameBuffer->AttachTexture2D(texture, attachPoint, texTarget);
+}
+
+void RenderTarget::AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, const GLenum &attachPoint) const
 {
     if (m_bound)
     {

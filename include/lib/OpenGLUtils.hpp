@@ -425,6 +425,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void Bind() const;
         void ClearColor(const glm::vec4 &value) const;
         void ViewPort(const glm::ivec4 &value) const;
+        void ViewPort(size_t x, size_t y) const;
         void Check() const;
         void DrawBuffer(const GLenum &buffer) const;
         void DrawBuffers(const GLsizei &n, const GLenum *buffers) const;
@@ -437,6 +438,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void AttachRenderBuffer(const GLRenderBuffer *buffer, const GLenum &attachPoint);
         void AttachTexture(const GLTexture *texture, const GLenum &attachPoint);
         void AttachTextureLayer(const GLTexture *texture, const GLenum &attachPoint, const GLint &layer);
+        void AttachTexture2D(
+            const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget);
         void Clear();
     };
     enum class UNIENGINE_API ShaderType

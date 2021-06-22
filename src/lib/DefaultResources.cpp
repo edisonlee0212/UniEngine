@@ -121,6 +121,20 @@ void DefaultResources::Load(World *world)
     GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
     GLPrograms::SkyboxProgram->SetInt("skybox", 0);
     GLPrograms::SkyboxProgram->m_name = "Skybox";
+
+    auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShaderCode =
+        std::string("#version 450 core\n") +
+        std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EquirectangularMapToCubemap.vert")));
+    convertCubemapvert->Compile(vertShaderCode);
+    auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShaderCode =
+        std::string("#version 450 core\n") +
+        std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EquirectangularMapToCubemap.frag")));
+    convertCubemapfrag->Compile(fragShaderCode);
+    ResourceManager::GetInstance().m_2DToCubemapProgram = ResourceManager::LoadProgram(false, convertCubemapvert, convertCubemapfrag);
+    ResourceManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
+    ResourceManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
 #pragma endregion
 
 #pragma region Screen Shader
