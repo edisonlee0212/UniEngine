@@ -412,8 +412,8 @@ void CameraInfoBlock::UpdateMatrices(const CameraComponent *camera, glm::vec3 po
             m_skybox = camera->m_skyBox->Texture()->GetHandle();
         }else
         {
-            m_skybox = 0;
-            camera->m_skyBox->Texture()->Bind(0);
+            m_skybox = 8;
+            camera->m_skyBox->Texture()->Bind(8);
         }
         m_skyboxEnabled = true;
     }
