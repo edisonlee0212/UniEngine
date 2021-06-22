@@ -13,17 +13,14 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
         const std::string &path,
-        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
         const TextureType &textureType
     );
 
     static void ProcessNode(
         const std::string &directory,
-        std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
-        std::unique_ptr<ModelNode> &modelNode,
-        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        std::map<int, std::vector<Vertex>> &meshMaterials,
         const tinyobj::shape_t& shape,
-        const std::vector<tinyobj::material_t>& materials,
         const tinyobj::attrib_t& attribute);
     static void AttachChildren(
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
