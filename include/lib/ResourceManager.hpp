@@ -34,7 +34,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::shared_ptr<Model> LoadModel(const bool &addResource,
                                             std::string const &path,
                                             std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
-                                            const bool& optimize = true
+                                            const bool& optimize = false
         );
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,

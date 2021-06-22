@@ -103,10 +103,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 
     static void DeferredPrepass(const Mesh *mesh, const Material *material, const glm::mat4 &model);
+    static void DeferredPrepassInternal(const Mesh *mesh, const glm::mat4 &model);
     static void DeferredPrepassInstanced(
         const Mesh *mesh, const Material *material, const glm::mat4 &model, glm::mat4 *matrices, const size_t &count);
 
     static void DrawMesh(const Mesh *mesh, const Material *material, const glm::mat4 &model, const bool &receiveShadow);
+    static void DrawMeshInternal(const Mesh *mesh, const glm::mat4 &model);
     static void DrawMeshInstanced(
         const Mesh *mesh,
         const Material *material,

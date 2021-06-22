@@ -18,6 +18,16 @@ void RenderManager::RenderToCameraDeferred(
     bool calculateBounds)
 {
     auto &renderManager = GetInstance();
+#pragma region Shadow map binding and default texture binding.
+    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
+    if (!supportBindlessTexture)
+    {
+        DefaultResources::Textures::MissingTexture->Texture()->Bind(0);
+        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(1);
+        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(2);
+        renderManager.m_spotLightShadowMap->DepthMap()->Bind(3);
+    }
+#pragma endregion
     cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
@@ -28,6 +38,9 @@ void RenderManager::RenderToCameraDeferred(
     {
         auto &program = renderManager.m_gBufferPrepass;
         program->Bind();
+        std::map<Material *, std::map<float, std::vector<std::pair<MeshRenderer *, GlobalTransform>>>>
+            renderCollections;
+        
         for (auto owner : *owners)
         {
             if (!owner.IsEnabled())
@@ -41,13 +54,15 @@ void RenderManager::RenderToCameraDeferred(
                 !(EntityManager::GetComponentData<CameraLayerMask>(owner).m_value &
                   static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).m_value;
+            auto gt = EntityManager::GetComponentData<GlobalTransform>(owner);
+            auto ltw = gt.m_value;
+            auto meshBound = mmc->m_mesh->GetBound();
+            meshBound.ApplyTransform(ltw);
+            glm::vec3 center = meshBound.Center();
+            glm::vec3 size = meshBound.Size();
             if (calculateBounds)
             {
-                auto meshBound = mmc->m_mesh->GetBound();
-                meshBound.ApplyTransform(ltw);
-                glm::vec3 center = meshBound.Center();
-                glm::vec3 size = meshBound.Size();
+
                 minBound = glm::vec3(
                     (glm::min)(minBound.x, center.x - size.x),
                     (glm::min)(minBound.y, center.y - size.y),
@@ -58,8 +73,37 @@ void RenderManager::RenderToCameraDeferred(
                     (glm::max)(maxBound.y, center.y + size.y),
                     (glm::max)(maxBound.z, center.z + size.z));
             }
-            renderManager.m_materialSettings.m_receiveShadow = mmc->m_receiveShadow;
-            DeferredPrepass(mmc->m_mesh.get(), mmc->m_material.get(), ltw);
+            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            renderCollections[mmc->m_material.get()][distance].push_back(std::make_pair(mmc.get(), gt));
+        }
+
+        for (const auto &renderCollection : renderCollections)
+        {
+            auto *material = renderCollection.first;
+            for (auto j : material->m_floatPropertyList)
+            {
+                program->SetFloat(j.m_name, j.m_value);
+            }
+            for (auto j : material->m_float4X4PropertyList)
+            {
+                program->SetFloat4x4(j.m_name, j.m_value);
+            }
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            ApplyMaterialSettings(material, program.get());
+            for (const auto &renderArray : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderArray.second)
+                {
+                    renderManager.m_materialSettings.m_receiveShadow = renderInstance.first->m_receiveShadow;
+                    renderManager.m_materialSettingsBuffer->SubData(
+                        0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                    DeferredPrepassInternal(
+                        renderInstance.first->m_mesh.get(), renderInstance.second.m_value);
+                }
+            }
+            ReleaseTextureHandles(material);
         }
     }
 
@@ -166,6 +210,17 @@ void RenderManager::RenderToCameraForward(
     glm::vec3 &maxBound,
     bool calculateBounds)
 {
+    auto &renderManager = GetInstance();
+#pragma region Shadow map binding and default texture binding.
+    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
+    if (!supportBindlessTexture)
+    {
+        DefaultResources::Textures::MissingTexture->Texture()->Bind(0);
+        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(1);
+        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(2);
+        renderManager.m_spotLightShadowMap->DepthMap()->Bind(3);
+    }
+#pragma endregion
     bool debug = cameraComponent.get() == EditorManager::GetInstance().m_sceneCamera.get();
     cameraComponent->Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -174,6 +229,8 @@ void RenderManager::RenderToCameraForward(
     const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
     if (owners)
     {
+        std::map<Material *, std::map<float, std::vector<std::pair<MeshRenderer *, GlobalTransform>>>>
+            renderCollections;
         for (auto owner : *owners)
         {
             if (!owner.IsEnabled())
@@ -186,7 +243,8 @@ void RenderManager::RenderToCameraForward(
                 !(EntityManager::GetComponentData<CameraLayerMask>(owner).m_value &
                   static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).m_value;
+            auto gt = EntityManager::GetComponentData<GlobalTransform>(owner);
+            auto ltw = gt.m_value;
             auto meshBound = mmc->m_mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
@@ -210,7 +268,38 @@ void RenderManager::RenderToCameraForward(
                      std::make_pair(std::make_pair(owner, mmc.get()), ltw)});
                 continue;
             }
-            DrawMesh(mmc->m_mesh.get(), mmc->m_material.get(), ltw, mmc->m_receiveShadow);
+            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            renderCollections[mmc->m_material.get()][distance].push_back(std::make_pair(mmc.get(), gt));
+        }
+
+        for (const auto &renderCollection : renderCollections)
+        {
+            auto *material = renderCollection.first;
+            auto& program = material->m_program;
+            program->Bind();
+            for (auto j : material->m_floatPropertyList)
+            {
+                program->SetFloat(j.m_name, j.m_value);
+            }
+            for (auto j : material->m_float4X4PropertyList)
+            {
+                program->SetFloat4x4(j.m_name, j.m_value);
+            }
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            ApplyMaterialSettings(material, program.get());
+            for (const auto &renderArray : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderArray.second)
+                {
+                    renderManager.m_materialSettings.m_receiveShadow = renderInstance.first->m_receiveShadow;
+                    renderManager.m_materialSettingsBuffer->SubData(
+                        0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                    DrawMeshInternal(renderInstance.first->m_mesh.get(), renderInstance.second.m_value);
+                }
+            }
+            ReleaseTextureHandles(material);
         }
     }
     owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
@@ -548,30 +637,54 @@ void UniEngine::RenderManager::PreUpdate()
                             else
                             {
                                 // More detail but cause shimmering when rotating camera.
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                                max =
-                                    (glm::
-                                         max)(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[0],
+                                        ClosestPointOnLine(
+                                            cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[1],
+                                        ClosestPointOnLine(
+                                            cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[2],
+                                        ClosestPointOnLine(
+                                            cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[3],
+                                        ClosestPointOnLine(
+                                            cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[4],
+                                        ClosestPointOnLine(
+                                            cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[5],
+                                        ClosestPointOnLine(
+                                            cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[6],
+                                        ClosestPointOnLine(
+                                            cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                                max = (glm::max)(
+                                    max,
+                                    glm::distance(
+                                        cornerPoints[7],
+                                        ClosestPointOnLine(
+                                            cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                             }
 
                             glm::vec3 p0 = ClosestPointOnLine(
@@ -1616,10 +1729,6 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
-    if (!supportBindlessTexture)
-    {
-        DefaultResources::Textures::MissingTexture->Texture()->Bind(0);
-    }
     for (const auto &i : material->m_textures)
     {
         if (!i.second || !i.second->Texture())
@@ -1702,15 +1811,13 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
     manager.m_materialSettings.m_aoVal = material->m_ambientOcclusion;
     if (supportBindlessTexture)
     {
-        manager.m_materialSettings.m_directionalShadowMap = manager.m_directionalLightShadowMap->DepthMapArray()->GetHandle();
+        manager.m_materialSettings.m_directionalShadowMap =
+            manager.m_directionalLightShadowMap->DepthMapArray()->GetHandle();
         manager.m_materialSettings.m_pointShadowMap = manager.m_pointLightShadowMap->DepthMapArray()->GetHandle();
         manager.m_materialSettings.m_spotShadowMap = manager.m_spotLightShadowMap->DepthMap()->GetHandle();
-       
-    }else
+    }
+    else
     {
-        manager.m_directionalLightShadowMap->DepthMapArray()->Bind(1);
-        manager.m_pointLightShadowMap->DepthMapArray()->Bind(2);
-        manager.m_spotLightShadowMap->DepthMap()->Bind(3);
         program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 1);
         program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 2);
         program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 3);
@@ -1720,16 +1827,13 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
         program->SetInt("UE_CAMERA_SKYBOX_LEGACY", CameraComponent::m_cameraInfoBlock.m_skybox);
     }
 
-    
-    manager.m_materialSettingsBuffer->SubData(
-        0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
+    manager.m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }
-
-
 
 void RenderManager::ReleaseTextureHandles(const Material *material)
 {
-    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)return;
+    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
+        return;
     for (const auto &i : material->m_textures)
     {
         if (!i.second || !i.second->Texture())
@@ -1765,6 +1869,24 @@ void RenderManager::DeferredPrepass(const Mesh *mesh, const Material *material, 
     ApplyMaterialSettings(material, program.get());
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     ReleaseTextureHandles(material);
+    OpenGLUtils::GLVAO::BindDefault();
+}
+
+void RenderManager::DeferredPrepassInternal(const Mesh *mesh, const glm::mat4 &model)
+{
+    if (mesh == nullptr)
+        return;
+    mesh->Enable();
+    mesh->Vao()->DisableAttributeArray(12);
+    mesh->Vao()->DisableAttributeArray(13);
+    mesh->Vao()->DisableAttributeArray(14);
+    mesh->Vao()->DisableAttributeArray(15);
+
+    GetInstance().m_drawCall++;
+    GetInstance().m_triangles += mesh->GetTriangleAmount();
+    auto &program = GetInstance().m_gBufferPrepass;
+    program->SetFloat4x4("model", model);
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     OpenGLUtils::GLVAO::BindDefault();
 }
 
@@ -1890,6 +2012,21 @@ void UniEngine::RenderManager::DrawMesh(
     ApplyMaterialSettings(material, program);
     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     ReleaseTextureHandles(material);
+    OpenGLUtils::GLVAO::BindDefault();
+}
+
+void RenderManager::DrawMeshInternal(const Mesh *mesh, const glm::mat4 &model)
+{
+    if (mesh == nullptr)
+        return;
+    mesh->Enable();
+    mesh->Vao()->DisableAttributeArray(12);
+    mesh->Vao()->DisableAttributeArray(13);
+    mesh->Vao()->DisableAttributeArray(14);
+    mesh->Vao()->DisableAttributeArray(15);
+    GetInstance().m_drawCall++;
+    GetInstance().m_triangles += mesh->GetTriangleAmount();
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
     OpenGLUtils::GLVAO::BindDefault();
 }
 
@@ -2247,7 +2384,8 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+    DrawGizmoMeshInstanced(
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2344,7 +2482,8 @@ void RenderManager::DrawGizmoRays(
                                glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
             models[i] = model;
         }
-        DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+        DrawGizmoMeshInstanced(
+            DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
     }
 }
 
