@@ -34,11 +34,11 @@ int main()
 	
 	planetTransform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	planetTransform.SetEulerRotation(glm::vec3(0.0f));
-	pi.MaxLodLevel = 8;
-	pi.LodDistance = 7.0;
-	pi.Radius = 10.0;
-	pi.Index = 0;
-	pi.Resolution = 8;
+	pi.m_maxLodLevel = 8;
+	pi.m_lodDistance = 7.0;
+	pi.m_radius = 10.0;
+	pi.m_index = 0;
+	pi.m_resolution = 8;
 
 	auto planetTerrain1 = std::make_unique<PlanetTerrain>();
 	planetTerrain1->Init(pi);
@@ -49,10 +49,10 @@ int main()
 	planet1.SetComponentData(planetTransform);
 	planet1.SetName("Planet 1");
 	planetTransform.SetPosition(glm::vec3(35.0f, 0.0f, 0.0f));
-	pi.MaxLodLevel = 20;
-	pi.LodDistance = 7.0;
-	pi.Radius = 15.0;
-	pi.Index = 1;
+	pi.m_maxLodLevel = 20;
+	pi.m_lodDistance = 7.0;
+	pi.m_radius = 15.0;
+	pi.m_index = 1;
 	auto planetTerrain2 = std::make_unique<PlanetTerrain>();
 	planetTerrain2->Init(pi);
 	auto planet2 = EntityManager::CreateEntity(archetype);
@@ -60,10 +60,10 @@ int main()
 	planet2.SetComponentData(planetTransform);
 	planet2.SetName("Planet 2");
 	planetTransform.SetPosition(glm::vec3(-20.0f, 0.0f, 0.0f));
-	pi.MaxLodLevel = 4;
-	pi.LodDistance = 7.0;
-	pi.Radius = 5.0;
-	pi.Index = 2;
+	pi.m_maxLodLevel = 4;
+	pi.m_lodDistance = 7.0;
+	pi.m_radius = 5.0;
+	pi.m_index = 2;
 	auto planetTerrain3 = std::make_unique<PlanetTerrain>();
 	planetTerrain3->Init(pi);
 	auto planet3 = EntityManager::CreateEntity(archetype);
@@ -127,9 +127,6 @@ int main()
 			ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
 			EntityManager::SetComponentData(ple2, ltw);
 #pragma endregion
-			Debug::Log("LogHere!");
-			Debug::Warning("WarningHere!");
-			Debug::Error("ErrorHere!");
 		});
 	Application::Run();
 	Application::End();
