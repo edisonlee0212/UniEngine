@@ -13,7 +13,10 @@ void ResourceManager::Remove(size_t id, size_t hashCode)
 }
 
 std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
-	const bool &addResource, std::string const &path, std::shared_ptr<OpenGLUtils::GLProgram> glProgram)
+    const bool &addResource,
+    std::string const &path,
+    std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
+    const bool &optimize)
 {
 	UNIENGINE_LOG("Loading model from: " + path);
 	tinyobj::ObjReaderConfig reader_config;
@@ -36,130 +39,273 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
 	}
 
 	auto retVal = std::make_shared<Model>();
-
+    retVal->m_name = path;
 	auto &attribute = reader.GetAttrib();
 	auto &shapes = reader.GetShapes();
 	auto &materials = reader.GetMaterials();
 	const std::string directory = path.substr(0, path.find_last_of('/'));
 	std::map<std::string, std::shared_ptr<Texture2D>> loadedTextures;
-    std::map<int, std::vector<Vertex>> meshMaterials;
-    meshMaterials[-1] = std::vector<Vertex>();
-	for (const auto &i : shapes)
-	{
-		ProcessNode(directory, meshMaterials, i, attribute);
-	}
-
-	for (auto& i : meshMaterials)
-	{
-		std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
-		const auto materialId = i.first;
-		auto &vertices = i.second;
-        if (vertices.empty()) continue;
-        const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
-                          (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
+    if (!optimize)
+    {
+        std::map<int, std::shared_ptr<Material>> loadedMaterials;
+        for (const auto &i : shapes)
+        {
+            std::map<int, std::vector<Vertex>> meshMaterials;
+            meshMaterials[-1] = std::vector<Vertex>();
+            ProcessNode(directory, meshMaterials, i, attribute);
+            for (auto &i : meshMaterials)
+            {
+                std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
+                const auto materialId = i.first;
+                auto &vertices = i.second;
+                if (vertices.empty())
+                    continue;
+                const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
+                                  (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
 #pragma region Material
-		auto material = std::make_shared<Material>();
-        if (materialId != -1)
-        {
-            auto &importedMaterial = materials[materialId];
-            material->m_metallic = importedMaterial.metallic;
-            material->m_roughness = importedMaterial.roughness;
-            material->m_albedoColor =
-                glm::vec3(importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
-            if (!importedMaterial.diffuse_texname.empty())
-            {
-                const auto albedo =
-                    CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, TextureType::Albedo);
-                if (albedo)
+                std::shared_ptr<Material> material;
+                if (materialId != -1)
                 {
-                    material->SetTexture(albedo);
-                }
-            }
-            if (!importedMaterial.bump_texname.empty())
-            {
-                const auto normal =
-                    CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, TextureType::Normal);
-                if (normal)
-                {
-                    material->SetTexture(normal);
-                }
-            }
-            if (!importedMaterial.normal_texname.empty())
-            {
-                const auto normal =
-                    CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, TextureType::Normal);
-                if (normal)
-                {
-                    material->SetTexture(normal);
-                }
-            }
-            if (!importedMaterial.roughness_texname.empty())
-            {
-                const auto roughness = CollectTexture(
-                    directory, importedMaterial.roughness_texname, loadedTextures, TextureType::Roughness);
-                if (roughness)
-                {
-                    material->SetTexture(roughness);
-                }
-            }
-            if (!importedMaterial.specular_highlight_texname.empty())
-            {
-                const auto roughness = CollectTexture(
-                    directory, importedMaterial.specular_highlight_texname, loadedTextures, TextureType::Roughness);
-                if (roughness)
-                {
-                    material->SetTexture(roughness);
-                }
-            }
-            if (!importedMaterial.metallic_texname.empty())
-            {
-                const auto metallic =
-                    CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, TextureType::Metallic);
-                if (metallic)
-                {
-                    material->SetTexture(metallic);
-                }
-            }
-            if (!importedMaterial.reflection_texname.empty())
-            {
-                const auto metallic = CollectTexture(
-                    directory, importedMaterial.reflection_texname, loadedTextures, TextureType::Metallic);
-                if (metallic)
-                {
-                    material->SetTexture(metallic);
-                }
-            }
+                    auto search = loadedMaterials.find(materialId);
+                    if (search != loadedMaterials.end())
+                    {
+                        material = search->second;
+                    }
+                    else
+                    {
+                        material = std::make_shared<Material>();
+                        material->SetProgram(glProgram);
+                        auto &importedMaterial = materials[materialId];
+                        material->m_metallic = importedMaterial.metallic;
+                        material->m_roughness = importedMaterial.roughness;
+                        material->m_albedoColor = glm::vec3(
+                            importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
+#pragma region Textures
+                        if (!importedMaterial.diffuse_texname.empty())
+                        {
+                            const auto albedo = CollectTexture(
+                                directory, importedMaterial.diffuse_texname, loadedTextures, TextureType::Albedo);
+                            if (albedo)
+                            {
+                                material->SetTexture(albedo);
+                            }
+                        }
+                        if (!importedMaterial.bump_texname.empty())
+                        {
+                            const auto normal = CollectTexture(
+                                directory, importedMaterial.bump_texname, loadedTextures, TextureType::Normal);
+                            if (normal)
+                            {
+                                material->SetTexture(normal);
+                            }
+                        }
+                        if (!importedMaterial.normal_texname.empty())
+                        {
+                            const auto normal = CollectTexture(
+                                directory, importedMaterial.normal_texname, loadedTextures, TextureType::Normal);
+                            if (normal)
+                            {
+                                material->SetTexture(normal);
+                            }
+                        }
+                        if (!importedMaterial.roughness_texname.empty())
+                        {
+                            const auto roughness = CollectTexture(
+                                directory, importedMaterial.roughness_texname, loadedTextures, TextureType::Roughness);
+                            if (roughness)
+                            {
+                                material->SetTexture(roughness);
+                            }
+                        }
+                        if (!importedMaterial.specular_highlight_texname.empty())
+                        {
+                            const auto roughness = CollectTexture(
+                                directory,
+                                importedMaterial.specular_highlight_texname,
+                                loadedTextures,
+                                TextureType::Roughness);
+                            if (roughness)
+                            {
+                                material->SetTexture(roughness);
+                            }
+                        }
+                        if (!importedMaterial.metallic_texname.empty())
+                        {
+                            const auto metallic = CollectTexture(
+                                directory, importedMaterial.metallic_texname, loadedTextures, TextureType::Metallic);
+                            if (metallic)
+                            {
+                                material->SetTexture(metallic);
+                            }
+                        }
+                        if (!importedMaterial.reflection_texname.empty())
+                        {
+                            const auto metallic = CollectTexture(
+                                directory, importedMaterial.reflection_texname, loadedTextures, TextureType::Metallic);
+                            if (metallic)
+                            {
+                                material->SetTexture(metallic);
+                            }
+                        }
 
-            if (!importedMaterial.ambient_texname.empty())
-            {
-                const auto ao =
-                    CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, TextureType::AO);
-                if (ao)
-                {
-                    material->SetTexture(ao);
+                        if (!importedMaterial.ambient_texname.empty())
+                        {
+                            const auto ao = CollectTexture(
+                                directory, importedMaterial.ambient_texname, loadedTextures, TextureType::AO);
+                            if (ao)
+                            {
+                                material->SetTexture(ao);
+                            }
+                        }
+#pragma endregion
+                        loadedMaterials[materialId] = material;
+                    }
                 }
-            }
-        }else
-        {
-            material = DefaultResources::Materials::StandardMaterial;
-        }
+                else
+                {
+                    material = DefaultResources::Materials::StandardMaterial;
+                }
 #pragma endregion
 #pragma region Mesh
-		auto mesh = std::make_shared<Mesh>();
-        auto indices = std::vector<unsigned>();
-        assert(vertices.size() % 3 == 0);
-	    for (unsigned i = 0; i < vertices.size(); i++)
-        {
-            indices.push_back(i);
-        }
-		mesh->SetVertices(mask, vertices, indices);
+                auto mesh = std::make_shared<Mesh>();
+                auto indices = std::vector<unsigned>();
+                assert(vertices.size() % 3 == 0);
+                for (unsigned i = 0; i < vertices.size(); i++)
+                {
+                    indices.push_back(i);
+                }
+                mesh->SetVertices(mask, vertices, indices);
 #pragma endregion
-		childNode->m_localToParent =
-			glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
-		childNode->m_meshMaterials.emplace_back(material, mesh);
-		retVal->RootNode()->m_children.push_back(std::move(childNode));
-	}
+                childNode->m_localToParent = glm::translate(glm::vec3(0.0f)) *
+                                             glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
+                childNode->m_meshMaterials.emplace_back(material, mesh);
+                retVal->RootNode()->m_children.push_back(std::move(childNode));
+            }
+        }
+    }
+    else
+    {
+        std::map<int, std::vector<Vertex>> meshMaterials;
+        meshMaterials[-1] = std::vector<Vertex>();
+        for (const auto &i : shapes)
+        {
+            ProcessNode(directory, meshMaterials, i, attribute);
+        }
 
+        for (auto &i : meshMaterials)
+        {
+            std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
+            const auto materialId = i.first;
+            auto &vertices = i.second;
+            if (vertices.empty())
+                continue;
+            const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
+                              (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
+#pragma region Material
+            auto material = std::make_shared<Material>();
+            if (materialId != -1)
+            {
+                auto &importedMaterial = materials[materialId];
+                material->m_metallic = importedMaterial.metallic;
+                material->m_roughness = importedMaterial.roughness;
+                material->m_albedoColor =
+                    glm::vec3(importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
+                if (!importedMaterial.diffuse_texname.empty())
+                {
+                    const auto albedo = CollectTexture(
+                        directory, importedMaterial.diffuse_texname, loadedTextures, TextureType::Albedo);
+                    if (albedo)
+                    {
+                        material->SetTexture(albedo);
+                    }
+                }
+                if (!importedMaterial.bump_texname.empty())
+                {
+                    const auto normal =
+                        CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, TextureType::Normal);
+                    if (normal)
+                    {
+                        material->SetTexture(normal);
+                    }
+                }
+                if (!importedMaterial.normal_texname.empty())
+                {
+                    const auto normal =
+                        CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, TextureType::Normal);
+                    if (normal)
+                    {
+                        material->SetTexture(normal);
+                    }
+                }
+                if (!importedMaterial.roughness_texname.empty())
+                {
+                    const auto roughness = CollectTexture(
+                        directory, importedMaterial.roughness_texname, loadedTextures, TextureType::Roughness);
+                    if (roughness)
+                    {
+                        material->SetTexture(roughness);
+                    }
+                }
+                if (!importedMaterial.specular_highlight_texname.empty())
+                {
+                    const auto roughness = CollectTexture(
+                        directory, importedMaterial.specular_highlight_texname, loadedTextures, TextureType::Roughness);
+                    if (roughness)
+                    {
+                        material->SetTexture(roughness);
+                    }
+                }
+                if (!importedMaterial.metallic_texname.empty())
+                {
+                    const auto metallic = CollectTexture(
+                        directory, importedMaterial.metallic_texname, loadedTextures, TextureType::Metallic);
+                    if (metallic)
+                    {
+                        material->SetTexture(metallic);
+                    }
+                }
+                if (!importedMaterial.reflection_texname.empty())
+                {
+                    const auto metallic = CollectTexture(
+                        directory, importedMaterial.reflection_texname, loadedTextures, TextureType::Metallic);
+                    if (metallic)
+                    {
+                        material->SetTexture(metallic);
+                    }
+                }
+
+                if (!importedMaterial.ambient_texname.empty())
+                {
+                    const auto ao =
+                        CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, TextureType::AO);
+                    if (ao)
+                    {
+                        material->SetTexture(ao);
+                    }
+                }
+            }
+            else
+            {
+                material = DefaultResources::Materials::StandardMaterial;
+            }
+#pragma endregion
+#pragma region Mesh
+            auto mesh = std::make_shared<Mesh>();
+            auto indices = std::vector<unsigned>();
+            assert(vertices.size() % 3 == 0);
+            for (unsigned i = 0; i < vertices.size(); i++)
+            {
+                indices.push_back(i);
+            }
+            mesh->SetVertices(mask, vertices, indices);
+#pragma endregion
+            childNode->m_localToParent = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
+                                         glm::scale(glm::vec3(1.0f));
+            childNode->m_meshMaterials.emplace_back(material, mesh);
+            retVal->RootNode()->m_children.push_back(std::move(childNode));
+        }
+
+    }
 	if (addResource)
 		Push(retVal);
 	return retVal;
@@ -229,8 +375,8 @@ void ResourceManager::ProcessNode(
 		}
 		const size_t fv = size_t(shape.mesh.num_face_vertices[f]);
 		// Loop over vertices in the face.
-        Vertex vertices[3];
-        bool recalculateNormal = false;
+		Vertex vertices[3];
+		bool recalculateNormal = false;
 		for (size_t v = 0; v < fv; v++)
 		{
 			Vertex& vertex = vertices[v];
@@ -248,7 +394,7 @@ void ResourceManager::ProcessNode(
 				vertex.m_normal.z = attribute.normals[3 * size_t(idx.normal_index) + 2];
 			}else
 			{
-                recalculateNormal = true;
+				recalculateNormal = true;
 			}
 
 			// Check if `texcoord_index` is zero or positive. negative = no texcoord data
@@ -273,15 +419,15 @@ void ResourceManager::ProcessNode(
 		}
 		if (recalculateNormal)
 		{
-            vertices[0].m_normal = vertices[1].m_normal = vertices[2].m_normal = 
+			vertices[0].m_normal = vertices[1].m_normal = vertices[2].m_normal = 
 				-glm::normalize(glm::cross(
-                vertices[0].m_position - vertices[1].m_position, 
+				vertices[0].m_position - vertices[1].m_position, 
 					vertices[0].m_position - vertices[2].m_position)
 				);
 		}
 		meshMaterials[materialId].push_back(vertices[0]);
-        meshMaterials[materialId].push_back(vertices[1]);
-        meshMaterials[materialId].push_back(vertices[2]);
+		meshMaterials[materialId].push_back(vertices[1]);
+		meshMaterials[materialId].push_back(vertices[2]);
 		index_offset += fv;
 	}
 	

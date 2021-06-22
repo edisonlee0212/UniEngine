@@ -31,10 +31,10 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     template <typename T> static std::shared_ptr<T> Find(std::string objectName);
     template <typename T> static void Remove(size_t hashCode);
     static void Remove(size_t id, size_t hashCode);
-    static std::shared_ptr<Model> LoadModel(
-        const bool &addResource,
-        std::string const &path,
-        std::shared_ptr<OpenGLUtils::GLProgram> glProgram
+    static std::shared_ptr<Model> LoadModel(const bool &addResource,
+                                            std::string const &path,
+                                            std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
+                                            const bool& optimize = true
         );
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,

@@ -1,0 +1,30 @@
+# Blender MTL File: 'retrotv0319.blend'
+# Material Count: 2
+
+newmtl Main
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump retrotv0319_Main_NormalGL.png
+map_Kd retrotv0319_Main_BaseColor.png
+map_Ns retrotv0319_Main_Roughness.png
+refl retrotv0319_Main_Metallic.png
+
+newmtl Screen
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump retrotv0319_Screen_NormalGL.png
+map_Kd retrotv0319_Screen_BaseColor.png
+map_Ns retrotv0319_Screen_Roughness.png
+refl retrotv0319_Screen_Metallic.png
