@@ -36,7 +36,7 @@ void main()
 
 	if(UE_ROUGHNESS_MAP_ENABLED) roughness = texture(UE_ROUGHNESS_MAP, texCoords).r;
 	if(UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoords).r;
-	//if(UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
+	if(UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
 
 
 	// store the fragment position vector in the first gbuffer texture
