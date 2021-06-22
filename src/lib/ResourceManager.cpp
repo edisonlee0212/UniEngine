@@ -16,7 +16,6 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     const bool &addResource, std::string const &path, std::shared_ptr<OpenGLUtils::GLProgram> glProgram)
 {
     UNIENGINE_LOG("Loading model from: " + path);
-
     tinyobj::ObjReaderConfig reader_config;
     reader_config.mtl_search_path = ""; // Path to material files
     reader_config.triangulate = true;
@@ -81,10 +80,9 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
     std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded, 
     const TextureType& textureType)
 {
-    bool skip = false;
     for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
     {
-        if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + path) == 0) return texture2DsLoaded.at(j);
+        if (texture2DsLoaded.at(j)->Path() == directory + "/" + path) return texture2DsLoaded.at(j);
     }
     auto texture2D = LoadTexture(false, directory + "/" + path, textureType);
     texture2DsLoaded.push_back(texture2D);
@@ -193,6 +191,15 @@ void ResourceManager::ProcessNode(
                     material->SetTexture(roughness);
                 }
             }
+            if (!importedMaterial.specular_highlight_texname.empty())
+            {
+                const auto roughness = CollectTexture(
+                    directory, importedMaterial.specular_highlight_texname, texture2DsLoaded, TextureType::Roughness);
+                if (roughness)
+                {
+                    material->SetTexture(roughness);
+                }
+            }
             if (!importedMaterial.metallic_texname.empty())
             {
                 const auto metallic = CollectTexture(
@@ -202,6 +209,16 @@ void ResourceManager::ProcessNode(
                     material->SetTexture(metallic);
                 }
             }
+            if (!importedMaterial.reflection_texname.empty())
+            {
+                const auto metallic = CollectTexture(
+                    directory, importedMaterial.reflection_texname, texture2DsLoaded, TextureType::Metallic);
+                if (metallic)
+                {
+                    material->SetTexture(metallic);
+                }
+            }
+
             if (!importedMaterial.ambient_texname.empty())
             {
                 const auto ao = CollectTexture(
