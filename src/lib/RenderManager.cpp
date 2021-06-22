@@ -117,22 +117,22 @@ void RenderManager::RenderToCameraDeferred(
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     renderManager.m_gBufferLightingPass->Bind();
 
-    cameraComponent->m_gPositionBuffer->Bind(8);
-    cameraComponent->m_gNormalBuffer->Bind(9);
-    cameraComponent->m_gColorSpecularBuffer->Bind(10);
-    cameraComponent->m_gMetallicRoughnessAo->Bind(11);
-    renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 8);
-    renderManager.m_gBufferLightingPass->SetInt("gNormalShininess", 9);
-    renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 10);
-    renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 11);
+    cameraComponent->m_gPositionBuffer->Bind(9);
+    cameraComponent->m_gNormalBuffer->Bind(10);
+    cameraComponent->m_gColorSpecularBuffer->Bind(11);
+    cameraComponent->m_gMetallicRoughnessAo->Bind(12);
+    renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 9);
+    renderManager.m_gBufferLightingPass->SetInt("gNormalShininess", 10);
+    renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 11);
+    renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 12);
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
-        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
-        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
-        renderManager.m_spotLightShadowMap->DepthMap()->Bind(2);
-        renderManager.m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
-        renderManager.m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
-        renderManager.m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(1);
+        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(2);
+        renderManager.m_spotLightShadowMap->DepthMap()->Bind(3);
+        renderManager.m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 1);
+        renderManager.m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM_LEGACY", 2);
+        renderManager.m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 3);
     }
     glDrawArrays(GL_TRIANGLES, 0, 6);
     auto res = cameraComponent->GetResolution();
@@ -1616,6 +1616,10 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
+    if (!supportBindlessTexture)
+    {
+        DefaultResources::Textures::MissingTexture->Texture()->Bind(0);
+    }
     for (const auto &i : material->m_textures)
     {
         if (!i.second || !i.second->Texture())
@@ -1629,8 +1633,8 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
             }
             else
             {
-                i.second->Texture()->Bind(3);
-                program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+                i.second->Texture()->Bind(4);
+                program->SetInt("UE_ALBEDO_MAP_LEGACY", 4);
                 manager.m_materialSettings.m_albedoMap = 0;
             }
             manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
@@ -1642,8 +1646,8 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
             }
             else
             {
-                i.second->Texture()->Bind(4);
-                program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+                i.second->Texture()->Bind(5);
+                program->SetInt("UE_NORMAL_MAP_LEGACY", 5);
                 manager.m_materialSettings.m_normalMap = 0;
             }
             manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
@@ -1655,8 +1659,8 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
             }
             else
             {
-                i.second->Texture()->Bind(5);
-                program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
+                i.second->Texture()->Bind(6);
+                program->SetInt("UE_METALLIC_MAP_LEGACY", 6);
                 manager.m_materialSettings.m_metallicMap = 0;
             }
             manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
@@ -1668,8 +1672,8 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
             }
             else
             {
-                i.second->Texture()->Bind(6);
-                program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
+                i.second->Texture()->Bind(7);
+                program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 7);
                 manager.m_materialSettings.m_roughnessMap = 0;
             }
             manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
@@ -1681,8 +1685,8 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
             }
             else
             {
-                i.second->Texture()->Bind(7);
-                program->SetInt("UE_AO_MAP_LEGACY", 7);
+                i.second->Texture()->Bind(8);
+                program->SetInt("UE_AO_MAP_LEGACY", 8);
                 manager.m_materialSettings.m_aoMap = 0;
             }
             manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
@@ -1701,20 +1705,22 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
         manager.m_materialSettings.m_directionalShadowMap = manager.m_directionalLightShadowMap->DepthMapArray()->GetHandle();
         manager.m_materialSettings.m_pointShadowMap = manager.m_pointLightShadowMap->DepthMapArray()->GetHandle();
         manager.m_materialSettings.m_spotShadowMap = manager.m_spotLightShadowMap->DepthMap()->GetHandle();
+       
     }else
     {
-        manager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
-        manager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
-        manager.m_spotLightShadowMap->DepthMap()->Bind(2);
-        program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
-        program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
-        program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+        manager.m_directionalLightShadowMap->DepthMapArray()->Bind(1);
+        manager.m_pointLightShadowMap->DepthMapArray()->Bind(2);
+        manager.m_spotLightShadowMap->DepthMap()->Bind(3);
+        program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 1);
+        program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 2);
+        program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 3);
         manager.m_materialSettings.m_directionalShadowMap = 0;
         manager.m_materialSettings.m_pointShadowMap = 0;
         manager.m_materialSettings.m_spotShadowMap = 0;
+        program->SetInt("UE_CAMERA_SKYBOX_LEGACY", CameraComponent::m_cameraInfoBlock.m_skybox);
     }
 
-
+    
     manager.m_materialSettingsBuffer->SubData(
         0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }

@@ -65,4 +65,4 @@ uniform sampler2D UE_METALLIC_MAP_LEGACY;
 uniform sampler2D UE_ROUGHNESS_MAP_LEGACY;
 uniform sampler2D UE_AO_MAP_LEGACY;
 
-//uniform sampler2D UE_ENVIRONMENTAL_MAP_LEGACY;
+uniform sampler2D UE_ENVIRONMENTAL_MAP_LEGACY;
