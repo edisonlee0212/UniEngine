@@ -9,12 +9,21 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 {
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
+
+    static std::shared_ptr<Texture2D> CollectTexture(
+        const std::string &directory,
+        const std::string &path,
+        std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        const TextureType &textureType
+    );
+
     static void ProcessNode(
         const std::string &directory,
         std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
         std::unique_ptr<ModelNode> &modelNode,
         std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
         const tinyobj::shape_t& shape,
+        const std::vector<tinyobj::material_t>& materials,
         const tinyobj::attrib_t& attribute);
     static void AttachChildren(
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);

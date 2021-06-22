@@ -18,7 +18,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     UNIENGINE_LOG("Loading model from: " + path);
 
     tinyobj::ObjReaderConfig reader_config;
-    reader_config.mtl_search_path = "./"; // Path to material files
+    reader_config.mtl_search_path = ""; // Path to material files
     reader_config.triangulate = true;
     tinyobj::ObjReader reader;
 
@@ -42,10 +42,10 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     auto &attribute = reader.GetAttrib();
     auto &shapes = reader.GetShapes();
     auto &materials = reader.GetMaterials();
-
+    const std::string directory = path.substr(0, path.find_last_of('/'));
     for (const auto &i : shapes)
     {
-        ProcessNode(path, glProgram, retVal->RootNode(), texture2DsLoaded, i, attribute);
+        ProcessNode(directory, glProgram, retVal->RootNode(), texture2DsLoaded, i, materials, attribute);
     }
     if (addResource)
         Push(retVal);
@@ -75,12 +75,29 @@ Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shar
     return entity;
 }
 
+std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
+    const std::string &directory,
+    const std::string &path,
+    std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded, 
+    const TextureType& textureType)
+{
+    bool skip = false;
+    for (unsigned j = 0; j < texture2DsLoaded.size(); j++)
+    {
+        if (texture2DsLoaded.at(j)->Path().compare(directory + "/" + path) == 0) return texture2DsLoaded.at(j);
+    }
+    auto texture2D = LoadTexture(false, directory + "/" + path, textureType);
+    texture2DsLoaded.push_back(texture2D);
+    return texture2D;
+}
+
 void ResourceManager::ProcessNode(
     const std::string &directory,
     std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
     std::unique_ptr<ModelNode> &modelNode,
     std::vector<std::shared_ptr<Texture2D>> &texture2DsLoaded,
     const tinyobj::shape_t &shape,
+    const std::vector<tinyobj::material_t> &materials,
     const tinyobj::attrib_t &attribute)
 {
     std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
@@ -110,6 +127,7 @@ void ResourceManager::ProcessNode(
             // Check if `normal_index` is zero or positive. negative = no normal data
             if (idx.normal_index >= 0)
             {
+                mask = mask | static_cast<unsigned>(VertexAttribute::Normal);
                 vertices[f * 3 + v].m_normal.x = attribute.normals[3 * size_t(idx.normal_index) + 0];
                 vertices[f * 3 + v].m_normal.y = attribute.normals[3 * size_t(idx.normal_index) + 1];
                 vertices[f * 3 + v].m_normal.z = attribute.normals[3 * size_t(idx.normal_index) + 2];
@@ -118,11 +136,13 @@ void ResourceManager::ProcessNode(
             // Check if `texcoord_index` is zero or positive. negative = no texcoord data
             if (idx.texcoord_index >= 0)
             {
+                mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
                 vertices[f * 3 + v].m_texCoords.x = attribute.texcoords[2 * size_t(idx.texcoord_index) + 0];
                 vertices[f * 3 + v].m_texCoords.y = attribute.texcoords[2 * size_t(idx.texcoord_index) + 1];
             }
             if (!attribute.colors.empty())
             {
+                mask = mask | static_cast<unsigned>(VertexAttribute::Color);
                 vertices[f * 3 + v].m_color.x = attribute.colors[3 * size_t(idx.vertex_index) + 0];
                 vertices[f * 3 + v].m_color.y = attribute.colors[3 * size_t(idx.vertex_index) + 1];
                 vertices[f * 3 + v].m_color.z = attribute.colors[3 * size_t(idx.vertex_index) + 2];
@@ -131,9 +151,70 @@ void ResourceManager::ProcessNode(
         index_offset += fv;
 
         // per-face material
-        shape.mesh.material_ids[f];
+        if(shape.mesh.material_ids[f] != -1)
+        {
+            auto &importedMaterial = materials[shape.mesh.material_ids[f]];
+            material->m_metallic = importedMaterial.metallic;
+            material->m_roughness = importedMaterial.roughness;
+            material->m_albedoColor = glm::vec3(importedMaterial.diffuse[0],importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
+            if(!importedMaterial.diffuse_texname.empty())
+            {
+                const auto albedo =
+                    CollectTexture(directory, importedMaterial.diffuse_texname, texture2DsLoaded, TextureType::Albedo);
+                if (albedo)
+                {
+                    material->SetTexture(albedo);
+                }
+            }
+            if (!importedMaterial.bump_texname.empty())
+            {
+                const auto normal =
+                    CollectTexture(directory, importedMaterial.bump_texname, texture2DsLoaded, TextureType::Normal);
+                if (normal)
+                {
+                    material->SetTexture(normal);
+                }
+            }
+            if (!importedMaterial.normal_texname.empty())
+            {
+                const auto normal =
+                    CollectTexture(directory, importedMaterial.normal_texname, texture2DsLoaded, TextureType::Normal);
+                if (normal)
+                {
+                    material->SetTexture(normal);
+                }
+            }
+            if (!importedMaterial.roughness_texname.empty())
+            {
+                const auto roughness = CollectTexture(
+                    directory, importedMaterial.roughness_texname, texture2DsLoaded, TextureType::Roughness);
+                if (roughness)
+                {
+                    material->SetTexture(roughness);
+                }
+            }
+            if (!importedMaterial.metallic_texname.empty())
+            {
+                const auto metallic = CollectTexture(
+                    directory, importedMaterial.metallic_texname, texture2DsLoaded, TextureType::Metallic);
+                if (metallic)
+                {
+                    material->SetTexture(metallic);
+                }
+            }
+            if (!importedMaterial.ambient_texname.empty())
+            {
+                const auto ao = CollectTexture(
+                    directory, importedMaterial.ambient_texname, texture2DsLoaded, TextureType::AO);
+                if (ao)
+                {
+                    material->SetTexture(ao);
+                }
+            }
+        }
     }
     mesh->SetVertices(mask, vertices, indices);
+    childNode->m_localToParent = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
     childNode->m_meshMaterials.emplace_back(material, mesh);
     modelNode->m_children.push_back(std::move(childNode));
 }

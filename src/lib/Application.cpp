@@ -311,7 +311,7 @@ void APIENTRY glDebugOutput(
 {
     if (id == 131154 || id == 131169 || id == 131185 || id == 131218 || id == 131204 || id == 131184)
         return; // ignore these non-significant error codes
-
+    if (severity != GL_DEBUG_SEVERITY_HIGH) return; //ignore non-error messages.
     std::cout << "---------------" << std::endl;
     std::cout << "Debug message (" << id << "): " << message << std::endl;
 
