@@ -378,7 +378,7 @@ void DefaultResources::Load(World *world)
 	Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture);
 	Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
 
-	DefaultEnvironmentalMap = ResourceManager::LoadEnvironmentalMap(true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr"), 2.2);
+	DefaultEnvironmentalMap = ResourceManager::LoadEnvironmentalMap(true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr"));
 	DefaultEnvironmentalMap->m_targetCubemap = ResourceManager::LoadCubemap(false, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_8k.jpg"));
 	DefaultEnvironmentalMap->m_name = "Default Environmental Map";
 
