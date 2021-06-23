@@ -29,13 +29,10 @@ void main()
 
 	vec3 result = UE_FUNC_CALCULATE_LIGHTS(receiveShadow, albedo, 1.0, dist, normal, viewDir, fragPos, metallic, roughness, F0);
 	vec3 ambient = UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(albedo, normal, viewDir, metallic, roughness, F0);
-	vec3 color = result + ambient * ao * UE_AMBIENT_LIGHT;
-
 	float gamma = 2.2;
-	// exposure tone mapping
-    //color = color / (color + vec3(1.0));
     // gamma correction 
-    //color = pow(color, vec3(1.0 / gamma));
+    ambient = pow(ambient, vec3(1.0 / gamma));
 
+	vec3 color = result + ambient * ao * UE_AMBIENT_LIGHT;
 	FragColor = vec4(color, 1.0);
 }

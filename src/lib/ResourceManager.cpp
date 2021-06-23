@@ -17,8 +17,10 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
     const bool &addResource,
     std::string const &path,
     std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
-    const bool &optimize)
+    const bool &optimize, const float &gamma)
 {
+    stbi_hdr_to_ldr_gamma(gamma);
+    stbi_ldr_to_hdr_gamma(gamma);
 	UNIENGINE_LOG("Loading model from: " + path);
 	tinyobj::ObjReaderConfig reader_config;
 	reader_config.mtl_search_path = ""; // Path to material files
@@ -77,8 +79,8 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
                         material = std::make_shared<Material>();
                         material->SetProgram(glProgram);
                         auto &importedMaterial = materials[materialId];
-                        material->m_metallic = importedMaterial.metallic;
-                        material->m_roughness = importedMaterial.roughness;
+                        material->m_metallic = importedMaterial.metallic == 0 ? 0.0f : importedMaterial.metallic;
+                        material->m_roughness = importedMaterial.roughness == 0 ? 1.0f : importedMaterial.roughness;
                         material->m_albedoColor = glm::vec3(
                             importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
 #pragma region Textures
@@ -339,7 +341,8 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
 	const std::string &directory,
 	const std::string &path,
 	std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
-	const TextureType& textureType)
+    const TextureType &textureType,
+    const float &gamma)
 {
 	const std::string fileName = directory + "/" + path; 
 	const auto search = loadedTextures.find(fileName);
@@ -347,7 +350,7 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
 	{
 		return search->second;
 	}
-	auto texture2D = LoadTexture(false, directory + "/" + path, textureType);
+	auto texture2D = LoadTexture(false, directory + "/" + path, textureType, gamma);
 	loadedTextures[fileName] = texture2D;
 	return texture2D;
 }
@@ -466,7 +469,8 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
 	const std::string filename = path;
 	retVal->m_path = filename;
 	int width, height, nrComponents;
-	stbi_ldr_to_hdr_gamma(gamma);
+    stbi_hdr_to_ldr_gamma(gamma);
+    stbi_ldr_to_hdr_gamma(gamma);
 	float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
@@ -517,6 +521,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     const std::string filename = path;
     texture2D->m_path = filename;
     int width, height, nrComponents;
+    stbi_hdr_to_ldr_gamma(gamma);
     stbi_ldr_to_hdr_gamma(gamma);
     float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
@@ -614,7 +619,8 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 	{
 		UNIENGINE_ERROR("Texture::LoadCubeMap: Size error.");
 		return nullptr;
-	}
+    }
+    stbi_hdr_to_ldr_gamma(gamma);
 	stbi_ldr_to_hdr_gamma(gamma);
 	float *temp = stbi_loadf(paths[0].c_str(), &width, &height, &nrComponents, 0);
 	stbi_image_free(temp);

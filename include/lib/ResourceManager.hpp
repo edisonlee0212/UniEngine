@@ -15,7 +15,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const std::string &directory,
         const std::string &path,
         std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
-        const TextureType &textureType
+        const TextureType &textureType, const float &gamma = 2.2f
     );
 
     static void ProcessNode(
@@ -35,7 +35,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::shared_ptr<Model> LoadModel(const bool &addResource,
                                             std::string const &path,
                                             std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
-                                            const bool& optimize = false
+        const bool &optimize = false,
+        const float &gamma = 2.2f
         );
     static std::shared_ptr<Texture2D> LoadTexture(
         const bool &addResource,
