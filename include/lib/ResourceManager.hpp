@@ -41,17 +41,17 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const bool &addResource,
         const std::string &path,
         TextureType type = TextureType::Albedo,
-        const float &gamma = 1.0f);
+        const float &gamma = 2.2f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,
         const std::string &path,
-        const float &gamma = 1.0f);
+        const float &gamma = 2.2f);
     static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(
-        const bool &addResource, const std::string &path, const float &gamma = 1.0f);
+        const bool &addResource, const std::string &path, const float &gamma = 2.2f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,
         const std::vector<std::string> &paths,
-        const float &gamma = 1.0f);
+        const float &gamma = 2.2f);
     static std::shared_ptr<Material> LoadMaterial(
         const bool &addResource, const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(

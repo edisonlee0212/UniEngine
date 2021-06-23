@@ -41,5 +41,9 @@ void main()
 	vec3 result = UE_FUNC_CALCULATE_LIGHTS(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW, albedo.rgb, 1.0, dist, normal, viewDir, fs_in.FragPos, metallic, roughness, F0);
 	vec3 ambient = UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(albedo.rgb, normal, viewDir, metallic, roughness, F0);
 	vec3 color = result + ambient * ao * UE_AMBIENT_LIGHT;
+	
+	float gamma = 2.2;
+	color = pow(color, vec3(1.0 / gamma));
+	
 	FragColor = vec4(color, albedo.a);
 }

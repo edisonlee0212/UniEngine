@@ -11,11 +11,10 @@ int main()
 {
 #pragma region Application Preparations
     Application::Init();
-    RenderManager::GetInstance().m_lightSettings.m_ambientLight = 3.0f;
     auto &world = Application::GetCurrentWorld();
-    EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
+    
 #pragma endregion
 #pragma region Star System
     auto *starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
@@ -30,7 +29,7 @@ int main()
         bloom->m_enabled = true;
     }
     EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
-    RenderManager::GetMainCamera()->m_useClearColor = false;
+    RenderManager::GetMainCamera()->m_useClearColor = true;
 #pragma region EngineLoop
     Application::Run();
     Application::End();
