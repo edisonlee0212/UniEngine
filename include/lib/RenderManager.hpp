@@ -150,6 +150,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;
+    static void ShadowEnvironmentPreset();
     static void ApplyEnvironmentalMap(const EnvironmentalMap *environmentalMap);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
