@@ -44,9 +44,13 @@ struct MaterialSettingsBlock
     float m_roughnessVal = 0.5f;
     float m_aoVal = 1.0f;
     float m_alphaDiscardOffset = 0.1f;
-    
-    int m_environmentalMapEnabled = 0;
+};
+struct EnvironmentalMapSettingsBlock
+{
     GLuint64 m_environmentalMap = 0;
+    GLuint64 m_environmentalIrradiance = 0;
+    GLuint64 m_environmentalPrefiltered = 0;
+    GLuint64 m_environmentalBrdfLut = 0;
 };
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
@@ -59,6 +63,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     bool m_enableInfoWindow = true;
 #pragma endregion
 #pragma region Render
+    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
+    
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
@@ -73,6 +79,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     
 
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
+    std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
 #pragma endregion
 #pragma region Shadow
     OpenGLUtils::GLUBO m_directionalLightBlock;
@@ -142,7 +149,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = {0.15f, 0.3f, 0.5f, 1.0f};
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
-
+    EnvironmentalMapSettingsBlock m_environmentalMapSettings;
+    static void ApplyEnvironmentalMap(const EnvironmentalMap *environmentalMap);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);

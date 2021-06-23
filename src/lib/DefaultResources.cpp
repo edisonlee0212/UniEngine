@@ -5,6 +5,7 @@
 #include <Material.hpp>
 #include <Mesh.hpp>
 #include <ResourceManager.hpp>
+#include <EnvironmentalMap.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -37,6 +38,8 @@ std::shared_ptr<Mesh> DefaultResources::Primitives::Monkey;
 
 std::shared_ptr<Material> DefaultResources::Materials::StandardMaterial;
 std::shared_ptr<Material> DefaultResources::Materials::StandardInstancedMaterial;
+
+std::unique_ptr<EnvironmentalMap> DefaultResources::DefaultEnvironmentalMap;
 
 void DefaultResources::Load(World *world)
 {
@@ -371,4 +374,7 @@ void DefaultResources::Load(World *world)
     Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
     Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture);
     Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
+
+    DefaultEnvironmentalMap = std::make_unique<EnvironmentalMap>();
+    DefaultEnvironmentalMap->ConstructFromCubemap(Textures::DefaultSkybox);
 }

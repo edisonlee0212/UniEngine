@@ -5,6 +5,7 @@ namespace UniEngine
 class UNIENGINE_API Cubemap : public ResourceBehaviour
 {
     friend class ResourceManager;
+    friend class EnvironmentalMap;
     std::unique_ptr<OpenGLUtils::GLTextureCubeMap> m_texture;
   public:
     Cubemap();

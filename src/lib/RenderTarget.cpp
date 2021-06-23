@@ -58,15 +58,14 @@ void RenderTarget::AttachTexture(OpenGLUtils::GLTexture *texture, const GLenum &
 
 void RenderTarget::AttachTexture2D(
     OpenGLUtils::GLTexture *texture,
-    const GLenum &attachPoint,
-    const GLenum &texTarget) const
+    const GLenum &attachPoint, const GLenum &texTarget, const GLint &level) const
 {
     if (m_bound)
     {
         UNIENGINE_ERROR("Error");
         return;
     }
-    m_frameBuffer->AttachTexture2D(texture, attachPoint, texTarget);
+    m_frameBuffer->AttachTexture2D(texture, attachPoint, texTarget, level);
 }
 
 void RenderTarget::AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, const GLenum &attachPoint) const

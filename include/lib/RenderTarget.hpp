@@ -14,7 +14,11 @@ class UNIENGINE_API RenderTarget
   public:
     void AttachTextureLayer(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLint &layer) const;
     void AttachTexture(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint) const;
-    void AttachTexture2D(OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget) const;
+    void AttachTexture2D(
+        OpenGLUtils::GLTexture *texture,
+        const GLenum &attachPoint,
+        const GLenum &texTarget,
+        const GLint &level = 0) const;
     void AttachRenderBuffer(OpenGLUtils::GLRenderBuffer *renderBuffer, const GLenum &attachPoint) const;
     RenderTarget();
     RenderTarget(size_t width, size_t height);

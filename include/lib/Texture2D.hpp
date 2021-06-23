@@ -19,13 +19,14 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
     std::string m_path;
     friend class ResourceManager;
+    friend class EnvironmentalMap;
     friend class CameraComponent;
 
   public:
     Texture2D(TextureType type = TextureType::Albedo);
     void SetType(TextureType type);
-    TextureType GetType() const;
-    glm::vec2 GetResolution() const;
+    [[nodiscard]] TextureType GetType() const;
+    [[nodiscard]] glm::vec2 GetResolution() const;
     void StoreToPng(
         const std::string &path,
         int resizeX = -1,
@@ -33,7 +34,7 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
         bool alphaChannel = false,
         unsigned compressionLevel = 8) const;
     void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1, unsigned quality = 100) const;
-    std::shared_ptr<OpenGLUtils::GLTexture2D> Texture() const;
-    std::string Path() const;
+    [[nodiscard]] std::shared_ptr<OpenGLUtils::GLTexture2D> Texture() const;
+    [[nodiscard]] std::string Path() const;
 };
 } // namespace UniEngine

@@ -3,6 +3,7 @@
 #include <World.hpp>
 namespace UniEngine
 {
+class EnvironmentalMap;
 class Mesh;
 class Material;
 class Cubemap;
@@ -70,7 +71,7 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<Mesh> Ring;
         static std::shared_ptr<Mesh> Monkey;
     };
-
+    static std::unique_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
     static void Load(World *world);
 };
 } // namespace UniEngine

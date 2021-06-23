@@ -438,8 +438,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void AttachRenderBuffer(const GLRenderBuffer *buffer, const GLenum &attachPoint);
         void AttachTexture(const GLTexture *texture, const GLenum &attachPoint);
         void AttachTextureLayer(const GLTexture *texture, const GLenum &attachPoint, const GLint &layer);
-        void AttachTexture2D(
-            const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget);
+        void AttachTexture2D(const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint& level = 0);
         void Clear();
     };
     enum class UNIENGINE_API ShaderType

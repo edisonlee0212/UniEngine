@@ -109,7 +109,7 @@ float UE_FUNC_DISTRIBUTION_GGX(vec3 N, vec3 H, float roughness)
 	return nom / max(denom, 0.001); // prevent divide by zero for roughness=0.0 and NdotH=1.0
 }
 // ----------------------------------------------------------------------------
-float UE_FUNC_GEOMETRY_SCHLICH_GGX(float NdotV, float roughness)
+float UE_FUNC_GEOMETRY_SCHLICK_GGX(float NdotV, float roughness)
 {
 	float r = (roughness + 1.0);
 	float k = (r*r) / 8.0;
@@ -124,8 +124,8 @@ float UE_FUNC_GEOMETRY_SMITH(vec3 N, vec3 V, vec3 L, float roughness)
 {
 	float NdotV = max(dot(N, V), 0.0);
 	float NdotL = max(dot(N, L), 0.0);
-	float ggx2 = UE_FUNC_GEOMETRY_SCHLICH_GGX(NdotV, roughness);
-	float ggx1 = UE_FUNC_GEOMETRY_SCHLICH_GGX(NdotL, roughness);
+	float ggx2 = UE_FUNC_GEOMETRY_SCHLICK_GGX(NdotV, roughness);
+	float ggx1 = UE_FUNC_GEOMETRY_SCHLICK_GGX(NdotL, roughness);
 
 	return ggx1 * ggx2;
 }
@@ -135,6 +135,32 @@ vec3 UE_FUNC_FRESNEL_SCHLICK(float cosTheta, vec3 F0)
 	return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
+// ----------------------------------------------------------------------------
+vec3 UE_FUNC_FRESNEL_SCHLICK_ROUGHNESS(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}   
+
+vec3 UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(vec3 albedo, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0)
+{
+    // ambient lighting (we now use IBL as the ambient term)
+    vec3 F = UE_FUNC_FRESNEL_SCHLICK_ROUGHNESS(max(dot(normal, viewDir), 0.0), F0, roughness);
+    vec3 R = reflect(-viewDir, normal); 
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - metallic;	  
+    
+    vec3 irradiance = texture(UE_ENVIRONMENTAL_IRRADIANCE, normal).rgb;
+    vec3 diffuse      = irradiance * albedo;
+    
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(UE_ENVIRONMENTAL_PREFILERED, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(UE_ENVIRONMENTAL_BRDFLUT, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+
+    return kD * diffuse + specular;
+}
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){
 	vec3 result = vec3(0.0, 0.0, 0.0);

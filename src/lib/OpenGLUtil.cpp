@@ -860,8 +860,7 @@ void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(
 }
 
 void OpenGLUtils::GLFrameBuffer::AttachTexture2D(
-    const GLTexture *texture,
-    const GLenum &attachPoint, const GLenum &texTarget)
+    const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint &level)
 {
     switch (attachPoint)
     {
@@ -880,7 +879,7 @@ void OpenGLUtils::GLFrameBuffer::AttachTexture2D(
         break;
     }
     Bind();
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, texTarget, texture->Id(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPoint, texTarget, texture->Id(), level);
 }
 
 void OpenGLUtils::GLFrameBuffer::Clear()

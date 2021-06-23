@@ -4,6 +4,15 @@
 #include <RenderManager.hpp>
 
 using namespace UniEngine;
+
+void CameraControlSystem::OnCreate()
+{
+    auto *mainCamera = RenderManager::GetMainCamera();
+    auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
+    transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
+    EntityManager::SetComponentData(mainCamera->GetOwner(), transform);
+}
+
 void CameraControlSystem::LateUpdate()
 {
     auto *mainCamera = RenderManager::GetMainCamera();
