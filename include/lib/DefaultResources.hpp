@@ -24,6 +24,10 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<OpenGLUtils::GLProgram> GizmoProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedColoredProgram;
+
+        static std::shared_ptr<OpenGLUtils::GLProgram> ConvolutionProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> PrefilterProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> BrdfProgram;
     };
     class UNIENGINE_API Materials
     {

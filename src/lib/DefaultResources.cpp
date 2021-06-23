@@ -1,5 +1,4 @@
-#include "RenderManager.hpp"
-
+#include <RenderManager.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include <FileIO.hpp>
@@ -7,6 +6,9 @@
 #include <Mesh.hpp>
 #include <ResourceManager.hpp>
 using namespace UniEngine;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::BrdfProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::SkyboxProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ScreenProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardProgram;
@@ -121,20 +123,77 @@ void DefaultResources::Load(World *world)
     GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
     GLPrograms::SkyboxProgram->SetInt("skybox", 0);
     GLPrograms::SkyboxProgram->m_name = "Skybox";
-
-    auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShaderCode =
-        std::string("#version 450 core\n") +
-        std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EquirectangularMapToCubemap.vert")));
-    convertCubemapvert->Compile(vertShaderCode);
-    auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShaderCode =
-        std::string("#version 450 core\n") +
-        std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EquirectangularMapToCubemap.frag")));
-    convertCubemapfrag->Compile(fragShaderCode);
-    ResourceManager::GetInstance().m_2DToCubemapProgram = ResourceManager::LoadProgram(false, convertCubemapvert, convertCubemapfrag);
-    ResourceManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
-    ResourceManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
+    {
+        auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+        vertShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Vertex/EquirectangularMapToCubemap.vert")));
+        convertCubemapvert->Compile(vertShaderCode);
+        auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+        fragShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Fragment/EquirectangularMapToCubemap.frag")));
+        convertCubemapfrag->Compile(fragShaderCode);
+        ResourceManager::GetInstance().m_2DToCubemapProgram = std::make_unique<OpenGLUtils::GLProgram>();
+        ResourceManager::GetInstance().m_2DToCubemapProgram->Attach(convertCubemapvert);
+        ResourceManager::GetInstance().m_2DToCubemapProgram->Attach(convertCubemapfrag);
+        ResourceManager::GetInstance().m_2DToCubemapProgram->Link();
+        ResourceManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
+        ResourceManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
+    }
+    {
+        auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+        vertShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Vertex/EquirectangularMapToCubemap.vert")));
+        convertCubemapvert->Compile(vertShaderCode);
+        auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+        fragShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapIrradianceConvolution.frag")));
+        convertCubemapfrag->Compile(fragShaderCode);
+        GLPrograms::ConvolutionProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        GLPrograms::ConvolutionProgram->Attach(convertCubemapvert);
+        GLPrograms::ConvolutionProgram->Attach(convertCubemapfrag);
+        GLPrograms::ConvolutionProgram->Link();
+        GLPrograms::ConvolutionProgram->SetInt("environmentMap", 0);
+        GLPrograms::ConvolutionProgram->m_name = "EnvironmentalMapIrradianceConvolution";
+    }
+    {
+        auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+        vertShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Vertex/EquirectangularMapToCubemap.vert")));
+        convertCubemapvert->Compile(vertShaderCode);
+        auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+        fragShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapPrefilter.frag")));
+        convertCubemapfrag->Compile(fragShaderCode);
+        GLPrograms::PrefilterProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        GLPrograms::PrefilterProgram->Attach(convertCubemapvert);
+        GLPrograms::PrefilterProgram->Attach(convertCubemapfrag);
+        GLPrograms::PrefilterProgram->Link();
+        GLPrograms::PrefilterProgram->SetInt("environmentMap", 0);
+        GLPrograms::PrefilterProgram->m_name = "EnvironmentalMapPrefilter";
+    }
+    {
+        auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+        vertShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Vertex/EnvironmentalMapBrdf.vert")));
+        convertCubemapvert->Compile(vertShaderCode);
+        auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+        fragShaderCode = std::string("#version 450 core\n") +
+                         std::string(FileIO::LoadFileAsString(
+                             FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapBrdf.frag")));
+        convertCubemapfrag->Compile(fragShaderCode);
+        GLPrograms::BrdfProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        GLPrograms::BrdfProgram->Attach(convertCubemapvert);
+        GLPrograms::BrdfProgram->Attach(convertCubemapfrag);
+        GLPrograms::BrdfProgram->Link();
+        GLPrograms::BrdfProgram->m_name = "EnvironmentalMapBrdf";
+    }
 #pragma endregion
 
 #pragma region Screen Shader

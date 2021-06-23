@@ -190,6 +190,7 @@ void RenderManager::RenderBackGround(const std::unique_ptr<CameraComponent> &cam
 {
     cameraComponent->Bind();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); 
     glDepthFunc(
         GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     DefaultResources::GLPrograms::SkyboxProgram->Bind();

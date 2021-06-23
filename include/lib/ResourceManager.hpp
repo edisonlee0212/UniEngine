@@ -9,7 +9,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 {
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
+    std::unique_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
     friend class DefaultResources;
     static std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
@@ -41,17 +41,14 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const bool &addResource,
         const std::string &path,
         TextureType type = TextureType::Albedo,
-        const bool &generateMipmap = true,
         const float &gamma = 1.0f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,
         const std::string &path,
-        const bool &generateMipmap = true,
         const float &gamma = 1.0f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,
         const std::vector<std::string> &paths,
-        const bool &generateMipmap = true,
         const float &gamma = 1.0f);
     static std::shared_ptr<Material> LoadMaterial(
         const bool &addResource, const std::shared_ptr<OpenGLUtils::GLProgram> &program);
