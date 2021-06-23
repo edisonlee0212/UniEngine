@@ -30,7 +30,7 @@ int main()
         bloom->m_enabled = true;
     }
     EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
-    RenderManager::GetMainCamera()->m_drawSkyBox = false;
+    RenderManager::GetMainCamera()->m_useClearColor = false;
 #pragma region EngineLoop
     Application::Run();
     Application::End();

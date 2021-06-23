@@ -24,7 +24,7 @@ int main()
 	ccs->SetVelocity(15.0f);
 	ccs->Enable();
 
-	RenderManager::GetMainCamera()->m_drawSkyBox = false;
+	RenderManager::GetMainCamera()->m_useClearColor = false;
 	
 	PlanetTerrainSystem* pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 	pts->Enable();

@@ -311,7 +311,7 @@ void CameraComponent::Serialize(YAML::Emitter &out)
     out << YAML::Key << "_ResolutionX" << YAML::Value << m_resolutionX;
     out << YAML::Key << "_ResolutionY" << YAML::Value << m_resolutionY;
     out << YAML::Key << "_IsMainCamera" << YAML::Value << m_isMainCamera;
-    out << YAML::Key << "DrawSkyBox" << YAML::Value << m_drawSkyBox;
+    out << YAML::Key << "DrawSkyBox" << YAML::Value << m_useClearColor;
     out << YAML::Key << "ClearColor" << YAML::Value << m_clearColor;
 
     out << YAML::Key << "NearDistance" << YAML::Value << m_nearDistance;
@@ -326,7 +326,7 @@ void CameraComponent::Deserialize(const YAML::Node &in)
     m_isMainCamera = in["_IsMainCamera"].as<bool>();
     if (m_isMainCamera)
         RenderManager::SetMainCamera(this);
-    m_drawSkyBox = in["DrawSkyBox"].as<bool>();
+    m_useClearColor = in["DrawSkyBox"].as<bool>();
     m_clearColor.x = in["ClearColor"][0].as<float>();
     m_clearColor.y = in["ClearColor"][1].as<float>();
     m_clearColor.z = in["ClearColor"][2].as<float>();
@@ -355,7 +355,7 @@ void CameraComponent::OnGui()
             ResizeResolution(resolution.x, resolution.y);
         }
     }
-    ImGui::Checkbox("Skybox", &m_drawSkyBox);
+    ImGui::Checkbox("Use clear color", &m_useClearColor);
     const bool savedState = m_isMainCamera;
     ImGui::Checkbox("Main Camera", &m_isMainCamera);
     if (savedState != m_isMainCamera)
@@ -369,12 +369,12 @@ void CameraComponent::OnGui()
             RenderManager::SetMainCamera(nullptr);
         }
     }
-    if (!m_drawSkyBox)
+    if (m_useClearColor)
     {
         ImGui::ColorEdit3("Clear Color", (float *)(void *)&m_clearColor);
     }else
     {
-        EditorManager::DragAndDrop(m_skyBox);
+        EditorManager::DragAndDrop(m_environmentalMap);
     }
     
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);
@@ -409,8 +409,6 @@ void CameraInfoBlock::UpdateMatrices(const CameraComponent *camera, glm::vec3 po
         camera->m_farDistance,
         glm::tan(camera->m_fov * 0.5f),
         camera->m_resolutionX / camera->m_resolutionY);
-    m_backGroundColor = glm::vec4(camera->m_clearColor, 1.0f);
-    m_useClearColor = !camera->m_drawSkyBox;
 }
 
 void CameraInfoBlock::UploadMatrices(const CameraComponent *camera) const

@@ -15,7 +15,7 @@ struct UNIENGINE_API LightSettingsBlock
     float m_vsmMaxVariance = 0.001f;
     float m_lightBleedFactor = 0.5f;
     float m_evsmExponent = 40.0f;
-    float m_ambientLight = 0.3f;
+    float m_ambientLight = 1.0f;
 };
 
 struct MaterialSettingsBlock
@@ -51,6 +51,7 @@ struct EnvironmentalMapSettingsBlock
     GLuint64 m_environmentalIrradiance = 0;
     GLuint64 m_environmentalPrefiltered = 0;
     GLuint64 m_environmentalBrdfLut = 0;
+    glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 };
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
@@ -58,13 +59,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     CameraComponent *m_mainCameraComponent = nullptr;
 #pragma region Global Var
 #pragma region GUI
-    bool m_enableLightMenu = false;
-    bool m_enableRenderMenu = false;
+    bool m_enableRenderMenu = true;
     bool m_enableInfoWindow = true;
 #pragma endregion
 #pragma region Render
-    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
-    
+    std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
@@ -108,7 +107,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
 #pragma endregion
 #pragma endregion
-
+    static void PrepareBrdfLut();
     static void DeferredPrepass(const Mesh *mesh, const Material *material, const glm::mat4 &model);
     static void DeferredPrepassInternal(const Mesh *mesh, const glm::mat4 &model);
     static void DeferredPrepassInstanced(
@@ -150,8 +149,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;
-    static void ShadowEnvironmentPreset();
-    static void ApplyEnvironmentalMap(const EnvironmentalMap *environmentalMap);
+    static void ShadowEnvironmentPreset(const CameraComponent *cameraComponent);
+    static void ApplyEnvironmentalSettings(const CameraComponent *cameraComponent);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);
@@ -178,7 +177,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static glm::vec3 ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b);
 #pragma endregion
 #pragma region RenderAPI
-    static void LateUpdate();
+    static void OnGui();
     static size_t Triangles();
     static size_t DrawCall();
 

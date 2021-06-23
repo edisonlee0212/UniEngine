@@ -46,6 +46,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const bool &addResource,
         const std::string &path,
         const float &gamma = 1.0f);
+    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(
+        const bool &addResource, const std::string &path, const float &gamma = 1.0f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,
         const std::vector<std::string> &paths,

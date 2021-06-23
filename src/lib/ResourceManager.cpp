@@ -592,6 +592,19 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     return retVal;
 }
 
+std::shared_ptr<EnvironmentalMap> ResourceManager::LoadEnvironmentalMap(
+    const bool &addResource,
+    const std::string &path,
+    const float &gamma)
+{
+    auto retVal = std::make_shared<EnvironmentalMap>();
+    retVal->ConstructFromCubemap(LoadCubemap(false, path, gamma));
+    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    if (addResource)
+        Push(retVal);
+    return retVal;
+}
+
 std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 	const bool &addResource, const std::vector<std::string> &paths, const float &gamma)
 {

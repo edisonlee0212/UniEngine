@@ -412,7 +412,7 @@ void EditorManager::Init()
     RegisterPrivateComponentMenu<SpotLight>([](Entity owner) {
         if (owner.HasPrivateComponent<SpotLight>())
             return;
-        if (ImGui::SmallButton("CameraComponent"))
+        if (ImGui::SmallButton("SpotLight"))
         {
             owner.SetPrivateComponent(std::make_unique<SpotLight>());
         }
@@ -455,8 +455,8 @@ void EditorManager::Init()
     GetInstance().m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     GetInstance().m_configFlags += EntityEditorSystem_EnableEntityInspector;
     GetInstance().m_sceneCamera = std::make_unique<CameraComponent>();
-    GetInstance().m_sceneCamera->m_drawSkyBox = false;
-    GetInstance().m_sceneCamera->m_skyBox = DefaultResources::Textures::DefaultSkybox;
+    GetInstance().m_sceneCamera->m_useClearColor = false;
+    GetInstance().m_sceneCamera->m_environmentalMap = DefaultResources::DefaultEnvironmentalMap;
 }
 
 void EditorManager::Destroy()
@@ -850,9 +850,7 @@ void EditorManager::LateUpdate()
             {
                 if (ImGui::BeginMenu("Settings"))
                 {
-#pragma region Menu
-                    DragAndDrop(manager.m_sceneCamera->m_skyBox);
-                    ImGui::Checkbox("Skybox", &manager.m_sceneCamera->m_drawSkyBox);
+#pragma region Menu 
                     if (ImGui::Button("Reset camera"))
                     {
                         MoveCamera(manager.m_defaultSceneCameraRotation, manager.m_defaultSceneCameraPosition);

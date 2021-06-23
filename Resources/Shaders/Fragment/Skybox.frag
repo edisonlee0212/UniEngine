@@ -4,5 +4,5 @@ in vec3 TexCoords;
 
 void main()
 {    
-	FragColor = vec4(UE_CAMERA_USE_CLEAR_COLOR ? texture(UE_ENVIRONMENTAL_MAP, TexCoords).xyz : UE_CAMERA_BACKGROUND_COLOR, 1.0);
+	FragColor = vec4(UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz : texture(UE_ENVIRONMENTAL_MAP, TexCoords).xyz, 1.0);
 }

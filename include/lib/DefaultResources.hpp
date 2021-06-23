@@ -71,7 +71,10 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<Mesh> Ring;
         static std::shared_ptr<Mesh> Monkey;
     };
-    static std::unique_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
+    static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
+    static std::shared_ptr<EnvironmentalMap> UVTestEnvironmentalMap;
+    static std::shared_ptr<EnvironmentalMap> MilkyWayEnvironmentalMap;
+    static std::shared_ptr<EnvironmentalMap> CircusEnvironmentalMap;
     static void Load(World *world);
 };
 } // namespace UniEngine

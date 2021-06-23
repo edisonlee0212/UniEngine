@@ -1,6 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
 #include <RenderTarget.hpp>
+#include <EnvironmentalMap.hpp>
 namespace UniEngine
 {
 class CameraComponent;
@@ -35,8 +36,6 @@ struct UNIENGINE_API CameraInfoBlock
     glm::mat4 m_view;
     glm::vec4 m_reservedParameters;
     glm::vec4 m_position;
-    glm::vec4 m_backGroundColor;
-    int m_useClearColor = 0;
     void UpdateMatrices(const CameraComponent *camera, glm::vec3 position, glm::quat rotation);
     void UploadMatrices(const CameraComponent *camera) const;
 };
@@ -95,9 +94,9 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     ~CameraComponent() override;
-    bool m_drawSkyBox = true;
+    bool m_useClearColor = false;
     glm::vec3 m_clearColor = glm::vec3(0.0f);
-    std::shared_ptr<Cubemap> m_skyBox;
+    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
     void OnGui() override;
 };
 

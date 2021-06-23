@@ -100,33 +100,6 @@ void EnvironmentalMap::PreparePreFilteredMap()
     OpenGLUtils::GLFrameBuffer::BindDefault();
 }
 
-void EnvironmentalMap::PrepareBrdfLut()
-{
-	// pbr: generate a 2D LUT from the BRDF equations used.
-	// ----------------------------------------------------
-    auto brdfLut = std::make_shared<OpenGLUtils::GLTexture2D>(1, GL_RG16F, 512, 512, true);
-    m_brdfLut = std::make_unique<Texture2D>();
-    m_brdfLut->m_texture = std::move(brdfLut);
-	// be sure to set wrapping mode to GL_CLAMP_TO_EDGE
-    m_brdfLut->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_brdfLut->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_brdfLut->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    m_brdfLut->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-    size_t resolution = 512;
-    auto renderTarget = std::make_unique<RenderTarget>(resolution, resolution);
-    auto renderBuffer = std::make_unique<OpenGLUtils::GLRenderBuffer>();
-    renderBuffer->AllocateStorage(GL_DEPTH_COMPONENT24, resolution, resolution);
-    renderTarget->AttachRenderBuffer(renderBuffer.get(), GL_DEPTH_ATTACHMENT);
-    renderTarget->AttachTexture(m_brdfLut->m_texture.get(), GL_COLOR_ATTACHMENT0);
-    renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
-    DefaultResources::GLPrograms::BrdfProgram->Bind();
-    renderTarget->Clear();
-    RenderQuad();
-    OpenGLUtils::GLFrameBuffer::BindDefault();
-}
-
 unsigned int environmentalMapCubeVAO = 0;
 unsigned int environmentalMapCubeVBO = 0;
 void EnvironmentalMap::RenderCube()
@@ -483,6 +456,5 @@ void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &cube
 	m_targetCubemap = cubemap;
 	PrepareIrradianceMap();
 	PreparePreFilteredMap();
-	PrepareBrdfLut();
     m_ready = true;
 }
