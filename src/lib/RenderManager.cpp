@@ -1645,6 +1645,7 @@ void RenderManager::OnGui()
             }
         }
         ImGui::EndChild();
+        manager.m_mainCameraViewable = !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
     }
     ImGui::End();
     ImGui::PopStyleVar();
@@ -2612,6 +2613,7 @@ void RenderManager::DrawMesh(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
             sceneCamera->Bind();
+            ShadowEnvironmentPreset(sceneCamera.get());
             DrawMesh(mesh, material, model, receiveShadow);
         }
     }
@@ -2631,6 +2633,7 @@ void RenderManager::DrawMesh(
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent->Bind();
+    ShadowEnvironmentPreset(cameraComponent);
     DrawMesh(mesh, material, model, receiveShadow);
 }
 
@@ -2654,6 +2657,7 @@ void RenderManager::DrawMeshInstanced(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera.get());
             sceneCamera->Bind();
+            ShadowEnvironmentPreset(sceneCamera.get());
             DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
         }
     }
@@ -2661,6 +2665,7 @@ void RenderManager::DrawMeshInstanced(
         return;
     if (cameraComponent == nullptr || !cameraComponent->IsEnabled())
         return;
+    
     const auto entity = cameraComponent->GetOwner();
 
     const auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
@@ -2673,6 +2678,7 @@ void RenderManager::DrawMeshInstanced(
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent->Bind();
+    ShadowEnvironmentPreset(cameraComponent);
     DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
 }
 

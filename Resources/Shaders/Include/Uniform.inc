@@ -158,8 +158,13 @@ vec3 UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(vec3 albedo, vec3 normal, vec3 viewDi
     vec3 prefilteredColor = UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz : textureLod(UE_ENVIRONMENTAL_PREFILERED, R,  roughness * MAX_REFLECTION_LOD).rgb;    
     vec2 brdf  = texture(UE_ENVIRONMENTAL_BRDFLUT, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-
-    return kD * diffuse + specular;
+	vec3 ambient = kD * diffuse + specular;
+    if(UE_ENVIRONMENTAL_BACKGROUND_COLOR.w != 1.0)
+	{
+	    float gamma = 2.2;
+	    ambient = pow(ambient, vec3(1.0 / gamma));
+	}
+    return ambient;
 }
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0){

@@ -469,8 +469,23 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
 	const std::string filename = path;
 	retVal->m_path = filename;
 	int width, height, nrComponents;
-    stbi_hdr_to_ldr_gamma(gamma);
-    stbi_ldr_to_hdr_gamma(gamma);
+    if (gamma == 0.0f)
+    {
+        if(path.substr(path.find_last_of(".") + 1) == "hdr")
+        {
+            stbi_hdr_to_ldr_gamma(2.2f);
+            stbi_ldr_to_hdr_gamma(2.2f);
+        }else
+        {
+            stbi_hdr_to_ldr_gamma(1.0f);
+            stbi_ldr_to_hdr_gamma(1.0f);
+        }
+    }else
+    {
+        stbi_hdr_to_ldr_gamma(gamma);
+        stbi_ldr_to_hdr_gamma(gamma);
+    }
+    
 	float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
 	if (data)
 	{
@@ -521,8 +536,24 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     const std::string filename = path;
     texture2D->m_path = filename;
     int width, height, nrComponents;
-    stbi_hdr_to_ldr_gamma(gamma);
-    stbi_ldr_to_hdr_gamma(gamma);
+    if (gamma == 0.0f)
+    {
+        if (path.substr(path.find_last_of(".") + 1) == "hdr")
+        {
+            stbi_hdr_to_ldr_gamma(2.2f);
+            stbi_ldr_to_hdr_gamma(2.2f);
+        }
+        else
+        {
+            stbi_hdr_to_ldr_gamma(1.0f);
+            stbi_ldr_to_hdr_gamma(1.0f);
+        }
+    }
+    else
+    {
+        stbi_hdr_to_ldr_gamma(gamma);
+        stbi_ldr_to_hdr_gamma(gamma);
+    }
     float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
@@ -620,14 +651,31 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 		UNIENGINE_ERROR("Texture::LoadCubeMap: Size error.");
 		return nullptr;
     }
-    stbi_hdr_to_ldr_gamma(gamma);
-	stbi_ldr_to_hdr_gamma(gamma);
+    
 	float *temp = stbi_loadf(paths[0].c_str(), &width, &height, &nrComponents, 0);
 	stbi_image_free(temp);
 	GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(width, height))) + 1;
 	auto texture = std::make_unique<OpenGLUtils::GLTextureCubeMap>(mipmap, GL_RGBA32F, width, height, true);
 	for (int i = 0; i < size; i++)
 	{
+        if (gamma == 0.0f)
+        {
+            if (paths[i].substr(paths[i].find_last_of(".") + 1) == "hdr")
+            {
+                stbi_hdr_to_ldr_gamma(2.2f);
+                stbi_ldr_to_hdr_gamma(2.2f);
+            }
+            else
+            {
+                stbi_hdr_to_ldr_gamma(1.0f);
+                stbi_ldr_to_hdr_gamma(1.0f);
+            }
+        }
+        else
+        {
+            stbi_hdr_to_ldr_gamma(gamma);
+            stbi_ldr_to_hdr_gamma(gamma);
+        }
 		float *data = stbi_loadf(paths[i].c_str(), &width, &height, &nrComponents, 0);
 		if (data)
 		{

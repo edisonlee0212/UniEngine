@@ -68,7 +68,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
     std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
-
+    bool m_mainCameraViewable = true;
     int m_mainCameraResolutionX = 1;
     int m_mainCameraResolutionY = 1;
     friend class RenderTarget;
