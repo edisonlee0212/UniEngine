@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <Application.hpp>
 #include <MeshRenderer.hpp>
 #include <CameraControlSystem.hpp>
@@ -29,7 +31,7 @@ int main()
             sphere.SetComponentData(globalTransform);
             auto meshRenderer = std::make_unique<MeshRenderer>();
             meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-            meshRenderer->m_material = std::make_shared<Material>();
+            meshRenderer->m_material = ResourceManager::CreateResource<Material>();
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);

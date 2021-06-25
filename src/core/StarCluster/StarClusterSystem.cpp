@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <EditorManager.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
 void Galaxy::StarClusterPattern::OnGui()
@@ -369,7 +371,8 @@ void Galaxy::StarClusterSystem::OnCreate()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    m_starRenderProgram = std::make_unique<OpenGLUtils::GLProgram>(standardVert, standardFrag);
+    m_starRenderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_starRenderProgram->Link(standardVert, standardFrag);
 
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
     m_rendererFront = EntityManager::CreateEntity("Renderer 1");

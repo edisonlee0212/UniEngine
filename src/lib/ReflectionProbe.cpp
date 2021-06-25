@@ -4,13 +4,10 @@
 #include <RenderManager.hpp>
 using namespace UniEngine;
 
-ReflectionProbe::ReflectionProbe()
-{
-}
 
-ReflectionProbe::ReflectionProbe(const std::shared_ptr<Cubemap> &targetCubemap)
+void ReflectionProbe::OnCreate()
 {
-    ConstructFromCubemap(targetCubemap);
+    m_name = "New reflection probe";
 }
 
 void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)

@@ -4,6 +4,7 @@
 #include <OpenGLUtils.hpp>
 #include <RenderTarget.hpp>
 #include <Texture2D.hpp>
+#include <ResourceManager.hpp>
 namespace UniEngine
 {
 struct Transform;
@@ -51,13 +52,14 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     friend class RenderManager;
     friend class InputManager;
 
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedProgram;
 
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityRecorderProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityRecorderProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
+
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;
     std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
@@ -115,8 +117,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static std::unique_ptr<CameraComponent> &GetSceneCamera();
     template <typename T = ResourceBehaviour> static bool DragAndDrop(std::shared_ptr<T> &target);
     template <typename T = ResourceBehaviour> static bool Draggable(std::shared_ptr<T> &target);
-
-    static bool Draggable(const std::string &name, std::shared_ptr<ResourceBehaviour> &target);
+    static bool Draggable(const size_t& id, std::shared_ptr<ResourceBehaviour> &target);
 };
 
 template <typename T1>
@@ -155,11 +156,16 @@ template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::
 template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
+    if (ptr && ptr->m_typeId == 0)
+    {
+        UNIENGINE_ERROR("Resource not created with ResourceManager!");
+        throw 0;
+    }
     const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+    const std::string hash = ResourceManager::GetTypeName<T>();
     ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
         ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<T>));
         if (ptr && ptr->m_icon)
             ImGui::Image(
@@ -168,7 +174,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
                 ImVec2(0, 1),
                 ImVec2(1, 0));
         else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (std::string(typeid(T).name()) + tag).substr(6).c_str());
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
         ImGui::EndDragDropSource();
     }
     bool removed = false;
@@ -191,7 +197,6 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
     }
     if (ImGui::BeginDragDropTarget())
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<T>));
@@ -206,11 +211,16 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
 template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
+    if (ptr && ptr->m_typeId == 0)
+    {
+        UNIENGINE_ERROR("Resource not created with ResourceManager!");
+        throw 0;
+    }
+    const std::string hash = ResourceManager::GetTypeName<T>();
     const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
     ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(typeid(T).name()));
         ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
         if (ptr && ptr->m_icon)
             ImGui::Image(
@@ -219,7 +229,7 @@ template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
                 ImVec2(0, 1),
                 ImVec2(1, 0));
         else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (std::string(typeid(T).name()) + tag).substr(6).c_str());
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
         ImGui::EndDragDropSource();
     }
     bool removed = false;

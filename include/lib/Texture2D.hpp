@@ -23,7 +23,7 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     friend class CameraComponent;
 
   public:
-    Texture2D(TextureType type = TextureType::Albedo);
+    void OnCreate() override;
     void SetType(TextureType type);
     [[nodiscard]] TextureType GetType() const;
     [[nodiscard]] glm::vec2 GetResolution() const;

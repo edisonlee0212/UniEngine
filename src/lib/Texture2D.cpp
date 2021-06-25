@@ -1,9 +1,10 @@
 #include <Texture2D.hpp>
 using namespace UniEngine;
 
-Texture2D::Texture2D(TextureType type)
+void Texture2D::OnCreate()
 {
-    m_type = type;
+    m_type = TextureType::Albedo;
+    m_name = "New Texture2D";
 }
 
 void Texture2D::SetType(TextureType type)

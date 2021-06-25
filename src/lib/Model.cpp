@@ -1,6 +1,7 @@
 #include <Model.hpp>
 using namespace UniEngine;
-Model::Model()
+
+void Model::OnCreate()
 {
     m_rootNode = std::make_unique<ModelNode>();
     m_name = "New model";

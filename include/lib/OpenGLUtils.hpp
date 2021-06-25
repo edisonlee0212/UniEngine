@@ -474,19 +474,19 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         std::vector<std::shared_ptr<GLShader>> m_shaders;
 
       public:
-        GLProgram(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2);
-        GLProgram(
-            const std::shared_ptr<GLShader> &shader1,
-            const std::shared_ptr<GLShader> &shader2,
-            const std::shared_ptr<GLShader> &shader3);
-        GLProgram();
+        void OnCreate() override;
         ~GLProgram() override;
         std::shared_ptr<GLShader> GetShader(ShaderType type);
         bool HasShader(ShaderType type);
         void Bind() const;
         static void BindDefault();
         void Link() const;
-        void Attach(std::shared_ptr<GLShader> shader);
+        void Link(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2);
+        void Link(
+            const std::shared_ptr<GLShader> &shader1,
+            const std::shared_ptr<GLShader> &shader2,
+            const std::shared_ptr<GLShader> &shader3);
+        void Attach(const std::shared_ptr<GLShader> &shader);
         void Detach(ShaderType type);
         void SetBool(const std::string &name, bool value) const;
         void SetInt(const std::string &name, int value) const;

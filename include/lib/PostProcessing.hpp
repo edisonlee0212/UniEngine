@@ -52,9 +52,9 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_result;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_brightColor;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_flatColor;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_separateProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_filterProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_combineProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_separateProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_filterProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
     float m_intensity = 0.02f;

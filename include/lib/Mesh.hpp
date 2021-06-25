@@ -44,7 +44,7 @@ class UNIENGINE_API Mesh : public ResourceBehaviour
     void OnGui();
     [[nodiscard]] glm::vec3 GetCenter() const;
     [[nodiscard]] Bound GetBound() const;
-    Mesh();
+    void OnCreate() override;
     void Upload();
     void SetVertices(
         const unsigned &mask, std::vector<Vertex> &vertices, std::vector<unsigned> &indices);

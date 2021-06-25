@@ -51,7 +51,7 @@ class UNIENGINE_API Material : public ResourceBehaviour
     glm::vec3 m_albedoColor = glm::vec3(1.0f);
     bool m_alphaDiscardEnabled = true;
     float m_alphaDiscardOffset = 0.01f;
-    Material();
+    void OnCreate() override;
     void OnGui();
     void SetMaterialProperty(const std::string &name, const float &value);
     void SetMaterialProperty(const std::string &name, const glm::mat4 &value);

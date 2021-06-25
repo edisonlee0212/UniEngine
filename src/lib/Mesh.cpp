@@ -29,7 +29,7 @@ Bound Mesh::GetBound() const
     return m_bound;
 }
 
-Mesh::Mesh()
+void Mesh::OnCreate()
 {
     m_vao = std::make_shared<OpenGLUtils::GLVAO>();
     m_triangleSize = 0;

@@ -65,9 +65,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma region Render
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
     bool m_mainCameraViewable = true;
     int m_mainCameraResolutionX = 1;
     int m_mainCameraResolutionY = 1;
@@ -92,12 +92,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     PointLightInfo m_pointLights[DefaultResources::ShaderIncludes::MaxPointLightAmount];
     SpotLightInfo m_spotLights[DefaultResources::ShaderIncludes::MaxSpotLightAmount];
 
-    std::unique_ptr<OpenGLUtils::GLProgram> m_directionalLightProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_pointLightProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_spotLightProgram;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedProgram;
 
     friend class EditorManager;
 

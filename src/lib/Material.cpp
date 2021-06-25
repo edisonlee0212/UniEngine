@@ -17,7 +17,8 @@ MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::m
     m_value = value;
 }
 
-Material::Material()
+
+void Material::OnCreate()
 {
     m_textures[TextureType::Albedo] = nullptr;
     m_textures[TextureType::Normal] = nullptr;

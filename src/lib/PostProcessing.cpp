@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <DefaultResources.hpp>
 #include <FileIO.hpp>
 #include <PostProcessing.hpp>
@@ -111,7 +113,9 @@ void UniEngine::Bloom::Init()
     m_flatColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_flatColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_separateProgram = std::make_unique<OpenGLUtils::GLProgram>(
+    m_separateProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_separateProgram->Link
+    (
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
             std::string("#version 450 core\n") +
@@ -121,7 +125,8 @@ void UniEngine::Bloom::Init()
             std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomSeparator.frag"))));
 
-    m_filterProgram = std::make_unique<OpenGLUtils::GLProgram>(
+    m_filterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_filterProgram->Link(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
             std::string("#version 450 core\n") +
@@ -130,7 +135,8 @@ void UniEngine::Bloom::Init()
             OpenGLUtils::ShaderType::Fragment,
             std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))));
-    m_combineProgram = std::make_unique<OpenGLUtils::GLProgram>(
+    m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_combineProgram->Link(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
             std::string("#version 450 core\n") +

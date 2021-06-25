@@ -61,7 +61,6 @@ void DefaultResources::LoadShaders(World *world)
         if (strcmp((char *)ccc, "GL_ARB_bindless_texture") == 0)
         {
             OpenGLUtils::GetInstance().m_enableBindlessTexture = true;
-            UNIENGINE_LOG("Bindless texture supported!");
         }
     }
 #pragma region Shaders
@@ -144,10 +143,8 @@ void DefaultResources::LoadShaders(World *world)
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EquirectangularMapToCubemap.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        ResourceManager::GetInstance().m_2DToCubemapProgram = std::make_unique<OpenGLUtils::GLProgram>();
-        ResourceManager::GetInstance().m_2DToCubemapProgram->Attach(convertCubemapvert);
-        ResourceManager::GetInstance().m_2DToCubemapProgram->Attach(convertCubemapfrag);
-        ResourceManager::GetInstance().m_2DToCubemapProgram->Link();
+        ResourceManager::GetInstance().m_2DToCubemapProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        ResourceManager::GetInstance().m_2DToCubemapProgram->Link(convertCubemapvert, convertCubemapfrag);
         ResourceManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
         ResourceManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
     }
@@ -162,10 +159,8 @@ void DefaultResources::LoadShaders(World *world)
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapIrradianceConvolution.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::ConvolutionProgram = std::make_shared<OpenGLUtils::GLProgram>();
-        GLPrograms::ConvolutionProgram->Attach(convertCubemapvert);
-        GLPrograms::ConvolutionProgram->Attach(convertCubemapfrag);
-        GLPrograms::ConvolutionProgram->Link();
+        GLPrograms::ConvolutionProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::ConvolutionProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::ConvolutionProgram->SetInt("environmentMap", 0);
         GLPrograms::ConvolutionProgram->m_name = "EnvironmentalMapIrradianceConvolution";
     }
@@ -180,10 +175,8 @@ void DefaultResources::LoadShaders(World *world)
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapPrefilter.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::PrefilterProgram = std::make_shared<OpenGLUtils::GLProgram>();
-        GLPrograms::PrefilterProgram->Attach(convertCubemapvert);
-        GLPrograms::PrefilterProgram->Attach(convertCubemapfrag);
-        GLPrograms::PrefilterProgram->Link();
+        GLPrograms::PrefilterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::PrefilterProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::PrefilterProgram->SetInt("environmentMap", 0);
         GLPrograms::PrefilterProgram->m_name = "EnvironmentalMapPrefilter";
     }
@@ -198,10 +191,8 @@ void DefaultResources::LoadShaders(World *world)
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapBrdf.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::BrdfProgram = std::make_shared<OpenGLUtils::GLProgram>();
-        GLPrograms::BrdfProgram->Attach(convertCubemapvert);
-        GLPrograms::BrdfProgram->Attach(convertCubemapfrag);
-        GLPrograms::BrdfProgram->Link();
+        GLPrograms::BrdfProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::BrdfProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::BrdfProgram->m_name = "EnvironmentalMapBrdf";
     }
 #pragma endregion
@@ -243,7 +234,7 @@ void DefaultResources::LoadShaders(World *world)
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
+    GLPrograms::StandardProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardProgram->m_name = "Standard";
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
@@ -252,7 +243,7 @@ void DefaultResources::LoadShaders(World *world)
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
+    GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardInstancedProgram->m_name = "Standard Instanced";
 #pragma endregion
 #pragma region Gizmo Shader
@@ -287,7 +278,10 @@ void DefaultResources::LoadShaders(World *world)
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::GizmoInstancedColoredProgram = std::make_unique<OpenGLUtils::GLProgram>(standardVert, standardFrag);
+    GLPrograms::GizmoInstancedColoredProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    GLPrograms::GizmoInstancedColoredProgram->Attach(standardVert);
+    GLPrograms::GizmoInstancedColoredProgram->Attach(standardFrag);
+    GLPrograms::GizmoInstancedColoredProgram->Link();
     GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
 #pragma endregion
@@ -371,6 +365,14 @@ void DefaultResources::LoadPrimitives(World *world)
 
 void DefaultResources::Load(World *world)
 {
+    ResourceManager::RegisterResourceType<Material>("Material");
+    ResourceManager::RegisterResourceType<Mesh>("Mesh");
+    ResourceManager::RegisterResourceType<Texture2D>("Texture2D");
+    ResourceManager::RegisterResourceType<Cubemap>("Cubemap");
+    ResourceManager::RegisterResourceType<Model>("Model");
+    ResourceManager::RegisterResourceType<LightProbe>("LightProbe");
+    ResourceManager::RegisterResourceType<ReflectionProbe>("ReflectionProbe");
+    ResourceManager::RegisterResourceType<OpenGLUtils::GLProgram>("GLProgram");
     LoadShaders(world);
     LoadTextures(world);
     LoadPrimitives(world);
@@ -386,7 +388,8 @@ void DefaultResources::Load(World *world)
     Environmental::DefaultSkybox = ResourceManager::LoadCubemap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_8k.jpg"));
     Environmental::DefaultSkybox->m_name = "Default";
-    Environmental::DefaultReflectionProbe = std::make_shared<ReflectionProbe>(Environmental::DefaultSkybox);
+    Environmental::DefaultReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
+    Environmental::DefaultReflectionProbe->ConstructFromCubemap(Environmental::DefaultSkybox);
     Environmental::DefaultReflectionProbe->m_name = "Default";
     ResourceManager::Push(Environmental::DefaultReflectionProbe);
     Environmental::DefaultLightProbe = ResourceManager::LoadLightProbe(
@@ -396,7 +399,8 @@ void DefaultResources::Load(World *world)
     Environmental::MilkyWaySkybox =
         ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
     Environmental::MilkyWaySkybox->m_name = "Milky Way";
-    Environmental::MilkyWayReflectionProbe = std::make_shared<ReflectionProbe>(Environmental::MilkyWaySkybox);
+    Environmental::MilkyWayReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
+    Environmental::MilkyWayReflectionProbe->ConstructFromCubemap(Environmental::MilkyWaySkybox);
     Environmental::MilkyWayReflectionProbe->m_name = "Milky Way";
     ResourceManager::Push(Environmental::MilkyWayReflectionProbe);
     Environmental::MilkyWayLightProbe =
@@ -405,7 +409,8 @@ void DefaultResources::Load(World *world)
 
     Environmental::CircusSkybox = ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
     Environmental::CircusSkybox->m_name = "Circus";
-    Environmental::CircusReflectionProbe = std::make_shared<ReflectionProbe>(Environmental::CircusSkybox);
+    Environmental::CircusReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
+    Environmental::CircusReflectionProbe->ConstructFromCubemap(Environmental::CircusSkybox);
     Environmental::CircusReflectionProbe->m_name = "Circus";
     ResourceManager::Push(Environmental::CircusReflectionProbe);
     Environmental::CircusLightProbe = ResourceManager::LoadLightProbe(

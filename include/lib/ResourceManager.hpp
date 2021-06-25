@@ -7,9 +7,10 @@ namespace UniEngine
 {
 class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 {
+    
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
-    std::unique_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
     friend class DefaultResources;
     static std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
@@ -25,10 +26,15 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const tinyobj::attrib_t& attribute);
     static void AttachChildren(
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
-
+    friend class EditorManager;
+    static std::string GetTypeName(size_t id);
   public:
-    
-
+    template <typename T> 
+    static std::string GetTypeName();
+    static std::string GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource);
+    template <typename T> 
+    static void RegisterResourceType(const std::string &name);
+    template <typename T> static std::shared_ptr<T> CreateResource(const bool &addResource = false);
     template <typename T> static void Push(std::shared_ptr<T> resource);
     template <typename T> static std::shared_ptr<T> Get(size_t hashCode);
     template <typename T> static std::shared_ptr<T> Find(std::string objectName);
@@ -72,12 +78,65 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
 };
 
+template <typename T> std::string ResourceManager::GetTypeName()
+{
+    auto &resourceManager = GetInstance();
+    const auto id = typeid(T).hash_code();
+    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    {
+        return resourceManager.m_resources[id].first;
+    }
+    UNIENGINE_ERROR("Resource type not registered!");
+    throw 0;
+}
+
+template <typename T> void ResourceManager::RegisterResourceType(const std::string &name)
+{
+    auto &resourceManager = GetInstance();
+    const auto id = typeid(T).hash_code();
+    if (resourceManager.m_resources.find(id) == resourceManager.m_resources.end())
+    {
+        resourceManager.m_resources[id].first = name;
+        return;
+    }
+    UNIENGINE_ERROR("Resource type already registered!");
+    throw 0;
+}
+
+template <typename T> std::shared_ptr<T> ResourceManager::CreateResource(const bool &addResource)
+{
+    auto &resourceManager = GetInstance();
+    const auto id = typeid(T).hash_code();
+    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    {
+        auto retVal = std::make_shared<T>();
+        dynamic_cast<ResourceBehaviour*>(retVal.get())->m_typeId = id;
+        dynamic_cast<ResourceBehaviour *>(retVal.get())->OnCreate();
+        if (addResource)
+            Push(retVal);
+        return retVal;
+    }
+    UNIENGINE_ERROR("Resource type not registered!");
+    throw 0;
+}
+
 template <typename T> void ResourceManager::Push(std::shared_ptr<T> resource)
 {
-    GetInstance().m_resources[typeid(T).hash_code()].first = std::string(typeid(T).name());
-    GetInstance()
-        .m_resources[typeid(T).hash_code()]
-        .second[std::dynamic_pointer_cast<ResourceBehaviour>(resource)->GetHashCode()] = resource;
+    auto &resourceManager = GetInstance();
+    const auto id = dynamic_cast<ResourceBehaviour *>(resource.get())->m_typeId;
+    if (id == 0)
+    {
+        UNIENGINE_ERROR("Resource not created with ResourceManager!");
+        return;
+    }
+    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    {
+        resourceManager.m_resources[id]
+            .second[std::dynamic_pointer_cast<ResourceBehaviour>(resource)->GetHashCode()] = resource;
+        return;
+    }
+    UNIENGINE_ERROR("Resource type not registered!");
+    throw 0;
 }
 
 template <typename T> std::shared_ptr<T> ResourceManager::Get(size_t hashCode)

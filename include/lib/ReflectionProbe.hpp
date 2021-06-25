@@ -13,8 +13,7 @@ class UNIENGINE_API ReflectionProbe : public ResourceBehaviour
     size_t m_preFilteredMapResolution = 128;
     bool m_ready = false;
   public:
-    ReflectionProbe();
-    ReflectionProbe(const std::shared_ptr<Cubemap> &targetCubemap);
+    void OnCreate() override;
     void ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap);
 };
 } // namespace UniEngine

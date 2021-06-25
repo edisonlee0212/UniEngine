@@ -24,7 +24,6 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 {
     stbi_hdr_to_ldr_gamma(gamma);
     stbi_ldr_to_hdr_gamma(gamma);
-	UNIENGINE_LOG("Loading model from: " + path);
 	tinyobj::ObjReaderConfig reader_config;
 	reader_config.mtl_search_path = ""; // Path to material files
 	reader_config.triangulate = true;
@@ -44,7 +43,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 		std::cout << "TinyObjReader: " << reader.Warning();
 	}
 
-	auto retVal = std::make_shared<Model>();
+	auto retVal = CreateResource<Model>();
     retVal->m_name = path;
 	auto &attribute = reader.GetAttrib();
 	auto &shapes = reader.GetShapes();
@@ -79,7 +78,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                     }
                     else
                     {
-                        material = std::make_shared<Material>();
+                        material = CreateResource<Material>();
                         material->SetProgram(glProgram);
                         auto &importedMaterial = materials[materialId];
                         material->m_metallic = importedMaterial.metallic == 0 ? 0.0f : importedMaterial.metallic;
@@ -173,7 +172,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                 }
 #pragma endregion
 #pragma region Mesh
-                auto mesh = std::make_shared<Mesh>();
+                auto mesh = CreateResource<Mesh>();
                 auto indices = std::vector<unsigned>();
                 assert(vertices.size() % 3 == 0);
                 for (unsigned i = 0; i < vertices.size(); i++)
@@ -464,11 +463,35 @@ void UniEngine::ResourceManager::AttachChildren(
 	}
 }
 
+std::string ResourceManager::GetTypeName(size_t id)
+{
+    auto &resourceManager = GetInstance();
+    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    {
+        return resourceManager.m_resources[id].first;
+    }
+    UNIENGINE_ERROR("Resource type not registered!");
+    throw 0;
+}
+
+std::string ResourceManager::GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource)
+{
+    auto &resourceManager = GetInstance();
+    const auto id = resource->m_typeId;
+    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    {
+        return resourceManager.m_resources[id].first;
+    }
+    UNIENGINE_ERROR("Resource type not registered!");
+    throw 0;
+}
+
 std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
 	const bool &addResource, const std::string &path, TextureType type, const float &gamma)
 {
 	stbi_set_flip_vertically_on_load(true);
-	auto retVal = std::make_shared<Texture2D>(type);
+    auto retVal = CreateResource<Texture2D>();
+    retVal->SetType(type);
 	const std::string filename = path;
 	retVal->m_path = filename;
 	int width, height, nrComponents;
@@ -535,7 +558,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 {
     auto &manager = GetInstance();
     stbi_set_flip_vertically_on_load(true);
-    auto texture2D = std::make_shared<Texture2D>(TextureType::Albedo);
+    auto texture2D = CreateResource<Texture2D>();
     const std::string filename = path;
     texture2D->m_path = filename;
     int width, height, nrComponents;
@@ -623,7 +646,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     OpenGLUtils::GLFrameBuffer::BindDefault();
     envCubemap->GenerateMipMap();
 #pragma endregion
-    auto retVal = std::make_shared<Cubemap>();
+    auto retVal = CreateResource<Cubemap>();
     retVal->m_texture = std::move(envCubemap);
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
     if (addResource)
@@ -636,7 +659,7 @@ std::shared_ptr<LightProbe> ResourceManager::LoadLightProbe(
     const std::string &path,
     const float &gamma)
 {
-    auto retVal = std::make_shared<LightProbe>();
+    auto retVal = CreateResource<LightProbe>();
     retVal->ConstructFromCubemap(LoadCubemap(false, path, gamma));
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
     if (addResource)
@@ -649,7 +672,7 @@ std::shared_ptr<ReflectionProbe> ResourceManager::LoadReflectionProbe(
     const std::string &path,
     const float &gamma)
 {
-    auto retVal = std::make_shared<ReflectionProbe>();
+    auto retVal = CreateResource<ReflectionProbe>();
     retVal->ConstructFromCubemap(LoadCubemap(false, path, gamma));
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
     if (addResource)
@@ -725,7 +748,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 	texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	texture->GenerateMipMap();
-	auto retVal = std::make_shared<Cubemap>();
+    auto retVal = CreateResource<Cubemap>();
 	retVal->m_texture = std::move(texture);
 	retVal->m_name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
 	if (addResource)
@@ -736,7 +759,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 std::shared_ptr<Material> ResourceManager::LoadMaterial(
 	const bool &addResource, const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
-	auto retVal = std::make_shared<Material>();
+	auto retVal = CreateResource<Material>();
 	retVal->SetProgram(program);
 	if (addResource)
 		Push(retVal);
@@ -748,7 +771,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
 	const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
 	const std::shared_ptr<OpenGLUtils::GLShader> &fragment)
 {
-	auto retVal = std::make_shared<OpenGLUtils::GLProgram>();
+	auto retVal = CreateResource<OpenGLUtils::GLProgram>();
 	retVal->Attach(vertex);
 	retVal->Attach(fragment);
 	retVal->Link();
@@ -763,7 +786,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
 	const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
 	const std::shared_ptr<OpenGLUtils::GLShader> &fragment)
 {
-	auto retVal = std::make_shared<OpenGLUtils::GLProgram>();
+    auto retVal = CreateResource<OpenGLUtils::GLProgram>();
 	retVal->Attach(vertex);
 	retVal->Attach(geometry);
 	retVal->Attach(fragment);
@@ -852,15 +875,12 @@ void ResourceManager::OnGui()
 			}
 			for (auto &collection : resourceManager.m_resources)
 			{
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-                if (ImGui::CollapsingHeader(collection.second.first.substr(6).c_str()))
-#else
-                if (ImGui::CollapsingHeader(collection.second.first.substr(5).c_str()))
-#endif
+                if (ImGui::CollapsingHeader(collection.second.first.c_str()))
 				{
+                    //ImGui::Button("Add");
 					if (ImGui::BeginDragDropTarget())
 					{
-						const std::string hash = std::to_string(std::hash<std::string>{}(collection.second.first));
+						const std::string hash = collection.second.first;
 						if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
 						{
 							IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ResourceBehaviour>));
@@ -872,8 +892,8 @@ void ResourceManager::OnGui()
 					}
 					for (auto &i : collection.second.second)
 					{
-                        size_t hashCode = i.second->GetHashCode();
-						if (EditorManager::Draggable(collection.second.first, i.second))
+                        const size_t hashCode = i.second->GetHashCode();
+                        if (EditorManager::Draggable(collection.first, i.second))
 						{
                             Remove(collection.first, hashCode);
 							break;

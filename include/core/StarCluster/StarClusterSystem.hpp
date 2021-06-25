@@ -281,7 +281,7 @@ class StarClusterSystem : public SystemBase
 
 	OpenGLUtils::GLVBO m_renderTransformBuffer;
 	OpenGLUtils::GLVBO m_renderColorBuffer;
-	std::unique_ptr<OpenGLUtils::GLProgram> m_starRenderProgram;
+	std::shared_ptr<OpenGLUtils::GLProgram> m_starRenderProgram;
 #pragma endregion
 
 	bool m_useSimd = false;

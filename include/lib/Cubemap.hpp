@@ -9,7 +9,7 @@ class UNIENGINE_API Cubemap : public ResourceBehaviour
     friend class ReflectionProbe;
     std::unique_ptr<OpenGLUtils::GLTextureCubeMap> m_texture;
   public:
-    Cubemap();
+    void OnCreate() override;
     std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Texture();
 };
 } // namespace UniEngine

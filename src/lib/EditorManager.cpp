@@ -271,14 +271,15 @@ void EditorManager::Init()
     auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneCameraEntityRecorderProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneCameraEntityRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram =
-        std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
@@ -291,14 +292,15 @@ void EditorManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneHighlightPrePassProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightPrePassProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedProgram =
-        std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightPrePassInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
@@ -306,7 +308,8 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    editorManager.m_sceneHighlightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
@@ -314,7 +317,8 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    editorManager.m_sceneHighlightInstancedProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
 
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentDataBase *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
@@ -1190,13 +1194,18 @@ std::unique_ptr<CameraComponent> &EditorManager::GetSceneCamera()
     return GetInstance().m_sceneCamera;
 }
 
-bool EditorManager::Draggable(const std::string &name, std::shared_ptr<ResourceBehaviour> &target)
+bool EditorManager::Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target)
 {
+    if (target && target->m_typeId == 0)
+    {
+        UNIENGINE_ERROR("Resource not created with ResourceManager!");
+        throw 0;
+    }
+    const std::string hash = ResourceManager::GetTypeName(id);
     const std::string tag = "##" + (target ? std::to_string(target->GetHashCode()) : "");
     ImGui::Button(target ? (target->m_name + tag).c_str() : "none");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(name));
         ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
         if (target && target->m_icon)
             ImGui::Image(
@@ -1205,7 +1214,7 @@ bool EditorManager::Draggable(const std::string &name, std::shared_ptr<ResourceB
                 ImVec2(0, 1),
                 ImVec2(1, 0));
         else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (name + tag).substr(6).c_str());
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
         ImGui::EndDragDropSource();
     }
     bool removed = false;

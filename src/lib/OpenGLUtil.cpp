@@ -1031,37 +1031,10 @@ void OpenGLUtils::GLProgram::BindDefault()
     glUseProgram(0);
 }
 
-OpenGLUtils::GLProgram::GLProgram()
+void OpenGLUtils::GLProgram::OnCreate()
 {
     m_name = "New Program";
     m_id = glCreateProgram();
-}
-
-OpenGLUtils::GLProgram::GLProgram(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2)
-{
-    m_name = "New Program";
-    m_id = glCreateProgram();
-    Attach(shader1);
-    Attach(shader2);
-    m_shaders.push_back(shader1);
-    m_shaders.push_back(shader2);
-    Link();
-}
-
-OpenGLUtils::GLProgram::GLProgram(
-    const std::shared_ptr<GLShader> &shader1,
-    const std::shared_ptr<GLShader> &shader2,
-    const std::shared_ptr<GLShader> &shader3)
-{
-    m_name = "New Program";
-    m_id = glCreateProgram();
-    Attach(shader1);
-    Attach(shader2);
-    Attach(shader3);
-    m_shaders.push_back(shader1);
-    m_shaders.push_back(shader2);
-    m_shaders.push_back(shader3);
-    Link();
 }
 
 OpenGLUtils::GLProgram::~GLProgram()
@@ -1106,7 +1079,25 @@ void OpenGLUtils::GLProgram::Link() const
     }
 }
 
-void OpenGLUtils::GLProgram::Attach(std::shared_ptr<GLShader> shader)
+void OpenGLUtils::GLProgram::Link(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2)
+{
+    Attach(shader1);
+    Attach(shader2);
+    Link();
+}
+
+void OpenGLUtils::GLProgram::Link(
+    const std::shared_ptr<GLShader> &shader1,
+    const std::shared_ptr<GLShader> &shader2,
+    const std::shared_ptr<GLShader> &shader3)
+{
+    Attach(shader1);
+    Attach(shader2);
+    Attach(shader3);
+    Link();
+}
+
+void OpenGLUtils::GLProgram::Attach(const std::shared_ptr<GLShader> &shader)
 {
     const auto type = shader->Type();
     if (HasShader(type))

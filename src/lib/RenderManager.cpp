@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <ReflectionProbe.hpp>
 #include <LightProbe.hpp>
 
@@ -422,8 +424,8 @@ void RenderManager::Init()
     auto geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
     geomShader->Compile(geomShaderCode);
 
-    manager.m_directionalLightProgram =
-        std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader, geomShader);
+    manager.m_directionalLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightProgram->Link(vertShader, fragShader, geomShader);
 
     vertShaderCode =
         std::string("#version 450 core\n") +
@@ -432,8 +434,8 @@ void RenderManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    manager.m_directionalLightInstancedProgram =
-        std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader, geomShader);
+    manager.m_directionalLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightInstancedProgram->Link(vertShader, fragShader, geomShader);
 
 #pragma region PointLight
     manager.m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(manager.m_shadowMapResolution);
@@ -451,7 +453,8 @@ void RenderManager::Init()
     geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
     geomShader->Compile(geomShaderCode);
 
-    manager.m_pointLightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader, geomShader);
+    manager.m_pointLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightProgram->Link(vertShader, fragShader, geomShader);
 
     vertShaderCode =
         std::string("#version 450 core\n") +
@@ -460,8 +463,8 @@ void RenderManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    manager.m_pointLightInstancedProgram =
-        std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader, geomShader);
+    manager.m_pointLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightInstancedProgram->Link(vertShader, fragShader, geomShader);
 #pragma endregion
 #pragma region SpotLight
     manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_shadowMapResolution);
@@ -475,7 +478,8 @@ void RenderManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    manager.m_spotLightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    manager.m_spotLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightProgram->Link(vertShader, fragShader);
 
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -484,7 +488,8 @@ void RenderManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    manager.m_spotLightInstancedProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    manager.m_spotLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightInstancedProgram->Link(vertShader, fragShader);
 #pragma endregion
 #pragma endregion
 
@@ -500,7 +505,8 @@ void RenderManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    manager.m_gBufferLightingPass = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    manager.m_gBufferLightingPass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferLightingPass->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
@@ -513,7 +519,8 @@ void RenderManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    manager.m_gBufferPrepass = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    manager.m_gBufferPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferPrepass->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
@@ -521,7 +528,8 @@ void RenderManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    manager.m_gBufferInstancedPrepass = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    manager.m_gBufferInstancedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferInstancedPrepass->Link(vertShader, fragShader);
 
 #pragma endregion
 #pragma region SSAO
