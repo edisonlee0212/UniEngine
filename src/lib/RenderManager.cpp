@@ -1959,6 +1959,71 @@ void RenderManager::OnGui()
                 {
                     auto id = manager.m_mainCameraComponent->GetTexture()->Texture()->Id();
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        const std::string modelTypeHash = ResourceManager::GetTypeName<Model>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
+                            std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
+                            EntityArchetype archetype =
+                                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+                            Transform ltw;
+                            ResourceManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+                        }
+                        const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
+                            std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
+                            Transform ltw;
+                            auto meshRenderer = std::make_unique<MeshRenderer>();
+                            meshRenderer->m_mesh = payload_n;
+                            meshRenderer->m_material = ResourceManager::CreateResource<Material>();
+                            meshRenderer->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
+                            meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+                            Entity entity = EntityManager::CreateEntity("Mesh");
+                            entity.SetComponentData(ltw);
+                            entity.SetPrivateComponent(std::move(meshRenderer));
+                        }
+
+                        const std::string skyboxTypeHash = ResourceManager::GetTypeName<Cubemap>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(skyboxTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+                            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+                            auto *mainCamera = RenderManager::GetMainCamera();
+                            if (mainCamera)
+                            {
+                                mainCamera->m_skybox = payload_n;
+                            }
+                        }
+                        const std::string lightProbeTypeHash = ResourceManager::GetTypeName<LightProbe>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(lightProbeTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<LightProbe>));
+                            std::shared_ptr<LightProbe> payload_n = *(std::shared_ptr<LightProbe> *)payload->Data;
+                            auto *mainCamera = RenderManager::GetMainCamera();
+                            if (mainCamera)
+                            {
+                                mainCamera->m_lightProbe = payload_n;
+                            }
+                        }
+
+                        const std::string reflectionProbeTypeHash = ResourceManager::GetTypeName<ReflectionProbe>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(reflectionProbeTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ReflectionProbe>));
+                            std::shared_ptr<ReflectionProbe> payload_n =
+                                *(std::shared_ptr<ReflectionProbe> *)payload->Data;
+                            auto *mainCamera = RenderManager::GetMainCamera();
+                            if (mainCamera)
+                            {
+                                mainCamera->m_reflectionProbe = payload_n;
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
                     cameraActive = true;
                 }
             }

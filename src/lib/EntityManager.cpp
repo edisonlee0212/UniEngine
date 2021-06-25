@@ -549,6 +549,8 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
         entityInfo.m_name = name;
         entityInfo.m_archetypeInfoIndex = archetype.m_index;
         entityInfo.m_chunkArrayIndex = info->m_entityAliveCount - remainAmount + i;
+        entity.SetComponentData(transform);
+        entity.SetComponentData(globalTransform);
     }
 
     storage.m_chunkArray->Entities.insert(

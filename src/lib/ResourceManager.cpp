@@ -877,7 +877,6 @@ void ResourceManager::OnGui()
 			{
                 if (ImGui::CollapsingHeader(collection.second.first.c_str()))
 				{
-                    //ImGui::Button("Add");
 					if (ImGui::BeginDragDropTarget())
 					{
 						const std::string hash = collection.second.first;

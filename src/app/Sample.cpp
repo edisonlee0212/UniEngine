@@ -12,7 +12,7 @@ int main()
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
 
-    int amount = 6;
+    int amount = 3;
     auto collection = EntityManager::CreateEntity("Spheres");
     auto spheres = EntityManager::CreateEntities(amount * amount, "Instance");
     for (int i = 0; i < amount; i++)
@@ -22,11 +22,11 @@ int main()
             auto &sphere = spheres[i * amount + j];
             auto transform = sphere.GetComponentData<Transform>();
             auto globalTransform = sphere.GetComponentData<GlobalTransform>();
-            glm::vec3 position = glm::vec3(i + 0.5f - amount / 2.0f, j + 0.5f - amount / 2.0f, 0);
-            transform.SetPosition(position * 3.0f);
-            globalTransform.SetPosition(position * 3.0f);
-            transform.SetScale(glm::vec3(1.0f));
-            globalTransform.SetScale(glm::vec3(1.0f));
+            glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
+            transform.SetPosition(position * 5.0f);
+            globalTransform.SetPosition(position * 5.0f);
+            transform.SetScale(glm::vec3(2.0f));
+            globalTransform.SetScale(glm::vec3(2.0f));
             sphere.SetComponentData(transform);
             sphere.SetComponentData(globalTransform);
             auto meshRenderer = std::make_unique<MeshRenderer>();
