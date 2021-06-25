@@ -5,7 +5,10 @@
 #include <MeshRenderer.hpp>
 #include <ResourceManager.hpp>
 #include <SerializationManager.hpp>
-#include <EnvironmentalMap.hpp>
+#include <RenderManager.hpp>
+#include <LightProbe.hpp>
+#include <ReflectionProbe.hpp>
+
 using namespace UniEngine;
 
 void ResourceManager::Remove(size_t id, size_t hashCode)
@@ -13,7 +16,7 @@ void ResourceManager::Remove(size_t id, size_t hashCode)
 	GetInstance().m_resources[id].second.erase(hashCode);
 }
 
-std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
+std::shared_ptr<Model> ResourceManager::LoadModel(
     const bool &addResource,
     std::string const &path,
     std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
@@ -314,7 +317,7 @@ std::shared_ptr<Model> UniEngine::ResourceManager::LoadModel(
 	return retVal;
 }
 
-Entity UniEngine::ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
+Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
 	Entity entity = EntityManager::CreateEntity(archetype);
 	entity.SetName(model->m_name);
@@ -615,7 +618,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
         manager.m_2DToCubemapProgram->SetFloat4x4("view", captureViews[i]);
         renderTarget->AttachTexture2D(envCubemap.get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
         renderTarget->Clear();
-        EnvironmentalMap::RenderCube();
+        RenderManager::RenderCube();
     }
     OpenGLUtils::GLFrameBuffer::BindDefault();
     envCubemap->GenerateMipMap();
@@ -628,12 +631,25 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     return retVal;
 }
 
-std::shared_ptr<EnvironmentalMap> ResourceManager::LoadEnvironmentalMap(
+std::shared_ptr<LightProbe> ResourceManager::LoadLightProbe(
     const bool &addResource,
     const std::string &path,
     const float &gamma)
 {
-    auto retVal = std::make_shared<EnvironmentalMap>();
+    auto retVal = std::make_shared<LightProbe>();
+    retVal->ConstructFromCubemap(LoadCubemap(false, path, gamma));
+    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    if (addResource)
+        Push(retVal);
+    return retVal;
+}
+
+std::shared_ptr<ReflectionProbe> ResourceManager::LoadReflectionProbe(
+    const bool &addResource,
+    const std::string &path,
+    const float &gamma)
+{
+    auto retVal = std::make_shared<ReflectionProbe>();
     retVal->ConstructFromCubemap(LoadCubemap(false, path, gamma));
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
     if (addResource)
@@ -759,6 +775,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
 
 void ResourceManager::OnGui()
 {
+    auto &resourceManager = GetInstance();
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
@@ -801,13 +818,13 @@ void ResourceManager::OnGui()
 		}
 		if (ImGui::BeginMenu("View"))
 		{
-			ImGui::Checkbox("Asset Manager", &GetInstance().m_enableAssetMenu);
+			ImGui::Checkbox("Asset Manager", &resourceManager.m_enableAssetMenu);
 			ImGui::EndMenu();
 		}
 
 		ImGui::EndMainMenuBar();
 	}
-	if (GetInstance().m_enableAssetMenu)
+	if (resourceManager.m_enableAssetMenu)
 	{
 		ImGui::Begin("Resource Manager");
 		if (ImGui::BeginTabBar(
@@ -833,9 +850,13 @@ void ResourceManager::OnGui()
 				}
 				ImGui::EndTabItem();
 			}
-			for (auto &collection : GetInstance().m_resources)
+			for (auto &collection : resourceManager.m_resources)
 			{
-				if (ImGui::BeginTabItem(collection.second.first.substr(6).c_str()))
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+                if (ImGui::CollapsingHeader(collection.second.first.substr(6).c_str()))
+#else
+                if (ImGui::CollapsingHeader(collection.second.first.substr(5).c_str()))
+#endif
 				{
 					if (ImGui::BeginDragDropTarget())
 					{
@@ -851,14 +872,13 @@ void ResourceManager::OnGui()
 					}
 					for (auto &i : collection.second.second)
 					{
+                        size_t hashCode = i.second->GetHashCode();
 						if (EditorManager::Draggable(collection.second.first, i.second))
 						{
-							Remove(i.first, i.second->GetHashCode());
+                            Remove(collection.first, hashCode);
 							break;
 						}
 					}
-
-					ImGui::EndTabItem();
 				}
 			}
 		}

@@ -47,7 +47,7 @@ struct MaterialSettingsBlock
 };
 struct EnvironmentalMapSettingsBlock
 {
-    GLuint64 m_environmentalMap = 0;
+    GLuint64 m_skybox = 0;
     GLuint64 m_environmentalIrradiance = 0;
     GLuint64 m_environmentalPrefiltered = 0;
     GLuint64 m_environmentalBrdfLut = 0;
@@ -142,6 +142,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
     static float Lerp(const float &a, const float &b, const float &f);
 
+    friend class ReflectionProbe;
+    friend class LightProbe;
+    friend class ResourceManager;
+    static void RenderCube();
+    static void RenderQuad();
   public:
     bool m_stableFit = true;
     float m_maxShadowDistance = 500;

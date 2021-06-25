@@ -82,6 +82,11 @@ bool Entity::IsValid() const
     return false;
 }
 
+void Entity::SetParent(const Entity &parent, const bool& recalculateTransform) const
+{
+    EntityManager::SetParent(*this, parent, recalculateTransform);
+}
+
 std::string Entity::GetName() const
 {
     return EntityManager::GetEntityName(*this);

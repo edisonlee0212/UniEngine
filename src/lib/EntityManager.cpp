@@ -479,6 +479,126 @@ std::vector<Entity> EntityManager::CreateEntities(
     return retVal;
 }
 
+std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const std::string &name)
+{
+    auto &manager = GetInstance();
+    if (!manager.m_currentAttachedWorldEntityStorage)
+    {
+        UNIENGINE_ERROR("EntityManager not attached to any world!");
+        return std::vector<Entity>();
+    }
+    const auto archetype = manager.m_basicArchetype;
+    if (archetype.IsValid())
+        return std::vector<Entity>();
+    std::vector<Entity> retVal;
+    EntityComponentDataStorage storage = manager.m_entityComponentStorage->at(archetype.m_index);
+    EntityArchetypeInfo *info = storage.m_archetypeInfo;
+    auto remainAmount = amount;
+    const Transform transform;
+    const GlobalTransform globalTransform;
+    while (remainAmount > 0 && info->m_entityAliveCount != info->m_entityCount)
+    {
+        remainAmount--;
+        Entity entity = storage.m_chunkArray->Entities.at(info->m_entityAliveCount);
+        EntityInfo &entityInfo = manager.m_entityInfos->at(entity.m_index);
+        entityInfo.m_enabled = true;
+        entityInfo.m_name = name;
+        entity.m_version = entityInfo.m_version;
+        storage.m_chunkArray->Entities[entityInfo.m_chunkArrayIndex] = entity;
+        manager.m_entities->at(entity.m_index) = entity;
+        info->m_entityAliveCount++;
+        // Reset all component data
+        const size_t chunkIndex = entityInfo.m_chunkArrayIndex / info->m_chunkCapacity;
+        const size_t chunkPointer = entityInfo.m_chunkArrayIndex % info->m_chunkCapacity;
+        const ComponentDataChunk chunk = manager
+                                             .m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex)
+                                             .m_chunkArray->Chunks[chunkIndex];
+        for (const auto &i : info->m_componentTypes)
+        {
+            const size_t offset = i.m_offset * info->m_chunkCapacity + chunkPointer * i.m_size;
+            chunk.ClearData(offset, i.m_size);
+        }
+        retVal.push_back(entity);
+        entity.SetComponentData(transform);
+        entity.SetComponentData(globalTransform);
+    }
+    if (remainAmount == 0)
+        return retVal;
+    info->m_entityCount += remainAmount;
+    info->m_entityAliveCount += remainAmount;
+    const size_t chunkIndex = info->m_entityCount / info->m_chunkCapacity + 1;
+    while (storage.m_chunkArray->Chunks.size() <= chunkIndex)
+    {
+        // Allocate new chunk;
+        ComponentDataChunk chunk;
+        chunk.m_data = static_cast<void *>(calloc(1, manager.m_archetypeChunkSize));
+        storage.m_chunkArray->Chunks.push_back(chunk);
+    }
+    const size_t originalSize = manager.m_entities->size();
+    manager.m_entities->resize(originalSize + remainAmount);
+    manager.m_entityInfos->resize(originalSize + remainAmount);
+
+    for (int i = 0; i < remainAmount; i++)
+    {
+        auto &entity = manager.m_entities->at(originalSize + i);
+        entity.m_index = originalSize + i;
+        entity.m_version = 1;
+
+        auto &entityInfo = manager.m_entityInfos->at(originalSize + i);
+        entityInfo = EntityInfo();
+        entityInfo.m_name = name;
+        entityInfo.m_archetypeInfoIndex = archetype.m_index;
+        entityInfo.m_chunkArrayIndex = info->m_entityAliveCount - remainAmount + i;
+    }
+
+    storage.m_chunkArray->Entities.insert(
+        storage.m_chunkArray->Entities.end(),
+        manager.m_entities->begin() + originalSize,
+        manager.m_entities->end());
+    const int threadSize = JobManager::PrimaryWorkers().Size();
+    int perThreadAmount = remainAmount / threadSize;
+    if (perThreadAmount > 0)
+    {
+        std::vector<std::shared_future<void>> results;
+        for (int i = 0; i < threadSize; i++)
+        {
+            results.push_back(JobManager::PrimaryWorkers()
+                                  .Push([i, perThreadAmount, originalSize](int id) {
+                                      const Transform transform;
+                                      const GlobalTransform globalTransform;
+                                      for (int index = originalSize + i * perThreadAmount;
+                                           index < originalSize + (i + 1) * perThreadAmount;
+                                           index++)
+                                      {
+                                          auto &entity = GetInstance().m_entities->at(index);
+                                          entity.SetComponentData(transform);
+                                          entity.SetComponentData(globalTransform);
+                                      }
+                                  })
+                                  .share());
+        }
+        results.push_back(JobManager::PrimaryWorkers()
+                              .Push([perThreadAmount, originalSize, &remainAmount, threadSize](int id) {
+                                  const Transform transform;
+                                  const GlobalTransform globalTransform;
+                                  for (int index = originalSize + perThreadAmount * threadSize;
+                                       index < originalSize + remainAmount;
+                                       index++)
+                                  {
+                                      auto &entity = GetInstance().m_entities->at(index);
+                                      entity.SetComponentData(transform);
+                                      entity.SetComponentData(globalTransform);
+                                  }
+                              })
+                              .share());
+        for (const auto &i : results)
+            i.wait();
+    }
+
+    retVal.insert(retVal.end(), manager.m_entities->begin() + originalSize, manager.m_entities->end());
+    return retVal;
+}
+
 void EntityManager::DeleteEntity(const Entity &entity)
 {
     /*

@@ -231,33 +231,34 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
 
 void EditorManager::Init()
 {
-    GetInstance().m_enabled = true;
-    GetInstance().m_basicEntityArchetype =
+    auto &editorManager = GetInstance();
+    editorManager.m_enabled = true;
+    editorManager.m_basicEntityArchetype =
         EntityManager::CreateEntityArchetype("General", GlobalTransform(), Transform());
 
-    GetInstance().m_sceneCameraEntityRecorderTexture = std::make_unique<OpenGLUtils::GLTexture2D>(
-        1, GL_R32F, GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY, false);
-    GetInstance().m_sceneCameraEntityRecorderTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    GetInstance().m_sceneCameraEntityRecorderTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    GetInstance().m_sceneCameraEntityRecorderTexture->ReSize(
+    editorManager.m_sceneCameraEntityRecorderTexture = std::make_unique<OpenGLUtils::GLTexture2D>(
+        1, GL_R32F, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY, false);
+    editorManager.m_sceneCameraEntityRecorderTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    editorManager.m_sceneCameraEntityRecorderTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
         0,
         GL_R32F,
         GL_RED,
         GL_FLOAT,
         0,
-        GetInstance().m_sceneCameraResolutionX,
-        GetInstance().m_sceneCameraResolutionY);
-    GetInstance().m_sceneCameraEntityRecorderRenderBuffer = std::make_unique<OpenGLUtils::GLRenderBuffer>();
-    GetInstance().m_sceneCameraEntityRecorder =
-        std::make_unique<RenderTarget>(GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
-    GetInstance().m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
-        GL_DEPTH24_STENCIL8, GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
-    GetInstance().m_sceneCameraEntityRecorder->SetResolution(
-        GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
-    GetInstance().m_sceneCameraEntityRecorder->AttachRenderBuffer(
-        GetInstance().m_sceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
-    GetInstance().m_sceneCameraEntityRecorder->AttachTexture(
-        GetInstance().m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
+        editorManager.m_sceneCameraResolutionX,
+        editorManager.m_sceneCameraResolutionY);
+    editorManager.m_sceneCameraEntityRecorderRenderBuffer = std::make_unique<OpenGLUtils::GLRenderBuffer>();
+    editorManager.m_sceneCameraEntityRecorder =
+        std::make_unique<RenderTarget>(editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+    editorManager.m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
+        GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+    editorManager.m_sceneCameraEntityRecorder->SetResolution(
+        editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+    editorManager.m_sceneCameraEntityRecorder->AttachRenderBuffer(
+        editorManager.m_sceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
+    editorManager.m_sceneCameraEntityRecorder->AttachTexture(
+        editorManager.m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
 
     std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                                  FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
@@ -270,13 +271,13 @@ void EditorManager::Init()
     auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    GetInstance().m_sceneCameraEntityRecorderProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneCameraEntityRecorderProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    GetInstance().m_sceneCameraEntityInstancedRecorderProgram =
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -290,13 +291,13 @@ void EditorManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    GetInstance().m_sceneHighlightPrePassProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightPrePassProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    GetInstance().m_sceneHighlightPrePassInstancedProgram =
+    editorManager.m_sceneHighlightPrePassInstancedProgram =
         std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -305,7 +306,7 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    GetInstance().m_sceneHighlightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
@@ -313,7 +314,7 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
-    GetInstance().m_sceneHighlightInstancedProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
+    editorManager.m_sceneHighlightInstancedProgram = std::make_unique<OpenGLUtils::GLProgram>(vertShader, fragShader);
 
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentDataBase *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
@@ -327,7 +328,7 @@ void EditorManager::Init()
         ImGui::InputFloat3("Scale##Global", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
     });
 
-    RegisterComponentDataInspector<Transform>([](Entity entity, ComponentDataBase *data, bool isRoot) {
+    RegisterComponentDataInspector<Transform>([&](Entity entity, ComponentDataBase *data, bool isRoot) {
         static Entity previousEntity;
         if (entity.IsStatic())
         {
@@ -350,46 +351,46 @@ void EditorManager::Init()
         {
             previousEntity = entity;
             ltp->Decompose(
-                GetInstance().m_previouslyStoredPosition,
-                GetInstance().m_previouslyStoredRotation,
-                GetInstance().m_previouslyStoredScale);
-            GetInstance().m_previouslyStoredRotation = glm::degrees(GetInstance().m_previouslyStoredRotation);
-            GetInstance().m_localPositionSelected = true;
-            GetInstance().m_localRotationSelected = false;
-            GetInstance().m_localScaleSelected = false;
+                editorManager.m_previouslyStoredPosition,
+                editorManager.m_previouslyStoredRotation,
+                editorManager.m_previouslyStoredScale);
+            editorManager.m_previouslyStoredRotation = glm::degrees(editorManager.m_previouslyStoredRotation);
+            editorManager.m_localPositionSelected = true;
+            editorManager.m_localRotationSelected = false;
+            editorManager.m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalPosition", &GetInstance().m_previouslyStoredPosition.x, 0.1f, 0, 0))
+        if (ImGui::DragFloat3("##LocalPosition", &editorManager.m_previouslyStoredPosition.x, 0.1f, 0, 0))
             edited = true;
         ImGui::SameLine();
-        if (ImGui::Selectable("Position##Local", &GetInstance().m_localPositionSelected) &&
-            GetInstance().m_localPositionSelected)
+        if (ImGui::Selectable("Position##Local", &editorManager.m_localPositionSelected) &&
+            editorManager.m_localPositionSelected)
         {
-            GetInstance().m_localRotationSelected = false;
-            GetInstance().m_localScaleSelected = false;
+            editorManager.m_localRotationSelected = false;
+            editorManager.m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalRotation", &GetInstance().m_previouslyStoredRotation.x, 1.0f, 0, 0))
+        if (ImGui::DragFloat3("##LocalRotation", &editorManager.m_previouslyStoredRotation.x, 1.0f, 0, 0))
             edited = true;
         ImGui::SameLine();
-        if (ImGui::Selectable("Rotation##Local", &GetInstance().m_localRotationSelected) &&
-            GetInstance().m_localRotationSelected)
+        if (ImGui::Selectable("Rotation##Local", &editorManager.m_localRotationSelected) &&
+            editorManager.m_localRotationSelected)
         {
-            GetInstance().m_localPositionSelected = false;
-            GetInstance().m_localScaleSelected = false;
+            editorManager.m_localPositionSelected = false;
+            editorManager.m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalScale", &GetInstance().m_previouslyStoredScale.x, 0.01f, 0, 0))
+        if (ImGui::DragFloat3("##LocalScale", &editorManager.m_previouslyStoredScale.x, 0.01f, 0, 0))
             edited = true;
         ImGui::SameLine();
-        if (ImGui::Selectable("Scale##Local", &GetInstance().m_localScaleSelected) &&
-            GetInstance().m_localScaleSelected)
+        if (ImGui::Selectable("Scale##Local", &editorManager.m_localScaleSelected) &&
+            editorManager.m_localScaleSelected)
         {
-            GetInstance().m_localRotationSelected = false;
-            GetInstance().m_localPositionSelected = false;
+            editorManager.m_localRotationSelected = false;
+            editorManager.m_localPositionSelected = false;
         }
         if (edited)
         {
-            ltp->m_value = glm::translate(GetInstance().m_previouslyStoredPosition) *
-                           glm::mat4_cast(glm::quat(glm::radians(GetInstance().m_previouslyStoredRotation))) *
-                           glm::scale(GetInstance().m_previouslyStoredScale);
+            ltp->m_value = glm::translate(editorManager.m_previouslyStoredPosition) *
+                           glm::mat4_cast(glm::quat(glm::radians(editorManager.m_previouslyStoredRotation))) *
+                           glm::scale(editorManager.m_previouslyStoredScale);
         }
     });
 
@@ -451,12 +452,14 @@ void EditorManager::Init()
             owner.SetPrivateComponent(std::make_unique<Particles>());
         }
     });
-    GetInstance().m_selectedEntity.m_index = 0;
-    GetInstance().m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
-    GetInstance().m_configFlags += EntityEditorSystem_EnableEntityInspector;
-    GetInstance().m_sceneCamera = std::make_unique<CameraComponent>();
-    GetInstance().m_sceneCamera->m_useClearColor = false;
-    GetInstance().m_sceneCamera->m_environmentalMap = DefaultResources::DefaultEnvironmentalMap;
+    editorManager.m_selectedEntity.m_index = 0;
+    editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
+    editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
+    editorManager.m_sceneCamera = std::make_unique<CameraComponent>();
+    editorManager.m_sceneCamera->m_useClearColor = false;
+    editorManager.m_sceneCamera->m_skybox = DefaultResources::Environmental::DefaultSkybox;
+    editorManager.m_sceneCamera->m_lightProbe = DefaultResources::Environmental::DefaultLightProbe;
+    editorManager.m_sceneCamera->m_reflectionProbe = DefaultResources::Environmental::DefaultReflectionProbe;
 }
 
 void EditorManager::Destroy()

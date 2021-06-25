@@ -27,6 +27,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
 
   public:
+    
+
     template <typename T> static void Push(std::shared_ptr<T> resource);
     template <typename T> static std::shared_ptr<T> Get(size_t hashCode);
     template <typename T> static std::shared_ptr<T> Find(std::string objectName);
@@ -47,7 +49,9 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const bool &addResource,
         const std::string &path,
         const float &gamma = 0.0f);
-    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(
+    static std::shared_ptr<LightProbe> LoadLightProbe(
+        const bool &addResource, const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(
         const bool &addResource, const std::string &path, const float &gamma = 0.0f);
     static std::shared_ptr<Cubemap> LoadCubemap(
         const bool &addResource,

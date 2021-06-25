@@ -36,6 +36,7 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] bool IsStatic() const;
     [[nodiscard]] bool IsDeleted() const;
     [[nodiscard]] bool IsValid() const;
+    void SetParent(const Entity &parent, const bool &recalculateTransform = true) const;
     template <typename T = ComponentDataBase> void SetComponentData(const T &value) const;
     template <typename T = ComponentDataBase> T GetComponentData() const;
     template <typename T = ComponentDataBase> [[nodiscard]] bool HasComponentData() const;

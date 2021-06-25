@@ -1,4 +1,5 @@
-#include "EnvironmentalMap.hpp"
+#include <ReflectionProbe.hpp>
+#include <LightProbe.hpp>
 
 #include <Application.hpp>
 #include <CameraComponent.hpp>
@@ -1468,6 +1469,358 @@ inline float RenderManager::Lerp(const float &a, const float &b, const float &f)
 {
     return a + f * (b - a);
 }
+
+unsigned int environmentalMapCubeVAO = 0;
+unsigned int environmentalMapCubeVBO = 0;
+void RenderManager::RenderCube()
+{
+    // initialize (if necessary)
+    if (environmentalMapCubeVAO == 0)
+    {
+        float vertices[] = {
+            // back face
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            1.0f, // top-right
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f, // top-left
+            // front face
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            1.0f, // top-right
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f, // top-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            // left face
+            -1.0f,
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-right
+            -1.0f,
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-left
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-right
+                  // right face
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-left
+            1.0f,
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-right
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-left
+            // bottom face
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-right
+            // top face
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-left
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-left
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f // bottom-left
+        };
+        glGenVertexArrays(1, &environmentalMapCubeVAO);
+        glGenBuffers(1, &environmentalMapCubeVBO);
+        // fill buffer
+        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapCubeVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // link vertex attributes
+        glBindVertexArray(environmentalMapCubeVAO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+    // render Cube
+    glBindVertexArray(environmentalMapCubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    OpenGLUtils::GLVAO::BindDefault();
+}
+unsigned int environmentalMapQuadVAO = 0;
+unsigned int environmentalMapQuadVBO;
+void RenderManager::RenderQuad()
+{
+    if (environmentalMapQuadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &environmentalMapQuadVAO);
+        glGenBuffers(1, &environmentalMapQuadVBO);
+        glBindVertexArray(environmentalMapQuadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapQuadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    }
+    glBindVertexArray(environmentalMapQuadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
 #pragma region Settings
 
 #pragma endregion
@@ -1678,44 +2031,47 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent* cameraComp
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     manager.m_environmentalMapSettings.m_backgroundColor =
         glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
+    const bool environmentalReady = cameraComponent->m_skybox && cameraComponent->m_lightProbe &&
+                              cameraComponent->m_lightProbe->m_ready && cameraComponent->m_reflectionProbe &&
+                              cameraComponent->m_reflectionProbe->m_ready;
     if (supportBindlessTexture)
     {
-        if (cameraComponent->m_environmentalMap && cameraComponent->m_environmentalMap->m_ready)
+        if (environmentalReady)
         {
-            manager.m_environmentalMapSettings.m_environmentalMap =
-                cameraComponent->m_environmentalMap->m_targetCubemap->Texture()->GetHandle();
+            manager.m_environmentalMapSettings.m_skybox =
+                cameraComponent->m_skybox->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalIrradiance =
-                cameraComponent->m_environmentalMap->m_irradianceMap->Texture()->GetHandle();
+                cameraComponent->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-                cameraComponent->m_environmentalMap->m_preFilteredMap->Texture()->GetHandle();
+                cameraComponent->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalBrdfLut =
                 manager.m_brdfLut->Texture()->GetHandle();
         }
         else
         {
-            manager.m_environmentalMapSettings.m_environmentalMap =
-                DefaultResources::DefaultEnvironmentalMap->m_targetCubemap->Texture()->GetHandle();
+            manager.m_environmentalMapSettings.m_skybox =
+                DefaultResources::Environmental::DefaultSkybox->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalIrradiance =
-                DefaultResources::DefaultEnvironmentalMap->m_irradianceMap->Texture()->GetHandle();
+                DefaultResources::Environmental::DefaultLightProbe->m_irradianceMap->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-                DefaultResources::DefaultEnvironmentalMap->m_preFilteredMap->Texture()->GetHandle();
+                DefaultResources::Environmental::DefaultReflectionProbe->m_preFilteredMap->Texture()->GetHandle();
             manager.m_environmentalMapSettings.m_environmentalBrdfLut = manager.m_brdfLut->Texture()->GetHandle();
         }
     }
     else
     {
-        if (cameraComponent->m_environmentalMap && cameraComponent->m_environmentalMap->m_ready)
+        if (environmentalReady)
         {
-            cameraComponent->m_environmentalMap->m_targetCubemap->Texture()->Bind(8);
-            cameraComponent->m_environmentalMap->m_irradianceMap->Texture()->Bind(9);
-            cameraComponent->m_environmentalMap->m_preFilteredMap->Texture()->Bind(10);
+            cameraComponent->m_skybox->Texture()->Bind(8);
+            cameraComponent->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
+            cameraComponent->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
             manager.m_brdfLut->Texture()->Bind(11);
         }
         else
         {
-            DefaultResources::DefaultEnvironmentalMap->m_targetCubemap->Texture()->Bind(8);
-            DefaultResources::DefaultEnvironmentalMap->m_irradianceMap->Texture()->Bind(9);
-            DefaultResources::DefaultEnvironmentalMap->m_preFilteredMap->Texture()->Bind(10);
+            DefaultResources::Environmental::DefaultSkybox->Texture()->Bind(8);
+            DefaultResources::Environmental::DefaultLightProbe->m_irradianceMap->Texture()->Bind(9);
+            DefaultResources::Environmental::DefaultReflectionProbe->m_preFilteredMap->Texture()->Bind(10);
             manager.m_brdfLut->Texture()->Bind(11);
         }
     }
@@ -1924,7 +2280,7 @@ void RenderManager::PrepareBrdfLut()
     renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
     DefaultResources::GLPrograms::BrdfProgram->Bind();
     renderTarget->Clear();
-    EnvironmentalMap::RenderQuad();
+    RenderQuad();
     OpenGLUtils::GLFrameBuffer::BindDefault();
 }
 
