@@ -2,11 +2,12 @@
 #include <Material.hpp>
 #include <Mesh.hpp>
 #include <ResourceBehaviour.hpp>
+#include <Transform.hpp>
 namespace UniEngine
 {
 struct ModelNode
 {
-    glm::mat4 m_localToParent;
+    Transform m_localToParent;
     std::vector<std::pair<std::shared_ptr<Material>, std::shared_ptr<Mesh>>> m_meshMaterials;
     std::vector<std::unique_ptr<ModelNode>> m_children;
 };

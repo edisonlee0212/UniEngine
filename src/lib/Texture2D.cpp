@@ -3,18 +3,7 @@ using namespace UniEngine;
 
 void Texture2D::OnCreate()
 {
-    m_type = TextureType::Albedo;
     m_name = "New Texture2D";
-}
-
-void Texture2D::SetType(TextureType type)
-{
-    m_type = type;
-}
-
-TextureType Texture2D::GetType() const
-{
-    return m_type;
 }
 
 glm::vec2 Texture2D::GetResolution() const

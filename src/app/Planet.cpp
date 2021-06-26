@@ -73,7 +73,7 @@ int main()
 
 #pragma region Lights
 	auto sharedMat = std::make_shared<Material>();
-	sharedMat->SetTexture(DefaultResources::Textures::StandardTexture);
+    sharedMat->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
 	Transform ltw;
 	auto dlc = std::make_unique<DirectionalLight>();

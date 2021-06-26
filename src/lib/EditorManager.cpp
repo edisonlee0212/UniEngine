@@ -474,6 +474,7 @@ static const char *HierarchyDisplayMode[]{"Archetype", "Hierarchy"};
 
 void EditorManager::PreUpdate()
 {
+    auto &editorManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::Button(Application::GetInstance().m_playing ? "Pause" : "Play"))
@@ -491,7 +492,7 @@ void EditorManager::PreUpdate()
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Console", &GetInstance().m_enableConsole);
+            ImGui::Checkbox("Console", &editorManager.m_enableConsole);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Window"))
@@ -504,45 +505,45 @@ void EditorManager::PreUpdate()
         }
         ImGui::EndMainMenuBar();
     }
-    const auto resolution = GetInstance().m_sceneCamera->m_gBuffer->GetResolution();
-    if (GetInstance().m_sceneCameraResolutionX != 0 && GetInstance().m_sceneCameraResolutionY != 0 &&
-        (resolution.x != GetInstance().m_sceneCameraResolutionX ||
-         resolution.y != GetInstance().m_sceneCameraResolutionY))
+    const auto resolution = editorManager.m_sceneCamera->m_gBuffer->GetResolution();
+    if (editorManager.m_sceneCameraResolutionX != 0 && editorManager.m_sceneCameraResolutionY != 0 &&
+        (resolution.x != editorManager.m_sceneCameraResolutionX ||
+         resolution.y != editorManager.m_sceneCameraResolutionY))
     {
-        GetInstance().m_sceneCamera->ResizeResolution(
-            GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
-        GetInstance().m_sceneCameraEntityRecorderTexture->ReSize(
+        editorManager.m_sceneCamera->ResizeResolution(
+            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+        editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
             0,
             GL_R32F,
             GL_RED,
             GL_FLOAT,
             0,
-            GetInstance().m_sceneCameraResolutionX,
-            GetInstance().m_sceneCameraResolutionY);
-        GetInstance().m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
-            GL_DEPTH24_STENCIL8, GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
-        GetInstance().m_sceneCameraEntityRecorder->SetResolution(
-            GetInstance().m_sceneCameraResolutionX, GetInstance().m_sceneCameraResolutionY);
+            editorManager.m_sceneCameraResolutionX,
+            editorManager.m_sceneCameraResolutionY);
+        editorManager.m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
+            GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+        editorManager.m_sceneCameraEntityRecorder->SetResolution(
+            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
     }
-    GetInstance().m_sceneCamera->Clear();
-    GetInstance().m_sceneCameraEntityRecorder->Clear();
-    if (GetInstance().m_lockCamera)
+    editorManager.m_sceneCamera->Clear();
+    editorManager.m_sceneCameraEntityRecorder->Clear();
+    if (editorManager.m_lockCamera)
     {
-        const float elapsedTime = Application::EngineTime() - GetInstance().m_transitionTimer;
-        const float a = 1.0f - glm::pow(1.0 - elapsedTime / GetInstance().m_transitionTime, 4.0f);
-        GetInstance().m_sceneCameraRotation =
-            glm::mix(GetInstance().m_previousRotation, GetInstance().m_targetRotation, a);
-        GetInstance().m_sceneCameraPosition =
-            glm::mix(GetInstance().m_previousPosition, GetInstance().m_targetPosition, a);
+        const float elapsedTime = Application::EngineTime() - editorManager.m_transitionTimer;
+        const float a = 1.0f - glm::pow(1.0 - elapsedTime / editorManager.m_transitionTime, 4.0f);
+        editorManager.m_sceneCameraRotation =
+            glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
+        editorManager.m_sceneCameraPosition =
+            glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
         if (a >= 1.0f)
         {
-            GetInstance().m_lockCamera = false;
-            GetInstance().m_sceneCameraRotation = GetInstance().m_targetRotation;
-            GetInstance().m_sceneCameraPosition = GetInstance().m_targetPosition;
+            editorManager.m_lockCamera = false;
+            editorManager.m_sceneCameraRotation = editorManager.m_targetRotation;
+            editorManager.m_sceneCameraPosition = editorManager.m_targetPosition;
             CameraComponent::ReverseAngle(
-                GetInstance().m_targetRotation,
-                GetInstance().m_sceneCameraPitchAngle,
-                GetInstance().m_sceneCameraYawAngle);
+                editorManager.m_targetRotation,
+                editorManager.m_sceneCameraPitchAngle,
+                editorManager.m_sceneCameraYawAngle);
         }
     }
 }
@@ -895,22 +896,29 @@ void EditorManager::LateUpdate()
                     std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
                     EntityArchetype archetype =
                         EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                    Transform ltw;
-                    ResourceManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+                    ResourceManager::ToEntity(archetype, payload_n);
+                }
+                const std::string texture2DTypeHash = ResourceManager::GetTypeName<Texture2D>();
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
+                {
+                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+                    std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
+                    EntityArchetype archetype =
+                        EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+                    ResourceManager::ToEntity(archetype, payload_n);
                 }
                 const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
                     std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
-                    Transform ltw;
                     auto meshRenderer = std::make_unique<MeshRenderer>();
                     meshRenderer->m_mesh = payload_n;
                     meshRenderer->m_material = ResourceManager::CreateResource<Material>();
-                    meshRenderer->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
+                    meshRenderer->m_material->SetTexture(
+                        TextureType::Albedo, DefaultResources::Textures::StandardTexture);
                     meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                     Entity entity = EntityManager::CreateEntity("Mesh");
-                    entity.SetComponentData(ltw);
                     entity.SetPrivateComponent(std::move(meshRenderer));
                 }
 

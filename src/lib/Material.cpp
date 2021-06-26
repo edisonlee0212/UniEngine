@@ -90,8 +90,6 @@ void Material::OnGui()
             ImGui::Text("Albedo:");
             ImGui::SameLine();
             EditorManager::DragAndDrop(m_textures[TextureType::Albedo]);
-            if (m_textures[TextureType::Albedo])
-                m_textures[TextureType::Albedo]->SetType(TextureType::Albedo);
         }
 
         {
@@ -100,8 +98,6 @@ void Material::OnGui()
             ImGui::Text("Normal:");
             ImGui::SameLine();
             EditorManager::DragAndDrop(m_textures[TextureType::Normal]);
-            if (m_textures[TextureType::Normal])
-                m_textures[TextureType::Normal]->SetType(TextureType::Normal);
         }
 
         {
@@ -110,8 +106,6 @@ void Material::OnGui()
             ImGui::Text("Metallic:");
             ImGui::SameLine();
             EditorManager::DragAndDrop(m_textures[TextureType::Metallic]);
-            if (m_textures[TextureType::Metallic])
-                m_textures[TextureType::Metallic]->SetType(TextureType::Metallic);
         }
 
         {
@@ -120,8 +114,6 @@ void Material::OnGui()
             ImGui::Text("Roughness:");
             ImGui::SameLine();
             EditorManager::DragAndDrop(m_textures[TextureType::Roughness]);
-            if (m_textures[TextureType::Roughness])
-                m_textures[TextureType::Roughness]->SetType(TextureType::Roughness);
         }
 
         {
@@ -130,8 +122,6 @@ void Material::OnGui()
             ImGui::Text("AO:");
             ImGui::SameLine();
             EditorManager::DragAndDrop(m_textures[TextureType::AO]);
-            if (m_textures[TextureType::AO])
-                m_textures[TextureType::AO]->SetType(TextureType::AO);
         }
 
         ImGui::TreePop();
@@ -164,9 +154,9 @@ void UniEngine::Material::SetMaterialProperty(const std::string &name, const glm
     m_float4X4PropertyList.emplace_back(name, value);
 }
 
-void Material::SetTexture(std::shared_ptr<Texture2D> texture)
+void Material::SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture)
 {
-    m_textures[texture->m_type] = texture;
+    m_textures[type] = texture;
 }
 
 void Material::RemoveTexture(TextureType type)

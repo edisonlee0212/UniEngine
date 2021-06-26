@@ -377,10 +377,10 @@ void DefaultResources::Load(World *world)
 #pragma region Environmental
     Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
     Materials::StandardMaterial->m_name = "Standard";
-    Materials::StandardMaterial->SetTexture(Textures::StandardTexture);
+    Materials::StandardMaterial->SetTexture(TextureType::Albedo, Textures::StandardTexture);
 
     Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
-    Materials::StandardInstancedMaterial->SetTexture(Textures::StandardTexture);
+    Materials::StandardInstancedMaterial->SetTexture(TextureType::Albedo, Textures::StandardTexture);
     Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
 
     Environmental::DefaultSkybox = ResourceManager::LoadCubemap(

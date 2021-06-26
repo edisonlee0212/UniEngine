@@ -55,7 +55,7 @@ class UNIENGINE_API Material : public ResourceBehaviour
     void OnGui();
     void SetMaterialProperty(const std::string &name, const float &value);
     void SetMaterialProperty(const std::string &name, const glm::mat4 &value);
-    void SetTexture(std::shared_ptr<Texture2D> texture);
+    void SetTexture(const TextureType& type, std::shared_ptr<Texture2D> texture);
     void RemoveTexture(TextureType type);
     void SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program);
 };

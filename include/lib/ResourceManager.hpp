@@ -17,7 +17,6 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const std::string &directory,
         const std::string &path,
         std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
-        const TextureType &textureType,
         const float &gamma);
 #ifdef USE_ASSIMP
     static std::shared_ptr<Material> ReadMaterial(
@@ -71,7 +70,6 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	static std::shared_ptr<Texture2D> LoadTexture(
 		const bool &addResource,
 		const std::string &path,
-		TextureType type = TextureType::Albedo,
 		const float &gamma = 0.0f);
 	static std::shared_ptr<Cubemap> LoadCubemap(
 		const bool &addResource,
@@ -98,6 +96,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 		const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
 	static void OnGui();
 	static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
+    static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
 };
 
 template <typename T> std::string ResourceManager::GetTypeName()

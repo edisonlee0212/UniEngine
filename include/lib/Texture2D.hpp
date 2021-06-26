@@ -15,17 +15,13 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     friend class Material;
     friend class RenderManager;
     friend class Bloom;
-    TextureType m_type;
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
     std::string m_path;
     friend class ResourceManager;
     friend class EnvironmentalMap;
     friend class CameraComponent;
-
   public:
     void OnCreate() override;
-    void SetType(TextureType type);
-    [[nodiscard]] TextureType GetType() const;
     [[nodiscard]] glm::vec2 GetResolution() const;
     void StoreToPng(
         const std::string &path,

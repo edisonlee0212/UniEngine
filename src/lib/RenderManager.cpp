@@ -1980,7 +1980,8 @@ void RenderManager::OnGui()
                             auto meshRenderer = std::make_unique<MeshRenderer>();
                             meshRenderer->m_mesh = payload_n;
                             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
-                            meshRenderer->m_material->SetTexture(DefaultResources::Textures::StandardTexture);
+                            meshRenderer->m_material->SetTexture(
+                                TextureType::Albedo, DefaultResources::Textures::StandardTexture);
                             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                             Entity entity = EntityManager::CreateEntity("Mesh");
                             entity.SetComponentData(ltw);
@@ -2208,80 +2209,83 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
     program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 3);
     program->SetInt("UE_AO_MAP_LEGACY", 3);
     bool hasAlbedo = false;
-    for (const auto &i : material->m_textures)
+    auto search = material->m_textures.find(TextureType::Albedo);
+    if (search != material->m_textures.end() && search->second)
     {
-        if (!i.second || !i.second->Texture())
-            continue;
-        switch (i.second->m_type)
+        hasAlbedo = true;
+        if (supportBindlessTexture)
         {
-        case TextureType::Albedo:
-            hasAlbedo = true;
-            if (supportBindlessTexture)
-            {
-                manager.m_materialSettings.m_albedoMap = i.second->Texture()->GetHandle();
-            }
-            else
-            {
-                i.second->Texture()->Bind(3);
-                program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
-                manager.m_materialSettings.m_albedoMap = 0;
-            }
-            manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Normal:
-            if (supportBindlessTexture)
-            {
-                manager.m_materialSettings.m_normalMap = i.second->Texture()->GetHandle();
-            }
-            else
-            {
-                i.second->Texture()->Bind(4);
-                program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
-                manager.m_materialSettings.m_normalMap = 0;
-            }
-            manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Metallic:
-            if (supportBindlessTexture)
-            {
-                manager.m_materialSettings.m_metallicMap = i.second->Texture()->GetHandle();
-            }
-            else
-            {
-                i.second->Texture()->Bind(5);
-                program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
-                manager.m_materialSettings.m_metallicMap = 0;
-            }
-            manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
-            break;
-        case TextureType::Roughness:
-            if (supportBindlessTexture)
-            {
-                manager.m_materialSettings.m_roughnessMap = i.second->Texture()->GetHandle();
-            }
-            else
-            {
-                i.second->Texture()->Bind(6);
-                program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
-                manager.m_materialSettings.m_roughnessMap = 0;
-            }
-            manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
-            break;
-        case TextureType::AO:
-            if (supportBindlessTexture)
-            {
-                manager.m_materialSettings.m_aoMap = i.second->Texture()->GetHandle();
-            }
-            else
-            {
-                i.second->Texture()->Bind(7);
-                program->SetInt("UE_AO_MAP_LEGACY", 7);
-                manager.m_materialSettings.m_aoMap = 0;
-            }
-            manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
-            break;
+            manager.m_materialSettings.m_albedoMap = search->second->Texture()->GetHandle();
         }
+        else
+        {
+            search->second->Texture()->Bind(3);
+            program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+            manager.m_materialSettings.m_albedoMap = 0;
+        }
+        manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
     }
+    search = material->m_textures.find(TextureType::Normal);
+    if (search != material->m_textures.end() && search->second)
+    {
+        if (supportBindlessTexture)
+        {
+            manager.m_materialSettings.m_normalMap = search->second->Texture()->GetHandle();
+        }
+        else
+        {
+            search->second->Texture()->Bind(4);
+            program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+            manager.m_materialSettings.m_normalMap = 0;
+        }
+        manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
+    }
+    search = material->m_textures.find(TextureType::Roughness);
+    if (search != material->m_textures.end() && search->second)
+    {
+        if (supportBindlessTexture)
+        {
+            manager.m_materialSettings.m_roughnessMap = search->second->Texture()->GetHandle();
+        }
+        else
+        {
+            search->second->Texture()->Bind(6);
+            program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
+            manager.m_materialSettings.m_roughnessMap = 0;
+        }
+        manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
+    }
+    search = material->m_textures.find(TextureType::Metallic);
+    if (search != material->m_textures.end() && search->second)
+    {
+        if (supportBindlessTexture)
+        {
+            manager.m_materialSettings.m_metallicMap = search->second->Texture()->GetHandle();
+        }
+        else
+        {
+            search->second->Texture()->Bind(5);
+            program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
+            manager.m_materialSettings.m_metallicMap = 0;
+        }
+        manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
+    }
+    search = material->m_textures.find(TextureType::AO);
+    if (search != material->m_textures.end() && search->second)
+    {
+        if (supportBindlessTexture)
+        {
+            manager.m_materialSettings.m_aoMap = search->second->Texture()->GetHandle();
+        }
+        else
+        {
+            search->second->Texture()->Bind(7);
+            program->SetInt("UE_AO_MAP_LEGACY", 7);
+            manager.m_materialSettings.m_aoMap = 0;
+        }
+        manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
+    }
+    
     if (!hasAlbedo)
     {
         DefaultResources::Textures::MissingTexture->Texture()->Bind(3);
