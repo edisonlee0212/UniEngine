@@ -351,12 +351,8 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
             chunk.ClearData(offset, i.m_size);
         }
     }
-
-    const Transform transform;
-    const GlobalTransform globalTransform;
-    retVal.SetComponentData(transform);
-    retVal.SetComponentData(globalTransform);
-
+    retVal.SetComponentData(Transform());
+    retVal.SetComponentData(GlobalTransform());
     return retVal;
 }
 

@@ -14,6 +14,7 @@ map_Bump retrotv0319_Main_NormalGL.png
 map_Kd retrotv0319_Main_BaseColor.png
 map_Ns retrotv0319_Main_Roughness.png
 refl retrotv0319_Main_Metallic.png
+map_Ka retrotv0319_Main_AO.png
 
 newmtl Screen
 Ns 225.000000
@@ -28,3 +29,4 @@ map_Bump retrotv0319_Screen_NormalGL.png
 map_Kd retrotv0319_Screen_BaseColor.png
 map_Ns retrotv0319_Screen_Roughness.png
 refl retrotv0319_Screen_Metallic.png
+map_Ka retrotv0319_Screen_AO.png

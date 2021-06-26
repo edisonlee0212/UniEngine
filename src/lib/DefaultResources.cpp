@@ -361,8 +361,6 @@ void DefaultResources::LoadPrimitives(World *world)
     }
 #pragma endregion
 }
-
-
 void DefaultResources::Load(World *world)
 {
     ResourceManager::RegisterResourceType<Material>("Material");

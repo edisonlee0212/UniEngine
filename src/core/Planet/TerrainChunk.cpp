@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <Planet/TerrainChunk.hpp>
 #include <Planet/PlanetTerrainSystem.hpp>
 
@@ -105,7 +107,7 @@ void Planet::TerrainChunk::GenerateTerrain(std::mutex& mutex, std::unique_ptr<Te
 		vertices.at(index).m_position = glm::vec3(pointOnUnitCube * m_planetTerrain->m_info.m_radius * elevation);
 	}
 	std::lock_guard<std::mutex> lock(mutex);
-	auto mesh = std::make_unique<Mesh>();
+	auto mesh = ResourceManager::CreateResource<Mesh>();
 	mesh->SetVertices(1 | static_cast<unsigned>(VertexAttribute::TexCoord), m_planetTerrain->m_sharedVertices, m_planetTerrain->m_sharedTriangles);
 	targetChunk->m_mesh = std::move(mesh);
 }

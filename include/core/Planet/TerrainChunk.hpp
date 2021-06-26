@@ -13,7 +13,7 @@ namespace Planet {
 	class TerrainChunk {
 		PlanetTerrain* m_planetTerrain;
 	public:
-		std::unique_ptr<Mesh> m_mesh;
+		std::shared_ptr<Mesh> m_mesh;
 		//The level of detail, the larger the detail, the smaller the chunk will be.
 		unsigned m_detailLevel;
 		//The chunk coordinate in which a chunk belongs to the face
