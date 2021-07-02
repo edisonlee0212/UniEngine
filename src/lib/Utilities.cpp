@@ -1,5 +1,6 @@
 #include <EntityManager.hpp>
 #include <Utilities.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 Bound::Bound()
 {

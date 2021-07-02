@@ -5,6 +5,7 @@
 #include <RenderTarget.hpp>
 #include <Texture2D.hpp>
 #include <ResourceManager.hpp>
+#include <Gui.hpp>
 namespace UniEngine
 {
 struct Transform;

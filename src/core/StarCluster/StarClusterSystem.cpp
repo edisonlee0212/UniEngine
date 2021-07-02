@@ -1,7 +1,7 @@
-#include "ResourceManager.hpp"
-
+#include <ResourceManager.hpp>
 #include <EditorManager.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
+#include <Gui.hpp>
 void Galaxy::StarClusterPattern::OnGui()
 {
     static bool autoApply = true;

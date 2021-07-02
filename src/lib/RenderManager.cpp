@@ -1,5 +1,5 @@
-#include "ResourceManager.hpp"
-
+#include <ResourceManager.hpp>
+#include <Gui.hpp>
 #include <ReflectionProbe.hpp>
 #include <LightProbe.hpp>
 

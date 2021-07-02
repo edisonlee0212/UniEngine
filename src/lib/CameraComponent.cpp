@@ -9,6 +9,7 @@
 #include <SerializationManager.hpp>
 #include <Texture2D.hpp>
 #include <EditorManager.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 
 CameraInfoBlock CameraComponent::m_cameraInfoBlock;

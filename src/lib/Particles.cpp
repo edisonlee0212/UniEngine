@@ -2,6 +2,7 @@
 #include <EditorManager.hpp>
 #include <Particles.hpp>
 #include <RenderManager.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 
 Particles::Particles()

@@ -2,7 +2,7 @@
 #include <CameraComponent.hpp>
 #include <InputManager.hpp>
 #include <RenderManager.hpp>
-
+#include <Gui.hpp>
 using namespace UniEngine;
 
 void CameraControlSystem::OnCreate()

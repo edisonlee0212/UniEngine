@@ -1,5 +1,6 @@
 #include <Debug.hpp>
 #include <Mesh.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 void Mesh::OnGui()
 {

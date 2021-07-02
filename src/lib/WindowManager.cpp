@@ -2,6 +2,7 @@
 #include <DefaultResources.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>
+
 using namespace UniEngine;
 
 void WindowManager::ResizeCallback(GLFWwindow *window, int width, int height)

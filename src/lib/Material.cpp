@@ -1,5 +1,6 @@
 #include <EditorManager.hpp>
 #include <Material.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
 static const char *MatCullingMode[]{"BACK", "FRONT", "OFF"};

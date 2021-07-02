@@ -1,6 +1,7 @@
 #ifndef IMGUIFILEBROWSER_H
 #define IMGUIFILEBROWSER_H
 #include <uniengine_export.h>
+#include <Gui.hpp>
 namespace imgui_addons
 {
     class UNIENGINE_API ImGuiFileBrowser

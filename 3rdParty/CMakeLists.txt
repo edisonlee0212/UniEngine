@@ -98,5 +98,6 @@ set(IMGUI_SOURCES
 		)
 set(IMGUI_DIR
 		${3RD_PARTY_DIR}/ImGui
+		${3RD_PARTY_DIR}/ImGui/backends
 		${3RD_PARTY_DIR}/ImGuizmo
 		PARENT_SCOPE)

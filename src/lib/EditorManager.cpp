@@ -11,6 +11,7 @@
 #include <PostProcessing.hpp>
 #include <ResourceManager.hpp>
 #include <WindowManager.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {

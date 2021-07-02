@@ -1,4 +1,5 @@
 #include <Lights.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 
 void SpotLight::OnGui()

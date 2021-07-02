@@ -9,6 +9,7 @@
 #include <ResourceManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 
 #pragma region Utilities

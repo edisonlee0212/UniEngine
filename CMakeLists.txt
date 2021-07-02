@@ -39,9 +39,10 @@ target_precompile_headers(uniengine
 	${UNIENGINE_PCH_LOCAL}
 	)
 generate_export_header(uniengine
-	BASE_NAME uniengine
+	BASE_NAME UNIENGINE
 	EXPORT_MACRO_NAME UNIENGINE_API
 	)
+
 # Linker settings for all platforms
 target_link_libraries(uniengine
 	#volk::volk
@@ -98,7 +99,8 @@ if (WIN32)
 		PRIVATE
 		NOMINMAX
 		UNIENGINE_EXPORTS
-		"IMGUI_API=__declspec (dllexport)"
+		IMGUI_EXPORTS
+		"IMGUI_API= __declspec (dllexport)"
 		USE_ASSIMP
 		)
 elseif (UNIX AND NOT APPLE)
@@ -141,6 +143,7 @@ endif ()
 # ------------------------------------------------------------------
 # Example program
 # ------------------------------------------------------------------
+
 if(${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPLES)
 	file(GLOB SAMPLE_CORE_SOURCES_LOCAL "src/core/*.cpp")
 	file(GLOB PLANET_SOURCES_LOCAL "src/core/Planet/*.cpp")

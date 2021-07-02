@@ -4,6 +4,7 @@
 #include <FileIO.hpp>
 #include <PostProcessing.hpp>
 #include <Texture2D.hpp>
+#include <Gui.hpp>
 using namespace UniEngine;
 
 void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)

@@ -8,7 +8,7 @@
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SerializationManager.hpp>
-
+#include <Gui.hpp>
 using namespace UniEngine;
 
 void ResourceManager::Remove(size_t id, size_t hashCode)

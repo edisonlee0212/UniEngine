@@ -1,6 +1,7 @@
 #pragma once
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
+#include <Gui.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API InputManager : public ISingleton<InputManager>
