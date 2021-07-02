@@ -2,13 +2,13 @@
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <FileIO.hpp>
+#include <Gui.hpp>
 #include <LightProbe.hpp>
 #include <MeshRenderer.hpp>
 #include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SerializationManager.hpp>
-#include <Gui.hpp>
 using namespace UniEngine;
 
 void ResourceManager::Remove(size_t id, size_t hashCode)
@@ -123,8 +123,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 #pragma region Textures
                         if (!importedMaterial.diffuse_texname.empty())
                         {
-                            const auto albedo = CollectTexture(
-                                directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
+                            const auto albedo =
+                                CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
                             if (albedo)
                             {
                                 material->SetTexture(TextureType::Albedo, albedo);
@@ -132,8 +132,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         }
                         if (!importedMaterial.bump_texname.empty())
                         {
-                            const auto normal = CollectTexture(
-                                directory, importedMaterial.bump_texname, loadedTextures, gamma);
+                            const auto normal =
+                                CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, gamma);
                             if (normal)
                             {
                                 material->SetTexture(TextureType::Normal, normal);
@@ -141,8 +141,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         }
                         if (!importedMaterial.normal_texname.empty())
                         {
-                            const auto normal = CollectTexture(
-                                directory, importedMaterial.normal_texname, loadedTextures, gamma);
+                            const auto normal =
+                                CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, gamma);
                             if (normal)
                             {
                                 material->SetTexture(TextureType::Normal, normal);
@@ -150,8 +150,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         }
                         if (!importedMaterial.roughness_texname.empty())
                         {
-                            const auto roughness = CollectTexture(
-                                directory, importedMaterial.roughness_texname, loadedTextures, gamma);
+                            const auto roughness =
+                                CollectTexture(directory, importedMaterial.roughness_texname, loadedTextures, gamma);
                             if (roughness)
                             {
                                 material->SetTexture(TextureType::Roughness, roughness);
@@ -160,10 +160,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         if (!importedMaterial.specular_highlight_texname.empty())
                         {
                             const auto roughness = CollectTexture(
-                                directory,
-                                importedMaterial.specular_highlight_texname,
-                                loadedTextures,
-                                gamma);
+                                directory, importedMaterial.specular_highlight_texname, loadedTextures, gamma);
                             if (roughness)
                             {
                                 material->SetTexture(TextureType::Roughness, roughness);
@@ -171,8 +168,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         }
                         if (!importedMaterial.metallic_texname.empty())
                         {
-                            const auto metallic = CollectTexture(
-                                directory, importedMaterial.metallic_texname, loadedTextures, gamma);
+                            const auto metallic =
+                                CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, gamma);
                             if (metallic)
                             {
                                 material->SetTexture(TextureType::Metallic, metallic);
@@ -180,8 +177,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                         }
                         if (!importedMaterial.reflection_texname.empty())
                         {
-                            const auto metallic = CollectTexture(
-                                directory, importedMaterial.reflection_texname, loadedTextures, gamma);
+                            const auto metallic =
+                                CollectTexture(directory, importedMaterial.reflection_texname, loadedTextures, gamma);
                             if (metallic)
                             {
                                 material->SetTexture(TextureType::Metallic, metallic);
@@ -190,8 +187,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 
                         if (!importedMaterial.ambient_texname.empty())
                         {
-                            const auto ao = CollectTexture(
-                                directory, importedMaterial.ambient_texname, loadedTextures, gamma);
+                            const auto ao =
+                                CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, gamma);
                             if (ao)
                             {
                                 material->SetTexture(TextureType::AO, ao);
@@ -217,7 +214,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                 mesh->SetVertices(mask, vertices, indices);
 #pragma endregion
                 childNode->m_localToParent.m_value = glm::translate(glm::vec3(0.0f)) *
-                                             glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
+                                                     glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
+                                                     glm::scale(glm::vec3(1.0f));
                 childNode->m_meshMaterials.emplace_back(material, mesh);
                 retVal->RootNode()->m_children.push_back(std::move(childNode));
             }
@@ -337,8 +335,9 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
             }
             mesh->SetVertices(mask, vertices, indices);
 #pragma endregion
-            childNode->m_localToParent.m_value = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
-                                         glm::scale(glm::vec3(1.0f));
+            childNode->m_localToParent.m_value = glm::translate(glm::vec3(0.0f)) *
+                                                 glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
+                                                 glm::scale(glm::vec3(1.0f));
             childNode->m_meshMaterials.emplace_back(material, mesh);
             retVal->RootNode()->m_children.push_back(std::move(childNode));
         }
@@ -397,40 +396,35 @@ std::shared_ptr<Material> ResourceManager::ReadMaterial(
         aiString str;
         importerMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Albedo, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
     {
         aiString str;
         importerMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Albedo, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     if (importerMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA) > 0)
     {
         aiString str;
         importerMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Normal, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     if (importerMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
     {
         aiString str;
         importerMaterial->GetTexture(aiTextureType_METALNESS, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Metallic, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Metallic, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
     {
         aiString str;
         importerMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Roughness, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Roughness, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     if (importerMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
     {
@@ -443,8 +437,7 @@ std::shared_ptr<Material> ResourceManager::ReadMaterial(
         aiString str;
         importerMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
         targetMaterial->SetTexture(
-            TextureType::Normal, 
-            CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
+            TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded, gamma));
     }
     return targetMaterial;
 }
@@ -465,6 +458,8 @@ bool ResourceManager::ProcessNode(
         // the modelNode object only contains indices to index the actual objects in the scene.
         // the scene contains all the data, modelNode is just to keep stuff organized (like relations between nodes).
         aiMesh *importerMesh = importerScene->mMeshes[importerNode->mMeshes[i]];
+        if (!importerMesh)
+            continue;
         auto mesh = ReadMesh(importerMesh);
         if (!mesh)
             continue;
@@ -498,7 +493,8 @@ bool ResourceManager::ProcessNode(
             importerNode->mTransformation.d2,
             importerNode->mTransformation.d3,
             importerNode->mTransformation.d4);
-        childNode->m_localToParent = Transform();
+        if (!importerNode->mParent)
+            childNode->m_localToParent = Transform();
         modelNode->m_children.push_back(std::move(childNode));
     }
 
