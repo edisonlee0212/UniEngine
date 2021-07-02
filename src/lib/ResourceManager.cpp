@@ -3,9 +3,7 @@
 #include <EditorManager.hpp>
 #include <FileIO.hpp>
 #include <Gui.hpp>
-#include <LightProbe.hpp>
 #include <MeshRenderer.hpp>
-#include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SerializationManager.hpp>

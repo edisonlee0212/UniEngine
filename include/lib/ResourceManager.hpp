@@ -3,7 +3,8 @@
 #include <EntityManager.hpp>
 #include <Model.hpp>
 #include <OpenGLUtils.hpp>
-
+#include <LightProbe.hpp>
+#include <ReflectionProbe.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
