@@ -33,16 +33,19 @@
 
 #include <Math.hpp>
 
+
 //#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include <Gui.hpp>
 
-#include <tiny_obj_loader.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+
+#include <tiny_obj_loader.hpp>
+
 
 #include <stb_image.h>
 #include <stb_image_resize.h>

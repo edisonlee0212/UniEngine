@@ -99,8 +99,7 @@ if (WIN32)
 		PRIVATE
 		NOMINMAX
 		UNIENGINE_EXPORTS
-		IMGUI_EXPORTS
-		"IMGUI_API= __declspec (dllexport)"
+		"IMGUI_API=__declspec(dllexport)"
 		USE_ASSIMP
 		)
 elseif (UNIX AND NOT APPLE)
