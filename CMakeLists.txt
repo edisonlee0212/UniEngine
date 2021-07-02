@@ -73,6 +73,7 @@ target_compile_definitions(uniengine
 	${UNIENGINE_RESOURCE_DEF}
 	GLAD_GLAPI_EXPORT
 	GLAD_GLAPI_EXPORT_BUILD
+	USE_ASSIMP
 	)
 if (WIN32)
 	# Linker settings for Windows platform
@@ -100,7 +101,7 @@ if (WIN32)
 		NOMINMAX
 		UNIENGINE_EXPORTS
 		"IMGUI_API=__declspec(dllexport)"
-		USE_ASSIMP
+		
 		)
 elseif (UNIX AND NOT APPLE)
 	# Linker settings for Linux platform
