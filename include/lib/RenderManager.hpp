@@ -150,7 +150,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 *matrices,
         const size_t &count,
         const bool &receiveShadow);
-
+    static void DrawMeshInstancedInternal(
+        const Mesh *mesh,
+        const glm::mat4 *matrices,
+        const size_t &count);
+    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const glm::mat4 *matrices, const size_t &count);
     static void DrawGizmoMesh(
         const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstanced(

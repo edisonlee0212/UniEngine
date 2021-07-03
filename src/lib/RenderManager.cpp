@@ -51,6 +51,7 @@ void RenderManager::RenderToCameraDeferred(
 					}
 					case RenderInstanceType::Skinned: {
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
                         renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
                         renderManager.m_materialSettingsBuffer->SubData(
                             0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -70,7 +71,33 @@ void RenderManager::RenderToCameraDeferred(
 	{
 		auto &program = renderManager.m_gBufferInstancedPrepass;
 		program->Bind();
-		
+        for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
+        {
+            auto *material = renderCollection.first;
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            ApplyMaterialSettings(material, program.get());
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                        renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+                        renderManager.m_materialSettingsBuffer->SubData(
+                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        DeferredPrepassInstancedInternal(
+                            particles->m_mesh.get(), particles->m_matrices.data(), particles->m_matrices.size());
+                        break;
+                    }
+                    }
+                }
+            }
+            ReleaseTextureHandles(material);
+        }
 	}
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_BLEND);
@@ -167,6 +194,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
                     }
                     case RenderInstanceType::Skinned: {
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
                         renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
                         renderManager.m_materialSettingsBuffer->SubData(
                             0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -180,6 +208,45 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 			ReleaseTextureHandles(material);
 		}
 	}
+    if (!renderManager.m_forwardInstancedRenderInstances.empty())
+    {
+        for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
+        {
+            auto *material = renderCollection.first;
+            auto &program = material->m_program;
+            program->Bind();
+            for (auto j : material->m_floatPropertyList)
+            {
+                program->SetFloat(j.m_name, j.m_value);
+            }
+            for (auto j : material->m_float4X4PropertyList)
+            {
+                program->SetFloat4x4(j.m_name, j.m_value);
+            }
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            ApplyMaterialSettings(material, program.get());
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                        renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+                        renderManager.m_materialSettingsBuffer->SubData(
+                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        DrawMeshInstancedInternal(particles->m_mesh.get(), particles->m_matrices.data(), particles->m_matrices.size());
+                        break;
+                    }
+                    }
+                }
+            }
+            ReleaseTextureHandles(material);
+        }
+    }
 }
 
 void RenderManager::Init()
@@ -2517,6 +2584,56 @@ void RenderManager::DrawMeshInstanced(
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 	ReleaseTextureHandles(material);
 	OpenGLUtils::GLVAO::BindDefault();
+}
+
+void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count)
+{
+    if (mesh == nullptr || matrices == nullptr || count == 0)
+        return;
+    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+    mesh->Enable();
+    mesh->Vao()->EnableAttributeArray(12);
+    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+    mesh->Vao()->EnableAttributeArray(13);
+    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+    mesh->Vao()->EnableAttributeArray(14);
+    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+    mesh->Vao()->EnableAttributeArray(15);
+    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+    mesh->Vao()->SetAttributeDivisor(12, 1);
+    mesh->Vao()->SetAttributeDivisor(13, 1);
+    mesh->Vao()->SetAttributeDivisor(14, 1);
+    mesh->Vao()->SetAttributeDivisor(15, 1);
+    GetInstance().m_drawCall++;
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
+    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+    OpenGLUtils::GLVAO::BindDefault();
+}
+
+void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const glm::mat4 *matrices, const size_t &count)
+{
+    if (mesh == nullptr || matrices == nullptr || count == 0)
+        return;
+    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
+    mesh->Enable();
+    mesh->Vao()->EnableAttributeArray(12);
+    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+    mesh->Vao()->EnableAttributeArray(13);
+    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+    mesh->Vao()->EnableAttributeArray(14);
+    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+    mesh->Vao()->EnableAttributeArray(15);
+    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+    mesh->Vao()->SetAttributeDivisor(12, 1);
+    mesh->Vao()->SetAttributeDivisor(13, 1);
+    mesh->Vao()->SetAttributeDivisor(14, 1);
+    mesh->Vao()->SetAttributeDivisor(15, 1);
+    GetInstance().m_drawCall++;
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
+    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+    OpenGLUtils::GLVAO::BindDefault();
 }
 
 void RenderManager::DrawMesh(
