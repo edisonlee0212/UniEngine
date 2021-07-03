@@ -4,6 +4,7 @@
 #include <FileIO.hpp>
 #include <Gui.hpp>
 #include <MeshRenderer.hpp>
+#include <SkinnedMeshRenderer.hpp>
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SerializationManager.hpp>
@@ -38,12 +39,20 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
     auto retVal = CreateResource<Model>();
     retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
     std::map<unsigned, std::shared_ptr<Material>> loadedMaterials;
+    std::map<std::string, std::shared_ptr<Bone>> bonesMap;
+
+    if (!bonesMap.empty() || scene->HasAnimations())
+    {
+        retVal->m_animation = std::make_shared<Animation>();
+    }
+
     if (!ProcessNode(
             directory,
             glProgram,
             retVal->RootNode(),
             loadedMaterials,
             texture2DsLoaded,
+            bonesMap,
             scene->mRootNode,
             scene,
             gamma))
@@ -51,6 +60,9 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
         UNIENGINE_ERROR("Model is empty!");
         return nullptr;
     }
+
+    
+
     if (addResource)
         Push(retVal);
     return retVal;
@@ -351,12 +363,20 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(model->m_name);
     std::unique_ptr<ModelNode> &modelNode = model->RootNode();
-    for (auto &i : modelNode->m_meshMaterials)
+
+    if (modelNode->m_mesh)
     {
         auto mmc = std::make_unique<MeshRenderer>();
-        mmc->m_mesh = i.second;
-        mmc->m_material = i.first;
+        mmc->m_mesh = modelNode->m_mesh;
+        mmc->m_material = modelNode->m_material;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
+    }
+    else if (modelNode->m_skinnedMesh)
+    {
+        auto smmc = std::make_unique<SkinnedMeshRenderer>();
+        smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
+        smmc->m_material = modelNode->m_material;
+        EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
@@ -446,6 +466,7 @@ bool ResourceManager::ProcessNode(
     std::unique_ptr<ModelNode> &modelNode,
     std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
     std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
+    std::map<std::string, std::shared_ptr<Bone>> &boneMaps, 
     aiNode *importerNode,
     const aiScene *importerScene,
     const float &gamma)
@@ -458,21 +479,34 @@ bool ResourceManager::ProcessNode(
         aiMesh *importerMesh = importerScene->mMeshes[importerNode->mMeshes[i]];
         if (!importerMesh)
             continue;
-        auto mesh = ReadMesh(importerMesh);
-        if (!mesh)
-            continue;
-        addedMeshRenderer = true;
         auto childNode = std::make_unique<ModelNode>();
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
         if (search == loadedMaterials.end())
         {
             aiMaterial *importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
-            auto material = ReadMaterial(directory, glProgram, texture2DsLoaded, importerMaterial, gamma);
-            childNode->m_meshMaterials.emplace_back(material, mesh);
+            childNode->m_material =
+                ReadMaterial(directory, glProgram, texture2DsLoaded, importerMaterial, gamma);
         }
         else
         {
-            childNode->m_meshMaterials.emplace_back(search->second, mesh);
+            childNode->m_material = search->second;
+        }
+        
+        if (importerMesh->HasBones())
+        {
+            const auto skinnedMesh = ReadSkinnedMesh(boneMaps, importerMesh);
+            if (!skinnedMesh)
+                continue;
+            addedMeshRenderer = true;
+            childNode->m_skinnedMesh = skinnedMesh;
+        }
+        else
+        {
+            const auto mesh = ReadMesh(importerMesh);
+            if (!mesh)
+                continue;
+            addedMeshRenderer = true;
+            childNode->m_mesh = mesh;
         }
         childNode->m_localToParent.m_value = glm::mat4(
             importerNode->mTransformation.a1,
@@ -505,6 +539,7 @@ bool ResourceManager::ProcessNode(
             childNode,
             loadedMaterials,
             texture2DsLoaded,
+            boneMaps,
             importerNode->mChildren[i],
             importerScene,
             gamma);
@@ -520,8 +555,9 @@ std::shared_ptr<Mesh> ResourceManager::ReadMesh(aiMesh *importerMesh)
     unsigned mask = 1;
     std::vector<Vertex> vertices;
     std::vector<unsigned> indices;
-    if (importerMesh->mNumVertices == 0 || importerMesh->mNumFaces == 0)
+    if (importerMesh->mNumVertices == 0 || !importerMesh->HasFaces())
         return nullptr;
+    vertices.resize(importerMesh->mNumVertices);
     // Walk through each of the mesh's vertices
     for (int i = 0; i < importerMesh->mNumVertices; i++)
     {
@@ -533,58 +569,192 @@ std::shared_ptr<Mesh> ResourceManager::ReadMesh(aiMesh *importerMesh)
         v3.y = importerMesh->mVertices[i].y;
         v3.z = importerMesh->mVertices[i].z;
         vertex.m_position = v3;
-        if (importerMesh->mNormals)
+        if (importerMesh->HasNormals())
         {
             v3.x = importerMesh->mNormals[i].x;
             v3.y = importerMesh->mNormals[i].y;
             v3.z = importerMesh->mNormals[i].z;
             vertex.m_normal = v3;
-            mask = mask | (1 << 1);
+            mask = mask | static_cast<unsigned>(VertexAttribute::Normal);
         }
-        if (importerMesh->mTangents)
+        if (importerMesh->HasTangentsAndBitangents())
         {
             v3.x = importerMesh->mTangents[i].x;
             v3.y = importerMesh->mTangents[i].y;
             v3.z = importerMesh->mTangents[i].z;
             vertex.m_tangent = v3;
-            mask = mask | (1 << 2);
+            mask = mask | static_cast<unsigned>(VertexAttribute::Tangent);
         }
         glm::vec4 v4;
-        if (importerMesh->mColors[0])
+        if (importerMesh->HasVertexColors(0))
         {
             v4.x = importerMesh->mColors[0][i].r;
             v4.y = importerMesh->mColors[0][i].g;
             v4.z = importerMesh->mColors[0][i].b;
             v4.w = importerMesh->mColors[0][i].a;
             vertex.m_color = v4;
-            mask = mask | (1 << 3);
+            mask = mask | static_cast<unsigned>(VertexAttribute::Color);
         }
         glm::vec2 v2;
-        if (importerMesh->mTextureCoords[0])
+        if (importerMesh->HasTextureCoords(0))
         {
             v2.x = importerMesh->mTextureCoords[0][i].x;
             v2.y = importerMesh->mTextureCoords[0][i].y;
             vertex.m_texCoords = v2;
-            mask = mask | (1 << 4);
+            mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
         else
         {
             vertex.m_texCoords = glm::vec2(0.0f, 0.0f);
-            mask = mask | (1 << 5);
+            mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
-        vertices.push_back(vertex);
+        vertices[i] = vertex;
     }
     // now walk through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex
     // indices.
     for (int i = 0; i < importerMesh->mNumFaces; i++)
     {
+        assert(importerMesh->mFaces[i].mNumIndices == 3);
         // retrieve all indices of the face and store them in the indices vector
-        for (int j = 0; j < importerMesh->mFaces[i].mNumIndices; j++)
+        for (int j = 0; j < 3; j++)
             indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
     auto mesh = CreateResource<Mesh>();
     mesh->SetVertices(mask, vertices, indices);
     return mesh;
+}
+
+std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
+    std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh)
+{
+    unsigned mask = 1;
+    std::vector<SkinnedVertex> vertices;
+    std::vector<unsigned> indices;
+    if (importerMesh->mNumVertices == 0 || !importerMesh->HasFaces())
+        return nullptr;
+    vertices.resize(importerMesh->mNumVertices);
+    // Walk through each of the mesh's vertices
+    for (int i = 0; i < importerMesh->mNumVertices; i++)
+    {
+        SkinnedVertex vertex;
+        glm::vec3 v3; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly
+                      // convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+        // positions
+        v3.x = importerMesh->mVertices[i].x;
+        v3.y = importerMesh->mVertices[i].y;
+        v3.z = importerMesh->mVertices[i].z;
+        vertex.m_position = v3;
+        if (importerMesh->HasNormals())
+        {
+            v3.x = importerMesh->mNormals[i].x;
+            v3.y = importerMesh->mNormals[i].y;
+            v3.z = importerMesh->mNormals[i].z;
+            vertex.m_normal = v3;
+            mask = mask | static_cast<unsigned>(VertexAttribute::Normal);
+        }
+        if (importerMesh->HasTangentsAndBitangents())
+        {
+            v3.x = importerMesh->mTangents[i].x;
+            v3.y = importerMesh->mTangents[i].y;
+            v3.z = importerMesh->mTangents[i].z;
+            vertex.m_tangent = v3;
+            mask = mask | static_cast<unsigned>(VertexAttribute::Tangent);
+        }
+        glm::vec4 v4;
+        if (importerMesh->HasVertexColors(0))
+        {
+            v4.x = importerMesh->mColors[0][i].r;
+            v4.y = importerMesh->mColors[0][i].g;
+            v4.z = importerMesh->mColors[0][i].b;
+            v4.w = importerMesh->mColors[0][i].a;
+            vertex.m_color = v4;
+            mask = mask | static_cast<unsigned>(VertexAttribute::Color);
+        }
+        glm::vec2 v2;
+        if (importerMesh->HasTextureCoords(0))
+        {
+            v2.x = importerMesh->mTextureCoords[0][i].x;
+            v2.y = importerMesh->mTextureCoords[0][i].y;
+            vertex.m_texCoords = v2;
+            mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
+        }
+        else
+        {
+            vertex.m_texCoords = glm::vec2(0.0f, 0.0f);
+            mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
+        }
+        vertices[i] = vertex;
+    }
+    // now walk through each of the mesh's _Faces (a face is a mesh its triangle) and retrieve the corresponding vertex
+    // indices.
+    for (int i = 0; i < importerMesh->mNumFaces; i++)
+    {
+        assert(importerMesh->mFaces[i].mNumIndices == 3);
+        // retrieve all indices of the face and store them in the indices vector
+        for (int j = 0; j < 3; j++)
+            indices.push_back(importerMesh->mFaces[i].mIndices[j]);
+    }
+    auto skinnedMesh = std::make_shared<SkinnedMesh>();
+#pragma region Read bones
+    std::vector<std::vector<std::pair<int, float>>> verticesBoneIdWeights;
+    verticesBoneIdWeights.resize(vertices.size());
+    for (unsigned i = 0; i < importerMesh->mNumBones; i++)
+    {
+        aiBone *importerBone = importerMesh->mBones[i];
+        auto name = importerBone->mName.C_Str();
+        if (const auto search = bonesMap.find(name);
+            search == bonesMap.end()) // If we can't find this bone
+        {
+            std::shared_ptr<Bone> bone = std::make_shared<Bone>();
+            bone->m_name = name;
+            bone->m_offsetMatrix = glm::mat4(
+                importerBone->mOffsetMatrix.a1,
+                importerBone->mOffsetMatrix.a2,
+                importerBone->mOffsetMatrix.a3,
+                importerBone->mOffsetMatrix.a4,
+                importerBone->mOffsetMatrix.b1,
+                importerBone->mOffsetMatrix.b2,
+                importerBone->mOffsetMatrix.b3,
+                importerBone->mOffsetMatrix.b4,
+                importerBone->mOffsetMatrix.c1,
+                importerBone->mOffsetMatrix.c2,
+                importerBone->mOffsetMatrix.c3,
+                importerBone->mOffsetMatrix.c4,
+                importerBone->mOffsetMatrix.d1,
+                importerBone->mOffsetMatrix.d2,
+                importerBone->mOffsetMatrix.d3,
+                importerBone->mOffsetMatrix.d4);
+            bonesMap[name] = bone;
+            skinnedMesh->m_bones.push_back(bone);
+        }else
+        {
+            skinnedMesh->m_bones.push_back(search->second);
+        }
+        
+        for (int j = 0; j < importerBone->mNumWeights; j++)
+        {
+            verticesBoneIdWeights[importerBone->mWeights[j].mVertexId].emplace_back(
+                i, importerBone->mWeights[j].mWeight);
+        }
+    }
+    for (unsigned i = 0; i < verticesBoneIdWeights.size(); i++)
+    {
+        auto ids = glm::ivec4(-1);
+        auto weights = glm::vec4(0.0f);
+        for (unsigned j = 0; j < 4; j++)
+        {
+            if (j < verticesBoneIdWeights[i].size())
+            {
+                ids[j] = verticesBoneIdWeights[i][j].first;
+                weights[j] = verticesBoneIdWeights[i][j].second;
+            }
+        }
+        vertices[i].m_bondId = ids;
+        vertices[i].m_weight = weights;
+    }
+#pragma endregion
+    skinnedMesh->SetVertices(mask, vertices, indices);
+    return skinnedMesh;
 }
 #else
 void ResourceManager::ProcessNode(
@@ -697,13 +867,22 @@ void UniEngine::ResourceManager::AttachChildren(
     globalTransform.m_value =
         parentEntity.GetComponentData<GlobalTransform>().m_value * modelNode->m_localToParent.m_value;
     entity.SetComponentData(globalTransform);
-    for (auto i : modelNode->m_meshMaterials)
+
+    if (modelNode->m_mesh)
     {
         auto mmc = std::make_unique<MeshRenderer>();
-        mmc->m_mesh = i.second;
-        mmc->m_material = i.first;
+        mmc->m_mesh = modelNode->m_mesh;
+        mmc->m_material = modelNode->m_material;
         EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
+    else if (modelNode->m_skinnedMesh)
+    {
+        auto smmc = std::make_unique<SkinnedMeshRenderer>();
+        smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
+        smmc->m_material = modelNode->m_material;
+        EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
+    }
+
     int index = 0;
     for (auto &i : modelNode->m_children)
     {

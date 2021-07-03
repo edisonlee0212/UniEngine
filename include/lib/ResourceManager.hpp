@@ -32,10 +32,12 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         std::unique_ptr<ModelNode> &modelNode,
         std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
         std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
+        std::map<std::string, std::shared_ptr<Bone>> &bonesMap, 
         aiNode *importerNode,
         const aiScene *importerScene,
         const float &gamma);
     static std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
+    static std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
 #else
 	
 	static void ProcessNode(

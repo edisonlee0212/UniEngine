@@ -312,49 +312,49 @@ void DefaultResources::LoadPrimitives(World *world)
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
-            Primitives::Quad = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Quad = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Quad);
             Primitives::Quad->m_name = "Quad";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
-            Primitives::Sphere = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Sphere);
             Primitives::Sphere->m_name = "Sphere";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
-            Primitives::Cube = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Cube = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cube);
             Primitives::Cube->m_name = "Cube";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
-            Primitives::Cone = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Cone = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cone);
             Primitives::Cone->m_name = "Cone";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
-            Primitives::Cylinder = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cylinder);
             Primitives::Cylinder->m_name = "Cylinder";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
-            Primitives::Ring = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Ring = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Ring);
             Primitives::Ring->m_name = "Ring";
         }
         {
             auto model = ResourceManager::LoadModel(
                 false, FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
-            Primitives::Monkey = model->RootNode()->m_children[0]->m_meshMaterials[0].second;
+            Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Monkey);
             Primitives::Monkey->m_name = "Monkey";
         }
