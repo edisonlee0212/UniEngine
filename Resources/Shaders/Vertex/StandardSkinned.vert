@@ -6,9 +6,6 @@ layout (location = 4) in vec2 inTexCoords;
 layout (location = 5) in ivec4 inBoneIds; 
 layout (location = 6) in vec4 inWeights;
 
-const int MAX_BONES = 100;
-uniform mat4 bones[MAX_BONES];
-
 out VS_OUT {
 	vec3 FragPos;
 	vec3 Normal;
@@ -25,30 +22,30 @@ void main()
 	bool boneEnabled = false;
 	if(inBoneIds[0] > 0) {
 		boneTransform = true;
-		boneTransform = bones[inBoneIds[0]] * inWeights[0];
+		boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
 	}
     if(inBoneIds[1] > 0){
 		if(!boneTransform){
 			boneTransform = true;
-			boneTransform = bones[inBoneIds[1]] * inWeights[1];
+			boneTransform = UE_ANIM_BONES[inBoneIds[1]] * inWeights[1];
 		}else{
-			boneTransform += bones[inBoneIds[1]] * inWeights[1];
+			boneTransform += UE_ANIM_BONES[inBoneIds[1]] * inWeights[1];
 		}
 	}
     if(inBoneIds[2] > 0){
 		if(!boneTransform){
 			boneTransform = true;
-			boneTransform = bones[inBoneIds[2]] * inWeights[2];
+			boneTransform = UE_ANIM_BONES[inBoneIds[2]] * inWeights[2];
 		}else{
-			boneTransform += bones[inBoneIds[2]] * inWeights[2];
+			boneTransform += UE_ANIM_BONES[inBoneIds[2]] * inWeights[2];
 		}
 	}
 	if(inBoneIds[3] > 0){
 		if(!boneTransform){
 			boneTransform = true;
-			boneTransform = bones[inBoneIds[3]] * inWeights[3];
+			boneTransform = UE_ANIM_BONES[inBoneIds[3]] * inWeights[3];
 		}else{
-			boneTransform += bones[inBoneIds[3]] * inWeights[3];
+			boneTransform += UE_ANIM_BONES[inBoneIds[3]] * inWeights[3];
 		}
 	}
 

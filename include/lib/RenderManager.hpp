@@ -3,6 +3,8 @@
 #include <DefaultResources.hpp>
 #include <Lights.hpp>
 #include <Particles.hpp>
+#include <SkinnedMeshRenderer.hpp>
+#include <MeshRenderer.hpp>
 namespace UniEngine
 {
 struct UNIENGINE_API LightSettingsBlock
@@ -54,6 +56,18 @@ struct EnvironmentalMapSettingsBlock
     glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 };
 
+enum class RenderInstanceType
+{
+    Default,
+    Skinned
+};
+struct RenderInstance
+{
+    RenderInstanceType m_type;
+    PrivateComponentBase *m_renderer;
+    GlobalTransform m_globalTransform;
+};
+
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 {
     CameraComponent *m_mainCameraComponent = nullptr;
@@ -63,6 +77,15 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     bool m_enableInfoWindow = true;
 #pragma endregion
 #pragma region Render
+
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredInstancedRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardTransparentRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedTransparentRenderInstances;
+
+
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
     std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;

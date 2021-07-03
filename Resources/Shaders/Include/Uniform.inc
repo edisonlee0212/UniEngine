@@ -85,6 +85,11 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 	vec4 UE_GAUSS_KERNEL[MAX_KERNEL_AMOUNT];
 };
 
+layout (std140, binding = 8) uniform UE_ANIM_BONES_BLOCK
+{
+	mat4 UE_ANIM_BONES[MAX_BONES_AMOUNT];
+};
+
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_POINT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);

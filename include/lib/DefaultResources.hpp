@@ -44,7 +44,7 @@ class UNIENGINE_API DefaultResources
     {
       public:
         static std::string *Uniform;
-
+        const static size_t MaxBonesAmount = 1024;
         const static size_t MaxMaterialsAmount = 1;
         const static size_t MaxKernelAmount = 64;
         const static size_t MaxDirectionalLightAmount = 128;

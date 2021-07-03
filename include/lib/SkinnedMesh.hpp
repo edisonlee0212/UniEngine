@@ -1,4 +1,6 @@
 #pragma once
+#include "DefaultResources.hpp"
+
 #include <OpenGLUtils.hpp>
 #include <World.hpp>
 #include <uniengine_export.h>
@@ -17,6 +19,13 @@ struct UNIENGINE_API SkinnedVertex
 	glm::vec4 m_weight;
 };
 
+#define BONE_SIZE_LIMIT 1024
+
+struct UNIENGINE_API SkinnedMeshBonesBlock
+{
+    glm::mat4 m_matrices[DefaultResources::ShaderIncludes::MaxBonesAmount];
+    void Upload(const size_t& size) const;
+};
 
 class UNIENGINE_API SkinnedMesh
 {
@@ -39,9 +48,13 @@ class UNIENGINE_API SkinnedMesh
 
 	std::vector<glm::uvec3> m_triangles;
     friend class ResourceManager;
-
+    friend struct SkinnedMeshBonesBlock;
+    static std::unique_ptr<SkinnedMeshBonesBlock> m_skinnedMeshBonesBlock;
+    static std::unique_ptr<OpenGLUtils::GLUBO> m_skinnedMeshBonesUniformBufferBlock;
 	std::vector<std::shared_ptr<Bone>> m_bones;
   public:
+    static void GenerateMatrices();
+    void SetBones();
 	SkinnedMesh();
 	void OnGui();
 	[[nodiscard]] glm::vec3 GetCenter() const;

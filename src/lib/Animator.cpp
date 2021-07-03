@@ -20,6 +20,11 @@ void Bone::Update(const std::string& name, const float &animationTime)
     }
 }
 
+glm::mat4 Bone::GetTransform()
+{
+    return m_localToParent.m_value;
+}
+
 int BoneAnimation::GetPositionIndex(const float &animationTime)
 {
     auto size = m_positions.size();

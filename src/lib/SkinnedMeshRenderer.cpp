@@ -39,11 +39,9 @@ void SkinnedMeshRenderer::OnGui()
             ImGui::TreePop();
         }
     }
-    ImGui::Text("Skinned Mesh:");
-    ImGui::SameLine();
     if (m_skinnedMesh)
     {
-        if (ImGui::TreeNode("Mesh##SkinnedMeshRenderer"))
+        if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))
         {
             ImGui::Checkbox("Display bounds##SkinnedMeshRenderer", &m_displayBound);
             if (m_displayBound)

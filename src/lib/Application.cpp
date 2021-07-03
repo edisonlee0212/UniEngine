@@ -10,6 +10,7 @@
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
 #include <Gui.hpp>
+#include <SkinnedMesh.hpp>
 using namespace UniEngine;
 
 #pragma region Utilities
@@ -92,7 +93,6 @@ void Application::Init(bool fullScreen)
 #pragma endregion
     application.m_initialized = true;
 #pragma region Main Camera
-    CameraComponent::GenerateMatrices();
     EntityArchetype archetype =
         EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
     const auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");

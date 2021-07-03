@@ -359,6 +359,8 @@ void RenderManager::RenderToCameraForward(
 void RenderManager::Init()
 {
     auto& manager = GetInstance();
+
+    CameraComponent::GenerateMatrices();
     manager.m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     manager.m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
     manager.m_materialSettingsBuffer->SetBase(6);
@@ -366,6 +368,8 @@ void RenderManager::Init()
     manager.m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     manager.m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
     manager.m_environmentalMapSettingsBuffer->SetBase(7);
+    SkinnedMesh::GenerateMatrices();
+
     PrepareBrdfLut();
 #pragma region Kernel Setup
     std::vector<glm::vec4> uniformKernel;

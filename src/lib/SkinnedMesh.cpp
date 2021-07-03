@@ -3,6 +3,11 @@
 #include <SkinnedMesh.hpp>
 #include <Mesh.hpp>
 using namespace UniEngine;
+
+std::unique_ptr<SkinnedMeshBonesBlock> SkinnedMesh::m_skinnedMeshBonesBlock;
+std::unique_ptr<OpenGLUtils::GLUBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
+	
+
 void SkinnedMesh::OnGui()
 {
 	ImGui::Text(("Vertices size: " + std::to_string(m_verticesSize)).c_str());
@@ -16,6 +21,28 @@ glm::vec3 SkinnedMesh::GetCenter() const
 Bound SkinnedMesh::GetBound() const
 {
 	return m_bound;
+}
+
+void SkinnedMeshBonesBlock::Upload(const size_t &size) const
+{
+    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), this);
+}
+
+void SkinnedMesh::GenerateMatrices()
+{
+    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
+    m_skinnedMeshBonesUniformBufferBlock->SetData(DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(SkinnedMeshBonesBlock), nullptr, GL_STREAM_DRAW);
+    m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
+}
+
+void SkinnedMesh::SetBones()
+{
+    assert(m_bones.size() < DefaultResources::ShaderIncludes::MaxBonesAmount);
+    for (auto i = 0; i < m_bones.size(); i++)
+    {
+        m_skinnedMeshBonesBlock->m_matrices[i] = m_bones[i]->GetTransform();
+    }
+    m_skinnedMeshBonesBlock->Upload(m_bones.size());
 }
 
 SkinnedMesh::SkinnedMesh()

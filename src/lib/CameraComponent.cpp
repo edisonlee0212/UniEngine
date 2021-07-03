@@ -214,7 +214,7 @@ Ray CameraComponent::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosit
 void CameraComponent::GenerateMatrices()
 {
     m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
-    m_cameraUniformBufferBlock->SetData(sizeof(m_cameraInfoBlock), nullptr, GL_STREAM_DRAW);
+    m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
     m_cameraUniformBufferBlock->SetBase(0);
 }
 

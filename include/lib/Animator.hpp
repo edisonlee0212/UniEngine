@@ -75,6 +75,8 @@ struct UNIENGINE_API Bone
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
     void Update(const std::string &name, const float &animationTime);
+
+    glm::mat4 GetTransform();
 };
 
 #pragma endregion
