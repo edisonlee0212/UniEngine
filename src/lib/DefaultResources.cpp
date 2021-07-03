@@ -15,6 +15,8 @@ std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::SkyboxProg
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ScreenProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardSkinnedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedSkinnedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoInstancedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::GizmoInstancedColoredProgram;
@@ -237,15 +239,33 @@ void DefaultResources::LoadShaders(World *world)
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardProgram->m_name = "Standard";
+
+    vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardSkinned.vert"));
+    standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    standardVert->Compile(vertShaderCode);
+    standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    standardFrag->Compile(fragShaderCode);
+    GLPrograms::StandardSkinnedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardSkinnedProgram->m_name = "Standard Instanced";
+
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
-
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardInstancedProgram->m_name = "Standard Instanced";
+
+    vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstancedSkinned.vert"));
+    standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    standardVert->Compile(vertShaderCode);
+    standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    standardFrag->Compile(fragShaderCode);
+    GLPrograms::StandardInstancedSkinnedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardInstancedSkinnedProgram->m_name = "Standard Instanced Skinned";
 #pragma endregion
 #pragma region Gizmo Shader
     fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +

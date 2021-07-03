@@ -25,6 +25,8 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<OpenGLUtils::GLProgram> SkyboxProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> StandardSkinnedProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedSkinnedProgram;
 
         static std::shared_ptr<OpenGLUtils::GLProgram> GizmoProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedProgram;

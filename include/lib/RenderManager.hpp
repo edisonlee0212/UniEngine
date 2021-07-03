@@ -82,14 +82,16 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredInstancedRenderInstances;
     std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardRenderInstances;
     std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardTransparentRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedTransparentRenderInstances;
+    std::map<float, std::vector<RenderInstance>> m_transparentRenderInstances;
+    std::map<float, std::vector<RenderInstance>> m_instancedTransparentRenderInstances;
 
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
     std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
     std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedSkinnedPrepass;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferSkinnedPrepass;
     std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
     bool m_mainCameraViewable = true;
     int m_mainCameraResolutionX = 1;
@@ -131,13 +133,16 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma endregion
     static void PrepareBrdfLut();
-    static void DeferredPrepass(const Mesh *mesh, const Material *material, const glm::mat4 &model);
-    static void DeferredPrepassInternal(const Mesh *mesh, const glm::mat4 &model);
-    static void DeferredPrepassInstanced(
-        const Mesh *mesh, const Material *material, const glm::mat4 &model, glm::mat4 *matrices, const size_t &count);
+    static void DeferredPrepassInternal(const Mesh *mesh);
+    static void DeferredPrepassInstancedInternal(
+        const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
+    static void DeferredPrepassInternal(const SkinnedMesh *skinnedMesh);
+    static void DeferredPrepassInstancedInternal(
+        const SkinnedMesh *skinnedMesh, const glm::mat4 *matrices, const size_t &count);
 
     static void DrawMesh(const Mesh *mesh, const Material *material, const glm::mat4 &model, const bool &receiveShadow);
-    static void DrawMeshInternal(const Mesh *mesh, const glm::mat4 &model);
+    static void DrawMeshInternal(const Mesh *mesh);
+    static void DrawMeshInternal(const SkinnedMesh *mesh);
     static void DrawMeshInstanced(
         const Mesh *mesh,
         const Material *material,
@@ -182,21 +187,13 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);
-    static void RenderToCameraDeferred(
-        const std::unique_ptr<CameraComponent> &cameraComponent,
-        const GlobalTransform &cameraTransform,
-        glm::vec3 &minBound,
-        glm::vec3 &maxBound,
-        bool calculateBounds = false);
+    static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderBackGround(const std::unique_ptr<CameraComponent> &cameraComponent);
-    static void RenderToCameraForward(
-        const std::unique_ptr<CameraComponent> &cameraComponent,
-        const GlobalTransform &cameraTransform,
-        glm::vec3 &minBound,
-        glm::vec3 &maxBound,
-        bool calculateBounds = false);
+    static void RenderToCameraForward(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void Init();
     // Main rendering happens here.
+
+    static void CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound);
     static void PreUpdate();
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);

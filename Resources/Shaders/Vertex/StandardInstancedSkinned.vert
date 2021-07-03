@@ -6,13 +6,15 @@ layout (location = 4) in vec2 inTexCoords;
 layout (location = 5) in ivec4 inBoneIds; 
 layout (location = 6) in vec4 inWeights;
 
+layout (location = 12) in mat4 inInstanceMatrix;
+
+
 out VS_OUT {
 	vec3 FragPos;
 	vec3 Normal;
 	vec3 Tangent;
 	vec2 TexCoords;
 } vs_out;
-
 
 uniform mat4 model;
 
@@ -59,13 +61,14 @@ void main()
 		skinnedTangent = boneTransform * vec4(inTangent, 0.0);
 	}
 
-	vs_out.FragPos = vec3(model * skinnedPosition);
-	vec3 N = normalize(vec3(model * skinnedNormal));
-	vec3 T = normalize(vec3(model * skinnedTangent));
+	mat4 matrix = model * inInstanceMatrix;
+	vs_out.FragPos = vec3(matrix * skinnedPosition);
+	vec3 N = normalize(vec3(matrix * skinnedNormal));
+	vec3 T = normalize(vec3(matrix * skinnedTangent));
 	// re-orthogonalize T with respect to N
 	T = normalize(T - dot(T, N) * N);
 	vs_out.Normal = N;
 	vs_out.Tangent = T;
-	vs_out.TexCoords = inTexCoords;
-	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * vec4(vs_out.FragPos, 1.0);
+	vs_out.TexCoords = inTexCoords;    
+	gl_Position =  UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * vec4(vs_out.FragPos, 1.0);
 }
