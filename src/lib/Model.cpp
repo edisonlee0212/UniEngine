@@ -7,7 +7,7 @@ void Model::OnCreate()
     m_name = "New model";
 }
 
-std::unique_ptr<ModelNode> &Model::RootNode()
+std::shared_ptr<ModelNode> &Model::RootNode()
 {
     return m_rootNode;
 }

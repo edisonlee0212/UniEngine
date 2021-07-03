@@ -24,16 +24,16 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 
 void SkinnedMeshRenderer::OnGui()
 {
-    ImGui::Checkbox("Forward Rendering##MeshRenderer", &m_forwardRendering);
+    ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
-        ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
-    ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
+        ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
+    ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
     ImGui::Text("Material:");
     ImGui::SameLine();
     EditorManager::DragAndDrop(m_material);
     if (m_material)
     {
-        if (ImGui::TreeNode("Material##MeshRenderer"))
+        if (ImGui::TreeNode("Material##SkinnedMeshRenderer"))
         {
             m_material->OnGui();
             ImGui::TreePop();
@@ -43,12 +43,12 @@ void SkinnedMeshRenderer::OnGui()
     ImGui::SameLine();
     if (m_skinnedMesh)
     {
-        if (ImGui::TreeNode("Mesh##MeshRenderer"))
+        if (ImGui::TreeNode("Mesh##SkinnedMeshRenderer"))
         {
-            ImGui::Checkbox("Display bounds##MeshRenderer", &m_displayBound);
+            ImGui::Checkbox("Display bounds##SkinnedMeshRenderer", &m_displayBound);
             if (m_displayBound)
             {
-                ImGui::ColorEdit4("Color:##MeshRenderer", (float *)(void *)&m_displayBoundColor);
+                ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&m_displayBoundColor);
                 RenderBound(m_displayBoundColor);
             }
             m_skinnedMesh->OnGui();
@@ -62,9 +62,6 @@ SkinnedMeshRenderer::SkinnedMeshRenderer()
     SetEnabled(true);
 }
 
-SkinnedMeshRenderer::~SkinnedMeshRenderer()
-{
-}
 
 void SkinnedMeshRenderer::Serialize(YAML::Emitter &out)
 {

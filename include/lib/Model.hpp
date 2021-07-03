@@ -4,28 +4,35 @@
 #include <ResourceBehaviour.hpp>
 #include <Transform.hpp>
 #include <SkinnedMesh.hpp>
-#include <Animation.hpp>
+#include <Animator.hpp>
 
 namespace UniEngine
 {
+enum class ModelNodeType
+{
+    Mesh,
+    SkinnedMesh,
+};
 struct ModelNode
 {
+    ModelNodeType m_type = ModelNodeType::Mesh;
+    std::string m_name;
+    bool m_necessity = false;
     Transform m_localToParent;
-    friend class ResourceManager;
     std::shared_ptr<Material> m_material;
     std::shared_ptr<Mesh> m_mesh;
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;
-
-    std::vector<std::unique_ptr<ModelNode>> m_children;
+    std::shared_ptr<ModelNode> m_parent;
+    std::vector<std::shared_ptr<ModelNode>> m_children;
 };
 class UNIENGINE_API Model : public ResourceBehaviour
 {
     friend class ResourceManager;
-    std::unique_ptr<ModelNode> m_rootNode;
-    std::shared_ptr<Animation> m_animation;
+    std::shared_ptr<ModelNode> m_rootNode;
+    std::shared_ptr<Animator> m_animator;
   public:
     void OnCreate() override;
-    std::unique_ptr<ModelNode> &RootNode();
+    std::shared_ptr<ModelNode> &RootNode();
 };
 
 } // namespace UniEngine

@@ -7,6 +7,27 @@
 #include <ReflectionProbe.hpp>
 namespace UniEngine
 {
+#ifdef USE_ASSIMP
+
+struct UNIENGINE_API AssimpNode
+{
+    aiNode *m_correspondingNode = nullptr;
+    std::string m_name;
+    Transform m_localToParent;
+    AssimpNode(aiNode *node);
+    std::shared_ptr<AssimpNode> m_parent;
+	std::vector<std::shared_ptr<AssimpNode>> m_children;
+    std::shared_ptr<Bone> m_bone;
+    bool m_hasMesh;
+
+    bool NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap);
+    void AttachToAnimation(std::shared_ptr<Animator> &animation);
+    void AttachChild(std::shared_ptr<Bone> &parent);
+};
+
+
+
+#endif
 class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 {
 	bool m_enableAssetMenu = true;
@@ -20,6 +41,10 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
         const float &gamma);
 #ifdef USE_ASSIMP
+    static void ReadAnimations(
+        const aiScene *importerScene,
+        std::shared_ptr<Animator> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
+    static void ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAnim *channel);
     static std::shared_ptr<Material> ReadMaterial(
         const std::string &directory,
         const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
@@ -29,11 +54,12 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	static bool ProcessNode(
         const std::string &directory,
         const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
-        std::unique_ptr<ModelNode> &modelNode,
+        std::shared_ptr<ModelNode> &modelNode,
         std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
         std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
         std::map<std::string, std::shared_ptr<Bone>> &bonesMap, 
         aiNode *importerNode,
+		std::shared_ptr<AssimpNode> assimpNode,
         const aiScene *importerScene,
         const float &gamma);
     static std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
@@ -48,7 +74,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 #endif
 
 	static void AttachChildren(
-		EntityArchetype archetype, std::unique_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
+        EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
 	friend class EditorManager;
 	static std::string GetTypeName(size_t id);
   public:

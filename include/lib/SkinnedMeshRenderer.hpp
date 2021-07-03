@@ -19,7 +19,6 @@ class UNIENGINE_API SkinnedMeshRenderer : public PrivateComponentBase
     std::shared_ptr<Material> m_material;
     void OnGui() override;
     SkinnedMeshRenderer();
-    ~SkinnedMeshRenderer() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
