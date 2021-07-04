@@ -18,7 +18,6 @@ void ResourceManager::Remove(size_t id, size_t hashCode)
 std::shared_ptr<Model> ResourceManager::LoadModel(
     const bool &addResource,
     std::string const &path,
-    std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
     const unsigned &flags,
     const bool &optimize,
     const float &gamma)
@@ -45,7 +44,6 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
     std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
     if (!ProcessNode(
             directory,
-            glProgram,
             retVal->RootNode(),
             loadedMaterials,
             texture2DsLoaded,
@@ -462,7 +460,7 @@ bool AssimpNode::NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &b
             necessary = true;
         }
     }
-    auto search = boneMap.find(m_name);
+    const auto search = boneMap.find(m_name);
     if (search != boneMap.end())
     {
         m_bone = search->second;
@@ -610,7 +608,6 @@ std::shared_ptr<Material> ResourceManager::ReadMaterial(
 
 bool ResourceManager::ProcessNode(
     const std::string &directory,
-    const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
     std::shared_ptr<ModelNode> &modelNode,
     std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
     std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
@@ -630,15 +627,6 @@ bool ResourceManager::ProcessNode(
             continue;
         auto childNode = std::make_shared<ModelNode>();
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
-        if (search == loadedMaterials.end())
-        {
-            aiMaterial *importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
-            childNode->m_material = ReadMaterial(directory, glProgram, texture2DsLoaded, importerMaterial, gamma);
-        }
-        else
-        {
-            childNode->m_material = search->second;
-        }
 
         if (importerMesh->HasBones())
         {
@@ -658,6 +646,23 @@ bool ResourceManager::ProcessNode(
             childNode->m_mesh = mesh;
             childNode->m_type = ModelNodeType::Mesh;
         }
+
+        if (search == loadedMaterials.end())
+        {
+            aiMaterial *importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
+            childNode->m_material = ReadMaterial(
+                directory,
+                childNode->m_type == ModelNodeType::SkinnedMesh ? DefaultResources::GLPrograms::StandardSkinnedProgram
+                                                                : DefaultResources::GLPrograms::StandardProgram,
+                texture2DsLoaded,
+                importerMaterial,
+                gamma);
+        }
+        else
+        {
+            childNode->m_material = search->second;
+        }
+
         childNode->m_localTransform.m_value = mat4_cast(importerNode->mTransformation);
         if (!importerNode->mParent)
             childNode->m_localTransform = Transform();
@@ -672,7 +677,6 @@ bool ResourceManager::ProcessNode(
         childAssimpNode->m_parent = assimpNode;
         const bool childAdd = ProcessNode(
             directory,
-            glProgram,
             childNode,
             loadedMaterials,
             texture2DsLoaded,
@@ -1410,16 +1414,16 @@ void ResourceManager::OnGui()
             if (ImGui::BeginMenu("Load"))
             {
 #ifdef USE_ASSIMP
-                std::string modelFormat = ".obj,.gltf,.glb,.blend,.ply,.fbx";
+                std::string modelFormat = ".obj,.gltf,.glb,.blend,.ply,.fbx,.dae";
 #else
                 std::string modelFormat = ".obj";
 #endif
                 FileIO::OpenFile("Load Model", modelFormat, [](const std::string &filePath) {
-                    LoadModel(true, filePath, DefaultResources::GLPrograms::StandardProgram);
+                    LoadModel(true, filePath);
                     UNIENGINE_LOG("Loaded model from \"" + filePath);
                 });
 
-                FileIO::OpenFile("Load Texture", ".png,.jpg,.jpeg,.tga", [](const std::string &filePath) {
+                FileIO::OpenFile("Load Texture", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
                     LoadTexture(true, filePath);
                     UNIENGINE_LOG("Loaded texture from \"" + filePath);
                 });

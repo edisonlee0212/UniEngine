@@ -75,8 +75,9 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     void StoreToPng(const std::string &path, int resizeX = -1, int resizeY = -1, bool alphaChannel = false) const;
 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
-    void CalculateFrustumPoints(
-        float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points) const;
+    static void CalculateFrustumPoints(
+        CameraComponent *cameraComponrnt,
+        float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points);
     static glm::quat ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch = true);
     static void ReverseAngle(
         const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch = true);

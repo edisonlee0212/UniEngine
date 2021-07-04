@@ -54,12 +54,20 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     friend class InputManager;
 
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedPrePassProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedSkinnedProgram;
+
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedSkinnedProgram;
 
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityRecorderProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntitySkinnedRecorderProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
+
 
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;

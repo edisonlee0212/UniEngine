@@ -130,6 +130,23 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
                 GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
         }
     }
+    if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
+    {
+        auto &mmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
+        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_skinnedMesh != nullptr)
+        {
+            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+            auto *skinnedMesh = mmc->m_skinnedMesh.get();
+            skinnedMesh->SetBones();
+            skinnedMesh->Enable();
+            skinnedMesh->Vao()->DisableAttributeArray(12);
+            skinnedMesh->Vao()->DisableAttributeArray(13);
+            skinnedMesh->Vao()->DisableAttributeArray(14);
+            skinnedMesh->Vao()->DisableAttributeArray(15);
+            GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
+            glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+        }
+    }
 }
 
 void EditorManager::HighLightEntityHelper(const Entity &entity)
@@ -184,6 +201,24 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
                 GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
         }
     }
+    if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
+    {
+        auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
+        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
+        {
+            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+            auto *skinnedMesh = smmc->m_skinnedMesh.get();
+            skinnedMesh->SetBones();
+            skinnedMesh->Enable();
+            skinnedMesh->Vao()->DisableAttributeArray(12);
+            skinnedMesh->Vao()->DisableAttributeArray(13);
+            skinnedMesh->Vao()->DisableAttributeArray(14);
+            skinnedMesh->Vao()->DisableAttributeArray(15);
+            GetInstance().m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
+            GetInstance().m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
+            glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+        }
+    }
 }
 
 void EditorManager::MoveCamera(
@@ -205,10 +240,11 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
 {
     if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled())
         return;
+    auto &manager = GetInstance();
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-        GetInstance().m_sceneCamera.get(), GetInstance().m_sceneCameraPosition, GetInstance().m_sceneCameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(GetInstance().m_sceneCamera.get());
-    GetInstance().m_sceneCamera->Bind();
+        manager.m_sceneCamera.get(), manager.m_sceneCameraPosition, manager.m_sceneCameraRotation);
+    CameraComponent::m_cameraInfoBlock.UploadMatrices(manager.m_sceneCamera.get());
+    manager.m_sceneCamera->Bind();
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -217,13 +253,13 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     glDisable(GL_CULL_FACE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    GetInstance().m_sceneHighlightPrePassProgram->Bind();
-    GetInstance().m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.5f));
+    manager.m_sceneHighlightPrePassProgram->Bind();
+    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.5f));
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-    GetInstance().m_sceneHighlightProgram->Bind();
-    GetInstance().m_sceneHighlightProgram->SetFloat4("color", color);
+    manager.m_sceneHighlightProgram->Bind();
+    manager.m_sceneHighlightProgram->SetFloat4("color", color);
     HighLightEntityHelper(entity);
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
@@ -260,9 +296,9 @@ void EditorManager::Init()
         editorManager.m_sceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
     editorManager.m_sceneCameraEntityRecorder->AttachTexture(
         editorManager.m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
-
-    std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
+#pragma region Recorder
+    std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform +
+                                 "\n" + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     std::string fragShaderCode =
         std::string("#version 450 core\n") +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
@@ -279,9 +315,27 @@ void EditorManager::Init()
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram =
+        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram =
+        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
+#pragma endregion
+
+#pragma region Highlight Prepass
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -304,22 +358,49 @@ void EditorManager::Init()
     editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
-
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneHighlightSkinnedPrePassProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
 
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram =
+        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
+#pragma endregion
+#pragma region Highlight
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
-
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-
     editorManager.m_sceneHighlightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneHighlightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    editorManager.m_sceneHighlightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
+#pragma endregion
 
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentDataBase *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
@@ -551,6 +632,160 @@ void EditorManager::PreUpdate()
 
 void EditorManager::Update()
 {
+    auto &editorManager = GetInstance();
+    auto &renderManager = RenderManager::GetInstance();
+    if (editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
+    {
+        CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+            editorManager.m_sceneCamera.get(),
+            editorManager.m_sceneCameraPosition,
+            editorManager.m_sceneCameraRotation);
+        CameraComponent::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera.get());
+#pragma region For entity selection
+        editorManager.m_sceneCameraEntityRecorder->Bind();
+        for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
+        {
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        program->Bind();
+                        auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        auto *mesh = meshRenderer->m_mesh.get();
+                        mesh->Enable();
+                        mesh->Vao()->DisableAttributeArray(12);
+                        mesh->Vao()->DisableAttributeArray(13);
+                        mesh->Vao()->DisableAttributeArray(14);
+                        mesh->Vao()->DisableAttributeArray(15);
+                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        break;
+                    }
+                    case RenderInstanceType::Skinned: {
+                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        program->Bind();
+                        auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
+                        mesh->Enable();
+                        mesh->Vao()->DisableAttributeArray(12);
+                        mesh->Vao()->DisableAttributeArray(13);
+                        mesh->Vao()->DisableAttributeArray(14);
+                        mesh->Vao()->DisableAttributeArray(15);
+                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+        for (const auto &renderCollection : renderManager.m_forwardRenderInstances)
+        {
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        program->Bind();
+                        auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        auto *mesh = meshRenderer->m_mesh.get();
+                        mesh->Enable();
+                        mesh->Vao()->DisableAttributeArray(12);
+                        mesh->Vao()->DisableAttributeArray(13);
+                        mesh->Vao()->DisableAttributeArray(14);
+                        mesh->Vao()->DisableAttributeArray(15);
+                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        break;
+                    }
+                    case RenderInstanceType::Skinned: {
+                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        program->Bind();
+                        auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                        auto *skinnedMesh = skinnedMeshRenderer->m_skinnedMesh.get();
+                        skinnedMesh->Enable();
+                        skinnedMesh->Vao()->DisableAttributeArray(12);
+                        skinnedMesh->Vao()->DisableAttributeArray(13);
+                        skinnedMesh->Vao()->DisableAttributeArray(14);
+                        skinnedMesh->Vao()->DisableAttributeArray(15);
+                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+        for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
+        {
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        program->Bind();
+                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                        auto count = particles->m_matrices.size();
+                        std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                        matricesBuffer->SetData(
+                            (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                        auto *mesh = particles->m_mesh.get();
+                        mesh->Enable();
+                        mesh->Vao()->EnableAttributeArray(12);
+                        mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                        mesh->Vao()->EnableAttributeArray(13);
+                        mesh->Vao()->SetAttributePointer(
+                            13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                        mesh->Vao()->EnableAttributeArray(14);
+                        mesh->Vao()->SetAttributePointer(
+                            14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                        mesh->Vao()->EnableAttributeArray(15);
+                        mesh->Vao()->SetAttributePointer(
+                            15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                        mesh->Vao()->SetAttributeDivisor(12, 1);
+                        mesh->Vao()->SetAttributeDivisor(13, 1);
+                        mesh->Vao()->SetAttributeDivisor(14, 1);
+                        mesh->Vao()->SetAttributeDivisor(15, 1);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                            "model", renderInstance.m_globalTransform.m_value);
+                        glDrawElementsInstanced(
+                            GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+#pragma endregion
+        RenderManager::ShadowEnvironmentPreset(editorManager.m_sceneCamera.get());
+        RenderManager::RenderToCameraDeferred(editorManager.m_sceneCamera);
+        RenderManager::RenderBackGround(editorManager.m_sceneCamera);
+        RenderManager::RenderToCameraForward(editorManager.m_sceneCamera);
+    }
 }
 
 Entity EditorManager::GetSelectedEntity()
@@ -1090,7 +1325,6 @@ void EditorManager::LateUpdate()
                     InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
                 {
                     Entity focusedEntity = MouseEntitySelection(mousePosition);
-                    Entity rootEntity = EntityManager::GetRoot(focusedEntity);
                     if (focusedEntity.m_index == 0)
                     {
                         SetSelectedEntity(Entity());

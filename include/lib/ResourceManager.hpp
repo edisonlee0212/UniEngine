@@ -51,7 +51,6 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const float &gamma);
 	static bool ProcessNode(
         const std::string &directory,
-        const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
         std::shared_ptr<ModelNode> &modelNode,
         std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
         std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
@@ -89,7 +88,6 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	static void Remove(size_t id, size_t hashCode);
 	static std::shared_ptr<Model> LoadModel(const bool &addResource,
 											std::string const &path,
-											std::shared_ptr<OpenGLUtils::GLProgram> glProgram,
 		const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph,
 		const bool &optimize = false,
 		const float &gamma = 0.0f

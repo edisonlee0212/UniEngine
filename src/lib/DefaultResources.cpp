@@ -1,12 +1,12 @@
-#include <RenderManager.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include <FileIO.hpp>
+#include <LightProbe.hpp>
 #include <Material.hpp>
 #include <Mesh.hpp>
-#include <ResourceManager.hpp>
-#include <LightProbe.hpp>
 #include <ReflectionProbe.hpp>
+#include <RenderManager.hpp>
+#include <ResourceManager.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -332,50 +332,64 @@ void DefaultResources::LoadPrimitives(World *world)
     {
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/quad.obj"), GLPrograms::StandardProgram);
-            Primitives::Quad = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/quad.obj"));
+            Primitives::Quad = model->RootNode()->m_children[0]->m_mesh
+                                   ? model->RootNode()->m_children[0]->m_mesh
+                                   : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Quad);
             Primitives::Quad->m_name = "Quad";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/sphere.obj"), GLPrograms::StandardProgram);
-            Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/sphere.obj"));
+            Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh
+                                     ? model->RootNode()->m_children[0]->m_mesh
+                                     : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Sphere);
             Primitives::Sphere->m_name = "Sphere";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cube.obj"), GLPrograms::StandardProgram);
-            Primitives::Cube = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/cube.obj"));
+            Primitives::Cube = model->RootNode()->m_children[0]->m_mesh
+                                   ? model->RootNode()->m_children[0]->m_mesh
+                                   : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cube);
             Primitives::Cube->m_name = "Cube";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cone.obj"), GLPrograms::StandardProgram);
-            Primitives::Cone = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/cone.obj"));
+            Primitives::Cone = model->RootNode()->m_children[0]->m_mesh
+                                   ? model->RootNode()->m_children[0]->m_mesh
+                                   : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cone);
             Primitives::Cone->m_name = "Cone";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cylinder.obj"), GLPrograms::StandardProgram);
-            Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/cylinder.obj"));
+            Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh
+                                       ? model->RootNode()->m_children[0]->m_mesh
+                                       : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Cylinder);
             Primitives::Cylinder->m_name = "Cylinder";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/ring.obj"), GLPrograms::StandardProgram);
-            Primitives::Ring = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/ring.obj"));
+            Primitives::Ring = model->RootNode()->m_children[0]->m_mesh
+                                   ? model->RootNode()->m_children[0]->m_mesh
+                                   : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Ring);
             Primitives::Ring->m_name = "Ring";
         }
         {
             auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/monkey.obj"), GLPrograms::StandardProgram);
-            Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh;
+                false, FileIO::GetResourcePath("Primitives/monkey.obj"));
+            Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh
+                                     ? model->RootNode()->m_children[0]->m_mesh
+                                     : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
             ResourceManager::Push(Primitives::Monkey);
             Primitives::Monkey->m_name = "Monkey";
         }
@@ -426,7 +440,8 @@ void DefaultResources::Load(World *world)
         ResourceManager::LoadLightProbe(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
     Environmental::MilkyWayLightProbe->m_name = "Milky Way";
 
-    Environmental::CircusSkybox = ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
+    Environmental::CircusSkybox =
+        ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
     Environmental::CircusSkybox->m_name = "Circus";
     Environmental::CircusReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
     Environmental::CircusReflectionProbe->ConstructFromCubemap(Environmental::CircusSkybox);

@@ -63,6 +63,7 @@ enum class RenderInstanceType
 };
 struct RenderInstance
 {
+    Entity m_owner;
     RenderInstanceType m_type;
     PrivateComponentBase *m_renderer;
     GlobalTransform m_globalTransform;
@@ -195,6 +196,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderBackGround(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderToCameraForward(const std::unique_ptr<CameraComponent> &cameraComponent);
+    static void RenderShadows(Bound &worldBound, CameraComponent *cameraComponent, const Entity &mainCameraEntity);
     static void Init();
     // Main rendering happens here.
 

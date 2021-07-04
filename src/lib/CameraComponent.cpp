@@ -84,7 +84,8 @@ void CameraComponent::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 proj
 }
 
 void CameraComponent::CalculateFrustumPoints(
-    float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points) const
+    CameraComponent* cameraComponrnt,
+    float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points)
 {
     const glm::vec3 front = cameraRot * glm::vec3(0, 0, -1);
     const glm::vec3 right = cameraRot * glm::vec3(1, 0, 0);
@@ -92,11 +93,11 @@ void CameraComponent::CalculateFrustumPoints(
     const glm::vec3 nearCenter = front * nearPlane;
     const glm::vec3 farCenter = front * farPlane;
 
-    const float e = tanf(glm::radians(m_fov * 0.5f));
+    const float e = tanf(glm::radians(cameraComponrnt->m_fov * 0.5f));
     const float near_ext_y = e * nearPlane;
-    const float near_ext_x = near_ext_y * GetResolutionRatio();
+    const float near_ext_x = near_ext_y * cameraComponrnt->GetResolutionRatio();
     const float far_ext_y = e * farPlane;
-    const float far_ext_x = far_ext_y * GetResolutionRatio();
+    const float far_ext_x = far_ext_y * cameraComponrnt->GetResolutionRatio();
 
     points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
     points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
