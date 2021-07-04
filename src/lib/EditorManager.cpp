@@ -89,14 +89,14 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &mmc = entity.GetPrivateComponent<MeshRenderer>();
         if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
         {
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
             auto *mesh = mmc->m_mesh.get();
             mesh->Enable();
             mesh->Vao()->DisableAttributeArray(12);
             mesh->Vao()->DisableAttributeArray(13);
             mesh->Vao()->DisableAttributeArray(14);
             mesh->Vao()->DisableAttributeArray(15);
-            GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4("model", ltw.m_value);
+            GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4(
+                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
             glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
         }
     }
@@ -105,10 +105,9 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &immc = entity.GetPrivateComponent<Particles>();
         if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
         {
-            auto count = immc->m_matrices.size();
+            const auto count = immc->m_matrices.size();
             std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
             matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
             auto *mesh = immc->m_mesh.get();
             mesh->Enable();
             mesh->Vao()->EnableAttributeArray(12);
@@ -125,7 +124,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
             mesh->Vao()->SetAttributeDivisor(13, 1);
             mesh->Vao()->SetAttributeDivisor(14, 1);
             mesh->Vao()->SetAttributeDivisor(15, 1);
-            GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4("model", ltw.m_value);
+            GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
+                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
             glDrawElementsInstanced(
                 GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
         }
@@ -135,7 +135,6 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &mmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
         if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_skinnedMesh != nullptr)
         {
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
             auto *skinnedMesh = mmc->m_skinnedMesh.get();
             skinnedMesh->SetBones();
             skinnedMesh->Enable();
@@ -143,7 +142,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
             skinnedMesh->Vao()->DisableAttributeArray(13);
             skinnedMesh->Vao()->DisableAttributeArray(14);
             skinnedMesh->Vao()->DisableAttributeArray(15);
-            GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
+            GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
+                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
             glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
         }
     }
@@ -254,7 +254,7 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     manager.m_sceneHighlightPrePassProgram->Bind();
-    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.5f));
+    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.2f));
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);

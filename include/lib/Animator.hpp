@@ -73,12 +73,11 @@ struct UNIENGINE_API Bone
     Entity m_attachedEntity;
     Transform m_localTransform = Transform();
     glm::mat4 m_boneTransform;
-
     glm::mat4 m_currentFinalMatrix;
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
     void Update(const std::string &name, const float &animationTime);
-    void RenderBones(const float& size, const glm::mat4 &parentTransform);
+    void RenderBones(const float& size, const glm::mat4 &parentTransform) const;
     void CalculateBoneTransform(const glm::mat4 &parentTransform);
 };
 
@@ -91,8 +90,6 @@ class UNIENGINE_API Animator : public PrivateComponentBase
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
-    bool m_renderBones;
-    float m_renderSize = 0.1f;
     void OnGui() override;
     Animator();
     void Animate();

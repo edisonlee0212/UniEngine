@@ -121,7 +121,7 @@ std::shared_ptr<Bone> &Animator::UnsafeGetRootBone()
     return m_rootBone;
 }
 
-void Bone::RenderBones(const float &size, const glm::mat4 &parentTransform)
+void Bone::RenderBones(const float &size, const glm::mat4 &parentTransform) const
 {
     const glm::mat4 transform = parentTransform * m_boneTransform;
 
@@ -170,12 +170,7 @@ void Animator::OnGui()
     {
         Animate();
     }
-    ImGui::Checkbox("Render bones", &m_renderBones);
-    if (m_renderBones)
-    {
-        ImGui::DragFloat("Size: ", &m_renderSize, 0.01f, 0.01f, 1.0f);
-        m_rootBone->RenderBones(m_renderSize, GetOwner().GetComponentData<GlobalTransform>().m_value);
-    }
+    
 }
 
 Animator::Animator()

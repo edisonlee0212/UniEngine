@@ -34,7 +34,7 @@ void main()
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
 
-	boneTransform = model * boneTransform;
+	boneTransform = model * inInstanceMatrix * boneTransform;
 
-	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * boneTransform * inInstanceMatrix * vec4(inPos, 1.0);
+	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * boneTransform * vec4(inPos, 1.0);
 }

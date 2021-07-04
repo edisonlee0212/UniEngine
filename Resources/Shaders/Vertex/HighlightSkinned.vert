@@ -35,6 +35,5 @@ void main()
 
 	boneTransform = model * boneTransform;
 
-	vec4 position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * boneTransform * vec4(inPos + (inNormal / scale) * 0.05, 1.0);
-	gl_Position = position;
+	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * boneTransform * vec4(inPos + (inNormal / scale) * 0.05, 1.0);
 }

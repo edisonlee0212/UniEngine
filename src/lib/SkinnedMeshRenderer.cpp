@@ -24,6 +24,14 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 
 void SkinnedMeshRenderer::OnGui()
 {
+    ImGui::Checkbox("Render bones", &m_renderBones);
+    if (m_renderBones)
+    {
+        ImGui::DragFloat("Size: ", &m_renderSize, 0.01f, 0.01f, 1.0f);
+        //for (auto& i : m_skinnedMesh->m_bones)
+        //i->RenderBones(m_renderSize, GetOwner().GetComponentData<GlobalTransform>().m_value);
+    }
+
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
