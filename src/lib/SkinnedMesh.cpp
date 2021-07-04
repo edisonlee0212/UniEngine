@@ -75,7 +75,7 @@ void SkinnedMesh::Upload()
 	}
 #pragma region DataAllocation
 	size_t attributeSize =
-		3 * sizeof(glm::vec3) + sizeof(glm::vec4) + sizeof(glm::vec2) + sizeof(glm::ivec4) + sizeof(glm::vec4);
+		3 * sizeof(glm::vec3) + sizeof(glm::vec4) + sizeof(glm::vec2) + 2 * (sizeof(glm::ivec4) + sizeof(glm::vec4));
 	m_vao->SetData((GLsizei)(m_verticesSize * attributeSize), nullptr, GL_STATIC_DRAW);
 #pragma endregion
 #pragma region ToGPU
@@ -93,6 +93,10 @@ void SkinnedMesh::Upload()
 	m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec4), &m_weights[0]);
 	attributeSize += sizeof(glm::vec4);
 
+    m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::ivec4), &m_boneId2s[0]);
+    attributeSize += sizeof(glm::ivec4);
+    m_vao->SubData(m_verticesSize * attributeSize, m_verticesSize * sizeof(glm::vec4), &m_weight2s[0]);
+    attributeSize += sizeof(glm::vec4);
 #pragma endregion
 #pragma region AttributePointer
 	m_vao->EnableAttributeArray(0);
@@ -114,13 +118,20 @@ void SkinnedMesh::Upload()
 	attributeSize += sizeof(glm::vec2);
 
 	m_vao->EnableAttributeArray(5);
-	m_vao->SetAttributePointer(5, 4, GL_INT, GL_FALSE, sizeof(glm::ivec4), (void *)(attributeSize * m_verticesSize));
+    m_vao->SetAttributeIntPointer(5, 4, GL_INT, sizeof(glm::ivec4), (void *)(attributeSize * m_verticesSize));
 	attributeSize += sizeof(glm::ivec4);
 
 	m_vao->EnableAttributeArray(6);
 	m_vao->SetAttributePointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)(attributeSize * m_verticesSize));
 	attributeSize += sizeof(glm::vec4);
 
+	m_vao->EnableAttributeArray(7);
+    m_vao->SetAttributeIntPointer(7, 4, GL_INT, sizeof(glm::ivec4), (void *)(attributeSize * m_verticesSize));
+    attributeSize += sizeof(glm::ivec4);
+
+    m_vao->EnableAttributeArray(8);
+    m_vao->SetAttributePointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)(attributeSize * m_verticesSize));
+    attributeSize += sizeof(glm::vec4);
 #pragma endregion
 	m_vao->Ebo()->SetData((GLsizei)m_triangleSize * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
 	m_version++;
@@ -163,6 +174,8 @@ void SkinnedMesh::SetVertices(
 	m_texCoords.resize(vertices.size());
 	m_boneIds.resize(vertices.size());
 	m_weights.resize(vertices.size());
+    m_boneId2s.resize(vertices.size());
+    m_weight2s.resize(vertices.size());
 #pragma region Copy
 	glm::vec3 minBound = vertices.at(0).m_position;
 	glm::vec3 maxBound = vertices.at(0).m_position;
@@ -203,6 +216,8 @@ void SkinnedMesh::SetVertices(
 		}
 		m_boneIds[i] = vertices[i].m_bondId;
 		m_weights[i] = vertices[i].m_weight;
+        m_boneId2s[i] = vertices[i].m_bondId2;
+        m_weight2s[i] = vertices[i].m_weight2;
 	}
 	m_bound.m_max = maxBound;
 	m_bound.m_min = minBound;

@@ -14,7 +14,7 @@ void Bone::Update(const std::string& name, const float &animationTime)
         m_boneTransform = translation * rotation * scale;
 	}else
 	{
-        m_boneTransform = m_localTransform.m_value;
+        m_boneTransform = Transform().m_value;
 	}
 	for (auto &i : m_children)
 	{
@@ -82,7 +82,7 @@ glm::mat4 BoneAnimation::InterpolatePosition(const float &animationTime)
 		GetScaleFactor(m_positions[p0Index].m_timeStamp, m_positions[p1Index].m_timeStamp, animationTime);
 	const glm::vec3 finalPosition =
 		glm::mix(m_positions[p0Index].m_value, m_positions[p1Index].m_value, scaleFactor);
-	return glm::translate(glm::mat4(1.0f), finalPosition);
+	return glm::translate(finalPosition);
 }
 
 glm::mat4 BoneAnimation::InterpolateRotation(const float &animationTime)
@@ -122,9 +122,9 @@ std::shared_ptr<Bone> & Animator::UnsafeGetRootBone()
 
 void Bone::RenderBones(const float &size, const glm::mat4 &parentTransform)
 {
-    glm::mat4 transform = parentTransform * m_boneTransform;
+    const glm::mat4 transform = parentTransform * m_boneTransform;
 
-    RenderManager::DrawGizmoMesh(
+    if(!m_name.empty()) RenderManager::DrawGizmoMesh(
         DefaultResources::Primitives::Cube.get(),
         RenderManager::GetMainCamera(),
         glm::vec4(1, 0, 0, 1),

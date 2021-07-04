@@ -17,6 +17,8 @@ struct UNIENGINE_API SkinnedVertex
 
 	glm::ivec4 m_bondId;
 	glm::vec4 m_weight;
+    glm::ivec4 m_bondId2;
+    glm::vec4 m_weight2;
 };
 
 #define BONE_SIZE_LIMIT 1024
@@ -45,6 +47,8 @@ class UNIENGINE_API SkinnedMesh
 	std::vector<glm::vec2> m_texCoords;
 	std::vector<glm::ivec4> m_boneIds;
 	std::vector<glm::vec4> m_weights;
+    std::vector<glm::ivec4> m_boneId2s;
+    std::vector<glm::vec4> m_weight2s;
 
 	std::vector<glm::uvec3> m_triangles;
     friend class ResourceManager;
