@@ -18,7 +18,7 @@ struct ModelNode
     ModelNodeType m_type = ModelNodeType::Mesh;
     std::string m_name;
     bool m_necessity = false;
-    Transform m_localToParent;
+    Transform m_localTransform;
     std::shared_ptr<Material> m_material;
     std::shared_ptr<Mesh> m_mesh;
     std::shared_ptr<SkinnedMesh> m_skinnedMesh;

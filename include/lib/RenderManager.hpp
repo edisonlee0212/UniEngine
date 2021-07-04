@@ -189,7 +189,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void ShadowEnvironmentPreset(const CameraComponent *cameraComponent);
     static void ApplyEnvironmentalSettings(const CameraComponent *cameraComponent);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
-    static void ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program);
+    static void BindTextures(const Material *material);
+    static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);
     static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderBackGround(const std::unique_ptr<CameraComponent> &cameraComponent);

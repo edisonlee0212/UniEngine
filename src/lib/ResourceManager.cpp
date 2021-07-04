@@ -62,7 +62,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
     {
         retVal->m_animator = std::make_shared<Animator>();
         rootAssimpNode->NecessaryWalker(bonesMap);
-        rootAssimpNode->AttachToAnimation(retVal->m_animator);
+        rootAssimpNode->AttachToAnimator(retVal->m_animator);
         ReadAnimations(scene, retVal->m_animator, bonesMap);
     }
 	
@@ -226,7 +226,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 				}
 				mesh->SetVertices(mask, vertices, indices);
 #pragma endregion
-				childNode->m_localToParent.m_value = glm::translate(glm::vec3(0.0f)) *
+				childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
 													 glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
 													 glm::scale(glm::vec3(1.0f));
 				childNode->m_meshMaterials.emplace_back(material, mesh);
@@ -348,7 +348,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 			}
 			mesh->SetVertices(mask, vertices, indices);
 #pragma endregion
-			childNode->m_localToParent.m_value = glm::translate(glm::vec3(0.0f)) *
+			childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
 												 glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
 												 glm::scale(glm::vec3(1.0f));
 			childNode->m_meshMaterials.emplace_back(material, mesh);
@@ -369,8 +369,11 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
     if (model->m_animator)
     {
         auto animator = std::make_unique<Animator>();
-        animator->m_animationNames = model->m_animator->m_animationNames;
+        animator->m_animationNameAndLength = model->m_animator->m_animationNameAndLength;
         animator->m_rootBone = model->m_animator->m_rootBone;
+        animator->m_currentActivatedAnimation = animator->m_animationNameAndLength.begin()->first;
+        animator->m_currentAnimationTime = 0.0f;
+        animator->Animate();
         entity.SetPrivateComponent(std::move(animator));
     }
 	if (modelNode->m_mesh)
@@ -413,7 +416,7 @@ AssimpNode::AssimpNode(aiNode *node)
 {
 	m_correspondingNode = node;
 }
-void AssimpNode::AttachToAnimation(std::shared_ptr<Animator> &animation)
+void AssimpNode::AttachToAnimator(std::shared_ptr<Animator> &animation)
 {
     animation->m_rootBone = m_bone;
     for (auto& i : m_children)
@@ -424,8 +427,9 @@ void AssimpNode::AttachToAnimation(std::shared_ptr<Animator> &animation)
 
 void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent)
 {
+    m_bone->m_localTransform = m_localTransform;
     parent->m_children.push_back(m_bone);
-    for (auto &i : m_children)
+	for (auto &i : m_children)
     {
         i->AttachChild(m_bone);
     }
@@ -473,6 +477,7 @@ void ResourceManager::ReadKeyFrame(BoneAnimation& boneAnimation, const aiNodeAni
         data.m_value = glm::vec3(aiPosition.x, aiPosition.y, aiPosition.z);
         data.m_timeStamp = timeStamp;
         boneAnimation.m_positions.push_back(data);
+        boneAnimation.m_maxTimeStamp = glm::max(boneAnimation.m_maxTimeStamp, timeStamp);
     }
 
     const auto numRotations = channel->mNumRotationKeys;
@@ -482,9 +487,10 @@ void ResourceManager::ReadKeyFrame(BoneAnimation& boneAnimation, const aiNodeAni
         const aiQuaternion aiOrientation = channel->mRotationKeys[rotationIndex].mValue;
         const float timeStamp = channel->mRotationKeys[rotationIndex].mTime;
         BoneRotation data;
-        data.m_value = glm::quat(aiOrientation.x, aiOrientation.y, aiOrientation.z, aiOrientation.w);
+        data.m_value = glm::quat(aiOrientation.w, aiOrientation.x, aiOrientation.y, aiOrientation.z);
         data.m_timeStamp = timeStamp;
         boneAnimation.m_rotations.push_back(data);
+        boneAnimation.m_maxTimeStamp = glm::max(boneAnimation.m_maxTimeStamp, timeStamp);
     }
 
     const auto numScales = channel->mNumScalingKeys;
@@ -497,6 +503,7 @@ void ResourceManager::ReadKeyFrame(BoneAnimation& boneAnimation, const aiNodeAni
         data.m_value = glm::vec3(scale.x, scale.y, scale.z);
         data.m_timeStamp = timeStamp;
         boneAnimation.m_scales.push_back(data);
+        boneAnimation.m_maxTimeStamp = glm::max(boneAnimation.m_maxTimeStamp, timeStamp);
     }
 }
 void ResourceManager::ReadAnimations(const aiScene* importerScene,
@@ -506,7 +513,7 @@ void ResourceManager::ReadAnimations(const aiScene* importerScene,
     {
         aiAnimation *importerAnimation = importerScene->mAnimations[i];
         const std::string animationName = importerAnimation->mName.C_Str();
-        animator->m_animationNames.push_back(animationName);
+        float maxAnimationTimeStamp = 0.0f;
         for (int j = 0; j < importerAnimation->mNumChannels; j++)
         {
             aiNodeAnim *importerNodeAmination = importerAnimation->mChannels[j];
@@ -517,8 +524,11 @@ void ResourceManager::ReadAnimations(const aiScene* importerScene,
                 auto &bone = search->second;
                 bone->m_animations[animationName] = BoneAnimation();
                 ReadKeyFrame(bone->m_animations[animationName], importerNodeAmination);
+                maxAnimationTimeStamp =
+                    glm::max(maxAnimationTimeStamp, bone->m_animations[animationName].m_maxTimeStamp);
             }
         }
+		animator->m_animationNameAndLength[animationName] = maxAnimationTimeStamp;
     }
 }
 
@@ -634,25 +644,25 @@ bool ResourceManager::ProcessNode(
 			childNode->m_mesh = mesh;
 			childNode->m_type = ModelNodeType::Mesh;
 		}
-		childNode->m_localToParent.m_value = glm::mat4(
+		childNode->m_localTransform.m_value = glm::mat4(
 			importerNode->mTransformation.a1,
-			importerNode->mTransformation.a2,
-			importerNode->mTransformation.a3,
-			importerNode->mTransformation.a4,
 			importerNode->mTransformation.b1,
-			importerNode->mTransformation.b2,
-			importerNode->mTransformation.b3,
-			importerNode->mTransformation.b4,
 			importerNode->mTransformation.c1,
-			importerNode->mTransformation.c2,
-			importerNode->mTransformation.c3,
-			importerNode->mTransformation.c4,
 			importerNode->mTransformation.d1,
-			importerNode->mTransformation.d2,
-			importerNode->mTransformation.d3,
-			importerNode->mTransformation.d4);
+            importerNode->mTransformation.a2,
+            importerNode->mTransformation.b2,
+            importerNode->mTransformation.c2,
+            importerNode->mTransformation.d2,
+            importerNode->mTransformation.a3,
+            importerNode->mTransformation.b3,
+            importerNode->mTransformation.c3,
+            importerNode->mTransformation.d3,
+            importerNode->mTransformation.a4,
+            importerNode->mTransformation.b4,
+            importerNode->mTransformation.c4,
+            importerNode->mTransformation.d4);
 		if (!importerNode->mParent)
-			childNode->m_localToParent = Transform();
+			childNode->m_localTransform = Transform();
 		childNode->m_parent = modelNode;
 		modelNode->m_children.push_back(std::move(childNode));
 	}
@@ -681,25 +691,25 @@ bool ResourceManager::ProcessNode(
 		}
 		addedMeshRenderer = addedMeshRenderer | childAdd;
 
-		childAssimpNode->m_localToParent.m_value = glm::mat4(
+		childAssimpNode->m_localTransform.m_value = glm::mat4(
 			importerNode->mTransformation.a1,
-			importerNode->mTransformation.a2,
-			importerNode->mTransformation.a3,
-			importerNode->mTransformation.a4,
 			importerNode->mTransformation.b1,
-			importerNode->mTransformation.b2,
-			importerNode->mTransformation.b3,
-			importerNode->mTransformation.b4,
 			importerNode->mTransformation.c1,
-			importerNode->mTransformation.c2,
-			importerNode->mTransformation.c3,
-			importerNode->mTransformation.c4,
 			importerNode->mTransformation.d1,
-			importerNode->mTransformation.d2,
-			importerNode->mTransformation.d3,
-			importerNode->mTransformation.d4);
+            importerNode->mTransformation.a2,
+            importerNode->mTransformation.b2,
+            importerNode->mTransformation.c2,
+            importerNode->mTransformation.d2,
+            importerNode->mTransformation.a3,
+            importerNode->mTransformation.b3,
+            importerNode->mTransformation.c3,
+            importerNode->mTransformation.d3,
+            importerNode->mTransformation.a4,
+            importerNode->mTransformation.b4,
+            importerNode->mTransformation.c4,
+            importerNode->mTransformation.d4);
 		if (!importerNode->mParent)
-			childAssimpNode->m_localToParent = Transform();
+			childAssimpNode->m_localTransform = Transform();
 		assimpNode->m_children.push_back(std::move(childAssimpNode));
 	}
 	return addedMeshRenderer;
@@ -863,22 +873,22 @@ std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
 			std::shared_ptr<Bone> bone = std::make_shared<Bone>();
 			bone->m_name = name;
 			bone->m_offsetMatrix.m_value = glm::mat4(
-				importerBone->mOffsetMatrix.a1,
-				importerBone->mOffsetMatrix.a2,
-				importerBone->mOffsetMatrix.a3,
-				importerBone->mOffsetMatrix.a4,
-				importerBone->mOffsetMatrix.b1,
-				importerBone->mOffsetMatrix.b2,
-				importerBone->mOffsetMatrix.b3,
-				importerBone->mOffsetMatrix.b4,
-				importerBone->mOffsetMatrix.c1,
-				importerBone->mOffsetMatrix.c2,
-				importerBone->mOffsetMatrix.c3,
-				importerBone->mOffsetMatrix.c4,
-				importerBone->mOffsetMatrix.d1,
-				importerBone->mOffsetMatrix.d2,
-				importerBone->mOffsetMatrix.d3,
-				importerBone->mOffsetMatrix.d4);
+                importerBone->mOffsetMatrix.a1,
+                importerBone->mOffsetMatrix.b1,
+                importerBone->mOffsetMatrix.c1,
+                importerBone->mOffsetMatrix.d1,
+                importerBone->mOffsetMatrix.a2,
+                importerBone->mOffsetMatrix.b2,
+                importerBone->mOffsetMatrix.c2,
+                importerBone->mOffsetMatrix.d2,
+                importerBone->mOffsetMatrix.a3,
+                importerBone->mOffsetMatrix.b3,
+                importerBone->mOffsetMatrix.c3,
+                importerBone->mOffsetMatrix.d3,
+                importerBone->mOffsetMatrix.a4,
+                importerBone->mOffsetMatrix.b4,
+                importerBone->mOffsetMatrix.c4,
+                importerBone->mOffsetMatrix.d4);
 			bonesMap[name] = bone;
 			skinnedMesh->m_bones.push_back(bone);
 		}else
@@ -1022,10 +1032,10 @@ void UniEngine::ResourceManager::AttachChildren(
 	Entity entity = EntityManager::CreateEntity(archetype);
 	entity.SetName(parentName);
 	EntityManager::SetParent(entity, parentEntity);
-	entity.SetComponentData(modelNode->m_localToParent);
+	entity.SetComponentData(modelNode->m_localTransform);
 	GlobalTransform globalTransform;
 	globalTransform.m_value =
-		parentEntity.GetComponentData<GlobalTransform>().m_value * modelNode->m_localToParent.m_value;
+		parentEntity.GetComponentData<GlobalTransform>().m_value * modelNode->m_localTransform.m_value;
 	entity.SetComponentData(globalTransform);
 
 	if (modelNode->m_mesh)

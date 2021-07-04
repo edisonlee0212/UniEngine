@@ -13,7 +13,7 @@ struct UNIENGINE_API AssimpNode
 {
     aiNode *m_correspondingNode = nullptr;
     std::string m_name;
-    Transform m_localToParent;
+    Transform m_localTransform;
     AssimpNode(aiNode *node);
     std::shared_ptr<AssimpNode> m_parent;
 	std::vector<std::shared_ptr<AssimpNode>> m_children;
@@ -21,11 +21,9 @@ struct UNIENGINE_API AssimpNode
     bool m_hasMesh;
 
     bool NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap);
-    void AttachToAnimation(std::shared_ptr<Animator> &animation);
+    void AttachToAnimator(std::shared_ptr<Animator> &animation);
     void AttachChild(std::shared_ptr<Bone> &parent);
 };
-
-
 
 #endif
 class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>

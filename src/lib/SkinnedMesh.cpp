@@ -25,11 +25,13 @@ Bound SkinnedMesh::GetBound() const
 
 void SkinnedMeshBonesBlock::Upload(const size_t &size) const
 {
-    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), this);
+    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), &m_matrices[0]);
 }
 
 void SkinnedMesh::GenerateMatrices()
 {
+    m_skinnedMeshBonesBlock = std::make_unique<SkinnedMeshBonesBlock>();
+
     m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
     m_skinnedMeshBonesUniformBufferBlock->SetData(DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(SkinnedMeshBonesBlock), nullptr, GL_STREAM_DRAW);
     m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
@@ -40,7 +42,7 @@ void SkinnedMesh::SetBones()
     assert(m_bones.size() < DefaultResources::ShaderIncludes::MaxBonesAmount);
     for (auto i = 0; i < m_bones.size(); i++)
     {
-        m_skinnedMeshBonesBlock->m_matrices[i] = m_bones[i]->GetTransform();
+        m_skinnedMeshBonesBlock->m_matrices[i] = m_bones[i]->m_currentFinalMatrix;
     }
     m_skinnedMeshBonesBlock->Upload(m_bones.size());
 }

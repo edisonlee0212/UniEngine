@@ -52,13 +52,13 @@ void main()
 	}
 
 	vec4 skinnedPosition = vec4(inPos, 1.0);
-	vec4 skinnedNormal = vec4(inNormal, 1.0);
-	vec4 skinnedTangent = vec4(inTangent, 1.0);
+	vec4 skinnedNormal = vec4(inNormal, 0.0);
+	vec4 skinnedTangent = vec4(inTangent, 0.0);
 
 	if(boneEnabled) {
-		skinnedPosition = boneTransform * vec4(inPos, 1.0);
-		skinnedNormal = boneTransform * vec4(inNormal, 0.0);
-		skinnedTangent = boneTransform * vec4(inTangent, 0.0);
+		skinnedPosition = boneTransform * skinnedPosition;
+		skinnedNormal = boneTransform * skinnedNormal;
+		skinnedTangent = boneTransform * skinnedTangent;
 	}
 
 	mat4 matrix = model * inInstanceMatrix;

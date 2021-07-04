@@ -26,14 +26,13 @@ void RenderManager::RenderToCameraDeferred(
 	cameraComponent->m_gBuffer->Clear();
 	if (!renderManager.m_deferredRenderInstances.empty())
 	{
-		auto &program = renderManager.m_gBufferPrepass;
-		program->Bind();
+		
 		for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
 		{
 			auto *material = renderCollection.first;
 			MaterialPropertySetter(material, true);
 			GetInstance().m_materialSettings = MaterialSettingsBlock();
-			ApplyMaterialSettings(material, program.get());
+			BindTextures(material);
 			for (const auto &renderInstances : renderCollection.second)
 			{
 				for (const auto &renderInstance : renderInstances.second)
@@ -41,6 +40,10 @@ void RenderManager::RenderToCameraDeferred(
 					switch (renderInstance.m_type)
 					{
 					case RenderInstanceType::Default: {
+                        auto &program = renderManager.m_gBufferPrepass;
+                        program->Bind();
+                        ApplyProgramSettings(program.get());
+
                         auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                         renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
                         renderManager.m_materialSettingsBuffer->SubData(
@@ -50,6 +53,10 @@ void RenderManager::RenderToCameraDeferred(
 						break;
 					}
 					case RenderInstanceType::Skinned: {
+                        auto &program = renderManager.m_gBufferSkinnedPrepass;
+                        program->Bind();
+                        ApplyProgramSettings(program.get());
+
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                         skinnedMeshRenderer->m_skinnedMesh->SetBones();
                         renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
@@ -69,14 +76,13 @@ void RenderManager::RenderToCameraDeferred(
 
 	if (!renderManager.m_deferredInstancedRenderInstances.empty())
 	{
-		auto &program = renderManager.m_gBufferInstancedPrepass;
-		program->Bind();
+		
         for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
         {
             auto *material = renderCollection.first;
             MaterialPropertySetter(material, true);
             GetInstance().m_materialSettings = MaterialSettingsBlock();
-            ApplyMaterialSettings(material, program.get());
+            BindTextures(material);
             for (const auto &renderInstances : renderCollection.second)
             {
                 for (const auto &renderInstance : renderInstances.second)
@@ -84,6 +90,10 @@ void RenderManager::RenderToCameraDeferred(
                     switch (renderInstance.m_type)
                     {
                     case RenderInstanceType::Default: {
+                        auto &program = renderManager.m_gBufferInstancedPrepass;
+                        program->Bind();
+                        ApplyProgramSettings(program.get());
+
                         auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                         renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
                         renderManager.m_materialSettingsBuffer->SubData(
@@ -176,7 +186,8 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 			}
 			MaterialPropertySetter(material, true);
 			GetInstance().m_materialSettings = MaterialSettingsBlock();
-			ApplyMaterialSettings(material, program.get());
+			BindTextures(material);
+            ApplyProgramSettings(program.get());
 			for (const auto &renderInstances : renderCollection.second)
 			{
 				for (const auto &renderInstance : renderInstances.second)
@@ -225,7 +236,8 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
             }
             MaterialPropertySetter(material, true);
             GetInstance().m_materialSettings = MaterialSettingsBlock();
-            ApplyMaterialSettings(material, program.get());
+            BindTextures(material);
+            ApplyProgramSettings(program.get());
             for (const auto &renderInstances : renderCollection.second)
             {
                 for (const auto &renderInstance : renderInstances.second)
@@ -2281,15 +2293,10 @@ void RenderManager::MaterialPropertySetter(const Material *material, const bool 
 	glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGLUtils::GLProgram *program)
+void RenderManager::BindTextures(const Material *material)
 {
 	auto &manager = GetInstance();
 	const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
-	program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
-	program->SetInt("UE_NORMAL_MAP_LEGACY", 3);
-	program->SetInt("UE_METALLIC_MAP_LEGACY", 3);
-	program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 3);
-	program->SetInt("UE_AO_MAP_LEGACY", 3);
 	bool hasAlbedo = false;
 	auto search = material->m_textures.find(TextureType::Albedo);
 	if (search != material->m_textures.end() && search->second)
@@ -2302,7 +2309,7 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 		else
 		{
 			search->second->Texture()->Bind(3);
-			program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+			
 			manager.m_materialSettings.m_albedoMap = 0;
 		}
 		manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
@@ -2317,7 +2324,7 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 		else
 		{
 			search->second->Texture()->Bind(4);
-			program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+			
 			manager.m_materialSettings.m_normalMap = 0;
 		}
 		manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
@@ -2332,7 +2339,6 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 		else
 		{
 			search->second->Texture()->Bind(6);
-			program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
 			manager.m_materialSettings.m_roughnessMap = 0;
 		}
 		manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
@@ -2347,7 +2353,6 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 		else
 		{
 			search->second->Texture()->Bind(5);
-			program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
 			manager.m_materialSettings.m_metallicMap = 0;
 		}
 		manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
@@ -2362,7 +2367,6 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 		else
 		{
 			search->second->Texture()->Bind(7);
-			program->SetInt("UE_AO_MAP_LEGACY", 7);
 			manager.m_materialSettings.m_aoMap = 0;
 		}
 		manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
@@ -2387,19 +2391,40 @@ void RenderManager::ApplyMaterialSettings(const Material *material, const OpenGL
 	}
 	else
 	{
-		program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
-		program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
-		program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
 		manager.m_materialSettings.m_directionalShadowMap = 0;
 		manager.m_materialSettings.m_pointShadowMap = 0;
 		manager.m_materialSettings.m_spotShadowMap = 0;
-		program->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
-		program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
-		program->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
-		program->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
 	}
 
 	manager.m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
+}
+
+void RenderManager::ApplyProgramSettings(const OpenGLUtils::GLProgram *program)
+{
+    auto &manager = GetInstance();
+    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
+    program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+    program->SetInt("UE_NORMAL_MAP_LEGACY", 3);
+    program->SetInt("UE_METALLIC_MAP_LEGACY", 3);
+    program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 3);
+    program->SetInt("UE_AO_MAP_LEGACY", 3);
+    if (!supportBindlessTexture)
+    {
+        program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
+        program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
+        program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+
+		program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+        program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+        program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
+        program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
+		program->SetInt("UE_AO_MAP_LEGACY", 7);
+
+        program->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
+        program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
+        program->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
+        program->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
+    }
 }
 
 void RenderManager::ReleaseTextureHandles(const Material *material)
@@ -2580,7 +2605,8 @@ void RenderManager::DrawMeshInstanced(
 	MaterialPropertySetter(material);
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
-	ApplyMaterialSettings(material, program);
+	BindTextures(material);
+    ApplyProgramSettings(program);
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 	ReleaseTextureHandles(material);
 	OpenGLUtils::GLVAO::BindDefault();
@@ -2664,7 +2690,8 @@ void RenderManager::DrawMesh(
 	GetInstance().m_materialSettings = MaterialSettingsBlock();
 	GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
 	MaterialPropertySetter(material);
-	ApplyMaterialSettings(material, program);
+	BindTextures(material);
+    ApplyProgramSettings(program);
 	glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
 	ReleaseTextureHandles(material);
 	OpenGLUtils::GLVAO::BindDefault();

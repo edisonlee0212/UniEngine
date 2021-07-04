@@ -18,50 +18,20 @@ uniform mat4 model;
 
 void main()
 {
-	mat4 boneTransform;
-	bool boneEnabled = false;
-	if(inBoneIds[0] > 0) {
-		boneEnabled = true;
-		boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
-	}
+	mat4 boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
     if(inBoneIds[1] > 0){
-		if(!boneEnabled){
-			boneEnabled = true;
-			boneTransform = UE_ANIM_BONES[inBoneIds[1]] * inWeights[1];
-		}else{
-			boneTransform += UE_ANIM_BONES[inBoneIds[1]] * inWeights[1];
-		}
+		boneTransform += UE_ANIM_BONES[inBoneIds[1]] * inWeights[1];
 	}
     if(inBoneIds[2] > 0){
-		if(!boneEnabled){
-			boneEnabled = true;
-			boneTransform = UE_ANIM_BONES[inBoneIds[2]] * inWeights[2];
-		}else{
-			boneTransform += UE_ANIM_BONES[inBoneIds[2]] * inWeights[2];
-		}
+		boneTransform += UE_ANIM_BONES[inBoneIds[2]] * inWeights[2];
 	}
 	if(inBoneIds[3] > 0){
-		if(!boneEnabled){
-			boneEnabled = true;
-			boneTransform = UE_ANIM_BONES[inBoneIds[3]] * inWeights[3];
-		}else{
-			boneTransform += UE_ANIM_BONES[inBoneIds[3]] * inWeights[3];
-		}
+		boneTransform += UE_ANIM_BONES[inBoneIds[3]] * inWeights[3];
 	}
 
-	vec4 skinnedPosition = vec4(inPos, 1.0);
-	vec4 skinnedNormal = vec4(inNormal, 1.0);
-	vec4 skinnedTangent = vec4(inTangent, 1.0);
-
-	if(boneEnabled) {
-		skinnedPosition = boneTransform * vec4(inPos, 1.0);
-		skinnedNormal = boneTransform * vec4(inNormal, 0.0);
-		skinnedTangent = boneTransform * vec4(inTangent, 0.0);
-	}
-
-	vs_out.FragPos = vec3(model * skinnedPosition);
-	vec3 N = normalize(vec3(model * skinnedNormal));
-	vec3 T = normalize(vec3(model * skinnedTangent));
+	vs_out.FragPos = vec3(model * boneTransform * vec4(inPos, 1.0));
+	vec3 N = normalize(vec3(model * boneTransform * vec4(inNormal, 0.0)));
+	vec3 T = normalize(vec3(model * boneTransform * vec4(inTangent, 0.0)));
 	// re-orthogonalize T with respect to N
 	T = normalize(T - dot(T, N) * N);
 	vs_out.Normal = N;
