@@ -3,11 +3,9 @@
 #include <World.hpp>
 namespace UniEngine
 {
-class LightProbe;
-class ReflectionProbe;
+class EnvironmentalMap;
 class Mesh;
 class Material;
-class Cubemap;
 class UNIENGINE_API DefaultResources
 {
     static void LoadShaders(World* world);
@@ -79,17 +77,12 @@ class UNIENGINE_API DefaultResources
     class UNIENGINE_API Environmental
     {
       public:
-        static std::shared_ptr<Cubemap> DefaultSkybox;
-        static std::shared_ptr<Cubemap> MilkyWaySkybox;
-        static std::shared_ptr<Cubemap> CircusSkybox;
-
-        static std::shared_ptr<LightProbe> DefaultLightProbe;
-        static std::shared_ptr<LightProbe> MilkyWayLightProbe;
-        static std::shared_ptr<LightProbe> CircusLightProbe;
-
-        static std::shared_ptr<ReflectionProbe> DefaultReflectionProbe;
-        static std::shared_ptr<ReflectionProbe> MilkyWayReflectionProbe;
-        static std::shared_ptr<ReflectionProbe> CircusReflectionProbe;
+        static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
+        static std::shared_ptr<EnvironmentalMap> MilkyWayEnvironmentalMap;
+        static std::shared_ptr<EnvironmentalMap> CircusEnvironmentalMap;
+        static std::shared_ptr<EnvironmentalMap> DefaultHDREnvironmentalMap;
+        static std::shared_ptr<EnvironmentalMap> MilkyWayHDREnvironmentalMap;
+        static std::shared_ptr<EnvironmentalMap> CircusHDREnvironmentalMap;
     };
     
     static void Load(World *world);

@@ -1246,6 +1246,19 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
 	return retVal;
 }
 
+std::shared_ptr<EnvironmentalMap> ResourceManager::LoadEnvironmentalMap(
+    const bool &addResource,
+    const std::string &path,
+    const float &gamma)
+{
+    auto retVal = CreateResource<EnvironmentalMap>();
+    retVal->Construct(LoadCubemap(false, path, gamma));
+    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    if (addResource)
+        Push(retVal);
+    return retVal;
+}
+
 std::shared_ptr<LightProbe> ResourceManager::LoadLightProbe(
 	const bool &addResource, const std::string &path, const float &gamma)
 {

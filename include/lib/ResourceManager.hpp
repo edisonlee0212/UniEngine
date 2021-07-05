@@ -5,24 +5,25 @@
 #include <OpenGLUtils.hpp>
 #include <LightProbe.hpp>
 #include <ReflectionProbe.hpp>
+#include <EnvironmentalMap.hpp>
 namespace UniEngine
 {
 #ifdef USE_ASSIMP
 
 struct UNIENGINE_API AssimpNode
 {
-    aiNode *m_correspondingNode = nullptr;
-    std::string m_name;
-    Transform m_localTransform;
-    AssimpNode(aiNode *node);
-    std::shared_ptr<AssimpNode> m_parent;
+	aiNode *m_correspondingNode = nullptr;
+	std::string m_name;
+	Transform m_localTransform;
+	AssimpNode(aiNode *node);
+	std::shared_ptr<AssimpNode> m_parent;
 	std::vector<std::shared_ptr<AssimpNode>> m_children;
-    std::shared_ptr<Bone> m_bone;
-    bool m_hasMesh;
+	std::shared_ptr<Bone> m_bone;
+	bool m_hasMesh;
 
-    bool NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap);
-    void AttachToAnimator(std::shared_ptr<Animator> &animation);
-    void AttachChild(std::shared_ptr<Bone> &parent);
+	bool NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap);
+	void AttachToAnimator(std::shared_ptr<Animator> &animation);
+	void AttachChild(std::shared_ptr<Bone> &parent);
 };
 
 #endif
@@ -33,34 +34,34 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 	friend class DefaultResources;
 
-    static std::shared_ptr<Texture2D> CollectTexture(
-        const std::string &directory,
-        const std::string &path,
-        std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
-        const float &gamma);
+	static std::shared_ptr<Texture2D> CollectTexture(
+		const std::string &directory,
+		const std::string &path,
+		std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
+		const float &gamma);
 #ifdef USE_ASSIMP
-    static void ReadAnimations(
-        const aiScene *importerScene,
-        std::shared_ptr<Animator> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
-    static void ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAnim *channel);
-    static std::shared_ptr<Material> ReadMaterial(
-        const std::string &directory,
-        const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
-        std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
-        aiMaterial *importerMaterial,
-        const float &gamma);
+	static void ReadAnimations(
+		const aiScene *importerScene,
+		std::shared_ptr<Animator> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
+	static void ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAnim *channel);
+	static std::shared_ptr<Material> ReadMaterial(
+		const std::string &directory,
+		const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
+		std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
+		aiMaterial *importerMaterial,
+		const float &gamma);
 	static bool ProcessNode(
-        const std::string &directory,
-        std::shared_ptr<ModelNode> &modelNode,
-        std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
-        std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
-        std::map<std::string, std::shared_ptr<Bone>> &bonesMap, 
-        aiNode *importerNode,
+		const std::string &directory,
+		std::shared_ptr<ModelNode> &modelNode,
+		std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
+		std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
+		std::map<std::string, std::shared_ptr<Bone>> &bonesMap, 
+		aiNode *importerNode,
 		std::shared_ptr<AssimpNode> assimpNode,
-        const aiScene *importerScene,
-        const float &gamma);
-    static std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
-    static std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
+		const aiScene *importerScene,
+		const float &gamma);
+	static std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
+	static std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
 #else
 	
 	static void ProcessNode(
@@ -71,7 +72,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 #endif
 
 	static void AttachChildren(
-        EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
+		EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
 	friend class EditorManager;
 	static std::string GetTypeName(size_t id);
   public:
@@ -100,6 +101,9 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 		const bool &addResource,
 		const std::string &path,
 		const float &gamma = 0.0f);
+	static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(
+		const bool &addResource, const std::string &path, const float &gamma = 0.0f);
+
 	static std::shared_ptr<LightProbe> LoadLightProbe(
 		const bool &addResource, const std::string &path, const float &gamma = 0.0f);
 	static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(
@@ -121,7 +125,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 		const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
 	static void OnGui();
 	static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
-    static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
+	static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
 };
 
 template <typename T> std::string ResourceManager::GetTypeName()

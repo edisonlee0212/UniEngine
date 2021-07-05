@@ -87,7 +87,7 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 
 layout (std140, binding = 8) buffer UE_ANIM_BONES_BLOCK
 {
-	mat4 UE_ANIM_BONES[MAX_BONES_AMOUNT];
+	mat4 UE_ANIM_BONES[];
 };
 
 vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);

@@ -920,7 +920,8 @@ void EditorManager::Update()
             }
         }
 #pragma endregion
-        RenderManager::ShadowEnvironmentPreset(editorManager.m_sceneCamera.get());
+        RenderManager::ApplyShadowMapSettings(editorManager.m_sceneCamera.get());
+        RenderManager::ApplyEnvironmentalSettings(RenderManager::GetMainCamera());
         RenderManager::RenderToCameraDeferred(editorManager.m_sceneCamera);
         RenderManager::RenderBackGround(editorManager.m_sceneCamera);
         RenderManager::RenderToCameraForward(editorManager.m_sceneCamera);
@@ -1297,38 +1298,15 @@ void EditorManager::LateUpdate()
                     entity.SetPrivateComponent(std::move(meshRenderer));
                 }
 
-                const std::string skyboxTypeHash = ResourceManager::GetTypeName<Cubemap>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(skyboxTypeHash.c_str()))
+                const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                 {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-                    std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
+                    std::shared_ptr<EnvironmentalMap> payload_n = *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
                     auto *mainCamera = RenderManager::GetMainCamera();
                     if (mainCamera)
                     {
-                        mainCamera->m_skybox = payload_n;
-                    }
-                }
-                const std::string lightProbeTypeHash = ResourceManager::GetTypeName<LightProbe>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(lightProbeTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<LightProbe>));
-                    std::shared_ptr<LightProbe> payload_n = *(std::shared_ptr<LightProbe> *)payload->Data;
-                    auto* mainCamera = RenderManager::GetMainCamera();
-                    if (mainCamera)
-                    {
-                        mainCamera->m_lightProbe = payload_n;
-                    }
-                }
-
-                const std::string reflectionProbeTypeHash = ResourceManager::GetTypeName<ReflectionProbe>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(reflectionProbeTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ReflectionProbe>));
-                    std::shared_ptr<ReflectionProbe> payload_n = *(std::shared_ptr<ReflectionProbe> *)payload->Data;
-                    auto *mainCamera = RenderManager::GetMainCamera();
-                    if (mainCamera)
-                    {
-                        mainCamera->m_reflectionProbe = payload_n;
+                        mainCamera->m_environmentalMap = payload_n;
                     }
                 }
                 ImGui::EndDragDropTarget();

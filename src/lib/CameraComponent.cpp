@@ -378,15 +378,9 @@ void CameraComponent::OnGui()
         ImGui::ColorEdit3("Clear Color", (float *)(void *)&m_clearColor);
     }else
     {
-        ImGui::Text("Skybox: ");
+        ImGui::Text("Environmental Map: ");
         ImGui::SameLine();
-        EditorManager::DragAndDrop(m_skybox);
-        ImGui::Text("LightProbe: ");
-        ImGui::SameLine();
-        EditorManager::DragAndDrop(m_lightProbe);
-        ImGui::Text("ReflectionProbe: ");
-        ImGui::SameLine();
-        EditorManager::DragAndDrop(m_reflectionProbe);
+        EditorManager::DragAndDrop(m_environmentalMap);
     }
     
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);

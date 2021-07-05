@@ -198,7 +198,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;
-    static void ShadowEnvironmentPreset(const CameraComponent *cameraComponent);
+    static void ApplyShadowMapSettings(const CameraComponent *cameraComponent);
     static void ApplyEnvironmentalSettings(const CameraComponent *cameraComponent);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void BindTextures(const Material *material);

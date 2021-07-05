@@ -1,9 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
 #include <RenderTarget.hpp>
-#include <Cubemap.hpp>
-#include <LightProbe.hpp>
-#include <ReflectionProbe.hpp>
+#include <EnvironmentalMap.hpp>
 namespace UniEngine
 {
 class CameraComponent;
@@ -99,9 +97,7 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     ~CameraComponent() override;
     bool m_useClearColor = false;
     glm::vec3 m_clearColor = glm::vec3(0.0f);
-    std::shared_ptr<Cubemap> m_skybox;
-    std::shared_ptr<LightProbe> m_lightProbe;
-    std::shared_ptr<ReflectionProbe> m_reflectionProbe;
+    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
     void OnGui() override;
 };
 
