@@ -125,6 +125,13 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedProgram;
 
+    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightSkinnedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedSkinnedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightSkinnedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedSkinnedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
+    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
+
     friend class EditorManager;
 
     std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
