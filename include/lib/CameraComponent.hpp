@@ -68,7 +68,7 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     bool m_allowAutoResize = true;
     float m_nearDistance = 0.1f;
     float m_farDistance = 500.0f;
-    float m_fov = 90;
+    float m_fov = 120;
     void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1) const;
     void StoreToPng(const std::string &path, int resizeX = -1, int resizeY = -1, bool alphaChannel = false) const;
 
