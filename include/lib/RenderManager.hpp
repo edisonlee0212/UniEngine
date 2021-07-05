@@ -54,6 +54,10 @@ struct EnvironmentalMapSettingsBlock
     GLuint64 m_environmentalPrefiltered = 0;
     GLuint64 m_environmentalBrdfLut = 0;
     glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    float m_environmentalMapGamma = 1.0f;
+    float m_environmentalIrradianceGamma = 1.0f;
+    float m_environmentalPrefilteredGamma = 1.0f;
+    float m_environmentalPadding = 0.0f;
 };
 
 enum class RenderInstanceType

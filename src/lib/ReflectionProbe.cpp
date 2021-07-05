@@ -12,6 +12,7 @@ void ReflectionProbe::OnCreate()
 
 void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
+    m_gamma = targetCubemap->m_gamma;
     size_t resolution = m_preFilteredMapResolution;
     auto renderTarget = std::make_unique<RenderTarget>(resolution, resolution);
 
@@ -21,6 +22,7 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
     auto preFilteredMap =
         std::make_unique<OpenGLUtils::GLTextureCubeMap>(mipmap, GL_RGB32F, resolution, resolution, true);
     m_preFilteredMap = std::make_unique<Cubemap>();
+    m_preFilteredMap->m_gamma = m_gamma;
     m_preFilteredMap->m_texture = std::move(preFilteredMap);
     m_preFilteredMap->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_preFilteredMap->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

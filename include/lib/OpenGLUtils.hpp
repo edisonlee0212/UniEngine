@@ -152,7 +152,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         friend class OpenGLUtils;
         static GLint m_maxAllowedTexture;
         static std::list<GLTexture *> m_currentlyResidentTexture;
-        static std::vector<std::map<GLenum, GLuint>> m_currentBoundTextures;
+        static std::vector<std::pair<GLenum, GLuint>> m_currentBoundTextures;
 
       protected:
         bool m_resident = false;

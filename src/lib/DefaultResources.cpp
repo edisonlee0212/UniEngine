@@ -331,8 +331,7 @@ void DefaultResources::LoadPrimitives(World *world)
     if (true)
     {
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/quad.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/quad.obj"));
             Primitives::Quad = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -340,8 +339,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Quad->m_name = "Quad";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/sphere.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/sphere.obj"));
             Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh
                                      ? model->RootNode()->m_children[0]->m_mesh
                                      : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -349,8 +347,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Sphere->m_name = "Sphere";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cube.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cube.obj"));
             Primitives::Cube = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -358,8 +355,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Cube->m_name = "Cube";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cone.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cone.obj"));
             Primitives::Cone = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -367,8 +363,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Cone->m_name = "Cone";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/cylinder.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cylinder.obj"));
             Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh
                                        ? model->RootNode()->m_children[0]->m_mesh
                                        : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -376,8 +371,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Cylinder->m_name = "Cylinder";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/ring.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/ring.obj"));
             Primitives::Ring = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -385,8 +379,7 @@ void DefaultResources::LoadPrimitives(World *world)
             Primitives::Ring->m_name = "Ring";
         }
         {
-            auto model = ResourceManager::LoadModel(
-                false, FileIO::GetResourcePath("Primitives/monkey.obj"));
+            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/monkey.obj"));
             Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh
                                      ? model->RootNode()->m_children[0]->m_mesh
                                      : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
@@ -421,10 +414,9 @@ void DefaultResources::Load(World *world)
     Environmental::DefaultSkybox = ResourceManager::LoadCubemap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_8k.jpg"));
     Environmental::DefaultSkybox->m_name = "Default";
-    Environmental::DefaultReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
-    Environmental::DefaultReflectionProbe->ConstructFromCubemap(Environmental::DefaultSkybox);
+    Environmental::DefaultReflectionProbe = ResourceManager::LoadReflectionProbe(
+        true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr"));
     Environmental::DefaultReflectionProbe->m_name = "Default";
-    ResourceManager::Push(Environmental::DefaultReflectionProbe);
     Environmental::DefaultLightProbe = ResourceManager::LoadLightProbe(
         true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr"));
     Environmental::DefaultLightProbe->m_name = "Default";
@@ -432,10 +424,9 @@ void DefaultResources::Load(World *world)
     Environmental::MilkyWaySkybox =
         ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
     Environmental::MilkyWaySkybox->m_name = "Milky Way";
-    Environmental::MilkyWayReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
-    Environmental::MilkyWayReflectionProbe->ConstructFromCubemap(Environmental::MilkyWaySkybox);
+    Environmental::MilkyWayReflectionProbe = ResourceManager::LoadReflectionProbe(
+        true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
     Environmental::MilkyWayReflectionProbe->m_name = "Milky Way";
-    ResourceManager::Push(Environmental::MilkyWayReflectionProbe);
     Environmental::MilkyWayLightProbe =
         ResourceManager::LoadLightProbe(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
     Environmental::MilkyWayLightProbe->m_name = "Milky Way";
@@ -443,10 +434,9 @@ void DefaultResources::Load(World *world)
     Environmental::CircusSkybox =
         ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
     Environmental::CircusSkybox->m_name = "Circus";
-    Environmental::CircusReflectionProbe = ResourceManager::CreateResource<ReflectionProbe>(true);
-    Environmental::CircusReflectionProbe->ConstructFromCubemap(Environmental::CircusSkybox);
+    Environmental::CircusReflectionProbe = ResourceManager::LoadReflectionProbe(
+        true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_3k.hdr"));
     Environmental::CircusReflectionProbe->m_name = "Circus";
-    ResourceManager::Push(Environmental::CircusReflectionProbe);
     Environmental::CircusLightProbe = ResourceManager::LoadLightProbe(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_3k.hdr"));
     Environmental::CircusLightProbe->m_name = "Circus";

@@ -2128,6 +2128,14 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
 	const bool environmentalReady = cameraComponent->m_skybox && cameraComponent->m_lightProbe &&
 									cameraComponent->m_lightProbe->m_ready && cameraComponent->m_reflectionProbe &&
 									cameraComponent->m_reflectionProbe->m_ready;
+    if (environmentalReady)
+    {
+        manager.m_environmentalMapSettings.m_environmentalMapGamma = cameraComponent->m_skybox->m_gamma;
+        manager.m_environmentalMapSettings.m_environmentalIrradianceGamma =
+            cameraComponent->m_lightProbe->m_gamma;
+        manager.m_environmentalMapSettings.m_environmentalPrefilteredGamma =
+            cameraComponent->m_reflectionProbe->m_gamma;
+    }
 	if (supportBindlessTexture)
 	{
 		if (environmentalReady)

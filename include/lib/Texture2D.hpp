@@ -21,6 +21,7 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     friend class EnvironmentalMap;
     friend class CameraComponent;
   public:
+    float m_gamma = 1.0f;
     void OnCreate() override;
     [[nodiscard]] glm::vec2 GetResolution() const;
     void StoreToPng(

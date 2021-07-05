@@ -4,8 +4,14 @@
 #include <RenderManager.hpp>
 using namespace UniEngine;
 
+void LightProbe::OnCreate()
+{
+    m_name = "New light probe";
+}
+
 void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
+    m_gamma = targetCubemap->m_gamma;
     size_t resolution = m_irradianceMapResolution;
     auto renderTarget = std::make_unique<RenderTarget>(resolution, resolution);
     auto renderBuffer = std::make_unique<OpenGLUtils::GLRenderBuffer>();
@@ -16,6 +22,7 @@ void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCube
     // ---------------------------------------------------------
     auto irradianceMap = std::make_unique<OpenGLUtils::GLTextureCubeMap>(1, GL_RGB32F, resolution, resolution, true);
     m_irradianceMap = std::make_unique<Cubemap>();
+    m_irradianceMap->m_gamma = m_gamma;
     m_irradianceMap->m_texture = std::move(irradianceMap);
     m_irradianceMap->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_irradianceMap->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

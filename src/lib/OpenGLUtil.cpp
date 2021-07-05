@@ -12,7 +12,10 @@ void OpenGLUtils::Init()
 void OpenGLUtils::PreUpdate()
 {
     for (auto &i : GLTexture::m_currentBoundTextures)
-        i.clear();
+    {
+        i.first = -1;
+        i.second = -1;
+    }
 }
 
 GLuint OpenGLUtils::GLObject::Id() const
@@ -185,7 +188,7 @@ void OpenGLUtils::GLVAO::SetAttributeDivisor(const GLuint &index, const GLuint &
 
 GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
 std::list<OpenGLUtils::GLTexture *> OpenGLUtils::GLTexture::m_currentlyResidentTexture;
-std::vector<std::map<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
+std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
 OpenGLUtils::TextureBinding::TextureBinding()
 {
     m_1d = 0;
@@ -328,11 +331,13 @@ void OpenGLUtils::GLTexture::Bind(const GLenum &activate) const
     {
         UNIENGINE_ERROR("Max allowed texture exceeded!");
     }
-    if (m_currentBoundTextures[activate][m_type] == m_id)
+    if (m_currentBoundTextures[activate].first == m_type && m_currentBoundTextures[activate].second == m_id)
         return;
     glActiveTexture(GL_TEXTURE0 + activate);
     glBindTexture(m_type, m_id);
-    m_currentBoundTextures[activate][m_type] = m_id;
+
+    m_currentBoundTextures[activate].first = m_type;
+    m_currentBoundTextures[activate].second = m_id;
 }
 
 OpenGLUtils::GLTexture::GLTexture(const GLenum &target, const GLenum &format)
