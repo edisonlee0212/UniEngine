@@ -5,7 +5,7 @@
 using namespace UniEngine;
 
 std::unique_ptr<SkinnedMeshBonesBlock> SkinnedMesh::m_skinnedMeshBonesBlock;
-std::unique_ptr<OpenGLUtils::GLUBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
+std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 	
 
 void SkinnedMesh::OnGui()
@@ -25,15 +25,16 @@ Bound SkinnedMesh::GetBound() const
 
 void SkinnedMeshBonesBlock::Upload(const size_t &size) const
 {
-    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), &m_matrices[0]);
+    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), m_matrices.data());
 }
 
 void SkinnedMesh::GenerateMatrices()
 {
+	
     m_skinnedMeshBonesBlock = std::make_unique<SkinnedMeshBonesBlock>();
-
-    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
-    m_skinnedMeshBonesUniformBufferBlock->SetData(DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(SkinnedMeshBonesBlock), nullptr, GL_STREAM_DRAW);
+    m_skinnedMeshBonesBlock->m_matrices.resize(DefaultResources::ShaderIncludes::MaxBonesAmount);
+    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLSSBO>();
+    m_skinnedMeshBonesUniformBufferBlock->SetData(DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
     m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
 }
 

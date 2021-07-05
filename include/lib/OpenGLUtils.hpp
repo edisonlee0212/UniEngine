@@ -29,6 +29,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLBuffer : public GLObject
     {
+      protected:
         GLenum m_target;
 
       public:
@@ -37,6 +38,14 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const;
         void SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data) const;
         ~GLBuffer() override;
+    };
+
+    class UNIENGINE_API GLSSBO : public GLBuffer
+    {
+      public:
+        GLSSBO();
+        void SetBase(const GLuint &index) const;
+        static void BindDefault();
     };
 
     class UNIENGINE_API GLPPBO : public GLBuffer
@@ -269,15 +278,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
             const void *pixels) const;
     };
 
-    class UNIENGINE_API GLTextureRectangle : public GLTexture
-    {
-      public:
-    };
-
-    class UNIENGINE_API GLTextureBuffer : public GLTexture
-    {
-      public:
-    };
 
     class UNIENGINE_API GLTextureCubeMap : public GLTexture
     {
@@ -401,16 +401,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
             const GLenum &format,
             const GLenum &type,
             const void *pixels) const;
-    };
-
-    class UNIENGINE_API GLTexture2DMultiSample : public GLTexture
-    {
-      public:
-    };
-
-    class UNIENGINE_API GLTexture2DMultiSampleArray : public GLTexture
-    {
-      public:
     };
 
     class UNIENGINE_API GLFrameBuffer : public GLObject

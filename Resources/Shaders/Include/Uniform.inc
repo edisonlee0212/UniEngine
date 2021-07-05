@@ -85,7 +85,7 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 	vec4 UE_GAUSS_KERNEL[MAX_KERNEL_AMOUNT];
 };
 
-layout (std140, binding = 8) uniform UE_ANIM_BONES_BLOCK
+layout (std140, binding = 8) buffer UE_ANIM_BONES_BLOCK
 {
 	mat4 UE_ANIM_BONES[MAX_BONES_AMOUNT];
 };

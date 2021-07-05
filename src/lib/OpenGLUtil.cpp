@@ -51,6 +51,20 @@ OpenGLUtils::GLBuffer::~GLBuffer()
     glDeleteBuffers(1, &m_id);
 }
 
+OpenGLUtils::GLSSBO::GLSSBO() : GLBuffer(GL_SHADER_STORAGE_BUFFER)
+{
+}
+
+void OpenGLUtils::GLSSBO::SetBase(const GLuint &index) const
+{
+    glBindBufferBase(m_target, index, m_id);
+}
+
+void OpenGLUtils::GLSSBO::BindDefault()
+{
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
 OpenGLUtils::GLPPBO::GLPPBO() : GLBuffer(GL_PIXEL_PACK_BUFFER)
 {
 }
@@ -98,12 +112,12 @@ void OpenGLUtils::GLUBO::BindDefault()
 
 void OpenGLUtils::GLUBO::SetBase(const GLuint &index) const
 {
-    glBindBufferBase(GL_UNIFORM_BUFFER, index, m_id);
+    glBindBufferBase(m_target, index, m_id);
 }
 
 void OpenGLUtils::GLUBO::SetRange(const GLuint &index, const GLintptr &offset, const GLsizeiptr &size) const
 {
-    glBindBufferRange(GL_UNIFORM_BUFFER, index, m_id, offset, size);
+    glBindBufferRange(m_target, index, m_id, offset, size);
 }
 
 OpenGLUtils::GLVAO::~GLVAO()

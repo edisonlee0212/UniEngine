@@ -25,7 +25,7 @@ struct UNIENGINE_API SkinnedVertex
 
 struct UNIENGINE_API SkinnedMeshBonesBlock
 {
-    glm::mat4 m_matrices[DefaultResources::ShaderIncludes::MaxBonesAmount];
+    std::vector<glm::mat4> m_matrices;
     void Upload(const size_t& size) const;
 };
 
@@ -54,7 +54,7 @@ class UNIENGINE_API SkinnedMesh
     friend class ResourceManager;
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<SkinnedMeshBonesBlock> m_skinnedMeshBonesBlock;
-    static std::unique_ptr<OpenGLUtils::GLUBO> m_skinnedMeshBonesUniformBufferBlock;
+    static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
 	std::vector<std::shared_ptr<Bone>> m_bones;
   public:
     static void GenerateMatrices();
