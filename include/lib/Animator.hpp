@@ -89,6 +89,9 @@ class UNIENGINE_API Animator : public PrivateComponentBase
     std::shared_ptr<Bone> m_rootBone;
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
+
+    bool m_autoPlay = false;
+
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
     void OnGui() override;
     Animator();

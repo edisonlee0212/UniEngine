@@ -1,3 +1,4 @@
+#include "Application.hpp"
 #include "RenderManager.hpp"
 
 #include <Animator.hpp>
@@ -165,11 +166,20 @@ void Animator::OnGui()
         }
         ImGui::EndCombo();
     }
+    ImGui::Checkbox("AutoPlay", &m_autoPlay);
+    if (m_autoPlay)
+    {
+        m_currentAnimationTime += Application::GetCurrentWorld()->Time()->DeltaTime() * 1000.0f;
+        if (m_currentAnimationTime > m_animationNameAndLength[m_currentActivatedAnimation])
+            m_currentAnimationTime =
+                glm::mod(m_currentAnimationTime, m_animationNameAndLength[m_currentActivatedAnimation]);
+    }
     if (ImGui::SliderFloat(
-            "Time", &m_currentAnimationTime, 0.0f, m_animationNameAndLength[m_currentActivatedAnimation]))
+            "Time", &m_currentAnimationTime, 0.0f, m_animationNameAndLength[m_currentActivatedAnimation]) || m_autoPlay)
     {
         Animate();
     }
+    
     
 }
 

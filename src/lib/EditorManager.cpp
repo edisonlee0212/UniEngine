@@ -224,16 +224,17 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
 void EditorManager::MoveCamera(
     const glm::quat &targetRotation, const glm::vec3 &targetPosition, const float &transitionTime)
 {
-    GetInstance().m_previousRotation = GetInstance().m_sceneCameraRotation;
-    GetInstance().m_previousPosition = GetInstance().m_sceneCameraPosition;
-    GetInstance().m_transitionTime = transitionTime;
-    GetInstance().m_transitionTimer = Application::EngineTime();
-    GetInstance().m_targetRotation = targetRotation;
-    GetInstance().m_targetPosition = targetPosition;
-    GetInstance().m_lockCamera = true;
-    GetInstance().m_leftMouseButtonHold = false;
-    GetInstance().m_rightMouseButtonHold = false;
-    GetInstance().m_startMouse = false;
+    auto &editorManager = GetInstance();
+    editorManager.m_previousRotation = editorManager.m_sceneCameraRotation;
+    editorManager.m_previousPosition = editorManager.m_sceneCameraPosition;
+    editorManager.m_transitionTime = transitionTime;
+    editorManager.m_transitionTimer = Application::EngineTime();
+    editorManager.m_targetRotation = targetRotation;
+    editorManager.m_targetPosition = targetPosition;
+    editorManager.m_lockCamera = true;
+    editorManager.m_leftMouseButtonHold = false;
+    editorManager.m_rightMouseButtonHold = false;
+    editorManager.m_startMouse = false;
 }
 
 void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color)
@@ -615,7 +616,8 @@ void EditorManager::PreUpdate()
     if (editorManager.m_lockCamera)
     {
         const float elapsedTime = Application::EngineTime() - editorManager.m_transitionTimer;
-        const float a = 1.0f - glm::pow(1.0 - elapsedTime / editorManager.m_transitionTime, 4.0f);
+        float a = 1.0f - glm::pow(1.0 - elapsedTime / editorManager.m_transitionTime, 4.0f);
+        if (elapsedTime >= editorManager.m_transitionTime) a = 1.0f;
         editorManager.m_sceneCameraRotation =
             glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
         editorManager.m_sceneCameraPosition =
