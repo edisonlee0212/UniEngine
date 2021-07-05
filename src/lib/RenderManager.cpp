@@ -261,6 +261,272 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
     }
 }
 
+void RenderManager::ShadowMapPass(const int& enabledSize,
+    std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,
+    std::shared_ptr<OpenGLUtils::GLProgram> &defaultInstancedProgram,
+    std::shared_ptr<OpenGLUtils::GLProgram> &skinnedProgram,
+    std::shared_ptr<OpenGLUtils::GLProgram> &instancedSkinnedProgram)
+{
+    auto &renderManager = GetInstance();
+    for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
+    {
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = defaultProgram;
+                    program->Bind();
+                    auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = meshRenderer->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    program->SetInt("index", enabledSize);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    auto &program = skinnedProgram;
+                    program->Bind();
+                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                    skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    program->SetInt("index", enabledSize);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                }
+            }
+        }
+    }
+    for (const auto &renderCollection : renderManager.m_forwardRenderInstances)
+    {
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = defaultProgram;
+                    program->Bind();
+                    auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = meshRenderer->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    program->SetInt("index", enabledSize);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    auto &program = skinnedProgram;
+                    program->Bind();
+                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                    skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    program->SetInt("index", enabledSize);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                }
+            }
+        }
+    }
+    for (const auto &renderInstances : renderManager.m_transparentRenderInstances)
+    {
+        for (const auto &renderInstance : renderInstances.second)
+        {
+            switch (renderInstance.m_type)
+            {
+            case RenderInstanceType::Default: {
+                auto &program = defaultInstancedProgram;
+                program->Bind();
+                auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                auto count = particles->m_matrices.size();
+                std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                matricesBuffer->SetData(
+                    (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                auto *mesh = particles->m_mesh.get();
+                mesh->Enable();
+                mesh->Vao()->EnableAttributeArray(12);
+                mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                mesh->Vao()->EnableAttributeArray(13);
+                mesh->Vao()->SetAttributePointer(
+                    13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                mesh->Vao()->EnableAttributeArray(14);
+                mesh->Vao()->SetAttributePointer(
+                    14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                mesh->Vao()->EnableAttributeArray(15);
+                mesh->Vao()->SetAttributePointer(
+                    15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                mesh->Vao()->SetAttributeDivisor(12, 1);
+                mesh->Vao()->SetAttributeDivisor(13, 1);
+                mesh->Vao()->SetAttributeDivisor(14, 1);
+                mesh->Vao()->SetAttributeDivisor(15, 1);
+                program->SetInt("index", enabledSize);
+                glDrawElementsInstanced(
+                    GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                break;
+            }
+            }
+        }
+    }
+
+    for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
+    {
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = defaultInstancedProgram;
+                    program->Bind();
+                    auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                    auto count = particles->m_matrices.size();
+                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                    matricesBuffer->SetData(
+                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                    auto *mesh = particles->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->EnableAttributeArray(12);
+                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                    mesh->Vao()->EnableAttributeArray(13);
+                    mesh->Vao()->SetAttributePointer(
+                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(14);
+                    mesh->Vao()->SetAttributePointer(
+                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(15);
+                    mesh->Vao()->SetAttributePointer(
+                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                    mesh->Vao()->SetAttributeDivisor(12, 1);
+                    mesh->Vao()->SetAttributeDivisor(13, 1);
+                    mesh->Vao()->SetAttributeDivisor(14, 1);
+                    mesh->Vao()->SetAttributeDivisor(15, 1);
+                    program->SetInt("index", enabledSize);
+                    glDrawElementsInstanced(
+                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    break;
+                }
+                }
+            }
+        }
+    }
+    for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
+    {
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = defaultInstancedProgram;
+                    program->Bind();
+                    auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                    auto count = particles->m_matrices.size();
+                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                    matricesBuffer->SetData(
+                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                    auto *mesh = particles->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->EnableAttributeArray(12);
+                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                    mesh->Vao()->EnableAttributeArray(13);
+                    mesh->Vao()->SetAttributePointer(
+                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(14);
+                    mesh->Vao()->SetAttributePointer(
+                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(15);
+                    mesh->Vao()->SetAttributePointer(
+                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                    mesh->Vao()->SetAttributeDivisor(12, 1);
+                    mesh->Vao()->SetAttributeDivisor(13, 1);
+                    mesh->Vao()->SetAttributeDivisor(14, 1);
+                    mesh->Vao()->SetAttributeDivisor(15, 1);
+                    program->SetInt("index", enabledSize);
+                    glDrawElementsInstanced(
+                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    break;
+                }
+                }
+            }
+        }
+    }
+    for (const auto &renderInstances : renderManager.m_instancedTransparentRenderInstances)
+    {
+        for (const auto &renderInstance : renderInstances.second)
+        {
+            switch (renderInstance.m_type)
+            {
+            case RenderInstanceType::Default: {
+                auto &program = defaultInstancedProgram;
+                program->Bind();
+                auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                auto count = particles->m_matrices.size();
+                std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                matricesBuffer->SetData(
+                    (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                auto *mesh = particles->m_mesh.get();
+                mesh->Enable();
+                mesh->Vao()->EnableAttributeArray(12);
+                mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                mesh->Vao()->EnableAttributeArray(13);
+                mesh->Vao()->SetAttributePointer(
+                    13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                mesh->Vao()->EnableAttributeArray(14);
+                mesh->Vao()->SetAttributePointer(
+                    14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                mesh->Vao()->EnableAttributeArray(15);
+                mesh->Vao()->SetAttributePointer(
+                    15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                mesh->Vao()->SetAttributeDivisor(12, 1);
+                mesh->Vao()->SetAttributeDivisor(13, 1);
+                mesh->Vao()->SetAttributeDivisor(14, 1);
+                mesh->Vao()->SetAttributeDivisor(15, 1);
+                program->SetInt("index", enabledSize);
+                glDrawElementsInstanced(
+                    GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                break;
+            }
+            }
+        }
+    }
+}
+
 void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComponent, const Entity& mainCameraEntity)
 {
     auto &renderManager = GetInstance();
@@ -280,7 +546,7 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
         if (directionalLightEntities && !directionalLightEntities->empty())
         {
             size = directionalLightEntities->size();
-            size_t enabledSize = 0;
+            int enabledSize = 0;
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = directionalLightEntities->at(i);
@@ -501,102 +767,18 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
                     Entity lightEntity = directionalLightEntities->at(i);
                     if (!lightEntity.IsEnabled())
                         continue;
-                    /*
-                    glClearTexSubImage(_DirectionalLightShadowMap->DepthMapArray()->ID(),
-                        0, _DirectionalLights[enabledSize].viewPort.x,
-                    _DirectionalLights[enabledSize].viewPort.y, 0,
-                    (GLsizei)_DirectionalLights[enabledSize].viewPort.z,
-                    (GLsizei)_DirectionalLights[enabledSize].viewPort.w, (GLsizei)4, GL_DEPTH_COMPONENT,
-                    GL_FLOAT, nullptr);
-                    */
                     glViewport(
                         renderManager.m_directionalLights[enabledSize].m_viewPort.x,
                         renderManager.m_directionalLights[enabledSize].m_viewPort.y,
                         renderManager.m_directionalLights[enabledSize].m_viewPort.z,
                         renderManager.m_directionalLights[enabledSize].m_viewPort.w);
                     renderManager.m_directionalLightProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
-                            if (!mmc->IsEnabled() || !mmc->m_castShadow || mmc->m_material == nullptr ||
-                                mmc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(mmc.get()->m_material.get(), true);
-                            auto mesh = mmc->m_mesh;
-                            auto ltw = EntityManager::GetComponentData<GlobalTransform>(owner).m_value;
-                            renderManager.m_directionalLightProgram->SetFloat4x4("model", ltw);
-                            mesh->Enable();
-                            mesh->Vao()->DisableAttributeArray(12);
-                            mesh->Vao()->DisableAttributeArray(13);
-                            mesh->Vao()->DisableAttributeArray(14);
-                            mesh->Vao()->DisableAttributeArray(15);
-                            glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-                        }
-                    }
-                    enabledSize++;
-                }
-                enabledSize = 0;
-                renderManager.m_directionalLightInstancedProgram->Bind();
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = directionalLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.x,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.y,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.z,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.w);
-                    renderManager.m_directionalLightInstancedProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &immc = owner.GetPrivateComponent<Particles>();
-                            if (!immc->IsEnabled() || !immc->m_castShadow || immc->m_material == nullptr ||
-                                immc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(immc.get()->m_material.get(), true);
-                            size_t count = immc->m_matrices.size();
-                            std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                            matricesBuffer->SetData(
-                                (GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
-                            auto mesh = immc->m_mesh;
-                            renderManager.m_directionalLightInstancedProgram->SetFloat4x4(
-                                "model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
-                            mesh->Enable();
-                            mesh->Vao()->EnableAttributeArray(12);
-                            mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                            mesh->Vao()->EnableAttributeArray(13);
-                            mesh->Vao()->SetAttributePointer(
-                                13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(14);
-                            mesh->Vao()->SetAttributePointer(
-                                14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(15);
-                            mesh->Vao()->SetAttributePointer(
-                                15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                            mesh->Vao()->SetAttributeDivisor(12, 1);
-                            mesh->Vao()->SetAttributeDivisor(13, 1);
-                            mesh->Vao()->SetAttributeDivisor(14, 1);
-                            mesh->Vao()->SetAttributeDivisor(15, 1);
-                            glDrawElementsInstanced(
-                                GL_TRIANGLES,
-                                (GLsizei)mesh->GetTriangleAmount() * 3,
-                                GL_UNSIGNED_INT,
-                                0,
-                                (GLsizei)count);
-                            OpenGLUtils::GLVAO::BindDefault();
-                        }
-                    }
+                    ShadowMapPass(
+                        enabledSize,
+                        renderManager.m_directionalLightProgram,
+                        renderManager.m_directionalLightInstancedProgram,
+                        renderManager.m_directionalLightSkinnedProgram,
+                        renderManager.m_directionalLightInstancedSkinnedProgram);
                     enabledSize++;
                 }
             }
@@ -691,11 +873,9 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
                     16, enabledSize * sizeof(PointLightInfo), &renderManager.m_pointLights[0]);
             if (renderManager.m_materialSettings.m_enableShadow)
             {
-#pragma region PointLight Shadowmap Pass
                 renderManager.m_pointLightShadowMap->Bind();
                 renderManager.m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
                 glClear(GL_DEPTH_BUFFER_BIT);
-                renderManager.m_pointLightProgram->Bind();
                 enabledSize = 0;
                 for (int i = 0; i < size; i++)
                 {
@@ -707,92 +887,14 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
                         renderManager.m_pointLights[enabledSize].m_viewPort.y,
                         renderManager.m_pointLights[enabledSize].m_viewPort.z,
                         renderManager.m_pointLights[enabledSize].m_viewPort.w);
-                    renderManager.m_pointLightProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
-                            if (!mmc->IsEnabled() || !mmc->m_castShadow || mmc->m_material == nullptr ||
-                                mmc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(mmc.get()->m_material.get(), true);
-                            auto mesh = mmc->m_mesh;
-                            renderManager.m_pointLightProgram->SetFloat4x4(
-                                "model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
-                            mesh->Enable();
-                            mesh->Vao()->DisableAttributeArray(12);
-                            mesh->Vao()->DisableAttributeArray(13);
-                            mesh->Vao()->DisableAttributeArray(14);
-                            mesh->Vao()->DisableAttributeArray(15);
-                            glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-                        }
-                    }
+					ShadowMapPass(
+                        enabledSize,
+                        renderManager.m_pointLightProgram,
+                        renderManager.m_pointLightInstancedProgram,
+                        renderManager.m_pointLightSkinnedProgram,
+                        renderManager.m_pointLightInstancedSkinnedProgram);
                     enabledSize++;
                 }
-                enabledSize = 0;
-                renderManager.m_pointLightInstancedProgram->Bind();
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = pointLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_pointLights[enabledSize].m_viewPort.x,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.y,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.z,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.w);
-                    renderManager.m_pointLightInstancedProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &immc = owner.GetPrivateComponent<Particles>();
-                            if (!immc->IsEnabled() || !immc->m_castShadow || immc->m_material == nullptr ||
-                                immc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(immc.get()->m_material.get(), true);
-                            size_t count = immc->m_matrices.size();
-                            std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                            matricesBuffer->SetData(
-                                (GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
-                            auto mesh = immc->m_mesh;
-                            renderManager.m_pointLightInstancedProgram->SetFloat4x4(
-                                "model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
-                            mesh->Enable();
-                            mesh->Vao()->EnableAttributeArray(12);
-                            mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                            mesh->Vao()->EnableAttributeArray(13);
-                            mesh->Vao()->SetAttributePointer(
-                                13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(14);
-                            mesh->Vao()->SetAttributePointer(
-                                14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(15);
-                            mesh->Vao()->SetAttributePointer(
-                                15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                            mesh->Vao()->SetAttributeDivisor(12, 1);
-                            mesh->Vao()->SetAttributeDivisor(13, 1);
-                            mesh->Vao()->SetAttributeDivisor(14, 1);
-                            mesh->Vao()->SetAttributeDivisor(15, 1);
-                            glDrawElementsInstanced(
-                                GL_TRIANGLES,
-                                (GLsizei)mesh->GetTriangleAmount() * 3,
-                                GL_UNSIGNED_INT,
-                                0,
-                                (GLsizei)count);
-                            OpenGLUtils::GLVAO::BindDefault();
-                        }
-                    }
-                    enabledSize++;
-                }
-#pragma endregion
             }
         }
         else
@@ -876,11 +978,9 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
                     16, enabledSize * sizeof(SpotLightInfo), &renderManager.m_spotLights[0]);
             if (renderManager.m_materialSettings.m_enableShadow)
             {
-#pragma region SpotLight Shadowmap Pass
                 renderManager.m_spotLightShadowMap->Bind();
                 renderManager.m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
                 glClear(GL_DEPTH_BUFFER_BIT);
-                renderManager.m_spotLightProgram->Bind();
                 enabledSize = 0;
                 for (int i = 0; i < size; i++)
                 {
@@ -892,89 +992,12 @@ void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComp
                         renderManager.m_spotLights[enabledSize].m_viewPort.y,
                         renderManager.m_spotLights[enabledSize].m_viewPort.z,
                         renderManager.m_spotLights[enabledSize].m_viewPort.w);
-                    renderManager.m_spotLightProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
-                            if (!mmc->IsEnabled() || !mmc->m_castShadow || mmc->m_material == nullptr ||
-                                mmc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(mmc.get()->m_material.get(), true);
-                            auto mesh = mmc->m_mesh;
-                            renderManager.m_spotLightProgram->SetFloat4x4(
-                                "model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
-                            mesh->Enable();
-                            mesh->Vao()->DisableAttributeArray(12);
-                            mesh->Vao()->DisableAttributeArray(13);
-                            mesh->Vao()->DisableAttributeArray(14);
-                            mesh->Vao()->DisableAttributeArray(15);
-                            glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-                        }
-                    }
-                    enabledSize++;
-                }
-                enabledSize = 0;
-                renderManager.m_spotLightInstancedProgram->Bind();
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = spotLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_spotLights[enabledSize].m_viewPort.x,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.y,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.z,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.w);
-                    renderManager.m_spotLightInstancedProgram->SetInt("index", enabledSize);
-                    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<Particles>();
-                    if (owners)
-                    {
-                        for (auto owner : *owners)
-                        {
-                            if (!owner.IsEnabled())
-                                continue;
-                            auto &immc = owner.GetPrivateComponent<Particles>();
-                            if (!immc->IsEnabled() || !immc->m_castShadow || immc->m_material == nullptr ||
-                                immc->m_mesh == nullptr)
-                                continue;
-                            MaterialPropertySetter(immc.get()->m_material.get(), true);
-                            size_t count = immc->m_matrices.size();
-                            std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                            matricesBuffer->SetData(
-                                (GLsizei)count * sizeof(glm::mat4), immc->m_matrices.data(), GL_STATIC_DRAW);
-                            auto mesh = immc->m_mesh;
-                            renderManager.m_spotLightInstancedProgram->SetFloat4x4(
-                                "model", EntityManager::GetComponentData<GlobalTransform>(owner).m_value);
-                            mesh->Enable();
-                            mesh->Vao()->EnableAttributeArray(12);
-                            mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                            mesh->Vao()->EnableAttributeArray(13);
-                            mesh->Vao()->SetAttributePointer(
-                                13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(14);
-                            mesh->Vao()->SetAttributePointer(
-                                14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                            mesh->Vao()->EnableAttributeArray(15);
-                            mesh->Vao()->SetAttributePointer(
-                                15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                            mesh->Vao()->SetAttributeDivisor(12, 1);
-                            mesh->Vao()->SetAttributeDivisor(13, 1);
-                            mesh->Vao()->SetAttributeDivisor(14, 1);
-                            mesh->Vao()->SetAttributeDivisor(15, 1);
-                            glDrawElementsInstanced(
-                                GL_TRIANGLES,
-                                (GLsizei)mesh->GetTriangleAmount() * 3,
-                                GL_UNSIGNED_INT,
-                                0,
-                                (GLsizei)count);
-                            OpenGLUtils::GLVAO::BindDefault();
-                        }
-                    }
+                    ShadowMapPass(
+                        enabledSize,
+                        renderManager.m_spotLightProgram,
+                        renderManager.m_spotLightInstancedProgram,
+                        renderManager.m_spotLightSkinnedProgram,
+                        renderManager.m_spotLightInstancedSkinnedProgram);
                     enabledSize++;
                 }
 #pragma endregion
@@ -1239,8 +1262,8 @@ void RenderManager::CollectRenderInstances(
 	renderManager.m_instancedTransparentRenderInstances.clear();
 	auto &minBound = worldBound.m_min;
 	auto &maxBound = worldBound.m_max;
-	maxBound = glm::vec3(INT_MAX);
-	minBound = glm::vec3(INT_MIN);
+	minBound = glm::vec3(INT_MAX);
+    maxBound = glm::vec3(INT_MIN);
 	
 	const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<MeshRenderer>();
 	if (owners)
@@ -1401,11 +1424,11 @@ void RenderManager::CollectRenderInstances(
 			}
 		}
 	}
+
 }
 void RenderManager::PreUpdate()
 {
 	auto &renderManager = GetInstance();
-	auto &editorManager = EditorManager::GetInstance();
 	renderManager.m_triangles = 0;
 	renderManager.m_drawCall = 0;
 	if (renderManager.m_mainCameraComponent != nullptr)
@@ -1427,8 +1450,7 @@ void RenderManager::PreUpdate()
 		}
 	}
 
-	Bound worldBound;
-			   
+	Bound worldBound;		   
 	if (renderManager.m_mainCameraComponent)
 	{
 		CollectRenderInstances(
@@ -1446,6 +1468,7 @@ void RenderManager::PreUpdate()
             RenderShadows(worldBound, renderManager.m_mainCameraComponent, mainCameraEntity);
 		}
 	}
+
 #pragma region Render to cameras
 	if (cameraEntities != nullptr)
 	{

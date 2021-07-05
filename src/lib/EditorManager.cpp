@@ -253,13 +253,19 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     glDisable(GL_CULL_FACE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    manager.m_sceneHighlightPrePassProgram->Bind();
-    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0f, 0.5f, 0.0f, 0.2f));
+    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
+    manager.m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
+    manager.m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
+    manager.m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
+
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-    manager.m_sceneHighlightProgram->Bind();
     manager.m_sceneHighlightProgram->SetFloat4("color", color);
+    manager.m_sceneHighlightSkinnedProgram->SetFloat4("color", color);
+    manager.m_sceneHighlightInstancedProgram->SetFloat4("color", color);
+    manager.m_sceneHighlightInstancedSkinnedProgram->SetFloat4("color", color);
+
     HighLightEntityHelper(entity);
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
@@ -544,9 +550,6 @@ void EditorManager::Init()
     editorManager.m_sceneCamera = std::make_unique<CameraComponent>();
     editorManager.m_sceneCamera->m_clearColor = glm::vec3(0.5f); 
     editorManager.m_sceneCamera->m_useClearColor = false;
-    //editorManager.m_sceneCamera->m_skybox = DefaultResources::Environmental::DefaultSkybox;
-    //editorManager.m_sceneCamera->m_lightProbe = DefaultResources::Environmental::DefaultLightProbe;
-    //editorManager.m_sceneCamera->m_reflectionProbe = DefaultResources::Environmental::DefaultReflectionProbe;
 }
 
 void EditorManager::Destroy()
@@ -733,6 +736,49 @@ void EditorManager::Update()
                 }
             }
         }
+        for (const auto &renderInstances : renderManager.m_transparentRenderInstances)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                    program->Bind();
+                    auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = meshRenderer->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                        "EntityIndex", renderInstance.m_owner.m_index);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                    program->Bind();
+                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
+                    skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->DisableAttributeArray(12);
+                    mesh->Vao()->DisableAttributeArray(13);
+                    mesh->Vao()->DisableAttributeArray(14);
+                    mesh->Vao()->DisableAttributeArray(15);
+                    editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                        "EntityIndex", renderInstance.m_owner.m_index);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    break;
+                }
+                }
+            }
+        }
+
         for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
         {
             for (const auto &renderInstances : renderCollection.second)
@@ -777,6 +823,97 @@ void EditorManager::Update()
                         break;
                     }
                     }
+                }
+            }
+        }
+        for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
+        {
+            for (const auto &renderInstances : renderCollection.second)
+            {
+                for (const auto &renderInstance : renderInstances.second)
+                {
+                    switch (renderInstance.m_type)
+                    {
+                    case RenderInstanceType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        program->Bind();
+                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                        auto count = particles->m_matrices.size();
+                        std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                        matricesBuffer->SetData(
+                            (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                        auto *mesh = particles->m_mesh.get();
+                        mesh->Enable();
+                        mesh->Vao()->EnableAttributeArray(12);
+                        mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                        mesh->Vao()->EnableAttributeArray(13);
+                        mesh->Vao()->SetAttributePointer(
+                            13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                        mesh->Vao()->EnableAttributeArray(14);
+                        mesh->Vao()->SetAttributePointer(
+                            14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                        mesh->Vao()->EnableAttributeArray(15);
+                        mesh->Vao()->SetAttributePointer(
+                            15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                        mesh->Vao()->SetAttributeDivisor(12, 1);
+                        mesh->Vao()->SetAttributeDivisor(13, 1);
+                        mesh->Vao()->SetAttributeDivisor(14, 1);
+                        mesh->Vao()->SetAttributeDivisor(15, 1);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                            "EntityIndex", renderInstance.m_owner.m_index);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                            "model", renderInstance.m_globalTransform.m_value);
+                        glDrawElementsInstanced(
+                            GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                        break;
+                    }
+                    }
+                }
+            }
+        }
+        for (const auto &renderInstances : renderManager.m_instancedTransparentRenderInstances)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                    program->Bind();
+                    auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
+                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+
+                    auto count = particles->m_matrices.size();
+                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+                    matricesBuffer->SetData(
+                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
+                    auto *mesh = particles->m_mesh.get();
+                    mesh->Enable();
+                    mesh->Vao()->EnableAttributeArray(12);
+                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+                    mesh->Vao()->EnableAttributeArray(13);
+                    mesh->Vao()->SetAttributePointer(
+                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(14);
+                    mesh->Vao()->SetAttributePointer(
+                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+                    mesh->Vao()->EnableAttributeArray(15);
+                    mesh->Vao()->SetAttributePointer(
+                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+                    mesh->Vao()->SetAttributeDivisor(12, 1);
+                    mesh->Vao()->SetAttributeDivisor(13, 1);
+                    mesh->Vao()->SetAttributeDivisor(14, 1);
+                    mesh->Vao()->SetAttributeDivisor(15, 1);
+                    editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                        "EntityIndex", renderInstance.m_owner.m_index);
+                    editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                        "model", renderInstance.m_globalTransform.m_value);
+                    glDrawElementsInstanced(
+                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    break;
+                }
                 }
             }
         }

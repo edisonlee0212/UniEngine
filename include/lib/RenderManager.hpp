@@ -203,6 +203,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderToCameraDeferred(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderBackGround(const std::unique_ptr<CameraComponent> &cameraComponent);
     static void RenderToCameraForward(const std::unique_ptr<CameraComponent> &cameraComponent);
+    static void ShadowMapPass(
+        const int &enabledSize,
+        std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,
+        std::shared_ptr<OpenGLUtils::GLProgram> &defaultInstancedProgram,
+        std::shared_ptr<OpenGLUtils::GLProgram> &skinnedProgram,
+        std::shared_ptr<OpenGLUtils::GLProgram> &instancedSkinnedProgram);
     static void RenderShadows(Bound &worldBound, CameraComponent *cameraComponent, const Entity &mainCameraEntity);
     static void Init();
     // Main rendering happens here.
