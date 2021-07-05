@@ -125,7 +125,6 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                     else
                     {
                         material = CreateResource<Material>();
-                        material->SetProgram(glProgram);
                         auto &importedMaterial = materials[materialId];
                         material->m_metallic = importedMaterial.metallic == 0 ? 0.0f : importedMaterial.metallic;
                         material->m_roughness = importedMaterial.roughness == 0 ? 1.0f : importedMaterial.roughness;
@@ -227,7 +226,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                 childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
                                                       glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
                                                       glm::scale(glm::vec3(1.0f));
-                childNode->m_meshMaterials.emplace_back(material, mesh);
+                childNode->m_mesh = mesh;
+                childNode->m_material = material;
                 retVal->RootNode()->m_children.push_back(std::move(childNode));
             }
         }
@@ -349,7 +349,8 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
             childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
                                                   glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
                                                   glm::scale(glm::vec3(1.0f));
-            childNode->m_meshMaterials.emplace_back(material, mesh);
+            childNode->m_mesh = mesh;
+            childNode->m_material = material;
             retVal->RootNode()->m_children.push_back(std::move(childNode));
         }
     }
