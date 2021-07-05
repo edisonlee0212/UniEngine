@@ -81,7 +81,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	static std::string GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource);
 	template <typename T> 
 	static void RegisterResourceType(const std::string &name);
-	template <typename T> static std::shared_ptr<T> CreateResource(const bool &addResource = false);
+	template <typename T> static std::shared_ptr<T> CreateResource(const bool &addResource = false, const std::string& name = "");
 	template <typename T> static void Push(std::shared_ptr<T> resource);
 	template <typename T> static std::shared_ptr<T> Get(size_t hashCode);
 	template <typename T> static std::shared_ptr<T> Find(std::string objectName);
@@ -153,7 +153,8 @@ template <typename T> void ResourceManager::RegisterResourceType(const std::stri
 	throw 0;
 }
 
-template <typename T> std::shared_ptr<T> ResourceManager::CreateResource(const bool &addResource)
+template <typename T>
+std::shared_ptr<T> ResourceManager::CreateResource(const bool &addResource, const std::string &name)
 {
 	auto &resourceManager = GetInstance();
 	const auto id = typeid(T).hash_code();
@@ -164,6 +165,8 @@ template <typename T> std::shared_ptr<T> ResourceManager::CreateResource(const b
 		dynamic_cast<ResourceBehaviour *>(retVal.get())->OnCreate();
 		if (addResource)
 			Push(retVal);
+        if (!name.empty())
+            retVal->m_name = name;
 		return retVal;
 	}
 	UNIENGINE_ERROR("Resource type not registered!");

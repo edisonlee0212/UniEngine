@@ -97,7 +97,7 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     ~CameraComponent() override;
     bool m_useClearColor = false;
     glm::vec3 m_clearColor = glm::vec3(0.0f);
-    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
+    std::shared_ptr<Cubemap> m_skybox;
     void OnGui() override;
 };
 

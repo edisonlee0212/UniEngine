@@ -1229,10 +1229,11 @@ void EditorManager::LateUpdate()
     {
         // Using a Child allow to fill all the space of the window.
         // It also allows customization
-        if (ImGui::BeginChild("CameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_None | ImGuiWindowFlags_MenuBar))
+        if (ImGui::BeginChild("CameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar))
         {
             if (ImGui::BeginMenuBar())
             {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings"))
                 {
 #pragma region Menu 
@@ -1249,6 +1250,7 @@ void EditorManager::LateUpdate()
 #pragma endregion
                     ImGui::EndMenu();
                 }
+                ImGui::PopStyleVar();
                 ImGui::EndMenuBar();
             }
             viewPortSize = ImGui::GetWindowSize();
@@ -1303,10 +1305,18 @@ void EditorManager::LateUpdate()
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
                     std::shared_ptr<EnvironmentalMap> payload_n = *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
+                    RenderManager::GetInstance().m_environmentalMap = payload_n;
+                }
+
+                const std::string cubeMapTypeHash = ResourceManager::GetTypeName<Cubemap>();
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
+                {
+                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+                    std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
                     auto *mainCamera = RenderManager::GetMainCamera();
                     if (mainCamera)
                     {
-                        mainCamera->m_environmentalMap = payload_n;
+                        mainCamera->m_skybox = payload_n;
                     }
                 }
                 ImGui::EndDragDropTarget();

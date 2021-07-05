@@ -1248,6 +1248,8 @@ void RenderManager::Init()
 	fragShader->Compile(fragShaderCode);
 
 #pragma endregion
+
+	manager.m_environmentalMap = DefaultResources::Environmental::DefaultHDREnvironmentalMap;
 }
 
 void RenderManager::CollectRenderInstances(
@@ -1909,18 +1911,20 @@ void RenderManager::OnGui()
 	if (manager.m_enableRenderMenu)
 	{
 		ImGui::Begin("Render Manager");
-		ImGui::Checkbox("Display info", &manager.m_enableInfoWindow);
-		if (ImGui::TreeNode("Environment Lighting"))
+		if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::DragFloat("Brightness", &manager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
-			ImGui::TreePop();
+			ImGui::Text("Environmental map:");
+            ImGui::SameLine();
+            EditorManager::DragAndDrop(manager.m_environmentalMap);
+			ImGui::DragFloat("Environmental light intensity", &manager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
 		}
 		bool enableShadow = manager.m_materialSettings.m_enableShadow;
 		if (ImGui::Checkbox("Enable shadow", &enableShadow))
 		{
 			manager.m_materialSettings.m_enableShadow = enableShadow;
 		}
-		if (manager.m_materialSettings.m_enableShadow && ImGui::TreeNode("Shadow"))
+        if (manager.m_materialSettings.m_enableShadow &&
+            ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			if (ImGui::TreeNode("Distance"))
 			{
@@ -1952,7 +1956,6 @@ void RenderManager::OnGui()
 			}
 			ImGui::DragFloat("Seam fix ratio", &manager.m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
 			ImGui::Checkbox("Stable fit", &manager.m_stableFit);
-			ImGui::TreePop();
 		}
 		ImGui::End();
 	}
@@ -1965,9 +1968,24 @@ void RenderManager::OnGui()
 		static int corner = 1;
 		// Using a Child allow to fill all the space of the window.
 		// It also allows customization
-		if (ImGui::BeginChild("CameraRenderer"))
+        if (ImGui::BeginChild("CameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar))
 		{
+            if (ImGui::BeginMenuBar())
+            {
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
+                if (ImGui::BeginMenu("Settings"))
+                {
+#pragma region Menu
+                    ImGui::Checkbox("Display info", &manager.m_enableInfoWindow);
+#pragma endregion
+                    ImGui::EndMenu();
+                }
+                ImGui::PopStyleVar();
+                ImGui::EndMenuBar();
+				
+            }
 			viewPortSize = ImGui::GetWindowSize();
+            viewPortSize.y -= 20;
 			// Get the size of the child (i.e. the whole draw size of the windows).
 			ImVec2 overlayPos = ImGui::GetWindowPos();
 			// Because I use the texture from OpenGL, I need to invert the V from the UV.
@@ -2014,12 +2032,21 @@ void RenderManager::OnGui()
 							IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
 							std::shared_ptr<EnvironmentalMap> payload_n =
 								*(std::shared_ptr<EnvironmentalMap> *)payload->Data;
-							auto *mainCamera = GetMainCamera();
-							if (mainCamera)
-							{
-								mainCamera->m_environmentalMap = payload_n;
-							}
+							manager.m_environmentalMap = payload_n;
 						}
+
+						const std::string cubeMapTypeHash = ResourceManager::GetTypeName<Cubemap>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+                            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+                            auto *mainCamera = GetMainCamera();
+                            if (mainCamera)
+                            {
+                                mainCamera->m_skybox = payload_n;
+                            }
+                        }
+
 						ImGui::EndDragDropTarget();
 					}
 					cameraActive = true;
@@ -2032,7 +2059,7 @@ void RenderManager::OnGui()
 
 			ImVec2 window_pos = ImVec2(
 				(corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
-				(corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+				(corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y) + 20);
 			if (manager.m_enableInfoWindow)
 			{
 				ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
@@ -2042,7 +2069,7 @@ void RenderManager::OnGui()
 												ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
 												ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
-				ImGui::BeginChild("Render Info", ImVec2(200, 100), false, window_flags);
+				ImGui::BeginChild("Render Info", ImVec2(200, 75), false, window_flags);
 				ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 				std::string trisstr = "";
 				if (manager.m_triangles < 999)
@@ -2059,11 +2086,11 @@ void RenderManager::OnGui()
 				{
 					glm::vec2 pos;
 					InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
-					ImGui::Text("Mouse Position: (%.1f,%.1f)", pos.x, pos.y);
+					ImGui::Text("Mouse Pos: (%.1f,%.1f)", pos.x, pos.y);
 				}
 				else
 				{
-					ImGui::Text("Mouse Position: <invalid>");
+					ImGui::Text("Mouse Pos: <invalid>");
 				}
 				ImGui::EndChild();
 			}
@@ -2110,55 +2137,72 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
         manager.m_environmentalMapSettings.m_backgroundColor =
             glm::vec4(glm::vec3(0.75f), true);
     }
-	const bool environmentalReady = cameraComponent && cameraComponent->m_environmentalMap && cameraComponent->m_environmentalMap->m_ready;
+    if (cameraComponent && cameraComponent->m_skybox)
+    {
+        manager.m_environmentalMapSettings.m_skyboxGamma = cameraComponent->m_skybox->m_gamma;
+    }else
+    {
+        manager.m_environmentalMapSettings.m_skyboxGamma =
+            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_gamma;
+    }
+
+    const bool environmentalReady = manager.m_environmentalMap && manager.m_environmentalMap->m_ready;
 	if (environmentalReady)
 	{
-		manager.m_environmentalMapSettings.m_environmentalMapGamma = cameraComponent->m_environmentalMap->m_skybox->m_gamma;
-		manager.m_environmentalMapSettings.m_environmentalIrradianceGamma =
-			cameraComponent->m_environmentalMap->m_lightProbe->m_gamma;
-		manager.m_environmentalMapSettings.m_environmentalPrefilteredGamma =
-			cameraComponent->m_environmentalMap->m_reflectionProbe->m_gamma;
+        manager.m_environmentalMapSettings.m_environmentalLightingGamma = manager.m_environmentalMap->m_gamma;
+	}else
+	{
+        manager.m_environmentalMapSettings.m_environmentalLightingGamma =
+            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_gamma;
 	}
 	if (supportBindlessTexture)
 	{
+        if (cameraComponent && cameraComponent->m_skybox)
+        {
+            manager.m_environmentalMapSettings.m_skybox =
+                cameraComponent->m_skybox->Texture()->GetHandle();
+        }
+        else
+        {
+            manager.m_environmentalMapSettings.m_skybox =
+                DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_targetCubemap->Texture()->GetHandle();
+        }
+        manager.m_environmentalMapSettings.m_environmentalBrdfLut = manager.m_brdfLut->Texture()->GetHandle();
 		if (environmentalReady)
 		{
-			manager.m_environmentalMapSettings.m_skybox =
-				cameraComponent->m_environmentalMap->m_skybox->Texture()->GetHandle();
 			manager.m_environmentalMapSettings.m_environmentalIrradiance =
-				cameraComponent->m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
+                manager.m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
 			manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-				cameraComponent->m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
-			manager.m_environmentalMapSettings.m_environmentalBrdfLut = manager.m_brdfLut->Texture()->GetHandle();
+                manager.m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
 		}
 		else
 		{
-			manager.m_environmentalMapSettings.m_skybox =
-				DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_skybox->Texture()->GetHandle();
 			manager.m_environmentalMapSettings.m_environmentalIrradiance =
 				DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
 			manager.m_environmentalMapSettings.m_environmentalPrefiltered =
 				DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
-			manager.m_environmentalMapSettings.m_environmentalBrdfLut = manager.m_brdfLut->Texture()->GetHandle();
 		}
 	}
 	else
 	{
+        if (cameraComponent && cameraComponent->m_skybox)
+        {
+            cameraComponent->m_skybox->Texture()->Bind(8);
+        }
+        else
+        {
+            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_targetCubemap->Texture()->Bind(8);
+        }
+        manager.m_brdfLut->Texture()->Bind(11);
 		if (environmentalReady)
 		{
-			cameraComponent->m_environmentalMap->m_skybox->Texture()->Bind(8);
-			cameraComponent->m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
-			cameraComponent->m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
-			manager.m_brdfLut->Texture()->Bind(11);
+            manager.m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
+            manager.m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
 		}
 		else
 		{
-			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_skybox->Texture()->Bind(8);
-			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(
-				9);
-			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()
-				->Bind(10);
-			manager.m_brdfLut->Texture()->Bind(11);
+			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
+			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
 		}
 	}
 	manager.m_environmentalMapSettingsBuffer->SubData(

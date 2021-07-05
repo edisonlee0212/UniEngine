@@ -62,14 +62,14 @@ void WindowManager::Init(std::string name, bool fullScreen)
     // glfw window creation
     // --------------------
     //const GLFWvidmode *mode = glfwGetVideoMode(GetInstance().m_primaryMonitor);
-    GetInstance().m_windowWidth = 800;//fullScreen ? mode->width : mode->width - 200;
-    GetInstance().m_windowHeight = 600;//fullScreen ? mode->height : mode->height - 200;
+    GetInstance().m_windowWidth = 1280;
+    GetInstance().m_windowHeight = 720;
 
     GetInstance().m_window = glfwCreateWindow(
         GetInstance().m_windowWidth,
         GetInstance().m_windowHeight,
         name.c_str(),
-        NULL,//fullScreen ? GetInstance().m_primaryMonitor : nullptr,
+        NULL,
         NULL);
     if (fullScreen)
         glfwMaximizeWindow(GetInstance().m_window);

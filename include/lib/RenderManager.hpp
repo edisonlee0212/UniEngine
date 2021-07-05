@@ -54,10 +54,10 @@ struct EnvironmentalMapSettingsBlock
     GLuint64 m_environmentalPrefiltered = 0;
     GLuint64 m_environmentalBrdfLut = 0;
     glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    float m_environmentalMapGamma = 1.0f;
-    float m_environmentalIrradianceGamma = 1.0f;
-    float m_environmentalPrefilteredGamma = 1.0f;
-    float m_environmentalPadding = 0.0f;
+    float m_skyboxGamma = 1.0f;
+    float m_environmentalLightingGamma = 1.0f;
+    float m_environmentalPadding1 = 1.0f;
+    float m_environmentalPadding2 = 0.0f;
 };
 
 enum class RenderInstanceType
@@ -110,7 +110,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
     std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
 #pragma endregion
-#pragma region Shadow
+#pragma region Lightings
+    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
+
     OpenGLUtils::GLUBO m_directionalLightBlock;
     OpenGLUtils::GLUBO m_pointLightBlock;
     OpenGLUtils::GLUBO m_spotLightBlock;

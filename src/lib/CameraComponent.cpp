@@ -378,9 +378,9 @@ void CameraComponent::OnGui()
         ImGui::ColorEdit3("Clear Color", (float *)(void *)&m_clearColor);
     }else
     {
-        ImGui::Text("Environmental Map: ");
+        ImGui::Text("Skybox: ");
         ImGui::SameLine();
-        EditorManager::DragAndDrop(m_environmentalMap);
+        EditorManager::DragAndDrop(m_skybox);
     }
     
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);

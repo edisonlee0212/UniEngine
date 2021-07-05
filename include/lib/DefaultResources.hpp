@@ -4,6 +4,7 @@
 namespace UniEngine
 {
 class EnvironmentalMap;
+class Cubemap;
 class Mesh;
 class Material;
 class UNIENGINE_API DefaultResources
@@ -77,6 +78,12 @@ class UNIENGINE_API DefaultResources
     class UNIENGINE_API Environmental
     {
       public:
+        static std::shared_ptr<Cubemap> DefaultSkybox;
+        static std::shared_ptr<Cubemap> MilkyWaySkybox;
+        static std::shared_ptr<Cubemap> CircusSkybox;
+        static std::shared_ptr<Cubemap> DefaultHDRSkybox;
+        static std::shared_ptr<Cubemap> MilkyWayHDRSkybox;
+        static std::shared_ptr<Cubemap> CircusHDRSkybox;
         static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> MilkyWayEnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> CircusEnvironmentalMap;

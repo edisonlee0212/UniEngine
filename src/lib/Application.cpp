@@ -102,7 +102,7 @@ void Application::Init(bool fullScreen)
 	EntityManager::SetComponentData(mainCameraEntity, cameraLtw);
 	auto mainCameraComponent = std::make_unique<CameraComponent>();
 	RenderManager::SetMainCamera(mainCameraComponent.get());
-	mainCameraComponent->m_environmentalMap = DefaultResources::Environmental::DefaultHDREnvironmentalMap;
+	mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
 
 #pragma endregion
