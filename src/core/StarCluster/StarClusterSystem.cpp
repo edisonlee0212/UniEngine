@@ -199,8 +199,6 @@ void Galaxy::StarClusterSystem::OnGui()
 {
     if (ImGui::Begin("Star Cluster System"))
     {
-        if (ImGui::Checkbox("Enable SIMD", &m_useSimd))
-            m_counter = 0;
         ImGui::InputFloat("Time", &m_galaxyTime);
         static int amount = 10000;
         ImGui::DragInt("Amount", &amount, 1, 1, 100000);
