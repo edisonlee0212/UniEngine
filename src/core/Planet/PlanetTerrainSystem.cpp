@@ -1,3 +1,5 @@
+#include "ResourceManager.hpp"
+
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <glm/gtc/noise.hpp>
 
@@ -5,8 +7,7 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 
 void Planet::PlanetTerrainSystem::OnCreate()
 {
-	m_defaultSurfaceMaterial = std::make_shared<Material>();
-	m_defaultSurfaceMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+    m_defaultSurfaceMaterial = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
 	m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, DefaultResources::Textures::Border);
 }
 

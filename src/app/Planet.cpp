@@ -1,6 +1,8 @@
 // Planet.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include "ResourceManager.hpp"
+
 #include <SerializationManager.hpp>
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
@@ -72,7 +74,7 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-	auto sharedMat = std::make_shared<Material>();
+	auto sharedMat = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     sharedMat->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
 	Transform ltw;
