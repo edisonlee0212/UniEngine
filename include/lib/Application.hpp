@@ -4,6 +4,7 @@
 #include <ISingleton.hpp>
 #include <RenderManager.hpp>
 #include <World.hpp>
+#include <ProfilerManager.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API Application final : ISingleton<Application>
