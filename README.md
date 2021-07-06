@@ -24,7 +24,8 @@ Here lists the features that already exists in the UniEngine. Some of them I may
     - Scene hierarchy viewing, editing
     - Entity create/delete/rename/set-parent
     - Resource/Asset drag-and-drop
-    - GUI registry for Entity Inspector for view/editing for both data component and private component
+    - GUI registry for Entity Inspector for view/editing for both data component and private component defined by user
+    - Profiler
  - High-fidelity Physically-Based 3D rendering
     - Support for both deferred (RenderSystem) and forward rendering (RenderSystem/native rendering API).
     - Lighting and Shadows
@@ -49,9 +50,10 @@ Here lists the features that already exists in the UniEngine. Some of them I may
        - 3D Model
        - 3D animated model (Windows only)
     - Scene import/export (in development stage)
+ - Physics
+    - Integrated PhysX for 3D physics (Incomplete and in development)
 ## Upcoming features
 Here lists the features that will be introduced to UniEngine in future, though I don't have a concrete plan of when these will come.
-- Integrated 3rd party 2D and 3D physics engine
 - Procedural terrain and world generation
 - Artificial Intelligence
 - Audio system
