@@ -10,7 +10,7 @@
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
 #include <Gui.hpp>
-#include <SkinnedMesh.hpp>
+#include <AnimationManager.hpp>
 using namespace UniEngine;
 
 #pragma region Utilities
@@ -170,6 +170,7 @@ void Application::PreUpdateInternal()
 	OpenGLUtils::PreUpdate();
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
+    AnimationManager::PreUpdate();
 	RenderManager::PreUpdate();
 
 	for (const auto &i : application.m_externalPreUpdateFunctions)

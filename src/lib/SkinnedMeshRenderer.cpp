@@ -1,8 +1,9 @@
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
-#include <SkinnedMeshRenderer.hpp>
 #include <RenderManager.hpp>
+#include <SkinnedMeshRenderer.hpp>
+#include <Application.hpp>
 using namespace UniEngine;
 void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 {
@@ -22,14 +23,41 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
         1);
 }
 
+void SkinnedMeshRenderer::CalculateBones(Animator *animator)
+{
+    for (int i = 0; i < m_skinnedMesh->m_bones.size(); i++)
+    {
+        m_finalResults[i] = animator->m_transformChain[m_skinnedMesh->m_bones[i]->m_index];
+    }
+}
+
+void SkinnedMeshRenderer::ResizeBones()
+{
+    m_finalResults.resize(m_skinnedMesh->m_bones.size());
+}
+
+void SkinnedMeshRenderer::CalculateBones(std::unique_ptr<Animator>& animator)
+{
+    for (int i = 0; i < m_skinnedMesh->m_bones.size(); i++)
+    {
+        m_finalResults[i] = animator->m_transformChain[m_skinnedMesh->m_bones[i]->m_index];
+    }
+}
+
+void SkinnedMeshRenderer::UploadBones()
+{
+    m_skinnedMesh->UploadBones(m_finalResults);
+}
+
 void SkinnedMeshRenderer::OnGui()
 {
+    
     ImGui::Checkbox("Render bones", &m_renderBones);
     if (m_renderBones)
     {
         ImGui::DragFloat("Size: ", &m_renderSize, 0.01f, 0.01f, 1.0f);
-        //for (auto& i : m_skinnedMesh->m_bones)
-        //i->RenderBones(m_renderSize, GetOwner().GetComponentData<GlobalTransform>().m_value);
+        // for (auto& i : m_skinnedMesh->m_bones)
+        // i->RenderBones(m_renderSize, GetOwner().GetComponentData<GlobalTransform>().m_value);
     }
 
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
@@ -67,6 +95,7 @@ SkinnedMeshRenderer::SkinnedMeshRenderer()
 {
     SetEnabled(true);
 }
+
 
 
 void SkinnedMeshRenderer::Serialize(YAML::Emitter &out)

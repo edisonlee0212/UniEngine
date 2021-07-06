@@ -132,11 +132,11 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
     {
-        auto &mmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
-        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_skinnedMesh != nullptr)
+        auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
+        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
         {
-            auto *skinnedMesh = mmc->m_skinnedMesh.get();
-            skinnedMesh->SetBones();
+            auto *skinnedMesh = smmc->m_skinnedMesh.get();
+            smmc->UploadBones();
             skinnedMesh->Enable();
             skinnedMesh->Vao()->DisableAttributeArray(12);
             skinnedMesh->Vao()->DisableAttributeArray(13);
@@ -208,7 +208,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
             auto *skinnedMesh = smmc->m_skinnedMesh.get();
-            skinnedMesh->SetBones();
+            smmc->UploadBones();
             skinnedMesh->Enable();
             skinnedMesh->Vao()->DisableAttributeArray(12);
             skinnedMesh->Vao()->DisableAttributeArray(13);
@@ -486,7 +486,14 @@ void EditorManager::Init()
                            glm::scale(editorManager.m_previouslyStoredScale);
         }
     });
-
+    RegisterPrivateComponentMenu<Animator>([](Entity owner) {
+        if (owner.HasPrivateComponent<Animator>())
+            return;
+        if (ImGui::SmallButton("Animator"))
+        {
+            owner.SetPrivateComponent(std::make_unique<Animator>());
+        }
+    });
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
         if (owner.HasPrivateComponent<DirectionalLight>())
             return;
@@ -676,7 +683,7 @@ void EditorManager::Update()
                         auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                        skinnedMeshRenderer->UploadBones();
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
                         mesh->Enable();
@@ -721,7 +728,7 @@ void EditorManager::Update()
                         auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                        skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                        skinnedMeshRenderer->UploadBones();
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         auto *skinnedMesh = skinnedMeshRenderer->m_skinnedMesh.get();
                         skinnedMesh->Enable();
@@ -764,7 +771,7 @@ void EditorManager::Update()
                     auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                     program->Bind();
                     auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                    skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    skinnedMeshRenderer->UploadBones();
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                     auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
                     mesh->Enable();

@@ -4,12 +4,13 @@
 #include <Mesh.hpp>
 using namespace UniEngine;
 
-std::unique_ptr<SkinnedMeshBonesBlock> SkinnedMesh::m_skinnedMeshBonesBlock;
 std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 	
 
 void SkinnedMesh::OnGui()
 {
+    
+
 	ImGui::Text(("Vertices size: " + std::to_string(m_verticesSize)).c_str());
 	ImGui::Text(("Triangle amount: " + std::to_string(m_triangleSize)).c_str());
 }
@@ -23,29 +24,16 @@ Bound SkinnedMesh::GetBound() const
 	return m_bound;
 }
 
-void SkinnedMeshBonesBlock::Upload(const size_t &size) const
-{
-    SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock->SubData(0, size * sizeof(glm::mat4), m_matrices.data());
-}
-
 void SkinnedMesh::GenerateMatrices()
 {
-	
-    m_skinnedMeshBonesBlock = std::make_unique<SkinnedMeshBonesBlock>();
-    m_skinnedMeshBonesBlock->m_matrices.resize(DefaultResources::ShaderIncludes::MaxBonesAmount);
     m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLSSBO>();
     m_skinnedMeshBonesUniformBufferBlock->SetData(DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
     m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
 }
 
-void SkinnedMesh::SetBones()
+void SkinnedMesh::UploadBones(std::vector<glm::mat4> &matrices)
 {
-    assert(m_bones.size() < DefaultResources::ShaderIncludes::MaxBonesAmount);
-    for (auto i = 0; i < m_bones.size(); i++)
-    {
-        m_skinnedMeshBonesBlock->m_matrices[i] = m_bones[i]->m_currentFinalMatrix;
-    }
-    m_skinnedMeshBonesBlock->Upload(m_bones.size());
+    m_skinnedMeshBonesUniformBufferBlock->SubData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
 }
 
 SkinnedMesh::SkinnedMesh()

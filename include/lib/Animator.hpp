@@ -24,7 +24,7 @@ struct UNIENGINE_API BoneScale
     float m_timeStamp;
 };
 
-struct UNIENGINE_API BoneAnimation
+struct UNIENGINE_API BoneKeyFrames
 {
     std::vector<BonePosition> m_positions;
     std::vector<BoneRotation> m_rotations;
@@ -60,42 +60,43 @@ struct UNIENGINE_API BoneAnimation
 
 struct UNIENGINE_API Bone
 {
-    std::map<std::string, BoneAnimation> m_animations;
+    std::map<std::string, BoneKeyFrames> m_animations;
     std::string m_name;
     Transform m_offsetMatrix = Transform();
-
+    size_t m_index;
     std::vector<std::shared_ptr<Bone>> m_children;
-
-    bool m_isEntity = false;
-    /**
-     * \brief If the bone does not have an id, it must be bound to an Entity.
-     */
-    Entity m_attachedEntity;
     Transform m_localTransform = Transform();
-    glm::mat4 m_boneTransform;
-    glm::mat4 m_currentFinalMatrix;
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
-    void Update(const std::string &name, const float &animationTime);
-    void RenderBones(const float& size, const glm::mat4 &parentTransform) const;
-    void CalculateBoneTransform(const glm::mat4 &parentTransform);
+    void Update(
+        const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, std::vector<glm::mat4> &results);
 };
 
 #pragma endregion
-class UNIENGINE_API Animator : public PrivateComponentBase
+class UNIENGINE_API Animation : public ResourceBehaviour
 {
   public:
     std::map<std::string, float> m_animationNameAndLength;
     std::shared_ptr<Bone> m_rootBone;
+    size_t m_boneSize;
+    [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
+    Animation();
+    void Animate(const std::string &name, const float &animationTime, std::vector<glm::mat4> &results);
+};
+class UNIENGINE_API Animator : public PrivateComponentBase
+{
+    std::vector<glm::mat4> m_transformChain;
+    friend class SkinnedMeshRenderer;
+    void AnimateHelper(const Entity &walker);
+  public:
+    std::shared_ptr<Animation> m_animation;
+    bool m_needUpdate = false;
+    bool m_autoPlay = true;
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
-
-    bool m_autoPlay = false;
-
-    [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
+    void AutoPlay();
+    void Setup(const std::shared_ptr<Animation>& targetAnimation);
     void OnGui() override;
-    Animator();
     void Animate();
-    ~Animator() override;
 };
 } // namespace UniEngine

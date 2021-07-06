@@ -21,14 +21,6 @@ struct UNIENGINE_API SkinnedVertex
     glm::vec4 m_weight2;
 };
 
-#define BONE_SIZE_LIMIT 1024
-
-struct UNIENGINE_API SkinnedMeshBonesBlock
-{
-    std::vector<glm::mat4> m_matrices;
-    void Upload(const size_t& size) const;
-};
-
 class UNIENGINE_API SkinnedMesh
 {
 	std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
@@ -53,12 +45,13 @@ class UNIENGINE_API SkinnedMesh
 	std::vector<glm::uvec3> m_triangles;
     friend class ResourceManager;
     friend struct SkinnedMeshBonesBlock;
-    static std::unique_ptr<SkinnedMeshBonesBlock> m_skinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
 	std::vector<std::shared_ptr<Bone>> m_bones;
+
+    std::shared_ptr<Animation> m_animation;
   public:
     static void GenerateMatrices();
-    void SetBones();
+    static void UploadBones(std::vector<glm::mat4>& matrices);
 	SkinnedMesh();
 	void OnGui();
 	[[nodiscard]] glm::vec3 GetCenter() const;

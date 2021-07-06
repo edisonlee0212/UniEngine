@@ -29,7 +29,7 @@ class UNIENGINE_API Model : public ResourceBehaviour
 {
     friend class ResourceManager;
     std::shared_ptr<ModelNode> m_rootNode;
-    std::shared_ptr<Animator> m_animator;
+    std::shared_ptr<Animation> m_animation;
   public:
     void OnCreate() override;
     std::shared_ptr<ModelNode> &RootNode();

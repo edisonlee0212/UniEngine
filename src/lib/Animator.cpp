@@ -1,38 +1,33 @@
 #include "Application.hpp"
 #include "RenderManager.hpp"
-
+#include <EditorManager.hpp>
 #include <Animator.hpp>
 using namespace UniEngine;
 
-void Bone::Update(const std::string &name, const float &animationTime)
+void Bone::Update(
+    const std::string &name,
+    const float &animationTime,
+    const glm::mat4 &parentTransform,
+    std::vector<glm::mat4> &results)
 {
+    glm::mat4 globalTransform = parentTransform;
     const auto search = m_animations.find(name);
     if (search != m_animations.end())
     {
         const auto translation = m_animations[name].InterpolatePosition(animationTime);
         const auto rotation = m_animations[name].InterpolateRotation(animationTime);
         const auto scale = m_animations[name].InterpolateScaling(animationTime);
-        m_boneTransform = translation * rotation * scale;
+        globalTransform *= translation * rotation * scale;
     }
-    else
-    {
-        m_boneTransform = Transform().m_value;
-    }
+    results[m_index] = globalTransform * m_offsetMatrix.m_value;
     for (auto &i : m_children)
     {
-        i->Update(name, animationTime);
+        i->Update(name, animationTime, globalTransform, results);
     }
 }
 
-void Bone::CalculateBoneTransform(const glm::mat4 &parentTransform)
-{
-    const glm::mat4 globalTransform = parentTransform * m_boneTransform;
-    m_currentFinalMatrix = globalTransform * m_offsetMatrix.m_value;
-    for (auto &i : m_children)
-        i->CalculateBoneTransform(globalTransform);
-}
 
-int BoneAnimation::GetPositionIndex(const float &animationTime)
+int BoneKeyFrames::GetPositionIndex(const float &animationTime)
 {
     const int size = m_positions.size();
     for (int index = 0; index < size - 1; ++index)
@@ -43,7 +38,7 @@ int BoneAnimation::GetPositionIndex(const float &animationTime)
     return size - 2;
 }
 
-int BoneAnimation::GetRotationIndex(const float &animationTime)
+int BoneKeyFrames::GetRotationIndex(const float &animationTime)
 {
     const int size = m_rotations.size();
     for (int index = 0; index < size - 1; ++index)
@@ -54,7 +49,7 @@ int BoneAnimation::GetRotationIndex(const float &animationTime)
     return size - 2;
 }
 
-int BoneAnimation::GetScaleIndex(const float &animationTime)
+int BoneKeyFrames::GetScaleIndex(const float &animationTime)
 {
     const int size = m_scales.size();
     for (int index = 0; index < size - 1; ++index)
@@ -65,7 +60,7 @@ int BoneAnimation::GetScaleIndex(const float &animationTime)
     return size - 2;
 }
 
-float BoneAnimation::GetScaleFactor(const float &lastTimeStamp, const float &nextTimeStamp, const float &animationTime)
+float BoneKeyFrames::GetScaleFactor(const float &lastTimeStamp, const float &nextTimeStamp, const float &animationTime)
 {
     const float midWayLength = animationTime - lastTimeStamp;
     const float framesDiff = nextTimeStamp - lastTimeStamp;
@@ -74,7 +69,7 @@ float BoneAnimation::GetScaleFactor(const float &lastTimeStamp, const float &nex
     return glm::clamp(midWayLength / framesDiff, 0.0f, 1.0f);
 }
 
-glm::mat4 BoneAnimation::InterpolatePosition(const float &animationTime)
+glm::mat4 BoneKeyFrames::InterpolatePosition(const float &animationTime)
 {
     if (1 == m_positions.size())
         return glm::translate(glm::mat4(1.0f), m_positions[0].m_value);
@@ -87,7 +82,7 @@ glm::mat4 BoneAnimation::InterpolatePosition(const float &animationTime)
     return glm::translate(finalPosition);
 }
 
-glm::mat4 BoneAnimation::InterpolateRotation(const float &animationTime)
+glm::mat4 BoneKeyFrames::InterpolateRotation(const float &animationTime)
 {
     if (1 == m_rotations.size())
     {
@@ -104,7 +99,7 @@ glm::mat4 BoneAnimation::InterpolateRotation(const float &animationTime)
     return glm::mat4_cast(finalRotation);
 }
 
-glm::mat4 BoneAnimation::InterpolateScaling(const float &animationTime)
+glm::mat4 BoneKeyFrames::InterpolateScaling(const float &animationTime)
 {
     if (1 == m_scales.size())
         return glm::scale(m_scales[0].m_value);
@@ -117,88 +112,106 @@ glm::mat4 BoneAnimation::InterpolateScaling(const float &animationTime)
     return glm::scale(finalScale);
 }
 
-std::shared_ptr<Bone> &Animator::UnsafeGetRootBone()
+std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
 {
     return m_rootBone;
 }
 
-void Bone::RenderBones(const float &size, const glm::mat4 &parentTransform) const
+void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
-    const glm::mat4 transform = parentTransform * m_boneTransform;
-
-    if (!m_name.empty())
-        RenderManager::DrawGizmoMesh(
-            DefaultResources::Primitives::Cube.get(),
-            RenderManager::GetMainCamera(),
-            glm::vec4(1, 0, 0, 1),
-            transform,
-            size);
-    for (auto &i : m_children)
-        i->RenderBones(size, transform);
+    m_animation = targetAnimation;
+    m_transformChain.resize(m_animation->m_boneSize);
 }
 
 void Animator::OnGui()
 {
-    if (m_animationNameAndLength.find(m_currentActivatedAnimation) == m_animationNameAndLength.end())
+    ImGui::Text("Animation:");
+    ImGui::SameLine();
+    Animation *previous = m_animation.get();
+    EditorManager::DragAndDrop(m_animation);
+    if (previous != m_animation.get() && m_animation)
     {
-        m_currentActivatedAnimation = m_animationNameAndLength.begin()->first;
-        m_currentAnimationTime = 0.0f;
+        Setup(m_animation);
     }
-    if (ImGui::BeginCombo(
-            "Animations##Animator",
-            m_currentActivatedAnimation
-                .c_str())) // The second parameter is the label previewed before opening the combo.
+    if (m_animation)
     {
-        for (auto &i : m_animationNameAndLength)
+        ImGui::Text(("Bone size: " + std::to_string(m_animation->m_boneSize)).c_str());
+        if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+            m_animation->m_animationNameAndLength.end())
         {
-            bool is_selected = m_currentActivatedAnimation ==
-                               i.first; // You can store your selection however you want, outside or inside your objects
-            if (ImGui::Selectable(i.first.c_str(), is_selected))
-            {
-                m_currentActivatedAnimation = i.first;
-                m_currentAnimationTime = 0.0f;
-            }
-            if (is_selected)
-            {
-                ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling + for
-                                              // keyboard navigation support)
-            }
+            m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+            m_currentAnimationTime = 0.0f;
         }
-        ImGui::EndCombo();
+        if (ImGui::BeginCombo(
+                "Animations##Animator",
+                m_currentActivatedAnimation
+                    .c_str())) // The second parameter is the label previewed before opening the combo.
+        {
+            for (auto &i : m_animation->m_animationNameAndLength)
+            {
+                bool is_selected =
+                    m_currentActivatedAnimation ==
+                    i.first; // You can store your selection however you want, outside or inside your objects
+                if (ImGui::Selectable(i.first.c_str(), is_selected))
+                {
+                    m_currentActivatedAnimation = i.first;
+                    m_currentAnimationTime = 0.0f;
+                }
+                if (is_selected)
+                {
+                    ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling +
+                                                  // for keyboard navigation support)
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::Checkbox("AutoPlay", &m_autoPlay);
+        ImGui::SliderFloat(
+            "Animation time",
+            &m_currentAnimationTime,
+            0.0f,
+            m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
     }
-    ImGui::Checkbox("AutoPlay", &m_autoPlay);
-    if (m_autoPlay)
-    {
-        m_currentAnimationTime += Application::GetCurrentWorld()->Time()->DeltaTime() * 1000.0f;
-        if (m_currentAnimationTime > m_animationNameAndLength[m_currentActivatedAnimation])
-            m_currentAnimationTime =
-                glm::mod(m_currentAnimationTime, m_animationNameAndLength[m_currentActivatedAnimation]);
-    }
-    if (ImGui::SliderFloat(
-            "Time", &m_currentAnimationTime, 0.0f, m_animationNameAndLength[m_currentActivatedAnimation]) || m_autoPlay)
-    {
-        Animate();
-    }
-    
-    
 }
-
-Animator::Animator()
+void Animator::AutoPlay()
 {
+    if (!m_animation)
+        return;
+    m_currentAnimationTime += Application::GetCurrentWorld()->Time()->DeltaTime() * 1000.0f;
+    if (m_currentAnimationTime > m_animation->m_animationNameAndLength[m_currentActivatedAnimation])
+        m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
 }
-
 void Animator::Animate()
 {
-    if (m_animationNameAndLength.find(m_currentActivatedAnimation) == m_animationNameAndLength.end())
+    if (!m_animation) return;
+    if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+        m_animation->m_animationNameAndLength.end())
     {
-        m_currentActivatedAnimation = m_animationNameAndLength.begin()->first;
+        m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
         m_currentAnimationTime = 0.0f;
     }
-    m_rootBone->Update(m_currentActivatedAnimation, m_currentAnimationTime);
-    Transform t;
-    m_rootBone->CalculateBoneTransform(t.m_value);
+    m_animation->Animate(m_currentActivatedAnimation, m_currentAnimationTime, m_transformChain);
+    AnimateHelper(GetOwner());
 }
 
-Animator::~Animator()
+Animation::Animation()
 {
+}
+
+void Animation::Animate(const std::string &name, const float &animationTime, std::vector<glm::mat4> &results)
+{
+    if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end())
+    {
+        return;
+    }
+    m_rootBone->Update(name, animationTime, Transform().m_value, results);
+}
+
+void Animator::AnimateHelper(const Entity &walker)
+{
+    if (walker.HasPrivateComponent<SkinnedMeshRenderer>())
+    {
+        walker.GetPrivateComponent<SkinnedMeshRenderer>()->CalculateBones(this);        
+    }
+    EntityManager::ForEachChild(walker, [&](Entity child) { AnimateHelper(child);});
 }

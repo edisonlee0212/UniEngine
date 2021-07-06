@@ -40,7 +40,11 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 	retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
 	std::map<unsigned, std::shared_ptr<Material>> loadedMaterials;
 	std::map<std::string, std::shared_ptr<Bone>> bonesMap;
-
+    if (!bonesMap.empty() || scene->HasAnimations())
+    {
+        retVal->m_animation = CreateResource<Animation>(true);
+        retVal->m_animation->m_name = path.substr(path.find_last_of("/\\") + 1);
+    }
 	std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
 	if (!ProcessNode(
 			directory,
@@ -51,6 +55,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 			scene->mRootNode,
 			rootAssimpNode,
 			scene,
+            retVal->m_animation,
 			gamma))
 	{
 		UNIENGINE_ERROR("Model is empty!");
@@ -58,10 +63,11 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 	}
 	if (!bonesMap.empty() || scene->HasAnimations())
 	{
-		retVal->m_animator = std::make_shared<Animator>();
 		rootAssimpNode->NecessaryWalker(bonesMap);
-		rootAssimpNode->AttachToAnimator(retVal->m_animator);
-		ReadAnimations(scene, retVal->m_animator, bonesMap);
+        size_t index = 0;
+        rootAssimpNode->AttachToAnimator(retVal->m_animation, index);
+        retVal->m_animation->m_boneSize = index + 1;
+		ReadAnimations(scene, retVal->m_animation, bonesMap);
 	}
 
 	if (addResource)
@@ -365,16 +371,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
 	const Entity entity = EntityManager::CreateEntity(archetype);
 	entity.SetName(model->m_name);
 	std::shared_ptr<ModelNode> &modelNode = model->RootNode();
-	if (model->m_animator)
-	{
-		auto animator = std::make_unique<Animator>();
-		animator->m_animationNameAndLength = model->m_animator->m_animationNameAndLength;
-		animator->m_rootBone = model->m_animator->m_rootBone;
-		animator->m_currentActivatedAnimation = animator->m_animationNameAndLength.begin()->first;
-		animator->m_currentAnimationTime = 0.0f;
-		animator->Animate();
-		entity.SetPrivateComponent(std::move(animator));
-	}
+	
 	if (modelNode->m_mesh)
 	{
 		auto mmc = std::make_unique<MeshRenderer>();
@@ -387,14 +384,23 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
 		auto smmc = std::make_unique<SkinnedMeshRenderer>();
 		smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
 		smmc->m_material = modelNode->m_material;
+        smmc->ResizeBones();
 		EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
 	}
 	int index = 0;
+    
 	for (auto &i : modelNode->m_children)
 	{
 		AttachChildren(archetype, i, entity, model->m_name + "_" + std::to_string(index));
 		index++;
 	}
+    if (model->m_animation)
+    {
+        auto animator = std::make_unique<Animator>();
+        animator->Setup(model->m_animation);
+        animator->Animate();
+        entity.SetPrivateComponent(std::move(animator));
+    }
 	return entity;
 }
 
@@ -427,22 +433,26 @@ AssimpNode::AssimpNode(aiNode *node)
 		m_localTransform.m_value = mat4_cast(node->mTransformation);
 	m_name = node->mName.C_Str();
 }
-void AssimpNode::AttachToAnimator(std::shared_ptr<Animator> &animation)
+void AssimpNode::AttachToAnimator(std::shared_ptr<Animation> &animation, size_t& index)
 {
 	animation->m_rootBone = m_bone;
+    animation->m_rootBone->m_index = index;
 	for (auto &i : m_children)
 	{
-		i->AttachChild(m_bone);
+        index += 1;
+		i->AttachChild(m_bone, index);
 	}
 }
 
-void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent)
+void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent, size_t& index)
 {
 	m_bone->m_localTransform = m_localTransform;
+    m_bone->m_index = index;
 	parent->m_children.push_back(m_bone);
 	for (auto &i : m_children)
 	{
-		i->AttachChild(m_bone);
+        index += 1;
+        i->AttachChild(m_bone, index);
 	}
 }
 
@@ -471,13 +481,12 @@ bool AssimpNode::NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &b
 	{
 		m_bone = std::make_shared<Bone>();
 		m_bone->m_name = m_name;
-		m_bone->m_isEntity = true;
 	}
 
 	return necessary;
 }
 
-void ResourceManager::ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAnim *channel)
+void ResourceManager::ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAnim *channel)
 {
 	const auto numPositions = channel->mNumPositionKeys;
 	boneAnimation.m_positions.resize(numPositions);
@@ -520,7 +529,7 @@ void ResourceManager::ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAni
 }
 void ResourceManager::ReadAnimations(
 	const aiScene *importerScene,
-	std::shared_ptr<Animator> &animator,
+	std::shared_ptr<Animation> &animator,
 	std::map<std::string, std::shared_ptr<Bone>> &bonesMap)
 {
 	for (int i = 0; i < importerScene->mNumAnimations; i++)
@@ -536,7 +545,7 @@ void ResourceManager::ReadAnimations(
 			if (search != bonesMap.end())
 			{
 				auto &bone = search->second;
-				bone->m_animations[animationName] = BoneAnimation();
+				bone->m_animations[animationName] = BoneKeyFrames();
 				ReadKeyFrame(bone->m_animations[animationName], importerNodeAmination);
 				maxAnimationTimeStamp =
 					glm::max(maxAnimationTimeStamp, bone->m_animations[animationName].m_maxTimeStamp);
@@ -607,15 +616,15 @@ std::shared_ptr<Material> ResourceManager::ReadMaterial(
 	return targetMaterial;
 }
 
-bool ResourceManager::ProcessNode(
-	const std::string &directory,
-	std::shared_ptr<ModelNode> &modelNode,
-	std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
-	std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
-	std::map<std::string, std::shared_ptr<Bone>> &boneMaps,
-	aiNode *importerNode,
-	std::shared_ptr<AssimpNode> assimpNode,
-	const aiScene *importerScene,
+bool ResourceManager::ProcessNode(const std::string &directory,
+                                  std::shared_ptr<ModelNode> &modelNode,
+                                  std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
+                                  std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
+                                  std::map<std::string, std::shared_ptr<Bone>> &boneMaps,
+                                  aiNode *importerNode,
+                                  std::shared_ptr<AssimpNode> assimpNode,
+                                  const aiScene *importerScene,
+                                  const std::shared_ptr<Animation>& animator,
 	const float &gamma)
 {
 	bool addedMeshRenderer = false;
@@ -635,6 +644,7 @@ bool ResourceManager::ProcessNode(
 			if (!skinnedMesh)
 				continue;
 			addedMeshRenderer = true;
+            skinnedMesh->m_animation = animator;
 			childNode->m_skinnedMesh = skinnedMesh;
 			childNode->m_type = ModelNodeType::SkinnedMesh;
 		}
@@ -685,6 +695,7 @@ bool ResourceManager::ProcessNode(
 			importerNode->mChildren[i],
 			childAssimpNode,
 			importerScene,
+			animator,
 			gamma);
 		if (childAdd)
 		{
@@ -1048,10 +1059,11 @@ void UniEngine::ResourceManager::AttachChildren(
 	}
 	else if (modelNode->m_skinnedMesh)
 	{
-		auto smmc = std::make_unique<SkinnedMeshRenderer>();
-		smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
-		smmc->m_material = modelNode->m_material;
-		EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
+        auto smmc = std::make_unique<SkinnedMeshRenderer>();
+        smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
+        smmc->m_material = modelNode->m_material;
+        smmc->ResizeBones();
+        EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
 	}
 
 	int index = 0;

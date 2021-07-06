@@ -22,8 +22,8 @@ struct UNIENGINE_API AssimpNode
 	bool m_hasMesh;
 
 	bool NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap);
-	void AttachToAnimator(std::shared_ptr<Animator> &animation);
-	void AttachChild(std::shared_ptr<Bone> &parent);
+	void AttachToAnimator(std::shared_ptr<Animation> &animation, size_t& index);
+    void AttachChild(std::shared_ptr<Bone> &parent, size_t& index);
 };
 
 #endif
@@ -42,8 +42,8 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 #ifdef USE_ASSIMP
 	static void ReadAnimations(
 		const aiScene *importerScene,
-		std::shared_ptr<Animator> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
-	static void ReadKeyFrame(BoneAnimation &boneAnimation, const aiNodeAnim *channel);
+		std::shared_ptr<Animation> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
+	static void ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAnim *channel);
 	static std::shared_ptr<Material> ReadMaterial(
 		const std::string &directory,
 		const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
@@ -59,6 +59,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 		aiNode *importerNode,
 		std::shared_ptr<AssimpNode> assimpNode,
 		const aiScene *importerScene,
+        const std::shared_ptr<Animation>& animator,
 		const float &gamma);
 	static std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
 	static std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);

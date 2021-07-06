@@ -249,7 +249,7 @@ void DefaultResources::LoadShaders(World *world)
 	standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
 	standardFrag->Compile(fragShaderCode);
 	GLPrograms::StandardSkinnedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
-	GLPrograms::StandardSkinnedProgram->m_name = "Standard Instanced";
+	GLPrograms::StandardSkinnedProgram->m_name = "Standard Skinned";
 
 	vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
 					 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
@@ -402,6 +402,7 @@ void DefaultResources::Load(World *world)
 	ResourceManager::RegisterResourceType<ReflectionProbe>("ReflectionProbe");
 	ResourceManager::RegisterResourceType<OpenGLUtils::GLProgram>("GLProgram");
 	ResourceManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
+    ResourceManager::RegisterResourceType<Animation>("Animation");
 	LoadShaders(world);
 	LoadTextures(world);
 	LoadPrimitives(world);

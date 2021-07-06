@@ -58,7 +58,7 @@ void RenderManager::RenderToCameraDeferred(
 						ApplyProgramSettings(program.get());
 
 						auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-						skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                        skinnedMeshRenderer->UploadBones();
 						renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
 						renderManager.m_materialSettingsBuffer->SubData(
 							0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -205,7 +205,7 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 					}
 					case RenderInstanceType::Skinned: {
 						auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-						skinnedMeshRenderer->m_skinnedMesh->SetBones();
+						skinnedMeshRenderer->UploadBones();
 						renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
 						renderManager.m_materialSettingsBuffer->SubData(
 							0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -295,7 +295,7 @@ void RenderManager::ShadowMapPass(const int& enabledSize,
 					auto &program = skinnedProgram;
 					program->Bind();
 					auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-					skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    skinnedMeshRenderer->UploadBones();
 					program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 					auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
 					mesh->Enable();
@@ -338,7 +338,7 @@ void RenderManager::ShadowMapPass(const int& enabledSize,
 					auto &program = skinnedProgram;
 					program->Bind();
 					auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-					skinnedMeshRenderer->m_skinnedMesh->SetBones();
+                    skinnedMeshRenderer->UploadBones();
 					program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 					auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
 					mesh->Enable();
