@@ -68,8 +68,22 @@ struct UNIENGINE_API Bone
     Transform m_localTransform = Transform();
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
-    void Update(
+    void Animate(
         const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, std::vector<glm::mat4> &results);
+    void ApplyLocalTransform(const glm::mat4 &parentTransform, std::vector<glm::mat4> &results);
+    void OnGui() const;
+    void DebugRenderAnimated(
+        const std::string &name,
+        const float &animationTime,
+        const glm::mat4 &parentTransform,
+        const float &size,
+        const glm::vec4 &color,
+        const std::shared_ptr<Mesh> &mesh);
+    void DebugRenderLocalTransform(
+        const glm::mat4 &parentTransform,
+        const float &size,
+        const glm::vec4 &color,
+        const std::shared_ptr<Mesh> &mesh);
 };
 
 #pragma endregion
@@ -81,6 +95,7 @@ class UNIENGINE_API Animation : public ResourceBehaviour
     size_t m_boneSize;
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
     Animation();
+    void OnGui() const;
     void Animate(const std::string &name, const float &animationTime, std::vector<glm::mat4> &results);
 };
 class UNIENGINE_API Animator : public PrivateComponentBase
@@ -89,6 +104,10 @@ class UNIENGINE_API Animator : public PrivateComponentBase
     friend class SkinnedMeshRenderer;
     void AnimateHelper(const Entity &walker);
   public:
+    bool m_debugRenderBones;
+    float m_debugRenderBonesSize = 0.1f;
+    glm::vec4 m_debugRenderBonesColor = glm::vec4(1, 0, 0, 0.5);
+
     std::shared_ptr<Animation> m_animation;
     bool m_needUpdate = false;
     bool m_autoPlay = true;
