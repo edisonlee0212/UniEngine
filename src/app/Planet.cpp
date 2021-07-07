@@ -16,7 +16,7 @@ int main()
 	Application::Init();
 #pragma region Preparations
 	auto& world = Application::GetCurrentWorld();
-	WorldTime* time = world->Time();
+	Time* time = world->Time();
 	EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
 	

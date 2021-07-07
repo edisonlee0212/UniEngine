@@ -18,8 +18,7 @@ using namespace UniEngine;
 void Application::SetTimeStep(float value)
 {
 	auto &application = GetInstance();
-	application.m_timeStep = value;
-	application.m_world->SetTimeStep(value);
+    application.m_time.m_timeStep = value;
 }
 
 #pragma endregion
@@ -44,7 +43,6 @@ void Application::Init(bool fullScreen)
 	JobManager::SecondaryWorkers().Resize(1);
 	application.m_world = std::make_unique<World>(0);
 	EntityManager::Attach(application.m_world);
-	application.m_world->SetTimeStep(application.m_timeStep);
 #pragma region OpenGL
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -109,6 +107,31 @@ void Application::Init(bool fullScreen)
 	application.m_world->ResetTime();
 }
 
+void ApplicationTime::AddFixedDeltaTime(const double &value)
+{
+    m_fixedDeltaTime += value;
+}
+
+double ApplicationTime::TimeStep() const
+{
+    return m_timeStep;
+}
+
+double ApplicationTime::FixedDeltaTime() const
+{
+    return m_fixedDeltaTime;
+}
+
+double ApplicationTime::DeltaTime() const
+{
+    return m_deltaTime;
+}
+
+double ApplicationTime::LastFrameTime() const
+{
+    return m_lastFrameTime;
+}
+
 void Application::PreUpdateInternal()
 {
 	auto &application = GetInstance();
@@ -121,9 +144,8 @@ void Application::PreUpdateInternal()
 	ProfilerManager::GetEngineProfiler().StartEvent("Internal PreUpdate");
 	glfwPollEvents();
 	application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-	application.m_world->m_time->m_deltaTime =
-		application.m_world->m_time->m_lastFrameTime - application.m_world->m_time->m_frameStartTime;
-	application.m_world->SetFrameStartTime(glfwGetTime());
+    application.m_time.m_deltaTime = application.m_time.m_lastFrameTime - application.m_time.m_frameStartTime;
+	application.m_time.m_frameStartTime = glfwGetTime();
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -172,6 +194,12 @@ void Application::PreUpdateInternal()
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	ImGui::End();
 #pragma endregion
+    application.m_needFixedUpdate = false;
+    if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
+    {
+        application.m_needFixedUpdate = true;
+    }
+
 	OpenGLUtils::PreUpdate();
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
@@ -193,7 +221,7 @@ void Application::PreUpdateInternal()
 	ProfilerManager::GetEngineProfiler().StartEvent("Systems PreUpdate");
 	if (application.m_playing)
 	{
-		application.m_world->m_time->m_fixedDeltaTime += application.m_world->m_time->m_deltaTime;
+        application.m_time.m_fixedDeltaTime += application.m_time.m_deltaTime;
 		application.m_world->PreUpdate();
 	}
 	ProfilerManager::GetEngineProfiler().EndEvent("Systems PreUpdate");
@@ -253,6 +281,11 @@ bool Application::LateUpdateInternal()
 	{
 		application.m_world->LateUpdate();
 	}
+    if (application.m_needFixedUpdate)
+    {
+        application.m_time.m_fixedDeltaTime = 0;
+    }
+
     ProfilerManager::GetEngineProfiler().EndEvent("Systems LateUpdate");
 
 	ProfilerManager::GetEngineProfiler().EndEvent("LateUpdate");
@@ -276,8 +309,14 @@ bool Application::LateUpdateInternal()
 #pragma endregion
 	// Swap Window's framebuffer
 	WindowManager::Swap();
-	application.m_world->m_time->m_lastFrameTime = glfwGetTime();
+    application.m_time.m_lastFrameTime = glfwGetTime();
 	return application.m_initialized;
+}
+
+
+ApplicationTime & Application::Time()
+{
+	return GetInstance().m_time;
 }
 
 double Application::EngineTime()
