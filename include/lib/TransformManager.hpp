@@ -5,6 +5,7 @@ namespace UniEngine
 {
 class UNIENGINE_API TransformManager : public ISingleton<TransformManager>
 {
+    friend class PhysicsSystem;
     EntityQuery m_transformQuery;
     static void CalculateLtwRecursive(const GlobalTransform &pltw, Entity entity);
 

@@ -2,6 +2,9 @@
 
 #include <EntityManager.hpp>
 #include <World.hpp>
+
+#include <PhysicsManager.hpp>
+
 using namespace UniEngine;
 
 void World::Purge()
@@ -54,6 +57,8 @@ World::World(size_t index)
 	m_worldEntityStorage.m_entityComponentStorage.emplace_back(nullptr, nullptr);
 	m_worldEntityStorage.m_entityQueries.emplace_back();
 	m_worldEntityStorage.m_entityQueryInfos.emplace_back();
+
+	CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
 }
 
 World::~World()

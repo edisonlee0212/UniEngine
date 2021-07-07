@@ -1,40 +1,24 @@
 #include <RigidBody.hpp>
-
-#include "PhysicsManager.hpp"
+#include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
 #include <Transform.hpp>
 #include <EditorManager.hpp>
 #include <Application.hpp>
-void UniEngine::RigidBody::RegisterCheck()
-{
-    if (m_currentRegistered == false && GetOwner().IsValid() && GetOwner().IsEnabled() && IsEnabled())
-    {
-        m_currentRegistered = true;
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
-    }
-    else if (m_currentRegistered == true && (!GetOwner().IsValid() || !GetOwner().IsEnabled() || !IsEnabled()))
-    {
-        m_currentRegistered = false;
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    }
-}
 
 UniEngine::RigidBody::RigidBody()
 {
-    m_material = PhysicsSimulationManager::GetInstance().m_defaultMaterial;
+    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
     m_shapeTransform =
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
     m_massCenter = PxVec3(0.0f);
     m_drawBounds = false;
     m_isStatic = false;
     PxTransform localTm(PxVec3(0, 0, 0));
-    m_rigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
+    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
     m_shapeParam = glm::vec3(1.0f);
     m_shapeType = ShapeType::Box;
-
-    UpdateShape();
     m_density = 10.0f;
-    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
+    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density);
     m_currentRegistered = false;
 }
 
@@ -48,13 +32,7 @@ void UniEngine::RigidBody::SetShapeType(ShapeType type)
     if (m_shapeType == type)
         return;
     m_shapeType = type;
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    UpdateShape();
-    if (!m_isStatic)
-        PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
@@ -67,13 +45,7 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
     if (m_shapeParam == value)
         return;
     m_shapeParam = value;
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    UpdateShape();
-    if (!m_isStatic)
-        PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::SetStatic(bool value)
@@ -86,14 +58,7 @@ void UniEngine::RigidBody::SetStatic(bool value)
     if (m_isStatic == value)
         return;
     m_isStatic = value;
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    UpdateBody();
-    UpdateShape();
-    if (!m_isStatic)
-        PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::SetTransform(glm::mat4 value)
@@ -107,13 +72,7 @@ void UniEngine::RigidBody::SetTransform(glm::mat4 value)
     ltw.m_value = value;
     ltw.SetScale(glm::vec3(1.0f));
     m_shapeTransform = ltw.m_value;
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    UpdateShape();
-    if (!m_isStatic)
-        PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::SetDensity(float value)
@@ -128,21 +87,16 @@ void UniEngine::RigidBody::SetDensity(float value)
     m_density = value;
     if (m_density < 0.0001f)
         m_density = 0.0001f;
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-    if (!m_isStatic)
-        PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-    if (m_currentRegistered)
-        PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+    m_shapeUpdated = false;
 }
 
 UniEngine::RigidBody::~RigidBody()
 {
-    if (m_rigidBody)
+    if (m_rigidActor)
     {
-        m_rigidBody->release();
+        m_rigidActor->release();
     }
-    if (m_material && m_material != PhysicsSimulationManager::GetInstance().m_defaultMaterial)
+    if (m_material && m_material != PhysicsManager::GetInstance().m_defaultMaterial)
     {
         m_material->release();
     }
@@ -156,52 +110,27 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial *value)
 {
     if (value && m_material != value)
     {
-        if (m_material && m_material != PhysicsSimulationManager::GetInstance().m_defaultMaterial)
+        if (m_material && m_material != PhysicsManager::GetInstance().m_defaultMaterial)
         {
             m_material->release();
         }
         m_material = value;
-        if (m_currentRegistered)
-            PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-        UpdateShape();
-        if (!m_isStatic)
-            PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-        if (m_currentRegistered)
-            PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+        m_shapeUpdated = false;
+        
     }
-}
-
-void UniEngine::RigidBody::UpdateShape()
-{
-    if (m_shape != nullptr)
-        m_shape->release();
-    switch (m_shapeType)
-    {
-    case ShapeType::Sphere:
-        m_shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(
-            PxSphereGeometry(m_shapeParam.x), *m_material);
-        break;
-    case ShapeType::Box:
-        m_shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(
-            PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_material);
-        break;
-    case ShapeType::Capsule:
-        m_shape = PhysicsSimulationManager::GetInstance().m_physics->createShape(
-            PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_material);
-        break;
-    }
-    m_rigidBody->attachShape(*m_shape);
 }
 
 void UniEngine::RigidBody::UpdateBody()
 {
-    if (m_rigidBody)
-        m_rigidBody->release();
+    if (m_rigidActor)
+        m_rigidActor->release();
     PxTransform localTm(PxVec3(0, 0, 0));
     if (m_isStatic)
-        m_rigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidStatic(PxTransform(localTm));
+        m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidStatic(PxTransform(localTm));
     else
-        m_rigidBody = PhysicsSimulationManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
+        m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
+    m_currentRegistered = false;
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::Init()
@@ -209,23 +138,6 @@ void UniEngine::RigidBody::Init()
     SetEnabled(false);
 }
 
-void UniEngine::RigidBody::OnEntityDisable()
-{
-    RegisterCheck();
-}
-void UniEngine::RigidBody::OnEntityEnable()
-{
-    RegisterCheck();
-}
-void UniEngine::RigidBody::OnDisable()
-{
-    RegisterCheck();
-}
-
-void UniEngine::RigidBody::OnEnable()
-{
-    RegisterCheck();
-}
 static const char *RigidBodyShapeShape[]{"Sphere", "Box", "Capsule"};
 void UniEngine::RigidBody::OnGui()
 {
@@ -236,7 +148,7 @@ void UniEngine::RigidBody::OnGui()
 
     if (!m_isStatic)
     {
-        PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidBody);
+        PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
         if (Application::IsPlaying())
         {
             m_linearVelocity = rigidBody->getLinearVelocity();
@@ -300,16 +212,19 @@ void UniEngine::RigidBody::OnGui()
                     1);
             break;
         case ShapeType::Box:
-            if (ImGui::Button("Apply mesh bound"))
+            if (GetOwner().HasPrivateComponent<MeshRenderer>())
             {
-                statusChanged = true;
-                auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
-                if (meshRenderer)
+                if (ImGui::Button("Apply mesh bound"))
                 {
-                    auto bound = meshRenderer->m_mesh->GetBound();
-                    glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
-                    m_shapeParam = bound.Size() * scale;
-                    m_shapeParam = glm::max(glm::vec3(0.01f), m_shapeParam);
+                    statusChanged = true;
+                    auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+                    if (meshRenderer)
+                    {
+                        auto bound = meshRenderer->m_mesh->GetBound();
+                        glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+                        m_shapeParam = bound.Size() * scale;
+                        m_shapeParam = glm::max(glm::vec3(0.01f), m_shapeParam);
+                    }
                 }
             }
             if (ImGui::DragFloat3("XYZ Size", &m_shapeParam.x, 0.01f, 0.0f))
@@ -338,15 +253,11 @@ void UniEngine::RigidBody::OnGui()
             statusChanged = true;
         if (statusChanged)
         {
-            if (m_currentRegistered)
-                PhysicsSimulationManager::GetInstance().m_physicsScene->removeActor(*m_rigidBody);
-            if (staticChanged)
-                UpdateBody();
-            UpdateShape();
-            if (!m_isStatic)
-                PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidBody), m_density);
-            if (m_currentRegistered)
-                PhysicsSimulationManager::GetInstance().m_physicsScene->addActor(*m_rigidBody);
+            m_shapeUpdated = false;
+        }
+        if (staticChanged)
+        {
+            UpdateBody();
         }
     }
 }

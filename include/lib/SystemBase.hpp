@@ -4,13 +4,11 @@ namespace UniEngine
 {
 class ThreadPool;
 class World;
-class Time;
 class UNIENGINE_API SystemBase
 {
     friend class World;
   protected:
     bool m_enabled;
-    Time *m_time;
     World *m_world;
     virtual void OnStartRunning();
     virtual void OnStopRunning();

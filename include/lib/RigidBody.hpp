@@ -18,8 +18,9 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     glm::vec3 m_shapeParam;
     ShapeType m_shapeType;
     bool m_isStatic;
-    friend class PhysicsSimulationManager;
-    PxRigidActor *m_rigidBody = nullptr;
+    friend class PhysicsSystem;
+    friend class PhysicsManager;
+    PxRigidActor *m_rigidActor = nullptr;
     PxMaterial *m_material = nullptr;
     PxShape *m_shape = nullptr;
     float m_density;
@@ -27,7 +28,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool m_currentRegistered;
     PxVec3 m_linearVelocity;
     PxVec3 m_angularVelocity;
-    void RegisterCheck();
+    bool m_shapeUpdated = false;
 
   public:
     RigidBody();
@@ -38,13 +39,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     void SetDensity(float value);
     ~RigidBody() override;
     void SetMaterial(PxMaterial *value);
-    void UpdateShape();
     void UpdateBody();
     void Init() override;
-    void OnEntityDisable() override;
-    void OnEntityEnable() override;
-    void OnDisable() override;
-    void OnEnable() override;
     void OnGui() override;
 };
 } // namespace UniEngine

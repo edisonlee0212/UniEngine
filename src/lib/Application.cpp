@@ -42,9 +42,10 @@ void Application::Init(bool fullScreen)
 	InputManager::Init();
 	JobManager::PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
 	JobManager::SecondaryWorkers().Resize(1);
+    PhysicsManager::Init();
+
 	application.m_world = std::make_unique<World>(0);
 	EntityManager::Attach(application.m_world);
-    PhysicsSimulationManager::Init();
 #pragma region OpenGL
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -90,6 +91,7 @@ void Application::Init(bool fullScreen)
 	TransformManager::Init();
 	RenderManager::Init();
 	EditorManager::Init();
+    
 #pragma endregion
 	application.m_initialized = true;
 #pragma region Main Camera
@@ -199,8 +201,8 @@ void Application::PreUpdateInternal()
     if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
     {
         application.m_needFixedUpdate = true;
-        PhysicsSimulationManager::Simulate(application.m_time.m_fixedDeltaTime);
     }
+    PhysicsManager::PreUpdate();
 	OpenGLUtils::PreUpdate();
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
@@ -343,7 +345,7 @@ bool Application::IsInitialized()
 void Application::End()
 {
 	GetInstance().m_world.reset();
-    PhysicsSimulationManager::Destroy();
+	PhysicsManager::Destroy();
 	// glfwTerminate();
 }
 

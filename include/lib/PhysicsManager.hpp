@@ -13,25 +13,30 @@ using namespace physx;
     }
 namespace UniEngine
 {
-
-class UNIENGINE_API PhysicsSimulationManager : public ISingleton<PhysicsSimulationManager>
+class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 {
-    friend class RigidBody;
+  public:
     PxDefaultAllocator m_allocator;
     PxDefaultErrorCallback m_errorCallback;
-    PxFoundation *m_physicsFoundation = nullptr;
-    PxPhysics *m_physics = nullptr;
-    PxDefaultCpuDispatcher *m_dispatcher = nullptr;
-    PxScene *m_physicsScene = nullptr;
-    PxPvd *m_physVisDebugger = nullptr;
-    PxMaterial *m_defaultMaterial = nullptr;
-    PxReal m_stackZ = 10.0f;
-
-  public:
-    bool m_enabled = false;
+    PxFoundation *m_physicsFoundation;
+    PxPhysics *m_physics;
+    PxDefaultCpuDispatcher *m_dispatcher;
+    PxPvd *m_physVisDebugger;
+    PxMaterial *m_defaultMaterial;
+    static void UploadTransform(const Entity &entity, std::unique_ptr<RigidBody> &rigidBody);
+    static void PreUpdate();
     static void Init();
     static void Destroy();
-    static void UploadTransforms();
-    static void Simulate(float time);
+    static void UpdateShape(std::unique_ptr<RigidBody> &rigidBody);
+};
+class UNIENGINE_API PhysicsSystem : public SystemBase
+{
+    PxScene *m_physicsScene = nullptr;   
+  public:
+    void OnCreate() override;
+    void OnDestroy() override;
+    void FixedUpdate() override;
+    void Simulate(float time) const;
+    void CalculateGlobalTransformRecursive(const GlobalTransform &pltw, Entity entity) const;
 };
 } // namespace UniEngine
