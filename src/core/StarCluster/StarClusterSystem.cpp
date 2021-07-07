@@ -428,7 +428,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 
 void Galaxy::StarClusterSystem::Update()
 {
-    m_galaxyTime += m_world->Time()->DeltaTime() * m_speed;
+    m_galaxyTime += Application::Time().DeltaTime() * m_speed;
 
     // This method calculate the position for each star. Remove this line if you use your own implementation.
     CalculateStarPositionSync();

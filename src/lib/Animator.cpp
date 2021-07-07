@@ -251,7 +251,7 @@ void Animator::AutoPlay()
 {
     if (!m_animation)
         return;
-    m_currentAnimationTime += Application::GetCurrentWorld()->Time()->DeltaTime() * 1000.0f;
+    m_currentAnimationTime += Application::Time().DeltaTime() * 1000.0f;
     if (m_currentAnimationTime > m_animation->m_animationNameAndLength[m_currentActivatedAnimation])
         m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
 }

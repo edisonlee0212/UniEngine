@@ -104,7 +104,6 @@ void Application::Init(bool fullScreen)
 	EntityManager::SetPrivateComponent<CameraComponent>(mainCameraEntity, std::move(mainCameraComponent));
 
 #pragma endregion
-	application.m_world->ResetTime();
 }
 
 void ApplicationTime::AddFixedDeltaTime(const double &value)

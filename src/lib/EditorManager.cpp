@@ -1361,38 +1361,36 @@ void EditorManager::LateUpdate()
                         if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition +=
-                                front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) *
+                                front * static_cast<float>(Application::Time().DeltaTime()) *
                                 manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition -=
-                                front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) *
+                                front * static_cast<float>(Application::Time().DeltaTime()) *
                                 manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition -=
-                                right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) *
+                                right * static_cast<float>(Application::Time().DeltaTime()) *
                                 manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition +=
-                                right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) *
+                                right * static_cast<float>(Application::Time().DeltaTime()) *
                                 manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition.y +=
-                                manager.m_velocity *
-                                static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+                                manager.m_velocity * static_cast<float>(Application::Time().DeltaTime());
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition.y -=
-                                manager.m_velocity *
-                                static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+                                manager.m_velocity * static_cast<float>(Application::Time().DeltaTime());
                         }
                         if (xOffset != 0.0f || yOffset != 0.0f)
                         {

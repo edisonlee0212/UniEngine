@@ -64,16 +64,15 @@ template <class T> T *World::CreateSystem(SystemGroup group)
     }
     system = new T();
     system->m_world = this;
-    system->m_time = m_time;
     switch (group)
     {
-    case UniEngine::SystemGroup::PreparationSystemGroup:
+    case SystemGroup::PreparationSystemGroup:
         m_preparationSystems.push_back(static_cast<SystemBase *>(system));
         break;
-    case UniEngine::SystemGroup::SimulationSystemGroup:
+    case SystemGroup::SimulationSystemGroup:
         m_simulationSystems.push_back(static_cast<SystemBase *>(system));
         break;
-    case UniEngine::SystemGroup::PresentationSystemGroup:
+    case SystemGroup::PresentationSystemGroup:
         m_presentationSystems.push_back(static_cast<SystemBase *>(system));
         break;
     default:

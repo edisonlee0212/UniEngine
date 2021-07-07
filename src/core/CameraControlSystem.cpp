@@ -35,35 +35,32 @@ void CameraControlSystem::LateUpdate()
                 if (InputManager::GetKey(GLFW_KEY_W))
                 {
                     position +=
-                        front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
+                        front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_S))
                 {
-                    position -=
-                        front * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
+                    position -= front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_A))
                 {
-                    position -=
-                        right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
+                    position -= right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_D))
                 {
-                    position +=
-                        right * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime()) * m_velocity;
+                    position += right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT))
                 {
-                    position.y += m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+                    position.y += m_velocity * static_cast<float>(Application::Time().DeltaTime());
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL))
                 {
-                    position.y -= m_velocity * static_cast<float>(Application::GetCurrentWorld()->Time()->DeltaTime());
+                    position.y -= m_velocity * static_cast<float>(Application::Time().DeltaTime());
                     moved = true;
                 }
                 if (moved)
