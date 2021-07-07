@@ -102,6 +102,12 @@ int main()
     dirLightEntity.SetPrivateComponent(std::move(dirLight));
     
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
+    auto pointLightLeftRenderer = std::make_unique<MeshRenderer>();
+    pointLightLeftRenderer->m_material =
+        ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    pointLightLeftRenderer->m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
+    pointLightLeftRenderer->m_material->m_ambientOcclusion = 10.0f;
+    pointLightLeftRenderer->m_mesh = DefaultResources::Primitives::Sphere;
     auto pointLightLeft = std::make_unique<PointLight>();
     pointLightLeft->m_diffuseBrightness = 20;
     pointLightLeft->m_lightSize = 0.2f;
@@ -110,8 +116,14 @@ int main()
     pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
     pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
     pointLightLeftEntity.SetPrivateComponent(std::move(pointLightLeft));
+    pointLightLeftEntity.SetPrivateComponent(std::move(pointLightLeftRenderer));
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
+    auto pointLightRightRenderer = std::make_unique<MeshRenderer>();
+    pointLightRightRenderer->m_material = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    pointLightRightRenderer->m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
+    pointLightRightRenderer->m_material->m_ambientOcclusion = 10.0f;
+    pointLightRightRenderer->m_mesh = DefaultResources::Primitives::Sphere;
     auto pointLightRight = std::make_unique<PointLight>();
     pointLightRight->m_diffuseBrightness = 20;
     pointLightRight->m_lightSize = 0.2f;
@@ -120,6 +132,7 @@ int main()
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
     pointLightRightEntity.SetComponentData(pointLightRightTransform);
     pointLightRightEntity.SetPrivateComponent(std::move(pointLightRight));
+    pointLightRightEntity.SetPrivateComponent(std::move(pointLightRightRenderer));
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
         const float currentTime = Application::EngineTime();
