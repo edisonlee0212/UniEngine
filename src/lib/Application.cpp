@@ -19,7 +19,7 @@ using namespace UniEngine;
 void Application::SetTimeStep(float value)
 {
 	auto &application = GetInstance();
-    application.m_time.m_timeStep = value;
+	application.m_time.m_timeStep = value;
 }
 
 #pragma endregion
@@ -42,7 +42,7 @@ void Application::Init(bool fullScreen)
 	InputManager::Init();
 	JobManager::PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
 	JobManager::SecondaryWorkers().Resize(1);
-    PhysicsManager::Init();
+	PhysicsManager::Init();
 
 	application.m_world = std::make_unique<World>(0);
 	EntityManager::Attach(application.m_world);
@@ -91,7 +91,7 @@ void Application::Init(bool fullScreen)
 	TransformManager::Init();
 	RenderManager::Init();
 	EditorManager::Init();
-    
+	
 #pragma endregion
 	application.m_initialized = true;
 #pragma region Main Camera
@@ -112,27 +112,27 @@ void Application::Init(bool fullScreen)
 
 void ApplicationTime::AddFixedDeltaTime(const double &value)
 {
-    m_fixedDeltaTime += value;
+	m_fixedDeltaTime += value;
 }
 
 double ApplicationTime::TimeStep() const
 {
-    return m_timeStep;
+	return m_timeStep;
 }
 
 double ApplicationTime::FixedDeltaTime() const
 {
-    return m_fixedDeltaTime;
+	return m_fixedDeltaTime;
 }
 
 double ApplicationTime::DeltaTime() const
 {
-    return m_deltaTime;
+	return m_deltaTime;
 }
 
 double ApplicationTime::LastFrameTime() const
 {
-    return m_lastFrameTime;
+	return m_lastFrameTime;
 }
 
 void Application::PreUpdateInternal()
@@ -147,7 +147,7 @@ void Application::PreUpdateInternal()
 	ProfilerManager::GetEngineProfiler().StartEvent("Internal PreUpdate");
 	glfwPollEvents();
 	application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-    application.m_time.m_deltaTime = application.m_time.m_lastFrameTime - application.m_time.m_frameStartTime;
+	application.m_time.m_deltaTime = application.m_time.m_lastFrameTime - application.m_time.m_frameStartTime;
 	application.m_time.m_frameStartTime = glfwGetTime();
 #pragma region ImGui
 	ImGui_ImplOpenGL3_NewFrame();
@@ -197,12 +197,12 @@ void Application::PreUpdateInternal()
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 	ImGui::End();
 #pragma endregion
-    application.m_needFixedUpdate = false;
-    if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
-    {
-        application.m_needFixedUpdate = true;
-    }
-    PhysicsManager::PreUpdate();
+	application.m_needFixedUpdate = false;
+	if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
+	{
+		application.m_needFixedUpdate = true;
+	}
+	PhysicsManager::PreUpdate();
 	OpenGLUtils::PreUpdate();
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
@@ -214,7 +214,7 @@ void Application::PreUpdateInternal()
 	ProfilerManager::GetEngineProfiler().StartEvent("RenderManager PreUpdate");
 	RenderManager::PreUpdate();
 	ProfilerManager::GetEngineProfiler().EndEvent("RenderManager PreUpdate");
-    ProfilerManager::GetEngineProfiler().EndEvent("Internal PreUpdate");
+	ProfilerManager::GetEngineProfiler().EndEvent("Internal PreUpdate");
 	
 	ProfilerManager::GetEngineProfiler().StartEvent("External PreUpdate");
 	for (const auto &i : application.m_externalPreUpdateFunctions)
@@ -224,7 +224,7 @@ void Application::PreUpdateInternal()
 	ProfilerManager::GetEngineProfiler().StartEvent("Systems PreUpdate");
 	if (application.m_playing)
 	{
-        application.m_time.m_fixedDeltaTime += application.m_time.m_deltaTime;
+		application.m_time.m_fixedDeltaTime += application.m_time.m_deltaTime;
 		application.m_world->PreUpdate();
 	}
 	ProfilerManager::GetEngineProfiler().EndEvent("Systems PreUpdate");
@@ -239,21 +239,21 @@ void Application::UpdateInternal()
 		return;
 	ProfilerManager::GetEngineProfiler().StartEvent("Update");
 
-    ProfilerManager::GetEngineProfiler().StartEvent("Internal Update");
+	ProfilerManager::GetEngineProfiler().StartEvent("Internal Update");
 	EditorManager::Update();
-    ProfilerManager::GetEngineProfiler().EndEvent("Internal Update");
+	ProfilerManager::GetEngineProfiler().EndEvent("Internal Update");
 
-    ProfilerManager::GetEngineProfiler().StartEvent("External Update");
+	ProfilerManager::GetEngineProfiler().StartEvent("External Update");
 	for (const auto &i : application.m_externalUpdateFunctions)
 		i();
-    ProfilerManager::GetEngineProfiler().EndEvent("External Update");
+	ProfilerManager::GetEngineProfiler().EndEvent("External Update");
 
 	ProfilerManager::GetEngineProfiler().StartEvent("Systems Update");
 	if (application.m_playing)
 	{
 		application.m_world->Update();
 	}
-    ProfilerManager::GetEngineProfiler().EndEvent("Systems Update");
+	ProfilerManager::GetEngineProfiler().EndEvent("Systems Update");
 
 	ProfilerManager::GetEngineProfiler().EndEvent("Update");
 }
@@ -265,31 +265,34 @@ bool Application::LateUpdateInternal()
 		return false;
 	ProfilerManager::GetEngineProfiler().StartEvent("LateUpdate");
 
-    ProfilerManager::GetEngineProfiler().StartEvent("Internal LateUpdate");
+	ProfilerManager::GetEngineProfiler().StartEvent("Internal LateUpdate");
 	InputManager::LateUpdate();
-	ResourceManager::OnGui();
+	
 	WindowManager::LateUpdate();
-	RenderManager::OnGui();
+	ResourceManager::OnGui();
 	TransformManager::LateUpdate();
 	EditorManager::LateUpdate();
-    ProfilerManager::GetEngineProfiler().EndEvent("Internal LateUpdate");
+
+	RenderManager::LateUpdate();
+	RenderManager::OnGui();
+	ProfilerManager::GetEngineProfiler().EndEvent("Internal LateUpdate");
 
 	ProfilerManager::GetEngineProfiler().StartEvent("External LateUpdate");
 	for (const auto &i : application.m_externalLateUpdateFunctions)
 		i();
-    ProfilerManager::GetEngineProfiler().EndEvent("External LateUpdate");
+	ProfilerManager::GetEngineProfiler().EndEvent("External LateUpdate");
 
-    ProfilerManager::GetEngineProfiler().StartEvent("Systems LateUpdate");
+	ProfilerManager::GetEngineProfiler().StartEvent("Systems LateUpdate");
 	if (application.m_playing)
 	{
 		application.m_world->LateUpdate();
 	}
-    if (application.m_needFixedUpdate)
-    {
-        application.m_time.m_fixedDeltaTime = 0;
-    }
+	if (application.m_needFixedUpdate)
+	{
+		application.m_time.m_fixedDeltaTime = 0;
+	}
 
-    ProfilerManager::GetEngineProfiler().EndEvent("Systems LateUpdate");
+	ProfilerManager::GetEngineProfiler().EndEvent("Systems LateUpdate");
 
 	ProfilerManager::GetEngineProfiler().EndEvent("LateUpdate");
 	ProfilerManager::LateUpdate();
@@ -312,7 +315,7 @@ bool Application::LateUpdateInternal()
 #pragma endregion
 	// Swap Window's framebuffer
 	WindowManager::Swap();
-    application.m_time.m_lastFrameTime = glfwGetTime();
+	application.m_time.m_lastFrameTime = glfwGetTime();
 	return application.m_initialized;
 }
 

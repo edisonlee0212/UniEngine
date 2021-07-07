@@ -529,6 +529,9 @@ void RenderManager::ShadowMapPass(const int& enabledSize,
 
 void RenderManager::RenderShadows(Bound& worldBound, CameraComponent* cameraComponent, const Entity& mainCameraEntity)
 {
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 	auto &renderManager = GetInstance();
 #pragma region Shadow
 	auto &minBound = worldBound.m_min;
@@ -1249,7 +1252,7 @@ void RenderManager::Init()
 
 #pragma endregion
 
-	manager.m_environmentalMap = DefaultResources::Environmental::DefaultHDREnvironmentalMap;
+	manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
 
 void RenderManager::CollectRenderInstances(
@@ -1885,18 +1888,7 @@ glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::v
 void RenderManager::OnGui()
 {
 	auto &manager = GetInstance();
-	const std::vector<Entity> *postProcessingEntities = EntityManager::GetPrivateComponentOwnersList<PostProcessing>();
-	if (postProcessingEntities != nullptr)
-	{
-		for (auto postProcessingEntity : *postProcessingEntities)
-		{
-			if (!postProcessingEntity.IsEnabled())
-				continue;
-			auto &postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
-			if (postProcessing->IsEnabled())
-				postProcessing->Process();
-		}
-	}
+	
 
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -2105,6 +2097,23 @@ void RenderManager::OnGui()
 	manager.m_mainCameraResolutionY = viewPortSize.y;
 }
 
+void RenderManager::LateUpdate()
+{
+    auto &manager = GetInstance();
+    const std::vector<Entity> *postProcessingEntities = EntityManager::GetPrivateComponentOwnersList<PostProcessing>();
+    if (postProcessingEntities != nullptr)
+    {
+        for (auto postProcessingEntity : *postProcessingEntities)
+        {
+            if (!postProcessingEntity.IsEnabled())
+                continue;
+            auto &postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
+            if (postProcessing->IsEnabled())
+                postProcessing->Process();
+        }
+    }
+}
+
 #pragma endregion
 #pragma region RenderAPI
 #pragma region Internal
@@ -2143,7 +2152,7 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
     }else
     {
         manager.m_environmentalMapSettings.m_skyboxGamma =
-            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_gamma;
+            DefaultResources::Environmental::DefaultEnvironmentalMap->m_gamma;
     }
 
     const bool environmentalReady = manager.m_environmentalMap && manager.m_environmentalMap->m_ready;
@@ -2153,7 +2162,7 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
 	}else
 	{
         manager.m_environmentalMapSettings.m_environmentalLightingGamma =
-            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_gamma;
+            DefaultResources::Environmental::DefaultEnvironmentalMap->m_gamma;
 	}
 	if (supportBindlessTexture)
 	{
@@ -2165,7 +2174,7 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
         else
         {
             manager.m_environmentalMapSettings.m_skybox =
-                DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_targetCubemap->Texture()->GetHandle();
+                DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap->Texture()->GetHandle();
         }
         manager.m_environmentalMapSettings.m_environmentalBrdfLut = manager.m_brdfLut->Texture()->GetHandle();
 		if (environmentalReady)
@@ -2178,9 +2187,9 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
 		else
 		{
 			manager.m_environmentalMapSettings.m_environmentalIrradiance =
-				DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
+				DefaultResources::Environmental::DefaultEnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
 			manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-				DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
+				DefaultResources::Environmental::DefaultEnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
 		}
 	}
 	else
@@ -2191,7 +2200,7 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
         }
         else
         {
-            DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_targetCubemap->Texture()->Bind(8);
+            DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap->Texture()->Bind(8);
         }
         manager.m_brdfLut->Texture()->Bind(11);
 		if (environmentalReady)
@@ -2201,8 +2210,8 @@ void RenderManager::ApplyEnvironmentalSettings(const CameraComponent *cameraComp
 		}
 		else
 		{
-			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
-			DefaultResources::Environmental::DefaultHDREnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
+			DefaultResources::Environmental::DefaultEnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
+			DefaultResources::Environmental::DefaultEnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
 		}
 	}
 	manager.m_environmentalMapSettingsBuffer->SubData(

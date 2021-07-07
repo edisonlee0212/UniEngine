@@ -44,14 +44,12 @@ std::shared_ptr<Material> DefaultResources::Materials::StandardInstancedMaterial
 std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultSkybox;
 std::shared_ptr<Cubemap> DefaultResources::Environmental::MilkyWaySkybox;
 std::shared_ptr<Cubemap> DefaultResources::Environmental::CircusSkybox;
-std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultHDRSkybox;
 std::shared_ptr<Cubemap> DefaultResources::Environmental::MilkyWayHDRSkybox;
 std::shared_ptr<Cubemap> DefaultResources::Environmental::CircusHDRSkybox;
 
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::DefaultEnvironmentalMap;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::MilkyWayEnvironmentalMap;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::CircusEnvironmentalMap;
-std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::DefaultHDREnvironmentalMap;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::MilkyWayHDREnvironmentalMap;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::CircusHDREnvironmentalMap;
 
@@ -416,16 +414,12 @@ void DefaultResources::Load(World *world)
 	Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
 
 	Environmental::DefaultSkybox = ResourceManager::LoadCubemap(
-		true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_8k.jpg"));
+		true, FileIO::GetResourcePath("Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr"));
     Environmental::DefaultSkybox->m_name = "Default";
-    Environmental::DefaultHDRSkybox = ResourceManager::LoadCubemap(
-		true, FileIO::GetResourcePath("Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr"));
-    Environmental::DefaultHDRSkybox->m_name = "Default HDR";
     Environmental::DefaultEnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Default");
     Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
-    Environmental::DefaultHDREnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Default HDR");
-    Environmental::DefaultHDREnvironmentalMap->Construct(Environmental::DefaultHDRSkybox);
 
+	/*
 	Environmental::MilkyWaySkybox =
         ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
     Environmental::MilkyWaySkybox->m_name = "Milky Way";
@@ -436,8 +430,6 @@ void DefaultResources::Load(World *world)
     Environmental::MilkyWayEnvironmentalMap->Construct(Environmental::MilkyWaySkybox);
     Environmental::MilkyWayHDREnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Milky Way HDR");
     Environmental::MilkyWayHDREnvironmentalMap->Construct(Environmental::MilkyWayHDRSkybox);
-
-	/*
 	Environmental::CircusEnvironmentalMap = ResourceManager::LoadEnvironmentalMap(
 		true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
 	Environmental::CircusEnvironmentalMap->m_name = "Circus";

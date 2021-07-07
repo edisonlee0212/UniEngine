@@ -17,7 +17,7 @@ struct UNIENGINE_API LightSettingsBlock
     float m_vsmMaxVariance = 0.001f;
     float m_lightBleedFactor = 0.5f;
     float m_evsmExponent = 40.0f;
-    float m_ambientLight = 1.0f;
+    float m_ambientLight = 0.8f;
 };
 
 struct MaterialSettingsBlock
@@ -229,6 +229,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region RenderAPI
     static void OnGui();
+    static void LateUpdate();
     static size_t Triangles();
     static size_t DrawCall();
 

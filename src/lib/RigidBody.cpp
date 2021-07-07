@@ -223,7 +223,6 @@ void UniEngine::RigidBody::OnGui()
                         auto bound = meshRenderer->m_mesh->GetBound();
                         glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
                         m_shapeParam = bound.Size() * scale;
-                        m_shapeParam = glm::max(glm::vec3(0.01f), m_shapeParam);
                     }
                 }
             }
@@ -253,6 +252,7 @@ void UniEngine::RigidBody::OnGui()
             statusChanged = true;
         if (statusChanged)
         {
+            m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
             m_shapeUpdated = false;
         }
         if (staticChanged)

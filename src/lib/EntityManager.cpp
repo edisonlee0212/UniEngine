@@ -1062,6 +1062,11 @@ void EntityManager::EntityHierarchyIteratorHelper(
     ForEachChild(target, [&](Entity child) { EntityHierarchyIteratorHelper(child, func); });
 }
 
+EntityArchetype EntityManager::GetDefaultEntityArchetype()
+{
+    return GetInstance().m_basicArchetype;
+}
+
 EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype &entityArchetype)
 {
     return *GetInstance().m_entityComponentStorage->at(entityArchetype.m_index).m_archetypeInfo;

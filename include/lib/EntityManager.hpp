@@ -190,6 +190,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const Entity &target, const std::function<void(const Entity &entity)> &func);
 
   public:
+    static EntityArchetype GetDefaultEntityArchetype();
     static void EntityHierarchyIterator(
         const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true);
 

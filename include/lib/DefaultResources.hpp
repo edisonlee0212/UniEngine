@@ -81,13 +81,11 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<Cubemap> DefaultSkybox;
         static std::shared_ptr<Cubemap> MilkyWaySkybox;
         static std::shared_ptr<Cubemap> CircusSkybox;
-        static std::shared_ptr<Cubemap> DefaultHDRSkybox;
         static std::shared_ptr<Cubemap> MilkyWayHDRSkybox;
         static std::shared_ptr<Cubemap> CircusHDRSkybox;
         static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> MilkyWayEnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> CircusEnvironmentalMap;
-        static std::shared_ptr<EnvironmentalMap> DefaultHDREnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> MilkyWayHDREnvironmentalMap;
         static std::shared_ptr<EnvironmentalMap> CircusHDREnvironmentalMap;
     };

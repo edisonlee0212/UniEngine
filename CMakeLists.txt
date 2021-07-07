@@ -185,22 +185,40 @@ if(${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPLE
 		uniengine
 		)
 	
-	add_executable(Sample
-		src/app/Sample.cpp
+	add_executable(Rendering
+		src/app/Rendering.cpp
 		)
-	target_include_directories(Sample
+	target_include_directories(Rendering
 		PRIVATE
 		${UNIENGINE_INCLUDES_LOCAL}
 		)
-	target_precompile_headers(Sample
+	target_precompile_headers(Rendering
 		PRIVATE
 		${UNIENGINE_PCH_LOCAL}
 		)
-	target_link_libraries(Sample
+	target_link_libraries(Rendering
 		uniengine
 		examples-core
 		)
-	file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	target_compile_definitions(Rendering
+		PRIVATE
+		USE_ASSIMP
+		)
+	add_executable(Physics
+		src/app/Physics.cpp
+		)
+	target_include_directories(Physics
+		PRIVATE
+		${UNIENGINE_INCLUDES_LOCAL}
+		)
+	target_precompile_headers(Physics
+		PRIVATE
+		${UNIENGINE_PCH_LOCAL}
+		)
+	target_link_libraries(Physics
+		uniengine
+		examples-core
+		)
 
 	add_executable(Planet
 		src/app/Planet.cpp
@@ -233,6 +251,8 @@ if(${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPLE
 		uniengine
 		examples-core
 		)
+
+	file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 # ------------------------------------------------------------------

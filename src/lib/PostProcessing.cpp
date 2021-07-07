@@ -1,10 +1,9 @@
-#include "ResourceManager.hpp"
-
+#include <ResourceManager.hpp>
 #include <DefaultResources.hpp>
 #include <FileIO.hpp>
+#include <Gui.hpp>
 #include <PostProcessing.hpp>
 #include <Texture2D.hpp>
-#include <Gui.hpp>
 using namespace UniEngine;
 
 void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
@@ -31,6 +30,10 @@ void PostProcessing::SetEnableLayer(const std::string &layerName, bool enabled)
 PostProcessing::PostProcessing()
 {
     ResizeResolution(1, 1);
+
+    PushLayer(std::make_unique<Bloom>());
+    PushLayer(std::make_unique<SSAO>());
+
     SetEnabled(true);
 }
 
@@ -87,12 +90,12 @@ void PostProcessing::Deserialize(const YAML::Node &in)
 {
 }
 
-void UniEngine::Bloom::Init()
+void Bloom::Init()
 {
     m_name = "Bloom";
-    m_bezierGraph = BezierCubic2D();
-    m_bezierGraph.m_controlPoints[1] = glm::vec2(1, 0);
-    m_bezierGraph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+    m_graph = BezierCubic2D();
+    m_graph.m_controlPoints[1] = glm::vec2(1, 0);
+    m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
     m_brightColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
     m_brightColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
     m_brightColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -115,8 +118,7 @@ void UniEngine::Bloom::Init()
     m_flatColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     m_separateProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_separateProgram->Link
-    (
+    m_separateProgram->Link(
         std::make_shared<OpenGLUtils::GLShader>(
             OpenGLUtils::ShaderType::Vertex,
             std::string("#version 450 core\n") +
@@ -146,16 +148,17 @@ void UniEngine::Bloom::Init()
             OpenGLUtils::ShaderType::Fragment,
             std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
+    m_enabled = true;
 }
 
-void UniEngine::Bloom::ResizeResolution(int x, int y)
+void Bloom::ResizeResolution(int x, int y)
 {
     m_brightColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
     m_result->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
     m_flatColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
 }
 
-void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarget &renderTarget) const
+void Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -185,10 +188,10 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent
     m_filterProgram->SetFloat("sampleScale", 1.0f);
     m_filterProgram->SetFloat4(
         "bezier",
-        m_bezierGraph.m_controlPoints[1][0],
-        m_bezierGraph.m_controlPoints[1][1],
-        m_bezierGraph.m_controlPoints[2][0],
-        m_bezierGraph.m_controlPoints[2][1]);
+        m_graph.m_controlPoints[1][0],
+        m_graph.m_controlPoints[1][1],
+        m_graph.m_controlPoints[2][0],
+        m_graph.m_controlPoints[2][1]);
     m_filterProgram->SetInt("diffusion", m_diffusion);
     m_filterProgram->SetFloat("clamp", m_clamp);
     m_filterProgram->SetFloat("intensity", m_intensity);
@@ -210,7 +213,7 @@ void UniEngine::Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
+void Bloom::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
@@ -218,13 +221,196 @@ void UniEngine::Bloom::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
         ImGui::DragInt("Diffusion##Bloom", &m_diffusion, 1.0f, 1, 64);
         ImGui::DragFloat("Threshold##Bloom", &m_threshold, 0.01f, 0.0f, 5.0f);
         ImGui::DragFloat("Clamp##Bloom", &m_clamp, 0.01f, 0.0f, 5.0f);
-        m_bezierGraph.Graph("Bezier##Bloom");
+        m_graph.Graph("Bezier##Bloom");
         if (ImGui::TreeNode("Debug##Bloom"))
         {
             ImGui::Image((ImTextureID)m_flatColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
             ImGui::Image((ImTextureID)m_result->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
             ImGui::Image((ImTextureID)m_brightColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::TreePop();
         }
+        ImGui::TreePop();
+    }
+}
+
+void SSAO::Init()
+{
+    m_name = "SSAO";
+    m_graph = BezierCubic2D();
+    m_graph.m_controlPoints[1] = glm::vec2(1, 0);
+    m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+    m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
+    m_originalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+    m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_originalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_originalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_originalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_position = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
+    m_position->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+    m_position->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_position->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_position->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_position->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_ssaoPosition = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R32F, 1, 1, false);
+    m_ssaoPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
+    m_ssaoPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_ssaoPosition->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R32F, 1, 1, false);
+    m_blur->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
+    m_blur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_blur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_blur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_blur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    std::string vertShaderCode =
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
+
+    std::string fragShaderCode =
+        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
+
+    m_positionReconstructProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_positionReconstructProgram->Link(
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+    vertShaderCode = std::string("#version 460 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
+
+    m_geometryProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_geometryProgram->Link(
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+    vertShaderCode = std::string("#version 460 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"));
+
+    m_blurProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_blurProgram->Link(
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOCombine.frag"));
+
+    m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_combineProgram->Link(
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+    m_enabled = true;
+}
+
+void SSAO::ResizeResolution(int x, int y)
+{
+    m_originalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_position->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_ssaoPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+    m_blur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+}
+
+void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarget &renderTarget) const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
+
+    m_positionReconstructProgram->Bind();
+    renderTarget.AttachTexture(m_position.get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.Bind();
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    cameraComponent->m_depthStencilBuffer->Bind(0);
+    m_positionReconstructProgram->SetInt("inputTex", 0);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    m_geometryProgram->Bind();
+    renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
+    glDrawBuffers(2, enums);
+    cameraComponent->m_colorTexture->Texture()->Bind(0);
+    //_Position->Bind(1);
+    cameraComponent->m_gPositionBuffer->Bind(1);
+    cameraComponent->m_gNormalBuffer->Bind(2);
+    m_geometryProgram->SetInt("image", 0);
+    m_geometryProgram->SetInt("gPositionShadow", 1);
+    m_geometryProgram->SetInt("gNormalShininess", 2);
+    m_geometryProgram->SetFloat("radius", m_kernelRadius);
+    m_geometryProgram->SetFloat("bias", m_kernelBias);
+    m_geometryProgram->SetFloat("noiseScale", m_scale);
+    m_geometryProgram->SetInt("kernelSize", m_sampleSize);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    m_blurProgram->Bind();
+    renderTarget.AttachTexture(m_blur.get(), GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    m_ssaoPosition->Bind(0);
+    m_blurProgram->SetInt("image", 0);
+    m_blurProgram->SetFloat("sampleScale", m_blurScale);
+    m_blurProgram->SetBool("horizontal", false);
+    m_blurProgram->SetFloat4(
+        "bezier",
+        m_graph.m_controlPoints[1][0],
+        m_graph.m_controlPoints[1][1],
+        m_graph.m_controlPoints[2][0],
+        m_graph.m_controlPoints[2][1]);
+    m_blurProgram->SetInt("diffusion", m_diffusion);
+    m_blurProgram->SetFloat("intensity", m_intensity);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT0);
+    m_blur->Bind(0);
+    m_blurProgram->SetBool("horizontal", true);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    m_combineProgram->Bind();
+    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    m_originalColor->Bind(0);
+    m_ssaoPosition->Bind(1);
+    m_combineProgram->SetInt("originalColor", 0);
+    m_combineProgram->SetInt("ao", 1);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void SSAO::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
+{
+    if (ImGui::TreeNode("SSAO Settings"))
+    {
+        ImGui::DragFloat("Radius##SSAO", &m_kernelRadius, 0.01f, 0.1f, 5.0f);
+        ImGui::DragFloat("Bias##SSAO", &m_kernelBias, 0.001f, 0.0f, 1.0f);
+        ImGui::DragInt("Sample Size##SSAO", &m_sampleSize, 1, 1, 64);
+        ImGui::DragFloat("Blur Scale##SSAO", &m_blurScale, 0.001f, 0.01f, 1.0f);
+        ImGui::DragFloat("Intensity##SSAO", &m_intensity, 0.001f, 0.001f, 1.0f);
+        ImGui::DragInt("Diffusion##SSAO", &m_diffusion, 1.0f, 1, 64);
+        m_graph.Graph("Bezier##SSAO");
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Debug##SSAO"))
+    {
+        ImGui::Image(
+            (ImTextureID)cameraComponent->m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)m_position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)m_originalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)m_blur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::TreePop();
     }
 }
