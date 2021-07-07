@@ -12,6 +12,7 @@
 #include <ResourceManager.hpp>
 #include <WindowManager.hpp>
 #include <Gui.hpp>
+#include <RigidBody.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -552,6 +553,17 @@ void EditorManager::Init()
             owner.SetPrivateComponent(std::make_unique<Particles>());
         }
     });
+
+    RegisterPrivateComponentMenu<RigidBody>([](Entity owner) {
+        if (owner.HasPrivateComponent<RigidBody>())
+            return;
+        if (ImGui::SmallButton("RigidBody"))
+        {
+            owner.SetPrivateComponent(std::make_unique<RigidBody>());
+        }
+    });
+
+
     editorManager.m_selectedEntity.m_index = 0;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;

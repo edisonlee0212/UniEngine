@@ -15,7 +15,7 @@ class UNIENGINE_API ApplicationTime
     double m_fixedDeltaTime = 0;
     double m_deltaTime = 0;
     double m_lastFrameTime = 0;
-    float m_timeStep = 0;
+    float m_timeStep = 0.02f;
     void AddFixedDeltaTime(const double &value);
 
   public:

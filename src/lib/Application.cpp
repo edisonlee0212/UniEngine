@@ -11,6 +11,7 @@
 #include <WindowManager.hpp>
 #include <Gui.hpp>
 #include <AnimationManager.hpp>
+#include <PhysicsManager.hpp>
 using namespace UniEngine;
 
 #pragma region Utilities
@@ -43,6 +44,7 @@ void Application::Init(bool fullScreen)
 	JobManager::SecondaryWorkers().Resize(1);
 	application.m_world = std::make_unique<World>(0);
 	EntityManager::Attach(application.m_world);
+    PhysicsSimulationManager::Init();
 #pragma region OpenGL
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
@@ -197,8 +199,8 @@ void Application::PreUpdateInternal()
     if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
     {
         application.m_needFixedUpdate = true;
+        PhysicsSimulationManager::Simulate(application.m_time.m_fixedDeltaTime);
     }
-
 	OpenGLUtils::PreUpdate();
 	EditorManager::PreUpdate();
 	WindowManager::PreUpdate();
@@ -341,6 +343,7 @@ bool Application::IsInitialized()
 void Application::End()
 {
 	GetInstance().m_world.reset();
+    PhysicsSimulationManager::Destroy();
 	// glfwTerminate();
 }
 
