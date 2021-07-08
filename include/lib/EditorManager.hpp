@@ -1,11 +1,11 @@
 #pragma once
 #include <CameraComponent.hpp>
+#include <Gui.hpp>
 #include <ISingleton.hpp>
 #include <OpenGLUtils.hpp>
 #include <RenderTarget.hpp>
-#include <Texture2D.hpp>
 #include <ResourceManager.hpp>
-#include <Gui.hpp>
+#include <Texture2D.hpp>
 namespace UniEngine
 {
 struct Transform;
@@ -68,7 +68,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
 
-
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;
     std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
@@ -126,7 +125,8 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static std::unique_ptr<CameraComponent> &GetSceneCamera();
     template <typename T = ResourceBehaviour> static bool DragAndDrop(std::shared_ptr<T> &target);
     template <typename T = ResourceBehaviour> static bool Draggable(std::shared_ptr<T> &target);
-    static bool Draggable(const size_t& id, std::shared_ptr<ResourceBehaviour> &target);
+    static bool DragAndDrop(Entity &entity);
+    static bool Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target);
 };
 
 template <typename T1>
@@ -165,99 +165,99 @@ template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::
 template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
-    if (ptr && ptr->m_typeId == 0)
+    assert(!(ptr && ptr->m_typeId == 0));
+    const std::string type = ResourceManager::GetTypeName<T>();
+    bool statusChanged = false;
+    ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
+    if (ptr)
     {
-        UNIENGINE_ERROR("Resource not created with ResourceManager!");
-        throw 0;
-    }
-    const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
-    const std::string hash = ResourceManager::GetTypeName<T>();
-    ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-    {
-        ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<T>));
-        if (ptr && ptr->m_icon)
-            ImGui::Image(
-                reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
-                ImVec2(30, 30),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
-        ImGui::EndDragDropSource();
-    }
-    bool removed = false;
-    if (ptr && ImGui::BeginPopupContextItem(tag.c_str()))
-    {
-        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            static char newName[256];
-            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-            if (ImGui::Button(("Confirm" + tag).c_str()))
-                ptr->m_name = std::string(newName);
-            ImGui::EndMenu();
+            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<T>));
+            if (ptr->m_icon)
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
+                    ImVec2(30, 30),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0));
+            else
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+            ImGui::EndDragDropSource();
         }
-        if (ImGui::Button(("Remove" + tag).c_str()))
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
-            target.reset();
-            removed = true;
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                    ptr->m_name = std::string(newName);
+                ImGui::EndMenu();
+            }
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                target.reset();
+                statusChanged = true;
+            }
+            ImGui::EndPopup();
         }
-        ImGui::EndPopup();
     }
+
     if (ImGui::BeginDragDropTarget())
     {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<T>));
             std::shared_ptr<T> payload_n = *static_cast<std::shared_ptr<T> *>(payload->Data);
             target = payload_n;
+            statusChanged = true;
         }
         ImGui::EndDragDropTarget();
     }
-    return removed;
+    return statusChanged;
 }
 
 template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<ResourceBehaviour> ptr = std::dynamic_pointer_cast<ResourceBehaviour>(target);
-    if (ptr && ptr->m_typeId == 0)
-    {
-        UNIENGINE_ERROR("Resource not created with ResourceManager!");
-        throw 0;
-    }
-    const std::string hash = ResourceManager::GetTypeName<T>();
-    const std::string tag = "##" + (ptr ? std::to_string(ptr->GetHashCode()) : "");
-    ImGui::Button(ptr ? (ptr->m_name + tag).c_str() : "none");
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-    {
-        ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-        if (ptr && ptr->m_icon)
-            ImGui::Image(
-                reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
-                ImVec2(30, 30),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
-        ImGui::EndDragDropSource();
-    }
+    assert(!(ptr && ptr->m_typeId == 0));
+    const std::string type = ResourceManager::GetTypeName<T>();
     bool removed = false;
-    if (ptr && ImGui::BeginPopupContextItem(tag.c_str()))
+    ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
+    if (ptr)
     {
-        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            static char newName[256];
-            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-            if (ImGui::Button(("Confirm" + tag).c_str()))
-                ptr->m_name = std::string(newName);
-            ImGui::EndMenu();
+            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<T>));
+            if (ptr->m_icon)
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
+                    ImVec2(30, 30),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0));
+            else
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+            ImGui::EndDragDropSource();
         }
-        if (ImGui::Button(("Remove" + tag).c_str()))
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
-            target.reset();
-            removed = true;
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                    ptr->m_name = std::string(newName);
+                ImGui::EndMenu();
+            }
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                target.reset();
+                removed = true;
+            }
+            ImGui::EndPopup();
         }
-        ImGui::EndPopup();
     }
     return removed;
 }

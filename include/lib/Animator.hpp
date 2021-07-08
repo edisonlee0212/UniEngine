@@ -71,7 +71,7 @@ struct UNIENGINE_API Bone
     void Animate(
         const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, 
         const glm::mat4& rootTransform, std::vector<glm::mat4> &results);
-    void OnGui() const;
+    void OnGui();
     void DebugRenderAnimated(
         const std::string &name,
         const float &animationTime,

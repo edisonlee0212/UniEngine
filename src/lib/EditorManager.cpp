@@ -3,6 +3,7 @@
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <FileIO.hpp>
+#include <Gui.hpp>
 #include <InputManager.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -10,9 +11,8 @@
 #include <Particles.hpp>
 #include <PostProcessing.hpp>
 #include <ResourceManager.hpp>
-#include <WindowManager.hpp>
-#include <Gui.hpp>
 #include <RigidBody.hpp>
+#include <WindowManager.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -563,12 +563,11 @@ void EditorManager::Init()
         }
     });
 
-
     editorManager.m_selectedEntity.m_index = 0;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
     editorManager.m_sceneCamera = std::make_unique<CameraComponent>();
-    editorManager.m_sceneCamera->m_clearColor = glm::vec3(0.5f); 
+    editorManager.m_sceneCamera->m_clearColor = glm::vec3(0.5f);
     editorManager.m_sceneCamera->m_useClearColor = false;
 }
 
@@ -636,7 +635,8 @@ void EditorManager::PreUpdate()
     {
         const float elapsedTime = Application::EngineTime() - editorManager.m_transitionTimer;
         float a = 1.0f - glm::pow(1.0 - elapsedTime / editorManager.m_transitionTime, 4.0f);
-        if (elapsedTime >= editorManager.m_transitionTime) a = 1.0f;
+        if (elapsedTime >= editorManager.m_transitionTime)
+            a = 1.0f;
         editorManager.m_sceneCameraRotation =
             glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
         editorManager.m_sceneCameraPosition =
@@ -974,19 +974,16 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
             (GetInstance().m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
     if (ImGui::BeginDragDropSource())
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
-        ImGui::SetDragDropPayload(hash.c_str(), &entity, sizeof(Entity));
+        ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
         ImGui::TextColored(ImVec4(0, 0, 1, 1), title.c_str());
         ImGui::EndDragDropSource();
     }
     if (ImGui::BeginDragDropTarget())
     {
-        const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Entity));
-            Entity payload_n = *static_cast<Entity *>(payload->Data);
-            EntityManager::SetParent(payload_n, entity);
+            EntityManager::SetParent(*static_cast<Entity *>(payload->Data), entity);
         }
         ImGui::EndDragDropTarget();
     }
@@ -994,7 +991,7 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
     {
         ImGui::PopStyleColor();
     }
-    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         SetSelectedEntity(entity, false);
     }
@@ -1025,19 +1022,6 @@ void EditorManager::LateUpdate()
     if (manager.m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
     {
         ImGui::Begin("Entity Explorer");
-        if (ImGui::BeginDragDropTarget())
-        {
-            const std::string hash = std::to_string(std::hash<std::string>{}(typeid(Entity).name()));
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
-            {
-                IM_ASSERT(payload->DataSize == sizeof(Entity));
-                Entity payload_n = *static_cast<Entity *>(payload->Data);
-                auto parent = EntityManager::GetParent(payload_n);
-                if (!parent.IsNull())
-                    EntityManager::RemoveChild(payload_n, parent);
-            }
-            ImGui::EndDragDropTarget();
-        }
         if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
         {
             if (ImGui::Button("Create new entity"))
@@ -1097,17 +1081,33 @@ void EditorManager::LateUpdate()
         }
         else if (manager.m_selectedHierarchyDisplayMode == 1)
         {
-            ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
-            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
-            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-            EntityManager::ForAllEntities([](int i, Entity entity) {
-                if (EntityManager::GetParent(entity).IsNull())
-                    DrawEntityNode(entity, 0);
-            });
-            manager.m_selectedEntityHierarchyList.clear();
-            ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
-            ImGui::PopStyleColor();
+            if (ImGui::CollapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+                    {
+                        IM_ASSERT(payload->DataSize == sizeof(Entity));
+                        Entity payload_n = *static_cast<Entity *>(payload->Data);
+                        auto parent = EntityManager::GetParent(payload_n);
+                        if (!parent.IsNull())
+                            EntityManager::RemoveChild(payload_n, parent);
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
+                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
+                ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
+                EntityManager::ForAllEntities([](int i, Entity entity) {
+                    if (EntityManager::GetParent(entity).IsNull())
+                        DrawEntityNode(entity, 0);
+                });
+                manager.m_selectedEntityHierarchyList.clear();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+            }
         }
 
         ImGui::End();
@@ -1255,7 +1255,7 @@ void EditorManager::LateUpdate()
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings"))
                 {
-#pragma region Menu 
+#pragma region Menu
                     if (ImGui::Button("Reset camera"))
                     {
                         MoveCamera(manager.m_defaultSceneCameraRotation, manager.m_defaultSceneCameraPosition);
@@ -1373,26 +1373,22 @@ void EditorManager::LateUpdate()
                         if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition +=
-                                front * static_cast<float>(Application::Time().DeltaTime()) *
-                                manager.m_velocity;
+                                front * static_cast<float>(Application::Time().DeltaTime()) * manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition -=
-                                front * static_cast<float>(Application::Time().DeltaTime()) *
-                                manager.m_velocity;
+                                front * static_cast<float>(Application::Time().DeltaTime()) * manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition -=
-                                right * static_cast<float>(Application::Time().DeltaTime()) *
-                                manager.m_velocity;
+                                right * static_cast<float>(Application::Time().DeltaTime()) * manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow()))
                         {
                             manager.m_sceneCameraPosition +=
-                                right * static_cast<float>(Application::Time().DeltaTime()) *
-                                manager.m_velocity;
+                                right * static_cast<float>(Application::Time().DeltaTime()) * manager.m_velocity;
                         }
                         if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow()))
                         {
@@ -1617,46 +1613,93 @@ std::unique_ptr<CameraComponent> &EditorManager::GetSceneCamera()
     return GetInstance().m_sceneCamera;
 }
 
+bool EditorManager::DragAndDrop(Entity &entity)
+{
+    bool statusChanged = false;
+    // const std::string type = "Entity";
+    ImGui::Button(entity.IsValid() ? entity.GetName().c_str() : "none");
+    if (entity.IsValid())
+    {
+        const std::string tag = "##Entity" + std::to_string(entity.m_index);
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (entity.GetName() + tag).c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                    entity.SetName(std::string(newName));
+                ImGui::EndMenu();
+            }
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                EntityManager::DeleteEntity(entity);
+                entity = Entity();
+                statusChanged = true;
+            }
+            ImGui::EndPopup();
+        }
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            entity = *static_cast<Entity *>(payload->Data);
+            statusChanged = true;
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return statusChanged;
+}
+
 bool EditorManager::Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target)
 {
-    if (target && target->m_typeId == 0)
-    {
-        UNIENGINE_ERROR("Resource not created with ResourceManager!");
-        throw 0;
-    }
-    const std::string hash = ResourceManager::GetTypeName(id);
-    const std::string tag = "##" + (target ? std::to_string(target->GetHashCode()) : "");
-    ImGui::Button(target ? (target->m_name + tag).c_str() : "none");
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-    {
-        ImGui::SetDragDropPayload(hash.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
-        if (target && target->m_icon)
-            ImGui::Image(
-                reinterpret_cast<ImTextureID>(target->m_icon->Texture()->Id()),
-                ImVec2(30, 30),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (hash + tag).c_str());
-        ImGui::EndDragDropSource();
-    }
+    assert(!(target && target->m_typeId == 0));
+    const std::string type = ResourceManager::GetTypeName(id);
+    ImGui::Button(target ? target->m_name.c_str() : "none");
     bool removed = false;
-    if (target && ImGui::BeginPopupContextItem(tag.c_str()))
+    if (target)
     {
-        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+        const std::string tag = "##" + type + (target ? std::to_string(target->GetHashCode()) : "");
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            static char newName[256];
-            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-            if (ImGui::Button(("Confirm" + tag).c_str()))
-                target->m_name = std::string(newName);
-            ImGui::EndMenu();
+            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
+            if (target->m_icon)
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(target->m_icon->Texture()->Id()),
+                    ImVec2(30, 30),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0));
+            else
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), (target->m_name + tag).c_str());
+            ImGui::EndDragDropSource();
         }
-        if (ImGui::Button(("Remove" + tag).c_str()))
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
-            target.reset();
-            removed = true;
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                    target->m_name = std::string(newName);
+                ImGui::EndMenu();
+            }
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                target.reset();
+                removed = true;
+            }
+            ImGui::EndPopup();
         }
-        ImGui::EndPopup();
     }
     return removed;
 }

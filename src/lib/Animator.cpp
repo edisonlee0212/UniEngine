@@ -34,10 +34,13 @@ void Bone::Animate(
     }
 }
 
-void Bone::OnGui() const
+void Bone::OnGui()
 {
     if (ImGui::TreeNode((m_name + "##" + std::to_string(m_index)).c_str()))
     {
+        ImGui::Text("Controller: ");
+        ImGui::SameLine();
+        EditorManager::DragAndDrop(m_ragDoll);
         for (auto &i : m_children)
         {
             i->OnGui();
