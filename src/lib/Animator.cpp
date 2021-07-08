@@ -1,38 +1,36 @@
 #include "Application.hpp"
 #include "RenderManager.hpp"
-#include <EditorManager.hpp>
 #include <Animator.hpp>
+#include <EditorManager.hpp>
 using namespace UniEngine;
 
 void Bone::Animate(
     const std::string &name,
     const float &animationTime,
     const glm::mat4 &parentTransform,
+    const glm::mat4 &rootTransform,
     std::vector<glm::mat4> &results)
 {
     glm::mat4 globalTransform = parentTransform;
-    const auto search = m_animations.find(name);
-    if (search != m_animations.end())
+    if (m_ragDoll.IsValid())
     {
-        const auto translation = m_animations[name].InterpolatePosition(animationTime);
-        const auto rotation = m_animations[name].InterpolateRotation(animationTime);
-        const auto scale = m_animations[name].InterpolateScaling(animationTime);
-        globalTransform *= translation * rotation * scale;
+        globalTransform *= glm::inverse(rootTransform) * m_ragDoll.GetComponentData<GlobalTransform>().m_value;
+    }
+    else
+    {
+        const auto search = m_animations.find(name);
+        if (search != m_animations.end())
+        {
+            const auto translation = m_animations[name].InterpolatePosition(animationTime);
+            const auto rotation = m_animations[name].InterpolateRotation(animationTime);
+            const auto scale = m_animations[name].InterpolateScaling(animationTime);
+            globalTransform *= translation * rotation * scale;
+        }
     }
     results[m_index] = globalTransform * m_offsetMatrix.m_value;
     for (auto &i : m_children)
     {
-        i->Animate(name, animationTime, globalTransform, results);
-    }
-}
-
-void Bone::ApplyLocalTransform(const glm::mat4 &parentTransform, std::vector<glm::mat4> &results)
-{
-    glm::mat4 globalTransform = parentTransform * m_localTransform.m_value;
-    results[m_index] = globalTransform * m_offsetMatrix.m_value;
-    for (auto &i : m_children)
-    {
-        i->ApplyLocalTransform(globalTransform, results);
+        i->Animate(name, animationTime, globalTransform, rootTransform, results);
     }
 }
 
@@ -40,7 +38,7 @@ void Bone::OnGui() const
 {
     if (ImGui::TreeNode((m_name + "##" + std::to_string(m_index)).c_str()))
     {
-        for (auto& i : m_children)
+        for (auto &i : m_children)
         {
             i->OnGui();
         }
@@ -71,21 +69,6 @@ void Bone::DebugRenderAnimated(
         i->DebugRenderAnimated(name, animationTime, globalTransform, size, color, mesh);
     }
 }
-
-void Bone::DebugRenderLocalTransform(
-    const glm::mat4 &parentTransform,
-    const float &size,
-    const glm::vec4 &color,
-    const std::shared_ptr<Mesh> &mesh)
-{
-    const glm::mat4 globalTransform = parentTransform * m_localTransform.m_value;
-    RenderManager::DrawGizmoMesh(mesh.get(), EditorManager::GetSceneCamera().get(), color, globalTransform, size);
-    for (auto &i : m_children)
-    {
-        i->DebugRenderLocalTransform(globalTransform, size, color, mesh);
-    }
-}
-
 
 int BoneKeyFrames::GetPositionIndex(const float &animationTime)
 {
@@ -209,7 +192,7 @@ void Animator::OnGui()
                 DefaultResources::Primitives::Sphere);
         }
         m_animation->OnGui();
-        
+
         if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
             m_animation->m_animationNameAndLength.end())
         {
@@ -253,19 +236,25 @@ void Animator::AutoPlay()
         return;
     m_currentAnimationTime += Application::Time().DeltaTime() * 1000.0f;
     if (m_currentAnimationTime > m_animation->m_animationNameAndLength[m_currentActivatedAnimation])
-        m_currentAnimationTime = glm::mod(m_currentAnimationTime, m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+        m_currentAnimationTime =
+            glm::mod(m_currentAnimationTime, m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
 }
 void Animator::Animate()
 {
-    if (!m_animation) return;
+    if (!m_animation)
+        return;
+    auto owner = GetOwner();
     if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
         m_animation->m_animationNameAndLength.end())
     {
         m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
         m_currentAnimationTime = 0.0f;
     }
-    m_animation->Animate(m_currentActivatedAnimation, m_currentAnimationTime, m_transformChain);
-    AnimateHelper(GetOwner());
+    m_animation->Animate(
+        m_currentActivatedAnimation,
+        m_currentAnimationTime,
+        owner.GetComponentData<GlobalTransform>().m_value,
+        m_transformChain);
 }
 
 Animation::Animation()
@@ -278,20 +267,15 @@ void Animation::OnGui() const
     m_rootBone->OnGui();
 }
 
-void Animation::Animate(const std::string &name, const float &animationTime, std::vector<glm::mat4> &results)
+void Animation::Animate(
+    const std::string &name,
+    const float &animationTime,
+    const glm::mat4 &rootTransform,
+    std::vector<glm::mat4> &results)
 {
     if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end())
     {
         return;
     }
-    m_rootBone->Animate(name, animationTime, Transform().m_value, results);
-}
-
-void Animator::AnimateHelper(const Entity &walker)
-{
-    if (walker.HasPrivateComponent<SkinnedMeshRenderer>())
-    {
-        walker.GetPrivateComponent<SkinnedMeshRenderer>()->CalculateBones(this);        
-    }
-    EntityManager::ForEachChild(walker, [&](Entity child) { AnimateHelper(child);});
+    m_rootBone->Animate(name, animationTime, Transform().m_value, rootTransform, results);
 }

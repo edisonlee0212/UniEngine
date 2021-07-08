@@ -10,9 +10,9 @@ void UniEngine::AnimationManager::PreUpdate()
     
     auto &workers = JobManager::PrimaryWorkers();
     std::vector<std::shared_future<void>> results;
-    const auto threadSize = workers.Size();
-    const auto threadLoad = owners->size() / threadSize;
-    const auto loadReminder = owners->size() % threadSize;
+    auto threadSize = workers.Size();
+    auto threadLoad = owners->size() / threadSize;
+    auto loadReminder = owners->size() % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
@@ -49,6 +49,34 @@ void UniEngine::AnimationManager::PreUpdate()
                                           smmc->Animate();
                                           smmc->m_needUpdate = false;
                                       }
+                                  }
+                              })
+                              .share());
+    }
+    for (const auto &i : results)
+        i.wait();
+    results.clear();
+
+    owners = EntityManager::GetPrivateComponentOwnersList<SkinnedMeshRenderer>();
+    if (!owners)
+        return;
+    threadSize = workers.Size();
+    threadLoad = owners->size() / threadSize;
+    loadReminder = owners->size() % threadSize;
+    for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
+    {
+        results.push_back(workers
+                              .Push([=](int id) {
+                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                  {
+                                      auto &smmc = owners->at(i).GetPrivateComponent<SkinnedMeshRenderer>();
+                                      smmc->GetBoneMatrices();
+                                  }
+                                  if (threadIndex < loadReminder)
+                                  {
+                                      const int i = threadIndex + threadSize * threadLoad;
+                                      auto &smmc = owners->at(i).GetPrivateComponent<SkinnedMeshRenderer>();
+                                      smmc->GetBoneMatrices();
                                   }
                               })
                               .share());

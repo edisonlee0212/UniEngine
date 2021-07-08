@@ -1390,7 +1390,15 @@ void RenderManager::CollectRenderInstances(
 				!(EntityManager::GetComponentData<CameraLayerMask>(owner).m_value &
 				  static_cast<size_t>(CameraLayer::MainCamera)))
 				continue;
-			auto gt = EntityManager::GetComponentData<GlobalTransform>(owner);
+			GlobalTransform gt;
+			if(smmc->m_animator.IsValid())
+			{
+			    gt = smmc->m_animator.GetComponentData<GlobalTransform>();
+			}else
+			{
+				smmc->m_animator = Entity();
+			    gt = EntityManager::GetComponentData<GlobalTransform>(owner);
+			}
 			auto ltw = gt.m_value;
 			auto meshBound = smmc->m_skinnedMesh->GetBound();
 			meshBound.ApplyTransform(ltw);

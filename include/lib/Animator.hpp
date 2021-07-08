@@ -65,12 +65,12 @@ struct UNIENGINE_API Bone
     Transform m_offsetMatrix = Transform();
     size_t m_index;
     std::vector<std::shared_ptr<Bone>> m_children;
-    Transform m_localTransform = Transform();
+    Entity m_ragDoll;
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
     void Animate(
-        const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, std::vector<glm::mat4> &results);
-    void ApplyLocalTransform(const glm::mat4 &parentTransform, std::vector<glm::mat4> &results);
+        const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, 
+        const glm::mat4& rootTransform, std::vector<glm::mat4> &results);
     void OnGui() const;
     void DebugRenderAnimated(
         const std::string &name,
@@ -79,11 +79,7 @@ struct UNIENGINE_API Bone
         const float &size,
         const glm::vec4 &color,
         const std::shared_ptr<Mesh> &mesh);
-    void DebugRenderLocalTransform(
-        const glm::mat4 &parentTransform,
-        const float &size,
-        const glm::vec4 &color,
-        const std::shared_ptr<Mesh> &mesh);
+   
 };
 
 #pragma endregion
@@ -96,13 +92,12 @@ class UNIENGINE_API Animation : public ResourceBehaviour
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
     Animation();
     void OnGui() const;
-    void Animate(const std::string &name, const float &animationTime, std::vector<glm::mat4> &results);
+    void Animate(const std::string &name, const float &animationTime, const glm::mat4& rootTransform, std::vector<glm::mat4> &results);
 };
 class UNIENGINE_API Animator : public PrivateComponentBase
 {
     std::vector<glm::mat4> m_transformChain;
     friend class SkinnedMeshRenderer;
-    void AnimateHelper(const Entity &walker);
   public:
     bool m_debugRenderBones;
     float m_debugRenderBonesSize = 0.1f;

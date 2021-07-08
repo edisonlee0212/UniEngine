@@ -400,6 +400,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
         animator->Setup(model->m_animation);
         animator->Animate();
         entity.SetPrivateComponent(std::move(animator));
+		AttachAnimator(entity, entity);
     }
 	return entity;
 }
@@ -414,6 +415,18 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Text
 	mmc->m_mesh = DefaultResources::Primitives::Quad;
 	entity.SetPrivateComponent(std::move(mmc));
 	return entity;
+}
+
+void ResourceManager::AttachAnimator(const Entity &parent, const Entity &animator)
+{
+	if(parent.HasPrivateComponent<SkinnedMeshRenderer>())
+	{
+	    parent.GetPrivateComponent<SkinnedMeshRenderer>()->AttachAnimator(animator);
+	}
+	EntityManager::ForEachChild(parent, [&](Entity child)
+	{
+	   AttachAnimator(child, animator); 
+	});
 }
 #ifdef USE_ASSIMP
 
@@ -446,7 +459,6 @@ void AssimpNode::AttachToAnimator(std::shared_ptr<Animation> &animation, size_t&
 
 void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent, size_t& index)
 {
-	m_bone->m_localTransform = m_localTransform;
     m_bone->m_index = index;
 	parent->m_children.push_back(m_bone);
 	for (auto &i : m_children)

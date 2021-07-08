@@ -23,11 +23,25 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
         1);
 }
 
-void SkinnedMeshRenderer::CalculateBones(Animator *animator)
+void SkinnedMeshRenderer::GetBoneMatrices()
 {
+    if(!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>()) return;
+    auto& animator = m_animator.GetPrivateComponent<Animator>();
     for (int i = 0; i < m_skinnedMesh->m_bones.size(); i++)
     {
         m_finalResults[i] = animator->m_transformChain[m_skinnedMesh->m_bones[i]->m_index];
+    }
+}
+
+void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
+{
+    if(animator.HasPrivateComponent<Animator>()
+        && animator.GetPrivateComponent<Animator>()->m_animation.get() == m_skinnedMesh->m_animation.get())
+    {
+        m_animator = animator;
+    }else
+    {
+        UNIENGINE_ERROR("Animator doesn't share same animation!");
     }
 }
 
@@ -36,7 +50,7 @@ void SkinnedMeshRenderer::ResizeBones()
     m_finalResults.resize(m_skinnedMesh->m_bones.size());
 }
 
-void SkinnedMeshRenderer::CalculateBones(std::unique_ptr<Animator>& animator)
+void SkinnedMeshRenderer::GetBoneMatrices(std::unique_ptr<Animator>& animator)
 {
     for (int i = 0; i < m_skinnedMesh->m_bones.size(); i++)
     {

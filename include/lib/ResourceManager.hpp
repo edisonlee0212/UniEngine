@@ -127,6 +127,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 	static void OnGui();
 	static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
 	static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
+	static void AttachAnimator(const Entity& parent, const Entity& animator);
 };
 
 template <typename T> std::string ResourceManager::GetTypeName()
