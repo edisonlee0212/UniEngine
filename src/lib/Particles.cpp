@@ -1,8 +1,8 @@
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
+#include <Gui.hpp>
 #include <Particles.hpp>
 #include <RenderManager.hpp>
-#include <Gui.hpp>
 using namespace UniEngine;
 
 Particles::Particles()
@@ -47,23 +47,25 @@ void Particles::OnGui()
         ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
     ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices.size())).c_str());
-    ImGui::Checkbox("Display bounds##Particles", &m_displayBound);
     if (ImGui::Button("Calculate bounds##Particles"))
     {
         RecalculateBoundingBox();
     }
-    if (m_displayBound)
+    static bool displayBound;
+    ImGui::Checkbox("Display bounds##Particles", &displayBound);
+    if (displayBound)
     {
-        RecalculateBoundingBox();
-        ImGui::ColorEdit4("Color:##Particles", static_cast<float *>(static_cast<void *>(&m_displayBoundColor)));
+        static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
+        ImGui::ColorEdit4("Color:##Particles", (float *)(void *)&displayBoundColor);
         const auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
         RenderManager::DrawGizmoMesh(
             DefaultResources::Primitives::Cube.get(),
             EditorManager::GetSceneCamera().get(),
-            m_displayBoundColor,
+            displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),
             1);
     }
+
     ImGui::Text("Material:##Particles");
     ImGui::SameLine();
     EditorManager::DragAndDrop(m_material);

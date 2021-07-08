@@ -169,6 +169,8 @@ static const char *RigidBodyShapeShape[]{"Sphere", "Box", "Capsule"};
 void UniEngine::RigidBody::OnGui()
 {
     ImGui::Checkbox("Draw bounds", &m_drawBounds);
+    static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
+    if(m_drawBounds)ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&displayBoundColor);
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
@@ -225,6 +227,7 @@ void UniEngine::RigidBody::OnGui()
 
         auto ltw = GetOwner().GetComponentData<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
+        
         switch (m_shapeType)
         {
         case ShapeType::Sphere:
@@ -234,7 +237,7 @@ void UniEngine::RigidBody::OnGui()
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Sphere.get(),
                     EditorManager::GetSceneCamera().get(),
-                    glm::vec4(0.0f, 0.0f, 1.0f, 0.5f),
+                    displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
                     1);
             break;
@@ -253,7 +256,7 @@ void UniEngine::RigidBody::OnGui()
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cube.get(),
                     EditorManager::GetSceneCamera().get(),
-                    glm::vec4(0.0f, 0.0f, 1.0f, 0.5f),
+                    displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);
             break;
@@ -264,7 +267,7 @@ void UniEngine::RigidBody::OnGui()
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cylinder.get(),
                     EditorManager::GetSceneCamera().get(),
-                    glm::vec4(0.0f, 0.0f, 1.0f, 0.5f),
+                    displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);
             break;

@@ -46,11 +46,13 @@ void MeshRenderer::OnGui()
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))
         {
-            ImGui::Checkbox("Display bounds##MeshRenderer", &m_displayBound);
-            if (m_displayBound)
+            static bool displayBound;
+            ImGui::Checkbox("Display bounds##MeshRenderer", &displayBound);
+            if (displayBound)
             {
-                ImGui::ColorEdit4("Color:##MeshRenderer", (float *)(void *)&m_displayBoundColor);
-                RenderBound(m_displayBoundColor);
+                static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
+                ImGui::ColorEdit4("Color:##MeshRenderer", (float *)(void *)&displayBoundColor);
+                RenderBound(displayBoundColor);
             }
             m_mesh->OnGui();
             ImGui::TreePop();

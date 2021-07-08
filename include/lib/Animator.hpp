@@ -65,21 +65,12 @@ struct UNIENGINE_API Bone
     Transform m_offsetMatrix = Transform();
     size_t m_index;
     std::vector<std::shared_ptr<Bone>> m_children;
-    Entity m_ragDoll;
     /* Interpolates b/w positions,rotations & scaling keys based on the current time of the
     animation and prepares the local transformation matrix by combining all keys transformations */
     void Animate(
         const std::string &name, const float &animationTime, const glm::mat4 &parentTransform, 
-        const glm::mat4& rootTransform, std::vector<glm::mat4> &results);
+        const glm::mat4& rootTransform, std::vector<Entity> &boundEntities, std::vector<glm::mat4> &results);
     void OnGui();
-    void DebugRenderAnimated(
-        const std::string &name,
-        const float &animationTime,
-        const glm::mat4 &parentTransform,
-        const float &size,
-        const glm::vec4 &color,
-        const std::shared_ptr<Mesh> &mesh);
-   
 };
 
 #pragma endregion
@@ -92,17 +83,20 @@ class UNIENGINE_API Animation : public ResourceBehaviour
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
     Animation();
     void OnGui() const;
-    void Animate(const std::string &name, const float &animationTime, const glm::mat4& rootTransform, std::vector<glm::mat4> &results);
+    void Animate(const std::string &name, const float &animationTime, const glm::mat4& rootTransform, 
+        std::vector<Entity> &boundEntities, std::vector<glm::mat4> &results);
 };
 class UNIENGINE_API Animator : public PrivateComponentBase
 {
+    std::vector<std::shared_ptr<Bone>> m_bones;
     std::vector<glm::mat4> m_transformChain;
+    std::vector<std::string> m_name;
+    std::vector<Entity> m_boundEntities;
     friend class SkinnedMeshRenderer;
+    void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
   public:
-    bool m_debugRenderBones;
-    float m_debugRenderBonesSize = 0.1f;
-    glm::vec4 m_debugRenderBonesColor = glm::vec4(1, 0, 0, 0.5);
-
+    void DebugBoneRender(const glm::vec4& color, const float& size) const;
+    void ResetTransform(const int& index);
     std::shared_ptr<Animation> m_animation;
     bool m_needUpdate = false;
     bool m_autoPlay = true;

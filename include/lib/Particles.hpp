@@ -7,8 +7,6 @@ namespace UniEngine
 class UNIENGINE_API Particles : public PrivateComponentBase
 {
   public:
-    glm::vec4 m_displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.5f);
-    bool m_displayBound = true;
     Particles();
     Bound m_boundingBox;
     bool m_forwardRendering = false;

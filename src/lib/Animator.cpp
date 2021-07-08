@@ -9,12 +9,13 @@ void Bone::Animate(
     const float &animationTime,
     const glm::mat4 &parentTransform,
     const glm::mat4 &rootTransform,
+    std::vector<Entity> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     glm::mat4 globalTransform = parentTransform;
-    if (m_ragDoll.IsValid())
+    if (boundEntities[m_index].IsValid())
     {
-        globalTransform *= glm::inverse(rootTransform) * m_ragDoll.GetComponentData<GlobalTransform>().m_value;
+        globalTransform = glm::inverse(rootTransform) * boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
     }
     else
     {
@@ -30,7 +31,7 @@ void Bone::Animate(
     results[m_index] = globalTransform * m_offsetMatrix.m_value;
     for (auto &i : m_children)
     {
-        i->Animate(name, animationTime, globalTransform, rootTransform, results);
+        i->Animate(name, animationTime, globalTransform, rootTransform,boundEntities, results);
     }
 }
 
@@ -40,36 +41,11 @@ void Bone::OnGui()
     {
         ImGui::Text("Controller: ");
         ImGui::SameLine();
-        EditorManager::DragAndDrop(m_ragDoll);
         for (auto &i : m_children)
         {
             i->OnGui();
         }
         ImGui::TreePop();
-    }
-}
-
-void Bone::DebugRenderAnimated(
-    const std::string &name,
-    const float &animationTime,
-    const glm::mat4 &parentTransform,
-    const float &size,
-    const glm::vec4 &color,
-    const std::shared_ptr<Mesh> &mesh)
-{
-    glm::mat4 globalTransform = parentTransform;
-    const auto search = m_animations.find(name);
-    if (search != m_animations.end())
-    {
-        const auto translation = m_animations[name].InterpolatePosition(animationTime);
-        const auto rotation = m_animations[name].InterpolateRotation(animationTime);
-        const auto scale = m_animations[name].InterpolateScaling(animationTime);
-        globalTransform *= translation * rotation * scale;
-    }
-    RenderManager::DrawGizmoMesh(mesh.get(), EditorManager::GetSceneCamera().get(), color, globalTransform, size);
-    for (auto &i : m_children)
-    {
-        i->DebugRenderAnimated(name, animationTime, globalTransform, size, color, mesh);
     }
 }
 
@@ -167,6 +143,10 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
     m_animation = targetAnimation;
     m_transformChain.resize(m_animation->m_boneSize);
+    m_boundEntities.resize(m_animation->m_boneSize);
+    m_name.resize(m_animation->m_boneSize);
+    m_bones.resize(m_animation->m_boneSize);
+    BoneSetter(m_animation->m_rootBone);
 }
 
 void Animator::OnGui()
@@ -181,21 +161,33 @@ void Animator::OnGui()
     }
     if (m_animation)
     {
-        ImGui::Checkbox("Display bones", &m_debugRenderBones);
-        if (m_debugRenderBones)
+        static bool debugRenderBones = true;
+        static float debugRenderBonesSize = 0.5f;
+        static glm::vec4 debugRenderBonesColor = glm::vec4(1, 1, 0, 0.5);
+        ImGui::Checkbox("Display bones", &debugRenderBones);
+        if (debugRenderBones)
         {
-            ImGui::DragFloat("Size", &m_debugRenderBonesSize, 0.01f, 0.01f, 3.0f);
-            ImGui::ColorEdit4("Color", &m_debugRenderBonesColor.x);
-            m_animation->m_rootBone->DebugRenderAnimated(
-                m_currentActivatedAnimation,
-                m_currentAnimationTime,
-                GetOwner().GetComponentData<GlobalTransform>().m_value,
-                m_debugRenderBonesSize,
-                m_debugRenderBonesColor,
-                DefaultResources::Primitives::Sphere);
+            ImGui::DragFloat("Size", &debugRenderBonesSize, 0.01f, 0.01f, 3.0f);
+            ImGui::ColorEdit4("Color", &debugRenderBonesColor.x);
+            DebugBoneRender(debugRenderBonesColor, debugRenderBonesSize);
         }
         m_animation->OnGui();
-
+        if(ImGui::TreeNode("RagDoll"))
+        {
+            for(int i = 0; i < m_boundEntities.size(); i++)
+            {
+                ImGui::Text(("Bone: " + m_name[i]).c_str());
+                ImGui::SameLine();
+                if(EditorManager::DragAndDrop(m_boundEntities[i]))
+                {
+                    if(m_boundEntities[i].IsValid())
+                    {
+                        ResetTransform(i);
+                    }
+                }
+            }
+            ImGui::TreePop();
+        }
         if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
             m_animation->m_animationNameAndLength.end())
         {
@@ -209,15 +201,15 @@ void Animator::OnGui()
         {
             for (auto &i : m_animation->m_animationNameAndLength)
             {
-                bool is_selected =
+                const bool selected =
                     m_currentActivatedAnimation ==
                     i.first; // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(i.first.c_str(), is_selected))
+                if (ImGui::Selectable(i.first.c_str(), selected))
                 {
                     m_currentActivatedAnimation = i.first;
                     m_currentAnimationTime = 0.0f;
                 }
-                if (is_selected)
+                if (selected)
                 {
                     ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling +
                                                   // for keyboard navigation support)
@@ -257,6 +249,7 @@ void Animator::Animate()
         m_currentActivatedAnimation,
         m_currentAnimationTime,
         owner.GetComponentData<GlobalTransform>().m_value,
+        m_boundEntities,
         m_transformChain);
 }
 
@@ -274,11 +267,53 @@ void Animation::Animate(
     const std::string &name,
     const float &animationTime,
     const glm::mat4 &rootTransform,
+    std::vector<Entity> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end())
     {
         return;
     }
-    m_rootBone->Animate(name, animationTime, Transform().m_value, rootTransform, results);
+    m_rootBone->Animate(name, animationTime, rootTransform, rootTransform, boundEntities, results);
+}
+
+void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
+{
+    m_name[boneWalker->m_index] = boneWalker->m_name;
+    m_bones[boneWalker->m_index] = boneWalker;
+    for(auto& i : boneWalker->m_children)
+    {
+        BoneSetter(i);
+    }
+}
+
+void Animator::DebugBoneRender(const glm::vec4& color, const float& size) const
+{
+    const auto selfScale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+
+    std::vector<glm::mat4> debugRenderingMatrices = m_transformChain;
+    for(int index = 0; index < m_transformChain.size(); index++)
+    {
+        debugRenderingMatrices[index] = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value) * glm::inverse(glm::scale(selfScale));
+    }
+    RenderManager::DrawGizmoMeshInstanced(DefaultResources::Primitives::Sphere.get(), EditorManager::GetSceneCamera().get(), color, debugRenderingMatrices.data(), debugRenderingMatrices.size(), Transform().m_value, size);
+}
+
+void Animator::ResetTransform(const int &index)
+{
+    const auto selfGlobalTransform = GetOwner().GetComponentData<GlobalTransform>();
+    GlobalTransform globalTransform;
+    auto& entity = m_boundEntities[index];
+    globalTransform.m_value = selfGlobalTransform.m_value * m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
+    auto parent = EntityManager::GetParent(m_boundEntities[index]);
+    Transform localTransform;
+    if(parent.IsValid())
+    {
+        const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
+        localTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
+    }else
+    {
+        localTransform.m_value = globalTransform.m_value;
+    }
+    entity.SetComponentData(localTransform);
 }

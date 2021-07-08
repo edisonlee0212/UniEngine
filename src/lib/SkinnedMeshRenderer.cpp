@@ -65,15 +65,6 @@ void SkinnedMeshRenderer::UploadBones()
 
 void SkinnedMeshRenderer::OnGui()
 {
-    
-    ImGui::Checkbox("Render bones", &m_renderBones);
-    if (m_renderBones)
-    {
-        ImGui::DragFloat("Size: ", &m_renderSize, 0.01f, 0.01f, 1.0f);
-        // for (auto& i : m_skinnedMesh->m_bones)
-        // i->RenderBones(m_renderSize, GetOwner().GetComponentData<GlobalTransform>().m_value);
-    }
-
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
@@ -93,11 +84,13 @@ void SkinnedMeshRenderer::OnGui()
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))
         {
-            ImGui::Checkbox("Display bounds##SkinnedMeshRenderer", &m_displayBound);
-            if (m_displayBound)
+            static bool displayBound;
+            ImGui::Checkbox("Display bounds##SkinnedMeshRenderer", &displayBound);
+            if (displayBound)
             {
-                ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&m_displayBoundColor);
-                RenderBound(m_displayBoundColor);
+                static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
+                ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&displayBoundColor);
+                RenderBound(displayBoundColor);
             }
             m_skinnedMesh->OnGui();
             ImGui::TreePop();

@@ -15,9 +15,6 @@ out VS_OUT {
 	vec2 TexCoords;
 } vs_out;
 
-
-uniform mat4 model;
-
 void main()
 {
 	mat4 boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
@@ -43,7 +40,7 @@ void main()
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
 
-	boneTransform = model * boneTransform;
+	boneTransform = boneTransform;
 	vs_out.FragPos = vec3(boneTransform * vec4(inPos, 1.0));
 	vec3 N = normalize(vec3(boneTransform * vec4(inNormal, 0.0)));
 	vec3 T = normalize(vec3(boneTransform * vec4(inTangent, 0.0)));

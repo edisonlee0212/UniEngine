@@ -255,10 +255,10 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     glDisable(GL_CULL_FACE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
-    manager.m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
-    manager.m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
-    manager.m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.075));
+    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    manager.m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    manager.m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    manager.m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
 
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -696,7 +696,6 @@ void EditorManager::Update()
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                         skinnedMeshRenderer->UploadBones();
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
                         mesh->Enable();
                         mesh->Vao()->DisableAttributeArray(12);
@@ -741,7 +740,6 @@ void EditorManager::Update()
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                         skinnedMeshRenderer->UploadBones();
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         auto *skinnedMesh = skinnedMeshRenderer->m_skinnedMesh.get();
                         skinnedMesh->Enable();
                         skinnedMesh->Vao()->DisableAttributeArray(12);
@@ -784,7 +782,6 @@ void EditorManager::Update()
                     program->Bind();
                     auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                     auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
                     mesh->Enable();
                     mesh->Vao()->DisableAttributeArray(12);
@@ -1640,7 +1637,6 @@ bool EditorManager::DragAndDrop(Entity &entity)
             }
             if (ImGui::Button(("Remove" + tag).c_str()))
             {
-                EntityManager::DeleteEntity(entity);
                 entity = Entity();
                 statusChanged = true;
             }

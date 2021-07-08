@@ -62,7 +62,6 @@ void RenderManager::RenderToCameraDeferred(
 						renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
 						renderManager.m_materialSettingsBuffer->SubData(
 							0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-						program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 						DeferredPrepassInternal(
 							skinnedMeshRenderer->m_skinnedMesh.get());
 						break;
@@ -209,7 +208,6 @@ void RenderManager::RenderToCameraForward(const std::unique_ptr<CameraComponent>
 						renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
 						renderManager.m_materialSettingsBuffer->SubData(
 							0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-						program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 						DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
 						break;
 					}
@@ -296,7 +294,6 @@ void RenderManager::ShadowMapPass(const int& enabledSize,
 					program->Bind();
 					auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-					program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 					auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
 					mesh->Enable();
 					mesh->Vao()->DisableAttributeArray(12);
@@ -339,7 +336,6 @@ void RenderManager::ShadowMapPass(const int& enabledSize,
 					program->Bind();
 					auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-					program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
 					auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
 					mesh->Enable();
 					mesh->Vao()->DisableAttributeArray(12);
@@ -2731,7 +2727,7 @@ void RenderManager::DrawGizmoMeshInstanced(
 		return;
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2784,7 +2780,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 		return;
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2836,7 +2832,7 @@ void RenderManager::DrawGizmoMesh(
 {
 	if (mesh == nullptr)
 		return;
-	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
