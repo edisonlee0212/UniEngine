@@ -22,6 +22,33 @@ UniEngine::RigidBody::RigidBody()
     m_currentRegistered = false;
 }
 
+void UniEngine::RigidBody::ApplyMeshBound()
+{
+    if (!GetOwner().IsValid() || !GetOwner().HasPrivateComponent<MeshRenderer>())
+        return;
+    auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
+    if (meshRenderer)
+    {
+        auto bound = meshRenderer->m_mesh->GetBound();
+        glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+        switch (m_shapeType)
+        {
+        case ShapeType::Sphere:
+            scale = bound.Size() * scale;
+            m_shapeParam = glm::vec3((scale.x + scale.y + scale.z) / 3.0f, 1.0f, 1.0f);
+            break;
+        case ShapeType::Box:
+            m_shapeParam = bound.Size() * scale;
+            break;
+        case ShapeType::Capsule:
+            m_shapeParam = bound.Size() * scale;
+            break;
+        }
+        
+    }
+    m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
+}
+
 void UniEngine::RigidBody::SetShapeType(ShapeType type)
 {
     if (Application::IsPlaying())
@@ -45,6 +72,7 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
     if (m_shapeParam == value)
         return;
     m_shapeParam = value;
+    m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
     m_shapeUpdated = false;
 }
 
@@ -55,10 +83,9 @@ void UniEngine::RigidBody::SetStatic(bool value)
         Debug::Log("Failed! Pause game to reset!");
         return;
     }
-    if (m_isStatic == value)
-        return;
     m_isStatic = value;
     m_shapeUpdated = false;
+    UpdateBody();
 }
 
 void UniEngine::RigidBody::SetTransform(glm::mat4 value)
@@ -208,7 +235,7 @@ void UniEngine::RigidBody::OnGui()
                     DefaultResources::Primitives::Sphere.get(),
                     EditorManager::GetSceneCamera().get(),
                     glm::vec4(0.0f, 0.0f, 1.0f, 0.5f),
-                    ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x * 2.0f))),
+                    ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
                     1);
             break;
         case ShapeType::Box:
@@ -217,13 +244,7 @@ void UniEngine::RigidBody::OnGui()
                 if (ImGui::Button("Apply mesh bound"))
                 {
                     statusChanged = true;
-                    auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
-                    if (meshRenderer)
-                    {
-                        auto bound = meshRenderer->m_mesh->GetBound();
-                        glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
-                        m_shapeParam = bound.Size() * scale;
-                    }
+                    ApplyMeshBound();
                 }
             }
             if (ImGui::DragFloat3("XYZ Size", &m_shapeParam.x, 0.01f, 0.0f))

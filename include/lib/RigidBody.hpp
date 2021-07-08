@@ -32,6 +32,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
 
   public:
     RigidBody();
+    void ApplyMeshBound();
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);
     void SetStatic(bool value);

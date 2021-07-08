@@ -117,7 +117,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     OpenGLUtils::GLUBO m_pointLightBlock;
     OpenGLUtils::GLUBO m_spotLightBlock;
 
-    size_t m_shadowMapResolution = 4096;
+    size_t m_shadowMapResolution = 2048;
     OpenGLUtils::GLUBO m_shadowCascadeInfoBlock;
 
     DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];
@@ -195,8 +195,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderQuad();
   public:
     bool m_stableFit = true;
-    float m_maxShadowDistance = 500;
-    float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = {0.15f, 0.3f, 0.5f, 1.0f};
+    float m_maxShadowDistance = 100;
+    float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = {0.075f, 0.15f, 0.3f, 1.0f};
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;

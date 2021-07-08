@@ -11,6 +11,7 @@ void CameraControlSystem::OnCreate()
     auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
     transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
     EntityManager::SetComponentData(mainCamera->GetOwner(), transform);
+    m_enabled = true;
 }
 
 void CameraControlSystem::LateUpdate()
