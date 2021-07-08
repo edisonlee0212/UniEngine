@@ -65,6 +65,15 @@ Here lists the features that will be introduced to UniEngine in future, though I
   - The Star Cluster example shows the potential of Job System with ECS by rendering hundreds of thousands stars at the same time with instanced rendering. The position of each star is calculated in real time in parallel with a single lambda-expression based API similiar to the Entities.ForEach() in Unity. 
 - Planet
   - The Planet example shows the ability to use ECS for complex behaviour. The application contains a simple sphere generation program with dynamic LOD calculation based on the position of the scene camera.
-- Sample
-  - The Sample example is a simple scene with spheres being rendered in different material properties. It's mainly for testing the PBR rendering pipeline.
+- Rendering
+  - This project is mainly for testing and debugging rendering system. It's consists of:
+     - Spheres being rendered in different material properties.
+     - Multiple animated model.
+     - Sponza scene
+     - Directional light and point lights
+- Physics
+  - The Physics example is for testing and debugging the physics system. It's consists of:
+     - Hundrends of small balls with sphere collider
+     - Boundary with static rigidbody
 ## Plans
+- The next big update should be an asset system. This is postponed again and again because my school research don't need this feature (Considering most resources are imported with direct coding) However, the ability to load, index and store assets at a given location is necessary for content creation. 
