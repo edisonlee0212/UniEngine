@@ -66,6 +66,8 @@ Here lists the features that will be introduced to UniEngine in future, though I
 - Planet
   - The Planet example shows the ability to use ECS for complex behaviour. The application contains a simple sphere generation program with dynamic LOD calculation based on the position of the scene camera.
 - Rendering
+![RenderingScreenshot](/Resources/GitHub/RenderingProjectScreenshot.png?raw=true "RenderingScreenshot")
+
   - This project is mainly for testing and debugging rendering system. It's consists of:
      - Spheres being rendered in different material properties.
      - Multiple animated model.
