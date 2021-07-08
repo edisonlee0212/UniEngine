@@ -19,18 +19,17 @@ void UniEngine::AnimationManager::PreUpdate()
                               .Push([=](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
-                                      auto &smmc = owners->at(i).GetPrivateComponent<Animator>();
-                                      if (smmc->m_autoPlay)
+                                      auto &animator = owners->at(i).GetPrivateComponent<Animator>();
+                                      if (animator->m_autoPlay)
                                       {
-                                          smmc->AutoPlay();
-                                          smmc->Animate();
+                                          animator->AutoPlay();
+                                          animator->Animate();
                                       }else if (
                                           Application::IsPlaying() && 
-                                          smmc->IsEnabled() &&
-                                          smmc->m_animation && smmc->m_needUpdate)
+                                          animator->IsEnabled() &&
+                                          animator->m_animation)
                                       {
-                                          smmc->Animate();
-                                          smmc->m_needUpdate = false;
+                                          animator->Animate();
                                       }
                                   }
                                   if (threadIndex < loadReminder)
@@ -43,11 +42,9 @@ void UniEngine::AnimationManager::PreUpdate()
                                           smmc->Animate();
                                       }
                                       else if (
-                                          Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation &&
-                                          smmc->m_needUpdate)
+                                          Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation)
                                       {
                                           smmc->Animate();
-                                          smmc->m_needUpdate = false;
                                       }
                                   }
                               })

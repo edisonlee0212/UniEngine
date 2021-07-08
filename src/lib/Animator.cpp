@@ -15,7 +15,8 @@ void Bone::Animate(
     glm::mat4 globalTransform = parentTransform;
     if (boundEntities[m_index].IsValid())
     {
-        globalTransform = glm::inverse(rootTransform) * boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
+        globalTransform =
+            boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
     }
     else
     {
@@ -28,10 +29,10 @@ void Bone::Animate(
             globalTransform *= translation * rotation * scale;
         }
     }
-    results[m_index] = globalTransform * m_offsetMatrix.m_value;
+    results[m_index] = globalTransform;
     for (auto &i : m_children)
     {
-        i->Animate(name, animationTime, globalTransform, rootTransform,boundEntities, results);
+        i->Animate(name, animationTime, globalTransform, rootTransform, boundEntities, results);
     }
 }
 
@@ -142,11 +143,15 @@ std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
 void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
     m_animation = targetAnimation;
-    m_transformChain.resize(m_animation->m_boneSize);
-    m_boundEntities.resize(m_animation->m_boneSize);
-    m_name.resize(m_animation->m_boneSize);
-    m_bones.resize(m_animation->m_boneSize);
+    m_boneSize = m_animation->m_boneSize;
+    m_transformChain.resize(m_boneSize);
+    m_boundEntities.resize(m_boneSize);
+    m_names.resize(m_boneSize);
+    m_bones.resize(m_boneSize);
     BoneSetter(m_animation->m_rootBone);
+    m_offsetMatrices.resize(m_boneSize);
+    for (auto &i : m_bones)
+        m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
 }
 
 void Animator::OnGui()
@@ -172,15 +177,15 @@ void Animator::OnGui()
             DebugBoneRender(debugRenderBonesColor, debugRenderBonesSize);
         }
         m_animation->OnGui();
-        if(ImGui::TreeNode("RagDoll"))
+        if (ImGui::TreeNode("RagDoll"))
         {
-            for(int i = 0; i < m_boundEntities.size(); i++)
+            for (int i = 0; i < m_boundEntities.size(); i++)
             {
-                ImGui::Text(("Bone: " + m_name[i]).c_str());
+                ImGui::Text(("Bone: " + m_names[i]).c_str());
                 ImGui::SameLine();
-                if(EditorManager::DragAndDrop(m_boundEntities[i]))
+                if (EditorManager::DragAndDrop(m_boundEntities[i]))
                 {
-                    if(m_boundEntities[i].IsValid())
+                    if (m_boundEntities[i].IsValid())
                     {
                         ResetTransform(i);
                     }
@@ -236,21 +241,32 @@ void Animator::AutoPlay()
 }
 void Animator::Animate()
 {
-    if (!m_animation)
+    if (m_boneSize == 0)
         return;
-    auto owner = GetOwner();
-    if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
-        m_animation->m_animationNameAndLength.end())
+    if (!m_animation)
     {
-        m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
-        m_currentAnimationTime = 0.0f;
+        for(int i = 0; i < m_transformChain.size(); i++)
+        {
+            m_transformChain[i] = m_boundEntities[i].GetComponentData<GlobalTransform>().m_value;
+        }
     }
-    m_animation->Animate(
-        m_currentActivatedAnimation,
-        m_currentAnimationTime,
-        owner.GetComponentData<GlobalTransform>().m_value,
-        m_boundEntities,
-        m_transformChain);
+    else
+    {
+        auto owner = GetOwner();
+        if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+            m_animation->m_animationNameAndLength.end())
+        {
+            m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+            m_currentAnimationTime = 0.0f;
+        }
+        m_animation->Animate(
+            m_currentActivatedAnimation,
+            m_currentAnimationTime,
+            owner.GetComponentData<GlobalTransform>().m_value,
+            m_boundEntities,
+            m_transformChain);
+    }
+    ApplyOffsetMatrices();
 }
 
 Animation::Animation()
@@ -279,39 +295,68 @@ void Animation::Animate(
 
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
 {
-    m_name[boneWalker->m_index] = boneWalker->m_name;
+    m_names[boneWalker->m_index] = boneWalker->m_name;
     m_bones[boneWalker->m_index] = boneWalker;
-    for(auto& i : boneWalker->m_children)
+    for (auto &i : boneWalker->m_children)
     {
         BoneSetter(i);
     }
 }
 
-void Animator::DebugBoneRender(const glm::vec4& color, const float& size) const
+void Animator::Setup(
+    std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices)
+{
+    m_bones.clear();
+    assert(boundEntities.size() == name.size() && boundEntities.size() == offsetMatrices.size());
+    m_boneSize = m_boundEntities.size();
+    m_transformChain.resize(boundEntities.size());
+    m_boundEntities = boundEntities;
+    m_names = name;
+    m_offsetMatrices = offsetMatrices;
+}
+
+void Animator::ApplyOffsetMatrices()
+{
+    for (int i = 0; i < m_transformChain.size(); i++)
+    {
+        m_transformChain[i] *= m_offsetMatrices[i];
+    }
+}
+
+void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
 {
     const auto selfScale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
 
     std::vector<glm::mat4> debugRenderingMatrices = m_transformChain;
-    for(int index = 0; index < m_transformChain.size(); index++)
+    for (int index = 0; index < m_transformChain.size(); index++)
     {
-        debugRenderingMatrices[index] = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value) * glm::inverse(glm::scale(selfScale));
+        debugRenderingMatrices[index] = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value) *
+                                        glm::inverse(glm::scale(selfScale));
     }
-    RenderManager::DrawGizmoMeshInstanced(DefaultResources::Primitives::Sphere.get(), EditorManager::GetSceneCamera().get(), color, debugRenderingMatrices.data(), debugRenderingMatrices.size(), Transform().m_value, size);
+    RenderManager::DrawGizmoMeshInstanced(
+        DefaultResources::Primitives::Sphere.get(),
+        EditorManager::GetSceneCamera().get(),
+        color,
+        debugRenderingMatrices.data(),
+        debugRenderingMatrices.size(),
+        Transform().m_value,
+        size);
 }
 
 void Animator::ResetTransform(const int &index)
 {
-    const auto selfGlobalTransform = GetOwner().GetComponentData<GlobalTransform>();
     GlobalTransform globalTransform;
-    auto& entity = m_boundEntities[index];
-    globalTransform.m_value = selfGlobalTransform.m_value * m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
+    auto &entity = m_boundEntities[index];
+    globalTransform.m_value =
+        m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
     auto parent = EntityManager::GetParent(m_boundEntities[index]);
     Transform localTransform;
-    if(parent.IsValid())
+    if (parent.IsValid())
     {
         const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
         localTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-    }else
+    }
+    else
     {
         localTransform.m_value = globalTransform.m_value;
     }

@@ -12,7 +12,7 @@ int main()
     auto &world = Application::GetCurrentWorld();
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
-    RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.8f;
+    RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
