@@ -35,7 +35,7 @@ Here lists the features that already exists in the UniEngine. Some of them I may
        - Support for dir/point/spot light
     - Post-processing
        - Bloom
-       - SSAO (Temporily disabled)
+       - SSAO
     - PBR with IBL support
        - Environmental map
        - Basic light probe/reflection probe support
@@ -52,6 +52,7 @@ Here lists the features that already exists in the UniEngine. Some of them I may
     - Scene import/export (in development stage)
  - Physics
     - Integrated PhysX for 3D physics (Incomplete and in development)
+       - RigidBody with Box/Sphere/Capsule collider
 ## Upcoming features
 Here lists the features that will be introduced to UniEngine in future, though I don't have a concrete plan of when these will come.
 - Procedural terrain and world generation
