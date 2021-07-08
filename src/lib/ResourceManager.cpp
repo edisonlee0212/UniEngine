@@ -64,6 +64,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
         rootAssimpNode->AttachToAnimator(retVal->m_animation, index);
         retVal->m_animation->m_boneSize = index + 1;
         ReadAnimations(scene, retVal->m_animation, bonesMap);
+        ApplyBoneIndices(retVal->m_rootNode);
     }
 
     if (addResource)
@@ -380,7 +381,6 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
         auto smmc = std::make_unique<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
-        smmc->ResizeBones();
         EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
     }
     int index = 0;
@@ -1044,6 +1044,15 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
     return texture2D;
 }
 
+void ResourceManager::ApplyBoneIndices(std::shared_ptr<ModelNode>& node)
+{
+    if(node->m_skinnedMesh) node->m_skinnedMesh->FetchIndices();
+    for(auto& i : node->m_children)
+    {
+        ApplyBoneIndices(i);
+    }
+}
+
 void UniEngine::ResourceManager::AttachChildren(
     EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName)
 {
@@ -1068,7 +1077,6 @@ void UniEngine::ResourceManager::AttachChildren(
         auto smmc = std::make_unique<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
-        smmc->ResizeBones();
         EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
     }
 

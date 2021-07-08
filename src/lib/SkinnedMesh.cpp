@@ -7,10 +7,8 @@ using namespace UniEngine;
 std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 	
 
-void SkinnedMesh::OnGui()
+void SkinnedMesh::OnGui() const
 {
-    
-
 	ImGui::Text(("Vertices size: " + std::to_string(m_verticesSize)).c_str());
 	ImGui::Text(("Triangle amount: " + std::to_string(m_triangleSize)).c_str());
 }
@@ -22,6 +20,15 @@ glm::vec3 SkinnedMesh::GetCenter() const
 Bound SkinnedMesh::GetBound() const
 {
 	return m_bound;
+}
+
+void SkinnedMesh::FetchIndices()
+{
+	m_boneAnimatorIndices.resize(m_bones.size());
+	for(int i = 0; i < m_bones.size(); i++)
+	{
+	    m_boneAnimatorIndices[i] = m_bones[i]->m_index;
+	}
 }
 
 void SkinnedMesh::GenerateMatrices()

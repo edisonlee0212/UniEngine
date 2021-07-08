@@ -47,13 +47,14 @@ class UNIENGINE_API SkinnedMesh
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
 	std::vector<std::shared_ptr<Bone>> m_bones;
-
     std::shared_ptr<Animation> m_animation;
   public:
+	void FetchIndices();
+	std::vector<unsigned> m_boneAnimatorIndices;
     static void GenerateMatrices();
     static void UploadBones(std::vector<glm::mat4>& matrices);
 	SkinnedMesh();
-	void OnGui();
+	void OnGui() const;
 	[[nodiscard]] glm::vec3 GetCenter() const;
 	[[nodiscard]] Bound GetBound() const;
 	void Upload();

@@ -12,12 +12,11 @@ class UNIENGINE_API SkinnedMeshRenderer : public PrivateComponentBase
     void RenderBound(glm::vec4 &color) const;
     void GetBoneMatrices();
     std::vector<glm::mat4> m_finalResults;
-    Entity m_animator;
+   
     friend class RenderManager;
   public:
+    Entity m_animator;
     void AttachAnimator(const Entity& animator);
-    void ResizeBones();
-    void GetBoneMatrices(std::unique_ptr<Animator> &animator);
     void UploadBones();
     bool m_forwardRendering = false;
     bool m_castShadow = true;

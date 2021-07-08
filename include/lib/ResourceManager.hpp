@@ -40,6 +40,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 		std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
 		const float &gamma);
 #ifdef USE_ASSIMP
+	static void ApplyBoneIndices(std::shared_ptr<ModelNode>& node);
 	static void ReadAnimations(
 		const aiScene *importerScene,
 		std::shared_ptr<Animation> &animator, std::map<std::string, std::shared_ptr<Bone>> &bonesMap);
