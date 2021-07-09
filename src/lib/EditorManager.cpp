@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <CameraComponent.hpp>
-#include <Core/FileIO.hpp>
+#include <D6Joint.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -495,6 +495,17 @@ void EditorManager::Init()
             owner.SetPrivateComponent(std::make_unique<Animator>());
         }
     });
+
+    RegisterPrivateComponentMenu<D6Joint>([](Entity owner) {
+      if (owner.HasPrivateComponent<D6Joint>())
+          return;
+      if (ImGui::SmallButton("D6Joint"))
+      {
+          owner.SetPrivateComponent(std::make_unique<D6Joint>());
+      }
+    });
+
+
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
         if (owner.HasPrivateComponent<DirectionalLight>())
             return;

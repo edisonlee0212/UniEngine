@@ -28,9 +28,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     PxVec3 m_linearVelocity = PxVec3(0.0f);
     PxVec3 m_angularVelocity = PxVec3(0.0f);
     bool m_shapeUpdated = false;
-
+    friend class D6Joint;
   public:
-    RigidBody();
     void ApplyMeshBound();
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);

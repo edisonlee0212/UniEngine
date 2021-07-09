@@ -5,12 +5,6 @@
 #include <RigidBody.hpp>
 #include <Transform.hpp>
 using namespace UniEngine;
-UniEngine::RigidBody::RigidBody()
-{
-    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
-    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(PxVec3(0, 0, 0)));
-    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density);
-}
 
 void UniEngine::RigidBody::ApplyMeshBound()
 {
@@ -150,6 +144,9 @@ void UniEngine::RigidBody::UpdateBody()
 
 void UniEngine::RigidBody::Init()
 {
+    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
+    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(PxVec3(0, 0, 0)));
+    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density);
     SetEnabled(false);
 }
 
