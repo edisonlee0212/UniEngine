@@ -1,6 +1,6 @@
 #pragma once
+#include <Core/OpenGLUtils.hpp>
 #include <ISingleton.hpp>
-#include <OpenGLUtils.hpp>
 #include <uniengine_export.h>
 namespace UniEngine
 {

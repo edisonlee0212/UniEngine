@@ -1,4 +1,4 @@
-#include <Debug.hpp>
+#include <Core/Debug.hpp>
 #include <DefaultResources.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>

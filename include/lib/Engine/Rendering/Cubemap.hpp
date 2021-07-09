@@ -1,5 +1,5 @@
 #pragma once
-#include <OpenGLUtils.hpp>
+#include <Core/OpenGLUtils.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API Cubemap : public ResourceBehaviour

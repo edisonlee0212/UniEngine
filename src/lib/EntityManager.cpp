@@ -1,4 +1,4 @@
-#include <Debug.hpp>
+#include <Core/Debug.hpp>
 #include <EntityManager.hpp>
 #include <World.hpp>
 using namespace UniEngine;

@@ -1,5 +1,5 @@
+#include <Core/FileIO.hpp>
 #include <DefaultResources.hpp>
-#include <FileIO.hpp>
 #include <Gui.hpp>
 #include <PostProcessing.hpp>
 #include <ResourceManager.hpp>

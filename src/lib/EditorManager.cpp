@@ -1,8 +1,8 @@
 #include <Application.hpp>
 #include <CameraComponent.hpp>
+#include <Core/FileIO.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
-#include <FileIO.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <Lights.hpp>

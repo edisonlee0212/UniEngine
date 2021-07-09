@@ -1,5 +1,5 @@
-#include <Debug.hpp>
-#include <FileIO.hpp>
+#include <Core/Debug.hpp>
+#include <Core/FileIO.hpp>
 #include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>
 #include <WindowManager.hpp>

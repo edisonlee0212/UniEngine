@@ -1,5 +1,5 @@
 #pragma once
-#include <OpenGLUtils.hpp>
+#include <Core/OpenGLUtils.hpp>
 #include <Transform.hpp>
 #include <World.hpp>
 #include <uniengine_export.h>

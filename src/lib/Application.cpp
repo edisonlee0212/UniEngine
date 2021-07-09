@@ -1,12 +1,12 @@
 #include <AnimationManager.hpp>
 #include <Application.hpp>
+#include <Core/OpenGLUtils.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <JobManager.hpp>
-#include <OpenGLUtils.hpp>
 #include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>

@@ -1,5 +1,5 @@
-﻿#include <Debug.hpp>
-#include <OpenGLUtils.hpp>
+﻿#include <Core/Debug.hpp>
+#include <Core/OpenGLUtils.hpp>
 
 using namespace UniEngine;
 

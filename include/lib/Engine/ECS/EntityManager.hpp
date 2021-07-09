@@ -1,5 +1,5 @@
 #pragma once
-#include <Debug.hpp>
+#include <Core/Debug.hpp>
 
 #include <Entity.hpp>
 #include <ISingleton.hpp>

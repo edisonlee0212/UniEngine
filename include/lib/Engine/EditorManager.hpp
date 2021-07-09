@@ -1,8 +1,8 @@
 #pragma once
 #include <CameraComponent.hpp>
+#include <Core/OpenGLUtils.hpp>
 #include <Gui.hpp>
 #include <ISingleton.hpp>
-#include <OpenGLUtils.hpp>
 #include <RenderTarget.hpp>
 #include <ResourceManager.hpp>
 #include <Texture2D.hpp>

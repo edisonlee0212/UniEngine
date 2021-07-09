@@ -1,7 +1,7 @@
 #pragma once
+#include <Core/OpenGLUtils.hpp>
 #include <Cubemap.hpp>
 #include <EntityManager.hpp>
-#include <OpenGLUtils.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API LightProbe : public ResourceBehaviour

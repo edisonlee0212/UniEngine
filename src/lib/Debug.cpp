@@ -1,5 +1,5 @@
 #include <Application.hpp>
-#include <Debug.hpp>
+#include <Core/Debug.hpp>
 using namespace UniEngine;
 
 Debug &Debug::GetInstance()

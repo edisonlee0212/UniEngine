@@ -1,5 +1,5 @@
 #pragma once
-#include <OpenGLUtils.hpp>
+#include <Core/OpenGLUtils.hpp>
 #include <Texture2D.hpp>
 namespace UniEngine
 {
