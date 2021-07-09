@@ -78,6 +78,8 @@ int main()
 #pragma endregion
 
 #pragma region Create Boundaries
+    CreateDynamicCube(glm::vec3(0, 30, 0), glm::vec3(0, 0, 0), glm::vec3(2, 1, 2), "Dropping box");
+
     const auto ground = CreateSolidCube(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
 
     CreateSolidCube(glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 5, 30), "LeftWall");
