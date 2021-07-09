@@ -15,8 +15,7 @@ void Bone::Animate(
     glm::mat4 globalTransform = parentTransform;
     if (boundEntities[m_index].IsValid())
     {
-        globalTransform =
-            boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
+        globalTransform = boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
     }
     else
     {
@@ -193,41 +192,44 @@ void Animator::OnGui()
             }
             ImGui::TreePop();
         }
-        if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
-            m_animation->m_animationNameAndLength.end())
+        if (m_boneSize != 0)
         {
-            m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
-            m_currentAnimationTime = 0.0f;
-        }
-        if (ImGui::BeginCombo(
-                "Animations##Animator",
-                m_currentActivatedAnimation
-                    .c_str())) // The second parameter is the label previewed before opening the combo.
-        {
-            for (auto &i : m_animation->m_animationNameAndLength)
+            if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+                m_animation->m_animationNameAndLength.end())
             {
-                const bool selected =
-                    m_currentActivatedAnimation ==
-                    i.first; // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(i.first.c_str(), selected))
-                {
-                    m_currentActivatedAnimation = i.first;
-                    m_currentAnimationTime = 0.0f;
-                }
-                if (selected)
-                {
-                    ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling +
-                                                  // for keyboard navigation support)
-                }
+                m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+                m_currentAnimationTime = 0.0f;
             }
-            ImGui::EndCombo();
+            if (ImGui::BeginCombo(
+                    "Animations##Animator",
+                    m_currentActivatedAnimation
+                        .c_str())) // The second parameter is the label previewed before opening the combo.
+            {
+                for (auto &i : m_animation->m_animationNameAndLength)
+                {
+                    const bool selected =
+                        m_currentActivatedAnimation ==
+                        i.first; // You can store your selection however you want, outside or inside your objects
+                    if (ImGui::Selectable(i.first.c_str(), selected))
+                    {
+                        m_currentActivatedAnimation = i.first;
+                        m_currentAnimationTime = 0.0f;
+                    }
+                    if (selected)
+                    {
+                        ImGui::SetItemDefaultFocus(); // You may set the initial focus when opening the combo (scrolling
+                                                      // + for keyboard navigation support)
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::Checkbox("AutoPlay", &m_autoPlay);
+            ImGui::SliderFloat(
+                "Animation time",
+                &m_currentAnimationTime,
+                0.0f,
+                m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
         }
-        ImGui::Checkbox("AutoPlay", &m_autoPlay);
-        ImGui::SliderFloat(
-            "Animation time",
-            &m_currentAnimationTime,
-            0.0f,
-            m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
     }
 }
 void Animator::AutoPlay()
@@ -242,10 +244,8 @@ void Animator::AutoPlay()
 void Animator::Animate()
 {
     if (m_boneSize == 0)
-        return;
-    if (!m_animation)
     {
-        for(int i = 0; i < m_transformChain.size(); i++)
+        for (int i = 0; i < m_transformChain.size(); i++)
         {
             m_transformChain[i] = m_boundEntities[i].GetComponentData<GlobalTransform>().m_value;
         }
@@ -275,6 +275,8 @@ Animation::Animation()
 
 void Animation::OnGui() const
 {
+    if (!m_rootBone)
+        return;
     ImGui::Text(("Bone size: " + std::to_string(m_boneSize)).c_str());
     m_rootBone->OnGui();
 }
@@ -286,7 +288,7 @@ void Animation::Animate(
     std::vector<Entity> &boundEntities,
     std::vector<glm::mat4> &results)
 {
-    if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end())
+    if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end() || !m_rootBone)
     {
         return;
     }
@@ -308,7 +310,6 @@ void Animator::Setup(
 {
     m_bones.clear();
     assert(boundEntities.size() == name.size() && boundEntities.size() == offsetMatrices.size());
-    m_boneSize = m_boundEntities.size();
     m_transformChain.resize(boundEntities.size());
     m_boundEntities = boundEntities;
     m_names = name;
@@ -330,8 +331,8 @@ void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
     std::vector<glm::mat4> debugRenderingMatrices = m_transformChain;
     for (int index = 0; index < m_transformChain.size(); index++)
     {
-        debugRenderingMatrices[index] = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value) *
-                                        glm::inverse(glm::scale(selfScale));
+        debugRenderingMatrices[index] =
+            m_transformChain[index] * glm::inverse(m_offsetMatrices[index]) * glm::inverse(glm::scale(selfScale));
     }
     RenderManager::DrawGizmoMeshInstanced(
         DefaultResources::Primitives::Sphere.get(),
@@ -347,8 +348,7 @@ void Animator::ResetTransform(const int &index)
 {
     GlobalTransform globalTransform;
     auto &entity = m_boundEntities[index];
-    globalTransform.m_value =
-        m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
+    globalTransform.m_value = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
     auto parent = EntityManager::GetParent(m_boundEntities[index]);
     Transform localTransform;
     if (parent.IsValid())
