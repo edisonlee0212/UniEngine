@@ -21,7 +21,7 @@ struct UNIENGINE_API SkinnedVertex
     glm::vec4 m_weight2;
 };
 
-class UNIENGINE_API SkinnedMesh
+class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
 {
 	std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
 	size_t m_verticesSize = 0;
@@ -47,13 +47,13 @@ class UNIENGINE_API SkinnedMesh
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
 	std::vector<std::shared_ptr<Bone>> m_bones;
-    std::shared_ptr<Animation> m_animation;
   public:
+	void OnCreate() override;
+	std::shared_ptr<Animation> m_animation;
 	void FetchIndices();
 	std::vector<unsigned> m_boneAnimatorIndices;
     static void GenerateMatrices();
     static void UploadBones(std::vector<glm::mat4>& matrices);
-	SkinnedMesh();
 	void OnGui() const;
 	[[nodiscard]] glm::vec3 GetCenter() const;
 	[[nodiscard]] Bound GetBound() const;

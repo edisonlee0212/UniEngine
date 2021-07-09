@@ -858,7 +858,7 @@ std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
         for (int j = 0; j < 3; j++)
             indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
-    auto skinnedMesh = std::make_shared<SkinnedMesh>();
+    auto skinnedMesh = ResourceManager::CreateResource<SkinnedMesh>();
 #pragma region Read bones
     std::vector<std::vector<std::pair<int, float>>> verticesBoneIdWeights;
     verticesBoneIdWeights.resize(vertices.size());

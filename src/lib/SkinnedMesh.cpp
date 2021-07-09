@@ -43,13 +43,13 @@ void SkinnedMesh::UploadBones(std::vector<glm::mat4> &matrices)
     m_skinnedMeshBonesUniformBufferBlock->SubData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
 }
 
-SkinnedMesh::SkinnedMesh()
+void SkinnedMesh::OnCreate()
 {
-	m_vao = std::make_shared<OpenGLUtils::GLVAO>();
+    m_vao = std::make_shared<OpenGLUtils::GLVAO>();
 	m_triangleSize = 0;
 	m_bound = Bound();
+    m_name = "New Skinned";
 }
-
 void SkinnedMesh::Upload()
 {
 	if (m_verticesSize == 0)
