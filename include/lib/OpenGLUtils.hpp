@@ -9,6 +9,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     friend class DefaultResources;
     friend class RenderManager;
     bool m_enableBindlessTexture = false;
+
   public:
     static bool SupportBindlessTexture()
     {
@@ -278,7 +279,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
             const void *pixels) const;
     };
 
-
     class UNIENGINE_API GLTextureCubeMap : public GLTexture
     {
         GLsizei m_width = 0;
@@ -428,7 +428,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void AttachRenderBuffer(const GLRenderBuffer *buffer, const GLenum &attachPoint);
         void AttachTexture(const GLTexture *texture, const GLenum &attachPoint);
         void AttachTextureLayer(const GLTexture *texture, const GLenum &attachPoint, const GLint &layer);
-        void AttachTexture2D(const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint& level = 0);
+        void AttachTexture2D(
+            const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint &level = 0);
         void Clear();
     };
     enum class UNIENGINE_API ShaderType

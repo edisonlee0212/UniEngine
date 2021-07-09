@@ -2,9 +2,9 @@
 #include <CameraComponent.hpp>
 #include <DefaultResources.hpp>
 #include <Lights.hpp>
+#include <MeshRenderer.hpp>
 #include <Particles.hpp>
 #include <SkinnedMeshRenderer.hpp>
-#include <MeshRenderer.hpp>
 namespace UniEngine
 {
 struct UNIENGINE_API LightSettingsBlock
@@ -40,7 +40,7 @@ struct MaterialSettingsBlock
     int m_alphaDiscardEnabled = true;
     int m_receiveShadow = true;
     int m_enableShadow = true;
-    
+
     glm::vec4 m_albedoColorVal = glm::vec4(1.0f);
     float m_metallicVal = 0.5f;
     float m_roughnessVal = 0.5f;
@@ -90,7 +90,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::map<float, std::vector<RenderInstance>> m_transparentRenderInstances;
     std::map<float, std::vector<RenderInstance>> m_instancedTransparentRenderInstances;
 
-
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
     std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
@@ -105,7 +104,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     size_t m_triangles = 0;
     size_t m_drawCall = 0;
     friend class DefaultResources;
-    
 
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
     std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
@@ -148,8 +146,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
     static void PrepareBrdfLut();
     static void DeferredPrepassInternal(const Mesh *mesh);
-    static void DeferredPrepassInstancedInternal(
-        const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
+    static void DeferredPrepassInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
     static void DeferredPrepassInternal(const SkinnedMesh *skinnedMesh);
     static void DeferredPrepassInstancedInternal(
         const SkinnedMesh *skinnedMesh, const glm::mat4 *matrices, const size_t &count);
@@ -164,10 +161,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 *matrices,
         const size_t &count,
         const bool &receiveShadow);
-    static void DrawMeshInstancedInternal(
-        const Mesh *mesh,
-        const glm::mat4 *matrices,
-        const size_t &count);
+    static void DrawMeshInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
     static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const glm::mat4 *matrices, const size_t &count);
     static void DrawGizmoMesh(
         const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix);
@@ -193,6 +187,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     friend class ResourceManager;
     static void RenderCube();
     static void RenderQuad();
+
   public:
     bool m_stableFit = true;
     float m_maxShadowDistance = 300;

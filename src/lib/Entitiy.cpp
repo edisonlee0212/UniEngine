@@ -82,7 +82,7 @@ bool Entity::IsValid() const
     return false;
 }
 
-void Entity::SetParent(const Entity &parent, const bool& recalculateTransform) const
+void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
 {
     EntityManager::SetParent(*this, parent, recalculateTransform);
 }
@@ -203,8 +203,7 @@ bool EntityArchetypeInfo::HasType(const size_t &typeId)
 }
 
 EntityQuery::EntityQuery()
-{
-}
+= default;
 
 bool EntityQuery::operator==(const EntityQuery &other) const
 {
@@ -227,5 +226,4 @@ bool EntityQuery::IsNull() const
 }
 
 EntityComponentDataStorage::EntityComponentDataStorage()
-{
-}
+= default;

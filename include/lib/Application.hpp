@@ -2,9 +2,9 @@
 #include <EntityManager.hpp>
 #include <FileIO.hpp>
 #include <ISingleton.hpp>
+#include <ProfilerManager.hpp>
 #include <RenderManager.hpp>
 #include <World.hpp>
-#include <ProfilerManager.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API ApplicationTime
@@ -44,6 +44,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     ApplicationTime m_time;
     friend class World;
     bool m_needFixedUpdate = false;
+
   public:
     static ApplicationTime &Time();
 

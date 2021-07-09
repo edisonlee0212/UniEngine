@@ -57,8 +57,7 @@ void RenderTarget::AttachTexture(OpenGLUtils::GLTexture *texture, const GLenum &
 }
 
 void RenderTarget::AttachTexture2D(
-    OpenGLUtils::GLTexture *texture,
-    const GLenum &attachPoint, const GLenum &texTarget, const GLint &level) const
+    OpenGLUtils::GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint &level) const
 {
     if (m_bound)
     {

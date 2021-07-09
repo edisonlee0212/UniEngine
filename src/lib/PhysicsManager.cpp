@@ -161,43 +161,44 @@ void PhysicsSystem::Simulate(float time) const
     size_t reminder = rigidBodyEntities->size() % threadSize;
     for (size_t i = 0; i < threadSize; i++)
     {
-        futures.push_back(
-            JobManager::PrimaryWorkers()
-                .Push([&list, i, capacity, reminder, threadSize](int id) {
-                    for (size_t j = 0; j < capacity; j++)
-                    {
-                        size_t index = capacity * i + j;
-                        const auto &rigidBodyEntity = list->at(index);
-                        auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                        if (rigidBody->IsEnabled())
-                        {
-                            PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
-                            glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                            glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                            glm::vec3 scale = rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
-                            GlobalTransform globalTransform;
-                            globalTransform.SetValue(position, rotation, scale);
-                            rigidBodyEntity.SetComponentData(globalTransform);
-                        }
-                    }
-                    if (reminder > i)
-                    {
-                        size_t index = capacity * threadSize + i;
-                        const auto &rigidBodyEntity = list->at(index);
-                        auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                        if (rigidBody->IsEnabled())
-                        {
-                            PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
-                            glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                            glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                            glm::vec3 scale = rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
-                            GlobalTransform globalTransform;
-                            globalTransform.SetValue(position, rotation, scale);
-                            rigidBodyEntity.SetComponentData(globalTransform);
-                        }
-                    }
-                })
-                .share());
+        futures.push_back(JobManager::PrimaryWorkers()
+                              .Push([&list, i, capacity, reminder, threadSize](int id) {
+                                  for (size_t j = 0; j < capacity; j++)
+                                  {
+                                      size_t index = capacity * i + j;
+                                      const auto &rigidBodyEntity = list->at(index);
+                                      auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+                                      if (rigidBody->IsEnabled())
+                                      {
+                                          PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
+                                          glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                          glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                          glm::vec3 scale =
+                                              rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
+                                          GlobalTransform globalTransform;
+                                          globalTransform.SetValue(position, rotation, scale);
+                                          rigidBodyEntity.SetComponentData(globalTransform);
+                                      }
+                                  }
+                                  if (reminder > i)
+                                  {
+                                      size_t index = capacity * threadSize + i;
+                                      const auto &rigidBodyEntity = list->at(index);
+                                      auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+                                      if (rigidBody->IsEnabled())
+                                      {
+                                          PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
+                                          glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                          glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                          glm::vec3 scale =
+                                              rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
+                                          GlobalTransform globalTransform;
+                                          globalTransform.SetValue(position, rotation, scale);
+                                          rigidBodyEntity.SetComponentData(globalTransform);
+                                      }
+                                  }
+                              })
+                              .share());
     }
     for (const auto &i : futures)
         i.wait();

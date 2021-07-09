@@ -1,25 +1,15 @@
-#include <RigidBody.hpp>
+#include <Application.hpp>
+#include <EditorManager.hpp>
 #include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
+#include <RigidBody.hpp>
 #include <Transform.hpp>
-#include <EditorManager.hpp>
-#include <Application.hpp>
-
+using namespace UniEngine;
 UniEngine::RigidBody::RigidBody()
 {
     m_material = PhysicsManager::GetInstance().m_defaultMaterial;
-    m_shapeTransform =
-        glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
-    m_massCenter = PxVec3(0.0f);
-    m_drawBounds = false;
-    m_isStatic = false;
-    PxTransform localTm(PxVec3(0, 0, 0));
-    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
-    m_shapeParam = glm::vec3(1.0f);
-    m_shapeType = ShapeType::Box;
-    m_density = 10.0f;
+    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(PxVec3(0, 0, 0)));
     PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density);
-    m_currentRegistered = false;
 }
 
 void UniEngine::RigidBody::ApplyMeshBound()
@@ -44,7 +34,6 @@ void UniEngine::RigidBody::ApplyMeshBound()
             m_shapeParam = bound.Size() * scale;
             break;
         }
-        
     }
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
 }
@@ -143,7 +132,6 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial *value)
         }
         m_material = value;
         m_shapeUpdated = false;
-        
     }
 }
 
@@ -170,7 +158,8 @@ void UniEngine::RigidBody::OnGui()
 {
     ImGui::Checkbox("Draw bounds", &m_drawBounds);
     static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
-    if(m_drawBounds)ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&displayBoundColor);
+    if (m_drawBounds)
+        ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&displayBoundColor);
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
@@ -227,7 +216,7 @@ void UniEngine::RigidBody::OnGui()
 
         auto ltw = GetOwner().GetComponentData<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
-        
+
         switch (m_shapeType)
         {
         case ShapeType::Sphere:

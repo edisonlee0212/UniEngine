@@ -24,6 +24,3 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
     m_reflectionProbe->ConstructFromCubemap(m_targetCubemap);
     m_ready = true;
 }
-
-
-

@@ -1,7 +1,6 @@
 #pragma once
-#include <uniengine_export.h>
-#include <PxPhysicsAPI.h>
 #include <EntityManager.hpp>
+#include <uniengine_export.h>
 using namespace physx;
 namespace UniEngine
 {
@@ -13,21 +12,21 @@ enum class UNIENGINE_API ShapeType
 };
 class UNIENGINE_API RigidBody : public PrivateComponentBase
 {
-    glm::mat4 m_shapeTransform;
-    bool m_drawBounds;
-    glm::vec3 m_shapeParam;
-    ShapeType m_shapeType;
-    bool m_isStatic;
+    glm::mat4 m_shapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
+    bool m_drawBounds = false;
+    glm::vec3 m_shapeParam = glm::vec3(1.0f);
+    ShapeType m_shapeType = ShapeType::Box;
+    bool m_isStatic = false;
     friend class PhysicsSystem;
     friend class PhysicsManager;
     PxRigidActor *m_rigidActor = nullptr;
     PxMaterial *m_material = nullptr;
     PxShape *m_shape = nullptr;
-    float m_density;
-    PxVec3 m_massCenter;
-    bool m_currentRegistered;
-    PxVec3 m_linearVelocity;
-    PxVec3 m_angularVelocity;
+    float m_density = 10.0f;
+    PxVec3 m_massCenter = PxVec3(0.0f);
+    bool m_currentRegistered = false;
+    PxVec3 m_linearVelocity = PxVec3(0.0f);
+    PxVec3 m_angularVelocity = PxVec3(0.0f);
     bool m_shapeUpdated = false;
 
   public:

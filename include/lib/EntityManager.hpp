@@ -243,8 +243,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static std::vector<Entity> CreateEntities(
         const EntityArchetype &archetype, const size_t &amount, const std::string &name = "New Entity");
 
-    static std::vector<Entity> CreateEntities(
-        const size_t &amount, const std::string &name = "New Entity");
+    static std::vector<Entity> CreateEntities(const size_t &amount, const std::string &name = "New Entity");
 
     static void DeleteEntity(const Entity &entity);
 

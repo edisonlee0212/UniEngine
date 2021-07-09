@@ -1,9 +1,9 @@
+#include <Application.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <RenderManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
-#include <Application.hpp>
 using namespace UniEngine;
 void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 {
@@ -25,9 +25,10 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
-    if(!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>()) return;
+    if (!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>())
+        return;
     m_finalResults.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
-    auto& animator = m_animator.GetPrivateComponent<Animator>();
+    auto &animator = m_animator.GetPrivateComponent<Animator>();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
         m_finalResults[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
@@ -36,11 +37,12 @@ void SkinnedMeshRenderer::GetBoneMatrices()
 
 void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
 {
-    if(animator.HasPrivateComponent<Animator>()
-        && animator.GetPrivateComponent<Animator>()->m_animation.get() == m_skinnedMesh->m_animation.get())
+    if (animator.HasPrivateComponent<Animator>() &&
+        animator.GetPrivateComponent<Animator>()->m_animation.get() == m_skinnedMesh->m_animation.get())
     {
         m_animator = animator;
-    }else
+    }
+    else
     {
         UNIENGINE_ERROR("Animator doesn't share same animation!");
     }
@@ -90,8 +92,6 @@ SkinnedMeshRenderer::SkinnedMeshRenderer()
 {
     SetEnabled(true);
 }
-
-
 
 void SkinnedMeshRenderer::Serialize(YAML::Emitter &out)
 {

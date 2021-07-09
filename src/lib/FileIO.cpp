@@ -1,7 +1,7 @@
-#include <Gui.hpp>
-#include <ImGuiFileBrowser.hpp>
 #include <Debug.hpp>
 #include <FileIO.hpp>
+#include <Gui.hpp>
+#include <ImGuiFileBrowser.hpp>
 #include <WindowManager.hpp>
 using namespace UniEngine;
 
@@ -70,8 +70,7 @@ std::string FileIO::LoadFileAsString(const std::string &path)
 void FileIO::OpenFile(
     const std::string &dialogTitle,
     const std::string &filters,
-    const std::function<void(const std::string &filePath)> &func
-)
+    const std::function<void(const std::string &filePath)> &func)
 {
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
@@ -80,7 +79,7 @@ void FileIO::OpenFile(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), filters))
     {
         func(file_dialog.selected_path);
-    }  
+    }
 }
 
 void FileIO::SaveFile(

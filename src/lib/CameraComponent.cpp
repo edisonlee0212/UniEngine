@@ -4,12 +4,12 @@
 
 #include <CameraComponent.hpp>
 #include <Cubemap.hpp>
+#include <EditorManager.hpp>
+#include <Gui.hpp>
 #include <PostProcessing.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
 #include <Texture2D.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
 using namespace UniEngine;
 
 CameraInfoBlock CameraComponent::m_cameraInfoBlock;
@@ -84,8 +84,12 @@ void CameraComponent::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 proj
 }
 
 void CameraComponent::CalculateFrustumPoints(
-    CameraComponent* cameraComponrnt,
-    float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points)
+    CameraComponent *cameraComponrnt,
+    float nearPlane,
+    float farPlane,
+    glm::vec3 cameraPos,
+    glm::quat cameraRot,
+    glm::vec3 *points)
 {
     const glm::vec3 front = cameraRot * glm::vec3(0, 0, -1);
     const glm::vec3 right = cameraRot * glm::vec3(1, 0, 0);
@@ -376,13 +380,14 @@ void CameraComponent::OnGui()
     if (m_useClearColor)
     {
         ImGui::ColorEdit3("Clear Color", (float *)(void *)&m_clearColor);
-    }else
+    }
+    else
     {
         ImGui::Text("Skybox: ");
         ImGui::SameLine();
         EditorManager::DragAndDrop(m_skybox);
     }
-    
+
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);
     ImGui::DragFloat("Far", &m_farDistance, m_farDistance / 10.0f, m_nearDistance);
     ImGui::DragFloat("FOV", &m_fov, 1.0f, 1, 359);

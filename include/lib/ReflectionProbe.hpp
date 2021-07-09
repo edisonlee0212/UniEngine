@@ -12,6 +12,7 @@ class UNIENGINE_API ReflectionProbe : public ResourceBehaviour
     std::unique_ptr<Cubemap> m_preFilteredMap;
     size_t m_preFilteredMapResolution = 512;
     bool m_ready = false;
+
   public:
     float m_gamma = 1.0f;
     void OnCreate() override;

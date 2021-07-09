@@ -1,7 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
-#include <RenderTarget.hpp>
 #include <EnvironmentalMap.hpp>
+#include <RenderTarget.hpp>
 namespace UniEngine
 {
 class CameraComponent;
@@ -75,7 +75,11 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
     static void CalculateFrustumPoints(
         CameraComponent *cameraComponrnt,
-        float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points);
+        float nearPlane,
+        float farPlane,
+        glm::vec3 cameraPos,
+        glm::quat cameraRot,
+        glm::vec3 *points);
     static glm::quat ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch = true);
     static void ReverseAngle(
         const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch = true);

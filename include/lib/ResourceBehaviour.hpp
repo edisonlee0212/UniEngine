@@ -10,6 +10,7 @@ class UNIENGINE_API ResourceBehaviour
     friend class ResourceManager;
     std::shared_ptr<Texture2D> m_icon;
     size_t m_typeId = 0;
+
   public:
     virtual void OnCreate();
     std::string m_name;

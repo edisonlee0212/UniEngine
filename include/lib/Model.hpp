@@ -1,10 +1,10 @@
 #pragma once
+#include <Animator.hpp>
 #include <Material.hpp>
 #include <Mesh.hpp>
 #include <ResourceBehaviour.hpp>
-#include <Transform.hpp>
 #include <SkinnedMesh.hpp>
-#include <Animator.hpp>
+#include <Transform.hpp>
 
 namespace UniEngine
 {
@@ -30,6 +30,7 @@ class UNIENGINE_API Model : public ResourceBehaviour
     friend class ResourceManager;
     std::shared_ptr<ModelNode> m_rootNode;
     std::shared_ptr<Animation> m_animation;
+
   public:
     void OnCreate() override;
     std::shared_ptr<ModelNode> &RootNode();

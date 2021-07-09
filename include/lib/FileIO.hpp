@@ -9,14 +9,17 @@ class UNIENGINE_API FileIO : ISingleton<FileIO>
     std::unique_ptr<std::string> m_resourceRootPath;
     friend class Application;
     static void SetResourcePath(const std::string &path);
+
   public:
     static std::string GetAssetFolderPath();
     static void SetProjectPath(const std::string &path);
     static std::string GetProjectPath();
     static std::string GetResourcePath(const std::string &path = "");
     static std::string LoadFileAsString(const std::string &path = "");
-    static void OpenFile(const std::string& dialogTitle, const std::string& filters, 
-        const std::function<void(const std::string& filePath)> &func);
+    static void OpenFile(
+        const std::string &dialogTitle,
+        const std::string &filters,
+        const std::function<void(const std::string &filePath)> &func);
     static void SaveFile(
         const std::string &dialogTitle,
         const std::string &filters,

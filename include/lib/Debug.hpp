@@ -41,7 +41,7 @@ class Debug
 #define UNIENGINE_LOG(msg)                                                                                             \
     {                                                                                                                  \
         UniEngine::Debug::Log(msg);                                                                                    \
-        std::cout << "(UniEngine)Log: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;                     \
+        std::cout << "(UniEngine)Log: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;       \
     }
 
 /**
@@ -51,7 +51,7 @@ class Debug
 #define UNIENGINE_ERROR(msg)                                                                                           \
     {                                                                                                                  \
         UniEngine::Debug::Error(msg);                                                                                  \
-        std::cerr << "(UniEngine)Error: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;                     \
+        std::cerr << "(UniEngine)Error: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;     \
     }
 /**
  * \brief A thread-safe warning log macro.
@@ -60,5 +60,5 @@ class Debug
 #define UNIENGINE_WARNING(msg)                                                                                         \
     {                                                                                                                  \
         UniEngine::Debug::Warning(msg);                                                                                \
-        std::cout << "(UniEngine)Warning: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;                     \
+        std::cout << "(UniEngine)Warning: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;   \
     }

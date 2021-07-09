@@ -1,8 +1,8 @@
 #pragma once
 #include <Cubemap.hpp>
 #include <LightProbe.hpp>
-#include <ReflectionProbe.hpp>
 #include <OpenGLUtils.hpp>
+#include <ReflectionProbe.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API EnvironmentalMap : public ResourceBehaviour
@@ -14,6 +14,7 @@ class UNIENGINE_API EnvironmentalMap : public ResourceBehaviour
     std::shared_ptr<LightProbe> m_lightProbe;
     std::shared_ptr<ReflectionProbe> m_reflectionProbe;
     bool m_ready = false;
+
   public:
     float m_gamma = 1.0f;
     bool IsReady() const;

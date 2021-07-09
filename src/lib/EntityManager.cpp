@@ -72,7 +72,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         info.m_version = actualEntity.m_version + 1;
         info.m_static = false;
         info.m_enabled = true;
-        
+
         info.m_privateComponentElements.clear();
         // Set to version 0, marks it as deleted.
         actualEntity.m_version = 0;
@@ -506,9 +506,8 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
         // Reset all component data
         const size_t chunkIndex = entityInfo.m_chunkArrayIndex / info->m_chunkCapacity;
         const size_t chunkPointer = entityInfo.m_chunkArrayIndex % info->m_chunkCapacity;
-        const ComponentDataChunk chunk = manager
-                                             .m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex)
-                                             .m_chunkArray->Chunks[chunkIndex];
+        const ComponentDataChunk chunk =
+            manager.m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
         for (const auto &i : info->m_componentTypes)
         {
             const size_t offset = i.m_offset * info->m_chunkCapacity + chunkPointer * i.m_size;
@@ -550,9 +549,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
     }
 
     storage.m_chunkArray->Entities.insert(
-        storage.m_chunkArray->Entities.end(),
-        manager.m_entities->begin() + originalSize,
-        manager.m_entities->end());
+        storage.m_chunkArray->Entities.end(), manager.m_entities->begin() + originalSize, manager.m_entities->end());
     const int threadSize = JobManager::PrimaryWorkers().Size();
     int perThreadAmount = remainAmount / threadSize;
     if (perThreadAmount > 0)

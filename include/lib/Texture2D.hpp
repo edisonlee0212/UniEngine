@@ -20,6 +20,7 @@ class UNIENGINE_API Texture2D : public ResourceBehaviour
     friend class ResourceManager;
     friend class EnvironmentalMap;
     friend class CameraComponent;
+
   public:
     float m_gamma = 1.0f;
     void OnCreate() override;

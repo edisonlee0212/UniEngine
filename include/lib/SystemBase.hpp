@@ -7,6 +7,7 @@ class World;
 class UNIENGINE_API SystemBase
 {
     friend class World;
+
   protected:
     bool m_enabled;
     World *m_world;

@@ -37,6 +37,7 @@ class UNIENGINE_API World
     std::vector<std::function<void()>> m_externalFixedUpdateFunctions;
     size_t m_index;
     Bound m_worldBound;
+
   public:
     void Purge();
     World &operator=(World &&) = delete;

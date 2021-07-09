@@ -1,9 +1,8 @@
-#include <ReflectionProbe.hpp>
-#include <RenderTarget.hpp>
 #include <DefaultResources.hpp>
+#include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
+#include <RenderTarget.hpp>
 using namespace UniEngine;
-
 
 void ReflectionProbe::OnCreate()
 {

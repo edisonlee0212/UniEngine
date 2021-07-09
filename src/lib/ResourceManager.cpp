@@ -1044,10 +1044,11 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
     return texture2D;
 }
 
-void ResourceManager::ApplyBoneIndices(std::shared_ptr<ModelNode>& node)
+void ResourceManager::ApplyBoneIndices(std::shared_ptr<ModelNode> &node)
 {
-    if(node->m_skinnedMesh) node->m_skinnedMesh->FetchIndices();
-    for(auto& i : node->m_children)
+    if (node->m_skinnedMesh)
+        node->m_skinnedMesh->FetchIndices();
+    for (auto &i : node->m_children)
     {
         ApplyBoneIndices(i);
     }

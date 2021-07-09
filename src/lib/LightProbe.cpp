@@ -1,7 +1,7 @@
-#include <RenderTarget.hpp>
-#include <LightProbe.hpp>
 #include <DefaultResources.hpp>
+#include <LightProbe.hpp>
 #include <RenderManager.hpp>
+#include <RenderTarget.hpp>
 using namespace UniEngine;
 
 void LightProbe::OnCreate()

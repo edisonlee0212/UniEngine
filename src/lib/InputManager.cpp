@@ -76,7 +76,7 @@ bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
     if (ImGui::IsMousePosValid())
     {
         pos.x = io.MousePos.x - windowPos.x;
-        pos.y = io.MousePos.y - windowPos.y - 20; //In editormanager, a 20 offset is preserved for menu bar.
+        pos.y = io.MousePos.y - windowPos.y - 20; // In editormanager, a 20 offset is preserved for menu bar.
         return true;
     }
     return false;

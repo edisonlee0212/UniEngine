@@ -1,6 +1,6 @@
 #include <EditorManager.hpp>
-#include <Material.hpp>
 #include <Gui.hpp>
+#include <Material.hpp>
 using namespace UniEngine;
 static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
 static const char *MatCullingMode[]{"BACK", "FRONT", "OFF"};
@@ -17,7 +17,6 @@ MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::m
     m_name = name;
     m_value = value;
 }
-
 
 void Material::OnCreate()
 {

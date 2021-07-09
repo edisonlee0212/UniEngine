@@ -1,7 +1,6 @@
 #include <Cubemap.hpp>
 using namespace UniEngine;
 
-
 void Cubemap::OnCreate()
 {
     m_name = "New Cubemap";

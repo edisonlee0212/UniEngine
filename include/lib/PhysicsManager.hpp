@@ -1,6 +1,5 @@
 #pragma once
 #include <ISingleton.hpp>
-#include <PxPhysicsAPI.h>
 #include <RigidBody.hpp>
 #include <uniengine_export.h>
 using namespace physx;
@@ -31,7 +30,8 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 };
 class UNIENGINE_API PhysicsSystem : public SystemBase
 {
-    PxScene *m_physicsScene = nullptr;   
+    PxScene *m_physicsScene = nullptr;
+
   public:
     void OnCreate() override;
     void OnDestroy() override;
