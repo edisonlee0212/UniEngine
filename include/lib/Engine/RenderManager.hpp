@@ -115,7 +115,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     OpenGLUtils::GLUBO m_pointLightBlock;
     OpenGLUtils::GLUBO m_spotLightBlock;
 
-    size_t m_shadowMapResolution = 2048;
+    size_t m_shadowMapResolution = 4096;
     OpenGLUtils::GLUBO m_shadowCascadeInfoBlock;
 
     DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];

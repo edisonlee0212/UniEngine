@@ -1,7 +1,7 @@
 #include <D6Joint.hpp>
+#include <EditorManager.hpp>
 #include <PhysicsManager.hpp>
 #include <RigidBody.hpp>
-#include <EditorManager.hpp>
 using namespace UniEngine;
 void D6Joint::Init()
 {
@@ -14,7 +14,8 @@ void D6Joint::Init()
 
 void D6Joint::Link()
 {
-    if (!m_linkedEntity.HasPrivateComponent<RigidBody>()){
+    if (!m_linkedEntity.HasPrivateComponent<RigidBody>())
+    {
         m_linkedEntity = Entity();
         return;
     }
@@ -45,11 +46,14 @@ void D6Joint::Link()
 }
 bool D6Joint::SafetyCheck()
 {
-    if(!m_linkedEntity.HasPrivateComponent<RigidBody>()){
+    if (!m_linkedEntity.HasPrivateComponent<RigidBody>())
+    {
         UNIENGINE_ERROR("Linked Entity doesn't contains RigidBody component!");
         return false;
     }
-    if(m_linkedEntity.GetPrivateComponent<RigidBody>()->m_isStatic && GetOwner().GetPrivateComponent<RigidBody>()->m_isStatic){
+    if (m_linkedEntity.GetPrivateComponent<RigidBody>()->m_static &&
+        GetOwner().GetPrivateComponent<RigidBody>()->m_static)
+    {
         UNIENGINE_ERROR("At least one side of the joint is movable!");
         return false;
     }
@@ -70,7 +74,7 @@ D6Joint::~D6Joint()
 }
 void D6Joint::OnGui()
 {
-    if(EditorManager::DragAndDrop(m_linkedEntity))
+    if (EditorManager::DragAndDrop(m_linkedEntity))
     {
         Link();
     }

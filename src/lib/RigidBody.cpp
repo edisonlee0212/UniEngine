@@ -34,11 +34,6 @@ void UniEngine::RigidBody::ApplyMeshBound()
 
 void UniEngine::RigidBody::SetShapeType(ShapeType type)
 {
-    if (Application::IsPlaying())
-    {
-        Debug::Log("Failed! Pause game to reset!");
-        return;
-    }
     if (m_shapeType == type)
         return;
     m_shapeType = type;
@@ -47,11 +42,6 @@ void UniEngine::RigidBody::SetShapeType(ShapeType type)
 
 void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
 {
-    if (Application::IsPlaying())
-    {
-        Debug::Log("Failed! Pause game to reset!");
-        return;
-    }
     if (m_shapeParam == value)
         return;
     m_shapeParam = value;
@@ -61,42 +51,19 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
 
 void UniEngine::RigidBody::SetStatic(bool value)
 {
-    if (Application::IsPlaying())
-    {
-        Debug::Log("Failed! Pause game to reset!");
-        return;
-    }
-    m_isStatic = value;
+    if(m_static == value) return;
+    m_static = value;
     m_shapeUpdated = false;
+    //TODO: Unlink joint here.
     UpdateBody();
 }
 
 void UniEngine::RigidBody::SetTransform(glm::mat4 value)
 {
-    if (Application::IsPlaying())
-    {
-        Debug::Log("Failed! Pause game to reset!");
-        return;
-    }
     GlobalTransform ltw;
     ltw.m_value = value;
     ltw.SetScale(glm::vec3(1.0f));
     m_shapeTransform = ltw.m_value;
-    m_shapeUpdated = false;
-}
-
-void UniEngine::RigidBody::SetDensity(float value)
-{
-    if (Application::IsPlaying())
-    {
-        Debug::Log("Failed! Pause game to reset!");
-        return;
-    }
-    if (m_density == value)
-        return;
-    m_density = value;
-    if (m_density < 0.0001f)
-        m_density = 0.0001f;
     m_shapeUpdated = false;
 }
 
@@ -127,6 +94,7 @@ void UniEngine::RigidBody::SetMaterial(PxMaterial *value)
         m_material = value;
         m_shapeUpdated = false;
     }
+    //TODO: Unlink joint here.
 }
 
 void UniEngine::RigidBody::UpdateBody()
@@ -134,7 +102,7 @@ void UniEngine::RigidBody::UpdateBody()
     if (m_rigidActor)
         m_rigidActor->release();
     PxTransform localTm(PxVec3(0, 0, 0));
-    if (m_isStatic)
+    if (m_static)
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidStatic(PxTransform(localTm));
     else
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
@@ -145,8 +113,8 @@ void UniEngine::RigidBody::UpdateBody()
 void UniEngine::RigidBody::Init()
 {
     m_material = PhysicsManager::GetInstance().m_defaultMaterial;
-    m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(PxVec3(0, 0, 0)));
-    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density);
+    UpdateBody();
+    PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
     SetEnabled(false);
 }
 
@@ -161,7 +129,7 @@ void UniEngine::RigidBody::OnGui()
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (!m_isStatic)
+    if (!m_static)
     {
         PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
         if (Application::IsPlaying())
@@ -186,9 +154,9 @@ void UniEngine::RigidBody::OnGui()
     {
         bool statusChanged = false;
         bool staticChanged = false;
-        bool savedVal = m_isStatic;
-        ImGui::Checkbox("Static", &m_isStatic);
-        if (m_isStatic != savedVal)
+        bool savedVal = m_static;
+        ImGui::Checkbox("Static", &m_static);
+        if (m_static != savedVal)
         {
             statusChanged = true;
             staticChanged = true;
@@ -260,8 +228,10 @@ void UniEngine::RigidBody::OnGui()
         }
         if (ImGui::DragFloat("Density", &m_density, 0.1f, 0.001f))
             statusChanged = true;
+        if(ImGui::DragFloat3("Center", & m_massCenter.x, 0.1f, 0.001f));
         if (statusChanged)
         {
+            m_density = glm::max(0.001f, m_density);
             m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
             m_shapeUpdated = false;
         }
@@ -270,4 +240,10 @@ void UniEngine::RigidBody::OnGui()
             UpdateBody();
         }
     }
+}
+void RigidBody::UpdateMass(const float& value, const glm::vec3& center)
+{
+    m_density = value;
+    m_massCenter = PxVec3(center.x, center.y, center.z);
+    if(!m_static) PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
 }

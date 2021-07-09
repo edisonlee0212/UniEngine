@@ -3,8 +3,15 @@
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
 #include <MeshRenderer.hpp>
+#include <D6Joint.hpp>
 using namespace UniEngine;
-void CreateSolidCube(
+
+Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name);
+
+Entity CreateSolidCube(
+    const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
+
+Entity CreateCube(
     const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
 
 int main()
@@ -12,6 +19,12 @@ int main()
     Application::Init();
     auto &world = Application::GetCurrentWorld();
     world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+
+    auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
+    auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
+    mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
+    mainCameraEntity.SetComponentData(mainCameraTransform);
+
 #pragma region Create 9 spheres in different PBR properties
     const int amount = 20;
     const float scaleFactor = 0.1f;
@@ -65,16 +78,27 @@ int main()
 #pragma endregion
 
 #pragma region Create Boundaries
-    CreateSolidCube(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
+    const auto ground = CreateSolidCube(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
 
     CreateSolidCube(glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 5, 30), "LeftWall");
     CreateSolidCube(glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 5, 30), "RightWall");
     CreateSolidCube(glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 5, 1), "FrontWall");
     CreateSolidCube(glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 5, 1), "BackWall");
 
-    CreateSolidCube(glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 1");
-    CreateSolidCube(glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
-    CreateSolidCube(glm::vec3(5, -7.5, 0), glm::vec3(0,0,45), glm::vec3(1), "Block 3");
+    const auto b1 = CreateDynamicCube(glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 1");
+    const auto b2 = CreateDynamicCube(glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
+    const auto b3 = CreateDynamicCube(glm::vec3(5, -7.5, 0), glm::vec3(0,0,45), glm::vec3(1), "Block 3");
+
+    b1.SetPrivateComponent(std::make_unique<D6Joint>());
+    b1.GetPrivateComponent<D6Joint>()->m_linkedEntity = b2;
+    b1.GetPrivateComponent<D6Joint>()->Link();
+    b3.SetPrivateComponent(std::make_unique<D6Joint>());
+    b3.GetPrivateComponent<D6Joint>()->m_linkedEntity = b2;
+    b3.GetPrivateComponent<D6Joint>()->Link();
+    b2.SetPrivateComponent(std::make_unique<D6Joint>());
+    b2.GetPrivateComponent<D6Joint>()->m_linkedEntity = ground;
+    b2.GetPrivateComponent<D6Joint>()->Link();
+
 #pragma endregion
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
@@ -85,26 +109,47 @@ int main()
     return 0;
 }
 
-void CreateSolidCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
+Entity CreateSolidCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
 {
-    auto ground = EntityManager::CreateEntity(name);
+    auto cube = CreateCube(position, rotation, scale, name);
+    auto rigidBody = std::make_unique<RigidBody>();
+    cube.SetPrivateComponent(std::move(rigidBody));
+    cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
+    cube.GetPrivateComponent<RigidBody>()->SetStatic(true);
+    cube.GetPrivateComponent<RigidBody>()->UpdateMass(0.1);
+    // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
+    cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
+    cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
+    return cube;
+}
+
+Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
+{
+    auto cube = CreateCube(position, rotation, scale, name);
+    auto rigidBody = std::make_unique<RigidBody>();
+    cube.SetPrivateComponent(std::move(rigidBody));
+    cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
+    cube.GetPrivateComponent<RigidBody>()->SetStatic(false);
+    cube.GetPrivateComponent<RigidBody>()->UpdateMass(0.1);
+    // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
+    cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
+    cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
+    return cube;
+}
+
+
+Entity CreateCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name){
+    auto cube = EntityManager::CreateEntity(name);
     auto groundMeshRenderer = std::make_unique<MeshRenderer>();
     groundMeshRenderer->m_material = DefaultResources::Materials::StandardMaterial;
     groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
     //groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
-    ground.SetComponentData(groundTransform);
-    ground.SetPrivateComponent(std::move(groundMeshRenderer));
+    cube.SetComponentData(groundTransform);
+    cube.SetPrivateComponent(std::move(groundMeshRenderer));
     GlobalTransform groundGlobalTransform;
     groundGlobalTransform.SetValue(position, glm::radians(rotation), scale);
-    ground.SetComponentData(groundGlobalTransform);
-
-    auto rigidBody = std::make_unique<RigidBody>();
-    ground.SetPrivateComponent(std::move(rigidBody));
-    ground.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
-    ground.GetPrivateComponent<RigidBody>()->SetStatic(true);
-    // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    ground.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
-    ground.GetPrivateComponent<RigidBody>()->SetEnabled(true);
+    cube.SetComponentData(groundGlobalTransform);
+    return cube;
 }

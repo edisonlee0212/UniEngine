@@ -16,7 +16,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool m_drawBounds = false;
     glm::vec3 m_shapeParam = glm::vec3(1.0f);
     ShapeType m_shapeType = ShapeType::Box;
-    bool m_isStatic = false;
+    bool m_static = false;
     friend class PhysicsSystem;
     friend class PhysicsManager;
     PxRigidActor *m_rigidActor = nullptr;
@@ -30,12 +30,13 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool m_shapeUpdated = false;
     friend class D6Joint;
   public:
+    void UpdateMass(const float& value, const glm::vec3& center = glm::vec3(0.0f));
+
     void ApplyMeshBound();
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);
     void SetStatic(bool value);
     void SetTransform(glm::mat4 value);
-    void SetDensity(float value);
     ~RigidBody() override;
     void SetMaterial(PxMaterial *value);
     void UpdateBody();

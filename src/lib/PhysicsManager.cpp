@@ -88,7 +88,7 @@ void PhysicsManager::UpdateShape(std::unique_ptr<RigidBody> &rigidBody)
         break;
     }
     rigidBody->m_rigidActor->attachShape(*rigidBody->m_shape);
-    if (!rigidBody->m_isStatic)
+    if (!rigidBody->m_static)
         PxRigidBodyExt::updateMassAndInertia(
             *reinterpret_cast<PxRigidDynamic *>(rigidBody->m_rigidActor), rigidBody->m_density);
 
