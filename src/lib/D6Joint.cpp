@@ -21,6 +21,7 @@ void D6Joint::Link()
     }
     if (SafetyCheck())
     {
+        Unlink();
         const auto owner = GetOwner();
         PxTransform localFrame1;
         auto ownerGT = owner.GetComponentData<GlobalTransform>();
