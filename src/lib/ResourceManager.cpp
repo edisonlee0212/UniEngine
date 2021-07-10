@@ -230,7 +230,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                                                       glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
                                                       glm::scale(glm::vec3(1.0f));
                 childNode->m_mesh = mesh;
-                childNode->m_material = material;
+                childNode->m_value = material;
                 retVal->RootNode()->m_children.push_back(std::move(childNode));
             }
         }
@@ -353,7 +353,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
                                                   glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
                                                   glm::scale(glm::vec3(1.0f));
             childNode->m_mesh = mesh;
-            childNode->m_material = material;
+            childNode->m_value = material;
             retVal->RootNode()->m_children.push_back(std::move(childNode));
         }
     }

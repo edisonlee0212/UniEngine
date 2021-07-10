@@ -1,6 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
 #include <uniengine_export.h>
+#include <PhysicsMaterial.hpp>
 using namespace physx;
 namespace UniEngine
 {
@@ -20,7 +21,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     friend class PhysicsSystem;
     friend class PhysicsManager;
     PxRigidActor *m_rigidActor = nullptr;
-    PxMaterial *m_material = nullptr;
+    std::shared_ptr<PhysicsMaterial> m_material;
     PxShape *m_shape = nullptr;
     float m_density = 10.0f;
     PxVec3 m_massCenter = PxVec3(0.0f);
@@ -43,7 +44,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     void SetStatic(bool value);
     void SetTransform(glm::mat4 value);
     ~RigidBody() override;
-    void SetMaterial(PxMaterial *value);
+    void SetMaterial(const std::shared_ptr<PhysicsMaterial>& value);
     void UpdateBody();
     void Init() override;
     void OnGui() override;

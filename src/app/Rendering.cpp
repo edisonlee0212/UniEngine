@@ -82,7 +82,7 @@ int main()
 #pragma region Create ground
     auto ground = EntityManager::CreateEntity("Ground");
     auto groundMeshRenderer = std::make_unique<MeshRenderer>();
-    groundMeshRenderer->m_material = DefaultResources::Materials::StandardMaterial;
+    groundMeshRenderer->m_value = DefaultResources::Materials::StandardMaterial;
     groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
     groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));

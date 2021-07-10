@@ -8,6 +8,7 @@
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SkinnedMesh.hpp>
+#include <PhysicsMaterial.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -403,6 +404,7 @@ void DefaultResources::Load(World *world)
     ResourceManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
     ResourceManager::RegisterResourceType<Animation>("Animation");
     ResourceManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
+
     LoadShaders(world);
     LoadTextures(world);
     LoadPrimitives(world);

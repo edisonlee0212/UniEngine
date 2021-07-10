@@ -1,10 +1,9 @@
 #pragma once
 #include <FixedJoint.hpp>
 #include <ISingleton.hpp>
-#include <RigidBody.hpp>
 #include <uniengine_export.h>
 #include <DistanceJoint.hpp>
-
+#include <PhysicsMaterial.hpp>
 
 using namespace physx;
 
@@ -16,6 +15,7 @@ using namespace physx;
     }
 namespace UniEngine
 {
+class RigidBody;
 class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 {
   public:
@@ -25,7 +25,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxPhysics *m_physics;
     PxDefaultCpuDispatcher *m_dispatcher;
     PxPvd *m_physVisDebugger;
-    PxMaterial *m_defaultMaterial;
+    std::shared_ptr<PhysicsMaterial> m_defaultMaterial;
     static void UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody);
     static void PreUpdate();
     static void Init();

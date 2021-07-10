@@ -73,28 +73,11 @@ UniEngine::RigidBody::~RigidBody()
     {
         m_rigidActor->release();
     }
-    if (m_material && m_material != PhysicsManager::GetInstance().m_defaultMaterial)
-    {
-        m_material->release();
-    }
     if (m_shape)
     {
         m_shape->release();
     }
-}
-
-void UniEngine::RigidBody::SetMaterial(PxMaterial *value)
-{
-    if (value && m_material != value)
-    {
-        if (m_material && m_material != PhysicsManager::GetInstance().m_defaultMaterial)
-        {
-            m_material->release();
-        }
-        m_material = value;
-        m_shapeUpdated = false;
-    }
-    //TODO: Unlink joint here.
+    //TODO: Unlink joints here
 }
 
 void UniEngine::RigidBody::UpdateBody()
@@ -121,6 +104,11 @@ void UniEngine::RigidBody::Init()
 static const char *RigidBodyShapeShape[]{"Sphere", "Box", "Capsule"};
 void UniEngine::RigidBody::OnGui()
 {
+    if(ImGui::TreeNode("Material")){
+        m_material->OnGui();
+        ImGui::TreePop();
+    }
+
     ImGui::Checkbox("Draw bounds", &m_drawBounds);
     static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
     if (m_drawBounds)
@@ -246,4 +234,13 @@ void RigidBody::UpdateMass(const float& value, const glm::vec3& center)
     m_density = value;
     m_massCenter = PxVec3(center.x, center.y, center.z);
     if(!m_static) PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
+}
+void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial>& value)
+{
+    if (value && m_material != value)
+    {
+        m_material = value;
+        m_shapeUpdated = false;
+    }
+    //TODO: Unlink joint here.
 }

@@ -1,6 +1,8 @@
 #include <Application.hpp>
 #include <PhysicsManager.hpp>
 #include <TransformManager.hpp>
+#include <RigidBody.hpp>
+#include <ResourceManager.hpp>
 using namespace UniEngine;
 
 void PhysicsManager::UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody)
@@ -46,7 +48,10 @@ void PhysicsManager::Init()
         physicsManager.m_physVisDebugger);
 
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
-    physicsManager.m_defaultMaterial = physicsManager.m_physics->createMaterial(0.5f, 0.5f, 0.6f);
+
+    ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
+
+    physicsManager.m_defaultMaterial = ResourceManager::CreateResource<PhysicsMaterial>();
 }
 
 void PhysicsManager::Destroy()
@@ -74,16 +79,16 @@ void PhysicsManager::UpdateShape(std::unique_ptr<RigidBody> &rigidBody)
     {
     case ShapeType::Sphere:
         rigidBody->m_shape =
-            GetInstance().m_physics->createShape(PxSphereGeometry(rigidBody->m_shapeParam.x), *rigidBody->m_material);
+            GetInstance().m_physics->createShape(PxSphereGeometry(rigidBody->m_shapeParam.x), *rigidBody->m_material->m_value);
         break;
     case ShapeType::Box:
         rigidBody->m_shape = GetInstance().m_physics->createShape(
             PxBoxGeometry(rigidBody->m_shapeParam.x, rigidBody->m_shapeParam.y, rigidBody->m_shapeParam.z),
-            *rigidBody->m_material);
+            *rigidBody->m_material->m_value);
         break;
     case ShapeType::Capsule:
         rigidBody->m_shape = GetInstance().m_physics->createShape(
-            PxCapsuleGeometry(rigidBody->m_shapeParam.x, rigidBody->m_shapeParam.y), *rigidBody->m_material);
+            PxCapsuleGeometry(rigidBody->m_shapeParam.x, rigidBody->m_shapeParam.y), *rigidBody->m_material->m_value);
         break;
     }
     rigidBody->m_rigidActor->attachShape(*rigidBody->m_shape);
