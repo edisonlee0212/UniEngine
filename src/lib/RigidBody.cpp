@@ -244,3 +244,13 @@ void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial>& value)
     }
     //TODO: Unlink joint here.
 }
+void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
+{
+    m_angularVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
+    rigidBody->setAngularVelocity(m_angularVelocity);
+}
+void RigidBody::SetLinearVelocity()
+{
+    m_linearVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
+    rigidBody->setLinearVelocity(m_linearVelocity);
+}

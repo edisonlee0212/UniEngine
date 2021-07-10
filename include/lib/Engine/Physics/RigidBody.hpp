@@ -37,7 +37,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     friend class DistanceJoint;
   public:
     void UpdateMass(const float& value, const glm::vec3& center = glm::vec3(0.0f));
-
+    void SetLinearVelocity(const glm::vec3& velocity);
+    void SetAngularVelocity(const glm::vec3& velocity);
     void ApplyMeshBound();
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);
