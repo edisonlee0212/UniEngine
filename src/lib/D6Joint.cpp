@@ -96,10 +96,10 @@ void D6Joint::OnGui()
             {
                 m_joint->setDrive(PxD6Drive::eX, m_xDrive);
             }
-            if (ImGui::Checkbox("X is acceleration", &m_xAccleration))
+            if (ImGui::Checkbox("X is acceleration", &m_xAcceleration))
             {
                 m_xDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
-                    m_xAccleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+                    m_xAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
                 m_joint->setDrive(PxD6Drive::eX, m_xDrive);
             }
         }
@@ -119,10 +119,10 @@ void D6Joint::OnGui()
             {
                 m_joint->setDrive(PxD6Drive::eY, m_yDrive);
             }
-            if (ImGui::Checkbox("Y is acceleration", &m_yAccleration))
+            if (ImGui::Checkbox("Y is acceleration", &m_yAcceleration))
             {
                 m_yDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
-                    m_yAccleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+                    m_yAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
                 m_joint->setDrive(PxD6Drive::eY, m_yDrive);
             }
         }
@@ -141,12 +141,66 @@ void D6Joint::OnGui()
             {
                 m_joint->setDrive(PxD6Drive::eZ, m_zDrive);
             }
-            if (ImGui::Checkbox("Z is acceleration", &m_zAccleration))
+            if (ImGui::Checkbox("Z is acceleration", &m_zAcceleration))
             {
                 m_zDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
-                    m_zAccleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+                    m_zAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
                 m_joint->setDrive(PxD6Drive::eZ, m_zDrive);
             }
         }
+    }
+}
+void D6Joint::SetLockX(const bool &value)
+{
+    if(m_xLocked != value){
+        m_xLocked = value;
+        m_joint->setMotion(PxD6Axis::eX, m_xLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
+    }
+}
+void D6Joint::SetLockY(const bool &value)
+{
+    if(m_yLocked != value){
+        m_yLocked = value;
+        m_joint->setMotion(PxD6Axis::eY, m_yLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
+    }
+}
+void D6Joint::SetLockZ(const bool &value)
+{
+    if(m_zLocked != value){
+        m_zLocked = value;
+        m_joint->setMotion(PxD6Axis::eZ, m_zLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
+    }
+}
+void D6Joint::SetDriveX(const float &stiffness, const float &damping, const bool &isAcceleration)
+{
+    if(stiffness != m_xDrive.stiffness || damping != m_xDrive.damping || isAcceleration != (m_xDrive.flags == PxD6JointDriveFlag::eACCELERATION)){
+        m_xDrive.stiffness = stiffness;
+        m_xDrive.damping = damping;
+        m_xAcceleration = isAcceleration;
+        m_xDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
+            m_xAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+        m_joint->setDrive(PxD6Drive::eX, m_xDrive);
+    }
+}
+void D6Joint::SetDriveY(const float &stiffness, const float &damping, const bool &isAcceleration)
+{
+    if(stiffness != m_yDrive.stiffness || damping != m_yDrive.damping || isAcceleration != (m_yDrive.flags == PxD6JointDriveFlag::eACCELERATION)){
+        m_yDrive.stiffness = stiffness;
+        m_yDrive.damping = damping;
+        m_yAcceleration = isAcceleration;
+        m_yDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
+            m_yAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+        m_joint->setDrive(PxD6Drive::eY, m_yDrive);
+    }
+}
+void D6Joint::SetDriveZ(const float &stiffness, const float &damping, const bool &isAcceleration)
+{
+    if(stiffness != m_zDrive.stiffness || damping != m_zDrive.damping || isAcceleration != (m_zDrive.flags == PxD6JointDriveFlag::eACCELERATION)){
+        m_zDrive.stiffness = stiffness;
+        m_zDrive.damping = damping;
+        m_zAcceleration = isAcceleration;
+        m_zDrive.flags = static_cast<PxD6JointDriveFlag::Enum>(
+            m_zAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+        m_joint->setDrive(PxD6Drive::eZ, m_zDrive);
     }
 }

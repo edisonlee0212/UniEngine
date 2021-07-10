@@ -3,7 +3,8 @@
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
 #include <MeshRenderer.hpp>
-#include <D6Joint.hpp>
+#include <DistanceJoint.hpp>
+#include <FixedJoint.hpp>
 using namespace UniEngine;
 
 Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name);
@@ -82,25 +83,30 @@ int main()
 
     const auto ground = CreateSolidCube(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
 
-    CreateSolidCube(glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 5, 30), "LeftWall");
-    CreateSolidCube(glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 5, 30), "RightWall");
-    CreateSolidCube(glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 5, 1), "FrontWall");
-    CreateSolidCube(glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 5, 1), "BackWall");
+    CreateSolidCube(glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "LeftWall");
+    CreateSolidCube(glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "RightWall");
+    CreateSolidCube(glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 15, 1), "FrontWall");
+    CreateSolidCube(glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 15, 1), "BackWall");
 
     const auto b1 = CreateDynamicCube(glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 1");
     const auto b2 = CreateDynamicCube(glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
     const auto b3 = CreateDynamicCube(glm::vec3(5, -7.5, 0), glm::vec3(0,0,45), glm::vec3(1), "Block 3");
 
-    b1.SetPrivateComponent(std::make_unique<D6Joint>());
-    b1.GetPrivateComponent<D6Joint>()->m_linkedEntity = b2;
-    b1.GetPrivateComponent<D6Joint>()->Link();
-    b3.SetPrivateComponent(std::make_unique<D6Joint>());
-    b3.GetPrivateComponent<D6Joint>()->m_linkedEntity = b2;
-    b3.GetPrivateComponent<D6Joint>()->Link();
-    b2.SetPrivateComponent(std::make_unique<D6Joint>());
-    b2.GetPrivateComponent<D6Joint>()->m_linkedEntity = ground;
-    b2.GetPrivateComponent<D6Joint>()->Link();
+    b1.SetPrivateComponent(std::make_unique<FixedJoint>());
+    b1.GetPrivateComponent<FixedJoint>()->m_linkedEntity = b2;
+    b1.GetPrivateComponent<FixedJoint>()->Link();
+    b3.SetPrivateComponent(std::make_unique<FixedJoint>());
+    b3.GetPrivateComponent<FixedJoint>()->m_linkedEntity = b2;
+    b3.GetPrivateComponent<FixedJoint>()->Link();
+    b2.SetPrivateComponent(std::make_unique<FixedJoint>());
+    b2.GetPrivateComponent<FixedJoint>()->m_linkedEntity = ground;
+    b2.GetPrivateComponent<FixedJoint>()->Link();
 
+    const auto anchor = CreateSolidCube(glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
+    const auto freeCube = CreateDynamicCube(glm::vec3(-15, 0, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Free Cube");
+    freeCube.SetPrivateComponent(std::make_unique<DistanceJoint>());
+    freeCube.GetPrivateComponent<DistanceJoint>()->m_linkedEntity = anchor;
+    freeCube.GetPrivateComponent<DistanceJoint>()->Link();
 #pragma endregion
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:

@@ -5,7 +5,7 @@
 using namespace physx;
 namespace UniEngine
 {
-class UNIENGINE_API Joint : public PrivateComponentBase
+class UNIENGINE_API FixedJoint : public PrivateComponentBase
 {
     friend class PhysicsManager;
     PxFixedJoint* m_joint;
@@ -17,6 +17,6 @@ class UNIENGINE_API Joint : public PrivateComponentBase
     void Init() override;
     void Link();
     void OnGui() override;
-    ~D6Joint();
+    ~FixedJoint();
 };
 }

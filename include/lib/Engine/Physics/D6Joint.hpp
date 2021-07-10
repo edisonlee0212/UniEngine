@@ -15,12 +15,18 @@ class UNIENGINE_API D6Joint : public PrivateComponentBase
     bool m_zLocked = true;
 
     PxD6JointDrive m_xDrive;
-    bool m_xAccleration = true;
+    bool m_xAcceleration = true;
     PxD6JointDrive m_yDrive;
-    bool m_yAccleration = true;
+    bool m_yAcceleration = true;
     PxD6JointDrive m_zDrive;
-    bool m_zAccleration = true;
+    bool m_zAcceleration = true;
   public:
+    void SetLockX(const bool& value);
+    void SetLockY(const bool& value);
+    void SetLockZ(const bool& value);
+    void SetDriveX(const float& stiffness, const float& damping, const bool& isAcceleration = true);
+    void SetDriveY(const float& stiffness, const float& damping, const bool& isAcceleration = true);
+    void SetDriveZ(const float& stiffness, const float& damping, const bool& isAcceleration = true);
     Entity m_linkedEntity;
     void Unlink();
     bool Linked();

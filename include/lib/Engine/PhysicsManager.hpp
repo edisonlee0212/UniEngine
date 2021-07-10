@@ -1,7 +1,11 @@
 #pragma once
+#include <FixedJoint.hpp>
 #include <ISingleton.hpp>
 #include <RigidBody.hpp>
 #include <uniengine_export.h>
+#include <DistanceJoint.hpp>
+
+
 using namespace physx;
 
 #define PX_RELEASE(x)                                                                                                  \
@@ -28,6 +32,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     static void Destroy();
     static void UpdateShape(std::unique_ptr<RigidBody> &rigidBody);
 };
+
 class UNIENGINE_API PhysicsSystem : public SystemBase
 {
     PxScene *m_physicsScene = nullptr;

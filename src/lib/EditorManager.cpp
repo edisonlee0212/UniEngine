@@ -3,6 +3,7 @@
 #include <D6Joint.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
+#include <FixedJoint.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <Lights.hpp>
@@ -13,6 +14,7 @@
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
+#include <DistanceJoint.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -505,6 +507,23 @@ void EditorManager::Init()
       }
     });
 
+    RegisterPrivateComponentMenu<FixedJoint>([](Entity owner) {
+      if (owner.HasPrivateComponent<FixedJoint>())
+          return;
+      if (ImGui::SmallButton("FixedJoint"))
+      {
+          owner.SetPrivateComponent(std::make_unique<FixedJoint>());
+      }
+    });
+
+    RegisterPrivateComponentMenu<DistanceJoint>([](Entity owner) {
+      if (owner.HasPrivateComponent<DistanceJoint>())
+          return;
+      if (ImGui::SmallButton("DistanceJoint"))
+      {
+          owner.SetPrivateComponent(std::make_unique<DistanceJoint>());
+      }
+    });
 
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
         if (owner.HasPrivateComponent<DirectionalLight>())
