@@ -22,7 +22,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxDefaultCpuDispatcher *m_dispatcher;
     PxPvd *m_physVisDebugger;
     PxMaterial *m_defaultMaterial;
-    static void UploadTransform(const Entity &entity, std::unique_ptr<RigidBody> &rigidBody);
+    static void UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody);
     static void PreUpdate();
     static void Init();
     static void Destroy();

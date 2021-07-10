@@ -3,11 +3,9 @@
 #include <TransformManager.hpp>
 using namespace UniEngine;
 
-void PhysicsManager::UploadTransform(const Entity &entity, std::unique_ptr<RigidBody> &rigidBody)
+void PhysicsManager::UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody)
 {
-    auto temp = entity.GetComponentData<GlobalTransform>();
-    temp.SetScale(glm::vec3(1.0f));
-    auto ltw = temp.m_value * rigidBody->m_shapeTransform;
+    auto ltw = globalTransform.m_value * rigidBody->m_shapeTransform;
     PxMat44 matrix = *(PxMat44 *)(void *)&ltw;
     rigidBody->m_rigidActor->setGlobalPose(PxTransform(matrix));
 }
@@ -23,7 +21,8 @@ void PhysicsManager::PreUpdate()
             {
                 auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
                 UpdateShape(rigidBody);
-                UploadTransform(entity, rigidBody);
+                auto globalTransform = entity.GetComponentData<GlobalTransform>();
+                UploadTransform(globalTransform, rigidBody);
             }
         }
     }
