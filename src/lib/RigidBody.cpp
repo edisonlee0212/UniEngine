@@ -246,11 +246,13 @@ void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial>& value)
 }
 void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
 {
+    PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
     m_angularVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidBody->setAngularVelocity(m_angularVelocity);
 }
-void RigidBody::SetLinearVelocity()
+void RigidBody::SetLinearVelocity(const glm::vec3& velocity)
 {
+    PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
     m_linearVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidBody->setLinearVelocity(m_linearVelocity);
 }
