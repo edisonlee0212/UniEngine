@@ -14,18 +14,22 @@ void D6Joint::Init()
 
 void D6Joint::Link()
 {
-    if (!m_linkedEntity.HasPrivateComponent<RigidBody>())
+    if (m_linkedEntity.IsValid() && !m_linkedEntity.HasPrivateComponent<RigidBody>())
     {
         m_linkedEntity = Entity();
+    }
+    if(m_linkedEntity.IsNull()){
+        Unlink();
         return;
     }
     if (SafetyCheck())
     {
-        Unlink();
         const auto owner = GetOwner();
         PxTransform localFrame1;
         auto ownerGT = owner.GetComponentData<GlobalTransform>();
+        ownerGT.SetScale(glm::vec3(1.0f));
         auto linkerGT = m_linkedEntity.GetComponentData<GlobalTransform>();
+        linkerGT.SetScale(glm::vec3(1.0f));
         Transform transform;
         transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;
         const auto position0 = glm::vec3(0.0f);
@@ -68,6 +72,7 @@ void D6Joint::Unlink()
 {
     if (m_joint)
         m_joint->release();
+    m_joint = nullptr;
 }
 D6Joint::~D6Joint()
 {
@@ -75,9 +80,10 @@ D6Joint::~D6Joint()
 }
 void D6Joint::OnGui()
 {
+    auto storedEntity = m_linkedEntity;
     if (EditorManager::DragAndDrop(m_linkedEntity))
     {
-        Link();
+        if(storedEntity != m_linkedEntity) Link();
     }
     if (m_joint)
     {

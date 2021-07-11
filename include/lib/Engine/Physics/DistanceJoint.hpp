@@ -8,8 +8,8 @@ namespace UniEngine
 class UNIENGINE_API DistanceJoint : public PrivateComponentBase
 {
     friend class PhysicsManager;
-    float m_maxDistance = 0;
-    float m_minDistance = 0;
+    float m_maxDistance = FLT_MIN;
+    float m_minDistance = FLT_MAX;
     bool m_maxDistanceEnabled = false;
     bool m_minDistanceEnabled = false;
 

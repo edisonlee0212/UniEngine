@@ -9,12 +9,8 @@ void DistanceJoint::SetMax(const float &value, const bool& enabled)
     if(m_maxDistance != value || m_maxDistanceEnabled != enabled){
         m_maxDistance = value;
         m_maxDistanceEnabled = enabled;
-        m_joint->setMaxDistance(m_maxDistance);
         m_joint->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_maxDistanceEnabled);
-        if(m_minDistance > m_maxDistance){
-            m_minDistance = m_maxDistance;
-            m_joint->setMinDistance(m_minDistance);
-        }
+        m_joint->setMaxDistance(m_maxDistance);
     }
 }
 
@@ -24,12 +20,8 @@ void DistanceJoint::SetMin(const float &value, const bool &enabled)
     if(m_minDistance != value || m_maxDistanceEnabled != enabled){
         m_minDistance = value;
         m_minDistanceEnabled = enabled;
-        m_joint->setMinDistance(m_minDistance);
         m_joint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_minDistanceEnabled);
-        if(m_maxDistance < m_minDistance){
-            m_maxDistance = m_minDistance;
-            m_joint->setMaxDistance(m_maxDistance);
-        }
+        m_joint->setMinDistance(m_minDistance);
     }
 }
 
@@ -47,6 +39,7 @@ void DistanceJoint::Unlink()
 {
     if (m_joint)
         m_joint->release();
+    m_joint = nullptr;
 }
 bool DistanceJoint::Linked()
 {
@@ -77,9 +70,12 @@ void DistanceJoint::Init()
 }
 void DistanceJoint::Link()
 {
-    if (!m_linkedEntity.HasPrivateComponent<RigidBody>())
+    if (m_linkedEntity.IsValid() && !m_linkedEntity.HasPrivateComponent<RigidBody>())
     {
         m_linkedEntity = Entity();
+    }
+    if(m_linkedEntity.IsNull()){
+        Unlink();
         return;
     }
     if (SafetyCheck())
@@ -88,7 +84,9 @@ void DistanceJoint::Link()
         const auto owner = GetOwner();
         PxTransform localFrame1;
         auto ownerGT = owner.GetComponentData<GlobalTransform>();
+        ownerGT.SetScale(glm::vec3(1.0f));
         auto linkerGT = m_linkedEntity.GetComponentData<GlobalTransform>();
+        linkerGT.SetScale(glm::vec3(1.0f));
         Transform transform;
         transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;
         const auto position0 = glm::vec3(0.0f);
@@ -106,19 +104,19 @@ void DistanceJoint::Link()
             PxTransform(
                 PxVec3(position1.x, position1.y, position1.z),
                 PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
-
-        float distance = glm::length(position1);
-        SetMax(distance, true);
-        SetMin(distance, true);
-        SetStiffness(0);
-        SetDamping(0);
+        m_joint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, true);
+        SetMax(0, true);
+        SetMin(0, true);
+        SetStiffness(10);
+        SetDamping(1);
     }
 }
 void DistanceJoint::OnGui()
 {
+    auto storedEntity = m_linkedEntity;
     if (EditorManager::DragAndDrop(m_linkedEntity))
     {
-        Link();
+        if(storedEntity != m_linkedEntity) Link();
     }
     if(ImGui::DragFloat("Min", &m_minDistance, 0.1f, FLT_MIN, m_maxDistance)){
         SetMin(m_minDistance, m_minDistanceEnabled);

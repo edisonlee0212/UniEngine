@@ -7,13 +7,24 @@
 #include <FixedJoint.hpp>
 using namespace UniEngine;
 
-Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name);
+Entity CreateDynamicCube(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name);
 
 Entity CreateSolidCube(
-    const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
 
 Entity CreateCube(
-    const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string &name);
+
+
+Entity CreateDynamicSphere(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string& name);
+
+Entity CreateSolidSphere(
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string &name);
+
+Entity CreateSphere(
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string &name);
+
+
 
 int main()
 {
@@ -79,18 +90,18 @@ int main()
 #pragma endregion
 
 #pragma region Create Boundaries
-    CreateDynamicCube(glm::vec3(0, 30, 0), glm::vec3(0, 0, 0), glm::vec3(2, 1, 2), "Dropping box");
+    CreateDynamicCube(glm::vec3(1.0f), glm::vec3(0, 30, 0), glm::vec3(0, 0, 0), glm::vec3(2, 1, 2), "Dropping box");
 
-    const auto ground = CreateSolidCube(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
+    const auto ground = CreateSolidCube(glm::vec3(1.0f), glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
 
-    CreateSolidCube(glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "LeftWall");
-    CreateSolidCube(glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "RightWall");
-    CreateSolidCube(glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 15, 1), "FrontWall");
-    CreateSolidCube(glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 15, 1), "BackWall");
+    CreateSolidCube(glm::vec3(1.0f), glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "LeftWall");
+    CreateSolidCube(glm::vec3(1.0f), glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "RightWall");
+    CreateSolidCube(glm::vec3(1.0f), glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 15, 1), "FrontWall");
+    CreateSolidCube(glm::vec3(1.0f), glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 15, 1), "BackWall");
 
-    const auto b1 = CreateDynamicCube(glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 1");
-    const auto b2 = CreateDynamicCube(glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
-    const auto b3 = CreateDynamicCube(glm::vec3(5, -7.5, 0), glm::vec3(0,0,45), glm::vec3(1), "Block 3");
+    const auto b1 = CreateDynamicCube(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Block 1");
+    const auto b2 = CreateDynamicCube(glm::vec3(1.0f), glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
+    const auto b3 = CreateDynamicCube(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(5, -7.5, 0), glm::vec3(0,0,45), glm::vec3(1), "Block 3");
 
     b1.SetPrivateComponent(std::make_unique<FixedJoint>());
     b1.GetPrivateComponent<FixedJoint>()->m_linkedEntity = b2;
@@ -102,11 +113,11 @@ int main()
     b2.GetPrivateComponent<FixedJoint>()->m_linkedEntity = ground;
     b2.GetPrivateComponent<FixedJoint>()->Link();
 
-    const auto anchor = CreateSolidCube(glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
-    const auto freeCube = CreateDynamicCube(glm::vec3(-15, 0, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Free Cube");
-    freeCube.SetPrivateComponent(std::make_unique<DistanceJoint>());
-    freeCube.GetPrivateComponent<DistanceJoint>()->m_linkedEntity = anchor;
-    freeCube.GetPrivateComponent<DistanceJoint>()->Link();
+    const auto anchor = CreateSolidCube(glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
+    const auto freeSphere = CreateDynamicCube(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-15, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
+    //freeSphere.SetPrivateComponent(std::make_unique<DistanceJoint>());
+    //freeSphere.GetPrivateComponent<DistanceJoint>()->m_linkedEntity = anchor;
+    //freeSphere.GetPrivateComponent<DistanceJoint>()->Link();
 #pragma endregion
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
@@ -117,9 +128,9 @@ int main()
     return 0;
 }
 
-Entity CreateSolidCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
+Entity CreateSolidCube(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
 {
-    auto cube = CreateCube(position, rotation, scale, name);
+    auto cube = CreateCube(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
     cube.SetPrivateComponent(std::move(rigidBody));
     cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
@@ -131,9 +142,9 @@ Entity CreateSolidCube(const glm::vec3 &position, const glm::vec3 &rotation, con
     return cube;
 }
 
-Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
+Entity CreateDynamicCube(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name)
 {
-    auto cube = CreateCube(position, rotation, scale, name);
+    auto cube = CreateCube(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
     cube.SetPrivateComponent(std::move(rigidBody));
     cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
@@ -146,10 +157,11 @@ Entity CreateDynamicCube(const glm::vec3 &position, const glm::vec3 &rotation, c
 }
 
 
-Entity CreateCube(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name){
+Entity CreateCube(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale, const std::string& name){
     auto cube = EntityManager::CreateEntity(name);
     auto groundMeshRenderer = std::make_unique<MeshRenderer>();
-    groundMeshRenderer->m_material = DefaultResources::Materials::StandardMaterial;
+    groundMeshRenderer->m_material = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer->m_material->m_albedoColor = color;
     groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
@@ -160,4 +172,49 @@ Entity CreateCube(const glm::vec3 &position, const glm::vec3 &rotation, const gl
     groundGlobalTransform.SetValue(position, glm::radians(rotation), scale);
     cube.SetComponentData(groundGlobalTransform);
     return cube;
+}
+
+Entity CreateDynamicSphere(const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string& name){
+    auto sphere = CreateSphere(color, position, rotation, scale, name);
+    auto rigidBody = std::make_unique<RigidBody>();
+    sphere.SetPrivateComponent(std::move(rigidBody));
+    sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
+    sphere.GetPrivateComponent<RigidBody>()->SetStatic(false);
+    sphere.GetPrivateComponent<RigidBody>()->UpdateMass(0.1);
+    // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
+    sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
+    sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
+    return sphere;
+}
+
+Entity CreateSolidSphere(
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string &name){
+    auto sphere = CreateSphere(color, position, rotation, scale, name);
+    auto rigidBody = std::make_unique<RigidBody>();
+    sphere.SetPrivateComponent(std::move(rigidBody));
+    sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
+    sphere.GetPrivateComponent<RigidBody>()->SetStatic(true);
+    sphere.GetPrivateComponent<RigidBody>()->UpdateMass(0.1);
+    // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
+    sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
+    sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
+    return sphere;
+}
+
+Entity CreateSphere(
+    const glm::vec3 color, const glm::vec3 &position, const glm::vec3 &rotation, const float &scale, const std::string &name){
+    auto sphere = EntityManager::CreateEntity(name);
+    auto groundMeshRenderer = std::make_unique<MeshRenderer>();
+    groundMeshRenderer->m_material = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer->m_material->m_albedoColor = color;
+    groundMeshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
+    Transform groundTransform;
+    groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
+    //groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
+    sphere.SetComponentData(groundTransform);
+    sphere.SetPrivateComponent(std::move(groundMeshRenderer));
+    GlobalTransform groundGlobalTransform;
+    groundGlobalTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
+    sphere.SetComponentData(groundGlobalTransform);
+    return sphere;
 }
