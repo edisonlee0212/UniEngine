@@ -29,14 +29,9 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     PxVec3 m_linearVelocity = PxVec3(0.0f);
     PxVec3 m_angularVelocity = PxVec3(0.0f);
     bool m_shapeUpdated = false;
-    friend class D6Joint;
-    friend class FixedJoint;
-    friend class SphericalJoint;
-    friend class RevoluteJoint;
-    friend class PrismaticJoint;
-    friend class DistanceJoint;
+    friend class Joint;
   public:
-    void UpdateMass(const float& value, const glm::vec3& center = glm::vec3(0.0f));
+    void UpdateDensity(const float& value, const glm::vec3& center = glm::vec3(0.0f));
     void SetLinearVelocity(const glm::vec3& velocity);
     void SetAngularVelocity(const glm::vec3& velocity);
     void ApplyMeshBound();

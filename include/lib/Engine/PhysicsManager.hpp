@@ -1,10 +1,8 @@
 #pragma once
-#include <FixedJoint.hpp>
+#include <Joint.hpp>
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
-#include <DistanceJoint.hpp>
 #include <PhysicsMaterial.hpp>
-
 using namespace physx;
 
 #define PX_RELEASE(x)                                                                                                  \
@@ -19,6 +17,7 @@ class RigidBody;
 class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 {
   public:
+    PxPvdTransport* m_pvdTransport;
     PxDefaultAllocator m_allocator;
     PxDefaultErrorCallback m_errorCallback;
     PxFoundation *m_physicsFoundation;

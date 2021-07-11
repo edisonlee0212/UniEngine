@@ -229,7 +229,7 @@ void UniEngine::RigidBody::OnGui()
         }
     }
 }
-void RigidBody::UpdateMass(const float& value, const glm::vec3& center)
+void RigidBody::UpdateDensity(const float& value, const glm::vec3& center)
 {
     m_density = value;
     m_massCenter = PxVec3(center.x, center.y, center.z);

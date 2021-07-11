@@ -37,17 +37,20 @@ void PhysicsManager::Init()
     physicsManager.m_physicsFoundation =
         PxCreateFoundation(PX_PHYSICS_VERSION, physicsManager.m_allocator, physicsManager.m_errorCallback);
 
-    physicsManager.m_physVisDebugger = PxCreatePvd(*physicsManager.m_physicsFoundation);
-    PxPvdTransport *transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    physicsManager.m_physVisDebugger->connect(*transport, PxPvdInstrumentationFlag::eALL);
+    physicsManager.m_pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    if(physicsManager.m_pvdTransport != NULL)
+    {
+        physicsManager.m_physVisDebugger = PxCreatePvd(*physicsManager.m_physicsFoundation);
+        physicsManager.m_physVisDebugger->connect(*physicsManager.m_pvdTransport, PxPvdInstrumentationFlag::eALL);
 
+    }
     physicsManager.m_physics = PxCreatePhysics(
         PX_PHYSICS_VERSION,
         *physicsManager.m_physicsFoundation,
         PxTolerancesScale(),
         true,
         physicsManager.m_physVisDebugger);
-
+    PxInitExtensions(*physicsManager.m_physics , physicsManager.m_physVisDebugger);
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
 
     ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
