@@ -5,7 +5,7 @@ UniEngine::CPUUsageEvent::CPUUsageEvent(CPUUsageEvent *parent, const std::string
 {
     m_parent = parent;
     m_name = name;
-    m_timeStart = Application::EngineTime();
+    m_timeStart = Application::Time().CurrentTime();
 }
 
 void UniEngine::CPUUsageEvent::OnGui(const float &parentTotalTime) const
@@ -43,13 +43,13 @@ void UniEngine::EngineProfiler::EndEvent(const std::string &name)
     {
         UNIENGINE_ERROR("Event not properly ended!");
     }
-    m_currentEventPointer->m_timeEnd = Application::EngineTime();
+    m_currentEventPointer->m_timeEnd = Application::Time().CurrentTime();
     m_currentEventPointer = m_currentEventPointer->m_parent;
 }
 
 void UniEngine::EngineProfiler::LateUpdate()
 {
-    m_currentEventPointer->m_timeEnd = Application::EngineTime();
+    m_currentEventPointer->m_timeEnd = Application::Time().CurrentTime();
 }
 
 void UniEngine::EngineProfiler::OnGui()

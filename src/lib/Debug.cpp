@@ -15,7 +15,7 @@ void Debug::Log(const std::string &msg)
     ConsoleMessage cm;
     cm.m_value = msg;
     cm.m_type = ConsoleMessageType::Log;
-    cm.m_time = Application::EngineTime();
+    cm.m_time = Application::Time().CurrentTime();
     instance.m_consoleMessages.push_back(cm);
 }
 
@@ -26,7 +26,7 @@ void Debug::Error(const std::string &msg)
     ConsoleMessage cm;
     cm.m_value = msg;
     cm.m_type = ConsoleMessageType::Error;
-    cm.m_time = Application::EngineTime();
+    cm.m_time = Application::Time().CurrentTime();
     instance.m_consoleMessages.push_back(cm);
 }
 
@@ -37,7 +37,7 @@ void Debug::Warning(const std::string &msg)
     ConsoleMessage cm;
     cm.m_value = msg;
     cm.m_type = ConsoleMessageType::Warning;
-    cm.m_time = Application::EngineTime();
+    cm.m_time = Application::Time().CurrentTime();
     instance.m_consoleMessages.push_back(cm);
 }
 

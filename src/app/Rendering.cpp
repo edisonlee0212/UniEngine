@@ -135,7 +135,7 @@ int main()
     pointLightRightEntity.SetPrivateComponent(std::move(pointLightRightRenderer));
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
-        const float currentTime = Application::EngineTime();
+        const float currentTime = Application::Time().CurrentTime();
         const float sinTime = glm::sin(currentTime / 5.0f);
         const float cosTime = glm::cos(currentTime / 5.0f);
         dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(

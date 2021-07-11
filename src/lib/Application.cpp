@@ -110,45 +110,53 @@ void Application::Init(bool fullScreen)
 #pragma endregion
 }
 
-void ApplicationTime::AddFixedDeltaTime(const double &value)
-{
-    m_fixedDeltaTime += value;
-}
-
 double ApplicationTime::TimeStep() const
 {
     return m_timeStep;
 }
-
+void ApplicationTime::SetTimeStep(const double &value)
+{
+    m_timeStep = value;
+}
 double ApplicationTime::FixedDeltaTime() const
 {
-    return m_fixedDeltaTime;
+    return glfwGetTime() - m_lastFixedUpdateTime;
 }
 
 double ApplicationTime::DeltaTime() const
 {
     return m_deltaTime;
 }
+double ApplicationTime::CurrentTime() const
+{
+    return glfwGetTime();
+}
 
 double ApplicationTime::LastFrameTime() const
 {
-    return m_lastFrameTime;
+    return m_lastUpdateTime;
+}
+void ApplicationTime::StartFixedUpdate()
+{
+    m_fixedUpdateTimeStamp = glfwGetTime();
 }
 
+void ApplicationTime::EndFixedUpdate()
+{
+    m_lastFixedUpdateTime = m_fixedUpdateTimeStamp;
+}
 void Application::PreUpdateInternal()
 {
     auto &application = GetInstance();
     if (!application.m_initialized)
         return;
+    application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
+    application.m_time.m_frameStartTime = glfwGetTime();
     ProfilerManager::PreUpdate();
-
     ProfilerManager::GetEngineProfiler().StartEvent("PreUpdate");
-
     ProfilerManager::GetEngineProfiler().StartEvent("Internal PreUpdate");
     glfwPollEvents();
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
-    application.m_time.m_deltaTime = application.m_time.m_lastFrameTime - application.m_time.m_frameStartTime;
-    application.m_time.m_frameStartTime = glfwGetTime();
 #pragma region ImGui
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -197,11 +205,7 @@ void Application::PreUpdateInternal()
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     ImGui::End();
 #pragma endregion
-    application.m_needFixedUpdate = false;
-    if (application.m_time.m_fixedDeltaTime >= application.m_time.m_timeStep)
-    {
-        application.m_needFixedUpdate = true;
-    }
+
     PhysicsManager::PreUpdate();
     OpenGLUtils::PreUpdate();
     EditorManager::PreUpdate();
@@ -224,12 +228,26 @@ void Application::PreUpdateInternal()
     ProfilerManager::GetEngineProfiler().StartEvent("Systems PreUpdate");
     if (application.m_playing)
     {
-        application.m_time.m_fixedDeltaTime += application.m_time.m_deltaTime;
         application.m_world->PreUpdate();
     }
     ProfilerManager::GetEngineProfiler().EndEvent("Systems PreUpdate");
 
     ProfilerManager::GetEngineProfiler().EndEvent("PreUpdate");
+    application.m_needFixedUpdate = false;
+    auto fixedDeltaTime = application.m_time.FixedDeltaTime();
+    if (fixedDeltaTime >= application.m_time.m_timeStep)
+    {
+        application.m_needFixedUpdate = true;
+
+    }
+    if(application.m_needFixedUpdate){
+        application.m_time.StartFixedUpdate();
+        for (const auto &i : application.m_externalPreUpdateFunctions)
+            i();
+        if(application.m_playing) application.m_world->FixedUpdate();
+        application.m_time.EndFixedUpdate();
+    }
+
 }
 
 void Application::UpdateInternal()
@@ -287,10 +305,6 @@ bool Application::LateUpdateInternal()
     {
         application.m_world->LateUpdate();
     }
-    if (application.m_needFixedUpdate)
-    {
-        application.m_time.m_fixedDeltaTime = 0;
-    }
 
     ProfilerManager::GetEngineProfiler().EndEvent("Systems LateUpdate");
 
@@ -315,18 +329,13 @@ bool Application::LateUpdateInternal()
 #pragma endregion
     // Swap Window's framebuffer
     WindowManager::Swap();
-    application.m_time.m_lastFrameTime = glfwGetTime();
+    application.m_time.m_lastUpdateTime = glfwGetTime();
     return application.m_initialized;
 }
 
 ApplicationTime &Application::Time()
 {
     return GetInstance().m_time;
-}
-
-double Application::EngineTime()
-{
-    return glfwGetTime();
 }
 
 void Application::SetPlaying(bool value)
@@ -354,14 +363,12 @@ void Application::End()
 void Application::Run()
 {
     auto &application = GetInstance();
-    application.m_innerLooping = true;
     while (application.m_initialized)
     {
         PreUpdateInternal();
         UpdateInternal();
         application.m_initialized = LateUpdateInternal();
     }
-    application.m_innerLooping = false;
 }
 
 std::unique_ptr<World> &Application::GetCurrentWorld()
@@ -382,6 +389,10 @@ void Application::RegisterUpdateFunction(const std::function<void()> &func)
 void Application::RegisterLateUpdateFunction(const std::function<void()> &func)
 {
     GetInstance().m_externalLateUpdateFunctions.push_back(func);
+}
+void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
+{
+    GetInstance().m_externalFixedUpdateFunctions.push_back(func);
 }
 
 #pragma region OpenGL Debugging

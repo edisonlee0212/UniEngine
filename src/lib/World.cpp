@@ -28,11 +28,6 @@ void World::Purge()
     m_worldEntityStorage.m_entityInfos.emplace_back();
 }
 
-void World::RegisterFixedUpdateFunction(const std::function<void()> &func)
-{
-    m_externalFixedUpdateFunctions.push_back(func);
-}
-
 Bound World::GetBound() const
 {
     return m_worldBound;
@@ -87,27 +82,6 @@ World::~World()
 
 void World::PreUpdate()
 {
-    if (Application::GetInstance().m_needFixedUpdate)
-    {
-        for (const auto &i : m_externalFixedUpdateFunctions)
-            i();
-        for (auto i : m_preparationSystems)
-        {
-            if (i->Enabled())
-                i->FixedUpdate();
-        }
-        for (auto i : m_simulationSystems)
-        {
-            if (i->Enabled())
-                i->FixedUpdate();
-        }
-        for (auto i : m_presentationSystems)
-        {
-            if (i->Enabled())
-                i->FixedUpdate();
-        }
-    }
-
     for (auto i : m_preparationSystems)
     {
         if (i->Enabled())
@@ -165,5 +139,23 @@ void World::LateUpdate()
     {
         if (i->Enabled())
             i->LateUpdate();
+    }
+}
+void World::FixedUpdate()
+{
+    for (auto i : m_preparationSystems)
+    {
+        if (i->Enabled())
+            i->FixedUpdate();
+    }
+    for (auto i : m_simulationSystems)
+    {
+        if (i->Enabled())
+            i->FixedUpdate();
+    }
+    for (auto i : m_presentationSystems)
+    {
+        if (i->Enabled())
+            i->FixedUpdate();
     }
 }

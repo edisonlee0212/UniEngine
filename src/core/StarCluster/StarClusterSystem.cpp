@@ -252,10 +252,10 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
     if (m_firstTime || m_currentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         m_useFront = !m_useFront;
-        m_calcPositionResult = Application::EngineTime() - m_calcPositionTimer;
+        m_calcPositionResult = Application::Time().CurrentTime() - m_calcPositionTimer;
         m_firstTime = false;
         ApplyPosition();
-        m_calcPositionTimer = Application::EngineTime();
+        m_calcPositionTimer = Application::Time().CurrentTime();
         m_currentStatus = std::async(std::launch::async, [=]() {
             EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
                 JobManager::SecondaryWorkers(),
@@ -279,7 +279,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
 
-    m_calcPositionTimer = Application::EngineTime();
+    m_calcPositionTimer = Application::Time().CurrentTime();
     // StarOrbitProportion: The relative position of the star, here it is used to calculate the speed of the star
     // around its orbit. StarPosition: The final output of this operation, records the position of the star in the
     // galaxy. StarOrbit: The orbit which contains the function for calculating the position based on current time
@@ -299,7 +299,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
                 starOrbit.GetPoint(starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
         },
         false);
-    const auto usedTime = Application::EngineTime() - m_calcPositionTimer;
+    const auto usedTime = Application::Time().CurrentTime() - m_calcPositionTimer;
     m_calcPositionResult = m_calcPositionResult * m_counter / (m_counter + 1) + usedTime / (m_counter + 1);
 
     // Copy data for rendering.
@@ -310,7 +310,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 
 void Galaxy::StarClusterSystem::ApplyPosition()
 {
-    m_applyPositionTimer = Application::EngineTime();
+    m_applyPositionTimer = Application::Time().CurrentTime();
     EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(
         JobManager::SecondaryWorkers(),
         m_starQuery,
@@ -330,7 +330,7 @@ void Galaxy::StarClusterSystem::ApplyPosition()
             displayColor.m_intensity = surfaceColor.m_intensity;
         },
         false);
-    m_applyPositionTimer = Application::EngineTime() - m_applyPositionTimer;
+    m_applyPositionTimer = Application::Time().CurrentTime() - m_applyPositionTimer;
 }
 
 void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)

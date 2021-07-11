@@ -34,7 +34,6 @@ class UNIENGINE_API World
     std::vector<SystemBase *> m_preparationSystems;
     std::vector<SystemBase *> m_simulationSystems;
     std::vector<SystemBase *> m_presentationSystems;
-    std::vector<std::function<void()>> m_externalFixedUpdateFunctions;
     size_t m_index;
     Bound m_worldBound;
 
@@ -51,6 +50,7 @@ class UNIENGINE_API World
     template <class T = SystemBase> void DestroySystem();
     template <class T = SystemBase> T *GetSystem();
     ~World();
+    void FixedUpdate();
     void PreUpdate();
     void Update();
     void LateUpdate();
@@ -116,4 +116,5 @@ template <class T> T *World::GetSystem()
     }
     return nullptr;
 }
+
 } // namespace UniEngine
