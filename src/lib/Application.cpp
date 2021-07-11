@@ -242,7 +242,7 @@ void Application::PreUpdateInternal()
     }
     if(application.m_needFixedUpdate){
         application.m_time.StartFixedUpdate();
-        for (const auto &i : application.m_externalPreUpdateFunctions)
+        for (const auto &i : application.m_externalFixedUpdateFunctions)
             i();
         if(application.m_playing) application.m_world->FixedUpdate();
         application.m_time.EndFixedUpdate();
