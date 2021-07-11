@@ -120,11 +120,11 @@ int main()
 	Application::RegisterPreUpdateFunction([&]()
 		{
 #pragma region LightsPosition
-			ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f), -20.0f * glm::cos(Application::EngineTime() / 2.0f)), 0.0f));
+			ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f), -20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f)), 0.0f));
 			EntityManager::SetComponentData(dle, ltw);
-			ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::EngineTime() / 2.0f), 20.0f * glm::sin(Application::EngineTime() / 2.0f), 0.0f), 0.0f));
+			ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f), 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f), 0.0f), 0.0f));
 			EntityManager::SetComponentData(ple, ltw);
-			ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::EngineTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::EngineTime() / 2.0f)), 0.0f));
+			ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f)), 0.0f));
 			EntityManager::SetComponentData(ple2, ltw);
 #pragma endregion
 		});
