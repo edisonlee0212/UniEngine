@@ -7,9 +7,10 @@ using namespace UniEngine;
 
 void PhysicsManager::UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody)
 {
-    auto ltw = globalTransform.m_value * rigidBody->m_shapeTransform;
-    PxMat44 matrix = *(PxMat44 *)(void *)&ltw;
-    rigidBody->m_rigidActor->setGlobalPose(PxTransform(matrix));
+    GlobalTransform ltw;
+    ltw.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
+    ltw.SetScale(glm::vec3(1.0f));
+    rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
 }
 
 void PhysicsManager::PreUpdate()
