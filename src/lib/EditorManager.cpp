@@ -444,7 +444,8 @@ void EditorManager::Init()
 
         bool reload = previousEntity != entity;
         bool kinematic = entity.HasPrivateComponent<RigidBody>() && entity.GetPrivateComponent<RigidBody>()->m_kinematic && entity.GetPrivateComponent<RigidBody>()->m_currentRegistered;
-        reload = reload || kinematic;
+
+        reload = reload || (entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>()->m_kinematic && entity.GetPrivateComponent<RigidBody>()->m_currentRegistered );
         if (reload)
         {
             previousEntity = entity;
@@ -1464,6 +1465,9 @@ void EditorManager::LateUpdate()
                     op,
                     ImGuizmo::LOCAL,
                     glm::value_ptr(globalTransform.m_value));
+                if(manager.m_selectedEntity.HasPrivateComponent<RigidBody>() && manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_kinematic && manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_currentRegistered){
+                    PhysicsManager::UploadTransform(globalTransform, manager.m_selectedEntity.GetPrivateComponent<RigidBody>());
+                }
                 if (ImGuizmo::IsUsing())
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
