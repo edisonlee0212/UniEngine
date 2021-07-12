@@ -139,7 +139,7 @@ void PhysicsSystem::OnDestroy()
 
 void PhysicsSystem::FixedUpdate()
 {
-    Simulate(Application::Time().FixedDeltaTime());
+    Simulate(Application::Time().TimeStep());
 }
 
 void PhysicsSystem::Simulate(float time) const
