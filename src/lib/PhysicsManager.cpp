@@ -10,7 +10,8 @@ void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, std
     GlobalTransform ltw;
     ltw.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
     ltw.SetScale(glm::vec3(1.0f));
-    if (rigidBody->m_kinematic)
+
+    if (rigidBody->m_currentRegistered && rigidBody->m_kinematic)
     {
         static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
             ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));

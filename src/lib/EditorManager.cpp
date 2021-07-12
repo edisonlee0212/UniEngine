@@ -443,8 +443,8 @@ void EditorManager::Init()
         bool edited = false;
 
         bool reload = previousEntity != entity;
-        bool kinematic = !(entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>()->m_kinematic);
-        reload = reload || !kinematic;
+        bool kinematic = entity.HasPrivateComponent<RigidBody>() && entity.GetPrivateComponent<RigidBody>()->m_kinematic && entity.GetPrivateComponent<RigidBody>()->m_currentRegistered;
+        reload = reload || kinematic;
         if (reload)
         {
             previousEntity = entity;

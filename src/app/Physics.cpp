@@ -168,21 +168,22 @@ int main()
 
 #pragma region Heart shaped rings
     {
+        const auto height = 0;
         const auto leftSphere = CreateSolidSphere(
-            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-2.7, 32, 0), glm::vec3(0, 0, 45), 1.7, "Block 1");
+            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-2.7, height + 2, -10), glm::vec3(0, 0, 45), 1.7, "Block 1");
         const auto rightSphere = CreateSolidSphere(
-            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(2.7, 32, 0), glm::vec3(0, 0, 45), 1.7, "Block 3");
+            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(2.7, height + 2, -10), glm::vec3(0, 0, 45), 1.7, "Block 3");
 
         float radius = 3.0f;
         float factor = 1.5f;
         const auto anchor = CreateDynamicSphere(
-            8.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, 30, 0), glm::vec3(0, 0, 45), 0.28, "Start");
+            8.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, height, -10), glm::vec3(0, 0, 45), 0.28, "Start");
         auto lastLink = anchor;
         int amount = 72;
         for (int i = 1; i < amount; i++)
         {
             float mass = i == amount / 2 ? 1 : 1;
-            const auto position = glm::vec3(glm::sin(glm::radians(i * 360.0f / amount)) * radius * factor, -glm::cos(glm::radians(i * 360.0f / amount)) * radius + 30.0f + radius, 0);
+            const auto position = glm::vec3(glm::sin(glm::radians(i * 360.0f / amount)) * radius * factor, -glm::cos(glm::radians(i * 360.0f / amount)) * radius + height + radius, -10);
             const auto link = CreateDynamicSphere(
                 mass, glm::vec3(1.0f, 1.0f, 1.0f), position, glm::vec3(0, 0, 45), 0.1f, "Link");
             link.SetPrivateComponent(std::make_unique<Joint>());

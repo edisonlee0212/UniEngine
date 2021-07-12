@@ -53,6 +53,8 @@ void UniEngine::RigidBody::SetStatic(bool value)
 {
     if (m_static == value)
         return;
+    if(value)
+        SetKinematic(false);
     m_static = value;
     m_shapeUpdated = false;
     // TODO: Unlink joint here.
