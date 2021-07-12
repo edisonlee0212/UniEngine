@@ -13,6 +13,7 @@
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
+#include <PhysicsManager.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -441,7 +442,10 @@ void EditorManager::Init()
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
 
-        if (previousEntity != entity)
+        bool reload = previousEntity != entity;
+        bool kinematic = !(entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>()->m_kinematic);
+        reload = reload || !kinematic;
+        if (reload)
         {
             previousEntity = entity;
             ltp->Decompose(
@@ -480,12 +484,19 @@ void EditorManager::Init()
             editorManager.m_localRotationSelected = false;
             editorManager.m_localPositionSelected = false;
         }
-        if (edited)
+        if (kinematic && edited)
         {
             ltp->m_value = glm::translate(editorManager.m_previouslyStoredPosition) *
                            glm::mat4_cast(glm::quat(glm::radians(editorManager.m_previouslyStoredRotation))) *
                            glm::scale(editorManager.m_previouslyStoredScale);
+            if(kinematic){
+                auto parentLtw = GlobalTransform();
+                if(!isRoot) parentLtw = EntityManager::GetParent(entity).GetComponentData<GlobalTransform>();
+                parentLtw.m_value *= ltp->m_value;
+                PhysicsManager::UploadTransform(parentLtw, entity.GetPrivateComponent<RigidBody>());
+            }
         }
+
     });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
         if (owner.HasPrivateComponent<Animator>())

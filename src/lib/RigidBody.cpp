@@ -51,10 +51,11 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
 
 void UniEngine::RigidBody::SetStatic(bool value)
 {
-    if(m_static == value) return;
+    if (m_static == value)
+        return;
     m_static = value;
     m_shapeUpdated = false;
-    //TODO: Unlink joint here.
+    // TODO: Unlink joint here.
     UpdateBody();
 }
 
@@ -77,7 +78,7 @@ UniEngine::RigidBody::~RigidBody()
     {
         m_shape->release();
     }
-    //TODO: Unlink joints here
+    // TODO: Unlink joints here
 }
 
 void UniEngine::RigidBody::UpdateBody()
@@ -104,7 +105,8 @@ void UniEngine::RigidBody::Init()
 static const char *RigidBodyShapeShape[]{"Sphere", "Box", "Capsule"};
 void UniEngine::RigidBody::OnGui()
 {
-    if(ImGui::TreeNode("Material")){
+    if (ImGui::TreeNode("Material"))
+    {
         m_material->OnGui();
         ImGui::TreePop();
     }
@@ -119,19 +121,28 @@ void UniEngine::RigidBody::OnGui()
 
     if (!m_static)
     {
-        PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
-        if (Application::IsPlaying())
+        if (ImGui::Checkbox("Kinematic", &m_kinematic))
         {
-            m_linearVelocity = rigidBody->getLinearVelocity();
-            m_angularVelocity = rigidBody->getAngularVelocity();
+            const bool newVal = m_kinematic;
+            m_kinematic = !m_kinematic;
+            SetKinematic(newVal);
         }
-        if (ImGui::DragFloat3("Angular V", &m_angularVelocity.x, 0.01f))
+        if (!m_kinematic)
         {
-            rigidBody->setAngularVelocity(m_angularVelocity);
-        }
-        if (ImGui::DragFloat3("Linear V", &m_linearVelocity.x, 0.01f))
-        {
-            rigidBody->setLinearVelocity(m_linearVelocity);
+            PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+            if (Application::IsPlaying())
+            {
+                m_linearVelocity = rigidBody->getLinearVelocity();
+                m_angularVelocity = rigidBody->getAngularVelocity();
+            }
+            if (ImGui::DragFloat3("Angular V", &m_angularVelocity.x, 0.01f))
+            {
+                rigidBody->setAngularVelocity(m_angularVelocity);
+            }
+            if (ImGui::DragFloat3("Linear V", &m_linearVelocity.x, 0.01f))
+            {
+                rigidBody->setLinearVelocity(m_linearVelocity);
+            }
         }
     }
     if (Application::IsPlaying())
@@ -216,7 +227,8 @@ void UniEngine::RigidBody::OnGui()
         }
         if (ImGui::DragFloat("Density", &m_density, 0.1f, 0.001f))
             statusChanged = true;
-        if(ImGui::DragFloat3("Center", & m_massCenter.x, 0.1f, 0.001f));
+        if (ImGui::DragFloat3("Center", &m_massCenter.x, 0.1f, 0.001f))
+            ;
         if (statusChanged)
         {
             m_density = glm::max(0.001f, m_density);
@@ -229,20 +241,22 @@ void UniEngine::RigidBody::OnGui()
         }
     }
 }
-void RigidBody::UpdateDensity(const float& value, const glm::vec3& center)
+void RigidBody::UpdateDensity(const float &value, const glm::vec3 &center)
 {
     m_density = value;
     m_massCenter = PxVec3(center.x, center.y, center.z);
-    if(!m_static) PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
+    if (!m_static)
+        PxRigidBodyExt::updateMassAndInertia(
+            *reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
 }
-void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial>& value)
+void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial> &value)
 {
     if (value && m_material != value)
     {
         m_material = value;
         m_shapeUpdated = false;
     }
-    //TODO: Unlink joint here.
+    // TODO: Unlink joint here.
 }
 void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
 {
@@ -250,9 +264,31 @@ void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
     m_angularVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidBody->setAngularVelocity(m_angularVelocity);
 }
-void RigidBody::SetLinearVelocity(const glm::vec3& velocity)
+void RigidBody::SetLinearVelocity(const glm::vec3 &velocity)
 {
     PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
     m_linearVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidBody->setLinearVelocity(m_linearVelocity);
+}
+
+bool RigidBody::IsKinematic()
+{
+    return m_kinematic;
+}
+
+void RigidBody::SetKinematic(const bool &value)
+{
+    if (m_static)
+    {
+        UNIENGINE_ERROR("RigidBody is static!");
+        return;
+    }
+    if (m_kinematic == value)
+        return;
+    m_kinematic = value;
+    static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
+}
+bool RigidBody::IsStatic()
+{
+    return m_static;
 }

@@ -1,16 +1,24 @@
 #include <Application.hpp>
 #include <PhysicsManager.hpp>
-#include <TransformManager.hpp>
-#include <RigidBody.hpp>
 #include <ResourceManager.hpp>
+#include <RigidBody.hpp>
+#include <TransformManager.hpp>
 using namespace UniEngine;
 
-void PhysicsManager::UploadTransform(const GlobalTransform& globalTransform, std::unique_ptr<RigidBody> &rigidBody)
+void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, std::unique_ptr<RigidBody> &rigidBody)
 {
     GlobalTransform ltw;
     ltw.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
     ltw.SetScale(glm::vec3(1.0f));
-    rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
+    if (rigidBody->m_kinematic)
+    {
+        static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
+            ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
+    }
+    else
+    {
+        rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
+    }
 }
 
 void PhysicsManager::PreUpdate()
@@ -38,11 +46,10 @@ void PhysicsManager::Init()
         PxCreateFoundation(PX_PHYSICS_VERSION, physicsManager.m_allocator, physicsManager.m_errorCallback);
 
     physicsManager.m_pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    if(physicsManager.m_pvdTransport != NULL)
+    if (physicsManager.m_pvdTransport != NULL)
     {
         physicsManager.m_physVisDebugger = PxCreatePvd(*physicsManager.m_physicsFoundation);
         physicsManager.m_physVisDebugger->connect(*physicsManager.m_pvdTransport, PxPvdInstrumentationFlag::eALL);
-
     }
     physicsManager.m_physics = PxCreatePhysics(
         PX_PHYSICS_VERSION,
@@ -50,7 +57,7 @@ void PhysicsManager::Init()
         PxTolerancesScale(),
         true,
         physicsManager.m_physVisDebugger);
-    PxInitExtensions(*physicsManager.m_physics , physicsManager.m_physVisDebugger);
+    PxInitExtensions(*physicsManager.m_physics, physicsManager.m_physVisDebugger);
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
 
     ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
@@ -82,8 +89,8 @@ void PhysicsManager::UpdateShape(std::unique_ptr<RigidBody> &rigidBody)
     switch (rigidBody->m_shapeType)
     {
     case ShapeType::Sphere:
-        rigidBody->m_shape =
-            GetInstance().m_physics->createShape(PxSphereGeometry(rigidBody->m_shapeParam.x), *rigidBody->m_material->m_value);
+        rigidBody->m_shape = GetInstance().m_physics->createShape(
+            PxSphereGeometry(rigidBody->m_shapeParam.x), *rigidBody->m_material->m_value);
         break;
     case ShapeType::Box:
         rigidBody->m_shape = GetInstance().m_physics->createShape(

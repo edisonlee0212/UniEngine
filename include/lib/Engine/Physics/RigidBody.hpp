@@ -30,7 +30,11 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     PxVec3 m_angularVelocity = PxVec3(0.0f);
     bool m_shapeUpdated = false;
     friend class Joint;
+    friend class EditorManager;
+    bool m_kinematic = false;
   public:
+    [[nodiscard]] bool IsKinematic();
+    void SetKinematic(const bool& value);
     void UpdateDensity(const float& value, const glm::vec3& center = glm::vec3(0.0f));
     void SetLinearVelocity(const glm::vec3& velocity);
     void SetAngularVelocity(const glm::vec3& velocity);
@@ -38,6 +42,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);
     void SetStatic(bool value);
+    bool IsStatic();
     void SetTransform(glm::mat4 value);
     ~RigidBody() override;
     void SetMaterial(const std::shared_ptr<PhysicsMaterial>& value);
