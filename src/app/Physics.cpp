@@ -226,11 +226,11 @@ Entity CreateSolidCube(
     cube.SetPrivateComponent(std::move(rigidBody));
     cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
     cube.GetPrivateComponent<RigidBody>()->SetStatic(true);
-    cube.GetPrivateComponent<RigidBody>()->UpdateDensity(1);
+    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
     cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    cube.GetPrivateComponent<RigidBody>()->UpdateDensity(mass / scale.x / scale.y / scale.z);
+    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
     return cube;
 }
 
@@ -247,11 +247,11 @@ Entity CreateDynamicCube(
     cube.SetPrivateComponent(std::move(rigidBody));
     cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
     cube.GetPrivateComponent<RigidBody>()->SetStatic(false);
-    cube.GetPrivateComponent<RigidBody>()->UpdateDensity(1);
+    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
     cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    cube.GetPrivateComponent<RigidBody>()->UpdateDensity(mass / scale.x / scale.y / scale.z);
+    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
     return cube;
 }
 
@@ -292,11 +292,11 @@ Entity CreateDynamicSphere(
     sphere.SetPrivateComponent(std::move(rigidBody));
     sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
     sphere.GetPrivateComponent<RigidBody>()->SetStatic(false);
-    sphere.GetPrivateComponent<RigidBody>()->UpdateDensity(1);
+    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
     sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    sphere.GetPrivateComponent<RigidBody>()->UpdateDensity(mass / scale / scale / scale);
+    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale / scale / scale);
     return sphere;
 }
 
@@ -313,11 +313,11 @@ Entity CreateSolidSphere(
     sphere.SetPrivateComponent(std::move(rigidBody));
     sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
     sphere.GetPrivateComponent<RigidBody>()->SetStatic(true);
-    sphere.GetPrivateComponent<RigidBody>()->UpdateDensity(1);
+    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
     sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    sphere.GetPrivateComponent<RigidBody>()->UpdateDensity(mass / scale / scale / scale);
+    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale / scale / scale);
     return sphere;
 }
 

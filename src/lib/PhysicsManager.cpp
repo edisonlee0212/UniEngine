@@ -116,7 +116,7 @@ void PhysicsSystem::OnCreate()
     auto physics = PhysicsManager::GetInstance().m_physics;
     PxSceneDesc sceneDesc(physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-
+    sceneDesc.solverType = PxSolverType::eTGS;
     sceneDesc.cpuDispatcher = PhysicsManager::GetInstance().m_dispatcher;
     sceneDesc.filterShader = PxDefaultSimulationFilterShader;
     m_physicsScene = physics->createScene(sceneDesc);

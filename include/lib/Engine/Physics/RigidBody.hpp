@@ -32,10 +32,19 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     friend class Joint;
     friend class EditorManager;
     bool m_kinematic = false;
+    PxReal m_linearDamping = 0;
+    PxReal m_angularDamping = 0;
+
+    PxU32 m_minPositionIterations = 4;
+    PxU32 m_minVelocityIterations = 1;
   public:
     [[nodiscard]] bool IsKinematic();
+    void SetSolverIterations(const unsigned& position = 4, const unsigned& velocity = 1);
+
+    void SetLinearDamping(const float& value);
+    void SetAngularDamping(const float& value);
     void SetKinematic(const bool& value);
-    void UpdateDensity(const float& value, const glm::vec3& center = glm::vec3(0.0f));
+    void SetDensityAndMassCenter(const float& value, const glm::vec3& center = glm::vec3(0.0f));
     void SetLinearVelocity(const glm::vec3& velocity);
     void SetAngularVelocity(const glm::vec3& velocity);
     void ApplyMeshBound();
