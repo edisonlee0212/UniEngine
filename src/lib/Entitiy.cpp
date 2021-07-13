@@ -134,6 +134,22 @@ void Entity::RemoveChild(const Entity &child) const
 {
     EntityManager::RemoveChild(*this, child);
 }
+std::vector<Entity> Entity::GetDescendants() const
+{
+    return std::move(EntityManager::GetDescendants(*this));
+}
+void Entity::ForEachDescendant(const std::function<void(const Entity &)> &func, const bool &fromRoot) const
+{
+    EntityManager::ForEachDescendant(*this, func, fromRoot);
+}
+unsigned Entity::GetIndex() const
+{
+    return m_index;
+}
+unsigned Entity::GetVersion() const
+{
+    return m_version;
+}
 
 Entity PrivateComponentBase::GetOwner() const
 {
@@ -213,6 +229,10 @@ bool EntityArchetype::IsValid() const
 std::string EntityArchetype::GetName() const
 {
     return EntityManager::GetEntityArchetypeName(*this);
+}
+void EntityArchetype::SetName(const std::string &name) const
+{
+    EntityManager::SetEntityArchetypeName(*this, name);
 }
 
 PrivateComponentElement::PrivateComponentElement(

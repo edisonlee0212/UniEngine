@@ -36,9 +36,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     std::vector<EntityQueryInfo> *m_entityQueryInfos = nullptr;
     std::queue<EntityQuery> *m_entityQueryPools = nullptr;
 #pragma endregion
+#pragma region Helpers
     template <typename T = ComponentDataBase> static bool CheckComponentTypes(T arg);
     template <typename T = ComponentDataBase, typename... Ts> static bool CheckComponentTypes(T arg, Ts... args);
-
     template <typename T = ComponentDataBase>
     static size_t CollectComponentTypes(std::vector<ComponentDataType> *componentTypes, T arg);
     template <typename T = ComponentDataBase, typename... Ts>
@@ -48,6 +48,34 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void DeleteEntityInternal(const Entity &entity);
     static void RefreshEntityQueryInfos(const size_t &index);
     static void EraseDuplicates(std::vector<ComponentDataType> &types);
+    template <typename T = ComponentDataBase>
+    static void GetComponentDataArrayStorage(const EntityComponentDataStorage &storage, std::vector<T> &container);
+    static void GetEntityStorage(const EntityComponentDataStorage &storage, std::vector<Entity> &container);
+    static size_t SwapEntity(const EntityComponentDataStorage &storage, size_t index1, size_t index2);
+    static void SetEnableSingle(const Entity &entity, const bool &value);
+    static void SetComponentData(const Entity &entity, size_t id, size_t size, ComponentDataBase *data);
+    friend class SerializationManager;
+    static ComponentDataBase *GetComponentDataPointer(const Entity &entity, const size_t &id);
+    static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<ComponentDataType> &types);
+    static void SetPrivateComponent(
+        const Entity &entity,
+        const std::string &name,
+        const size_t &id,
+        PrivateComponentBase *ptr,
+        const bool &enabled = true);
+    static bool IsEntityArchetypeValid(const EntityArchetype &archetype);
+
+    static void ForEachDescendantHelper(
+        const Entity &target, const std::function<void(const Entity &entity)> &func);
+    static void GetDescendantsHelper(
+        const Entity &target, std::vector<Entity>& results);
+
+    static void RemoveComponentData(const Entity &entity, const size_t &typeID);
+    template <typename T = ComponentDataBase> static T GetComponentData(const size_t &index);
+    template <typename T = ComponentDataBase> static bool HasComponentData(const size_t &index);
+    template <typename T = ComponentDataBase> static void SetComponentData(const size_t &index, const T &value);
+    static void RemovePrivateComponent(const Entity &entity, const size_t &typeId);
+#pragma endregion
 #pragma region ForEach
     template <typename T1 = ComponentDataBase>
     static void ForEachStorage(
@@ -129,11 +157,54 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         bool checkEnable = true);
 
 #pragma endregion
-    template <typename T = ComponentDataBase>
-    static void GetComponentDataArrayStorage(const EntityComponentDataStorage &storage, std::vector<T> &container);
-    static void GetEntityStorage(const EntityComponentDataStorage &storage, std::vector<Entity> &container);
-    static size_t SwapEntity(const EntityComponentDataStorage &storage, size_t index1, size_t index2);
+#pragma region Entity methods
+    // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
+    // entity.
+    static void SetEnable(const Entity &entity, const bool &value);
+    static void SetStatic(const Entity &entity, const bool &value);
+    static bool IsEntityEnabled(const Entity &entity);
+    static bool IsEntityStatic(const Entity &entity);
+    static bool IsEntityDeleted(const size_t &index);
+    static bool IsEntityValid(const Entity &entity);
 
+    static Entity GetRoot(const Entity &entity);
+    static EntityArchetype GetEntityArchetype(const Entity &entity);
+    static std::string GetEntityName(const Entity &entity);
+    static void SetEntityName(const Entity &entity, const std::string &name);
+    static void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform = true);
+    static Entity GetParent(const Entity &entity);
+    static std::vector<Entity> GetChildren(const Entity &entity);
+    static size_t GetChildrenAmount(const Entity &entity);
+    static void ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func);
+    static void RemoveChild(const Entity &entity, const Entity &parent);
+    static std::vector<Entity> GetDescendants(const Entity &entity);
+    static void ForEachDescendant(
+        const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true);
+
+    template <typename T = ComponentDataBase> static void AddComponentData(const Entity &entity, const T &value);
+    template <typename T = ComponentDataBase> static void RemoveComponentData(const Entity &entity);
+    template <typename T = ComponentDataBase> static void SetComponentData(const Entity &entity, const T &value);
+    template <typename T = ComponentDataBase> static T GetComponentData(const Entity &entity);
+    template <typename T = ComponentDataBase> static bool HasComponentData(const Entity &entity);
+
+
+
+    template <typename T = PrivateComponentBase> static std::unique_ptr<T> &GetPrivateComponent(const Entity &entity);
+    template <typename T = PrivateComponentBase> static std::unique_ptr<T> &SetPrivateComponent(const Entity &entity);
+    template <typename T = PrivateComponentBase> static void RemovePrivateComponent(const Entity &entity);
+    template <typename T = PrivateComponentBase> static bool HasPrivateComponent(const Entity &entity);
+#pragma endregion
+#pragma region EntityArchetype Methods
+    static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
+    static void SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string& name);
+#pragma endregion
+#pragma region EntityQuery Methods
+    template <typename T = ComponentDataBase, typename... Ts>
+    static void SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args);
+    template <typename T = ComponentDataBase, typename... Ts>
+    static void SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args);
+    template <typename T = ComponentDataBase, typename... Ts>
+    static void SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args);
     template <typename T = ComponentDataBase>
     static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container);
     template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
@@ -146,7 +217,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const std::function<bool(const T2 &, const T3 &)> &filterFunc);
     template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
     static void GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container);
-
     static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container);
     template <typename T1 = ComponentDataBase>
     static void GetEntityArray(
@@ -160,69 +230,10 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc);
     template <typename T1 = ComponentDataBase>
     static void GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container);
-
     static size_t GetEntityAmount(EntityQuery entityQuery);
-    // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
-    // entity.
-    static void SetEnable(const Entity &entity, const bool &value);
-    static void SetStatic(const Entity &entity, const bool &value);
-
-    static void SetEnableSingle(const Entity &entity, const bool &value);
-    static bool IsEntityEnabled(const Entity &entity);
-    static bool IsEntityStatic(const Entity &entity);
-
-    static bool IsEntityDeleted(const size_t &index);
-    static bool IsEntityValid(const Entity &entity);
-
-    static void SetComponentData(const Entity &entity, size_t id, size_t size, ComponentDataBase *data);
-    friend class SerializationManager;
-    static ComponentDataBase *GetComponentDataPointer(const Entity &entity, const size_t &id);
-    static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<ComponentDataType> &types);
-    static void SetPrivateComponent(
-        const Entity &entity,
-        const std::string &name,
-        const size_t &id,
-        PrivateComponentBase *ptr,
-        const bool &enabled = true);
-    static bool IsEntityArchetypeValid(const EntityArchetype &archetype);
-
-    static void EntityHierarchyIteratorHelper(
-        const Entity &target, const std::function<void(const Entity &entity)> &func);
-
-#pragma region Entity methods
-    static Entity GetRoot(const Entity &entity);
-    static EntityArchetype GetEntityArchetype(const Entity &entity);
-    static std::string GetEntityName(const Entity &entity);
-    static void SetEntityName(const Entity &entity, const std::string &name);
-    static void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform = true);
-    static Entity GetParent(const Entity &entity);
-    static std::vector<Entity> GetChildren(const Entity &entity);
-    static size_t GetChildrenAmount(const Entity &entity);
-    static void ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func);
-    static void RemoveChild(const Entity &entity, const Entity &parent);
-    template <typename T = ComponentDataBase> static void AddComponentData(const Entity &entity, const T &value);
-    template <typename T = ComponentDataBase> static void RemoveComponentData(const Entity &entity);
-    template <typename T = ComponentDataBase> static void SetComponentData(const Entity &entity, const T &value);
-    template <typename T = ComponentDataBase> static T GetComponentData(const Entity &entity);
-    template <typename T = ComponentDataBase> static bool HasComponentData(const Entity &entity);
-
-    static void RemoveComponentData(const Entity &entity, const size_t &typeID);
-    template <typename T = ComponentDataBase> static T GetComponentData(const size_t &index);
-    template <typename T = ComponentDataBase> static bool HasComponentData(const size_t &index);
-    template <typename T = ComponentDataBase> static void SetComponentData(const size_t &index, const T &value);
-    static void RemovePrivateComponent(const Entity &entity, const size_t &typeId);
-
-    template <typename T = PrivateComponentBase> static std::unique_ptr<T> &GetPrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static std::unique_ptr<T> & SetPrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static void RemovePrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static bool HasPrivateComponent(const Entity &entity);
-
-
 #pragma endregion
   public:
     static EntityArchetype GetDefaultEntityArchetype();
-    static void EntityHierarchyIterator(
-        const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true);
 
 #pragma region Unsafe
     // Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
@@ -251,11 +262,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetArchetypeChunkSize();
     static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype &entityArchetype);
     static Entity GetEntity(const size_t &index);
-
     template <typename T> static const std::vector<Entity> *GetPrivateComponentOwnersList();
     static void ForEachPrivateComponent(
         const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
-
     static void GetAllEntities(std::vector<Entity> &target);
     static void Detach();
     static void Attach(std::unique_ptr<World> &world);
@@ -267,18 +276,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const EntityArchetype &archetype, const size_t &amount, const std::string &name = "New Entity");
     static std::vector<Entity> CreateEntities(const size_t &amount, const std::string &name = "New Entity");
     static void DeleteEntity(const Entity &entity);
-
     static size_t GetParentHierarchyVersion();
-
-
     static EntityQuery CreateEntityQuery();
-    template <typename T = ComponentDataBase, typename... Ts>
-    static void SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-    template <typename T = ComponentDataBase, typename... Ts>
-    static void SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-    template <typename T = ComponentDataBase, typename... Ts>
-    static void SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-
 #pragma region For Each
     template <typename T1 = ComponentDataBase>
     static void ForEach(
@@ -485,9 +484,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func);
 
 #pragma endregion
-
     static void ForAllEntities(const std::function<void(int i, Entity entity)> &func);
-    static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
 };
 #pragma endregion
 #pragma region Functions

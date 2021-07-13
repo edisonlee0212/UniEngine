@@ -404,7 +404,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     starClusterPattern1.m_starClusterIndex.m_value = 0;
     starClusterPattern2.m_starClusterIndex.m_value = 1;
     m_starQuery = EntityManager::CreateEntityQuery();
-    EntityManager::SetEntityQueryAllFilters(m_starQuery, StarInfo());
+    m_starQuery.SetAllFilters(StarInfo());
 
     m_starArchetype = EntityManager::CreateEntityArchetype(
         "Star",

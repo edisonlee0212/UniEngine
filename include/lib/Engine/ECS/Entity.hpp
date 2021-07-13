@@ -25,13 +25,19 @@ struct UNIENGINE_API EntityArchetype final
     [[nodiscard]] bool IsNull() const;
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] std::string GetName() const;
+    void SetName(const std::string& name) const;
 };
 
 class PrivateComponentBase;
 struct UNIENGINE_API Entity final
 {
+  private:
+    friend class EntityManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
+  public:
+    [[nodiscard]] unsigned GetIndex() const;
+    [[nodiscard]] unsigned GetVersion() const;
     Entity();
     bool operator==(const Entity &other) const;
     bool operator!=(const Entity &other) const;
@@ -52,6 +58,10 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] Entity GetRoot() const;
     void ForEachChild(const std::function<void(Entity child)> &func) const;
     void RemoveChild(const Entity &child) const;
+    [[nodiscard]] std::vector<Entity> GetDescendants() const;
+    void ForEachDescendant(const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true) const;
+
+
     [[nodiscard]] EntityArchetype GetEntityArchetype() const;
 
     template <typename T = ComponentDataBase> void SetComponentData(const T &value) const;

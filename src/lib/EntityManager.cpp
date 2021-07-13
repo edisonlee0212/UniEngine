@@ -254,7 +254,7 @@ void EntityManager::Detach()
     GetInstance().m_entityQueryPools = nullptr;
 }
 
-void EntityManager::EntityHierarchyIterator(
+void EntityManager::ForEachDescendant(
     const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot)
 {
     Entity realTarget = target;
@@ -262,7 +262,7 @@ void EntityManager::EntityHierarchyIterator(
         return;
     if (fromRoot)
         realTarget = GetRoot(realTarget);
-    EntityHierarchyIteratorHelper(realTarget, func);
+    ForEachDescendantHelper(realTarget, func);
 }
 
 std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
@@ -661,7 +661,7 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
         return;
     // Check self-contain.
     bool contained = false;
-    EntityHierarchyIterator(parent, [&](const Entity &iterator) {
+    ForEachDescendant(parent, [&](const Entity &iterator) {
         if (!contained && iterator == entity)
             contained = true;
     });
@@ -1052,11 +1052,11 @@ bool EntityManager::IsEntityArchetypeValid(const EntityArchetype &archetype)
     return archetype.IsNull() && GetInstance().m_entityComponentStorage->size() > archetype.m_index;
 }
 
-void EntityManager::EntityHierarchyIteratorHelper(
+void EntityManager::ForEachDescendantHelper(
     const Entity &target, const std::function<void(const Entity &entity)> &func)
 {
     func(target);
-    ForEachChild(target, [&](Entity child) { EntityHierarchyIteratorHelper(child, func); });
+    ForEachChild(target, [&](Entity child) { ForEachDescendantHelper(child, func); });
 }
 
 EntityArchetype EntityManager::GetDefaultEntityArchetype()
@@ -1145,7 +1145,7 @@ void EntityManager::SetStatic(const Entity &entity, const bool &value)
 {
     if (!entity.IsValid())
         return;
-    EntityHierarchyIterator(
+    ForEachDescendant(
         entity, [=](const Entity iterator) { GetInstance().m_entityInfos->at(iterator.m_index).m_static = value; });
 }
 
@@ -1281,6 +1281,25 @@ size_t EntityManager::GetEntityAmount(EntityQuery entityQuery)
         retVal += i.m_archetypeInfo->m_entityAliveCount;
     }
     return retVal;
+}
+void EntityManager::SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string& name)
+{
+    GetInstance()
+        .m_currentAttachedWorldEntityStorage->m_entityComponentStorage[entityArchetype.m_index]
+        .m_archetypeInfo->m_name = name;
+}
+std::vector<Entity> EntityManager::GetDescendants(const Entity &entity)
+{
+    std::vector<Entity> retVal;
+    GetDescendantsHelper(entity, retVal);
+    return retVal;
+}
+void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entity>& results)
+{
+    auto& children = GetInstance().m_entityInfos->at(target.m_index).m_children;
+    if(!children.empty())results.insert(results.end(), children.begin(), children.end());
+    for(const auto& i : children)
+        GetDescendantsHelper(i, results);
 }
 
 size_t EntityQuery::GetEntityAmount() const

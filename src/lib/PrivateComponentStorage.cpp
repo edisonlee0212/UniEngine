@@ -40,7 +40,7 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
 
 void PrivateComponentStorage::DeleteEntity(Entity entity)
 {
-    for (auto &element : EntityManager::GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
+    for (auto &element : EntityManager::GetInstance().m_entityInfos->at(entity.GetIndex()).m_privateComponentElements)
     {
         RemovePrivateComponent(entity, element.m_typeId);
     }

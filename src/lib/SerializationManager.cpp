@@ -318,17 +318,17 @@ void UniEngine::SerializationManager::SerializeEntity(
     std::unique_ptr<World> &world, YAML::Emitter &out, const Entity &entity)
 {
     out << YAML::BeginMap;
-    out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.m_index);
+    out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.GetIndex());
     out << YAML::Key << "IsEnabled" << YAML::Value << entity.IsEnabled();
     out << YAML::Key << "ArchetypeName" << YAML::Value
         << EntityManager::GetEntityArchetypeName(EntityManager::GetEntityArchetype(entity));
     out << YAML::Key << "Name" << YAML::Value << entity.GetName();
-    out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).m_index;
+    out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).GetIndex();
 #pragma region ComponentData
     out << YAML::Key << "ComponentData" << YAML::Value << YAML::BeginSeq;
     auto &storage = world->m_worldEntityStorage;
     std::vector<ComponentDataType> &componentTypes =
-        storage.m_entityComponentStorage[storage.m_entityInfos[entity.m_index].m_archetypeInfoIndex]
+        storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex]
             .m_archetypeInfo->m_componentTypes;
     for (const auto &type : componentTypes)
     {
@@ -423,7 +423,7 @@ void UniEngine::SerializationManager::Serialize(std::unique_ptr<World> &world, c
     out << YAML::Value << YAML::BeginSeq;
     for (const auto &entity : world->m_worldEntityStorage.m_entities)
     {
-        if (entity.m_version == 0)
+        if (entity.GetVersion() == 0)
             continue;
         SerializeEntity(world, out, entity);
     }
@@ -458,7 +458,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World> &world,
             auto parent = node["Parent"].as<unsigned>();
 
             auto entity = DeserializeEntity(world, node);
-            world->m_worldEntityStorage.m_entityInfos[entity.m_index].m_enabled = node["IsEnabled"].as<bool>();
+            world->m_worldEntityStorage.m_entityInfos[entity.GetIndex()].m_enabled = node["IsEnabled"].as<bool>();
             if (entity.IsNull())
             {
                 UNIENGINE_ERROR("Error!");

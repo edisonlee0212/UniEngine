@@ -18,7 +18,7 @@ using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
     bool deleted = false;
-    if (ImGui::BeginPopupContextItem(std::to_string(entity.m_index).c_str()))
+    if (ImGui::BeginPopupContextItem(std::to_string(entity.GetIndex()).c_str()))
     {
         if (ImGui::Button("Delete"))
         {
@@ -73,9 +73,7 @@ Entity EditorManager::MouseEntitySelection(const glm::vec2 &mousePosition)
         glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
         if (entityIndex > 0)
         {
-            retVal.m_version =
-                EntityManager::GetInstance().m_entityInfos->at(static_cast<unsigned>(entityIndex)).m_version;
-            retVal.m_index = static_cast<unsigned>(entityIndex);
+            retVal = EntityManager::GetEntity(static_cast<unsigned>(entityIndex));
         }
     }
     return retVal;
@@ -427,7 +425,7 @@ void EditorManager::Init()
         static Entity previousEntity;
         if (entity.IsStatic())
         {
-            previousEntity.m_index = previousEntity.m_version = 0;
+            previousEntity = Entity();
             auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
             glm::vec3 er;
             glm::vec3 t;
@@ -585,7 +583,7 @@ void EditorManager::Init()
         }
     });
 
-    editorManager.m_selectedEntity.m_index = 0;
+    editorManager.m_selectedEntity = Entity();
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
     editorManager.m_sceneCamera = std::make_unique<CameraComponent>();
@@ -709,7 +707,7 @@ void EditorManager::Update()
                         mesh->Vao()->DisableAttributeArray(14);
                         mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                         break;
                     }
@@ -725,7 +723,7 @@ void EditorManager::Update()
                         mesh->Vao()->DisableAttributeArray(14);
                         mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                         break;
                     }
@@ -753,7 +751,7 @@ void EditorManager::Update()
                         mesh->Vao()->DisableAttributeArray(14);
                         mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                         break;
                     }
@@ -769,7 +767,7 @@ void EditorManager::Update()
                         skinnedMesh->Vao()->DisableAttributeArray(14);
                         skinnedMesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                         break;
                     }
@@ -795,7 +793,7 @@ void EditorManager::Update()
                     mesh->Vao()->DisableAttributeArray(14);
                     mesh->Vao()->DisableAttributeArray(15);
                     editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
-                        "EntityIndex", renderInstance.m_owner.m_index);
+                        "EntityIndex", renderInstance.m_owner.GetIndex());
                     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                     break;
                 }
@@ -811,7 +809,7 @@ void EditorManager::Update()
                     mesh->Vao()->DisableAttributeArray(14);
                     mesh->Vao()->DisableAttributeArray(15);
                     editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
-                        "EntityIndex", renderInstance.m_owner.m_index);
+                        "EntityIndex", renderInstance.m_owner.GetIndex());
                     glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
                     break;
                 }
@@ -855,7 +853,7 @@ void EditorManager::Update()
                         mesh->Vao()->SetAttributeDivisor(14, 1);
                         mesh->Vao()->SetAttributeDivisor(15, 1);
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderInstance.m_globalTransform.m_value);
                         glDrawElementsInstanced(
@@ -902,7 +900,7 @@ void EditorManager::Update()
                         mesh->Vao()->SetAttributeDivisor(14, 1);
                         mesh->Vao()->SetAttributeDivisor(15, 1);
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
-                            "EntityIndex", renderInstance.m_owner.m_index);
+                            "EntityIndex", renderInstance.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderInstance.m_globalTransform.m_value);
                         glDrawElementsInstanced(
@@ -947,7 +945,7 @@ void EditorManager::Update()
                     mesh->Vao()->SetAttributeDivisor(14, 1);
                     mesh->Vao()->SetAttributeDivisor(15, 1);
                     editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
-                        "EntityIndex", renderInstance.m_owner.m_index);
+                        "EntityIndex", renderInstance.m_owner.GetIndex());
                     editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                         "model", renderInstance.m_globalTransform.m_value);
                     glDrawElementsInstanced(
@@ -974,7 +972,7 @@ Entity EditorManager::GetSelectedEntity()
 void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarchyLevel)
 {
     auto &manager = GetInstance();
-    std::string title = std::to_string(entity.m_index) + ": ";
+    std::string title = std::to_string(entity.GetIndex()) + ": ";
     title += entity.GetName();
     const bool enabled = entity.IsEnabled();
     if (enabled)
@@ -1069,7 +1067,7 @@ void EditorManager::LateUpdate()
                     for (int j = 0; j < storage.m_archetypeInfo->m_entityAliveCount; j++)
                     {
                         Entity entity = storage.m_chunkArray->Entities.at(j);
-                        std::string title = std::to_string(entity.m_index) + ": ";
+                        std::string title = std::to_string(entity.GetIndex()) + ": ";
                         title += entity.GetName();
                         const bool enabled = entity.IsEnabled();
                         if (enabled)
@@ -1138,7 +1136,7 @@ void EditorManager::LateUpdate()
         ImGui::Begin("Entity Inspector");
         if (!manager.m_selectedEntity.IsNull() && !manager.m_selectedEntity.IsDeleted())
         {
-            std::string title = std::to_string(manager.m_selectedEntity.m_index) + ": ";
+            std::string title = std::to_string(manager.m_selectedEntity.GetIndex()) + ": ";
             title += manager.m_selectedEntity.GetName();
             bool enabled = manager.m_selectedEntity.IsEnabled();
             if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled))
@@ -1255,7 +1253,7 @@ void EditorManager::LateUpdate()
         }
         else
         {
-            manager.m_selectedEntity.m_index = 0;
+            manager.m_selectedEntity = Entity();
         }
         ImGui::End();
     }
@@ -1486,7 +1484,7 @@ void EditorManager::LateUpdate()
                     InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
                 {
                     Entity focusedEntity = MouseEntitySelection(mousePosition);
-                    if (focusedEntity.m_index == 0)
+                    if (focusedEntity == Entity())
                     {
                         SetSelectedEntity(Entity());
                     }
@@ -1641,7 +1639,7 @@ bool EditorManager::DragAndDrop(Entity &entity)
     ImGui::Button(entity.IsValid() ? entity.GetName().c_str() : "none");
     if (entity.IsValid())
     {
-        const std::string tag = "##Entity" + std::to_string(entity.m_index);
+        const std::string tag = "##Entity" + std::to_string(entity.GetIndex());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
