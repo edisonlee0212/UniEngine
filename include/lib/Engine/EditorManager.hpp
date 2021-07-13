@@ -5,8 +5,8 @@
 #include <ISingleton.hpp>
 #include <RenderTarget.hpp>
 #include <ResourceManager.hpp>
-#include <Texture2D.hpp>
 #include <RigidBody.hpp>
+#include <Texture2D.hpp>
 
 namespace UniEngine
 {
@@ -130,7 +130,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static bool DragAndDrop(Entity &entity);
     static bool Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target);
 };
-
 
 template <typename T1>
 void EditorManager::RegisterComponentDataInspector(

@@ -65,10 +65,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const bool &enabled = true);
     static bool IsEntityArchetypeValid(const EntityArchetype &archetype);
 
-    static void ForEachDescendantHelper(
-        const Entity &target, const std::function<void(const Entity &entity)> &func);
-    static void GetDescendantsHelper(
-        const Entity &target, std::vector<Entity>& results);
+    static void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
+    static void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
 
     static void RemoveComponentData(const Entity &entity, const size_t &typeID);
     template <typename T = ComponentDataBase> static T GetComponentData(const size_t &index);
@@ -187,8 +185,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = ComponentDataBase> static T GetComponentData(const Entity &entity);
     template <typename T = ComponentDataBase> static bool HasComponentData(const Entity &entity);
 
-
-
     template <typename T = PrivateComponentBase> static std::unique_ptr<T> &GetPrivateComponent(const Entity &entity);
     template <typename T = PrivateComponentBase> static std::unique_ptr<T> &SetPrivateComponent(const Entity &entity);
     template <typename T = PrivateComponentBase> static void RemovePrivateComponent(const Entity &entity);
@@ -196,7 +192,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma endregion
 #pragma region EntityArchetype Methods
     static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
-    static void SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string& name);
+    static void SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string &name);
 #pragma endregion
 #pragma region EntityQuery Methods
     template <typename T = ComponentDataBase, typename... Ts>
@@ -1949,7 +1945,7 @@ template <typename T> std::unique_ptr<T> &EntityManager::GetPrivateComponent(con
     }
     throw 0;
 }
-template <typename T> std::unique_ptr<T> & EntityManager::SetPrivateComponent(const Entity &entity)
+template <typename T> std::unique_ptr<T> &EntityManager::SetPrivateComponent(const Entity &entity)
 {
     if (!entity.IsValid())
         throw 0;
@@ -1965,14 +1961,13 @@ template <typename T> std::unique_ptr<T> & EntityManager::SetPrivateComponent(co
         }
         i++;
     }
-        GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-        GetInstance()
-            .m_entityInfos->at(entity.m_index)
-            .m_privateComponentElements.push_back(PrivateComponentElement(
-                std::string(typeid(T).name()), typeid(T).hash_code(), std::make_unique<T>(), entity));
-    return *static_cast<std::unique_ptr<T> *>(static_cast<void *>(&GetInstance()
+    GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
+    GetInstance()
         .m_entityInfos->at(entity.m_index)
-        .m_privateComponentElements.back().m_privateComponentData));
+        .m_privateComponentElements.push_back(PrivateComponentElement(
+            std::string(typeid(T).name()), typeid(T).hash_code(), std::make_unique<T>(), entity));
+    return *static_cast<std::unique_ptr<T> *>(static_cast<void *>(
+        &GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements.back().m_privateComponentData));
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
@@ -2963,7 +2958,7 @@ template <typename T> bool Entity::HasComponentData() const
     return EntityManager::HasComponentData<T>(*this);
 }
 
-template <typename T> std::unique_ptr<T> & Entity::SetPrivateComponent() const
+template <typename T> std::unique_ptr<T> &Entity::SetPrivateComponent() const
 {
     return EntityManager::SetPrivateComponent<T>(*this);
 }

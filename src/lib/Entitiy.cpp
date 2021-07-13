@@ -1,5 +1,5 @@
-#include <EntityManager.hpp>
 #include <Entity.hpp>
+#include <EntityManager.hpp>
 
 using namespace UniEngine;
 
@@ -234,6 +234,10 @@ void EntityArchetype::SetName(const std::string &name) const
 {
     EntityManager::SetEntityArchetypeName(*this, name);
 }
+size_t EntityArchetype::GetIndex()
+{
+    return m_index;
+}
 
 PrivateComponentElement::PrivateComponentElement(
     const std::string &name, const size_t &id, std::unique_ptr<PrivateComponentBase> data, const Entity &owner)
@@ -260,9 +264,6 @@ bool EntityArchetypeInfo::HasType(const size_t &typeId)
     return false;
 }
 
-EntityQuery::EntityQuery()
-= default;
-
 bool EntityQuery::operator==(const EntityQuery &other) const
 {
     return other.m_index == m_index;
@@ -282,6 +283,9 @@ bool EntityQuery::IsNull() const
 {
     return m_index == 0;
 }
+size_t EntityQuery::GetIndex()
+{
+    return m_index;
+}
 
-EntityComponentDataStorage::EntityComponentDataStorage()
-= default;
+EntityComponentDataStorage::EntityComponentDataStorage() = default;

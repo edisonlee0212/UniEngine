@@ -21,11 +21,16 @@ struct UNIENGINE_API ComponentDataBase
 
 struct UNIENGINE_API EntityArchetype final
 {
-    size_t m_index;
+  private:
+    friend class EntityManager;
+    size_t m_index = 0;
+
+  public:
+    size_t GetIndex();
     [[nodiscard]] bool IsNull() const;
     [[nodiscard]] bool IsValid() const;
     [[nodiscard]] std::string GetName() const;
-    void SetName(const std::string& name) const;
+    void SetName(const std::string &name) const;
 };
 
 class PrivateComponentBase;
@@ -35,6 +40,7 @@ struct UNIENGINE_API Entity final
     friend class EntityManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
+
   public:
     [[nodiscard]] unsigned GetIndex() const;
     [[nodiscard]] unsigned GetVersion() const;
@@ -61,7 +67,6 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] std::vector<Entity> GetDescendants() const;
     void ForEachDescendant(const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true) const;
 
-
     [[nodiscard]] EntityArchetype GetEntityArchetype() const;
 
     template <typename T = ComponentDataBase> void SetComponentData(const T &value) const;
@@ -87,6 +92,7 @@ class UNIENGINE_API PrivateComponentBase : public Serializable
     friend class SerializationManager;
     bool m_enabled = true;
     Entity m_owner = Entity();
+
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
@@ -127,8 +133,6 @@ struct ComponentDataChunkArray
     std::vector<ComponentDataChunk> Chunks;
 };
 
-
-
 struct PrivateComponentElement
 {
     std::string m_name;
@@ -168,8 +172,12 @@ struct UNIENGINE_API EntityArchetypeInfo
 
 struct UNIENGINE_API EntityQuery final
 {
-    EntityQuery();
+  private:
+    friend class EntityManager;
     size_t m_index = 0;
+
+  public:
+    size_t GetIndex();
     bool operator==(const EntityQuery &other) const;
     bool operator!=(const EntityQuery &other) const;
     size_t operator()(const EntityQuery &key) const;
