@@ -1087,21 +1087,22 @@ Entity EntityManager::GetEntity(const size_t &index)
     return Entity();
 }
 
-void EntityManager::RemovePrivateComponent(const Entity &entity, const size_t &typeId)
+void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
     if (!entity.IsValid())
         return;
-    for (auto i = 0; i < GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements.size(); i++)
+    auto& entityManager = GetInstance();
+    auto& privateComponentElements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    for (auto i = 0; i < privateComponentElements.size(); i++)
     {
-        if (GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements[i].m_typeId == typeId)
+        if (privateComponentElements[i].m_typeId == typeId)
         {
-            GetInstance()
-                .m_entityInfos->at(entity.m_index)
-                .m_privateComponentElements.erase(
-                    GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements.begin() + i);
+            privateComponentElements.erase(
+                privateComponentElements.begin() + i);
+            break;
         }
     }
-    GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
+    entityManager.m_entityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
 }
 
 EntityArchetype EntityManager::GetEntityArchetype(const Entity &entity)

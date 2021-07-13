@@ -24,6 +24,7 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
                 std::swap(m_pOwnersCollectionsList[eraseIndex], m_pOwnersCollectionsList.back());
                 m_pOwnersCollectionsMap.erase(eraseHash);
                 m_pOwnersCollectionsList.pop_back();
+                return;
             }
             else
             {
@@ -33,6 +34,7 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
                 collection->m_ownersMap.erase(entity);
                 collection->m_ownersList[eraseIndex] = backEntity;
                 collection->m_ownersList.pop_back();
+                return;
             }
         }
     }

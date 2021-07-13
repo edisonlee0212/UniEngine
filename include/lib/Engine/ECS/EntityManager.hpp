@@ -72,7 +72,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = ComponentDataBase> static T GetComponentData(const size_t &index);
     template <typename T = ComponentDataBase> static bool HasComponentData(const size_t &index);
     template <typename T = ComponentDataBase> static void SetComponentData(const size_t &index, const T &value);
-    static void RemovePrivateComponent(const Entity &entity, const size_t &typeId);
+    static void RemovePrivateComponent(const Entity &entity, size_t typeId);
 #pragma endregion
 #pragma region ForEach
     template <typename T1 = ComponentDataBase>
