@@ -376,26 +376,26 @@ void Galaxy::StarClusterSystem::OnCreate()
     m_rendererFront = EntityManager::CreateEntity("Renderer 1");
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
-    auto imr = std::make_unique<Particles>();
+    auto& imr = m_rendererFront.SetPrivateComponent<Particles>();
     imr->m_material = std::make_shared<Material>();
     imr->m_castShadow = false;
     imr->m_receiveShadow = false;
     imr->m_mesh = DefaultResources::Primitives::Cube;
     imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
     imr->m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
-    m_rendererFront.SetPrivateComponent(std::move(imr));
+
     m_rendererFront.SetComponentData(ltw);
 
     m_rendererBack = EntityManager::CreateEntity("Renderer 2");
     ltw.SetScale(glm::vec3(1.0f));
-    imr = std::make_unique<Particles>();
-    imr->m_material = std::make_shared<Material>();
-    imr->m_castShadow = false;
-    imr->m_receiveShadow = false;
-    imr->m_mesh = DefaultResources::Primitives::Cube;
-    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    imr->m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
-    m_rendererBack.SetPrivateComponent(std::move(imr));
+    auto& imr2 = m_rendererBack.SetPrivateComponent<Particles>();
+    imr2->m_material = std::make_shared<Material>();
+    imr2->m_castShadow = false;
+    imr2->m_receiveShadow = false;
+    imr2->m_mesh = DefaultResources::Primitives::Cube;
+    imr2->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    imr2->m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
+
     m_rendererBack.SetComponentData(ltw);
 
     m_starClusterPatterns.resize(2);

@@ -63,10 +63,10 @@ int main()
     auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
     mainCameraEntity.SetComponentData(mainCameraTransform);
-    auto postProcessing = std::make_unique<PostProcessing>();
+    auto& postProcessing = mainCameraEntity.SetPrivateComponent<PostProcessing>();
     postProcessing->GetLayer<Bloom>()->m_intensity = 0.03;
     postProcessing->GetLayer<Bloom>()->m_diffusion = 16;
-    mainCameraEntity.SetPrivateComponent(std::move(postProcessing));
+
 #pragma region Create 9 spheres in different PBR properties
     const int amount = 20;
     const float scaleFactor = 0.1f;
@@ -87,19 +87,18 @@ int main()
             globalTransform.SetScale(glm::vec3(2.0f * scaleFactor));
             sphere.SetComponentData(transform);
             sphere.SetComponentData(globalTransform);
-            auto meshRenderer = std::make_unique<MeshRenderer>();
+            auto& meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);
-            sphere.SetPrivateComponent(std::move(meshRenderer));
 
-            auto rigidBody = std::make_unique<RigidBody>();
-            sphere.SetPrivateComponent(std::move(rigidBody));
-            sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-            sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
-            sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
+
+            auto& rigidBody = sphere.SetPrivateComponent<RigidBody>();
+            rigidBody->SetEnabled(true);
+            rigidBody->SetShapeType(ShapeType::Sphere);
+            rigidBody->ApplyMeshBound();
 
             sphere.SetParent(collection);
         }
@@ -108,13 +107,13 @@ int main()
 
 #pragma region Lighting
     const auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
-    auto dirLight = std::make_unique<DirectionalLight>();
+    auto& dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
     dirLightEntity.SetComponentData(dirLightTransform);
-    dirLightEntity.SetPrivateComponent(std::move(dirLight));
+
 #pragma endregion
 
 #pragma region Create Boundaries
@@ -134,15 +133,15 @@ int main()
         const auto b3 = CreateDynamicCube(
             1.0, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 3");
 
-        b1.SetPrivateComponent(std::make_unique<Joint>());
-        b1.GetPrivateComponent<Joint>()->SetType(JointType::Fixed);
-        b1.GetPrivateComponent<Joint>()->Link(b2);
-        b3.SetPrivateComponent(std::make_unique<Joint>());
-        b3.GetPrivateComponent<Joint>()->SetType(JointType::Fixed);
-        b3.GetPrivateComponent<Joint>()->Link(b2);
-        b2.SetPrivateComponent(std::make_unique<Joint>());
-        b2.GetPrivateComponent<Joint>()->SetType(JointType::Fixed);
-        b2.GetPrivateComponent<Joint>()->Link(ground);
+        auto& b1j = b1.SetPrivateComponent<Joint>();
+        b1j->SetType(JointType::Fixed);
+        b1j->Link(b2);
+        auto& b3j = b3.SetPrivateComponent<Joint>();
+        b3j->SetType(JointType::Fixed);
+        b3j->Link(b2);
+        auto& b2j = b2.SetPrivateComponent<Joint>();
+        b2j->SetType(JointType::Fixed);
+        b2j->Link(ground);
 
         const auto anchor = CreateSolidCube(
             1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
@@ -151,23 +150,23 @@ int main()
         {
             const auto link = CreateDynamicSphere(
                 1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
-            link.SetPrivateComponent(std::make_unique<Joint>());
-            link.GetPrivateComponent<Joint>()->SetType(JointType::Spherical);
-            link.GetPrivateComponent<Joint>()->Link(lastLink);
+            auto& joint = link.SetPrivateComponent<Joint>();
+            joint->SetType(JointType::Spherical);
+            joint->Link(lastLink);
             link.SetParent(anchor);
             lastLink = link;
         }
 
         const auto freeSphere = CreateDynamicCube(
             1.0, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
-        freeSphere.SetPrivateComponent(std::make_unique<Joint>());
-        freeSphere.GetPrivateComponent<Joint>()->SetType(JointType::Spherical);
-        freeSphere.GetPrivateComponent<Joint>()->Link(lastLink);
+        auto& joint = freeSphere.SetPrivateComponent<Joint>();
+        joint->SetType(JointType::Spherical);
+        joint->Link(lastLink);
     }
 #pragma endregion
 
 #pragma region Heart shaped rings
-    {
+    if(false){
         const auto height = 0;
         const auto leftSphere = CreateSolidSphere(
             1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-2.7, height + 2, -10), glm::vec3(0, 0, 45), 1.7, "Block 1");
@@ -186,18 +185,18 @@ int main()
             const auto position = glm::vec3(glm::sin(glm::radians(i * 360.0f / amount)) * radius * factor, -glm::cos(glm::radians(i * 360.0f / amount)) * radius + height + radius, -10);
             const auto link = CreateDynamicSphere(
                 mass, glm::vec3(1.0f, 1.0f, 1.0f), position, glm::vec3(0, 0, 45), 0.1f, "Link");
-            link.SetPrivateComponent(std::make_unique<Joint>());
-            link.GetPrivateComponent<Joint>()->SetType(JointType::Spherical);
-            link.GetPrivateComponent<Joint>()->Link(lastLink);
+            auto& joint = link.SetPrivateComponent<Joint>();
+            joint->SetType(JointType::Spherical);
+            joint->Link(lastLink);
             link.GetPrivateComponent<MeshRenderer>()->m_material->m_ambientOcclusion = 2.0f;
             link.GetPrivateComponent<MeshRenderer>()->m_material->m_roughness = 0.0f;
             link.GetPrivateComponent<MeshRenderer>()->m_material->m_metallic = 0.0f;
             link.SetParent(anchor);
             lastLink = link;
         }
-        anchor.SetPrivateComponent(std::make_unique<Joint>());
-        anchor.GetPrivateComponent<Joint>()->SetType(JointType::Spherical);
-        anchor.GetPrivateComponent<Joint>()->Link(lastLink);
+        auto& joint = anchor.SetPrivateComponent<Joint>();
+        joint->SetType(JointType::Spherical);
+        joint->Link(lastLink);
         anchor.GetPrivateComponent<MeshRenderer>()->m_material->m_ambientOcclusion = 3.0f;
         anchor.GetPrivateComponent<MeshRenderer>()->m_material->m_roughness = 0.0f;
         anchor.GetPrivateComponent<MeshRenderer>()->m_material->m_metallic = 0.0f;
@@ -223,14 +222,14 @@ Entity CreateSolidCube(
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
-    cube.SetPrivateComponent(std::move(rigidBody));
-    cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
-    cube.GetPrivateComponent<RigidBody>()->SetStatic(true);
-    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
+    auto& rb = cube.SetPrivateComponent<RigidBody>();
+    rb->SetShapeType(ShapeType::Box);
+    rb->SetStatic(true);
+    rb->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
-    cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+    rb->ApplyMeshBound();
+    rb->SetEnabled(true);
+    rb->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
     return cube;
 }
 
@@ -244,14 +243,14 @@ Entity CreateDynamicCube(
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
-    cube.SetPrivateComponent(std::move(rigidBody));
-    cube.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Box);
-    cube.GetPrivateComponent<RigidBody>()->SetStatic(false);
-    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
+    auto& rb = cube.SetPrivateComponent<RigidBody>();
+    rb->SetShapeType(ShapeType::Box);
+    rb->SetStatic(false);
+    rb->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    cube.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
-    cube.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    cube.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+    rb->ApplyMeshBound();
+    rb->SetEnabled(true);
+    rb->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
     return cube;
 }
 
@@ -263,7 +262,7 @@ Entity CreateCube(
     const std::string &name)
 {
     auto cube = EntityManager::CreateEntity(name);
-    auto groundMeshRenderer = std::make_unique<MeshRenderer>();
+    auto& groundMeshRenderer = cube.SetPrivateComponent<MeshRenderer>();
     groundMeshRenderer->m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material->m_albedoColor = color;
@@ -272,7 +271,7 @@ Entity CreateCube(
     groundTransform.SetValue(position, glm::radians(rotation), scale);
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
     cube.SetComponentData(groundTransform);
-    cube.SetPrivateComponent(std::move(groundMeshRenderer));
+
     GlobalTransform groundGlobalTransform;
     groundGlobalTransform.SetValue(position, glm::radians(rotation), scale);
     cube.SetComponentData(groundGlobalTransform);
@@ -289,14 +288,14 @@ Entity CreateDynamicSphere(
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
-    sphere.SetPrivateComponent(std::move(rigidBody));
-    sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
-    sphere.GetPrivateComponent<RigidBody>()->SetStatic(false);
-    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
+    auto& rb = sphere.SetPrivateComponent<RigidBody>();
+    rb->SetShapeType(ShapeType::Sphere);
+    rb->SetStatic(false);
+    rb->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
-    sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale / scale / scale);
+    rb->ApplyMeshBound();
+    rb->SetEnabled(true);
+    rb->SetDensityAndMassCenter(mass / scale / scale / scale);
     return sphere;
 }
 
@@ -310,14 +309,14 @@ Entity CreateSolidSphere(
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
     auto rigidBody = std::make_unique<RigidBody>();
-    sphere.SetPrivateComponent(std::move(rigidBody));
-    sphere.GetPrivateComponent<RigidBody>()->SetShapeType(ShapeType::Sphere);
-    sphere.GetPrivateComponent<RigidBody>()->SetStatic(true);
-    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(1);
+    auto& rb = sphere.SetPrivateComponent<RigidBody>();
+    rb->SetShapeType(ShapeType::Sphere);
+    rb->SetStatic(true);
+    rb->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    sphere.GetPrivateComponent<RigidBody>()->ApplyMeshBound();
-    sphere.GetPrivateComponent<RigidBody>()->SetEnabled(true);
-    sphere.GetPrivateComponent<RigidBody>()->SetDensityAndMassCenter(mass / scale / scale / scale);
+    rb->ApplyMeshBound();
+    rb->SetEnabled(true);
+    rb->SetDensityAndMassCenter(mass / scale / scale / scale);
     return sphere;
 }
 
@@ -329,7 +328,7 @@ Entity CreateSphere(
     const std::string &name)
 {
     auto sphere = EntityManager::CreateEntity(name);
-    auto groundMeshRenderer = std::make_unique<MeshRenderer>();
+    auto& groundMeshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
     groundMeshRenderer->m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material->m_albedoColor = color;
@@ -338,7 +337,7 @@ Entity CreateSphere(
     groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
     sphere.SetComponentData(groundTransform);
-    sphere.SetPrivateComponent(std::move(groundMeshRenderer));
+
     GlobalTransform groundGlobalTransform;
     groundGlobalTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
     sphere.SetComponentData(groundGlobalTransform);

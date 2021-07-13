@@ -279,7 +279,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     template <typename T = PrivateComponentBase> static std::unique_ptr<T> &GetPrivateComponent(const Entity &entity);
     template <typename T = PrivateComponentBase>
-    static void SetPrivateComponent(const Entity &entity, std::unique_ptr<T> value);
+    static std::unique_ptr<T> & SetPrivateComponent(const Entity &entity);
     template <typename T = PrivateComponentBase> static void RemovePrivateComponent(const Entity &entity);
     template <typename T = PrivateComponentBase> static bool HasPrivateComponent(const Entity &entity);
 
@@ -1964,32 +1964,30 @@ template <typename T> std::unique_ptr<T> &EntityManager::GetPrivateComponent(con
     }
     throw 0;
 }
-template <typename T> void EntityManager::SetPrivateComponent(const Entity &entity, std::unique_ptr<T> value)
+template <typename T> std::unique_ptr<T> & EntityManager::SetPrivateComponent(const Entity &entity)
 {
     if (!entity.IsValid())
-        return;
-    value->m_enabled = true;
-    bool found = false;
+        throw 0;
     size_t i = 0;
     for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
     {
         if (dynamic_cast<T *>(element.m_privateComponentData.get()))
         {
-            found = true;
-            element.m_privateComponentData = std::move(value);
+            element.m_privateComponentData = std::make_unique<T>();
             element.ResetOwner(entity);
             element.m_privateComponentData->Init();
+            return *static_cast<std::unique_ptr<T> *>(static_cast<void *>(&element.m_privateComponentData));
         }
         i++;
     }
-    if (!found)
-    {
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
         GetInstance()
             .m_entityInfos->at(entity.m_index)
             .m_privateComponentElements.push_back(PrivateComponentElement(
-                std::string(typeid(T).name()), typeid(T).hash_code(), std::move(value), entity));
-    }
+                std::string(typeid(T).name()), typeid(T).hash_code(), std::make_unique<T>(), entity));
+    return *static_cast<std::unique_ptr<T> *>(static_cast<void *>(&GetInstance()
+        .m_entityInfos->at(entity.m_index)
+        .m_privateComponentElements.back().m_privateComponentData));
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
@@ -2980,9 +2978,9 @@ template <typename T> bool Entity::HasComponentData() const
     return EntityManager::HasComponentData<T>(*this);
 }
 
-template <typename T> void Entity::SetPrivateComponent(std::unique_ptr<T> value) const
+template <typename T> std::unique_ptr<T> & Entity::SetPrivateComponent() const
 {
-    EntityManager::SetPrivateComponent(*this, std::move(value));
+    return EntityManager::SetPrivateComponent<T>(*this);
 }
 
 template <typename T> void Entity::RemovePrivateComponent() const

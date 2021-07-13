@@ -18,9 +18,7 @@ int main()
     auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, 0, 40));
     mainCameraEntity.SetComponentData(mainCameraTransform);
-
-    auto postProcessing = std::make_unique<PostProcessing>();
-    mainCameraEntity.SetPrivateComponent(std::move(postProcessing));
+    mainCameraEntity.SetPrivateComponent<PostProcessing>();
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties
@@ -41,13 +39,13 @@ int main()
             globalTransform.SetScale(glm::vec3(2.0f));
             sphere.SetComponentData(transform);
             sphere.SetComponentData(globalTransform);
-            auto meshRenderer = std::make_unique<MeshRenderer>();
+            auto& meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);
-            sphere.SetPrivateComponent(std::move(meshRenderer));
+
 
             sphere.SetParent(collection);
         }
@@ -93,46 +91,46 @@ int main()
 #pragma region Lighting
     
     auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
-    auto dirLight = std::make_unique<DirectionalLight>();
+    auto& dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
     dirLightEntity.SetComponentData(dirLightTransform);
-    dirLightEntity.SetPrivateComponent(std::move(dirLight));
+
     
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
-    auto pointLightLeftRenderer = std::make_unique<MeshRenderer>();
+    auto& pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
     pointLightLeftRenderer->m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     pointLightLeftRenderer->m_material->m_ambientOcclusion = 10.0f;
     pointLightLeftRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-    auto pointLightLeft = std::make_unique<PointLight>();
+    auto& pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
     pointLightLeft->m_diffuseBrightness = 20;
     pointLightLeft->m_lightSize = 0.2f;
     pointLightLeft->m_diffuse = glm::vec3(0.0, 0.5, 1.0);
     Transform pointLightLeftTransform;
     pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
     pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
-    pointLightLeftEntity.SetPrivateComponent(std::move(pointLightLeft));
-    pointLightLeftEntity.SetPrivateComponent(std::move(pointLightLeftRenderer));
+
+
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
-    auto pointLightRightRenderer = std::make_unique<MeshRenderer>();
+    auto& pointLightRightRenderer =  pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
     pointLightRightRenderer->m_material = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightRenderer->m_material->m_ambientOcclusion = 10.0f;
     pointLightRightRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-    auto pointLightRight = std::make_unique<PointLight>();
+    auto& pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
     pointLightRight->m_diffuseBrightness = 20;
     pointLightRight->m_lightSize = 0.2f;
     pointLightRight->m_diffuse = glm::vec3(1.0, 0.8, 0.0);
     Transform pointLightRightTransform;
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
     pointLightRightEntity.SetComponentData(pointLightRightTransform);
-    pointLightRightEntity.SetPrivateComponent(std::move(pointLightRight));
-    pointLightRightEntity.SetPrivateComponent(std::move(pointLightRightRenderer));
+
+
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
         const float currentTime = Application::Time().CurrentTime();

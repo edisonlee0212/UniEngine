@@ -1978,15 +1978,14 @@ void RenderManager::OnGui()
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
                             std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
                             Transform ltw;
-                            auto meshRenderer = std::make_unique<MeshRenderer>();
+                            Entity entity = EntityManager::CreateEntity("Mesh");
+                            entity.SetComponentData(ltw);
+                            auto& meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer->m_mesh = payload_n;
                             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
                             meshRenderer->m_material->SetTexture(
                                 TextureType::Albedo, DefaultResources::Textures::StandardTexture);
                             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-                            Entity entity = EntityManager::CreateEntity("Mesh");
-                            entity.SetComponentData(ltw);
-                            entity.SetPrivateComponent(std::move(meshRenderer));
                         }
 
                         const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();

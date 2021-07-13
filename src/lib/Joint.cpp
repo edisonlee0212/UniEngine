@@ -305,7 +305,7 @@ void Joint::Init()
     const auto owner = GetOwner();
     if (!owner.HasPrivateComponent<RigidBody>())
     {
-        owner.SetPrivateComponent<RigidBody>(std::make_unique<RigidBody>());
+        owner.SetPrivateComponent<RigidBody>();
     }
 }
 static const char *JointTypeNames[]{"Fixed", "Distance", "Spherical", "Revolute", "Prismatic", "D6"};

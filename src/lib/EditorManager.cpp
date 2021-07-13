@@ -504,7 +504,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Animator"))
         {
-            owner.SetPrivateComponent(std::make_unique<Animator>());
+            owner.SetPrivateComponent<Animator>();
         }
     });
 
@@ -513,7 +513,7 @@ void EditorManager::Init()
           return;
       if (ImGui::SmallButton("Joint"))
       {
-          owner.SetPrivateComponent(std::make_unique<Joint>());
+          owner.SetPrivateComponent<Joint>();
       }
     });
 
@@ -522,7 +522,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("DirectionalLight"))
         {
-            owner.SetPrivateComponent(std::make_unique<DirectionalLight>());
+            owner.SetPrivateComponent<DirectionalLight>();
         }
     });
     RegisterPrivateComponentMenu<PointLight>([](Entity owner) {
@@ -530,7 +530,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("PointLight"))
         {
-            owner.SetPrivateComponent(std::make_unique<PointLight>());
+            owner.SetPrivateComponent<PointLight>();
         }
     });
     RegisterPrivateComponentMenu<SpotLight>([](Entity owner) {
@@ -538,7 +538,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("SpotLight"))
         {
-            owner.SetPrivateComponent(std::make_unique<SpotLight>());
+            owner.SetPrivateComponent<SpotLight>();
         }
     });
 
@@ -547,7 +547,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("CameraComponent"))
         {
-            owner.SetPrivateComponent(std::make_unique<CameraComponent>());
+            owner.SetPrivateComponent<CameraComponent>();
         }
     });
     RegisterPrivateComponentMenu<MeshRenderer>([](Entity owner) {
@@ -555,7 +555,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("MeshRenderer"))
         {
-            owner.SetPrivateComponent(std::make_unique<MeshRenderer>());
+            owner.SetPrivateComponent<MeshRenderer>();
         }
     });
     RegisterPrivateComponentMenu<PostProcessing>([](Entity owner) {
@@ -563,7 +563,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("PostProcessing"))
         {
-            owner.SetPrivateComponent(std::make_unique<PostProcessing>());
+            owner.SetPrivateComponent<PostProcessing>();
         }
     });
 
@@ -572,7 +572,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Particles"))
         {
-            owner.SetPrivateComponent(std::make_unique<Particles>());
+            owner.SetPrivateComponent<Particles>();
         }
     });
 
@@ -581,7 +581,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("RigidBody"))
         {
-            owner.SetPrivateComponent(std::make_unique<RigidBody>());
+            owner.SetPrivateComponent<RigidBody>();
         }
     });
 
@@ -1328,14 +1328,13 @@ void EditorManager::LateUpdate()
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
                     std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
-                    auto meshRenderer = std::make_unique<MeshRenderer>();
+                    Entity entity = EntityManager::CreateEntity("Mesh");
+                    auto& meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                     meshRenderer->m_mesh = payload_n;
                     meshRenderer->m_material = ResourceManager::CreateResource<Material>();
                     meshRenderer->m_material->SetTexture(
                         TextureType::Albedo, DefaultResources::Textures::StandardTexture);
                     meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-                    Entity entity = EntityManager::CreateEntity("Mesh");
-                    entity.SetPrivateComponent(std::move(meshRenderer));
                 }
 
                 const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();

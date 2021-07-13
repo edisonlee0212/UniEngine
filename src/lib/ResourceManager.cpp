@@ -371,17 +371,16 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
 
     if (modelNode->m_mesh)
     {
-        auto mmc = std::make_unique<MeshRenderer>();
+        auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
         mmc->m_mesh = modelNode->m_mesh;
         mmc->m_material = modelNode->m_material;
-        EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto smmc = std::make_unique<SkinnedMeshRenderer>();
+        auto& smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
-        EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
+
     }
     int index = 0;
 
@@ -392,10 +391,9 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
     }
     if (model->m_animation)
     {
-        auto animator = std::make_unique<Animator>();
+        auto& animator = entity.SetPrivateComponent<Animator>();
         animator->Setup(model->m_animation);
         animator->Animate();
-        entity.SetPrivateComponent(std::move(animator));
         AttachAnimator(entity, entity);
     }
     return entity;
@@ -405,11 +403,10 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Text
 {
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(texture->m_name);
-    auto mmc = std::make_unique<MeshRenderer>();
+    auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
     mmc->m_material = LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     mmc->m_material->SetTexture(TextureType::Albedo, texture);
     mmc->m_mesh = DefaultResources::Primitives::Quad;
-    entity.SetPrivateComponent(std::move(mmc));
     return entity;
 }
 
@@ -1068,17 +1065,15 @@ void UniEngine::ResourceManager::AttachChildren(
 
     if (modelNode->m_mesh)
     {
-        auto mmc = std::make_unique<MeshRenderer>();
+        auto& mmc = EntityManager::SetPrivateComponent<MeshRenderer>(entity);
         mmc->m_mesh = modelNode->m_mesh;
         mmc->m_material = modelNode->m_material;
-        EntityManager::SetPrivateComponent<MeshRenderer>(entity, std::move(mmc));
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto smmc = std::make_unique<SkinnedMeshRenderer>();
+        auto& smmc = EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity);
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
-        EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity, std::move(smmc));
     }
 
     int index = 0;

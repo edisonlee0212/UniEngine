@@ -41,7 +41,7 @@ struct UNIENGINE_API Entity final
     template <typename T = ComponentDataBase> T GetComponentData() const;
     template <typename T = ComponentDataBase> [[nodiscard]] bool HasComponentData() const;
     template <typename T = PrivateComponentBase> std::unique_ptr<T> &GetPrivateComponent() const;
-    template <typename T = PrivateComponentBase> void SetPrivateComponent(std::unique_ptr<T> value) const;
+    template <typename T = PrivateComponentBase> std::unique_ptr<T> &SetPrivateComponent() const;
     template <typename T = PrivateComponentBase> void RemovePrivateComponent() const;
     template <typename T = PrivateComponentBase> [[nodiscard]] bool HasPrivateComponent() const;
     [[nodiscard]] std::string GetName() const;
@@ -55,9 +55,8 @@ class UNIENGINE_API PrivateComponentBase : public Serializable
     friend class EditorManager;
     friend struct PrivateComponentElement;
     friend class SerializationManager;
-    bool m_enabled = false;
-    Entity m_owner;
-
+    bool m_enabled = true;
+    Entity m_owner = Entity();
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
