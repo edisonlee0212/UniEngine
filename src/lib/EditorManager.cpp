@@ -1,19 +1,19 @@
 #include <Application.hpp>
 #include <CameraComponent.hpp>
-#include <Joint.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
+#include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
 #include <Model.hpp>
 #include <Particles.hpp>
+#include <PhysicsManager.hpp>
 #include <PostProcessing.hpp>
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
-#include <PhysicsManager.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -441,9 +441,13 @@ void EditorManager::Init()
         bool edited = false;
 
         bool reload = previousEntity != entity;
-        bool kinematic = entity.HasPrivateComponent<RigidBody>() && entity.GetPrivateComponent<RigidBody>()->m_kinematic && entity.GetPrivateComponent<RigidBody>()->m_currentRegistered;
+        bool kinematic = entity.HasPrivateComponent<RigidBody>() &&
+                         entity.GetPrivateComponent<RigidBody>()->m_kinematic &&
+                         entity.GetPrivateComponent<RigidBody>()->m_currentRegistered;
 
-        reload = reload || (entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>()->m_kinematic && entity.GetPrivateComponent<RigidBody>()->m_currentRegistered );
+        reload = reload ||
+                 (entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>()->m_kinematic &&
+                  entity.GetPrivateComponent<RigidBody>()->m_currentRegistered);
         if (reload)
         {
             previousEntity = entity;
@@ -488,14 +492,15 @@ void EditorManager::Init()
             ltp->m_value = glm::translate(editorManager.m_previouslyStoredPosition) *
                            glm::mat4_cast(glm::quat(glm::radians(editorManager.m_previouslyStoredRotation))) *
                            glm::scale(editorManager.m_previouslyStoredScale);
-            if(kinematic){
+            if (kinematic)
+            {
                 auto parentLtw = GlobalTransform();
-                if(!isRoot) parentLtw = EntityManager::GetParent(entity).GetComponentData<GlobalTransform>();
+                if (!isRoot)
+                    parentLtw = EntityManager::GetParent(entity).GetComponentData<GlobalTransform>();
                 parentLtw.m_value *= ltp->m_value;
                 PhysicsManager::UploadTransform(parentLtw, entity.GetPrivateComponent<RigidBody>());
             }
         }
-
     });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
         if (owner.HasPrivateComponent<Animator>())
@@ -507,12 +512,12 @@ void EditorManager::Init()
     });
 
     RegisterPrivateComponentMenu<Joint>([](Entity owner) {
-      if (owner.HasPrivateComponent<Joint>())
-          return;
-      if (ImGui::SmallButton("Joint"))
-      {
-          owner.SetPrivateComponent<Joint>();
-      }
+        if (owner.HasPrivateComponent<Joint>())
+            return;
+        if (ImGui::SmallButton("Joint"))
+        {
+            owner.SetPrivateComponent<Joint>();
+        }
     });
 
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
@@ -1327,7 +1332,7 @@ void EditorManager::LateUpdate()
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
                     std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
                     Entity entity = EntityManager::CreateEntity("Mesh");
-                    auto& meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
+                    auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                     meshRenderer->m_mesh = payload_n;
                     meshRenderer->m_material = ResourceManager::CreateResource<Material>();
                     meshRenderer->m_material->SetTexture(
@@ -1462,8 +1467,12 @@ void EditorManager::LateUpdate()
                     op,
                     ImGuizmo::LOCAL,
                     glm::value_ptr(globalTransform.m_value));
-                if(manager.m_selectedEntity.HasPrivateComponent<RigidBody>() && manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_kinematic && manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_currentRegistered){
-                    PhysicsManager::UploadTransform(globalTransform, manager.m_selectedEntity.GetPrivateComponent<RigidBody>());
+                if (manager.m_selectedEntity.HasPrivateComponent<RigidBody>() &&
+                    manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_kinematic &&
+                    manager.m_selectedEntity.GetPrivateComponent<RigidBody>()->m_currentRegistered)
+                {
+                    PhysicsManager::UploadTransform(
+                        globalTransform, manager.m_selectedEntity.GetPrivateComponent<RigidBody>());
                 }
                 if (ImGuizmo::IsUsing())
                 {

@@ -371,16 +371,15 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
 
     if (modelNode->m_mesh)
     {
-        auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
+        auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
         mmc->m_mesh = modelNode->m_mesh;
         mmc->m_material = modelNode->m_material;
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto& smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
+        auto &smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
-
     }
     int index = 0;
 
@@ -391,7 +390,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
     }
     if (model->m_animation)
     {
-        auto& animator = entity.SetPrivateComponent<Animator>();
+        auto &animator = entity.SetPrivateComponent<Animator>();
         animator->Setup(model->m_animation);
         animator->Animate();
         AttachAnimator(entity, entity);
@@ -403,7 +402,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Text
 {
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(texture->m_name);
-    auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
+    auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
     mmc->m_material = LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     mmc->m_material->SetTexture(TextureType::Albedo, texture);
     mmc->m_mesh = DefaultResources::Primitives::Quad;
@@ -1065,13 +1064,13 @@ void UniEngine::ResourceManager::AttachChildren(
 
     if (modelNode->m_mesh)
     {
-        auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
+        auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
         mmc->m_mesh = modelNode->m_mesh;
         mmc->m_material = modelNode->m_material;
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto& smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
+        auto &smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
     }

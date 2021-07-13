@@ -102,10 +102,9 @@ void Application::Init(bool fullScreen)
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
     mainCameraEntity.SetComponentData(cameraLtw);
-    auto& mainCameraComponent = mainCameraEntity.SetPrivateComponent<CameraComponent>();
+    auto &mainCameraComponent = mainCameraEntity.SetPrivateComponent<CameraComponent>();
     RenderManager::SetMainCamera(mainCameraComponent.get());
     mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
-
 
 #pragma endregion
 }
@@ -238,16 +237,16 @@ void Application::PreUpdateInternal()
     if (fixedDeltaTime >= application.m_time.m_timeStep)
     {
         application.m_needFixedUpdate = true;
-
     }
-    if(application.m_needFixedUpdate){
+    if (application.m_needFixedUpdate)
+    {
         application.m_time.StartFixedUpdate();
         for (const auto &i : application.m_externalFixedUpdateFunctions)
             i();
-        if(application.m_playing) application.m_world->FixedUpdate();
+        if (application.m_playing)
+            application.m_world->FixedUpdate();
         application.m_time.EndFixedUpdate();
     }
-
 }
 
 void Application::UpdateInternal()

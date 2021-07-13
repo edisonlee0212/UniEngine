@@ -53,7 +53,7 @@ void UniEngine::RigidBody::SetStatic(bool value)
 {
     if (m_static == value)
         return;
-    if(value)
+    if (value)
         SetKinematic(false);
     m_static = value;
     m_shapeUpdated = false;
@@ -121,7 +121,8 @@ void UniEngine::RigidBody::OnGui()
     ImGui::Separator();
     ImGui::Spacing();
     glm::ivec2 iterations = glm::ivec2(m_minPositionIterations, m_minVelocityIterations);
-    if(ImGui::DragInt2("Solver iterations (P/V)", &iterations.x, 1, 0, 128)){
+    if (ImGui::DragInt2("Solver iterations (P/V)", &iterations.x, 1, 0, 128))
+    {
         SetSolverIterations(iterations.x, iterations.y);
     }
     if (!m_static)
@@ -156,7 +157,6 @@ void UniEngine::RigidBody::OnGui()
             {
                 rigidBody->setAngularDamping(m_angularDamping);
             }
-
         }
     }
     if (Application::IsPlaying())
@@ -306,13 +306,13 @@ bool RigidBody::IsStatic()
 {
     return m_static;
 }
-void RigidBody::SetLinearDamping(const float& value)
+void RigidBody::SetLinearDamping(const float &value)
 {
     PxRigidDynamic *rigidBody = static_cast<PxRigidDynamic *>(m_rigidActor);
     m_linearDamping = value;
     rigidBody->setLinearDamping(m_linearDamping);
 }
-void RigidBody::SetAngularDamping(const float& value)
+void RigidBody::SetAngularDamping(const float &value)
 {
     PxRigidDynamic *rigidBody = static_cast<PxRigidDynamic *>(m_rigidActor);
     m_angularDamping = value;

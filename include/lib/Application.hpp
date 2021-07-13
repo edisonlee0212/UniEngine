@@ -19,14 +19,14 @@ class UNIENGINE_API ApplicationTime
     double m_fixedUpdateTimeStamp = 0;
     void StartFixedUpdate();
     void EndFixedUpdate();
+
   public:
-    void SetTimeStep(const double& value);
+    void SetTimeStep(const double &value);
     [[nodiscard]] double CurrentTime() const;
     [[nodiscard]] double TimeStep() const;
     [[nodiscard]] double FixedDeltaTime() const;
     [[nodiscard]] double DeltaTime() const;
     [[nodiscard]] double LastFrameTime() const;
-
 };
 
 class UNIENGINE_API Application final : ISingleton<Application>
@@ -66,6 +66,5 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static void RegisterLateUpdateFunction(const std::function<void()> &func);
     static void RegisterFixedUpdateFunction(const std::function<void()> &func);
 };
-
 
 } // namespace UniEngine

@@ -1,7 +1,7 @@
-#include <ResourceManager.hpp>
 #include <EditorManager.hpp>
-#include <StarCluster/StarClusterSystem.hpp>
 #include <Gui.hpp>
+#include <ResourceManager.hpp>
+#include <StarCluster/StarClusterSystem.hpp>
 void Galaxy::StarClusterPattern::OnGui()
 {
     static bool autoApply = true;
@@ -376,7 +376,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     m_rendererFront = EntityManager::CreateEntity("Renderer 1");
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
-    auto& imr = m_rendererFront.SetPrivateComponent<Particles>();
+    auto &imr = m_rendererFront.SetPrivateComponent<Particles>();
     imr->m_material = std::make_shared<Material>();
     imr->m_castShadow = false;
     imr->m_receiveShadow = false;
@@ -388,7 +388,7 @@ void Galaxy::StarClusterSystem::OnCreate()
 
     m_rendererBack = EntityManager::CreateEntity("Renderer 2");
     ltw.SetScale(glm::vec3(1.0f));
-    auto& imr2 = m_rendererBack.SetPrivateComponent<Particles>();
+    auto &imr2 = m_rendererBack.SetPrivateComponent<Particles>();
     imr2->m_material = std::make_shared<Material>();
     imr2->m_castShadow = false;
     imr2->m_receiveShadow = false;
@@ -418,8 +418,7 @@ void Galaxy::StarClusterSystem::OnCreate()
         SelectionStatus(),
         OriginalColor(),
         SurfaceColor(),
-        DisplayColor()
-    );
+        DisplayColor());
     JobManager::ResizePrimaryWorkers(1);
     JobManager::ResizeSecondaryWorkers(16);
     m_firstTime = true;

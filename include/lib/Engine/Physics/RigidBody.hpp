@@ -1,7 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
-#include <uniengine_export.h>
 #include <PhysicsMaterial.hpp>
+#include <uniengine_export.h>
 using namespace physx;
 namespace UniEngine
 {
@@ -13,7 +13,8 @@ enum class UNIENGINE_API ShapeType
 };
 class UNIENGINE_API RigidBody : public PrivateComponentBase
 {
-    glm::mat4 m_shapeTransform = glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
+    glm::mat4 m_shapeTransform =
+        glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
     bool m_drawBounds = false;
     glm::vec3 m_shapeParam = glm::vec3(1.0f);
     ShapeType m_shapeType = ShapeType::Box;
@@ -37,16 +38,17 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
 
     PxU32 m_minPositionIterations = 4;
     PxU32 m_minVelocityIterations = 1;
+
   public:
     [[nodiscard]] bool IsKinematic();
-    void SetSolverIterations(const unsigned& position = 4, const unsigned& velocity = 1);
+    void SetSolverIterations(const unsigned &position = 4, const unsigned &velocity = 1);
 
-    void SetLinearDamping(const float& value);
-    void SetAngularDamping(const float& value);
-    void SetKinematic(const bool& value);
-    void SetDensityAndMassCenter(const float& value, const glm::vec3& center = glm::vec3(0.0f));
-    void SetLinearVelocity(const glm::vec3& velocity);
-    void SetAngularVelocity(const glm::vec3& velocity);
+    void SetLinearDamping(const float &value);
+    void SetAngularDamping(const float &value);
+    void SetKinematic(const bool &value);
+    void SetDensityAndMassCenter(const float &value, const glm::vec3 &center = glm::vec3(0.0f));
+    void SetLinearVelocity(const glm::vec3 &velocity);
+    void SetAngularVelocity(const glm::vec3 &velocity);
     void ApplyMeshBound();
     void SetShapeType(ShapeType type);
     void SetShapeParam(glm::vec3 value);
@@ -54,7 +56,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool IsStatic();
     void SetTransform(glm::mat4 value);
     ~RigidBody() override;
-    void SetMaterial(const std::shared_ptr<PhysicsMaterial>& value);
+    void SetMaterial(const std::shared_ptr<PhysicsMaterial> &value);
     void UpdateBody();
     void Init() override;
     void OnGui() override;

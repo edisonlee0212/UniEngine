@@ -1,8 +1,8 @@
-#include <CameraControlSystem.hpp>
 #include <CameraComponent.hpp>
+#include <CameraControlSystem.hpp>
+#include <Gui.hpp>
 #include <InputManager.hpp>
 #include <RenderManager.hpp>
-#include <Gui.hpp>
 using namespace UniEngine;
 
 void CameraControlSystem::OnCreate()
@@ -35,8 +35,7 @@ void CameraControlSystem::LateUpdate()
                 auto moved = false;
                 if (InputManager::GetKey(GLFW_KEY_W))
                 {
-                    position +=
-                        front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
+                    position += front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                     moved = true;
                 }
                 if (InputManager::GetKey(GLFW_KEY_S))

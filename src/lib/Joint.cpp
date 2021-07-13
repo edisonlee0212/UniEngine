@@ -320,7 +320,8 @@ void Joint::OnGui()
     auto storedEntity = m_linkedEntity;
     if (EditorManager::DragAndDrop(m_linkedEntity))
     {
-        if (storedEntity != m_linkedEntity){
+        if (storedEntity != m_linkedEntity)
+        {
             storedEntity = m_linkedEntity;
             Link(storedEntity);
         }
@@ -409,8 +410,7 @@ void Joint::Link(const Entity &targetEntity)
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
             break;
-        case JointType::Spherical:
-        {
+        case JointType::Spherical: {
             m_joint = PxSphericalJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
                 owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
@@ -421,8 +421,9 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)));
-            //static_cast<PxSphericalJoint *>(m_joint)->setLimitCone(PxJointLimitCone(PxPi / 2, PxPi / 6, 0.01f));
-            //static_cast<PxSphericalJoint *>(m_joint)->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED, true);
+            // static_cast<PxSphericalJoint *>(m_joint)->setLimitCone(PxJointLimitCone(PxPi / 2, PxPi / 6, 0.01f));
+            // static_cast<PxSphericalJoint *>(m_joint)->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED,
+            // true);
         }
         break;
         case JointType::Revolute:

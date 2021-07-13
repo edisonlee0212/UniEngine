@@ -39,13 +39,12 @@ int main()
             globalTransform.SetScale(glm::vec3(2.0f));
             sphere.SetComponentData(transform);
             sphere.SetComponentData(globalTransform);
-            auto& meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
+            auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);
-
 
             sphere.SetParent(collection);
         }
@@ -59,7 +58,7 @@ int main()
     sponzaEntity.SetComponentData(sponzaTransform);
 
 #ifdef USE_ASSIMP
-    
+
     auto dancingStormTrooper =
         ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/dancing-stormtrooper/silly_dancing.fbx"));
     auto dancingStormTrooperEntity =
@@ -67,10 +66,8 @@ int main()
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetComponentData(dancingStormTrooperTransform);
-    auto capoeira =
-        ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Capoeira.fbx"));
-    auto capoeiraEntity =
-        ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
+    auto capoeira = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Capoeira.fbx"));
+    auto capoeiraEntity = ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(0, -14, -15), glm::vec3(0), glm::vec3(0.1));
     capoeiraEntity.SetComponentData(capoeiraTransform);
@@ -89,24 +86,23 @@ int main()
 #pragma endregion
     */
 #pragma region Lighting
-    
+
     auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
-    auto& dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
+    auto &dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
     dirLightEntity.SetComponentData(dirLightTransform);
 
-    
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
-    auto& pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
+    auto &pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
     pointLightLeftRenderer->m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     pointLightLeftRenderer->m_material->m_ambientOcclusion = 10.0f;
     pointLightLeftRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-    auto& pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
+    auto &pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
     pointLightLeft->m_diffuseBrightness = 20;
     pointLightLeft->m_lightSize = 0.2f;
     pointLightLeft->m_diffuse = glm::vec3(0.0, 0.5, 1.0);
@@ -114,15 +110,14 @@ int main()
     pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
     pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
 
-
-
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
-    auto& pointLightRightRenderer =  pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
-    pointLightRightRenderer->m_material = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    auto &pointLightRightRenderer = pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
+    pointLightRightRenderer->m_material =
+        ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightRenderer->m_material->m_ambientOcclusion = 10.0f;
     pointLightRightRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-    auto& pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
+    auto &pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
     pointLightRight->m_diffuseBrightness = 20;
     pointLightRight->m_lightSize = 0.2f;
     pointLightRight->m_diffuse = glm::vec3(1.0, 0.8, 0.0);
@@ -130,15 +125,12 @@ int main()
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
     pointLightRightEntity.SetComponentData(pointLightRightTransform);
 
-
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
         const float currentTime = Application::Time().CurrentTime();
         const float sinTime = glm::sin(currentTime / 5.0f);
         const float cosTime = glm::cos(currentTime / 5.0f);
-        dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(
-            100.0f, currentTime * 10,
-            0.0f)));
+        dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, currentTime * 10, 0.0f)));
         dirLightEntity.SetComponentData(dirLightTransform);
         pointLightLeftTransform.SetPosition(glm::vec3(-40, 12, sinTime * 50 - 50));
         pointLightRightTransform.SetPosition(glm::vec3(40, 12, cosTime * 50 - 50));

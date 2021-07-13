@@ -1251,8 +1251,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             if (!mmc->IsEnabled() || mmc->m_material == nullptr || mmc->m_mesh == nullptr)
                 continue;
             if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value &
-                  static_cast<size_t>(CameraLayer::MainCamera)))
+                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             auto gt = owner.GetComponentData<GlobalTransform>();
             auto ltw = gt.m_value;
@@ -1301,8 +1300,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             if (!particles->IsEnabled() || particles->m_material == nullptr || particles->m_mesh == nullptr)
                 continue;
             if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value &
-                  static_cast<size_t>(CameraLayer::MainCamera)))
+                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             auto gt = owner.GetComponentData<GlobalTransform>();
             auto ltw = gt.m_value;
@@ -1353,8 +1351,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             if (!smmc->IsEnabled() || smmc->m_material == nullptr || smmc->m_skinnedMesh == nullptr)
                 continue;
             if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value &
-                  static_cast<size_t>(CameraLayer::MainCamera)))
+                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             GlobalTransform gt;
             if (smmc->m_animator.IsValid())
@@ -1980,7 +1977,7 @@ void RenderManager::OnGui()
                             Transform ltw;
                             Entity entity = EntityManager::CreateEntity("Mesh");
                             entity.SetComponentData(ltw);
-                            auto& meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
+                            auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer->m_mesh = payload_n;
                             meshRenderer->m_material = ResourceManager::CreateResource<Material>();
                             meshRenderer->m_material->SetTexture(

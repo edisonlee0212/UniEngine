@@ -3,8 +3,8 @@
 
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
-#include <StarCluster/StarClusterSystem.hpp>
 #include <PostProcessing.hpp>
+#include <StarCluster/StarClusterSystem.hpp>
 using namespace UniEngine;
 using namespace Galaxy;
 int main()
@@ -14,7 +14,7 @@ int main()
     auto &world = Application::GetCurrentWorld();
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
-    
+
 #pragma endregion
 #pragma region Star System
     auto *starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
