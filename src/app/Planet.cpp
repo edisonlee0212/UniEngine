@@ -95,7 +95,7 @@ int main()
     plc->m_diffuse = glm::vec3(1.0f);
     plc->m_diffuseBrightness = 5;
 
-    EntityManager::SetComponentData(ple, ltw);
+    ple.SetComponentData(ltw);
 
 	
 	Entity ple2 = EntityManager::CreateEntity("Point Light 2");
@@ -107,7 +107,7 @@ int main()
     plc2->m_diffuse = glm::vec3(1.0f);
     plc2->m_diffuseBrightness = 5;
 
-    EntityManager::SetComponentData(ple2, ltw);
+    ple2.SetComponentData(ltw);
 	ple2.SetName("Point Light 2");
     auto& plmmc2 = ple2.SetPrivateComponent<MeshRenderer>();
     plmmc2->m_mesh = DefaultResources::Primitives::Sphere;
@@ -120,11 +120,11 @@ int main()
 		{
 #pragma region LightsPosition
 			ltw.SetPosition(glm::vec4(glm::vec3(0.0f, 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f), -20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f)), 0.0f));
-			EntityManager::SetComponentData(dle, ltw);
+                                             dle.SetComponentData(ltw);
 			ltw.SetPosition(glm::vec4(glm::vec3(-20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f), 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f), 0.0f), 0.0f));
-			EntityManager::SetComponentData(ple, ltw);
+                                             ple.SetComponentData(ltw);
 			ltw.SetPosition(glm::vec4(glm::vec3(20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f), 15.0f, 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f)), 0.0f));
-			EntityManager::SetComponentData(ple2, ltw);
+                                             ple2.SetComponentData(ltw);
 #pragma endregion
 		});
 	Application::Run();

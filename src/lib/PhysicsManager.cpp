@@ -224,7 +224,7 @@ void PhysicsSystem::Simulate(float time) const
         JobManager::PrimaryWorkers(),
         TransformManager::GetInstance().m_transformQuery,
         [this](int i, Entity entity, Transform &transform, GlobalTransform &globalTransform) {
-            if (!EntityManager::GetParent(entity).IsNull())
+            if (!entity.GetParent().IsNull())
                 return;
             if (entity.HasPrivateComponent<RigidBody>())
                 transform.m_value = globalTransform.m_value;
@@ -235,7 +235,7 @@ void PhysicsSystem::Simulate(float time) const
 }
 void PhysicsSystem::CalculateGlobalTransformRecursive(const GlobalTransform &pltw, Entity entity) const
 {
-    for (const auto &i : EntityManager::GetChildren(entity))
+    for (const auto &i : entity.GetChildren())
     {
         GlobalTransform ltw = i.GetComponentData<GlobalTransform>();
         if (i.HasPrivateComponent<RigidBody>())

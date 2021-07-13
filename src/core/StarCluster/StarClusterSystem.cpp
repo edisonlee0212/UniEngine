@@ -456,9 +456,9 @@ void Galaxy::StarClusterSystem::PushStars(StarClusterPattern &pattern, const siz
         StarOrbitProportion proportion;
         proportion.m_value = glm::linearRand(0.0, 1.0);
         StarInfo starInfo;
-        EntityManager::SetComponentData(starEntity, starInfo);
-        EntityManager::SetComponentData(starEntity, proportion);
-        EntityManager::SetComponentData(starEntity, pattern.m_starClusterIndex);
+        starEntity.SetComponentData(starInfo);
+        starEntity.SetComponentData(proportion);
+        starEntity.SetComponentData(pattern.m_starClusterIndex);
     }
     pattern.Apply();
 }

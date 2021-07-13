@@ -1,4 +1,6 @@
 #include <EntityManager.hpp>
+#include <Entity.hpp>
+
 using namespace UniEngine;
 
 ComponentDataType::ComponentDataType(const std::string &name, const size_t &id, const size_t &size)
@@ -95,6 +97,42 @@ std::string Entity::GetName() const
 void Entity::SetName(const std::string &name) const
 {
     return EntityManager::SetEntityName(*this, name);
+}
+
+Entity Entity::GetParent() const
+{
+    return EntityManager::GetParent(*this);
+}
+template <typename T> void Entity::RemoveComponentData() const
+{
+    EntityManager::RemoveComponentData(*this);
+}
+EntityArchetype Entity::GetEntityArchetype() const
+{
+    return EntityManager::GetEntityArchetype(*this);
+}
+
+Entity Entity::GetRoot() const
+{
+    return EntityManager::GetRoot(*this);
+}
+size_t Entity::GetChildrenAmount() const
+{
+    return EntityManager::GetChildrenAmount(*this);
+}
+std::vector<Entity> Entity::GetChildren() const
+{
+    return std::move(EntityManager::GetChildren(*this));
+}
+
+void Entity::ForEachChild(const std::function<void(Entity)> &func) const
+{
+    EntityManager::ForEachChild(*this, func);
+}
+
+void Entity::RemoveChild(const Entity &child) const
+{
+    EntityManager::RemoveChild(*this, child);
 }
 
 Entity PrivateComponentBase::GetOwner() const

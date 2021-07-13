@@ -28,7 +28,7 @@ int main()
         bloom->m_diffusion = 20;
         bloom->m_enabled = true;
     }
-    EntityManager::SetPrivateComponent(RenderManager::GetMainCamera()->GetOwner(), std::move(postProcessing));
+    RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
     RenderManager::GetMainCamera()->m_useClearColor = true;
 #pragma region EngineLoop
     Application::Run();

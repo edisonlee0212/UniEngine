@@ -416,7 +416,7 @@ void ResourceManager::AttachAnimator(const Entity &parent, const Entity &animato
     {
         parent.GetPrivateComponent<SkinnedMeshRenderer>()->AttachAnimator(animator);
     }
-    EntityManager::ForEachChild(parent, [&](Entity child) { AttachAnimator(child, animator); });
+    parent.ForEachChild([&](Entity child) { AttachAnimator(child, animator); });
 }
 #ifdef USE_ASSIMP
 
@@ -1056,7 +1056,7 @@ void UniEngine::ResourceManager::AttachChildren(
 {
     Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(parentName);
-    EntityManager::SetParent(entity, parentEntity);
+    entity.SetParent(parentEntity);
     entity.SetComponentData(modelNode->m_localTransform);
     GlobalTransform globalTransform;
     globalTransform.m_value =
@@ -1065,13 +1065,13 @@ void UniEngine::ResourceManager::AttachChildren(
 
     if (modelNode->m_mesh)
     {
-        auto& mmc = EntityManager::SetPrivateComponent<MeshRenderer>(entity);
+        auto& mmc = entity.SetPrivateComponent<MeshRenderer>();
         mmc->m_mesh = modelNode->m_mesh;
         mmc->m_material = modelNode->m_material;
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto& smmc = EntityManager::SetPrivateComponent<SkinnedMeshRenderer>(entity);
+        auto& smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
         smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
         smmc->m_material = modelNode->m_material;
     }

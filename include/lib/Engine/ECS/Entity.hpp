@@ -19,6 +19,14 @@ struct UNIENGINE_API ComponentDataBase
 {
 };
 
+struct UNIENGINE_API EntityArchetype final
+{
+    size_t m_index;
+    [[nodiscard]] bool IsNull() const;
+    [[nodiscard]] bool IsValid() const;
+    [[nodiscard]] std::string GetName() const;
+};
+
 class PrivateComponentBase;
 struct UNIENGINE_API Entity final
 {
@@ -36,14 +44,26 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] bool IsStatic() const;
     [[nodiscard]] bool IsDeleted() const;
     [[nodiscard]] bool IsValid() const;
+
     void SetParent(const Entity &parent, const bool &recalculateTransform = true) const;
+    [[nodiscard]] Entity GetParent() const;
+    [[nodiscard]] std::vector<Entity> GetChildren() const;
+    [[nodiscard]] size_t GetChildrenAmount() const;
+    [[nodiscard]] Entity GetRoot() const;
+    void ForEachChild(const std::function<void(Entity child)> &func) const;
+    void RemoveChild(const Entity &child) const;
+    [[nodiscard]] EntityArchetype GetEntityArchetype() const;
+
     template <typename T = ComponentDataBase> void SetComponentData(const T &value) const;
     template <typename T = ComponentDataBase> T GetComponentData() const;
     template <typename T = ComponentDataBase> [[nodiscard]] bool HasComponentData() const;
-    template <typename T = PrivateComponentBase> std::unique_ptr<T> &GetPrivateComponent() const;
+    template <typename T = ComponentDataBase> void RemoveComponentData() const;
+
     template <typename T = PrivateComponentBase> std::unique_ptr<T> &SetPrivateComponent() const;
-    template <typename T = PrivateComponentBase> void RemovePrivateComponent() const;
+    template <typename T = PrivateComponentBase> std::unique_ptr<T> &GetPrivateComponent() const;
     template <typename T = PrivateComponentBase> [[nodiscard]] bool HasPrivateComponent() const;
+    template <typename T = PrivateComponentBase> void RemovePrivateComponent() const;
+
     [[nodiscard]] std::string GetName() const;
     void SetName(const std::string &name) const;
 };
@@ -97,13 +117,7 @@ struct ComponentDataChunkArray
     std::vector<ComponentDataChunk> Chunks;
 };
 
-struct UNIENGINE_API EntityArchetype final
-{
-    size_t m_index;
-    [[nodiscard]] bool IsNull() const;
-    [[nodiscard]] bool IsValid() const;
-    [[nodiscard]] std::string GetName() const;
-};
+
 
 struct PrivateComponentElement
 {

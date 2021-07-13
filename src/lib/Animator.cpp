@@ -349,7 +349,7 @@ void Animator::ResetTransform(const int &index)
     GlobalTransform globalTransform;
     auto &entity = m_boundEntities[index];
     globalTransform.m_value = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
-    auto parent = EntityManager::GetParent(m_boundEntities[index]);
+    auto parent = m_boundEntities[index].GetParent();
     Transform localTransform;
     if (parent.IsValid())
     {

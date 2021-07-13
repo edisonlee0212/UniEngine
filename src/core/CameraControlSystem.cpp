@@ -10,7 +10,7 @@ void CameraControlSystem::OnCreate()
     auto *mainCamera = RenderManager::GetMainCamera();
     auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
     transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
-    EntityManager::SetComponentData(mainCamera->GetOwner(), transform);
+    mainCamera->GetOwner().SetComponentData(transform);
     m_enabled = true;
 }
 
@@ -104,7 +104,7 @@ void CameraControlSystem::LateUpdate()
                 }
                 if (moved)
                 {
-                    EntityManager::SetComponentData(mainCamera->GetOwner(), transform);
+                    mainCamera->GetOwner().SetComponentData(transform);
                 }
 #pragma endregion
             }
