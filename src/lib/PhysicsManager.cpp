@@ -26,7 +26,7 @@ void PhysicsManager::PreUpdate()
 {
     if (!Application::IsPlaying())
     {
-        if (const std::vector<Entity> *entities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
+        if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
             entities != nullptr)
         {
             for (auto entity : *entities)
@@ -144,7 +144,7 @@ void PhysicsSystem::FixedUpdate()
 
 void PhysicsSystem::Simulate(float time) const
 {
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::GetPrivateComponentOwnersList<RigidBody>();
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (!rigidBodyEntities)
         return;
 #pragma region Update shape

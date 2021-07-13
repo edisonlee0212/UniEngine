@@ -13,7 +13,8 @@ void Planet::PlanetTerrainSystem::OnCreate()
 
 void Planet::PlanetTerrainSystem::Update()
 {
-    const std::vector<Entity> *const planetTerrainList = EntityManager::GetPrivateComponentOwnersList<PlanetTerrain>();
+    const std::vector<Entity> *const planetTerrainList =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
     for (auto i = 0; i < planetTerrainList->size(); i++)
     {
         auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();

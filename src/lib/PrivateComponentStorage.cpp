@@ -7,15 +7,15 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
     if (search != m_pOwnersCollectionsMap.end())
     {
         auto &collection = m_pOwnersCollectionsList[search->second].second;
-        const auto entitySearch = collection->m_ownersMap.find(entity);
-        if (entitySearch != collection->m_ownersMap.end())
+        const auto entitySearch = collection.m_ownersMap.find(entity);
+        if (entitySearch != collection.m_ownersMap.end())
         {
             if (entity != entitySearch->first)
             {
                 UNIENGINE_ERROR("RemovePrivateComponent: Entity mismatch!");
                 return;
             }
-            if (collection->m_ownersList.size() == 1)
+            if (collection.m_ownersList.size() == 1)
             {
                 const auto eraseHash = typeID;
                 const auto eraseIndex = search->second;
@@ -29,11 +29,11 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
             else
             {
                 const auto eraseIndex = entitySearch->second;
-                const auto backEntity = collection->m_ownersList.back();
-                collection->m_ownersMap[backEntity] = eraseIndex;
-                collection->m_ownersMap.erase(entity);
-                collection->m_ownersList[eraseIndex] = backEntity;
-                collection->m_ownersList.pop_back();
+                const auto backEntity = collection.m_ownersList.back();
+                collection.m_ownersMap[backEntity] = eraseIndex;
+                collection.m_ownersMap.erase(entity);
+                collection.m_ownersList[eraseIndex] = backEntity;
+                collection.m_ownersList.pop_back();
                 return;
             }
         }
@@ -53,20 +53,29 @@ void PrivateComponentStorage::SetPrivateComponent(Entity entity, size_t id)
     const auto search = m_pOwnersCollectionsMap.find(id);
     if (search != m_pOwnersCollectionsMap.end())
     {
-        const auto insearch = m_pOwnersCollectionsList[search->second].second->m_ownersMap.find(entity);
-        if (insearch == m_pOwnersCollectionsList[search->second].second->m_ownersMap.end())
+        const auto insearch = m_pOwnersCollectionsList[search->second].second.m_ownersMap.find(entity);
+        if (insearch == m_pOwnersCollectionsList[search->second].second.m_ownersMap.end())
         {
-            m_pOwnersCollectionsList[search->second].second->m_ownersMap.insert(
-                {entity, m_pOwnersCollectionsList[search->second].second->m_ownersList.size()});
-            m_pOwnersCollectionsList[search->second].second->m_ownersList.push_back(entity);
+            m_pOwnersCollectionsList[search->second].second.m_ownersMap.insert(
+                {entity, m_pOwnersCollectionsList[search->second].second.m_ownersList.size()});
+            m_pOwnersCollectionsList[search->second].second.m_ownersList.push_back(entity);
         }
     }
     else
     {
-        std::unique_ptr<POwnersCollection> collection = std::make_unique<POwnersCollection>();
-        collection->m_ownersMap.insert({entity, 0});
-        collection->m_ownersList.push_back(entity);
+        POwnersCollection collection;
+        collection.m_ownersMap.insert({entity, 0});
+        collection.m_ownersList.push_back(entity);
         m_pOwnersCollectionsMap.insert({id, m_pOwnersCollectionsList.size()});
         m_pOwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
     }
+}
+template <typename T> const std::vector<Entity> PrivateComponentStorage::GetOwnersList()
+{
+    auto search = m_pOwnersCollectionsMap.find(typeid(T).hash_code());
+    if (search != m_pOwnersCollectionsMap.end())
+    {
+        return m_pOwnersCollectionsList[search->second].second.m_ownersList;
+    }
+    return std::vector<Entity>();
 }

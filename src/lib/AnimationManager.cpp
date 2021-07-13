@@ -4,7 +4,7 @@
 #include <Animator.hpp>
 void UniEngine::AnimationManager::PreUpdate()
 {
-    const std::vector<Entity> *owners = EntityManager::GetPrivateComponentOwnersList<Animator>();
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
     if (!owners)
         return;
 
@@ -52,7 +52,7 @@ void UniEngine::AnimationManager::PreUpdate()
         i.wait();
     results.clear();
 
-    owners = EntityManager::GetPrivateComponentOwnersList<SkinnedMeshRenderer>();
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
     if (!owners)
         return;
     threadSize = workers.Size();

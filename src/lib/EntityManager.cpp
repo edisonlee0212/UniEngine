@@ -1302,6 +1302,10 @@ void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entit
     for (const auto &i : children)
         GetDescendantsHelper(i, results);
 }
+template <typename T> const std::vector<Entity> EntityManager::GetPrivateComponentOwnersList()
+{
+    return GetInstance().m_entityPrivateComponentStorage->GetOwnersList<T>();
+}
 
 size_t EntityQuery::GetEntityAmount() const
 {

@@ -254,11 +254,12 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      */
     template <typename T>
     static std::vector<std::pair<T *, size_t>> UnsafeGetComponentDataArray(const EntityQuery &entityQuery);
+    template <typename T> static const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList();
 #pragma endregion
     static size_t GetArchetypeChunkSize();
     static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype &entityArchetype);
     static Entity GetEntity(const size_t &index);
-    template <typename T> static const std::vector<Entity> *GetPrivateComponentOwnersList();
+    template <typename T> static const std::vector<Entity> GetPrivateComponentOwnersList();
     static void ForEachPrivateComponent(
         const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
     static void GetAllEntities(std::vector<Entity> &target);
@@ -2938,9 +2939,9 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetComponentDataArray(c
     return retVal;
 }
 
-template <typename T> const std::vector<Entity> *EntityManager::GetPrivateComponentOwnersList()
+template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList()
 {
-    return GetInstance().m_entityPrivateComponentStorage->GetOwnersList<T>();
+    return GetInstance().m_entityPrivateComponentStorage->UnsafeGetOwnersList<T>();
 }
 
 template <typename T> void Entity::SetComponentData(const T &value) const

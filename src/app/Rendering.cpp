@@ -138,11 +138,6 @@ int main()
         pointLightRightEntity.SetComponentData(pointLightRightTransform);
     });
 
-
-    auto test = EntityManager::CreateEntity("Test");
-    test.SetPrivateComponent<SpotLight>();
-    test.SetPrivateComponent<PointLight>();
-    //test.RemovePrivateComponent<PointLight>();
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
     Application::Run();
