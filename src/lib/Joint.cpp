@@ -292,8 +292,8 @@ bool Joint::SafetyCheck()
         UNIENGINE_ERROR("Linked Entity doesn't contains RigidBody component!");
         return false;
     }
-    if (m_linkedEntity.GetPrivateComponent<RigidBody>()->m_static &&
-        GetOwner().GetPrivateComponent<RigidBody>()->m_static)
+    if (m_linkedEntity.GetPrivateComponent<RigidBody>().m_static &&
+        GetOwner().GetPrivateComponent<RigidBody>().m_static)
     {
         UNIENGINE_ERROR("At least one side of the joint is movable!");
         return false;
@@ -389,11 +389,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::Fixed:
             m_joint = PxFixedJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -401,11 +401,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::Distance:
             m_joint = PxDistanceJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -413,11 +413,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::Spherical: {
             m_joint = PxSphericalJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)),
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)));
@@ -429,11 +429,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::Revolute:
             m_joint = PxRevoluteJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -441,11 +441,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::Prismatic:
             m_joint = PxPrismaticJointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -453,11 +453,11 @@ void Joint::Link(const Entity &targetEntity)
         case JointType::D6:
             m_joint = PxD6JointCreate(
                 *PhysicsManager::GetInstance().m_physics,
-                m_linkedEntity.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                m_linkedEntity.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                owner.GetPrivateComponent<RigidBody>()->m_rigidActor,
+                owner.GetPrivateComponent<RigidBody>().m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));

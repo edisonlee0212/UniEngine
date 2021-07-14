@@ -84,7 +84,7 @@ void CameraComponent::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 proj
 }
 
 void CameraComponent::CalculateFrustumPoints(
-    CameraComponent *cameraComponrnt,
+    CameraComponent &cameraComponrnt,
     float nearPlane,
     float farPlane,
     glm::vec3 cameraPos,
@@ -97,11 +97,11 @@ void CameraComponent::CalculateFrustumPoints(
     const glm::vec3 nearCenter = front * nearPlane;
     const glm::vec3 farCenter = front * farPlane;
 
-    const float e = tanf(glm::radians(cameraComponrnt->m_fov * 0.5f));
+    const float e = tanf(glm::radians(cameraComponrnt.m_fov * 0.5f));
     const float near_ext_y = e * nearPlane;
-    const float near_ext_x = near_ext_y * cameraComponrnt->GetResolutionRatio();
+    const float near_ext_x = near_ext_y * cameraComponrnt.GetResolutionRatio();
     const float far_ext_y = e * farPlane;
-    const float far_ext_x = far_ext_y * cameraComponrnt->GetResolutionRatio();
+    const float far_ext_x = far_ext_y * cameraComponrnt.GetResolutionRatio();
 
     points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
     points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
@@ -242,7 +242,7 @@ void CameraComponent::ResizeResolution(int x, int y)
 
     if (GetOwner().HasPrivateComponent<PostProcessing>())
     {
-        GetOwner().GetPrivateComponent<PostProcessing>()->ResizeResolution(m_resolutionX, m_resolutionY);
+        GetOwner().GetPrivateComponent<PostProcessing>().ResizeResolution(m_resolutionX, m_resolutionY);
     }
 }
 
@@ -406,23 +406,23 @@ void CameraComponent::OnGui()
     }
 }
 
-void CameraInfoBlock::UpdateMatrices(const CameraComponent *camera, glm::vec3 position, glm::quat rotation)
+void CameraInfoBlock::UpdateMatrices(const CameraComponent &camera, glm::vec3 position, glm::quat rotation)
 {
     const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
     const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
-    const auto ratio = camera->GetResolutionRatio();
+    const auto ratio = camera.GetResolutionRatio();
     m_projection =
-        glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
+        glm::perspective(glm::radians(camera.m_fov * 0.5f), ratio, camera.m_nearDistance, camera.m_farDistance);
     m_position = glm::vec4(position, 0);
     m_view = glm::lookAt(position, position + front, up);
     m_reservedParameters = glm::vec4(
-        camera->m_nearDistance,
-        camera->m_farDistance,
-        glm::tan(camera->m_fov * 0.5f),
-        camera->m_resolutionX / camera->m_resolutionY);
+        camera.m_nearDistance,
+        camera.m_farDistance,
+        glm::tan(camera.m_fov * 0.5f),
+        camera.m_resolutionX / camera.m_resolutionY);
 }
 
-void CameraInfoBlock::UploadMatrices(const CameraComponent *camera) const
+void CameraInfoBlock::UploadMatrices(const CameraComponent &camera) const
 {
     CameraComponent::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
 }

@@ -1032,7 +1032,7 @@ void EntityManager::SetPrivateComponent(
         if (id == element.m_typeId)
         {
             found = true;
-            element.m_privateComponentData = std::unique_ptr<PrivateComponentBase>(ptr);
+            element.m_privateComponentData = ptr;
             element.ResetOwner(entity);
             element.m_privateComponentData->Init();
         }
@@ -1043,7 +1043,7 @@ void EntityManager::SetPrivateComponent(
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
         GetInstance()
             .m_entityInfos->at(entity.m_index)
-            .m_privateComponentElements.emplace_back(name, id, std::unique_ptr<PrivateComponentBase>(ptr), entity);
+            .m_privateComponentElements.emplace_back(name, id, ptr, entity);
     }
 }
 

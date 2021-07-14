@@ -11,24 +11,22 @@ void UniEngine::RigidBody::ApplyMeshBound()
     if (!GetOwner().IsValid() || !GetOwner().HasPrivateComponent<MeshRenderer>())
         return;
     auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
-    if (meshRenderer)
+    auto bound = meshRenderer.m_mesh->GetBound();
+    glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+    switch (m_shapeType)
     {
-        auto bound = meshRenderer->m_mesh->GetBound();
-        glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
-        switch (m_shapeType)
-        {
-        case ShapeType::Sphere:
-            scale = bound.Size() * scale;
-            m_shapeParam = glm::vec3((scale.x + scale.y + scale.z) / 3.0f, 1.0f, 1.0f);
-            break;
-        case ShapeType::Box:
-            m_shapeParam = bound.Size() * scale;
-            break;
-        case ShapeType::Capsule:
-            m_shapeParam = bound.Size() * scale;
-            break;
-        }
+    case ShapeType::Sphere:
+        scale = bound.Size() * scale;
+        m_shapeParam = glm::vec3((scale.x + scale.y + scale.z) / 3.0f, 1.0f, 1.0f);
+        break;
+    case ShapeType::Box:
+        m_shapeParam = bound.Size() * scale;
+        break;
+    case ShapeType::Capsule:
+        m_shapeParam = bound.Size() * scale;
+        break;
     }
+
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
 }
 
@@ -203,7 +201,7 @@ void UniEngine::RigidBody::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Sphere.get(),
-                    EditorManager::GetSceneCamera().get(),
+                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
                     1);
@@ -222,7 +220,7 @@ void UniEngine::RigidBody::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cube.get(),
-                    EditorManager::GetSceneCamera().get(),
+                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);
@@ -233,7 +231,7 @@ void UniEngine::RigidBody::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cylinder.get(),
-                    EditorManager::GetSceneCamera().get(),
+                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);

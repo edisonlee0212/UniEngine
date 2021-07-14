@@ -352,7 +352,7 @@ void UniEngine::SerializationManager::SerializeEntity(
     EntityManager::ForEachPrivateComponent(entity, [&](PrivateComponentElement &data) {
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << data.m_name;
-        out << YAML::Key << "IsEnabled" << YAML::Value << data.m_privateComponentData.get()->m_enabled;
+        out << YAML::Key << "IsEnabled" << YAML::Value << data.m_privateComponentData->m_enabled;
         data.m_privateComponentData->Serialize(out);
         out << YAML::EndMap;
     });

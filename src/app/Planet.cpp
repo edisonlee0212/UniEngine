@@ -43,7 +43,7 @@ int main()
     // planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
     auto planet1 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain1 = planet1.SetPrivateComponent<PlanetTerrain>();
-    planetTerrain1->Init(pi);
+    planetTerrain1.Init(pi);
     planet1.SetComponentData(planetTransform);
     planet1.SetName("Planet 1");
     planetTransform.SetPosition(glm::vec3(35.0f, 0.0f, 0.0f));
@@ -54,7 +54,7 @@ int main()
 
     auto planet2 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain2 = planet2.SetPrivateComponent<PlanetTerrain>();
-    planetTerrain2->Init(pi);
+    planetTerrain2.Init(pi);
     planet2.SetComponentData(planetTransform);
     planet2.SetName("Planet 2");
     planetTransform.SetPosition(glm::vec3(-20.0f, 0.0f, 0.0f));
@@ -65,7 +65,7 @@ int main()
 
     auto planet3 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain3 = planet3.SetPrivateComponent<PlanetTerrain>();
-    planetTerrain3->Init(pi);
+    planetTerrain3.Init(pi);
     planet3.SetComponentData(planetTransform);
     planet3.SetName("Planet 3");
 #pragma endregion
@@ -79,37 +79,37 @@ int main()
     Entity dle = EntityManager::CreateEntity("Directional Light");
     dle.SetName("Directional Light 1");
     auto &dlc = dle.SetPrivateComponent<DirectionalLight>();
-    dlc->m_diffuse = glm::vec3(1.0f);
+    dlc.m_diffuse = glm::vec3(1.0f);
     ltw.SetScale(glm::vec3(0.5f));
 
     Entity ple = EntityManager::CreateEntity("Point Light 1");
     auto &plmmc = ple.SetPrivateComponent<MeshRenderer>();
-    plmmc->m_mesh = DefaultResources::Primitives::Sphere;
-    plmmc->m_material = sharedMat;
+    plmmc.m_mesh = DefaultResources::Primitives::Sphere;
+    plmmc.m_material = sharedMat;
     auto &plc = ple.SetPrivateComponent<PointLight>();
-    plc->m_constant = 1.0f;
-    plc->m_linear = 0.09f;
-    plc->m_quadratic = 0.032f;
-    plc->m_farPlane = 70.0f;
-    plc->m_diffuse = glm::vec3(1.0f);
-    plc->m_diffuseBrightness = 5;
+    plc.m_constant = 1.0f;
+    plc.m_linear = 0.09f;
+    plc.m_quadratic = 0.032f;
+    plc.m_farPlane = 70.0f;
+    plc.m_diffuse = glm::vec3(1.0f);
+    plc.m_diffuseBrightness = 5;
 
     ple.SetComponentData(ltw);
 
     Entity ple2 = EntityManager::CreateEntity("Point Light 2");
     auto &plc2 = ple2.SetPrivateComponent<PointLight>();
-    plc2->m_constant = 1.0f;
-    plc2->m_linear = 0.09f;
-    plc2->m_quadratic = 0.032f;
-    plc2->m_farPlane = 70.0f;
-    plc2->m_diffuse = glm::vec3(1.0f);
-    plc2->m_diffuseBrightness = 5;
+    plc2.m_constant = 1.0f;
+    plc2.m_linear = 0.09f;
+    plc2.m_quadratic = 0.032f;
+    plc2.m_farPlane = 70.0f;
+    plc2.m_diffuse = glm::vec3(1.0f);
+    plc2.m_diffuseBrightness = 5;
 
     ple2.SetComponentData(ltw);
     ple2.SetName("Point Light 2");
     auto &plmmc2 = ple2.SetPrivateComponent<MeshRenderer>();
-    plmmc2->m_mesh = DefaultResources::Primitives::Sphere;
-    plmmc2->m_material = sharedMat;
+    plmmc2.m_mesh = DefaultResources::Primitives::Sphere;
+    plmmc2.m_material = sharedMat;
 
 #pragma endregion
 

@@ -240,11 +240,11 @@ size_t EntityArchetype::GetIndex()
 }
 
 PrivateComponentElement::PrivateComponentElement(
-    const std::string &name, const size_t &id, std::unique_ptr<PrivateComponentBase> data, const Entity &owner)
+    const std::string &name, const size_t &id, PrivateComponentBase* data, const Entity &owner)
 {
     m_name = name;
     m_typeId = id;
-    m_privateComponentData = std::move(data);
+    m_privateComponentData = data;
     m_privateComponentData->m_owner = owner;
     m_privateComponentData->Init();
 }

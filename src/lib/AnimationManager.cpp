@@ -21,28 +21,28 @@ void UniEngine::AnimationManager::PreUpdate()
                     for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                     {
                         auto &animator = owners->at(i).GetPrivateComponent<Animator>();
-                        if (animator->m_autoPlay)
+                        if (animator.m_autoPlay)
                         {
-                            animator->AutoPlay();
-                            animator->Animate();
+                            animator.AutoPlay();
+                            animator.Animate();
                         }
-                        else if (Application::IsPlaying() && animator->IsEnabled() && animator->m_animation)
+                        else if (Application::IsPlaying() && animator.IsEnabled() && animator.m_animation)
                         {
-                            animator->Animate();
+                            animator.Animate();
                         }
                     }
                     if (threadIndex < loadReminder)
                     {
                         const int i = threadIndex + threadSize * threadLoad;
-                        auto &smmc = owners->at(i).GetPrivateComponent<Animator>();
-                        if (smmc->m_autoPlay)
+                        auto& smmc = owners->at(i).GetPrivateComponent<Animator>();
+                        if (smmc.m_autoPlay)
                         {
-                            smmc->AutoPlay();
-                            smmc->Animate();
+                            smmc.AutoPlay();
+                            smmc.Animate();
                         }
-                        else if (Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation)
+                        else if (Application::IsPlaying() && smmc.IsEnabled() && smmc.m_animation)
                         {
-                            smmc->Animate();
+                            smmc.Animate();
                         }
                     }
                 })
@@ -65,13 +65,13 @@ void UniEngine::AnimationManager::PreUpdate()
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       auto &smmc = owners->at(i).GetPrivateComponent<SkinnedMeshRenderer>();
-                                      smmc->GetBoneMatrices();
+                                      smmc.GetBoneMatrices();
                                   }
                                   if (threadIndex < loadReminder)
                                   {
                                       const int i = threadIndex + threadSize * threadLoad;
                                       auto &smmc = owners->at(i).GetPrivateComponent<SkinnedMeshRenderer>();
-                                      smmc->GetBoneMatrices();
+                                      smmc.GetBoneMatrices();
                                   }
                               })
                               .share());

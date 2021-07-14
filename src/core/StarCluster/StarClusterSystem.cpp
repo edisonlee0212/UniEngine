@@ -377,24 +377,24 @@ void Galaxy::StarClusterSystem::OnCreate()
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
     auto &imr = m_rendererFront.SetPrivateComponent<Particles>();
-    imr->m_material = std::make_shared<Material>();
-    imr->m_castShadow = false;
-    imr->m_receiveShadow = false;
-    imr->m_mesh = DefaultResources::Primitives::Cube;
-    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    imr->m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
+    imr.m_material = std::make_shared<Material>();
+    imr.m_castShadow = false;
+    imr.m_receiveShadow = false;
+    imr.m_mesh = DefaultResources::Primitives::Cube;
+    imr.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    imr.m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
     m_rendererFront.SetComponentData(ltw);
 
     m_rendererBack = EntityManager::CreateEntity("Renderer 2");
     ltw.SetScale(glm::vec3(1.0f));
     auto &imr2 = m_rendererBack.SetPrivateComponent<Particles>();
-    imr2->m_material = std::make_shared<Material>();
-    imr2->m_castShadow = false;
-    imr2->m_receiveShadow = false;
-    imr2->m_mesh = DefaultResources::Primitives::Cube;
-    imr2->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    imr2->m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
+    imr2.m_material = std::make_shared<Material>();
+    imr2.m_castShadow = false;
+    imr2.m_receiveShadow = false;
+    imr2.m_mesh = DefaultResources::Primitives::Cube;
+    imr2.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    imr2.m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
     m_rendererBack.SetComponentData(ltw);
 
@@ -436,7 +436,7 @@ void Galaxy::StarClusterSystem::Update()
     m_counter++;
     RenderManager::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube.get(),
-        RenderManager::GetMainCamera(),
+        *RenderManager::GetMainCamera(),
         m_useFront ? m_frontColors.data() : m_backColors.data(),
         m_useFront ? m_frontMatrices.data() : m_backMatrices.data(),
         m_useFront ? m_frontColors.size() : m_backColors.size(),

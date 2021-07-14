@@ -18,10 +18,10 @@ void Planet::PlanetTerrainSystem::Update()
     for (auto i = 0; i < planetTerrainList->size(); i++)
     {
         auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
-        if (!planetTerrain->IsEnabled())
+        if (!planetTerrain.IsEnabled())
             continue;
-        auto &planetChunks = planetTerrain->m_chunks;
-        auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
+        auto &planetChunks = planetTerrain.m_chunks;
+        auto planetTransform = planetTerrain.GetOwner().GetComponentData<GlobalTransform>();
         glm::mat4 matrix = glm::scale(
             glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
             glm::vec3(1.0f));
@@ -38,12 +38,12 @@ void Planet::PlanetTerrainSystem::Update()
         for (auto i = 0; i < planetTerrainList->size(); i++)
         {
             auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
-            if (!planetTerrain->IsEnabled())
+            if (!planetTerrain.IsEnabled())
                 continue;
-            auto &planetInfo = planetTerrain->m_info;
-            auto planetTransform = planetTerrain->GetOwner().GetComponentData<GlobalTransform>();
+            auto &planetInfo = planetTerrain.m_info;
+            auto planetTransform = planetTerrain.GetOwner().GetComponentData<GlobalTransform>();
             // 1. Scan and expand.
-            for (auto &chunk : planetTerrain->m_chunks)
+            for (auto &chunk : planetTerrain.m_chunks)
             {
                 // futures.push_back(_PrimaryWorkers->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo,
                 // planetTransform, cameraLtw); }).share());
@@ -107,7 +107,7 @@ void Planet::PlanetTerrainSystem::RenderChunk(
 {
     if (chunk->Active)
         RenderManager::DrawMesh(
-            chunk->m_mesh.get(), m_defaultSurfaceMaterial.get(), matrix, RenderManager::GetMainCamera(), true);
+            chunk->m_mesh.get(), m_defaultSurfaceMaterial.get(), matrix, *RenderManager::GetMainCamera(), true);
     if (chunk->ChildrenActive)
     {
         RenderChunk(chunk->m_c0, material, matrix, camera, receiveShadow);

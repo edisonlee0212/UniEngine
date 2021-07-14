@@ -17,7 +17,7 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
         size.y = 0.01f;
     RenderManager::DrawGizmoMesh(
         DefaultResources::Primitives::Cube.get(),
-        EditorManager::GetSceneCamera().get(),
+        EditorManager::GetSceneCamera(),
         color,
         transform * (glm::translate(m_skinnedMesh->m_bound.Center()) * glm::scale(size)),
         1);
@@ -31,14 +31,14 @@ void SkinnedMeshRenderer::GetBoneMatrices()
     auto &animator = m_animator.GetPrivateComponent<Animator>();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
-        m_finalResults[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
+        m_finalResults[i] = animator.m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
     }
 }
 
 void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
 {
     if (animator.HasPrivateComponent<Animator>() &&
-        animator.GetPrivateComponent<Animator>()->m_animation.get() == m_skinnedMesh->m_animation.get())
+        animator.GetPrivateComponent<Animator>().m_animation.get() == m_skinnedMesh->m_animation.get())
     {
         m_animator = animator;
     }

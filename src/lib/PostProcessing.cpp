@@ -158,7 +158,7 @@ void Bloom::ResizeResolution(int x, int y)
     m_flatColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
 }
 
-void Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarget &renderTarget) const
+void Bloom::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -174,7 +174,7 @@ void Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTar
     renderTarget.AttachTexture(m_brightColor.get(), GL_COLOR_ATTACHMENT1);
     renderTarget.Bind();
     glDrawBuffers(2, enums);
-    cameraComponent->m_colorTexture->m_texture->Bind(0);
+    cameraComponent.m_colorTexture->m_texture->Bind(0);
     m_separateProgram->SetInt("image", 0);
     m_separateProgram->SetFloat("threshold", m_threshold);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -203,7 +203,7 @@ void Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTar
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent.m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_flatColor->Bind(0);
     m_brightColor->Bind(1);
@@ -213,7 +213,7 @@ void Bloom::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTar
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Bloom::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
+void Bloom::OnGui(CameraComponent &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
@@ -321,7 +321,7 @@ void SSAO::ResizeResolution(int x, int y)
     m_blur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
 }
 
-void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarget &renderTarget) const
+void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -334,7 +334,7 @@ void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarg
     renderTarget.AttachTexture(m_position.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    cameraComponent->m_depthStencilBuffer->Bind(0);
+    cameraComponent.m_depthStencilBuffer->Bind(0);
     m_positionReconstructProgram->SetInt("inputTex", 0);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -343,10 +343,10 @@ void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarg
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
     glDrawBuffers(2, enums);
-    cameraComponent->m_colorTexture->Texture()->Bind(0);
+    cameraComponent.m_colorTexture->Texture()->Bind(0);
     //_Position->Bind(1);
-    cameraComponent->m_gPositionBuffer->Bind(1);
-    cameraComponent->m_gNormalBuffer->Bind(2);
+    cameraComponent.m_gPositionBuffer->Bind(1);
+    cameraComponent.m_gNormalBuffer->Bind(2);
     m_geometryProgram->SetInt("image", 0);
     m_geometryProgram->SetInt("gPositionShadow", 1);
     m_geometryProgram->SetInt("gNormalShininess", 2);
@@ -380,7 +380,7 @@ void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarg
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent.m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_originalColor->Bind(0);
     m_ssaoPosition->Bind(1);
@@ -390,7 +390,7 @@ void SSAO::Process(std::unique_ptr<CameraComponent> &cameraComponent, RenderTarg
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void SSAO::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
+void SSAO::OnGui(CameraComponent &cameraComponent)
 {
     if (ImGui::TreeNode("SSAO Settings"))
     {
@@ -406,7 +406,7 @@ void SSAO::OnGui(std::unique_ptr<CameraComponent> &cameraComponent)
     if (ImGui::TreeNode("Debug##SSAO"))
     {
         ImGui::Image(
-            (ImTextureID)cameraComponent->m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+            (ImTextureID)cameraComponent.m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::Image((ImTextureID)m_position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::Image((ImTextureID)m_originalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));

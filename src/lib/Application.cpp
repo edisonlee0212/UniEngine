@@ -103,8 +103,8 @@ void Application::Init(bool fullScreen)
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
     mainCameraEntity.SetComponentData(cameraLtw);
     auto &mainCameraComponent = mainCameraEntity.SetPrivateComponent<CameraComponent>();
-    RenderManager::SetMainCamera(mainCameraComponent.get());
-    mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
+    RenderManager::SetMainCamera(&mainCameraComponent);
+    mainCameraComponent.m_skybox = DefaultResources::Environmental::DefaultSkybox;
 
 #pragma endregion
 }

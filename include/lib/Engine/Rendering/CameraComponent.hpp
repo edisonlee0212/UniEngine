@@ -36,8 +36,8 @@ struct UNIENGINE_API CameraInfoBlock
     glm::mat4 m_view;
     glm::vec4 m_reservedParameters;
     glm::vec4 m_position;
-    void UpdateMatrices(const CameraComponent *camera, glm::vec3 position, glm::quat rotation);
-    void UploadMatrices(const CameraComponent *camera) const;
+    void UpdateMatrices(const CameraComponent &camera, glm::vec3 position, glm::quat rotation);
+    void UploadMatrices(const CameraComponent &camera) const;
 };
 struct Ray;
 
@@ -74,7 +74,7 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
     static void CalculateFrustumPoints(
-        CameraComponent *cameraComponrnt,
+        CameraComponent &cameraComponrnt,
         float nearPlane,
         float farPlane,
         glm::vec3 cameraPos,

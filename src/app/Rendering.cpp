@@ -40,11 +40,11 @@ int main()
             sphere.SetComponentData(transform);
             sphere.SetComponentData(globalTransform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
-            meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-            meshRenderer->m_material = ResourceManager::CreateResource<Material>();
-            meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-            meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
-            meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);
+            meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
+            meshRenderer.m_material = ResourceManager::CreateResource<Material>();
+            meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            meshRenderer.m_material->m_roughness = static_cast<float>(i) / (amount - 1);
+            meshRenderer.m_material->m_metallic = static_cast<float>(j) / (amount - 1);
 
             sphere.SetParent(collection);
         }
@@ -89,38 +89,38 @@ int main()
 
     auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
     auto &dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
-    dirLight->m_diffuseBrightness = 3.0f;
-    dirLight->m_lightSize = 0.2f;
+    dirLight.m_diffuseBrightness = 3.0f;
+    dirLight.m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
     dirLightEntity.SetComponentData(dirLightTransform);
 
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
     auto &pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
-    pointLightLeftRenderer->m_material =
+    pointLightLeftRenderer.m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    pointLightLeftRenderer->m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
-    pointLightLeftRenderer->m_material->m_ambientOcclusion = 10.0f;
-    pointLightLeftRenderer->m_mesh = DefaultResources::Primitives::Sphere;
+    pointLightLeftRenderer.m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
+    pointLightLeftRenderer.m_material->m_ambientOcclusion = 10.0f;
+    pointLightLeftRenderer.m_mesh = DefaultResources::Primitives::Sphere;
     auto &pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
-    pointLightLeft->m_diffuseBrightness = 20;
-    pointLightLeft->m_lightSize = 0.2f;
-    pointLightLeft->m_diffuse = glm::vec3(0.0, 0.5, 1.0);
+    pointLightLeft.m_diffuseBrightness = 20;
+    pointLightLeft.m_lightSize = 0.2f;
+    pointLightLeft.m_diffuse = glm::vec3(0.0, 0.5, 1.0);
     Transform pointLightLeftTransform;
     pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
     pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
     auto &pointLightRightRenderer = pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
-    pointLightRightRenderer->m_material =
+    pointLightRightRenderer.m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    pointLightRightRenderer->m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
-    pointLightRightRenderer->m_material->m_ambientOcclusion = 10.0f;
-    pointLightRightRenderer->m_mesh = DefaultResources::Primitives::Sphere;
+    pointLightRightRenderer.m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
+    pointLightRightRenderer.m_material->m_ambientOcclusion = 10.0f;
+    pointLightRightRenderer.m_mesh = DefaultResources::Primitives::Sphere;
     auto &pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
-    pointLightRight->m_diffuseBrightness = 20;
-    pointLightRight->m_lightSize = 0.2f;
-    pointLightRight->m_diffuse = glm::vec3(1.0, 0.8, 0.0);
+    pointLightRight.m_diffuseBrightness = 20;
+    pointLightRight.m_lightSize = 0.2f;
+    pointLightRight.m_diffuse = glm::vec3(1.0, 0.8, 0.0);
     Transform pointLightRightTransform;
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
     pointLightRightEntity.SetComponentData(pointLightRightTransform);
