@@ -239,11 +239,6 @@ void CameraComponent::ResizeResolution(int x, int y)
     m_colorTexture->m_texture->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_depthStencilBuffer->ReSize(
         0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, m_resolutionX, m_resolutionY);
-
-    if (GetOwner().HasPrivateComponent<PostProcessing>())
-    {
-        GetOwner().GetPrivateComponent<PostProcessing>().ResizeResolution(m_resolutionX, m_resolutionY);
-    }
 }
 
 void CameraComponent::OnCreate()
