@@ -1951,7 +1951,8 @@ template <typename T> std::unique_ptr<T> &EntityManager::SetPrivateComponent(con
     if (!entity.IsValid())
         throw 0;
     size_t i = 0;
-    for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
+    auto& elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    for (auto &element : elements)
     {
         if (dynamic_cast<T *>(element.m_privateComponentData.get()))
         {
@@ -1963,12 +1964,10 @@ template <typename T> std::unique_ptr<T> &EntityManager::SetPrivateComponent(con
         i++;
     }
     GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    GetInstance()
-        .m_entityInfos->at(entity.m_index)
-        .m_privateComponentElements.push_back(PrivateComponentElement(
+    elements.push_back(PrivateComponentElement(
             std::string(typeid(T).name()), typeid(T).hash_code(), std::make_unique<T>(), entity));
     return *static_cast<std::unique_ptr<T> *>(static_cast<void *>(
-        &GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements.back().m_privateComponentData));
+        &elements.back().m_privateComponentData));
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
