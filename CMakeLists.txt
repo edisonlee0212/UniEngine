@@ -99,25 +99,25 @@ target_compile_definitions(uniengine
         )
 if (WIN32)
     # Linker settings for Windows platform
-    target_link_libraries(uniengine
-            opengl32
-            ${GLFW_DIR}glfw3.lib
-            )
     if (${CMAKE_BUILD_TYPE} STREQUAL Release)
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc142.mt/release/*.lib")
-        target_link_libraries(uniengine
-                ${PHYSX_LIBS}
+        set(ASSIMP_LIBS
                 ${ASSIMP_DIR}assimp-vc142-mt.lib
                 ${ASSIMP_DIR}contrib/zlib/zlibstatic.lib
                 )
     elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc142.mt/debug/*.lib")
-        target_link_libraries(uniengine
-                ${PHYSX_LIBS}
+        set(ASSIMP_LIBS
                 ${ASSIMP_DIR}assimp-vc142-mtd.lib
                 ${ASSIMP_DIR}contrib/zlib/zlibstaticd.lib
                 )
     endif ()
+    target_link_libraries(uniengine
+            opengl32
+            ${GLFW_DIR}glfw3.lib
+            ${PHYSX_LIBS}
+            ${ASSIMP_LIBS}
+            )
     # Compiler settings for Windows platform
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     target_compile_definitions(uniengine
@@ -128,7 +128,14 @@ if (WIN32)
             USE_ASSIMP
             )
 elseif (UNIX AND NOT APPLE)
-    # Linker settings for Linux platform
+    # Linker and compiler settings for Linux platform
+    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/release/*.so")
+        set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/debug/*.so")
+        set(CMAKE_CXX_FLAGS_DEBUG "-g")
+    endif ()
     target_link_libraries(uniengine
             GL
             glfw
@@ -139,13 +146,8 @@ elseif (UNIX AND NOT APPLE)
             Xi
             dl
             assimp
+            ${PHYSX_LIBS}
             )
-    # Compiler settings for Linux platform
-    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
-        set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        set(CMAKE_CXX_FLAGS_DEBUG "-g")
-    endif ()
 elseif (APPLE)
 endif ()
 
