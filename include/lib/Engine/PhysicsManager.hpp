@@ -3,6 +3,7 @@
 #include <Joint.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
+#include <Articulation.hpp>
 using namespace physx;
 
 #define PX_RELEASE(x)                                                                                                  \
@@ -27,21 +28,21 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxPvd *m_physVisDebugger;
     std::shared_ptr<PhysicsMaterial> m_defaultMaterial;
     static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
+    static void UploadTransform(const GlobalTransform &globalTransform, Articulation &rigidBody);
     static void PreUpdate();
     static void Init();
     static void Destroy();
     static void UpdateShape(RigidBody &rigidBody);
+    static void UpdateShape(Articulation &articulation);
 };
 
 class UNIENGINE_API PhysicsSystem : public SystemBase
 {
     PxScene *m_physicsScene = nullptr;
-
   public:
     void OnCreate() override;
     void OnDestroy() override;
     void FixedUpdate() override;
     void Simulate(float time) const;
-    void CalculateGlobalTransformRecursive(const GlobalTransform &pltw, Entity entity) const;
 };
 } // namespace UniEngine

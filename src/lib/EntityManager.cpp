@@ -72,8 +72,11 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         info.m_version = actualEntity.m_version + 1;
         info.m_static = false;
         info.m_enabled = true;
-
-        info.m_privateComponentElements.clear();
+        while(!info.m_privateComponentElements.empty()){
+            info.m_privateComponentElements.back().m_privateComponentData->OnDestroy();
+            delete info.m_privateComponentElements.back().m_privateComponentData;
+            info.m_privateComponentElements.pop_back();
+        }
         // Set to version 0, marks it as deleted.
         actualEntity.m_version = 0;
         EntityComponentDataStorage storage = GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex);
@@ -596,13 +599,6 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
 
 void EntityManager::DeleteEntity(const Entity &entity)
 {
-    /*
-    if (!Application::m_initialized)
-    {
-        UNIENGINE_ERROR("DeleteEntity: Initialize Engine first!");
-        return;
-    }
-    */
     if (!entity.IsValid())
         return;
     const size_t entityIndex = entity.m_index;
@@ -1027,23 +1023,26 @@ void EntityManager::SetPrivateComponent(
     ptr->m_enabled = true;
     bool found = false;
     size_t i = 0;
-    for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
+    auto& elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    for (auto &element : elements)
     {
         if (id == element.m_typeId)
         {
             found = true;
+            if(element.m_privateComponentData){
+                element.m_privateComponentData->OnDestroy();
+                delete element.m_privateComponentData;
+            }
             element.m_privateComponentData = ptr;
             element.ResetOwner(entity);
-            element.m_privateComponentData->Init();
+            element.m_privateComponentData->OnCreate();
         }
         i++;
     }
     if (!found)
     {
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
-        GetInstance()
-            .m_entityInfos->at(entity.m_index)
-            .m_privateComponentElements.emplace_back(name, id, ptr, entity);
+        elements.emplace_back(name, id, ptr, entity);
     }
 }
 
@@ -1097,6 +1096,8 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
     {
         if (privateComponentElements[i].m_typeId == typeId)
         {
+            privateComponentElements[i].m_privateComponentData->OnDestroy();
+            delete privateComponentElements[i].m_privateComponentData;
             privateComponentElements.erase(
                 privateComponentElements.begin() + i);
             break;

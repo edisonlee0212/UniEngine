@@ -5001,7 +5001,7 @@
  0003:00000560       ?_ignore@?6??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e560     Adjacencies.obj
  0003:00000561       ?_ignore@?BK@??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e561     Adjacencies.obj
  0003:00000562       ?_ignore@?BL@??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e562     Adjacencies.obj
- 0003:00000563       ?_ignore@?BM@??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e563     Adjacencies.obj
+ 0003:00000563       ?_ignore@?BM@??OnCreate@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e563     Adjacencies.obj
  0003:00000570       ?maxV3Error@_VecMathTests@aos@shdfnd@physx@@3T__m128@@B 000000018005e570     Cooking.obj
  0003:00000580       ?minFError@_VecMathTests@aos@shdfnd@physx@@3T__m128@@B 000000018005e580     Cooking.obj
  0003:00000590       ?maxV4Error@_VecMathTests@aos@shdfnd@physx@@3T__m128@@B 000000018005e590     Cooking.obj

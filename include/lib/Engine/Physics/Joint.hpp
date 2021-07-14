@@ -85,9 +85,9 @@ class UNIENGINE_API Joint : public PrivateComponentBase
     void SetType(const JointType &type);
     void Unlink();
     bool Linked();
-    void Init() override;
+    void OnCreate() override;
     void Link(const Entity &targetEntity);
     void OnGui() override;
-    ~Joint() override;
+    void OnDestroy() override;
 };
 } // namespace UniEngine

@@ -60,14 +60,11 @@ void MeshRenderer::OnGui()
     }
 }
 
-MeshRenderer::MeshRenderer()
+void MeshRenderer::OnCreate()
 {
     SetEnabled(true);
 }
 
-MeshRenderer::~MeshRenderer()
-{
-}
 
 void MeshRenderer::Serialize(YAML::Emitter &out)
 {

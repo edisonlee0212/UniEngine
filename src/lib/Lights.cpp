@@ -18,7 +18,7 @@ void SpotLight::OnGui()
     ImGui::DragFloat("Light Size", &m_lightSize, 0.01f, 0.0f, 999.0f);
 }
 
-void SpotLight::Init()
+void SpotLight::OnCreate()
 {
     SetEnabled(true);
 }
@@ -46,7 +46,7 @@ void PointLight::OnGui()
     ImGui::DragFloat("Light Size", &m_lightSize, 0.01f, 0.0f, 999.0f);
 }
 
-void PointLight::Init()
+void PointLight::OnCreate()
 {
     SetEnabled(true);
 }
@@ -59,7 +59,7 @@ void PointLight::Deserialize(const YAML::Node &in)
 {
 }
 
-void DirectionalLight::Init()
+void DirectionalLight::OnCreate()
 {
     SetEnabled(true);
 }

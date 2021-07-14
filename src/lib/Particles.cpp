@@ -5,7 +5,7 @@
 #include <RenderManager.hpp>
 using namespace UniEngine;
 
-Particles::Particles()
+void Particles::OnCreate()
 {
     m_boundingBox = Bound();
     SetEnabled(true);

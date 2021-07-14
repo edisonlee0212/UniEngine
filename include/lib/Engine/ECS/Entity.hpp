@@ -92,19 +92,22 @@ class UNIENGINE_API PrivateComponentBase : public Serializable
     friend class SerializationManager;
     bool m_enabled = true;
     Entity m_owner = Entity();
-  protected:
     PrivateComponentBase& operator=(const PrivateComponentBase& other) = default;
-    virtual ~PrivateComponentBase() = default;
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
-    virtual void Init();
+
+    virtual void OnGui();
+    virtual ~PrivateComponentBase() = default;
+
+    virtual void OnCreate();
     virtual void OnEnable();
     virtual void OnDisable();
     virtual void OnEntityEnable();
     virtual void OnEntityDisable();
-    virtual void OnGui();
+    virtual void OnDestroy();
+
 };
 
 template <typename T> ComponentDataType Typeof()

@@ -19,14 +19,14 @@ class UNIENGINE_API PostProcessingLayer
 
 class UNIENGINE_API PostProcessing final : public PrivateComponentBase, public RenderTarget
 {
-    std::map<std::string, std::unique_ptr<PostProcessingLayer>> _Layers;
+    std::map<std::string, std::unique_ptr<PostProcessingLayer>> m_layers;
 
   public:
     template <typename T> T *GetLayer();
     void PushLayer(std::unique_ptr<PostProcessingLayer> layer);
     void RemoveLayer(const std::string &layerName);
     void SetEnableLayer(const std::string &layerName, bool enabled);
-    PostProcessing();
+    void OnCreate() override;
     void Process();
     void ResizeResolution(int x, int y);
     void OnGui() override;
@@ -36,7 +36,7 @@ class UNIENGINE_API PostProcessing final : public PrivateComponentBase, public R
 
 template <typename T> T *PostProcessing::GetLayer()
 {
-    for (auto &layer : _Layers)
+    for (auto &layer : m_layers)
     {
         if (dynamic_cast<T *>(layer.second.get()))
         {

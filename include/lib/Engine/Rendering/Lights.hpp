@@ -24,7 +24,7 @@ class UNIENGINE_API DirectionalLight : public PrivateComponentBase
     float m_bias = 0.1f;
     float m_normalOffset = 0.001f;
     float m_lightSize = 0.01f;
-    void Init() override;
+    void OnCreate() override;
     void OnGui() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
@@ -53,7 +53,7 @@ class UNIENGINE_API PointLight : public PrivateComponentBase
     float m_diffuseBrightness = 0.8f;
     float m_lightSize = 0.1f;
     void OnGui() override;
-    void Init() override;
+    void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
@@ -83,7 +83,7 @@ class UNIENGINE_API SpotLight : public PrivateComponentBase
     float m_diffuseBrightness = 0.8f;
     float m_lightSize = 0.1f;
     void OnGui() override;
-    void Init() override;
+    void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };

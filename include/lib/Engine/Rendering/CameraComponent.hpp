@@ -94,11 +94,11 @@ class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public 
     Ray ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) const;
     static void GenerateMatrices();
     void ResizeResolution(int x, int y);
-    CameraComponent();
+    void OnCreate() override;
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    ~CameraComponent() override;
+    void OnDestroy() override;
     bool m_useClearColor = false;
     glm::vec3 m_clearColor = glm::vec3(0.0f);
     std::shared_ptr<Cubemap> m_skybox;

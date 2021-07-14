@@ -7,7 +7,7 @@ namespace UniEngine
 class UNIENGINE_API Particles : public PrivateComponentBase
 {
   public:
-    Particles();
+    void OnCreate() override;
     Bound m_boundingBox;
     bool m_forwardRendering = false;
     bool m_castShadow = true;

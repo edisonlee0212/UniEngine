@@ -247,6 +247,7 @@ void Application::PreUpdateInternal()
             application.m_world->FixedUpdate();
         application.m_time.EndFixedUpdate();
     }
+    TransformManager::PreUpdate();
 }
 
 void Application::UpdateInternal()
@@ -287,7 +288,7 @@ bool Application::LateUpdateInternal()
 
     WindowManager::LateUpdate();
     ResourceManager::OnGui();
-    TransformManager::LateUpdate();
+
     EditorManager::LateUpdate();
 
     RenderManager::LateUpdate();

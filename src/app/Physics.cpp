@@ -224,7 +224,6 @@ Entity CreateSolidCube(
     const std::string &name)
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
-    auto rigidBody = std::make_unique<RigidBody>();
     auto &rb = cube.SetPrivateComponent<RigidBody>();
     rb.SetShapeType(ShapeType::Box);
     rb.SetStatic(true);
@@ -245,7 +244,6 @@ Entity CreateDynamicCube(
     const std::string &name)
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
-    auto rigidBody = std::make_unique<RigidBody>();
     auto &rb = cube.SetPrivateComponent<RigidBody>();
     rb.SetShapeType(ShapeType::Box);
     rb.SetStatic(false);
@@ -290,7 +288,6 @@ Entity CreateDynamicSphere(
     const std::string &name)
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
-    auto rigidBody = std::make_unique<RigidBody>();
     auto &rb = sphere.SetPrivateComponent<RigidBody>();
     rb.SetShapeType(ShapeType::Sphere);
     rb.SetStatic(false);
@@ -311,7 +308,6 @@ Entity CreateSolidSphere(
     const std::string &name)
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
-    auto rigidBody = std::make_unique<RigidBody>();
     auto &rb = sphere.SetPrivateComponent<RigidBody>();
     rb.SetShapeType(ShapeType::Sphere);
     rb.SetStatic(true);

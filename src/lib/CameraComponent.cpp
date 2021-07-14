@@ -246,7 +246,7 @@ void CameraComponent::ResizeResolution(int x, int y)
     }
 }
 
-CameraComponent::CameraComponent()
+void CameraComponent::OnCreate()
 {
     m_resolutionX = 1;
     m_resolutionY = 1;
@@ -344,7 +344,7 @@ void CameraComponent::Deserialize(const YAML::Node &in)
     m_fov = in["FOV"].as<float>();
 }
 
-CameraComponent::~CameraComponent()
+void CameraComponent::OnDestroy()
 {
     if (RenderManager::GetMainCamera() == this)
     {

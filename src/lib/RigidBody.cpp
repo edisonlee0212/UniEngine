@@ -26,8 +26,9 @@ void UniEngine::RigidBody::ApplyMeshBound()
         m_shapeParam = bound.Size() * scale;
         break;
     }
-
+    m_density = glm::max(0.001f, m_density);
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
+    m_shapeUpdated = false;
 }
 
 void UniEngine::RigidBody::SetShapeType(ShapeType type)
@@ -52,14 +53,20 @@ void UniEngine::RigidBody::SetStatic(bool value)
     if (m_static == value)
         return;
     if (value)
+    {
+        auto linkedEntities = m_linkedEntities;
+        for(auto& i : linkedEntities){
+            i.GetPrivateComponent<Joint>().Unlink();
+        }
         SetKinematic(false);
+    }
     m_static = value;
     m_shapeUpdated = false;
-    // TODO: Unlink joint here.
+
     UpdateBody();
 }
 
-void UniEngine::RigidBody::SetTransform(glm::mat4 value)
+void UniEngine::RigidBody::SetShapeTransform(glm::mat4 value)
 {
     GlobalTransform ltw;
     ltw.m_value = value;
@@ -68,8 +75,13 @@ void UniEngine::RigidBody::SetTransform(glm::mat4 value)
     m_shapeUpdated = false;
 }
 
-UniEngine::RigidBody::~RigidBody()
+void UniEngine::RigidBody::OnDestroy()
 {
+    auto linkedEntities = m_linkedEntities;
+    for(auto& i : linkedEntities){
+        i.GetPrivateComponent<Joint>().Unlink();
+    }
+
     if (m_rigidActor)
     {
         m_rigidActor->release();
@@ -78,7 +90,7 @@ UniEngine::RigidBody::~RigidBody()
     {
         m_shape->release();
     }
-    // TODO: Unlink joints here
+
 }
 
 void UniEngine::RigidBody::UpdateBody()
@@ -94,7 +106,7 @@ void UniEngine::RigidBody::UpdateBody()
     m_shapeUpdated = false;
 }
 
-void UniEngine::RigidBody::Init()
+void UniEngine::RigidBody::OnCreate()
 {
     m_material = PhysicsManager::GetInstance().m_defaultMaterial;
     UpdateBody();
@@ -102,7 +114,7 @@ void UniEngine::RigidBody::Init()
     SetEnabled(false);
 }
 
-static const char *RigidBodyShapeShape[]{"Sphere", "Box", "Capsule"};
+static const char *RigidBodyShape[]{"Sphere", "Box", "Capsule"};
 void UniEngine::RigidBody::OnGui()
 {
     if (ImGui::TreeNode("Material"))
@@ -173,7 +185,7 @@ void UniEngine::RigidBody::OnGui()
             staticChanged = true;
         }
         ImGui::Combo(
-            "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShapeShape, IM_ARRAYSIZE(RigidBodyShapeShape));
+            "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape));
         glm::vec3 scale;
         glm::vec3 trans;
         glm::quat rotation;
@@ -268,7 +280,6 @@ void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial> &value)
         m_material = value;
         m_shapeUpdated = false;
     }
-    // TODO: Unlink joint here.
 }
 void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
 {

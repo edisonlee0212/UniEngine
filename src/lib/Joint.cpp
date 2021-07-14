@@ -276,9 +276,24 @@ void Joint::SetDriveZ(const float &stiffness, const float &damping, const bool &
 #pragma endregion
 void Joint::Unlink()
 {
+    if (!m_linkedEntity.IsNull())
+    {
+        auto &linkedEntities = m_linkedEntity.GetPrivateComponent<RigidBody>().m_linkedEntities;
+        const auto owner = GetOwner();
+        for (int i = 0; i < linkedEntities.size(); i++)
+        {
+            if (linkedEntities[i] == owner)
+            {
+                linkedEntities.erase(linkedEntities.begin() + i);
+                break;
+            }
+        }
+    }
     if (m_joint)
+    {
         m_joint->release();
-    m_joint = nullptr;
+        m_joint = nullptr;
+    }
     m_linkedEntity = Entity();
 }
 bool Joint::Linked()
@@ -300,7 +315,7 @@ bool Joint::SafetyCheck()
     }
     return true;
 }
-void Joint::Init()
+void Joint::OnCreate()
 {
     const auto owner = GetOwner();
     if (!owner.HasPrivateComponent<RigidBody>())
@@ -352,15 +367,17 @@ void Joint::OnGui()
     }
 }
 
-Joint::~Joint()
+void Joint::OnDestroy()
 {
     Unlink();
 }
+
 void Joint::Link(const Entity &targetEntity)
 {
     Unlink();
+    const auto owner = GetOwner();
     m_linkedEntity = targetEntity;
-    if (m_linkedEntity.IsValid() && !m_linkedEntity.HasPrivateComponent<RigidBody>())
+    if (owner == m_linkedEntity || (m_linkedEntity.IsValid() && !m_linkedEntity.HasPrivateComponent<RigidBody>()))
     {
         m_linkedEntity = Entity();
     }
@@ -370,7 +387,6 @@ void Joint::Link(const Entity &targetEntity)
     }
     if (SafetyCheck())
     {
-        const auto owner = GetOwner();
         PxTransform localFrame1;
         auto ownerGT = owner.GetComponentData<GlobalTransform>();
         ownerGT.SetScale(glm::vec3(1.0f));
@@ -463,6 +479,8 @@ void Joint::Link(const Entity &targetEntity)
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
             break;
         }
+
+        m_linkedEntity.GetPrivateComponent<RigidBody>().m_linkedEntities.push_back(owner);
     }
 }
 

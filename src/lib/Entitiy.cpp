@@ -177,7 +177,7 @@ bool PrivateComponentBase::IsEnabled() const
     return m_enabled;
 }
 
-void PrivateComponentBase::Init()
+void PrivateComponentBase::OnCreate()
 {
 }
 
@@ -198,6 +198,9 @@ void PrivateComponentBase::OnEntityDisable()
 }
 
 void PrivateComponentBase::OnGui()
+{
+}
+void PrivateComponentBase::OnDestroy()
 {
 }
 
@@ -246,7 +249,7 @@ PrivateComponentElement::PrivateComponentElement(
     m_typeId = id;
     m_privateComponentData = data;
     m_privateComponentData->m_owner = owner;
-    m_privateComponentData->Init();
+    m_privateComponentData->OnCreate();
 }
 
 void PrivateComponentElement::ResetOwner(const Entity &newOwner) const

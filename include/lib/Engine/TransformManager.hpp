@@ -7,10 +7,10 @@ class UNIENGINE_API TransformManager : public ISingleton<TransformManager>
 {
     friend class PhysicsSystem;
     EntityQuery m_transformQuery;
-    static void CalculateLtwRecursive(const GlobalTransform &pltw, Entity entity);
-
+    static void CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent);
+    bool m_physicsSystemOverride = false;
   public:
     static void Init();
-    static void LateUpdate();
+    static void PreUpdate();
 };
 } // namespace UniEngine

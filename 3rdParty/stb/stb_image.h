@@ -4334,7 +4334,7 @@ static const stbi_uc stbi__zdefault_distance[32] =
    5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
 };
 /*
-Init algorithm:
+OnCreate algorithm:
 {
    int i;   // use <= to match clearly with spec
    for (i=0; i <= 143; ++i)     stbi__zdefault_length[i]   = 8;

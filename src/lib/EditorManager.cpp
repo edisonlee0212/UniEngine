@@ -14,6 +14,7 @@
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
+#include <Articulation.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -520,6 +521,15 @@ void EditorManager::Init()
         }
     });
 
+    RegisterPrivateComponentMenu<Articulation>([](Entity owner) {
+      if (owner.HasPrivateComponent<Articulation>())
+          return;
+      if (ImGui::SmallButton("Articulation"))
+      {
+          owner.SetPrivateComponent<Articulation>();
+      }
+    });
+
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
         if (owner.HasPrivateComponent<DirectionalLight>())
             return;
@@ -593,6 +603,7 @@ void EditorManager::Init()
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
     editorManager.m_sceneCamera.m_clearColor = glm::vec3(0.5f);
     editorManager.m_sceneCamera.m_useClearColor = false;
+    editorManager.m_sceneCamera.OnCreate();
 }
 
 void EditorManager::Destroy()

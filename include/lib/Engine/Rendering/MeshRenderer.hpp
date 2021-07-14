@@ -16,8 +16,7 @@ class UNIENGINE_API MeshRenderer : public PrivateComponentBase
     std::shared_ptr<Mesh> m_mesh;
     std::shared_ptr<Material> m_material;
     void OnGui() override;
-    MeshRenderer();
-    ~MeshRenderer() override;
+    void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };

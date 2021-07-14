@@ -12,22 +12,22 @@ void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
         return;
     layer->Init();
     layer->ResizeResolution(m_resolutionX, m_resolutionY);
-    _Layers[layer->m_name] = std::move(layer);
+    m_layers[layer->m_name] = std::move(layer);
 }
 
 void PostProcessing::RemoveLayer(const std::string &layerName)
 {
-    if (_Layers[layerName])
-        _Layers.erase(layerName);
+    if (m_layers[layerName])
+        m_layers.erase(layerName);
 }
 
 void PostProcessing::SetEnableLayer(const std::string &layerName, bool enabled)
 {
-    if (_Layers[layerName])
-        _Layers[layerName]->m_enabled = enabled;
+    if (m_layers[layerName])
+        m_layers[layerName]->m_enabled = enabled;
 }
 
-PostProcessing::PostProcessing()
+void PostProcessing::OnCreate()
 {
     ResizeResolution(1, 1);
 
@@ -40,18 +40,18 @@ PostProcessing::PostProcessing()
 void PostProcessing::Process()
 {
     auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-    if (_Layers["SSAO"] && _Layers["SSAO"]->m_enabled)
+    if (m_layers["SSAO"] && m_layers["SSAO"]->m_enabled)
     {
-        _Layers["SSAO"]->Process(cameraComponent, *this);
+        m_layers["SSAO"]->Process(cameraComponent, *this);
     }
-    if (_Layers["Bloom"] && _Layers["Bloom"]->m_enabled)
+    if (m_layers["Bloom"] && m_layers["Bloom"]->m_enabled)
     {
-        _Layers["Bloom"]->Process(cameraComponent, *this);
+        m_layers["Bloom"]->Process(cameraComponent, *this);
     }
 
-    if (_Layers["GreyScale"] && _Layers["GreyScale"]->m_enabled)
+    if (m_layers["GreyScale"] && m_layers["GreyScale"]->m_enabled)
     {
-        _Layers["GreyScale"]->Process(cameraComponent, *this);
+        m_layers["GreyScale"]->Process(cameraComponent, *this);
     }
 }
 
@@ -61,7 +61,7 @@ void PostProcessing::ResizeResolution(int x, int y)
         return;
     m_resolutionX = x;
     m_resolutionY = y;
-    for (auto &layer : _Layers)
+    for (auto &layer : m_layers)
     {
         if (layer.second)
             layer.second->ResizeResolution(x, y);
@@ -71,7 +71,7 @@ void PostProcessing::ResizeResolution(int x, int y)
 void PostProcessing::OnGui()
 {
     auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
-    for (auto &layer : _Layers)
+    for (auto &layer : m_layers)
     {
         if (layer.second)
         {

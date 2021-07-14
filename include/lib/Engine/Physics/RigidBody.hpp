@@ -18,6 +18,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool m_drawBounds = false;
     glm::vec3 m_shapeParam = glm::vec3(1.0f);
     ShapeType m_shapeType = ShapeType::Box;
+
+
     bool m_static = false;
     friend class PhysicsSystem;
     friend class PhysicsManager;
@@ -39,6 +41,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     PxU32 m_minPositionIterations = 4;
     PxU32 m_minVelocityIterations = 1;
 
+    std::vector<Entity> m_linkedEntities;
+
   public:
     [[nodiscard]] bool IsKinematic();
     void SetSolverIterations(const unsigned &position = 4, const unsigned &velocity = 1);
@@ -54,11 +58,11 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     void SetShapeParam(glm::vec3 value);
     void SetStatic(bool value);
     bool IsStatic();
-    void SetTransform(glm::mat4 value);
-    ~RigidBody() override;
+    void SetShapeTransform(glm::mat4 value);
+    void OnDestroy() override;
     void SetMaterial(const std::shared_ptr<PhysicsMaterial> &value);
     void UpdateBody();
-    void Init() override;
+    void OnCreate() override;
     void OnGui() override;
 };
 } // namespace UniEngine

@@ -1958,14 +1958,14 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
         {
             element.m_privateComponentData = new T();
             element.ResetOwner(entity);
-            element.m_privateComponentData->Init();
+            element.m_privateComponentData->OnCreate();
             return *dynamic_cast<T*>(element.m_privateComponentData);
         }
         i++;
     }
     GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    elements.push_back(PrivateComponentElement(
-            std::string(typeid(T).name()), typeid(T).hash_code(), new T(), entity));
+    elements.emplace_back(
+            std::string(typeid(T).name()), typeid(T).hash_code(), new T(), entity);
     return *dynamic_cast<T*>(elements.back().m_privateComponentData);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
@@ -1981,6 +1981,7 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
                                   .m_privateComponentData))
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
+            elements[i].m_privateComponentData->OnDestroy();
             delete elements[i].m_privateComponentData;
             elements.erase(elements.begin() + i);
         }
