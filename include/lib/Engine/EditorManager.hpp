@@ -32,7 +32,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     glm::vec3 m_previouslyStoredPosition;
     glm::vec3 m_previouslyStoredRotation;
     glm::vec3 m_previouslyStoredScale;
-    bool m_localPositionSelected = false;
+    bool m_localPositionSelected = true;
     bool m_localRotationSelected = false;
     bool m_localScaleSelected = false;
 

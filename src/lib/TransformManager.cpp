@@ -11,7 +11,7 @@ void TransformManager::Init()
 
 void TransformManager::PreUpdate()
 {
-    auto& transformManager = GetInstance();
+    auto &transformManager = GetInstance();
     EntityManager::ForEach<Transform, GlobalTransform>(
         JobManager::PrimaryWorkers(),
         transformManager.m_transformQuery,
@@ -19,8 +19,26 @@ void TransformManager::PreUpdate()
             if ((!transformManager.m_physicsSystemOverride && EntityManager::IsEntityStatic(entity)) ||
                 !EntityManager::GetParent(entity).IsNull())
                 return;
-            if (transformManager.m_physicsSystemOverride &&
-                (entity.HasPrivateComponent<RigidBody>() || entity.HasPrivateComponent<Articulation>()))
+            bool overwrite = transformManager.m_physicsSystemOverride;
+            if (overwrite)
+            {
+                if (entity.HasPrivateComponent<RigidBody>())
+                {
+                    auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
+                    if (!rigidBody.m_currentRegistered || rigidBody.m_kinematic)
+                        overwrite = false;
+                }
+                else if (entity.HasPrivateComponent<Articulation>())
+                {
+                    auto &articulation = entity.GetPrivateComponent<Articulation>();
+                    if (!articulation.m_currentRegistered)
+                        overwrite = false;
+                }
+                else
+                    overwrite = false;
+            }
+
+            if (overwrite)
             {
                 transform.m_value = globalTransform.m_value;
             }
@@ -36,19 +54,38 @@ void TransformManager::PreUpdate()
 
 void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)
 {
-    if (!GetInstance().m_physicsSystemOverride && EntityManager::IsEntityStatic(parent))
+    auto &transformManager = GetInstance();
+    if (!transformManager.m_physicsSystemOverride && EntityManager::IsEntityStatic(parent))
         return;
     for (const auto &entity : EntityManager::GetChildren(parent))
     {
         GlobalTransform ltw;
-        if (GetInstance().m_physicsSystemOverride &&
-            (entity.HasPrivateComponent<RigidBody>() || entity.HasPrivateComponent<Articulation>()))
+        bool overwrite = transformManager.m_physicsSystemOverride;
+        if (overwrite)
+        {
+            if (entity.HasPrivateComponent<RigidBody>())
+            {
+                auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
+                if (!rigidBody.m_currentRegistered || rigidBody.m_kinematic)
+                    overwrite = false;
+            }
+            else if (entity.HasPrivateComponent<Articulation>())
+            {
+                auto &articulation = entity.GetPrivateComponent<Articulation>();
+                if (!articulation.m_currentRegistered)
+                    overwrite = false;
+            }
+            else
+                overwrite = false;
+        }
+        if (overwrite)
         {
             ltw = entity.GetComponentData<GlobalTransform>();
             Transform ltp;
             ltp.m_value = glm::inverse(pltw.m_value) * ltw.m_value;
             entity.SetComponentData(ltp);
-        }else
+        }
+        else
         {
             auto ltp = EntityManager::GetComponentData<Transform>(entity);
             ltw.m_value = pltw.m_value * ltp.m_value;

@@ -218,7 +218,6 @@ void PhysicsSystem::Simulate(float time) const
     if (rigidBodyEntities)
     {
         for (auto entity : *rigidBodyEntities)
-
         {
             auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
             if (rigidBody.m_currentRegistered == false && entity.IsValid() && entity.IsEnabled() &&

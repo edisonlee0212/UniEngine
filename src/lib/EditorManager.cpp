@@ -1,4 +1,5 @@
 #include <Application.hpp>
+#include <Articulation.hpp>
 #include <CameraComponent.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
@@ -14,7 +15,6 @@
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
-#include <Articulation.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -440,12 +440,9 @@ void EditorManager::Init()
         }
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
-
         bool reload = previousEntity != entity;
-
-        reload = reload ||
-                 (entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>().m_kinematic &&
-                  entity.GetPrivateComponent<RigidBody>().m_currentRegistered);
+        if(Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>().m_kinematic &&
+                                        entity.GetPrivateComponent<RigidBody>().m_currentRegistered) reload = true;
         if (reload)
         {
             previousEntity = entity;
@@ -485,6 +482,12 @@ void EditorManager::Init()
             editorManager.m_localRotationSelected = false;
             editorManager.m_localPositionSelected = false;
         }
+        if (edited)
+        {
+            ltp->m_value = glm::translate(editorManager.m_previouslyStoredPosition) *
+                           glm::mat4_cast(glm::quat(glm::radians(editorManager.m_previouslyStoredRotation))) *
+                           glm::scale(editorManager.m_previouslyStoredScale);
+        }
     });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
         if (owner.HasPrivateComponent<Animator>())
@@ -505,12 +508,12 @@ void EditorManager::Init()
     });
 
     RegisterPrivateComponentMenu<Articulation>([](Entity owner) {
-      if (owner.HasPrivateComponent<Articulation>())
-          return;
-      if (ImGui::SmallButton("Articulation"))
-      {
-          owner.SetPrivateComponent<Articulation>();
-      }
+        if (owner.HasPrivateComponent<Articulation>())
+            return;
+        if (ImGui::SmallButton("Articulation"))
+        {
+            owner.SetPrivateComponent<Articulation>();
+        }
     });
 
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
@@ -679,9 +682,7 @@ void EditorManager::Update()
     if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
     {
         CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-            editorManager.m_sceneCamera,
-            editorManager.m_sceneCameraPosition,
-            editorManager.m_sceneCameraRotation);
+            editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
         CameraComponent::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera);
 #pragma region For entity selection
         editorManager.m_sceneCameraEntityRecorder->Bind();
@@ -1464,12 +1465,13 @@ void EditorManager::LateUpdate()
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
                     manager.m_selectedEntity.SetComponentData(transform);
-                    manager.m_selectedEntity.SetComponentData(globalTransform);
+                    //manager.m_selectedEntity.SetComponentData(globalTransform);
                     transform.Decompose(
                         manager.m_previouslyStoredPosition,
                         manager.m_previouslyStoredRotation,
                         manager.m_previouslyStoredScale);
                     mouseSelectEntity = false;
+
                 }
             }
             if (manager.m_sceneWindowFocused && mouseSelectEntity)

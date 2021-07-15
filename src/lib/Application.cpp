@@ -204,10 +204,10 @@ void Application::PreUpdateInternal()
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
     ImGui::End();
 #pragma endregion
-
-    PhysicsManager::PreUpdate();
-    OpenGLUtils::PreUpdate();
     EditorManager::PreUpdate();
+
+    OpenGLUtils::PreUpdate();
+
     WindowManager::PreUpdate();
 
     ProfilerManager::GetEngineProfiler().StartEvent("AnimationManager PreUpdate");
@@ -238,6 +238,7 @@ void Application::PreUpdateInternal()
     {
         application.m_needFixedUpdate = true;
     }
+    PhysicsManager::PreUpdate();
     if (application.m_needFixedUpdate)
     {
         application.m_time.StartFixedUpdate();

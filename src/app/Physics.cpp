@@ -142,8 +142,9 @@ int main()
         b2j.SetType(JointType::Fixed);
         b2j.Link(ground);
 
-        const auto anchor = CreateSolidCube(
+        const auto anchor = CreateDynamicCube(
             1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
+        anchor.GetPrivateComponent<RigidBody>().SetKinematic(true);
         auto lastLink = anchor;
         for (int i = 1; i < 10; i++)
         {

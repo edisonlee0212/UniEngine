@@ -36,8 +36,8 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     friend class Joint;
     friend class EditorManager;
     bool m_kinematic = false;
-    PxReal m_linearDamping = 0;
-    PxReal m_angularDamping = 0;
+    PxReal m_linearDamping = 0.5;
+    PxReal m_angularDamping = 0.5;
 
     PxU32 m_minPositionIterations = 4;
     PxU32 m_minVelocityIterations = 1;

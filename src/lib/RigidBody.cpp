@@ -104,6 +104,16 @@ void UniEngine::RigidBody::UpdateBody()
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
     m_currentRegistered = false;
     m_shapeUpdated = false;
+    auto linkedEntities = m_linkedEntities;
+    for(auto& i : linkedEntities){
+        i.GetPrivateComponent<Joint>().Unlink();
+    }
+    if(!m_static && !m_kinematic)
+    {
+        PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+        rigidBody->setLinearDamping(m_linearDamping);
+        rigidBody->setAngularVelocity(m_angularVelocity);
+    }
 }
 
 void UniEngine::RigidBody::OnCreate()
@@ -169,21 +179,23 @@ void UniEngine::RigidBody::OnGui()
             }
         }
     }
-    if (Application::IsPlaying())
-    {
-        ImGui::Text("Pause Engine to edit shape.");
-    }
-    else
-    {
-        bool statusChanged = false;
-        bool staticChanged = false;
-        bool savedVal = m_static;
+    bool statusChanged = false;
+    bool staticChanged = false;
+    bool savedVal = m_static;
+    if(!m_kinematic){
         ImGui::Checkbox("Static", &m_static);
         if (m_static != savedVal)
         {
             statusChanged = true;
             staticChanged = true;
         }
+    }
+    if (Application::IsPlaying())
+    {
+        ImGui::Text("Pause Engine to edit shape.");
+    }
+    else
+    {
         ImGui::Combo(
             "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape));
         glm::vec3 scale;
@@ -252,7 +264,7 @@ void UniEngine::RigidBody::OnGui()
         if (ImGui::DragFloat("Density", &m_density, 0.1f, 0.001f))
             statusChanged = true;
         if (ImGui::DragFloat3("Center", &m_massCenter.x, 0.1f, 0.001f))
-            ;
+            statusChanged = true;
         if (statusChanged)
         {
             m_density = glm::max(0.001f, m_density);
@@ -310,6 +322,7 @@ void RigidBody::SetKinematic(const bool &value)
         return;
     m_kinematic = value;
     static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
+    PhysicsManager::UploadTransform(GetOwner().GetComponentData<GlobalTransform>(), *this);
 }
 bool RigidBody::IsStatic()
 {
