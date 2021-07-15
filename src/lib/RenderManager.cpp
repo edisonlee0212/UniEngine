@@ -1872,6 +1872,7 @@ void RenderManager::OnGui()
     if (manager.m_enableRenderMenu)
     {
         ImGui::Begin("Render Manager");
+        ImGui::DragFloat("Gamma", & manager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
         if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Text("Environmental map:");

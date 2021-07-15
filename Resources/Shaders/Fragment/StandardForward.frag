@@ -43,5 +43,7 @@ void main()
 	
 	vec3 color = result + ambient * ao * UE_AMBIENT_LIGHT;
 
+	color = pow(color, vec3(1.0 / UE_GAMMA));
+
 	FragColor = vec4(color, albedo.a);
 }

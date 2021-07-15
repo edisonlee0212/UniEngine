@@ -393,7 +393,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr2.m_receiveShadow = false;
     imr2.m_mesh = DefaultResources::Primitives::Cube;
     imr2.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    
+
     m_rendererBack.SetComponentData(ltw);
 
     m_starClusterPatterns.resize(2);

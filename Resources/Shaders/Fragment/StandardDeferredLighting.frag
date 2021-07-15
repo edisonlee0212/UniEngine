@@ -31,5 +31,8 @@ void main()
 	vec3 ambient = UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(albedo, normal, viewDir, metallic, roughness, F0);
 	
 	vec3 color = result + ambient * ao * UE_AMBIENT_LIGHT;
+
+	color = pow(color, vec3(1.0 / UE_GAMMA));
+
 	FragColor = vec4(color, 1.0);
 }

@@ -16,7 +16,7 @@ struct UNIENGINE_API LightSettingsBlock
     float m_seamFixRatio = 0.05f;
     float m_vsmMaxVariance = 0.001f;
     float m_lightBleedFactor = 0.5f;
-    float m_evsmExponent = 40.0f;
+    float m_gamma = 2.2f;
     float m_ambientLight = 0.8f;
 };
 

@@ -75,7 +75,7 @@ layout (std140, binding = 4) uniform UE_LIGHT_SETTINGS_BLOCK
 	float UE_SHADOW_SEAM_FIX_RATIO;
 	float UE_SHADOW_VSM_VARIANCE;
 	float UE_SHADOW_LIGHT_BLEED_FACTOR;
-	float UE_SHADOW_EVSM_EXP;
+	float UE_GAMMA;
 	float UE_AMBIENT_LIGHT;
 };
 
@@ -164,7 +164,6 @@ vec3 UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(vec3 albedo, vec3 normal, vec3 viewDi
     vec2 brdf  = texture(UE_ENVIRONMENTAL_BRDFLUT, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 	vec3 ambient = kD * diffuse + specular;
-	ambient = pow(ambient, vec3(1.0 / UE_ENVIRONMENTAL_LIGHTING_GAMMA));
     return ambient;
 }
 
