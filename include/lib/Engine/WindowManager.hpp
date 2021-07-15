@@ -12,7 +12,6 @@ class UNIENGINE_API WindowManager : public ISingleton<WindowManager>
     static GLFWwindow *GetWindow();
     static GLFWmonitor *PrimaryMonitor();
     static void PreUpdate();
-    static void Swap();
     static void DrawTexture(OpenGLUtils::GLTexture2D *texture);
     static void ResizeCallback(GLFWwindow *, int, int);
     static void SetMonitorCallback(GLFWmonitor *monitor, int event);

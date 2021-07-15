@@ -43,5 +43,6 @@ class UNIENGINE_API ProfilerManager : public ISingleton<ProfilerManager>
     static EngineProfiler &GetEngineProfiler();
     static void PreUpdate();
     static void LateUpdate();
+    static void OnGui();
 };
 } // namespace UniEngine

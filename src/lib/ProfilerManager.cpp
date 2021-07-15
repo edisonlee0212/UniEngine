@@ -72,7 +72,10 @@ void UniEngine::ProfilerManager::LateUpdate()
 {
     auto &profilerManager = GetInstance();
     profilerManager.m_engineProfiler.LateUpdate();
-
+}
+void UniEngine::ProfilerManager::OnGui()
+{
+    auto &profilerManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))

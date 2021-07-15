@@ -37,6 +37,7 @@ void WindowManager::SetMonitorCallback(GLFWmonitor *monitor, int event)
 
 void WindowManager::LateUpdate()
 {
+    glfwSwapBuffers(GetInstance().m_window);
 }
 
 void WindowManager::Init(std::string name, bool fullScreen)
@@ -89,13 +90,9 @@ GLFWmonitor *WindowManager::PrimaryMonitor()
 
 void WindowManager::PreUpdate()
 {
+    glfwPollEvents();
     RenderTarget::BindDefault();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
-
-void WindowManager::Swap()
-{
-    glfwSwapBuffers(GetInstance().m_window);
 }
 
 void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)

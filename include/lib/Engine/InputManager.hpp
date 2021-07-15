@@ -8,7 +8,7 @@ class UNIENGINE_API InputManager : public ISingleton<InputManager>
 {
     friend class EditorManager;
     friend class Application;
-    static void LateUpdate();
+    static void OnGui();
     bool m_enableInputMenu;
     friend class Application;
     friend class WindowManager;
