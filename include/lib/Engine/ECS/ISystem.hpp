@@ -25,5 +25,8 @@ class UNIENGINE_API ISystem
     virtual void Update();
     virtual void FixedUpdate();
     virtual void LateUpdate();
+
+    //Will only exec when editor is enabled, and no matter application is running or not.
+    virtual void OnGui();
 };
 } // namespace UniEngine

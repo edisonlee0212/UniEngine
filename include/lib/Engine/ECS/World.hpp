@@ -54,7 +54,9 @@ class UNIENGINE_API World
     void PreUpdate();
     void Update();
     void LateUpdate();
+    void OnGui();
 };
+
 
 template <class T> T *World::CreateSystem(SystemGroup group)
 {
@@ -116,5 +118,6 @@ template <class T> T *World::GetSystem()
     }
     return nullptr;
 }
+
 
 } // namespace UniEngine

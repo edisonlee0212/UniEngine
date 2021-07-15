@@ -159,3 +159,21 @@ void World::FixedUpdate()
             i->FixedUpdate();
     }
 }
+
+void World::OnGui()
+{
+    for (auto i : m_preparationSystems)
+    {
+        i->OnGui();
+    }
+
+    for (auto i : m_simulationSystems)
+    {
+        i->OnGui();
+    }
+
+    for (auto i : m_presentationSystems)
+    {
+        i->OnGui();
+    }
+}

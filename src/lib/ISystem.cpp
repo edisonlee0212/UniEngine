@@ -9,6 +9,10 @@ void ISystem::OnStopRunning()
 {
 }
 
+void ISystem::OnGui()
+{
+}
+
 ISystem::ISystem()
 {
     m_enabled = false;

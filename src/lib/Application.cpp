@@ -154,6 +154,9 @@ bool Application::LateUpdateInternal()
     {
         EntityManager::GetInstance().m_world->LateUpdate();
     }
+
+    EntityManager::GetInstance().m_world->OnGui();
+
     //Post-processing happens here
     RenderManager::LateUpdate();
     //Manager settings
