@@ -535,7 +535,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
 
     if (renderManager.m_mainCameraComponent->IsEnabled())
     {
-        auto ltw = mainCameraEntity.GetComponentData<GlobalTransform>();
+        auto ltw = mainCameraEntity.GetDataComponent<GlobalTransform>();
         glm::vec3 mainCameraPos = ltw.GetPosition();
         glm::quat mainCameraRot = ltw.GetRotation();
         renderManager.m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &renderManager.m_lightSettings);
@@ -554,7 +554,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 const auto &dlc = lightEntity.GetPrivateComponent<DirectionalLight>();
                 if (!dlc.IsEnabled())
                     continue;
-                glm::quat rotation = lightEntity.GetComponentData<GlobalTransform>().GetRotation();
+                glm::quat rotation = lightEntity.GetDataComponent<GlobalTransform>().GetRotation();
                 glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
                 float planeDistance = 0;
                 glm::vec3 center;
@@ -776,7 +776,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 const auto &plc = lightEntity.GetPrivateComponent<PointLight>();
                 if (!plc.IsEnabled())
                     continue;
-                glm::vec3 position = lightEntity.GetComponentData<GlobalTransform>().m_value[3];
+                glm::vec3 position = lightEntity.GetDataComponent<GlobalTransform>().m_value[3];
                 renderManager.m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
                 renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc.m_constant;
                 renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc.m_linear;
@@ -890,7 +890,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 const auto &slc = lightEntity.GetPrivateComponent<SpotLight>();
                 if (!slc.IsEnabled())
                     continue;
-                auto ltw = lightEntity.GetComponentData<GlobalTransform>();
+                auto ltw = lightEntity.GetDataComponent<GlobalTransform>();
                 glm::vec3 position = ltw.m_value[3];
                 glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
                 glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
@@ -1251,10 +1251,10 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
             if (!mmc.IsEnabled() || mmc.m_material == nullptr || mmc.m_mesh == nullptr)
                 continue;
-            if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
-            auto gt = owner.GetComponentData<GlobalTransform>();
+            auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
             auto meshBound = mmc.m_mesh->GetBound();
             meshBound.ApplyTransform(ltw);
@@ -1300,10 +1300,10 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             auto &particles = owner.GetPrivateComponent<Particles>();
             if (!particles.IsEnabled() || particles.m_material == nullptr || particles.m_mesh == nullptr)
                 continue;
-            if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
-            auto gt = owner.GetComponentData<GlobalTransform>();
+            auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
             auto meshBound = particles.m_mesh->GetBound();
             meshBound.ApplyTransform(ltw);
@@ -1351,18 +1351,18 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             auto &smmc = owner.GetPrivateComponent<SkinnedMeshRenderer>();
             if (!smmc.IsEnabled() || smmc.m_material == nullptr || smmc.m_skinnedMesh == nullptr)
                 continue;
-            if (owner.HasComponentData<CameraLayerMask>() &&
-                !(owner.GetComponentData<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             GlobalTransform gt;
             if (smmc.m_animator.IsValid())
             {
-                gt = smmc.m_animator.GetComponentData<GlobalTransform>();
+                gt = smmc.m_animator.GetDataComponent<GlobalTransform>();
             }
             else
             {
                 smmc.m_animator = Entity();
-                gt = owner.GetComponentData<GlobalTransform>();
+                gt = owner.GetDataComponent<GlobalTransform>();
             }
             auto ltw = gt.m_value;
             auto meshBound = smmc.m_skinnedMesh->GetBound();
@@ -1428,7 +1428,7 @@ void RenderManager::PreUpdate()
     if (renderManager.m_mainCameraComponent)
     {
         CollectRenderInstances(
-            renderManager.m_mainCameraComponent->GetOwner().GetComponentData<GlobalTransform>(), worldBound);
+            renderManager.m_mainCameraComponent->GetOwner().GetDataComponent<GlobalTransform>(), worldBound);
     }
     else
     {
@@ -1453,7 +1453,7 @@ void RenderManager::PreUpdate()
             auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
             if (cameraComponent.IsEnabled())
             {
-                auto ltw = cameraEntity.GetComponentData<GlobalTransform>();
+                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
                 CameraComponent::m_cameraInfoBlock.UpdateMatrices(
                     cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
@@ -1969,7 +1969,7 @@ void RenderManager::OnGui()
                             EntityArchetype archetype =
                                 EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
                             Transform ltw;
-                            ResourceManager::ToEntity(archetype, payload_n).SetComponentData(ltw);
+                            ResourceManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
                         }
                         const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
@@ -1978,7 +1978,7 @@ void RenderManager::OnGui()
                             std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
                             Transform ltw;
                             Entity entity = EntityManager::CreateEntity("Mesh");
-                            entity.SetComponentData(ltw);
+                            entity.SetDataComponent(ltw);
                             auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer.m_mesh = payload_n;
                             meshRenderer.m_material = ResourceManager::CreateResource<Material>();
@@ -2843,7 +2843,7 @@ void RenderManager::DrawGizmoMeshInstanced(
         return;
     const auto entity = cameraComponent.GetOwner();
 
-    const auto ltw = entity.GetComponentData<GlobalTransform>();
+    const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
     glm::quat rotation;
@@ -2885,7 +2885,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
         return;
     const auto entity = cameraComponent.GetOwner();
 
-    const auto ltw = entity.GetComponentData<GlobalTransform>();
+    const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
     glm::quat rotation;
@@ -3149,7 +3149,7 @@ void RenderManager::DrawMesh(
         return;
     const auto entity = cameraComponent.GetOwner();
 
-    const auto ltw = entity.GetComponentData<GlobalTransform>();
+    const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
     glm::quat rotation;
@@ -3196,7 +3196,7 @@ void RenderManager::DrawMeshInstanced(
 
     const auto entity = cameraComponent.GetOwner();
 
-    const auto ltw = entity.GetComponentData<GlobalTransform>();
+    const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
     glm::quat rotation;
@@ -3309,7 +3309,7 @@ void RenderManager::DrawGizmoMesh(
     const auto entity = cameraComponent.GetOwner();
     if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled())
         return;
-    const auto ltw = entity.GetComponentData<GlobalTransform>();
+    const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
     glm::quat rotation;

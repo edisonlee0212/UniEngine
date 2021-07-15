@@ -1,7 +1,7 @@
 #pragma once
 #include <Entity.hpp>
+#include <ISystem.hpp>
 #include <PrivateComponentStorage.hpp>
-#include <SystemBase.hpp>
 #include <Utilities.hpp>
 namespace UniEngine
 {
@@ -18,7 +18,7 @@ struct WorldEntityStorage
     size_t m_parentHierarchyVersion = 0;
     std::vector<Entity> m_entities;
     std::vector<EntityInfo> m_entityInfos;
-    std::vector<EntityComponentDataStorage> m_entityComponentStorage;
+    std::vector<DataComponentStorage> m_entityComponentStorage;
     PrivateComponentStorage m_entityPrivateComponentStorage;
     std::vector<EntityQuery> m_entityQueries;
     std::vector<EntityQueryInfo> m_entityQueryInfos;
@@ -31,9 +31,9 @@ class UNIENGINE_API World
     friend class EntityManager;
     friend class SerializationManager;
     WorldEntityStorage m_worldEntityStorage;
-    std::vector<SystemBase *> m_preparationSystems;
-    std::vector<SystemBase *> m_simulationSystems;
-    std::vector<SystemBase *> m_presentationSystems;
+    std::vector<ISystem *> m_preparationSystems;
+    std::vector<ISystem *> m_simulationSystems;
+    std::vector<ISystem *> m_presentationSystems;
     size_t m_index;
     Bound m_worldBound;
 
@@ -46,9 +46,9 @@ class UNIENGINE_API World
     void SetBound(const Bound &value);
     [[nodiscard]] size_t GetIndex() const;
     World(size_t index);
-    template <class T = SystemBase> T *CreateSystem(SystemGroup group);
-    template <class T = SystemBase> void DestroySystem();
-    template <class T = SystemBase> T *GetSystem();
+    template <class T = ISystem> T *CreateSystem(SystemGroup group);
+    template <class T = ISystem> void DestroySystem();
+    template <class T = ISystem> T *GetSystem();
     ~World();
     void FixedUpdate();
     void PreUpdate();
@@ -68,13 +68,13 @@ template <class T> T *World::CreateSystem(SystemGroup group)
     switch (group)
     {
     case SystemGroup::PreparationSystemGroup:
-        m_preparationSystems.push_back(static_cast<SystemBase *>(system));
+        m_preparationSystems.push_back(static_cast<ISystem *>(system));
         break;
     case SystemGroup::SimulationSystemGroup:
-        m_simulationSystems.push_back(static_cast<SystemBase *>(system));
+        m_simulationSystems.push_back(static_cast<ISystem *>(system));
         break;
     case SystemGroup::PresentationSystemGroup:
-        m_presentationSystems.push_back(static_cast<SystemBase *>(system));
+        m_presentationSystems.push_back(static_cast<ISystem *>(system));
         break;
     default:
         break;

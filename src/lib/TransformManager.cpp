@@ -80,16 +80,16 @@ void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity
         }
         if (overwrite)
         {
-            ltw = entity.GetComponentData<GlobalTransform>();
+            ltw = entity.GetDataComponent<GlobalTransform>();
             Transform ltp;
             ltp.m_value = glm::inverse(pltw.m_value) * ltw.m_value;
-            entity.SetComponentData(ltp);
+            entity.SetDataComponent(ltp);
         }
         else
         {
-            auto ltp = EntityManager::GetComponentData<Transform>(entity);
+            auto ltp = EntityManager::GetDataComponent<Transform>(entity);
             ltw.m_value = pltw.m_value * ltp.m_value;
-            entity.SetComponentData(ltw);
+            entity.SetDataComponent(ltw);
         }
         CalculateLtwRecursive(ltw, entity);
     }

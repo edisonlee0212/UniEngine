@@ -6,7 +6,7 @@
 using namespace UniEngine;
 void MeshRenderer::RenderBound(glm::vec4 &color) const
 {
-    const auto transform = GetOwner().GetComponentData<GlobalTransform>().m_value;
+    const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
     glm::vec3 size = m_mesh->m_bound.Size();
     if (size.x < 0.01f)
         size.x = 0.01f;

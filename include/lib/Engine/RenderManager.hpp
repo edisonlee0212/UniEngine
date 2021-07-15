@@ -69,7 +69,7 @@ struct RenderInstance
 {
     Entity m_owner;
     RenderInstanceType m_type;
-    PrivateComponentBase *m_renderer;
+    IPrivateComponent *m_renderer;
     GlobalTransform m_globalTransform;
 };
 

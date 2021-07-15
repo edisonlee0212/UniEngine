@@ -21,7 +21,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 {
     EntityArchetype m_basicEntityArchetype;
     bool m_enabled = false;
-    std::map<size_t, std::function<void(Entity entity, ComponentDataBase *data, bool isRoot)>>
+    std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>>
         m_componentDataInspectorMap;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
@@ -88,7 +88,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 #pragma endregion
     static bool DrawEntityMenu(const bool &enabled, const Entity &entity);
     static void DrawEntityNode(const Entity &entity, const unsigned &hierarchyLevel);
-    static void InspectComponentData(Entity entity, ComponentDataBase *data, ComponentDataType type, bool isRoot);
+    static void InspectComponentData(Entity entity, IDataComponent *data, DataComponentType type, bool isRoot);
     static Entity MouseEntitySelection(const glm::vec2 &mousePosition);
     static void HighLightEntityPrePassHelper(const Entity &entity);
     static void HighLightEntityHelper(const Entity &entity);
@@ -111,12 +111,12 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 5, 20);
     static void HighLightEntity(const Entity &entity, const glm::vec4 &color);
     static void LateUpdate();
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
-        const std::function<void(Entity entity, ComponentDataBase *data, bool isRoot)> &func);
-    template <typename T1 = PrivateComponentBase>
+        const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func);
+    template <typename T1 = IPrivateComponent>
     static void RegisterPrivateComponentMenu(const std::function<void(Entity owner)> &func);
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void RegisterComponentDataMenu(const std::function<void(Entity owner)> &func);
     static void Init();
     static void Destroy();
@@ -133,7 +133,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 
 template <typename T1>
 void EditorManager::RegisterComponentDataInspector(
-    const std::function<void(Entity entity, ComponentDataBase *data, bool isRoot)> &func)
+    const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func)
 {
     GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
 }

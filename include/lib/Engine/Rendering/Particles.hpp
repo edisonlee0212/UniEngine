@@ -4,7 +4,7 @@
 #include <World.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API Particles : public PrivateComponentBase
+class UNIENGINE_API Particles : public IPrivateComponent
 {
   public:
     void OnCreate() override;

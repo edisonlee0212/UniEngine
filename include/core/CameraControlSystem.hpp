@@ -2,7 +2,7 @@
 #include <Application.hpp>
 namespace UniEngine
 {
-class CameraControlSystem : public SystemBase
+class CameraControlSystem : public ISystem
 {
     float m_velocity = 20.0f;
     float m_sensitivity = 0.1f;

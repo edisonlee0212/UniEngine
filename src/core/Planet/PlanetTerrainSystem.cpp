@@ -8,7 +8,7 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 void Planet::PlanetTerrainSystem::OnCreate()
 {
     m_defaultSurfaceMaterial = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, DefaultResources::Textures::MissingTexture);
+    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png")));
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -21,7 +21,7 @@ void Planet::PlanetTerrainSystem::Update()
         if (!planetTerrain.IsEnabled())
             continue;
         auto &planetChunks = planetTerrain.m_chunks;
-        auto planetTransform = planetTerrain.GetOwner().GetComponentData<GlobalTransform>();
+        auto planetTransform = planetTerrain.GetOwner().GetDataComponent<GlobalTransform>();
         glm::mat4 matrix = glm::scale(
             glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
             glm::vec3(1.0f));
@@ -34,14 +34,14 @@ void Planet::PlanetTerrainSystem::Update()
     const auto mainCamera = RenderManager::GetMainCamera();
     if (mainCamera)
     {
-        const auto cameraLtw = mainCamera->GetOwner().GetComponentData<GlobalTransform>();
+        const auto cameraLtw = mainCamera->GetOwner().GetDataComponent<GlobalTransform>();
         for (auto i = 0; i < planetTerrainList->size(); i++)
         {
             auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
             if (!planetTerrain.IsEnabled())
                 continue;
             auto &planetInfo = planetTerrain.m_info;
-            auto planetTransform = planetTerrain.GetOwner().GetComponentData<GlobalTransform>();
+            auto planetTransform = planetTerrain.GetOwner().GetDataComponent<GlobalTransform>();
             // 1. Scan and expand.
             for (auto &chunk : planetTerrain.m_chunks)
             {

@@ -15,7 +15,7 @@ struct UNIENGINE_API DirectionalLightInfo
     glm::vec4 m_reservedParameters;
     glm::ivec4 m_viewPort;
 };
-class UNIENGINE_API DirectionalLight : public PrivateComponentBase
+class UNIENGINE_API DirectionalLight : public IPrivateComponent
 {
   public:
     bool m_castShadow = true;
@@ -40,7 +40,7 @@ struct UNIENGINE_API PointLightInfo
     glm::ivec4 m_viewPort;
 };
 
-class UNIENGINE_API PointLight : public PrivateComponentBase
+class UNIENGINE_API PointLight : public IPrivateComponent
 {
   public:
     bool m_castShadow = true;
@@ -68,7 +68,7 @@ struct UNIENGINE_API SpotLightInfo
     glm::vec4 m_specular;
     glm::ivec4 m_viewPort;
 };
-class UNIENGINE_API SpotLight : public PrivateComponentBase
+class UNIENGINE_API SpotLight : public IPrivateComponent
 {
   public:
     bool m_castShadow = true;

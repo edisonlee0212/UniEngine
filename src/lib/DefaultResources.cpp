@@ -111,14 +111,6 @@ void DefaultResources::LoadShaders(World *world)
     GLPrograms::SkyboxVAO->EnableAttributeArray(0);
     GLPrograms::SkyboxVAO->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
-    const std::vector<std::string> facesPath{
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/posx.jpg"),
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/negx.jpg"),
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/posy.jpg"),
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/negy.jpg"),
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/posz.jpg"),
-        FileIO::GetResourcePath("Textures/Skyboxes/Default/negz.jpg"),
-    };
 
     auto skyboxvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     std::string vertShaderCode =

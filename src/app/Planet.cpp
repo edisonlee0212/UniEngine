@@ -44,7 +44,7 @@ int main()
     auto planet1 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain1 = planet1.SetPrivateComponent<PlanetTerrain>();
     planetTerrain1.Init(pi);
-    planet1.SetComponentData(planetTransform);
+    planet1.SetDataComponent(planetTransform);
     planet1.SetName("Planet 1");
     planetTransform.SetPosition(glm::vec3(35.0f, 0.0f, 0.0f));
     pi.m_maxLodLevel = 20;
@@ -55,7 +55,7 @@ int main()
     auto planet2 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain2 = planet2.SetPrivateComponent<PlanetTerrain>();
     planetTerrain2.Init(pi);
-    planet2.SetComponentData(planetTransform);
+    planet2.SetDataComponent(planetTransform);
     planet2.SetName("Planet 2");
     planetTransform.SetPosition(glm::vec3(-20.0f, 0.0f, 0.0f));
     pi.m_maxLodLevel = 4;
@@ -66,13 +66,12 @@ int main()
     auto planet3 = EntityManager::CreateEntity(archetype);
     auto &planetTerrain3 = planet3.SetPrivateComponent<PlanetTerrain>();
     planetTerrain3.Init(pi);
-    planet3.SetComponentData(planetTransform);
+    planet3.SetDataComponent(planetTransform);
     planet3.SetName("Planet 3");
 #pragma endregion
 
 #pragma region Lights
     auto sharedMat = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    sharedMat->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
     Transform ltw;
 
@@ -94,7 +93,7 @@ int main()
     plc.m_diffuse = glm::vec3(1.0f);
     plc.m_diffuseBrightness = 5;
 
-    ple.SetComponentData(ltw);
+    ple.SetDataComponent(ltw);
 
     Entity ple2 = EntityManager::CreateEntity("Point Light 2");
     auto &plc2 = ple2.SetPrivateComponent<PointLight>();
@@ -105,7 +104,7 @@ int main()
     plc2.m_diffuse = glm::vec3(1.0f);
     plc2.m_diffuseBrightness = 5;
 
-    ple2.SetComponentData(ltw);
+    ple2.SetDataComponent(ltw);
     ple2.SetName("Point Light 2");
     auto &plmmc2 = ple2.SetPrivateComponent<MeshRenderer>();
     plmmc2.m_mesh = DefaultResources::Primitives::Sphere;
@@ -122,21 +121,21 @@ int main()
                 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f),
                 -20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f)),
             0.0f));
-        dle.SetComponentData(ltw);
+        dle.SetDataComponent(ltw);
         ltw.SetPosition(glm::vec4(
             glm::vec3(
                 -20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f),
                 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f),
                 0.0f),
             0.0f));
-        ple.SetComponentData(ltw);
+        ple.SetDataComponent(ltw);
         ltw.SetPosition(glm::vec4(
             glm::vec3(
                 20.0f * glm::cos(Application::Time().CurrentTime() / 2.0f),
                 15.0f,
                 20.0f * glm::sin(Application::Time().CurrentTime() / 2.0f)),
             0.0f));
-        ple2.SetComponentData(ltw);
+        ple2.SetDataComponent(ltw);
 #pragma endregion
     });
     Application::Run();

@@ -7,18 +7,18 @@ namespace Galaxy
 /// <summary>
 /// The calculated precise position of the star.
 /// </summary>
-struct StarPosition : ComponentDataBase
+struct StarPosition : IDataComponent
 {
     glm::dvec3 m_value;
 };
-struct SelectionStatus : ComponentDataBase
+struct SelectionStatus : IDataComponent
 {
     int m_value;
 };
 /// <summary>
 /// The seed of the star, use this to calculate initial position.
 /// </summary>
-struct StarInfo : ComponentDataBase
+struct StarInfo : IDataComponent
 {
     bool m_initialized = false;
 };
@@ -26,28 +26,28 @@ struct StarInfo : ComponentDataBase
 /// <summary>
 /// Original color of the star
 /// </summary>
-struct OriginalColor : ComponentDataBase
+struct OriginalColor : IDataComponent
 {
     glm::vec3 m_value;
 };
 /// <summary>
 /// The deviation of its orbit
 /// </summary>
-struct StarOrbitOffset : ComponentDataBase
+struct StarOrbitOffset : IDataComponent
 {
     glm::dvec3 m_value;
 };
 /// <summary>
 /// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 /// </summary>
-struct StarOrbitProportion : ComponentDataBase
+struct StarOrbitProportion : IDataComponent
 {
     double m_value;
 };
 /// <summary>
 /// This will help calculate the orbit. Smaller = close to center, bigger = close to disk
 /// </summary>
-struct SurfaceColor : ComponentDataBase
+struct SurfaceColor : IDataComponent
 {
     glm::vec3 m_value;
     float m_intensity = 1.0f;
@@ -55,13 +55,13 @@ struct SurfaceColor : ComponentDataBase
 /// <summary>
 /// The actual display color after selection system.
 /// </summary>
-struct DisplayColor : ComponentDataBase
+struct DisplayColor : IDataComponent
 {
     glm::vec3 m_value;
     float m_intensity = 1.0f;
 };
 
-struct StarOrbit : ComponentDataBase
+struct StarOrbit : IDataComponent
 {
     double m_a;
     double m_b;
@@ -111,7 +111,7 @@ struct StarOrbit : ComponentDataBase
 /// <summary>
 /// The star cluster it actually belongs to.
 /// </summary>
-struct StarClusterIndex : ComponentDataBase
+struct StarClusterIndex : IDataComponent
 {
     int m_value = 0;
 };
@@ -265,7 +265,7 @@ class StarClusterPattern
     }
 };
 
-class StarClusterSystem : public SystemBase
+class StarClusterSystem : public ISystem
 {
     Entity m_rendererFront;
     Entity m_rendererBack;

@@ -10,7 +10,7 @@ enum class ArticulationType{
     Reduced
 };
 
-class UNIENGINE_API Articulation : public PrivateComponentBase
+class UNIENGINE_API Articulation : public IPrivateComponent
 {
     friend class PhysicsManager;
     friend class PhysicsSystem;

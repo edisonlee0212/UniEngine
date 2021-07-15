@@ -94,7 +94,7 @@ class UNIENGINE_API Animation : public ResourceBehaviour
         std::vector<Entity> &boundEntities,
         std::vector<glm::mat4> &results);
 };
-class UNIENGINE_API Animator : public PrivateComponentBase
+class UNIENGINE_API Animator : public IPrivateComponent
 {
     std::vector<std::shared_ptr<Bone>> m_bones;
     friend class SkinnedMeshRenderer;

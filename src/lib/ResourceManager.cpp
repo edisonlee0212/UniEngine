@@ -1056,11 +1056,11 @@ void UniEngine::ResourceManager::AttachChildren(
     Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(parentName);
     entity.SetParent(parentEntity);
-    entity.SetComponentData(modelNode->m_localTransform);
+    entity.SetDataComponent(modelNode->m_localTransform);
     GlobalTransform globalTransform;
     globalTransform.m_value =
-        parentEntity.GetComponentData<GlobalTransform>().m_value * modelNode->m_localTransform.m_value;
-    entity.SetComponentData(globalTransform);
+        parentEntity.GetDataComponent<GlobalTransform>().m_value * modelNode->m_localTransform.m_value;
+    entity.SetDataComponent(globalTransform);
 
     if (modelNode->m_mesh)
     {

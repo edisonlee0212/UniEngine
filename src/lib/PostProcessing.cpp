@@ -42,7 +42,7 @@ void PostProcessing::Process()
     if(!GetOwner().HasPrivateComponent<CameraComponent>()) return;
     auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
     ResizeResolution(cameraComponent.m_resolutionX, cameraComponent.m_resolutionY);
-    auto ltw = cameraComponent.GetOwner().GetComponentData<GlobalTransform>();
+    auto ltw = cameraComponent.GetOwner().GetDataComponent<GlobalTransform>();
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(
         cameraComponent, ltw.GetPosition(), ltw.GetRotation());
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);

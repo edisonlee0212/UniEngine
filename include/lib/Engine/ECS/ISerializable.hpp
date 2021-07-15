@@ -8,10 +8,10 @@ class Node;
 
 namespace UniEngine
 {
-class UNIENGINE_API Serializable
+class UNIENGINE_API ISerializable
 {
   public:
-    virtual ~Serializable() = default;
+    virtual ~ISerializable() = default;
     virtual void Serialize(YAML::Emitter &out)
     {
     }

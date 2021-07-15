@@ -20,9 +20,9 @@ class PrivateComponentStorage
   public:
     UNIENGINE_API void RemovePrivateComponent(Entity entity, size_t typeID);
     void DeleteEntity(Entity entity);
-    template <typename T = PrivateComponentBase> void SetPrivateComponent(Entity entity);
+    template <typename T = IPrivateComponent> void SetPrivateComponent(Entity entity);
     void SetPrivateComponent(Entity entity, size_t id);
-    template <typename T = PrivateComponentBase> void RemovePrivateComponent(Entity entity);
+    template <typename T = IPrivateComponent> void RemovePrivateComponent(Entity entity);
     template <typename T> const std::vector<Entity> *UnsafeGetOwnersList();
     template <typename T> const std::vector<Entity> GetOwnersList();
 };

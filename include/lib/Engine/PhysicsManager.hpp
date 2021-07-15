@@ -41,7 +41,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     static void UpdateShape(Articulation &articulation);
 };
 
-class UNIENGINE_API PhysicsSystem : public SystemBase
+class UNIENGINE_API PhysicsSystem : public ISystem
 {
     PxScene *m_physicsScene = nullptr;
   public:

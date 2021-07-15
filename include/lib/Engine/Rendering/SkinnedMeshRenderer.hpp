@@ -4,7 +4,7 @@
 
 namespace UniEngine
 {
-class UNIENGINE_API SkinnedMeshRenderer : public PrivateComponentBase
+class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
 {
     friend class EditorManager;
     friend class Animator;

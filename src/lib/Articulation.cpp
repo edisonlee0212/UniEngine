@@ -79,7 +79,7 @@ void Articulation::OnGui()
             m_shapeTransform =
                 glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
 
-        auto ltw = GetOwner().GetComponentData<GlobalTransform>();
+        auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
 
         switch (m_shapeType)
@@ -150,7 +150,7 @@ void Articulation::SetSolverIterations(const unsigned int &position, const unsig
 }
 void Articulation::UpdateBody()
 {
-    GlobalTransform ltw = GetOwner().GetComponentData<GlobalTransform>();
+    GlobalTransform ltw = GetOwner().GetDataComponent<GlobalTransform>();
     ltw.SetScale(glm::vec3(1.0f));
     PxTransform pose = PxTransform(*(PxMat44 *)(void *)&ltw.m_value);
     switch (m_type)
@@ -188,7 +188,7 @@ void Articulation::ApplyMeshBound()
         return;
     auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
     auto bound = meshRenderer.m_mesh->GetBound();
-    glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+    glm::vec3 scale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
     switch (m_shapeType)
     {
     case ShapeType::Sphere:

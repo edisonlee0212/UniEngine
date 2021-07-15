@@ -21,7 +21,7 @@ struct MeshInfo
     MeshInfo(const unsigned index, const bool enabled = true) : m_index(index), m_enabled(enabled){};
 };
 
-class PlanetTerrain : public PrivateComponentBase
+class PlanetTerrain : public IPrivateComponent
 {
     friend class TerrainChunk;
     friend class PlanetTerrainSystem;

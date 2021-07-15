@@ -12,7 +12,7 @@ void UniEngine::RigidBody::ApplyMeshBound()
         return;
     auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
     auto bound = meshRenderer.m_mesh->GetBound();
-    glm::vec3 scale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+    glm::vec3 scale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
     switch (m_shapeType)
     {
     case ShapeType::Sphere:
@@ -214,7 +214,7 @@ void UniEngine::RigidBody::OnGui()
             m_shapeTransform =
                 glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
 
-        auto ltw = GetOwner().GetComponentData<GlobalTransform>();
+        auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
 
         switch (m_shapeType)
@@ -322,7 +322,7 @@ void RigidBody::SetKinematic(const bool &value)
         return;
     m_kinematic = value;
     static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
-    PhysicsManager::UploadTransform(GetOwner().GetComponentData<GlobalTransform>(), *this);
+    PhysicsManager::UploadTransform(GetOwner().GetDataComponent<GlobalTransform>(), *this);
 }
 bool RigidBody::IsStatic()
 {

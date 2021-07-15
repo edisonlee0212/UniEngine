@@ -35,7 +35,7 @@ enum class DriveType{
     Twist,
     Slerp
 };
-class UNIENGINE_API Joint : public PrivateComponentBase
+class UNIENGINE_API Joint : public IPrivateComponent
 {
     JointType m_jointType = JointType::Spherical;
     friend class PhysicsManager;

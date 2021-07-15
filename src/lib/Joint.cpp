@@ -231,9 +231,9 @@ void Joint::Link(const Entity &targetEntity)
     if (SafetyCheck())
     {
         PxTransform localFrame1;
-        auto ownerGT = owner.GetComponentData<GlobalTransform>();
+        auto ownerGT = owner.GetDataComponent<GlobalTransform>();
         ownerGT.SetScale(glm::vec3(1.0f));
-        auto linkerGT = m_linkedEntity.GetComponentData<GlobalTransform>();
+        auto linkerGT = m_linkedEntity.GetDataComponent<GlobalTransform>();
         linkerGT.SetScale(glm::vec3(1.0f));
         Transform transform;
         transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;

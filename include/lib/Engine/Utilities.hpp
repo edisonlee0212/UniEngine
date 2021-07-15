@@ -14,7 +14,7 @@ struct UNIENGINE_API Bound
     void ApplyTransform(const glm::mat4 &transform);
     void PopulateCorners(std::vector<glm::vec3> &corners) const;
 };
-struct UNIENGINE_API Ray : ComponentDataBase
+struct UNIENGINE_API Ray : IDataComponent
 {
     glm::vec3 m_start;
     glm::vec3 m_direction;
@@ -26,7 +26,7 @@ struct UNIENGINE_API Ray : ComponentDataBase
     [[nodiscard]] bool Intersect(const glm::mat4 &transform, const Bound &bound) const;
     [[nodiscard]] glm::vec3 GetEnd() const;
 };
-struct UNIENGINE_API BezierCubic2D : ComponentDataBase
+struct UNIENGINE_API BezierCubic2D : IDataComponent
 {
     bool m_fixed = true;
     glm::vec2 m_controlPoints[4];

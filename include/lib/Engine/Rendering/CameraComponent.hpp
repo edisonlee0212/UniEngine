@@ -14,7 +14,7 @@ enum class CameraLayer
     DebugCamera = 1 << 1,
 };
 
-struct UNIENGINE_API CameraLayerMask : ComponentDataBase
+struct UNIENGINE_API CameraLayerMask : IDataComponent
 {
     size_t m_value;
     bool operator==(const CameraLayerMask &other) const
@@ -42,7 +42,7 @@ struct UNIENGINE_API CameraInfoBlock
 struct Ray;
 
 class Cubemap;
-class UNIENGINE_API CameraComponent final : public PrivateComponentBase, public RenderTarget
+class UNIENGINE_API CameraComponent final : public IPrivateComponent, public RenderTarget
 {
     friend class RenderManager;
     friend class EditorManager;

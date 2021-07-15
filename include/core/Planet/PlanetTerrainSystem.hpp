@@ -4,7 +4,7 @@
 using namespace UniEngine;
 namespace Planet
 {
-class PlanetTerrainSystem : public SystemBase
+class PlanetTerrainSystem : public ISystem
 {
     friend class PlanetTerrain;
     static std::shared_ptr<Material> m_defaultSurfaceMaterial;

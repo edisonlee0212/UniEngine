@@ -248,7 +248,7 @@ void Galaxy::StarClusterSystem::OnGui()
 
 void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 {
-    auto list = EntityManager::UnsafeGetComponentDataArray<GlobalTransform>(m_starQuery);
+    auto list = EntityManager::UnsafeGetDataComponentArray<GlobalTransform>(m_starQuery);
     if (m_firstTime || m_currentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         m_useFront = !m_useFront;
@@ -383,7 +383,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr.m_mesh = DefaultResources::Primitives::Cube;
     imr.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
-    m_rendererFront.SetComponentData(ltw);
+    m_rendererFront.SetDataComponent(ltw);
 
     m_rendererBack = EntityManager::CreateEntity("Renderer 2");
     ltw.SetScale(glm::vec3(1.0f));
@@ -394,7 +394,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr2.m_mesh = DefaultResources::Primitives::Cube;
     imr2.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
-    m_rendererBack.SetComponentData(ltw);
+    m_rendererBack.SetDataComponent(ltw);
 
     m_starClusterPatterns.resize(2);
     auto &starClusterPattern1 = m_starClusterPatterns[0];
@@ -453,9 +453,9 @@ void Galaxy::StarClusterSystem::PushStars(StarClusterPattern &pattern, const siz
         StarOrbitProportion proportion;
         proportion.m_value = glm::linearRand(0.0, 1.0);
         StarInfo starInfo;
-        starEntity.SetComponentData(starInfo);
-        starEntity.SetComponentData(proportion);
-        starEntity.SetComponentData(pattern.m_starClusterIndex);
+        starEntity.SetDataComponent(starInfo);
+        starEntity.SetDataComponent(proportion);
+        starEntity.SetDataComponent(pattern.m_starClusterIndex);
     }
     pattern.Apply();
 }

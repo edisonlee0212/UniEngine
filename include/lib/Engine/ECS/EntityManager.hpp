@@ -8,7 +8,7 @@
 #include <World.hpp>
 namespace UniEngine
 {
-inline UNIENGINE_API bool ComponentTypeComparator(const ComponentDataType &a, const ComponentDataType &b)
+inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, const DataComponentType &b)
 {
     return a.m_typeId < b.m_typeId;
 }
@@ -30,127 +30,127 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     WorldEntityStorage *m_currentAttachedWorldEntityStorage = nullptr;
     std::vector<Entity> *m_entities = nullptr;
     std::vector<EntityInfo> *m_entityInfos = nullptr;
-    std::vector<EntityComponentDataStorage> *m_entityComponentStorage = nullptr;
+    std::vector<DataComponentStorage> *m_entityComponentStorage = nullptr;
     PrivateComponentStorage *m_entityPrivateComponentStorage = nullptr;
     std::vector<EntityQuery> *m_entityQueries = nullptr;
     std::vector<EntityQueryInfo> *m_entityQueryInfos = nullptr;
     std::queue<EntityQuery> *m_entityQueryPools = nullptr;
 #pragma endregion
 #pragma region Helpers
-    template <typename T = ComponentDataBase> static bool CheckComponentTypes(T arg);
-    template <typename T = ComponentDataBase, typename... Ts> static bool CheckComponentTypes(T arg, Ts... args);
-    template <typename T = ComponentDataBase>
-    static size_t CollectComponentTypes(std::vector<ComponentDataType> *componentTypes, T arg);
-    template <typename T = ComponentDataBase, typename... Ts>
-    static size_t CollectComponentTypes(std::vector<ComponentDataType> *componentTypes, T arg, Ts... args);
-    template <typename T = ComponentDataBase, typename... Ts>
-    static std::vector<ComponentDataType> CollectComponentTypes(T arg, Ts... args);
+    template <typename T = IDataComponent> static bool CheckDataComponentTypes(T arg);
+    template <typename T = IDataComponent, typename... Ts> static bool CheckDataComponentTypes(T arg, Ts... args);
+    template <typename T = IDataComponent>
+    static size_t CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg);
+    template <typename T = IDataComponent, typename... Ts>
+    static size_t CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg, Ts... args);
+    template <typename T = IDataComponent, typename... Ts>
+    static std::vector<DataComponentType> CollectDataComponentTypes(T arg, Ts... args);
     static void DeleteEntityInternal(const Entity &entity);
     static void RefreshEntityQueryInfos(const size_t &index);
-    static void EraseDuplicates(std::vector<ComponentDataType> &types);
-    template <typename T = ComponentDataBase>
-    static void GetComponentDataArrayStorage(const EntityComponentDataStorage &storage, std::vector<T> &container);
-    static void GetEntityStorage(const EntityComponentDataStorage &storage, std::vector<Entity> &container);
-    static size_t SwapEntity(const EntityComponentDataStorage &storage, size_t index1, size_t index2);
+    static void EraseDuplicates(std::vector<DataComponentType> &types);
+    template <typename T = IDataComponent>
+    static void GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container);
+    static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container);
+    static size_t SwapEntity(const DataComponentStorage &storage, size_t index1, size_t index2);
     static void SetEnableSingle(const Entity &entity, const bool &value);
-    static void SetComponentData(const Entity &entity, size_t id, size_t size, ComponentDataBase *data);
+    static void SetDataComponent(const Entity &entity, size_t id, size_t size, IDataComponent *data);
     friend class SerializationManager;
-    static ComponentDataBase *GetComponentDataPointer(const Entity &entity, const size_t &id);
-    static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<ComponentDataType> &types);
+    static IDataComponent *GetDataComponentPointer(const Entity &entity, const size_t &id);
+    static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types);
     static void SetPrivateComponent(
         const Entity &entity,
         const std::string &name,
         const size_t &id,
-        PrivateComponentBase *ptr,
+        IPrivateComponent *ptr,
         const bool &enabled = true);
     static bool IsEntityArchetypeValid(const EntityArchetype &archetype);
 
     static void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
     static void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
 
-    static void RemoveComponentData(const Entity &entity, const size_t &typeID);
-    template <typename T = ComponentDataBase> static T GetComponentData(const size_t &index);
-    template <typename T = ComponentDataBase> static bool HasComponentData(const size_t &index);
-    template <typename T = ComponentDataBase> static void SetComponentData(const size_t &index, const T &value);
+    static void RemoveDataComponent(const Entity &entity, const size_t &typeID);
+    template <typename T = IDataComponent> static T GetDataComponent(const size_t &index);
+    template <typename T = IDataComponent> static bool HasDataComponent(const size_t &index);
+    template <typename T = IDataComponent> static void SetDataComponent(const size_t &index, const T &value);
     static void RemovePrivateComponent(const Entity &entity, size_t typeId);
 #pragma endregion
 #pragma region ForEach
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &)> &func,
         bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase,
-        typename T8 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent,
+        typename T8 = IDataComponent>
     static void ForEachStorage(
         ThreadPool &workers,
-        const EntityComponentDataStorage &storage,
+        const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
         bool checkEnable = true);
 
@@ -179,52 +179,52 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void ForEachDescendant(
         const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true);
 
-    template <typename T = ComponentDataBase> static void AddComponentData(const Entity &entity, const T &value);
-    template <typename T = ComponentDataBase> static void RemoveComponentData(const Entity &entity);
-    template <typename T = ComponentDataBase> static void SetComponentData(const Entity &entity, const T &value);
-    template <typename T = ComponentDataBase> static T GetComponentData(const Entity &entity);
-    template <typename T = ComponentDataBase> static bool HasComponentData(const Entity &entity);
+    template <typename T = IDataComponent> static void AddDataComponent(const Entity &entity, const T &value);
+    template <typename T = IDataComponent> static void RemoveDataComponent(const Entity &entity);
+    template <typename T = IDataComponent> static void SetDataComponent(const Entity &entity, const T &value);
+    template <typename T = IDataComponent> static T GetDataComponent(const Entity &entity);
+    template <typename T = IDataComponent> static bool HasDataComponent(const Entity &entity);
 
-    template <typename T = PrivateComponentBase> static T &GetPrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static T &SetPrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static void RemovePrivateComponent(const Entity &entity);
-    template <typename T = PrivateComponentBase> static bool HasPrivateComponent(const Entity &entity);
+    template <typename T = IPrivateComponent> static T &GetPrivateComponent(const Entity &entity);
+    template <typename T = IPrivateComponent> static T &SetPrivateComponent(const Entity &entity);
+    template <typename T = IPrivateComponent> static void RemovePrivateComponent(const Entity &entity);
+    template <typename T = IPrivateComponent> static bool HasPrivateComponent(const Entity &entity);
 #pragma endregion
 #pragma region EntityArchetype Methods
     static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
     static void SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string &name);
 #pragma endregion
 #pragma region EntityQuery Methods
-    template <typename T = ComponentDataBase, typename... Ts>
+    template <typename T = IDataComponent, typename... Ts>
     static void SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-    template <typename T = ComponentDataBase, typename... Ts>
+    template <typename T = IDataComponent, typename... Ts>
     static void SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-    template <typename T = ComponentDataBase, typename... Ts>
+    template <typename T = IDataComponent, typename... Ts>
     static void SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args);
-    template <typename T = ComponentDataBase>
+    template <typename T = IDataComponent>
     static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(
         const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void GetComponentDataArray(
         const EntityQuery &entityQuery,
         std::vector<T1> &container,
         const std::function<bool(const T2 &, const T3 &)> &filterFunc);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container);
     static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container);
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
         const std::function<bool(const Entity &, const T1 &)> &filterFunc);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
         const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc);
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container);
     static size_t GetEntityAmount(EntityQuery entityQuery);
 #pragma endregion
@@ -239,11 +239,11 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      */
     static std::vector<Entity> *UnsafeGetAllEntities();
 
-    static std::vector<EntityComponentDataStorage> UnsafeGetComponentDataStorage(const EntityQuery &entityQuery);
-    static void UnsafeForEachComponent(
-        const Entity &entity, const std::function<void(const ComponentDataType &type, void *data)> &func);
+    static std::vector<DataComponentStorage> UnsafeGetDataComponentStorage(const EntityQuery &entityQuery);
+    static void UnsafeForEachDataComponent(
+        const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func);
     static void UnsafeForEachEntityStorage(
-        const std::function<void(int i, const EntityComponentDataStorage &storage)> &func);
+        const std::function<void(int i, const DataComponentStorage &storage)> &func);
 
     /**
      * \brief Unsafe method, directly retrieve the pointers and sizes of component data array.
@@ -253,7 +253,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      * to the first data instance and the size indicates the amount of data instances.
      */
     template <typename T>
-    static std::vector<std::pair<T *, size_t>> UnsafeGetComponentDataArray(const EntityQuery &entityQuery);
+    static std::vector<std::pair<T *, size_t>> UnsafeGetDataComponentArray(const EntityQuery &entityQuery);
     template <typename T> static const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList();
 #pragma endregion
     static size_t GetArchetypeChunkSize();
@@ -265,7 +265,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void GetAllEntities(std::vector<Entity> &target);
     static void Detach();
     static void Attach(std::unique_ptr<World> &world);
-    template <typename T = ComponentDataBase, typename... Ts>
+    template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
     static Entity CreateEntity(const std::string &name = "New Entity");
     static Entity CreateEntity(const EntityArchetype &archetype, const std::string &name = "New Entity");
@@ -276,207 +276,207 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetParentHierarchyVersion();
     static EntityQuery CreateEntityQuery();
 #pragma region For Each
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &)> &func,
         bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase,
-        typename T8 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent,
+        typename T8 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
         bool checkEnable = true);
     // For implicit parallel task dispatching
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static void ForEach(
         ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &)> &func, bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
         bool checkEnable = true);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase,
-        typename T8 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent,
+        typename T8 = IDataComponent>
     static void ForEach(
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
         bool checkEnable = true);
 
     // For explicit parallel task dispatching
-    template <typename T1 = ComponentDataBase>
+    template <typename T1 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &)> &func);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func);
-    template <typename T1 = ComponentDataBase, typename T2 = ComponentDataBase, typename T3 = ComponentDataBase>
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func);
     template <
-        typename T1 = ComponentDataBase,
-        typename T2 = ComponentDataBase,
-        typename T3 = ComponentDataBase,
-        typename T4 = ComponentDataBase,
-        typename T5 = ComponentDataBase,
-        typename T6 = ComponentDataBase,
-        typename T7 = ComponentDataBase,
-        typename T8 = ComponentDataBase>
+        typename T1 = IDataComponent,
+        typename T2 = IDataComponent,
+        typename T3 = IDataComponent,
+        typename T4 = IDataComponent,
+        typename T5 = IDataComponent,
+        typename T6 = IDataComponent,
+        typename T7 = IDataComponent,
+        typename T8 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func);
 
@@ -487,17 +487,17 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma region Functions
 #pragma region Collectors
 
-template <typename T> bool EntityManager::CheckComponentTypes(T arg)
+template <typename T> bool EntityManager::CheckDataComponentTypes(T arg)
 {
     return std::is_standard_layout<T>::value;
 }
 
-template <typename T, typename... Ts> bool EntityManager::CheckComponentTypes(T arg, Ts... args)
+template <typename T, typename... Ts> bool EntityManager::CheckDataComponentTypes(T arg, Ts... args)
 {
-    return std::is_standard_layout<T>::value && CheckComponentTypes(args...);
+    return std::is_standard_layout<T>::value && CheckDataComponentTypes(args...);
 }
 
-template <typename T> size_t EntityManager::CollectComponentTypes(std::vector<ComponentDataType> *componentTypes, T arg)
+template <typename T> size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg)
 {
     const auto type = Typeof<T>();
     componentTypes->push_back(type);
@@ -505,21 +505,21 @@ template <typename T> size_t EntityManager::CollectComponentTypes(std::vector<Co
 }
 
 template <typename T, typename... Ts>
-size_t EntityManager::CollectComponentTypes(std::vector<ComponentDataType> *componentTypes, T arg, Ts... args)
+size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg, Ts... args)
 {
-    auto offset = CollectComponentTypes(componentTypes, args...);
-    ComponentDataType type = Typeof<T>();
+    auto offset = CollectDataComponentTypes(componentTypes, args...);
+    DataComponentType type = Typeof<T>();
     componentTypes->push_back(type);
     return type.m_size + offset;
 }
 
 template <typename T, typename... Ts>
-std::vector<ComponentDataType> EntityManager::CollectComponentTypes(T arg, Ts... args)
+std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, Ts... args)
 {
-    auto retVal = std::vector<ComponentDataType>();
+    auto retVal = std::vector<DataComponentType>();
     retVal.push_back(Typeof<Transform>());
     retVal.push_back(Typeof<GlobalTransform>());
-    CollectComponentTypes(&retVal, arg, args...);
+    CollectDataComponentTypes(&retVal, arg, args...);
     std::sort(retVal.begin() + 2, retVal.end(), ComponentTypeComparator);
     size_t offset = 0;
     EraseDuplicates(retVal);
@@ -535,7 +535,7 @@ std::vector<ComponentDataType> EntityManager::CollectComponentTypes(T arg, Ts...
 template <typename T1>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &)> &func,
     bool checkEnable)
 {
@@ -595,7 +595,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
     bool checkEnable)
 {
@@ -665,7 +665,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
     bool checkEnable)
 {
@@ -746,7 +746,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3, typename T4>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
@@ -850,7 +850,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
@@ -960,7 +960,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
@@ -1081,7 +1081,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
@@ -1213,7 +1213,7 @@ void EntityManager::ForEachStorage(
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 void EntityManager::ForEachStorage(
     ThreadPool &workers,
-    const EntityComponentDataStorage &storage,
+    const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
@@ -1356,7 +1356,7 @@ void EntityManager::ForEachStorage(
 #pragma endregion
 #pragma region Others
 template <typename T>
-void EntityManager::GetComponentDataArrayStorage(const EntityComponentDataStorage &storage, std::vector<T> &container)
+void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container)
 {
     auto targetType = Typeof<T>();
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
@@ -1394,7 +1394,7 @@ template <typename T, typename... Ts>
 EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T arg, Ts... args)
 {
     EntityArchetype retVal = EntityArchetype();
-    if (!CheckComponentTypes(arg, args...))
+    if (!CheckDataComponentTypes(arg, args...))
     {
         UNIENGINE_ERROR("CreateEntityArchetype failed: Standard Layout");
         return retVal;
@@ -1402,7 +1402,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
     auto *info = new EntityArchetypeInfo();
     info->m_name = name;
     info->m_entityCount = 0;
-    info->m_componentTypes = CollectComponentTypes(arg, args...);
+    info->m_componentTypes = CollectDataComponentTypes(arg, args...);
     info->m_entitySize = info->m_componentTypes.back().m_offset + info->m_componentTypes.back().m_size;
     info->m_chunkCapacity = GetInstance().m_archetypeChunkSize / info->m_entitySize;
     int duplicateIndex = -1;
@@ -1432,8 +1432,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
     {
         retVal.m_index = GetInstance().m_entityComponentStorage->size();
         info->m_index = retVal.m_index;
-        GetInstance().m_entityComponentStorage->push_back(
-            EntityComponentDataStorage(info, new ComponentDataChunkArray()));
+        GetInstance().m_entityComponentStorage->push_back(DataComponentStorage(info, new DataComponentChunkArray()));
     }
     else
     {
@@ -1447,7 +1446,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
 }
 #pragma endregion
 #pragma region GetSetHas
-template <typename T> void EntityManager::AddComponentData(const Entity &entity, const T &value)
+template <typename T> void EntityManager::AddDataComponent(const Entity &entity, const T &value)
 {
     if (!entity.IsValid())
         return;
@@ -1497,7 +1496,7 @@ template <typename T> void EntityManager::AddComponentData(const Entity &entity,
         newArchetypeInfo->m_componentTypes.end(),
         ComponentTypeComparator);
     size_t offset = 0;
-    ComponentDataType prev = newArchetypeInfo->m_componentTypes[0];
+    DataComponentType prev = newArchetypeInfo->m_componentTypes[0];
     // Erase duplicates
     EraseDuplicates(newArchetypeInfo->m_componentTypes);
     for (auto &i : newArchetypeInfo->m_componentTypes)
@@ -1538,7 +1537,7 @@ template <typename T> void EntityManager::AddComponentData(const Entity &entity,
         archetype.m_index = GetInstance().m_entityComponentStorage->size();
         newArchetypeInfo->m_index = archetype.m_index;
         GetInstance().m_entityComponentStorage->push_back(
-            EntityComponentDataStorage(newArchetypeInfo, new ComponentDataChunkArray()));
+            DataComponentStorage(newArchetypeInfo, new DataComponentChunkArray()));
     }
     else
     {
@@ -1550,9 +1549,9 @@ template <typename T> void EntityManager::AddComponentData(const Entity &entity,
     // Transfer component data
     for (const auto &type : archetypeInfo->m_componentTypes)
     {
-        SetComponentData(newEntity, type.m_typeId, type.m_size, GetComponentDataPointer(entity, type.m_typeId));
+        SetDataComponent(newEntity, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
-    newEntity.SetComponentData(value);
+    newEntity.SetDataComponent(value);
     // 5. Swap entity.
     EntityInfo &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_archetypeInfoIndex;
@@ -1576,7 +1575,7 @@ template <typename T> void EntityManager::AddComponentData(const Entity &entity,
     }
 }
 
-template <typename T> void EntityManager::RemoveComponentData(const Entity &entity)
+template <typename T> void EntityManager::RemoveDataComponent(const Entity &entity)
 {
     if (!entity.IsValid())
         return;
@@ -1663,7 +1662,7 @@ template <typename T> void EntityManager::RemoveComponentData(const Entity &enti
         archetype.m_index = GetInstance().m_entityComponentStorage->size();
         newArchetypeInfo->m_index = archetype.m_index;
         GetInstance().m_entityComponentStorage->push_back(
-            EntityComponentDataStorage(newArchetypeInfo, new ComponentDataChunkArray()));
+            DataComponentStorage(newArchetypeInfo, new DataComponentChunkArray()));
     }
     else
     {
@@ -1675,9 +1674,9 @@ template <typename T> void EntityManager::RemoveComponentData(const Entity &enti
     // Transfer component data
     for (const auto &type : newArchetypeInfo->m_componentTypes)
     {
-        SetComponentData(newEntity, type.m_typeId, type.m_size, GetComponentDataPointer(entity, type.m_typeId));
+        SetDataComponent(newEntity, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
-    T retVal = entity.GetComponentData<T>();
+    T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
     EntityInfo &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_archetypeInfoIndex;
@@ -1702,7 +1701,7 @@ template <typename T> void EntityManager::RemoveComponentData(const Entity &enti
     return;
 }
 
-template <typename T> void EntityManager::SetComponentData(const Entity &entity, const T &value)
+template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
 {
     if (!entity.IsValid())
         return;
@@ -1746,7 +1745,7 @@ template <typename T> void EntityManager::SetComponentData(const Entity &entity,
     }
     UNIENGINE_ERROR("Entity version mismatch!");
 }
-template <typename T> void EntityManager::SetComponentData(const size_t &index, const T &value)
+template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
     if (index > GetInstance().m_entityInfos->size())
         return;
@@ -1790,7 +1789,7 @@ template <typename T> void EntityManager::SetComponentData(const size_t &index, 
     }
     UNIENGINE_ERROR("Entity already deleted!");
 }
-template <typename T> T EntityManager::GetComponentData(const Entity &entity)
+template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 {
     if (!entity.IsValid())
         return T();
@@ -1830,7 +1829,7 @@ template <typename T> T EntityManager::GetComponentData(const Entity &entity)
     UNIENGINE_ERROR("Entity version mismatch!");
     return T();
 }
-template <typename T> bool EntityManager::HasComponentData(const Entity &entity)
+template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 {
     if (!entity.IsValid())
         return false;
@@ -1860,7 +1859,7 @@ template <typename T> bool EntityManager::HasComponentData(const Entity &entity)
     UNIENGINE_ERROR("Entity version mismatch!");
     return false;
 }
-template <typename T> T EntityManager::GetComponentData(const size_t &index)
+template <typename T> T EntityManager::GetDataComponent(const size_t &index)
 {
     if (index > GetInstance().m_entityInfos->size())
         return T();
@@ -1900,7 +1899,7 @@ template <typename T> T EntityManager::GetComponentData(const size_t &index)
     UNIENGINE_ERROR("Entity already deleted!");
     return T();
 }
-template <typename T> bool EntityManager::HasComponentData(const size_t &index)
+template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 {
     if (index > GetInstance().m_entityInfos->size())
         return false;
@@ -2013,7 +2012,7 @@ void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T a
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    GetInstance().m_entityQueryInfos->at(index).m_allComponentTypes = CollectComponentTypes(arg, args...);
+    GetInstance().m_entityQueryInfos->at(index).m_allComponentTypes = CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfos(index);
 }
 
@@ -2028,7 +2027,7 @@ void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T a
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    GetInstance().m_entityQueryInfos->at(index).m_anyComponentTypes = CollectComponentTypes(arg, args...);
+    GetInstance().m_entityQueryInfos->at(index).m_anyComponentTypes = CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfos(index);
 }
 
@@ -2043,7 +2042,7 @@ void EntityManager::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T 
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    GetInstance().m_entityQueryInfos->at(index).m_noneComponentTypes = CollectComponentTypes(arg, args...);
+    GetInstance().m_entityQueryInfos->at(index).m_noneComponentTypes = CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfos(index);
 }
 #pragma endregion
@@ -2488,7 +2487,7 @@ void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::v
     }
     for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        GetComponentDataArrayStorage(i, container);
+        GetDataComponentArrayStorage(i, container);
     }
 }
 
@@ -2890,7 +2889,7 @@ void EntityManager::GetEntityArray(const EntityQuery &entityQuery, const T1 &fil
 }
 
 template <typename T>
-std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetComponentDataArray(const EntityQuery &entityQuery)
+std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(const EntityQuery &entityQuery)
 {
     std::vector<std::pair<T *, size_t>> retVal;
     retVal.resize(0);
@@ -2942,19 +2941,19 @@ template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivate
     return GetInstance().m_entityPrivateComponentStorage->UnsafeGetOwnersList<T>();
 }
 
-template <typename T> void Entity::SetComponentData(const T &value) const
+template <typename T> void Entity::SetDataComponent(const T &value) const
 {
-    EntityManager::SetComponentData(*this, value);
+    EntityManager::SetDataComponent(*this, value);
 }
 
-template <typename T> T Entity::GetComponentData() const
+template <typename T> T Entity::GetDataComponent() const
 {
-    return std::move(EntityManager::GetComponentData<T>(*this));
+    return std::move(EntityManager::GetDataComponent<T>(*this));
 }
 
-template <typename T> bool Entity::HasComponentData() const
+template <typename T> bool Entity::HasDataComponent() const
 {
-    return EntityManager::HasComponentData<T>(*this);
+    return EntityManager::HasDataComponent<T>(*this);
 }
 
 template <typename T> T &Entity::SetPrivateComponent() const

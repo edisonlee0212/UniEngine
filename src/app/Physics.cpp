@@ -60,9 +60,9 @@ int main()
     world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
-    auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
+    auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
-    mainCameraEntity.SetComponentData(mainCameraTransform);
+    mainCameraEntity.SetDataComponent(mainCameraTransform);
     auto &postProcessing = mainCameraEntity.SetPrivateComponent<PostProcessing>();
     postProcessing.GetLayer<Bloom>()->m_intensity = 0.03;
     postProcessing.GetLayer<Bloom>()->m_diffusion = 16;
@@ -77,16 +77,16 @@ int main()
         for (int j = 0; j < amount; j++)
         {
             auto &sphere = spheres[i * amount + j];
-            auto transform = sphere.GetComponentData<Transform>();
-            auto globalTransform = sphere.GetComponentData<GlobalTransform>();
+            auto transform = sphere.GetDataComponent<Transform>();
+            auto globalTransform = sphere.GetDataComponent<GlobalTransform>();
             glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
             position += glm::linearRand(glm::vec3(-1.0f), glm::vec3(1.0f)) * scaleFactor;
             transform.SetPosition(position * 5.0f * scaleFactor);
             globalTransform.SetPosition(position * 5.0f * scaleFactor);
             transform.SetScale(glm::vec3(2.0f * scaleFactor));
             globalTransform.SetScale(glm::vec3(2.0f * scaleFactor));
-            sphere.SetComponentData(transform);
-            sphere.SetComponentData(globalTransform);
+            sphere.SetDataComponent(transform);
+            sphere.SetDataComponent(globalTransform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer.m_material = ResourceManager::CreateResource<Material>();
@@ -111,7 +111,7 @@ int main()
     dirLight.m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
-    dirLightEntity.SetComponentData(dirLightTransform);
+    dirLightEntity.SetDataComponent(dirLightTransform);
 
 #pragma endregion
 
@@ -273,11 +273,11 @@ Entity CreateCube(
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
-    cube.SetComponentData(groundTransform);
+    cube.SetDataComponent(groundTransform);
 
     GlobalTransform groundGlobalTransform;
     groundGlobalTransform.SetValue(position, glm::radians(rotation), scale);
-    cube.SetComponentData(groundGlobalTransform);
+    cube.SetDataComponent(groundGlobalTransform);
     return cube;
 }
 
@@ -337,10 +337,10 @@ Entity CreateSphere(
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
-    sphere.SetComponentData(groundTransform);
+    sphere.SetDataComponent(groundTransform);
 
     GlobalTransform groundGlobalTransform;
     groundGlobalTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
-    sphere.SetComponentData(groundGlobalTransform);
+    sphere.SetDataComponent(groundGlobalTransform);
     return sphere;
 }

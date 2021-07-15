@@ -3,7 +3,7 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
-struct UNIENGINE_API GlobalTransform : ComponentDataBase
+struct UNIENGINE_API GlobalTransform : IDataComponent
 {
     glm::mat4 m_value =
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
@@ -299,7 +299,7 @@ struct UNIENGINE_API GlobalTransform : ComponentDataBase
     }
 #pragma endregion
 };
-struct UNIENGINE_API Transform : ComponentDataBase
+struct UNIENGINE_API Transform : IDataComponent
 {
     glm::mat4 m_value =
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));

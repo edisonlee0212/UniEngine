@@ -51,7 +51,7 @@ inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &ent
     return deleted;
 }
 
-void EditorManager::InspectComponentData(Entity entity, ComponentDataBase *data, ComponentDataType type, bool isRoot)
+void EditorManager::InspectComponentData(Entity entity, IDataComponent *data, DataComponentType type, bool isRoot)
 {
     if (GetInstance().m_componentDataInspectorMap.find(type.m_typeId) !=
         GetInstance().m_componentDataInspectorMap.end())
@@ -97,7 +97,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
             mesh->Vao()->DisableAttributeArray(14);
             mesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4(
-                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
+                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
         }
     }
@@ -126,7 +126,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
             mesh->Vao()->SetAttributeDivisor(14, 1);
             mesh->Vao()->SetAttributeDivisor(15, 1);
             GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
-                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
+                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             glDrawElementsInstanced(
                 GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
         }
@@ -144,7 +144,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
             skinnedMesh->Vao()->DisableAttributeArray(14);
             skinnedMesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
-                "model", EntityManager::GetComponentData<GlobalTransform>(entity).m_value);
+                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
         }
     }
@@ -160,7 +160,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto &mmc = entity.GetPrivateComponent<MeshRenderer>();
         if (mmc.IsEnabled() && mmc.m_material != nullptr && mmc.m_mesh != nullptr)
         {
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = mmc.m_mesh.get();
             mesh->Enable();
             mesh->Vao()->DisableAttributeArray(12);
@@ -180,7 +180,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
             auto count = immc.m_matrices.size();
             std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
             matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc.m_matrices.data(), GL_STATIC_DRAW);
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = immc.m_mesh.get();
             mesh->Enable();
             mesh->Vao()->EnableAttributeArray(12);
@@ -207,7 +207,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
         if (smmc.IsEnabled() && smmc.m_material != nullptr && smmc.m_skinnedMesh != nullptr)
         {
-            auto ltw = EntityManager::GetComponentData<GlobalTransform>(entity);
+            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *skinnedMesh = smmc.m_skinnedMesh.get();
             smmc.UploadBones();
             skinnedMesh->Enable();
@@ -410,7 +410,7 @@ void EditorManager::Init()
     editorManager.m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
 
-    RegisterComponentDataInspector<GlobalTransform>([](Entity entity, ComponentDataBase *data, bool isRoot) {
+    RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
         glm::vec3 er;
         glm::vec3 t;
@@ -422,7 +422,7 @@ void EditorManager::Init()
         ImGui::InputFloat3("Scale##Global", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
     });
 
-    RegisterComponentDataInspector<Transform>([&](Entity entity, ComponentDataBase *data, bool isRoot) {
+    RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
         if (entity.IsStatic())
         {
@@ -1043,8 +1043,8 @@ void EditorManager::LateUpdate()
             if (ImGui::Button("Create new entity"))
             {
                 auto newEntity = EntityManager::CreateEntity(manager.m_basicEntityArchetype);
-                newEntity.SetComponentData(Transform());
-                newEntity.SetComponentData(GlobalTransform());
+                newEntity.SetDataComponent(Transform());
+                newEntity.SetDataComponent(GlobalTransform());
             }
             ImGui::EndPopup();
         }
@@ -1055,7 +1055,7 @@ void EditorManager::LateUpdate()
             IM_ARRAYSIZE(HierarchyDisplayMode));
         if (manager.m_selectedHierarchyDisplayMode == 0)
         {
-            EntityManager::UnsafeForEachEntityStorage([&](int i, EntityComponentDataStorage storage) {
+            EntityManager::UnsafeForEachEntityStorage([&](int i, DataComponentStorage storage) {
                 ImGui::Separator();
                 const std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
                 if (ImGui::CollapsingHeader(title.c_str()))
@@ -1173,8 +1173,8 @@ void EditorManager::LateUpdate()
                     }
                     bool skip = false;
                     int i = 0;
-                    EntityManager::UnsafeForEachComponent(
-                        manager.m_selectedEntity, [&skip, &i, &manager](ComponentDataType type, void *data) {
+                    EntityManager::UnsafeForEachDataComponent(
+                        manager.m_selectedEntity, [&skip, &i, &manager](DataComponentType type, void *data) {
                             if (skip)
                                 return;
                             std::string info = type.m_name.substr(7);
@@ -1186,14 +1186,14 @@ void EditorManager::LateUpdate()
                                 if (ImGui::Button("Remove"))
                                 {
                                     skip = true;
-                                    EntityManager::RemoveComponentData(manager.m_selectedEntity, type.m_typeId);
+                                    EntityManager::RemoveDataComponent(manager.m_selectedEntity, type.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
                             ImGui::PopID();
                             InspectComponentData(
                                 manager.m_selectedEntity,
-                                static_cast<ComponentDataBase *>(data),
+                                static_cast<IDataComponent *>(data),
                                 type,
                                 EntityManager::GetParent(manager.m_selectedEntity).IsNull());
                             ImGui::Separator();
@@ -1444,15 +1444,15 @@ void EditorManager::LateUpdate()
                                 : manager.m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE
                                                                   : ImGuizmo::OPERATION::SCALE;
 
-                auto transform = manager.m_selectedEntity.GetComponentData<Transform>();
+                auto transform = manager.m_selectedEntity.GetDataComponent<Transform>();
                 GlobalTransform parentGlobalTransform;
                 Entity parentEntity = EntityManager::GetParent(manager.m_selectedEntity);
                 if (!parentEntity.IsNull())
                 {
                     parentGlobalTransform =
-                        EntityManager::GetParent(manager.m_selectedEntity).GetComponentData<GlobalTransform>();
+                        EntityManager::GetParent(manager.m_selectedEntity).GetDataComponent<GlobalTransform>();
                 }
-                auto globalTransform = manager.m_selectedEntity.GetComponentData<GlobalTransform>();
+                auto globalTransform = manager.m_selectedEntity.GetDataComponent<GlobalTransform>();
                 ImGuizmo::Manipulate(
                     glm::value_ptr(cameraView),
                     glm::value_ptr(cameraProjection),
@@ -1462,8 +1462,8 @@ void EditorManager::LateUpdate()
                 if (ImGuizmo::IsUsing())
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-                    manager.m_selectedEntity.SetComponentData(transform);
-                    //manager.m_selectedEntity.SetComponentData(globalTransform);
+                    manager.m_selectedEntity.SetDataComponent(transform);
+                    //manager.m_selectedEntity.SetDataComponent(globalTransform);
                     transform.Decompose(
                         manager.m_previouslyStoredPosition,
                         manager.m_previouslyStoredRotation,

@@ -39,7 +39,7 @@ void PhysicsManager::PreUpdate()
         {
             auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
             if(!playing) UpdateShape(rigidBody);
-            auto globalTransform = entity.GetComponentData<GlobalTransform>();
+            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
             globalTransform.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
             globalTransform.SetScale(glm::vec3(1.0f));
             if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
@@ -60,7 +60,7 @@ void PhysicsManager::PreUpdate()
         {
             auto &articulation = entity.GetPrivateComponent<Articulation>();
             if(!playing) UpdateShape(articulation);
-            auto globalTransform = entity.GetComponentData<GlobalTransform>();
+            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
             if(!playing) UploadTransform(globalTransform, articulation);
         }
     }
@@ -283,10 +283,10 @@ void PhysicsSystem::Simulate(float time) const
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                               glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                               glm::vec3 scale =
-                                                  rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
+                                                  rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
-                                              rigidBodyEntity.SetComponentData(globalTransform);
+                                              rigidBodyEntity.SetDataComponent(globalTransform);
                                           }
                                       }
                                       if (reminder > i)
@@ -300,10 +300,10 @@ void PhysicsSystem::Simulate(float time) const
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                               glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                               glm::vec3 scale =
-                                                  rigidBodyEntity.GetComponentData<GlobalTransform>().GetScale();
+                                                  rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
-                                              rigidBodyEntity.SetComponentData(globalTransform);
+                                              rigidBodyEntity.SetDataComponent(globalTransform);
                                           }
                                       }
                                   })
@@ -334,10 +334,10 @@ void PhysicsSystem::Simulate(float time) const
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                               glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                               glm::vec3 scale =
-                                                  articulationEntity.GetComponentData<GlobalTransform>().GetScale();
+                                                  articulationEntity.GetDataComponent<GlobalTransform>().GetScale();
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
-                                              articulationEntity.SetComponentData(globalTransform);
+                                              articulationEntity.SetDataComponent(globalTransform);
                                           }
                                       }
                                       if (reminder > i)
@@ -351,10 +351,10 @@ void PhysicsSystem::Simulate(float time) const
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                               glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                               glm::vec3 scale =
-                                                  articulationEntity.GetComponentData<GlobalTransform>().GetScale();
+                                                  articulationEntity.GetDataComponent<GlobalTransform>().GetScale();
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
-                                              articulationEntity.SetComponentData(globalTransform);
+                                              articulationEntity.SetDataComponent(globalTransform);
                                           }
                                       }
                                   })

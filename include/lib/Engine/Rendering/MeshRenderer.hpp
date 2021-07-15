@@ -4,7 +4,7 @@
 
 namespace UniEngine
 {
-class UNIENGINE_API MeshRenderer : public PrivateComponentBase
+class UNIENGINE_API MeshRenderer : public IPrivateComponent
 {
     friend class EditorManager;
     void RenderBound(glm::vec4 &color) const;

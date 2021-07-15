@@ -11,7 +11,7 @@ enum class UNIENGINE_API ShapeType
     Box,
     Capsule
 };
-class UNIENGINE_API RigidBody : public PrivateComponentBase
+class UNIENGINE_API RigidBody : public IPrivateComponent
 {
     glm::mat4 m_shapeTransform =
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));

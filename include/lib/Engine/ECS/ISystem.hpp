@@ -4,7 +4,7 @@ namespace UniEngine
 {
 class ThreadPool;
 class World;
-class UNIENGINE_API SystemBase
+class UNIENGINE_API ISystem
 {
     friend class World;
 
@@ -15,7 +15,7 @@ class UNIENGINE_API SystemBase
     virtual void OnStopRunning();
 
   public:
-    SystemBase();
+    ISystem();
     void Enable();
     void Disable();
     bool Enabled() const;

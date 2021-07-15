@@ -15,7 +15,7 @@ void Bone::Animate(
     glm::mat4 globalTransform = parentTransform;
     if (boundEntities[m_index].IsValid())
     {
-        globalTransform = boundEntities[m_index].GetComponentData<GlobalTransform>().m_value;
+        globalTransform = boundEntities[m_index].GetDataComponent<GlobalTransform>().m_value;
     }
     else
     {
@@ -247,7 +247,7 @@ void Animator::Animate()
     {
         for (int i = 0; i < m_transformChain.size(); i++)
         {
-            m_transformChain[i] = m_boundEntities[i].GetComponentData<GlobalTransform>().m_value;
+            m_transformChain[i] = m_boundEntities[i].GetDataComponent<GlobalTransform>().m_value;
         }
     }
     else
@@ -262,7 +262,7 @@ void Animator::Animate()
         m_animation->Animate(
             m_currentActivatedAnimation,
             m_currentAnimationTime,
-            owner.GetComponentData<GlobalTransform>().m_value,
+            owner.GetDataComponent<GlobalTransform>().m_value,
             m_boundEntities,
             m_transformChain);
     }
@@ -326,7 +326,7 @@ void Animator::ApplyOffsetMatrices()
 
 void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
 {
-    const auto selfScale = GetOwner().GetComponentData<GlobalTransform>().GetScale();
+    const auto selfScale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
 
     std::vector<glm::mat4> debugRenderingMatrices = m_transformChain;
     for (int index = 0; index < m_transformChain.size(); index++)
@@ -353,12 +353,12 @@ void Animator::ResetTransform(const int &index)
     Transform localTransform;
     if (parent.IsValid())
     {
-        const auto parentGlobalTransform = parent.GetComponentData<GlobalTransform>();
+        const auto parentGlobalTransform = parent.GetDataComponent<GlobalTransform>();
         localTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
     }
     else
     {
         localTransform.m_value = globalTransform.m_value;
     }
-    entity.SetComponentData(localTransform);
+    entity.SetDataComponent(localTransform);
 }

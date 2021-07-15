@@ -8,9 +8,9 @@ using namespace UniEngine;
 void CameraControlSystem::OnCreate()
 {
     auto *mainCamera = RenderManager::GetMainCamera();
-    auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
+    auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
     transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
-    mainCamera->GetOwner().SetComponentData(transform);
+    mainCamera->GetOwner().SetDataComponent(transform);
     m_enabled = true;
 }
 
@@ -27,7 +27,7 @@ void CameraControlSystem::LateUpdate()
             if (ImGui::IsWindowFocused())
             {
 #pragma region Scene Camera Controller
-                auto transform = mainCamera->GetOwner().GetComponentData<Transform>();
+                auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
                 const auto rotation = transform.GetRotation();
                 auto position = transform.GetPosition();
                 const auto front = rotation * glm::vec3(0, 0, -1);
@@ -103,7 +103,7 @@ void CameraControlSystem::LateUpdate()
                 }
                 if (moved)
                 {
-                    mainCamera->GetOwner().SetComponentData(transform);
+                    mainCamera->GetOwner().SetDataComponent(transform);
                 }
 #pragma endregion
             }

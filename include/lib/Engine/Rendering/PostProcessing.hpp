@@ -17,7 +17,7 @@ class UNIENGINE_API PostProcessingLayer
     virtual void OnGui(CameraComponent &cameraComponent) = 0;
 };
 
-class UNIENGINE_API PostProcessing final : public PrivateComponentBase, public RenderTarget
+class UNIENGINE_API PostProcessing final : public IPrivateComponent, public RenderTarget
 {
     std::map<std::string, std::unique_ptr<PostProcessingLayer>> m_layers;
 

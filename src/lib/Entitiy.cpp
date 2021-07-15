@@ -3,7 +3,7 @@
 
 using namespace UniEngine;
 
-ComponentDataType::ComponentDataType(const std::string &name, const size_t &id, const size_t &size)
+DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
 {
     m_name = name;
     m_typeId = id;
@@ -11,12 +11,12 @@ ComponentDataType::ComponentDataType(const std::string &name, const size_t &id, 
     m_offset = 0;
 }
 
-bool ComponentDataType::operator==(const ComponentDataType &other) const
+bool DataComponentType::operator==(const DataComponentType &other) const
 {
     return (other.m_typeId == m_typeId) && (other.m_size == m_size);
 }
 
-bool ComponentDataType::operator!=(const ComponentDataType &other) const
+bool DataComponentType::operator!=(const DataComponentType &other) const
 {
     return (other.m_typeId != m_typeId) || (other.m_size != m_size);
 }
@@ -103,9 +103,9 @@ Entity Entity::GetParent() const
 {
     return EntityManager::GetParent(*this);
 }
-template <typename T> void Entity::RemoveComponentData() const
+template <typename T> void Entity::RemoveDataComponent() const
 {
-    EntityManager::RemoveComponentData(*this);
+    EntityManager::RemoveDataComponent(*this);
 }
 EntityArchetype Entity::GetEntityArchetype() const
 {
@@ -151,12 +151,12 @@ unsigned Entity::GetVersion() const
     return m_version;
 }
 
-Entity PrivateComponentBase::GetOwner() const
+Entity IPrivateComponent::GetOwner() const
 {
     return m_owner;
 }
 
-void PrivateComponentBase::SetEnabled(const bool &value)
+void IPrivateComponent::SetEnabled(const bool &value)
 {
     if (m_enabled != value)
     {
@@ -172,44 +172,44 @@ void PrivateComponentBase::SetEnabled(const bool &value)
     }
 }
 
-bool PrivateComponentBase::IsEnabled() const
+bool IPrivateComponent::IsEnabled() const
 {
     return m_enabled;
 }
 
-void PrivateComponentBase::OnCreate()
+void IPrivateComponent::OnCreate()
 {
 }
 
-void PrivateComponentBase::OnEnable()
+void IPrivateComponent::OnEnable()
 {
 }
 
-void PrivateComponentBase::OnDisable()
+void IPrivateComponent::OnDisable()
 {
 }
 
-void PrivateComponentBase::OnEntityEnable()
+void IPrivateComponent::OnEntityEnable()
 {
 }
 
-void PrivateComponentBase::OnEntityDisable()
+void IPrivateComponent::OnEntityDisable()
 {
 }
 
-void PrivateComponentBase::OnGui()
+void IPrivateComponent::OnGui()
 {
 }
-void PrivateComponentBase::OnDestroy()
+void IPrivateComponent::OnDestroy()
 {
 }
 
-ComponentDataBase *ComponentDataChunk::GetDataPointer(const size_t &offset) const
+IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {
-    return reinterpret_cast<ComponentDataBase *>(static_cast<char *>(m_data) + offset);
+    return reinterpret_cast<IDataComponent *>(static_cast<char *>(m_data) + offset);
 }
 
-void ComponentDataChunk::SetData(const size_t &offset, const size_t &size, ComponentDataBase *data) const
+void ComponentDataChunk::SetData(const size_t &offset, const size_t &size, IDataComponent *data) const
 {
     memcpy(static_cast<void *>(static_cast<char *>(m_data) + offset), data, size);
 }
@@ -243,7 +243,7 @@ size_t EntityArchetype::GetIndex()
 }
 
 PrivateComponentElement::PrivateComponentElement(
-    const std::string &name, const size_t &id, PrivateComponentBase* data, const Entity &owner)
+    const std::string &name, const size_t &id, IPrivateComponent * data, const Entity &owner)
 {
     m_name = name;
     m_typeId = id;
@@ -291,4 +291,4 @@ size_t EntityQuery::GetIndex()
     return m_index;
 }
 
-EntityComponentDataStorage::EntityComponentDataStorage() = default;
+DataComponentStorage::DataComponentStorage() = default;

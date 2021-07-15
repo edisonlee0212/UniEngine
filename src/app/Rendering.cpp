@@ -15,9 +15,9 @@ int main()
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
-    auto mainCameraTransform = mainCameraEntity.GetComponentData<Transform>();
+    auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, 0, 40));
-    mainCameraEntity.SetComponentData(mainCameraTransform);
+    mainCameraEntity.SetDataComponent(mainCameraTransform);
     mainCameraEntity.SetPrivateComponent<PostProcessing>();
 #pragma endregion
 
@@ -30,15 +30,15 @@ int main()
         for (int j = 0; j < amount; j++)
         {
             auto &sphere = spheres[i * amount + j];
-            auto transform = sphere.GetComponentData<Transform>();
-            auto globalTransform = sphere.GetComponentData<GlobalTransform>();
+            auto transform = sphere.GetDataComponent<Transform>();
+            auto globalTransform = sphere.GetDataComponent<GlobalTransform>();
             glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
             transform.SetPosition(position * 5.0f);
             globalTransform.SetPosition(position * 5.0f);
             transform.SetScale(glm::vec3(2.0f));
             globalTransform.SetScale(glm::vec3(2.0f));
-            sphere.SetComponentData(transform);
-            sphere.SetComponentData(globalTransform);
+            sphere.SetDataComponent(transform);
+            sphere.SetDataComponent(globalTransform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer.m_material = ResourceManager::CreateResource<Material>();
@@ -55,7 +55,7 @@ int main()
     auto sponzaEntity = ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), sponza);
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
-    sponzaEntity.SetComponentData(sponzaTransform);
+    sponzaEntity.SetDataComponent(sponzaTransform);
 
 #ifdef USE_ASSIMP
 
@@ -65,12 +65,12 @@ int main()
         ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), dancingStormTrooper);
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
-    dancingStormTrooperEntity.SetComponentData(dancingStormTrooperTransform);
+    dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
     auto capoeira = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Capoeira.fbx"));
     auto capoeiraEntity = ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(0, -14, -15), glm::vec3(0), glm::vec3(0.1));
-    capoeiraEntity.SetComponentData(capoeiraTransform);
+    capoeiraEntity.SetDataComponent(capoeiraTransform);
 #endif
 #pragma endregion
     /*
@@ -81,7 +81,7 @@ int main()
     groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
     groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
-    ground.SetComponentData(groundTransform);
+    ground.SetDataComponent(groundTransform);
     ground.SetPrivateComponent(std::move(groundMeshRenderer));
 #pragma endregion
     */
@@ -93,7 +93,7 @@ int main()
     dirLight.m_lightSize = 0.2f;
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
-    dirLightEntity.SetComponentData(dirLightTransform);
+    dirLightEntity.SetDataComponent(dirLightTransform);
 
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
     auto &pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
@@ -108,7 +108,7 @@ int main()
     pointLightLeft.m_diffuse = glm::vec3(0.0, 0.5, 1.0);
     Transform pointLightLeftTransform;
     pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
-    pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
+    pointLightLeftEntity.SetDataComponent(pointLightLeftTransform);
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
     auto &pointLightRightRenderer = pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
@@ -123,7 +123,7 @@ int main()
     pointLightRight.m_diffuse = glm::vec3(1.0, 0.8, 0.0);
     Transform pointLightRightTransform;
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
-    pointLightRightEntity.SetComponentData(pointLightRightTransform);
+    pointLightRightEntity.SetDataComponent(pointLightRightTransform);
 
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
@@ -131,11 +131,11 @@ int main()
         const float sinTime = glm::sin(currentTime / 5.0f);
         const float cosTime = glm::cos(currentTime / 5.0f);
         dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, currentTime * 10, 0.0f)));
-        dirLightEntity.SetComponentData(dirLightTransform);
+        dirLightEntity.SetDataComponent(dirLightTransform);
         pointLightLeftTransform.SetPosition(glm::vec3(-40, 12, sinTime * 50 - 50));
         pointLightRightTransform.SetPosition(glm::vec3(40, 12, cosTime * 50 - 50));
-        pointLightLeftEntity.SetComponentData(pointLightLeftTransform);
-        pointLightRightEntity.SetComponentData(pointLightRightTransform);
+        pointLightLeftEntity.SetDataComponent(pointLightLeftTransform);
+        pointLightRightEntity.SetDataComponent(pointLightRightTransform);
     });
 
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
