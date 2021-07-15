@@ -23,6 +23,7 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     bool m_static = false;
     friend class PhysicsSystem;
     friend class PhysicsManager;
+    friend class TransformManager;
     PxRigidActor *m_rigidActor = nullptr;
     std::shared_ptr<PhysicsMaterial> m_material;
     PxShape *m_shape = nullptr;

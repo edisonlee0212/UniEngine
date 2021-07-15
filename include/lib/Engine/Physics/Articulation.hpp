@@ -14,6 +14,7 @@ class UNIENGINE_API Articulation : public PrivateComponentBase
 {
     friend class PhysicsManager;
     friend class PhysicsSystem;
+    friend class TransformManager;
     ArticulationType m_type = ArticulationType::Reduced;
 
 

@@ -42,7 +42,7 @@ void PostProcessing::Process()
     if(!GetOwner().HasPrivateComponent<CameraComponent>()) return;
     auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
     ResizeResolution(cameraComponent.m_resolutionX, cameraComponent.m_resolutionY);
-    
+
     if (m_layers["SSAO"] && m_layers["SSAO"]->m_enabled)
     {
         m_layers["SSAO"]->Process(cameraComponent, *this);

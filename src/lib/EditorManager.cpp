@@ -442,9 +442,6 @@ void EditorManager::Init()
         bool edited = false;
 
         bool reload = previousEntity != entity;
-        bool kinematic = entity.HasPrivateComponent<RigidBody>() &&
-                         entity.GetPrivateComponent<RigidBody>().m_kinematic &&
-                         entity.GetPrivateComponent<RigidBody>().m_currentRegistered;
 
         reload = reload ||
                  (entity.HasPrivateComponent<RigidBody>() && !entity.GetPrivateComponent<RigidBody>().m_kinematic &&
@@ -487,20 +484,6 @@ void EditorManager::Init()
         {
             editorManager.m_localRotationSelected = false;
             editorManager.m_localPositionSelected = false;
-        }
-        if (kinematic && edited)
-        {
-            ltp->m_value = glm::translate(editorManager.m_previouslyStoredPosition) *
-                           glm::mat4_cast(glm::quat(glm::radians(editorManager.m_previouslyStoredRotation))) *
-                           glm::scale(editorManager.m_previouslyStoredScale);
-            if (kinematic)
-            {
-                auto parentLtw = GlobalTransform();
-                if (!isRoot)
-                    parentLtw = EntityManager::GetParent(entity).GetComponentData<GlobalTransform>();
-                parentLtw.m_value *= ltp->m_value;
-                PhysicsManager::UploadTransform(parentLtw, entity.GetPrivateComponent<RigidBody>());
-            }
         }
     });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
@@ -1477,17 +1460,11 @@ void EditorManager::LateUpdate()
                     op,
                     ImGuizmo::LOCAL,
                     glm::value_ptr(globalTransform.m_value));
-                if (manager.m_selectedEntity.HasPrivateComponent<RigidBody>() &&
-                    manager.m_selectedEntity.GetPrivateComponent<RigidBody>().m_kinematic &&
-                    manager.m_selectedEntity.GetPrivateComponent<RigidBody>().m_currentRegistered)
-                {
-                    PhysicsManager::UploadTransform(
-                        globalTransform, manager.m_selectedEntity.GetPrivateComponent<RigidBody>());
-                }
                 if (ImGuizmo::IsUsing())
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
                     manager.m_selectedEntity.SetComponentData(transform);
+                    manager.m_selectedEntity.SetComponentData(globalTransform);
                     transform.Decompose(
                         manager.m_previouslyStoredPosition,
                         manager.m_previouslyStoredRotation,

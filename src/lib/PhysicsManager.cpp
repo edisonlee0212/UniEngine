@@ -28,33 +28,40 @@ void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, Art
     ltw.SetScale(glm::vec3(1.0f));
 
     rigidBody.m_root->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
-
 }
 void PhysicsManager::PreUpdate()
 {
-    if (!Application::IsPlaying())
+    const bool playing = Application::IsPlaying();
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+        entities != nullptr)
     {
-        if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-            entities != nullptr)
+        for (auto entity : *entities)
         {
-            for (auto entity : *entities)
+            auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
+            if(!playing) UpdateShape(rigidBody);
+            auto globalTransform = entity.GetComponentData<GlobalTransform>();
+            globalTransform.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
+            globalTransform.SetScale(glm::vec3(1.0f));
+            if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
             {
-                auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
-                UpdateShape(rigidBody);
-                auto globalTransform = entity.GetComponentData<GlobalTransform>();
-                UploadTransform(globalTransform, rigidBody);
+                static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
+                    ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+            }
+            else if(!playing && !rigidBody.m_kinematic)
+            {
+                rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
             }
         }
-        if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
-            entities != nullptr)
+    }
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
+        entities != nullptr)
+    {
+        for (auto entity : *entities)
         {
-            for (auto entity : *entities)
-            {
-                auto &articulation = entity.GetPrivateComponent<Articulation>();
-                UpdateShape(articulation);
-                auto globalTransform = entity.GetComponentData<GlobalTransform>();
-                UploadTransform(globalTransform, articulation);
-            }
+            auto &articulation = entity.GetPrivateComponent<Articulation>();
+            if(!playing) UpdateShape(articulation);
+            auto globalTransform = entity.GetComponentData<GlobalTransform>();
+            if(!playing) UploadTransform(globalTransform, articulation);
         }
     }
 }
@@ -157,7 +164,8 @@ void PhysicsManager::UpdateShape(Articulation &articulation)
         break;
     case ShapeType::Capsule:
         articulation.m_shape = GetInstance().m_physics->createShape(
-            PxCapsuleGeometry(articulation.m_shapeParam.x, articulation.m_shapeParam.y), *articulation.m_material->m_value);
+            PxCapsuleGeometry(articulation.m_shapeParam.x, articulation.m_shapeParam.y),
+            *articulation.m_material->m_value);
         break;
     }
     articulation.m_root->attachShape(*articulation.m_shape);
@@ -228,7 +236,8 @@ void PhysicsSystem::Simulate(float time) const
             }
         }
     }
-    if(articulationEntities){
+    if (articulationEntities)
+    {
         for (auto entity : *articulationEntities)
         {
             auto &articulation = entity.GetPrivateComponent<Articulation>();
@@ -253,7 +262,7 @@ void PhysicsSystem::Simulate(float time) const
     m_physicsScene->fetchResults(true);
 #pragma endregion
 #pragma region Download transforms from physX
-    if(rigidBodyEntities)
+    if (rigidBodyEntities)
     {
         std::vector<std::shared_future<void>> futures;
         auto &list = rigidBodyEntities;
@@ -269,7 +278,7 @@ void PhysicsSystem::Simulate(float time) const
                                           size_t index = capacity * i + j;
                                           const auto &rigidBodyEntity = list->at(index);
                                           auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                                          if (rigidBody.IsEnabled())
+                                          if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
                                           {
                                               PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
@@ -286,7 +295,7 @@ void PhysicsSystem::Simulate(float time) const
                                           size_t index = capacity * threadSize + i;
                                           const auto &rigidBodyEntity = list->at(index);
                                           auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                                          if (rigidBody.IsEnabled())
+                                          if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
                                           {
                                               PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
                                               glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
@@ -304,7 +313,7 @@ void PhysicsSystem::Simulate(float time) const
         for (const auto &i : futures)
             i.wait();
     }
-    if(articulationEntities)
+    if (articulationEntities)
     {
         std::vector<std::shared_future<void>> futures;
         auto &list = articulationEntities;
@@ -315,40 +324,40 @@ void PhysicsSystem::Simulate(float time) const
         {
             futures.push_back(JobManager::PrimaryWorkers()
                                   .Push([&list, i, capacity, reminder, threadSize](int id) {
-                                    for (size_t j = 0; j < capacity; j++)
-                                    {
-                                        size_t index = capacity * i + j;
-                                        const auto &articulationEntity = list->at(index);
-                                        auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
-                                        if (articulation.IsEnabled())
-                                        {
-                                            PxTransform transform = articulation.m_root->getGlobalPose();
-                                            glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                            glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                            glm::vec3 scale =
-                                                articulationEntity.GetComponentData<GlobalTransform>().GetScale();
-                                            GlobalTransform globalTransform;
-                                            globalTransform.SetValue(position, rotation, scale);
-                                            articulationEntity.SetComponentData(globalTransform);
-                                        }
-                                    }
-                                    if (reminder > i)
-                                    {
-                                        size_t index = capacity * threadSize + i;
-                                        const auto &articulationEntity = list->at(index);
-                                        auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
-                                        if (articulation.IsEnabled())
-                                        {
-                                            PxTransform transform = articulation.m_root->getGlobalPose();
-                                            glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                            glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                            glm::vec3 scale =
-                                                articulationEntity.GetComponentData<GlobalTransform>().GetScale();
-                                            GlobalTransform globalTransform;
-                                            globalTransform.SetValue(position, rotation, scale);
-                                            articulationEntity.SetComponentData(globalTransform);
-                                        }
-                                    }
+                                      for (size_t j = 0; j < capacity; j++)
+                                      {
+                                          size_t index = capacity * i + j;
+                                          const auto &articulationEntity = list->at(index);
+                                          auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
+                                          if (articulation.IsEnabled())
+                                          {
+                                              PxTransform transform = articulation.m_root->getGlobalPose();
+                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                              glm::vec3 scale =
+                                                  articulationEntity.GetComponentData<GlobalTransform>().GetScale();
+                                              GlobalTransform globalTransform;
+                                              globalTransform.SetValue(position, rotation, scale);
+                                              articulationEntity.SetComponentData(globalTransform);
+                                          }
+                                      }
+                                      if (reminder > i)
+                                      {
+                                          size_t index = capacity * threadSize + i;
+                                          const auto &articulationEntity = list->at(index);
+                                          auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
+                                          if (articulation.IsEnabled())
+                                          {
+                                              PxTransform transform = articulation.m_root->getGlobalPose();
+                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                              glm::vec3 scale =
+                                                  articulationEntity.GetComponentData<GlobalTransform>().GetScale();
+                                              GlobalTransform globalTransform;
+                                              globalTransform.SetValue(position, rotation, scale);
+                                              articulationEntity.SetComponentData(globalTransform);
+                                          }
+                                      }
                                   })
                                   .share());
         }
