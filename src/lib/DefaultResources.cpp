@@ -27,10 +27,6 @@ std::shared_ptr<OpenGLUtils::GLVAO> DefaultResources::GLPrograms::SkyboxVAO;
 std::string *DefaultResources::ShaderIncludes::Uniform;
 
 std::shared_ptr<Texture2D> DefaultResources::Textures::MissingTexture;
-std::shared_ptr<Texture2D> DefaultResources::Textures::UV;
-std::shared_ptr<Texture2D> DefaultResources::Textures::ObjectIcon;
-std::shared_ptr<Texture2D> DefaultResources::Textures::Border;
-std::shared_ptr<Texture2D> DefaultResources::Textures::StandardTexture;
 
 std::shared_ptr<Mesh> DefaultResources::Primitives::Sphere;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Cube;
@@ -316,14 +312,7 @@ void DefaultResources::LoadTextures(World *world)
     Textures::MissingTexture =
         ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/texture-missing.png"));
     Textures::MissingTexture->m_name = "Missing";
-    Textures::UV = ResourceManager::LoadTexture(true, FileIO::GetResourcePath("Textures/uv-test.png"));
-    Textures::UV->m_name = "UV";
-    Textures::StandardTexture = ResourceManager::LoadTexture(true, FileIO::GetResourcePath("Textures/white.png"));
-    Textures::StandardTexture->m_name = "Default";
-    Textures::ObjectIcon = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/object.png"));
-    Textures::ObjectIcon->m_name = "Icon";
-    Textures::Border = ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png"));
-    Textures::Border->m_name = "Border";
+
 #pragma endregion
 }
 
@@ -411,10 +400,8 @@ void DefaultResources::Load(World *world)
 #pragma region Environmental
     Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
     Materials::StandardMaterial->m_name = "Standard";
-    Materials::StandardMaterial->SetTexture(TextureType::Albedo, Textures::StandardTexture);
 
     Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
-    Materials::StandardInstancedMaterial->SetTexture(TextureType::Albedo, Textures::StandardTexture);
     Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
 
     Environmental::DefaultSkybox = ResourceManager::LoadCubemap(

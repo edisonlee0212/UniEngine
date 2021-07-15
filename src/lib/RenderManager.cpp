@@ -1981,8 +1981,6 @@ void RenderManager::OnGui()
                             auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer.m_mesh = payload_n;
                             meshRenderer.m_material = ResourceManager::CreateResource<Material>();
-                            meshRenderer.m_material->SetTexture(
-                                TextureType::Albedo, DefaultResources::Textures::StandardTexture);
                             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                         }
 

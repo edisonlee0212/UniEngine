@@ -382,7 +382,6 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr.m_receiveShadow = false;
     imr.m_mesh = DefaultResources::Primitives::Cube;
     imr.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    imr.m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
 
     m_rendererFront.SetComponentData(ltw);
 
@@ -394,8 +393,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr2.m_receiveShadow = false;
     imr2.m_mesh = DefaultResources::Primitives::Cube;
     imr2.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-    imr2.m_material->SetTexture(TextureType::Albedo, DefaultResources::Textures::StandardTexture);
-
+    
     m_rendererBack.SetComponentData(ltw);
 
     m_starClusterPatterns.resize(2);

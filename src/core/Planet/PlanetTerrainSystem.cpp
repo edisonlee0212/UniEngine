@@ -8,7 +8,7 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 void Planet::PlanetTerrainSystem::OnCreate()
 {
     m_defaultSurfaceMaterial = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, DefaultResources::Textures::Border);
+    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, DefaultResources::Textures::MissingTexture);
 }
 
 void Planet::PlanetTerrainSystem::Update()
