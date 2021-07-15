@@ -1306,6 +1306,16 @@ template <typename T> const std::vector<Entity> EntityManager::GetPrivateCompone
 {
     return GetInstance().m_entityPrivateComponentStorage->GetOwnersList<T>();
 }
+void EntityManager::Init()
+{
+    auto& entityManager = GetInstance();
+    entityManager.m_world = std::make_unique<World>(0);
+    EntityManager::Attach(entityManager.m_world);
+}
+std::unique_ptr<World> &EntityManager::GetCurrentWorld()
+{
+    return GetInstance().m_world;
+}
 
 size_t EntityQuery::GetEntityAmount() const
 {

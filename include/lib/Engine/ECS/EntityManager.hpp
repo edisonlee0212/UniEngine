@@ -24,9 +24,15 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend struct EntityArchetype;
     friend struct EntityQuery;
     friend struct Entity;
+    friend struct Application;
     size_t m_archetypeChunkSize = ARCHETYPE_CHUNK_SIZE;
     EntityArchetype m_basicArchetype = EntityArchetype();
+
+
+
 #pragma region Data Storage
+    std::unique_ptr<World> m_world;
+
     WorldEntityStorage *m_currentAttachedWorldEntityStorage = nullptr;
     std::vector<Entity> *m_entities = nullptr;
     std::vector<EntityInfo> *m_entityInfos = nullptr;
@@ -482,6 +488,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
 #pragma endregion
     static void ForAllEntities(const std::function<void(int i, Entity entity)> &func);
+    static std::unique_ptr<World> &GetCurrentWorld();
+
+    static void Init();
 };
 #pragma endregion
 #pragma region Functions

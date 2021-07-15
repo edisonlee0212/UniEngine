@@ -9,7 +9,7 @@ using namespace UniEngine;
 int main()
 {
     Application::Init();
-    auto &world = Application::GetCurrentWorld();
+    auto &world = EntityManager::GetCurrentWorld();
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;

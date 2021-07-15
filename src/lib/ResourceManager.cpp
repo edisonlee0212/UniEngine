@@ -1422,7 +1422,7 @@ void ResourceManager::OnGui()
             if (ImGui::BeginMenu("Open..."))
             {
                 FileIO::OpenFile("Load World", ".uniengineworld", [](const std::string &filePath) {
-                    SerializationManager::Deserialize(Application::GetCurrentWorld(), filePath);
+                    SerializationManager::Deserialize(EntityManager::GetCurrentWorld(), filePath);
                 });
                 ImGui::EndMenu();
             }
@@ -1430,7 +1430,7 @@ void ResourceManager::OnGui()
             if (ImGui::BeginMenu("Save..."))
             {
                 FileIO::SaveFile("Save World", ".uniengineworld", [](const std::string &filePath) {
-                    SerializationManager::Serialize(Application::GetCurrentWorld(), filePath);
+                    SerializationManager::Serialize(EntityManager::GetCurrentWorld(), filePath);
                 });
                 ImGui::EndMenu();
             }

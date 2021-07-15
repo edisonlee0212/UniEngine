@@ -1434,7 +1434,7 @@ void RenderManager::PreUpdate()
     {
         CollectRenderInstances(GlobalTransform(), worldBound);
     }
-    Application::GetCurrentWorld()->SetBound(worldBound);
+    EntityManager::GetCurrentWorld()->SetBound(worldBound);
     if (renderManager.m_mainCameraComponent != nullptr)
     {
         if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())

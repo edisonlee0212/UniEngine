@@ -15,7 +15,7 @@ int main()
     ComponentFactory::RegisterSerializable<PlanetTerrain>();
     Application::Init();
 #pragma region Preparations
-    auto &world = Application::GetCurrentWorld();
+    auto &world = EntityManager::GetCurrentWorld();
     EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);

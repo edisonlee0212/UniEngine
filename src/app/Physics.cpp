@@ -56,7 +56,7 @@ Entity CreateSphere(
 int main()
 {
     Application::Init();
-    auto &world = Application::GetCurrentWorld();
+    auto &world = EntityManager::GetCurrentWorld();
     world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();

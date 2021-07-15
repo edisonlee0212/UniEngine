@@ -11,7 +11,7 @@ int main()
 {
 #pragma region Application Preparations
     Application::Init();
-    auto &world = Application::GetCurrentWorld();
+    auto &world = EntityManager::GetCurrentWorld();
     CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->Enable();
 
