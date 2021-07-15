@@ -49,9 +49,9 @@ void Joint::SetMax(const float &value, const bool &enabled)
     {
         m_maxDistance = value;
         m_maxDistanceEnabled = enabled;
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setDistanceJointFlag(
+        static_cast<PxDistanceJoint *>(m_joint)->setDistanceJointFlag(
             PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_maxDistanceEnabled);
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setMaxDistance(m_maxDistance);
+        static_cast<PxDistanceJoint *>(m_joint)->setMaxDistance(m_maxDistance);
     }
 }
 void Joint::SetMin(const float &value, const bool &enabled)
@@ -64,9 +64,9 @@ void Joint::SetMin(const float &value, const bool &enabled)
     {
         m_minDistance = value;
         m_minDistanceEnabled = enabled;
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setDistanceJointFlag(
+        static_cast<PxDistanceJoint *>(m_joint)->setDistanceJointFlag(
             PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_minDistanceEnabled);
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setMinDistance(m_minDistance);
+        static_cast<PxDistanceJoint *>(m_joint)->setMinDistance(m_minDistance);
     }
 }
 void Joint::SetStiffness(const float &value)
@@ -78,7 +78,7 @@ void Joint::SetStiffness(const float &value)
     if (m_stiffness != value)
     {
         m_stiffness = value;
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setStiffness(m_stiffness);
+        static_cast<PxDistanceJoint *>(m_joint)->setStiffness(m_stiffness);
     }
 }
 void Joint::SetDamping(const float &value)
@@ -90,7 +90,7 @@ void Joint::SetDamping(const float &value)
     if (m_damping != value)
     {
         m_damping = value;
-        dynamic_cast<PxDistanceJoint *>(m_joint)->setDamping(m_damping);
+        static_cast<PxDistanceJoint *>(m_joint)->setDamping(m_damping);
     }
 }
 
@@ -111,167 +111,10 @@ void Joint::PrismaticGui()
 }
 #pragma endregion
 #pragma region D6
+
 void Joint::D6Gui()
 {
-    auto *joint = dynamic_cast<PxD6Joint *>(m_joint);
-    if (ImGui::Checkbox("Lock X", &m_xLocked))
-    {
-        joint->setMotion(PxD6Axis::eX, m_xLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-    if (!m_xLocked)
-    {
-        if (ImGui::DragFloat("X Stiffness", &m_xDrive.stiffness))
-        {
-            joint->setDrive(PxD6Drive::eX, m_xDrive);
-        }
-
-        if (ImGui::DragFloat("X Damping", &m_xDrive.damping))
-        {
-            joint->setDrive(PxD6Drive::eX, m_xDrive);
-        }
-        if (ImGui::Checkbox("X is acceleration", &m_xAcceleration))
-        {
-            m_xDrive.flags =
-                static_cast<PxD6JointDriveFlag::Enum>(m_xAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-            joint->setDrive(PxD6Drive::eX, m_xDrive);
-        }
-    }
-
-    if (ImGui::Checkbox("Lock Y", &m_yLocked))
-    {
-        joint->setMotion(PxD6Axis::eY, m_yLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-    if (!m_yLocked)
-    {
-        if (ImGui::DragFloat("Y Stiffness", &m_yDrive.stiffness))
-        {
-            joint->setDrive(PxD6Drive::eY, m_yDrive);
-        }
-
-        if (ImGui::DragFloat("Y Damping", &m_yDrive.damping))
-        {
-            joint->setDrive(PxD6Drive::eY, m_yDrive);
-        }
-        if (ImGui::Checkbox("Y is acceleration", &m_yAcceleration))
-        {
-            m_yDrive.flags =
-                static_cast<PxD6JointDriveFlag::Enum>(m_yAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-            joint->setDrive(PxD6Drive::eY, m_yDrive);
-        }
-    }
-    if (ImGui::Checkbox("Lock Z", &m_zLocked))
-    {
-        joint->setMotion(PxD6Axis::eZ, m_zLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-    if (!m_zLocked)
-    {
-        if (ImGui::DragFloat("Z Stiffness", &m_zDrive.stiffness))
-        {
-            joint->setDrive(PxD6Drive::eZ, m_zDrive);
-        }
-
-        if (ImGui::DragFloat("Z Damping", &m_zDrive.damping))
-        {
-            joint->setDrive(PxD6Drive::eZ, m_zDrive);
-        }
-        if (ImGui::Checkbox("Z is acceleration", &m_zAcceleration))
-        {
-            m_zDrive.flags =
-                static_cast<PxD6JointDriveFlag::Enum>(m_zAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-            joint->setDrive(PxD6Drive::eZ, m_zDrive);
-        }
-    }
-}
-void Joint::SetLockX(const bool &value)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-    if (m_xLocked != value)
-    {
-        m_xLocked = value;
-        dynamic_cast<PxD6Joint *>(m_joint)->setMotion(
-            PxD6Axis::eX, m_xLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-}
-void Joint::SetLockZ(const bool &value)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-    if (m_zLocked != value)
-    {
-        m_zLocked = value;
-        dynamic_cast<PxD6Joint *>(m_joint)->setMotion(
-            PxD6Axis::eZ, m_zLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-}
-void Joint::SetLockY(const bool &value)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-    if (m_yLocked != value)
-    {
-        m_yLocked = value;
-        dynamic_cast<PxD6Joint *>(m_joint)->setMotion(
-            PxD6Axis::eY, m_yLocked ? PxD6Motion::eLOCKED : PxD6Motion::eFREE);
-    }
-}
-void Joint::SetDriveY(const float &stiffness, const float &damping, const bool &isAcceleration)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-
-    if (stiffness != m_yDrive.stiffness || damping != m_yDrive.damping ||
-        isAcceleration != (m_yDrive.flags == PxD6JointDriveFlag::eACCELERATION))
-    {
-        m_yDrive.stiffness = stiffness;
-        m_yDrive.damping = damping;
-        m_yAcceleration = isAcceleration;
-        m_yDrive.flags =
-            static_cast<PxD6JointDriveFlag::Enum>(m_yAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-        dynamic_cast<PxD6Joint *>(m_joint)->setDrive(PxD6Drive::eY, m_yDrive);
-    }
-}
-void Joint::SetDriveX(const float &stiffness, const float &damping, const bool &isAcceleration)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-    if (stiffness != m_xDrive.stiffness || damping != m_xDrive.damping ||
-        isAcceleration != (m_xDrive.flags == PxD6JointDriveFlag::eACCELERATION))
-    {
-        m_xDrive.stiffness = stiffness;
-        m_xDrive.damping = damping;
-        m_xAcceleration = isAcceleration;
-        m_xDrive.flags =
-            static_cast<PxD6JointDriveFlag::Enum>(m_xAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-        dynamic_cast<PxD6Joint *>(m_joint)->setDrive(PxD6Drive::eX, m_xDrive);
-    }
-}
-void Joint::SetDriveZ(const float &stiffness, const float &damping, const bool &isAcceleration)
-{
-    if (!m_joint)
-        return;
-    if (!TypeCheck(JointType::D6))
-        return;
-    if (stiffness != m_zDrive.stiffness || damping != m_zDrive.damping ||
-        isAcceleration != (m_zDrive.flags == PxD6JointDriveFlag::eACCELERATION))
-    {
-        m_zDrive.stiffness = stiffness;
-        m_zDrive.damping = damping;
-        m_zAcceleration = isAcceleration;
-        m_zDrive.flags =
-            static_cast<PxD6JointDriveFlag::Enum>(m_zAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-        dynamic_cast<PxD6Joint *>(m_joint)->setDrive(PxD6Drive::eZ, m_zDrive);
-    }
+    auto *joint = static_cast<PxD6Joint *>(m_joint);
 }
 #pragma endregion
 void Joint::Unlink()
@@ -477,7 +320,11 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
+            static_cast<PxD6Joint *>(m_joint)->setProjectionAngularTolerance(1.0f);
+            static_cast<PxD6Joint *>(m_joint)->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+
             break;
+
         }
 
         m_linkedEntity.GetPrivateComponent<RigidBody>().m_linkedEntities.push_back(owner);
@@ -500,4 +347,39 @@ void Joint::SetType(const JointType &type)
         m_jointType = type;
         Link(m_linkedEntity);
     }
+}
+
+void Joint::SetMotion(const MotionAxis &axis, const MotionType &type)
+{
+    if (!m_joint)
+        return;
+    if (!TypeCheck(JointType::D6))
+        return;
+    m_motionTypes[static_cast<int>(axis)] = static_cast<PxD6Motion::Enum>(type);
+    static_cast<PxD6Joint *>(m_joint)->setMotion(
+        static_cast<PxD6Axis::Enum>(axis), static_cast<PxD6Motion::Enum>(type));
+
+}
+void Joint::SetDrive(const DriveType &type, const float &stiffness, const float &damping, const bool &isAcceleration)
+{
+    if (!m_joint)
+        return;
+    if (!TypeCheck(JointType::D6))
+        return;
+    m_drives[static_cast<int>(type)].stiffness = stiffness;
+    m_drives[static_cast<int>(type)].damping = damping;
+    m_drives[static_cast<int>(type)].flags =
+        static_cast<PxD6JointDriveFlag::Enum>(isAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
+    static_cast<PxD6Joint *>(m_joint)->setDrive(PxD6Drive::eSLERP,  m_drives[static_cast<int>(type)]);
+}
+void Joint::SetDistanceLimit(const float& toleranceLength, const float& toleranceSpeed, const float &extent, const float &contactDist)
+{
+    if (!m_joint)
+        return;
+    if (!TypeCheck(JointType::D6))
+        return;
+    auto scale = PxTolerancesScale();
+    scale.length = toleranceLength;
+    scale.speed = toleranceSpeed;
+    static_cast<PxD6Joint *>(m_joint)->setDistanceLimit(PxJointLinearLimit(scale, extent, contactDist));
 }

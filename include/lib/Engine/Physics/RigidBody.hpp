@@ -43,11 +43,11 @@ class UNIENGINE_API RigidBody : public PrivateComponentBase
     PxU32 m_minVelocityIterations = 1;
 
     std::vector<Entity> m_linkedEntities;
-
+    bool m_gravity = true;
   public:
     [[nodiscard]] bool IsKinematic();
     void SetSolverIterations(const unsigned &position = 4, const unsigned &velocity = 1);
-
+    void SetEnableGravity(const bool& value);
     void SetLinearDamping(const float &value);
     void SetAngularDamping(const float &value);
     void SetKinematic(const bool &value);

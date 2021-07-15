@@ -347,3 +347,8 @@ void RigidBody::SetSolverIterations(const unsigned int &position, const unsigned
     m_minVelocityIterations = velocity;
     rigidBody->setSolverIterationCounts(m_minPositionIterations, m_minVelocityIterations);
 }
+void RigidBody::SetEnableGravity(const bool &value)
+{
+    m_gravity = value;
+    m_rigidActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+}

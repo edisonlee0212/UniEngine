@@ -18,7 +18,6 @@ class RigidBody;
 
 class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 {
-  public:
     PxPvdTransport *m_pvdTransport;
     PxDefaultAllocator m_allocator;
     PxDefaultErrorCallback m_errorCallback;
@@ -26,6 +25,12 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxPhysics *m_physics;
     PxDefaultCpuDispatcher *m_dispatcher;
     PxPvd *m_physVisDebugger;
+    friend class RigidBody;
+    friend class Joint;
+    friend class Articulation;
+    friend class PhysicsSystem;
+    friend class PhysicsMaterial;
+  public:
     std::shared_ptr<PhysicsMaterial> m_defaultMaterial;
     static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
     static void UploadTransform(const GlobalTransform &globalTransform, Articulation &rigidBody);

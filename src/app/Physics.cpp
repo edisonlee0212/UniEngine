@@ -149,16 +149,17 @@ int main()
         for (int i = 1; i < 10; i++)
         {
             const auto link = CreateDynamicSphere(
-                1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
+                1.0 - i * 0.1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
             auto &joint = link.SetPrivateComponent<Joint>();
-            joint.SetType(JointType::Spherical);
+            joint.SetType(JointType::D6);
             joint.Link(lastLink);
+            //joint.SetMotion(MotionAxis::SwingY, MotionType::Limited);
             link.SetParent(anchor);
             lastLink = link;
         }
 
         const auto freeSphere = CreateDynamicCube(
-            1.0, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
+            0.01, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
         auto &joint = freeSphere.SetPrivateComponent<Joint>();
         joint.SetType(JointType::Spherical);
         joint.Link(lastLink);

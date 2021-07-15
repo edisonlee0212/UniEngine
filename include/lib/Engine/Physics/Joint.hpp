@@ -14,7 +14,27 @@ enum class JointType
     Prismatic,
     D6
 };
-
+enum class MotionAxis{
+    X,
+    Y,
+    Z,
+    TwistX,
+    SwingY,
+    SwingZ
+};
+enum class MotionType{
+    Locked,
+    Limited,
+    Free
+};
+enum class DriveType{
+    X,
+    Y,
+    Z,
+    Swing,
+    Twist,
+    Slerp
+};
 class UNIENGINE_API Joint : public PrivateComponentBase
 {
     JointType m_jointType = JointType::Spherical;
@@ -47,15 +67,8 @@ class UNIENGINE_API Joint : public PrivateComponentBase
     void PrismaticGui();
 #pragma endregion
 #pragma region D6
-    bool m_xLocked = true;
-    bool m_yLocked = true;
-    bool m_zLocked = true;
-    PxD6JointDrive m_xDrive;
-    bool m_xAcceleration = true;
-    PxD6JointDrive m_yDrive;
-    bool m_yAcceleration = true;
-    PxD6JointDrive m_zDrive;
-    bool m_zAcceleration = true;
+    PxD6Motion::Enum m_motionTypes[6] = { PxD6Motion::Enum::eLOCKED };
+    PxD6JointDrive m_drives[5] = { PxD6JointDrive() };
     void D6Gui();
 #pragma endregion
 
@@ -75,12 +88,9 @@ class UNIENGINE_API Joint : public PrivateComponentBase
 #pragma region Prismatic
 #pragma endregion
 #pragma region D6
-    void SetLockX(const bool &value);
-    void SetLockY(const bool &value);
-    void SetLockZ(const bool &value);
-    void SetDriveX(const float &stiffness, const float &damping, const bool &isAcceleration = true);
-    void SetDriveY(const float &stiffness, const float &damping, const bool &isAcceleration = true);
-    void SetDriveZ(const float &stiffness, const float &damping, const bool &isAcceleration = true);
+    void SetMotion(const MotionAxis& axis, const MotionType& type);
+    void SetDistanceLimit(const float& toleranceLength, const float& toleranceSpeed, const float& extent, const float& contactDist = -1.0f);
+    void SetDrive(const DriveType& type, const float &stiffness, const float &damping, const bool &isAcceleration = true);
 #pragma endregion
     void SetType(const JointType &type);
     void Unlink();
