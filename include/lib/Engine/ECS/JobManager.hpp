@@ -14,5 +14,6 @@ class JobManager final : ISingleton<JobManager>
     UNIENGINE_API static void ResizeSecondaryWorkers(int size);
     UNIENGINE_API static ThreadPool &PrimaryWorkers();
     UNIENGINE_API static ThreadPool &SecondaryWorkers();
+    UNIENGINE_API static void Init();
 };
 } // namespace UniEngine

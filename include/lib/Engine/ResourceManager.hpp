@@ -9,7 +9,6 @@
 namespace UniEngine
 {
 #ifdef USE_ASSIMP
-
 struct UNIENGINE_API AssimpNode
 {
     aiNode *m_correspondingNode = nullptr;
@@ -25,15 +24,15 @@ struct UNIENGINE_API AssimpNode
     void AttachToAnimator(std::shared_ptr<Animation> &animation, size_t &index);
     void AttachChild(std::shared_ptr<Bone> &parent, size_t &index);
 };
-
 #endif
 class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 {
     bool m_enableAssetMenu = true;
     std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
     friend class DefaultResources;
-
+#pragma region Model Loading
+    static void AttachAnimator(const Entity &parent, const Entity &animator);
+    std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
     static std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
         const std::string &path,
@@ -77,9 +76,10 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
 
     static void AttachChildren(
         EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName);
+
+#pragma endregion
     friend class EditorManager;
     static std::string GetTypeName(size_t id);
-
   public:
     template <typename T> static std::string GetTypeName();
     static std::string GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource);
@@ -91,6 +91,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     template <typename T> static std::shared_ptr<T> Find(std::string objectName);
     template <typename T> static void Remove(size_t hashCode);
     static void Remove(size_t id, size_t hashCode);
+#pragma region Loaders
     static std::shared_ptr<Model> LoadModel(
         const bool &addResource,
         std::string const &path,
@@ -122,10 +123,13 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
         const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
         const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
+#pragma endregion
     static void OnGui();
+#pragma region ToEntity
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model);
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
-    static void AttachAnimator(const Entity &parent, const Entity &animator);
+#pragma endregion
+    static void Init();
 };
 
 template <typename T> std::string ResourceManager::GetTypeName()

@@ -1510,3 +1510,7 @@ void ResourceManager::OnGui()
         ImGui::End();
     }
 }
+void ResourceManager::Init()
+{
+    DefaultResources::Load();
+}

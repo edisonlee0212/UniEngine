@@ -9,6 +9,7 @@
 #include <RenderManager.hpp>
 #include <ResourceManager.hpp>
 #include <SkinnedMesh.hpp>
+#include <PostProcessing.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -51,7 +52,7 @@ std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::CircusEnviron
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::MilkyWayHDREnvironmentalMap;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::CircusHDREnvironmentalMap;
 
-void DefaultResources::LoadShaders(World *world)
+void DefaultResources::LoadShaders()
 {
     int numberOfExtensions;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numberOfExtensions);
@@ -295,10 +296,89 @@ void DefaultResources::LoadShaders(World *world)
     GLPrograms::GizmoInstancedColoredProgram->Link();
     GLPrograms::GizmoInstancedColoredProgram->m_name = "Gizmo Instanced Colored";
 #pragma endregion
+#pragma region Post-Processing
+
+    {
+        Bloom::m_separateProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_separateProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Vertex,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomSeparator.frag"))));
+
+        Bloom::m_filterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_filterProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Vertex,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))));
+        Bloom::m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_combineProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Vertex,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
+        std::string vertShaderCode =
+            std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+            FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
+
+        std::string fragShaderCode =
+            std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+            FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
+
+        SSAO::m_positionReconstructProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_positionReconstructProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+        vertShaderCode = std::string("#version 460 core\n") +
+                         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
+
+        SSAO::m_geometryProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_geometryProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+        vertShaderCode = std::string("#version 460 core\n") +
+                         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"));
+
+        SSAO::m_blurProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_blurProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOCombine.frag"));
+
+        SSAO::m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_combineProgram->Link(
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
+            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
+
+    }
+#pragma endregion
 #pragma endregion
 }
 
-void DefaultResources::LoadTextures(World *world)
+void DefaultResources::LoadTextures()
 {
 #pragma region Textures
     Textures::MissingTexture =
@@ -308,7 +388,7 @@ void DefaultResources::LoadTextures(World *world)
 #pragma endregion
 }
 
-void DefaultResources::LoadPrimitives(World *world)
+void DefaultResources::LoadPrimitives()
 {
 #pragma region Models &Primitives
     if (true)
@@ -372,7 +452,7 @@ void DefaultResources::LoadPrimitives(World *world)
     }
 #pragma endregion
 }
-void DefaultResources::Load(World *world)
+void DefaultResources::Load()
 {
     ResourceManager::RegisterResourceType<Material>("Material");
     ResourceManager::RegisterResourceType<Mesh>("Mesh");
@@ -386,9 +466,9 @@ void DefaultResources::Load(World *world)
     ResourceManager::RegisterResourceType<Animation>("Animation");
     ResourceManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
 
-    LoadShaders(world);
-    LoadTextures(world);
-    LoadPrimitives(world);
+    LoadShaders();
+    LoadTextures();
+    LoadPrimitives();
 #pragma region Environmental
     Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
     Materials::StandardMaterial->m_name = "Standard";

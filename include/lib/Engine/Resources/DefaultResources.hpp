@@ -9,9 +9,9 @@ class Mesh;
 class Material;
 class UNIENGINE_API DefaultResources
 {
-    static void LoadShaders(World *world);
-    static void LoadTextures(World *world);
-    static void LoadPrimitives(World *world);
+    static void LoadShaders();
+    static void LoadTextures();
+    static void LoadPrimitives();
 
   public:
     class UNIENGINE_API GLPrograms
@@ -87,6 +87,6 @@ class UNIENGINE_API DefaultResources
         static std::shared_ptr<EnvironmentalMap> CircusHDREnvironmentalMap;
     };
 
-    static void Load(World *world);
+    static void Load();
 };
 } // namespace UniEngine

@@ -6,6 +6,15 @@
 #include <Texture2D.hpp>
 using namespace UniEngine;
 
+std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_separateProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_filterProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_combineProgram;
+
+std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_positionReconstructProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_geometryProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_blurProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_combineProgram;
+
 void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
 {
     if (!layer)
@@ -124,37 +133,7 @@ void Bloom::Init()
     m_flatColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_flatColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_separateProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_separateProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomSeparator.frag"))));
 
-    m_filterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_filterProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))));
-    m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_combineProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Vertex,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"))),
-        std::make_shared<OpenGLUtils::GLShader>(
-            OpenGLUtils::ShaderType::Fragment,
-            std::string("#version 450 core\n") +
-                FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
     m_enabled = true;
 }
 
@@ -274,48 +253,6 @@ void SSAO::Init()
     m_blur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_blur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    std::string vertShaderCode =
-        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
-
-    std::string fragShaderCode =
-        std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
-
-    m_positionReconstructProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_positionReconstructProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
-
-    vertShaderCode = std::string("#version 460 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
-
-    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
-
-    m_geometryProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_geometryProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
-
-    vertShaderCode = std::string("#version 460 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
-
-    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"));
-
-    m_blurProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_blurProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
-
-    fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOCombine.frag"));
-
-    m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-    m_combineProgram->Link(
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
-        std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
 
     m_enabled = true;
 }

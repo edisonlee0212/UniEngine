@@ -49,12 +49,14 @@ template <typename T> T *PostProcessing::GetLayer()
 #pragma region Effects
 class UNIENGINE_API Bloom : public PostProcessingLayer
 {
+    friend class DefaultResources;
+
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_result;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_brightColor;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_flatColor;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_separateProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_filterProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_separateProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_filterProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
     float m_intensity = 0.05f;
@@ -69,14 +71,16 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
 };
 class UNIENGINE_API SSAO : public PostProcessingLayer
 {
+    friend class DefaultResources;
+
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_originalColor;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_position;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_ssaoPosition;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_blur;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_positionReconstructProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_geometryProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_blurProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_positionReconstructProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_geometryProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_blurProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
     float m_intensity = 0.1f;

@@ -40,8 +40,7 @@ void Application::Init(bool fullScreen)
     application.m_initialized = false;
     WindowManager::Init("UniEngine", fullScreen);
     InputManager::Init();
-    JobManager::PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
-    JobManager::SecondaryWorkers().Resize(1);
+    JobManager::Init();
     PhysicsManager::Init();
 
     application.m_world = std::make_unique<World>(0);
@@ -87,11 +86,10 @@ void Application::Init(bool fullScreen)
     ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
 #pragma region Internal Systems
-    DefaultResources::Load(application.m_world.get());
+    ResourceManager::Init();
     TransformManager::Init();
     RenderManager::Init();
     EditorManager::Init();
-
 #pragma endregion
     application.m_initialized = true;
 #pragma region Main Camera

@@ -22,3 +22,8 @@ ThreadPool &JobManager::SecondaryWorkers()
 {
     return GetInstance().m_secondaryWorkers;
 }
+void JobManager::Init()
+{
+    PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
+    SecondaryWorkers().Resize(1);
+}
