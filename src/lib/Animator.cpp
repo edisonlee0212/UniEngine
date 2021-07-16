@@ -338,8 +338,7 @@ void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
         DefaultResources::Primitives::Sphere.get(),
         EditorManager::GetSceneCamera(),
         color,
-        debugRenderingMatrices.data(),
-        debugRenderingMatrices.size(),
+        debugRenderingMatrices,
         Transform().m_value,
         size);
 }

@@ -435,9 +435,8 @@ void Galaxy::StarClusterSystem::Update()
     RenderManager::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube.get(),
         *RenderManager::GetMainCamera(),
-        m_useFront ? m_frontColors.data() : m_backColors.data(),
-        m_useFront ? m_frontMatrices.data() : m_backMatrices.data(),
-        m_useFront ? m_frontColors.size() : m_backColors.size(),
+        m_useFront ? m_frontColors : m_backColors,
+        m_useFront ? m_frontMatrices : m_backMatrices,
         glm::mat4(1.0f),
         m_size);
 }

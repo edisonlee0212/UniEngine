@@ -2332,29 +2332,14 @@ void RenderManager::DrawMeshInstanced(
     const Mesh *mesh,
     const Material *material,
     const glm::mat4 &model,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::mat4> &matrices,
     const bool &receiveShadow)
 {
-    if (mesh == nullptr || material == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || material == nullptr || matrices.empty())
         return;
-    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    mesh->Enable();
-    mesh->Vao()->EnableAttributeArray(12);
-    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    mesh->Vao()->EnableAttributeArray(13);
-    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(14);
-    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(15);
-    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    mesh->Vao()->SetAttributeDivisor(12, 1);
-    mesh->Vao()->SetAttributeDivisor(13, 1);
-    mesh->Vao()->SetAttributeDivisor(14, 1);
-    mesh->Vao()->SetAttributeDivisor(15, 1);
+
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
     auto program = material->m_program.get();
     if (program == nullptr)
         program = DefaultResources::GLPrograms::StandardInstancedProgram.get();
@@ -2374,7 +2359,7 @@ void RenderManager::DrawMeshInstanced(
     GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
     BindTextures(material);
     ApplyProgramSettings(program);
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+    mesh->DrawInstanced(matrices);
     ReleaseTextureHandles(material);
     OpenGLUtils::GLVAO::BindDefault();
 }
@@ -2402,11 +2387,6 @@ void RenderManager::DrawMesh(
 {
     if (mesh == nullptr || material == nullptr)
         return;
-    mesh->Enable();
-    mesh->Vao()->DisableAttributeArray(12);
-    mesh->Vao()->DisableAttributeArray(13);
-    mesh->Vao()->DisableAttributeArray(14);
-    mesh->Vao()->DisableAttributeArray(15);
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
     auto program = material->m_program.get();
@@ -2427,9 +2407,8 @@ void RenderManager::DrawMesh(
     MaterialPropertySetter(material);
     BindTextures(material);
     ApplyProgramSettings(program);
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+    mesh->Draw();
     ReleaseTextureHandles(material);
-    OpenGLUtils::GLVAO::BindDefault();
 }
 
 void RenderManager::DrawMeshInternal(const Mesh *mesh)
@@ -2468,11 +2447,10 @@ void RenderManager::DrawGizmoMeshInstanced(
     const Mesh *mesh,
     const glm::vec4 &color,
     const glm::mat4 &model,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &scaleMatrix)
 {
-    if (mesh == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || matrices.empty())
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -2481,51 +2459,23 @@ void RenderManager::DrawGizmoMeshInstanced(
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mesh->Enable();
-    const auto vao = mesh->Vao();
-    const OpenGLUtils::GLVBO matricesBuffer;
-    matricesBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    vao->EnableAttributeArray(12);
-    vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    vao->EnableAttributeArray(13);
-    vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    vao->EnableAttributeArray(14);
-    vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    vao->EnableAttributeArray(15);
-    vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    vao->SetAttributeDivisor(12, 1);
-    vao->SetAttributeDivisor(13, 1);
-    vao->SetAttributeDivisor(14, 1);
-    vao->SetAttributeDivisor(15, 1);
-
     DefaultResources::GLPrograms::GizmoInstancedProgram->Bind();
     DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
     DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4x4("model", model);
     DefaultResources::GLPrograms::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-    glDrawElementsInstanced(
-        GL_TRIANGLES,
-        static_cast<GLsizei>(mesh->GetTriangleAmount()) * 3,
-        GL_UNSIGNED_INT,
-        0,
-        static_cast<GLsizei>(count));
-
-    vao->DisableAttributeArray(12);
-    vao->DisableAttributeArray(13);
-    vao->DisableAttributeArray(14);
-    vao->DisableAttributeArray(15);
-    OpenGLUtils::GLVAO::BindDefault();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    mesh->DrawInstanced(matrices);
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
     const Mesh *mesh,
-    const glm::vec4 *colors,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::vec4> &colors,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
     const glm::mat4 &scaleMatrix)
 {
-    if (mesh == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || matrices.empty() || colors.empty() || matrices.size() != colors.size())
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -2536,43 +2486,17 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     mesh->Enable();
     const auto vao = mesh->Vao();
     const OpenGLUtils::GLVBO colorsBuffer;
-    colorsBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::vec4), colors, GL_STATIC_DRAW);
+    colorsBuffer.SetData(static_cast<GLsizei>(matrices.size()) * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
     vao->EnableAttributeArray(11);
     vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
     vao->SetAttributeDivisor(11, 1);
-
-    const OpenGLUtils::GLVBO matricesBuffer;
-    matricesBuffer.SetData(static_cast<GLsizei>(count) * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    vao->EnableAttributeArray(12);
-    vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    vao->EnableAttributeArray(13);
-    vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    vao->EnableAttributeArray(14);
-    vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    vao->EnableAttributeArray(15);
-    vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    vao->SetAttributeDivisor(12, 1);
-    vao->SetAttributeDivisor(13, 1);
-    vao->SetAttributeDivisor(14, 1);
-    vao->SetAttributeDivisor(15, 1);
 
     DefaultResources::GLPrograms::GizmoInstancedColoredProgram->Bind();
     DefaultResources::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
     DefaultResources::GLPrograms::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-    glDrawElementsInstanced(
-        GL_TRIANGLES,
-        static_cast<GLsizei>(mesh->GetTriangleAmount()) * 3,
-        GL_UNSIGNED_INT,
-        0,
-        static_cast<GLsizei>(count));
-
-    vao->DisableAttributeArray(11);
-    vao->DisableAttributeArray(12);
-    vao->DisableAttributeArray(13);
-    vao->DisableAttributeArray(14);
-    vao->DisableAttributeArray(15);
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    mesh->DrawInstanced(matrices);
     OpenGLUtils::GLVAO::BindDefault();
 }
 
@@ -2585,11 +2509,6 @@ void RenderManager::DrawGizmoMesh(
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
-    mesh->Enable();
-    mesh->Vao()->DisableAttributeArray(12);
-    mesh->Vao()->DisableAttributeArray(13);
-    mesh->Vao()->DisableAttributeArray(14);
-    mesh->Vao()->DisableAttributeArray(15);
 
     DefaultResources::GLPrograms::GizmoProgram->Bind();
     DefaultResources::GLPrograms::GizmoProgram->SetFloat4("surfaceColor", color);
@@ -2598,8 +2517,7 @@ void RenderManager::DrawGizmoMesh(
 
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-    OpenGLUtils::GLVAO::BindDefault();
+    mesh->Draw();
 }
 #pragma endregion
 
@@ -2608,8 +2526,7 @@ void RenderManager::DrawGizmoMeshInstanced(
     const Mesh *mesh,
     const CameraComponent &cameraComponent,
     const glm::vec4 &color,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
     const float &size)
 {
@@ -2624,7 +2541,7 @@ void RenderManager::DrawGizmoMeshInstanced(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
-            DrawGizmoMeshInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+            DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
     if (&cameraComponent == &sceneCamera)
@@ -2632,7 +2549,6 @@ void RenderManager::DrawGizmoMeshInstanced(
     if (!cameraComponent.IsEnabled())
         return;
     const auto entity = cameraComponent.GetOwner();
-
     const auto ltw = entity.GetDataComponent<GlobalTransform>();
     glm::vec3 scale;
     glm::vec3 trans;
@@ -2643,15 +2559,14 @@ void RenderManager::DrawGizmoMeshInstanced(
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
-    DrawGizmoMeshInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
     const Mesh *mesh,
     const CameraComponent &cameraComponent,
-    const glm::vec4 *colors,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::vec4> &colors,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
     const float &size)
 {
@@ -2666,7 +2581,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
-            DrawGizmoMeshInstancedColored(mesh, colors, matrices, count, model, glm::scale(glm::vec3(size)));
+            DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
         }
     }
     if (&cameraComponent == &sceneCamera)
@@ -2685,7 +2600,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
-    DrawGizmoMeshInstancedColored(mesh, colors, matrices, count, model, glm::scale(glm::vec3(size)));
+    DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMesh(
@@ -2710,15 +2625,14 @@ void RenderManager::DrawGizmoMeshInstanced(
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
     const float &size)
 {
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
-    DrawGizmoMeshInstanced(mesh, color, model, matrices, count, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
@@ -2726,16 +2640,15 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     const CameraComponent &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
-    const glm::vec4 *colors,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::vec4> &colors,
+    const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
     const float &size)
 {
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
-    DrawGizmoMeshInstancedColored(mesh, colors, matrices, count, model, glm::scale(glm::vec3(size)));
+    DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2776,7 +2689,7 @@ void RenderManager::DrawGizmoRays(
     }
 
     DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2797,7 +2710,7 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
     DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2858,7 +2771,7 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
     DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), connections.size());
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2888,7 +2801,7 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
     DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models.data(), rays.size());
+        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2958,8 +2871,7 @@ void RenderManager::DrawMeshInstanced(
     const Mesh *mesh,
     const Material *material,
     const glm::mat4 &model,
-    const glm::mat4 *matrices,
-    const size_t &count,
+    const std::vector<glm::mat4> &matrices,
     const CameraComponent &cameraComponent,
     const bool &receiveShadow)
 {
@@ -2976,7 +2888,7 @@ void RenderManager::DrawMeshInstanced(
             sceneCamera.Bind();
             ApplyShadowMapSettings(sceneCamera);
             ApplyEnvironmentalSettings(cameraComponent);
-            DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
+            DrawMeshInstanced(mesh, material, model, matrices, receiveShadow);
         }
     }
     if (&cameraComponent == &sceneCamera)
@@ -2998,7 +2910,7 @@ void RenderManager::DrawMeshInstanced(
     cameraComponent.Bind();
     ApplyShadowMapSettings(cameraComponent);
     ApplyEnvironmentalSettings(cameraComponent);
-    DrawMeshInstanced(mesh, material, model, matrices, count, receiveShadow);
+    DrawMeshInstanced(mesh, material, model, matrices, receiveShadow);
 }
 
 #pragma region DrawTexture

@@ -158,8 +158,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const Mesh *mesh,
         const Material *material,
         const glm::mat4 &model,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::mat4> &matrices,
         const bool &receiveShadow);
     static void DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4>& matrices);
     static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4>& matrices);
@@ -169,14 +168,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const Mesh *mesh,
         const glm::vec4 &color,
         const glm::mat4 &model,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstancedColored(
         const Mesh *mesh,
-        const glm::vec4 *colors,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::vec4> &colors,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model,
         const glm::mat4 &scaleMatrix);
 
@@ -262,16 +259,14 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const Mesh *mesh,
         const CameraComponent &cameraComponent,
         const glm::vec4 &color,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
         const Mesh *mesh,
         const CameraComponent &cameraComponent,
-        const glm::vec4 *colors,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::vec4> &colors,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
 
@@ -289,8 +284,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
@@ -298,9 +292,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const CameraComponent &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
-        const glm::vec4 *colors,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::vec4> &colors,
+        const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
 
@@ -364,8 +357,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const Mesh *mesh,
         const Material *material,
         const glm::mat4 &model,
-        const glm::mat4 *matrices,
-        const size_t &count,
+        const std::vector<glm::mat4> &matrices,
         const CameraComponent &cameraComponent,
         const bool &receiveShadow = true);
 
