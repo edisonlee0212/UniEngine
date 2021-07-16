@@ -50,8 +50,6 @@ class UNIENGINE_API Mesh : public ResourceBehaviour
     friend class EditorManager;
     size_t m_version = 0;
 
-
-
     std::vector<Vertex> m_vertices;
     std::vector<glm::uvec3> m_triangles;
 

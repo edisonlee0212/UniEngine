@@ -1286,73 +1286,6 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
         }
     }
 }
-void RenderManager::PreUpdate()
-{
-    auto &renderManager = GetInstance();
-    renderManager.m_triangles = 0;
-    renderManager.m_drawCall = 0;
-    if (renderManager.m_mainCameraComponent != nullptr)
-    {
-        if (renderManager.m_mainCameraComponent->m_allowAutoResize)
-            renderManager.m_mainCameraComponent->ResizeResolution(
-                renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
-    }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
-    if (cameraEntities != nullptr)
-    {
-        for (auto cameraEntity : *cameraEntities)
-        {
-            if (!cameraEntity.IsEnabled())
-                continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
-            if (cameraComponent.IsEnabled())
-                cameraComponent.Clear();
-        }
-    }
-
-    Bound worldBound;
-    if (renderManager.m_mainCameraComponent)
-    {
-        CollectRenderInstances(
-            renderManager.m_mainCameraComponent->GetOwner().GetDataComponent<GlobalTransform>(), worldBound);
-    }
-    else
-    {
-        CollectRenderInstances(GlobalTransform(), worldBound);
-    }
-    EntityManager::GetCurrentWorld()->SetBound(worldBound);
-    if (renderManager.m_mainCameraComponent != nullptr)
-    {
-        if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
-        {
-            RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
-        }
-    }
-
-#pragma region Render to cameras
-    if (cameraEntities != nullptr)
-    {
-        for (auto cameraEntity : *cameraEntities)
-        {
-            if (!cameraEntity.IsEnabled())
-                continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
-            if (cameraComponent.IsEnabled())
-            {
-                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
-                CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-                    cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-                CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-                ApplyShadowMapSettings(cameraComponent);
-                ApplyEnvironmentalSettings(cameraComponent);
-                RenderToCameraDeferred(cameraComponent);
-                RenderBackGround(cameraComponent);
-                RenderToCameraForward(cameraComponent);
-            }
-        }
-    }
-#pragma endregion
-}
 
 inline float RenderManager::Lerp(const float &a, const float &b, const float &f)
 {
@@ -1743,217 +1676,144 @@ glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::v
 
 void RenderManager::OnGui()
 {
-    auto &manager = GetInstance();
+    auto &renderManager = GetInstance();
 
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Render Manager", &manager.m_enableRenderMenu);
+            ImGui::Checkbox("Render Manager", &renderManager.m_enableRenderMenu);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
-    if (manager.m_enableRenderMenu)
+    if (renderManager.m_enableRenderMenu)
     {
         ImGui::Begin("Render Manager");
-        ImGui::DragFloat("Gamma", & manager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
+        ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
         if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Text("Environmental map:");
             ImGui::SameLine();
-            EditorManager::DragAndDrop(manager.m_environmentalMap);
+            EditorManager::DragAndDrop(renderManager.m_environmentalMap);
             ImGui::DragFloat(
-                "Environmental light intensity", &manager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
+                "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
         }
-        bool enableShadow = manager.m_materialSettings.m_enableShadow;
+        bool enableShadow = renderManager.m_materialSettings.m_enableShadow;
         if (ImGui::Checkbox("Enable shadow", &enableShadow))
         {
-            manager.m_materialSettings.m_enableShadow = enableShadow;
+            renderManager.m_materialSettings.m_enableShadow = enableShadow;
         }
-        if (manager.m_materialSettings.m_enableShadow &&
+        if (renderManager.m_materialSettings.m_enableShadow &&
             ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::TreeNode("Distance"))
             {
-                ImGui::DragFloat("Max shadow distance", &manager.m_maxShadowDistance, 1.0f, 0.1f);
+                ImGui::DragFloat("Max shadow distance", &renderManager.m_maxShadowDistance, 1.0f, 0.1f);
                 ImGui::DragFloat(
-                    "Split 1", &manager.m_shadowCascadeSplit[0], 0.01f, 0.0f, manager.m_shadowCascadeSplit[1]);
+                    "Split 1", &renderManager.m_shadowCascadeSplit[0], 0.01f, 0.0f,
+                    renderManager.m_shadowCascadeSplit[1]);
                 ImGui::DragFloat(
                     "Split 2",
-                    &manager.m_shadowCascadeSplit[1],
+                    &renderManager.m_shadowCascadeSplit[1],
                     0.01f,
-                    manager.m_shadowCascadeSplit[0],
-                    manager.m_shadowCascadeSplit[2]);
+                    renderManager.m_shadowCascadeSplit[0],
+                    renderManager.m_shadowCascadeSplit[2]);
                 ImGui::DragFloat(
                     "Split 3",
-                    &manager.m_shadowCascadeSplit[2],
+                    &renderManager.m_shadowCascadeSplit[2],
                     0.01f,
-                    manager.m_shadowCascadeSplit[1],
-                    manager.m_shadowCascadeSplit[3]);
+                    renderManager.m_shadowCascadeSplit[1],
+                    renderManager.m_shadowCascadeSplit[3]);
                 ImGui::DragFloat(
-                    "Split 4", &manager.m_shadowCascadeSplit[3], 0.01f, manager.m_shadowCascadeSplit[2], 1.0f);
+                    "Split 4", &renderManager.m_shadowCascadeSplit[3], 0.01f,
+                    renderManager.m_shadowCascadeSplit[2], 1.0f);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode("PCSS"))
             {
-                ImGui::DragFloat("PCSS Factor", &manager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
-                ImGui::DragInt("Blocker search side amount", &manager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
-                ImGui::DragInt("PCF Sample Size", &manager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
+                ImGui::DragFloat("PCSS Factor", &renderManager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
+                ImGui::DragInt("Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
+                ImGui::DragInt("PCF Sample Size", &renderManager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
                 ImGui::TreePop();
             }
-            ImGui::DragFloat("Seam fix ratio", &manager.m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
-            ImGui::Checkbox("Stable fit", &manager.m_stableFit);
+            ImGui::DragFloat("Seam fix ratio", &renderManager.m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
+            ImGui::Checkbox("Stable fit", &renderManager.m_stableFit);
         }
         ImGui::End();
     }
-
-    ImVec2 viewPortSize;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-
-    ImGui::Begin("Camera");
-    {
-        static int corner = 1;
-        // Using a Child allow to fill all the space of the window.
-        // It also allows customization
-        if (ImGui::BeginChild("CameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar))
-        {
-            if (ImGui::BeginMenuBar())
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
-                if (ImGui::BeginMenu("Settings"))
-                {
-#pragma region Menu
-                    ImGui::Checkbox("Display info", &manager.m_enableInfoWindow);
-#pragma endregion
-                    ImGui::EndMenu();
-                }
-                ImGui::PopStyleVar();
-                ImGui::EndMenuBar();
-            }
-            viewPortSize = ImGui::GetWindowSize();
-            viewPortSize.y -= 20;
-            // Get the size of the child (i.e. the whole draw size of the windows).
-            ImVec2 overlayPos = ImGui::GetWindowPos();
-            // Because I use the texture from OpenGL, I need to invert the V from the UV.
-            bool cameraActive = false;
-            if (manager.m_mainCameraComponent != nullptr)
-            {
-                auto entity = manager.m_mainCameraComponent->GetOwner();
-                if (entity.IsEnabled() && manager.m_mainCameraComponent->IsEnabled())
-                {
-                    auto id = manager.m_mainCameraComponent->GetTexture()->Texture()->Id();
-                    ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-                    if (ImGui::BeginDragDropTarget())
-                    {
-                        const std::string modelTypeHash = ResourceManager::GetTypeName<Model>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-                            std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
-                            EntityArchetype archetype =
-                                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                            Transform ltw;
-                            ResourceManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
-                        }
-                        const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
-                            std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
-                            Transform ltw;
-                            Entity entity = EntityManager::CreateEntity("Mesh");
-                            entity.SetDataComponent(ltw);
-                            auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
-                            meshRenderer.m_mesh = payload_n;
-                            meshRenderer.m_material = ResourceManager::CreateResource<Material>();
-                            meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-                        }
-
-                        const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();
-                        if (const ImGuiPayload *payload =
-                                ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
-                            std::shared_ptr<EnvironmentalMap> payload_n =
-                                *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
-                            manager.m_environmentalMap = payload_n;
-                        }
-
-                        const std::string cubeMapTypeHash = ResourceManager::GetTypeName<Cubemap>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-                            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
-                            auto *mainCamera = GetMainCamera();
-                            if (mainCamera)
-                            {
-                                mainCamera->m_skybox = payload_n;
-                            }
-                        }
-
-                        ImGui::EndDragDropTarget();
-                    }
-                    cameraActive = true;
-                }
-            }
-            if (!cameraActive)
-            {
-                ImGui::Text("No active main camera!");
-            }
-
-            ImVec2 window_pos = ImVec2(
-                (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
-                (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y) + 20);
-            if (manager.m_enableInfoWindow)
-            {
-                ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
-                ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-                ImGui::SetNextWindowBgAlpha(0.35f);
-                ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
-                                                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-                                                ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-
-                ImGui::BeginChild("Render Info", ImVec2(200, 75), false, window_flags);
-                ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
-                std::string trisstr = "";
-                if (manager.m_triangles < 999)
-                    trisstr += std::to_string(manager.m_triangles);
-                else if (manager.m_triangles < 999999)
-                    trisstr += std::to_string((int)(manager.m_triangles / 1000)) + "K";
-                else
-                    trisstr += std::to_string((int)(manager.m_triangles / 1000000)) + "M";
-                trisstr += " tris";
-                ImGui::Text(trisstr.c_str());
-                ImGui::Text("%d drawcall", manager.m_drawCall);
-                ImGui::Separator();
-                if (ImGui::IsMousePosValid())
-                {
-                    glm::vec2 pos;
-                    InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
-                    ImGui::Text("Mouse Pos: (%.1f,%.1f)", pos.x, pos.y);
-                }
-                else
-                {
-                    ImGui::Text("Mouse Pos: <invalid>");
-                }
-                ImGui::EndChild();
-            }
-        }
-        ImGui::EndChild();
-        manager.m_mainCameraViewable =
-            !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
-    }
-    ImGui::End();
-    ImGui::PopStyleVar();
-    manager.m_mainCameraResolutionX = viewPortSize.x;
-    manager.m_mainCameraResolutionY = viewPortSize.y;
 }
 
 void RenderManager::LateUpdate()
 {
-    auto &manager = GetInstance();
+    auto &renderManager = GetInstance();
+    renderManager.m_triangles = 0;
+    renderManager.m_drawCall = 0;
+#pragma region Resize and clear
+    if (renderManager.m_mainCameraComponent != nullptr)
+    {
+        if (renderManager.m_mainCameraComponent->m_allowAutoResize)
+            renderManager.m_mainCameraComponent->ResizeResolution(
+                renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
+    }
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
+    if (cameraEntities != nullptr)
+    {
+        for (auto cameraEntity : *cameraEntities)
+        {
+            if (!cameraEntity.IsEnabled())
+                continue;
+            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+            if (cameraComponent.IsEnabled())
+                cameraComponent.Clear();
+        }
+    }
+#pragma endregion
+#pragma region Shadowmap prepass
+    Bound worldBound;
+    if (renderManager.m_mainCameraComponent)
+    {
+        CollectRenderInstances(
+            renderManager.m_mainCameraComponent->GetOwner().GetDataComponent<GlobalTransform>(), worldBound);
+    }
+    else
+    {
+        CollectRenderInstances(GlobalTransform(), worldBound);
+    }
+    EntityManager::GetCurrentWorld()->SetBound(worldBound);
+    if (renderManager.m_mainCameraComponent != nullptr)
+    {
+        if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
+        {
+            RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
+        }
+    }
+#pragma endregion
+#pragma region Render to cameras
+    if (cameraEntities != nullptr)
+    {
+        for (auto cameraEntity : *cameraEntities)
+        {
+            if (!cameraEntity.IsEnabled())
+                continue;
+            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+            if (cameraComponent.IsEnabled())
+            {
+                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
+                CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+                    cameraComponent, ltw.GetPosition(), ltw.GetRotation());
+                CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+                ApplyShadowMapSettings(cameraComponent);
+                ApplyEnvironmentalSettings(cameraComponent);
+                RenderToCameraDeferred(cameraComponent);
+                RenderBackGround(cameraComponent);
+                RenderToCameraForward(cameraComponent);
+            }
+        }
+    }
+#pragma endregion
+#pragma region Post-processing
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
     if (postProcessingEntities != nullptr)
@@ -1967,6 +1827,7 @@ void RenderManager::LateUpdate()
                 postProcessing.Process();
         }
     }
+#pragma endregion
 }
 
 #pragma endregion

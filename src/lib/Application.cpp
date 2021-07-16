@@ -99,11 +99,12 @@ void Application::PreUpdateInternal()
     application.m_time.m_frameStartTime = glfwGetTime();
     ProfilerManager::PreUpdate();
     WindowManager::PreUpdate();
+
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
     EditorManager::PreUpdate();
+    InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
     AnimationManager::PreUpdate();
-    RenderManager::PreUpdate();
     for (const auto &i : application.m_externalPreUpdateFunctions)
         i();
     if (application.m_playing)

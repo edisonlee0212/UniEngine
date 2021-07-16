@@ -5,6 +5,8 @@
 #include <ProfilerManager.hpp>
 #include <RenderManager.hpp>
 #include <World.hpp>
+#include <InputManager.hpp>
+
 namespace UniEngine
 {
 class UNIENGINE_API ApplicationTime
@@ -64,5 +66,6 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static void RegisterLateUpdateFunction(const std::function<void()> &func);
     static void RegisterFixedUpdateFunction(const std::function<void()> &func);
 };
+
 
 } // namespace UniEngine

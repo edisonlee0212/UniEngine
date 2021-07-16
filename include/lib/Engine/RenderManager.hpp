@@ -101,10 +101,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     int m_mainCameraResolutionX = 1;
     int m_mainCameraResolutionY = 1;
     friend class RenderTarget;
+    friend class DefaultResources;
+    friend class EditorManager;
+
     size_t m_triangles = 0;
     size_t m_drawCall = 0;
-    friend class DefaultResources;
-
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
     std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
 #pragma endregion
@@ -136,7 +137,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
 
-    friend class EditorManager;
+
 
     std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
     std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
@@ -212,7 +213,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     // Main rendering happens here.
 
     static void CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound);
-    static void PreUpdate();
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetShadowMapResolution(const size_t &value);

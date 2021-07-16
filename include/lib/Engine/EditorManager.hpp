@@ -39,8 +39,8 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     bool m_enableConsoleLogs = true;
     bool m_enableConsoleErrors = true;
     bool m_enableConsoleWarnings = false;
-    bool m_sceneWindowFocused = false;
-
+    bool m_sceneCameraWindowFocused = false;
+    bool m_mainCameraWindowFocused = false;
 #pragma region Transfer
 
     glm::quat m_previousRotation;
@@ -93,6 +93,9 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void HighLightEntityPrePassHelper(const Entity &entity);
     static void HighLightEntityHelper(const Entity &entity);
 
+
+    static void SceneCameraWindow();
+    static void MainCameraWindow();
   public:
     int m_selectedHierarchyDisplayMode = 1;
     static void MoveCamera(
@@ -130,6 +133,11 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     template <typename T = ResourceBehaviour> static bool Draggable(std::shared_ptr<T> &target);
     static bool DragAndDrop(Entity &entity);
     static bool Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target);
+
+
+
+    static bool MainCameraWindowFocused();
+    static bool SceneCameraWindowFocused();
 };
 
 template <typename T1>
@@ -264,5 +272,6 @@ template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
     }
     return removed;
 }
+
 
 } // namespace UniEngine
