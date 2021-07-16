@@ -38,6 +38,14 @@ void OpenGLUtils::Init()
     }
 }
 
+GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
+std::list<OpenGLUtils::GLTexture *> OpenGLUtils::GLTexture::m_currentlyResidentTexture;
+std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
+std::map<GLenum, GLuint> OpenGLUtils::GLBuffer::m_boundBuffers;
+GLuint OpenGLUtils::GLVAO::m_boundVAO = 0;
+GLuint OpenGLUtils::GLProgram::m_boundProgram = 0;
+GLuint OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer = 0;
+GLuint OpenGLUtils::GLRenderBuffer::m_boundRenderBuffer = 0;
 void OpenGLUtils::PreUpdate()
 {
     for (auto &i : GLTexture::m_currentBoundTextures)
@@ -45,6 +53,12 @@ void OpenGLUtils::PreUpdate()
         i.first = -1;
         i.second = -1;
     }
+
+    GLBuffer::m_boundBuffers.clear();
+    GLVAO::m_boundVAO = 0;
+    GLProgram::m_boundProgram = 0;
+    GLFrameBuffer::m_boundFrameBuffer = 0;
+    GLRenderBuffer::m_boundRenderBuffer = 0;
 }
 
 GLuint OpenGLUtils::GLObject::Id() const
@@ -60,6 +74,11 @@ OpenGLUtils::GLBuffer::GLBuffer(GLenum target)
 
 void OpenGLUtils::GLBuffer::Bind() const
 {
+    const auto search = m_boundBuffers.find(m_target);
+    if(search != m_boundBuffers.end() && search->second == m_id){
+        return;
+    }
+    m_boundBuffers[m_target] = m_id;
     glBindBuffer(m_target, m_id);
 }
 
@@ -157,11 +176,15 @@ OpenGLUtils::GLVAO::~GLVAO()
 
 void OpenGLUtils::GLVAO::Bind() const
 {
+    if(m_boundVAO == m_id) return;
+    m_boundVAO = m_id;
     glBindVertexArray(m_id);
 }
 
 void OpenGLUtils::GLVAO::BindDefault()
 {
+    if(m_boundVAO == 0) return;
+    m_boundVAO = 0;
     glBindVertexArray(0);
 }
 
@@ -227,9 +250,7 @@ void OpenGLUtils::GLVAO::SetAttributeDivisor(const GLuint &index, const GLuint &
     glVertexAttribDivisor(index, divisor);
 }
 
-GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
-std::list<OpenGLUtils::GLTexture *> OpenGLUtils::GLTexture::m_currentlyResidentTexture;
-std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
+
 OpenGLUtils::TextureBinding::TextureBinding()
 {
     m_1d = 0;
@@ -726,11 +747,15 @@ void OpenGLUtils::GLTextureCubeMapArray::SubData(
 
 void OpenGLUtils::GLRenderBuffer::Bind()
 {
+    if(m_boundRenderBuffer == m_id) return;
+    m_boundRenderBuffer = m_id;
     glBindRenderbuffer(GL_RENDERBUFFER, m_id);
 }
 
 void OpenGLUtils::GLRenderBuffer::BindDefault()
 {
+    if(m_boundRenderBuffer == 0) return;
+    m_boundRenderBuffer = 0;
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
@@ -763,6 +788,8 @@ void OpenGLUtils::GLFrameBuffer::Disable(const GLenum &cap)
 
 void OpenGLUtils::GLFrameBuffer::Bind() const
 {
+    if(m_boundFrameBuffer == m_id) return;
+    m_boundFrameBuffer = m_id;
     glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 }
 
@@ -806,6 +833,8 @@ void OpenGLUtils::GLFrameBuffer::DrawBuffers(const GLsizei &n, const GLenum *buf
 
 void OpenGLUtils::GLFrameBuffer::BindDefault()
 {
+    if(m_boundFrameBuffer == 0) return;
+    m_boundFrameBuffer = 0;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -1069,11 +1098,15 @@ void OpenGLUtils::GLShader::Detach(GLuint programID) const
 
 void OpenGLUtils::GLProgram::Bind() const
 {
+    if(m_boundProgram == m_id) return;
+    m_boundProgram = m_id;
     glUseProgram(m_id);
 }
 
 void OpenGLUtils::GLProgram::BindDefault()
 {
+    if(m_boundProgram == 0) return;
+    m_boundProgram = 0;
     glUseProgram(0);
 }
 

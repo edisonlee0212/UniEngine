@@ -22,7 +22,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     {
       protected:
         GLuint m_id = 0;
-
       public:
         [[nodiscard]] GLuint Id() const;
         virtual ~GLObject() = default;
@@ -30,9 +29,10 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLBuffer : public GLObject
     {
+        friend class OpenGLUtils;
       protected:
         GLenum m_target;
-
+        static std::map<GLenum, GLuint> m_boundBuffers;
       public:
         GLBuffer(GLenum target);
         void Bind() const;
@@ -88,6 +88,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLVAO : public GLObject
     {
+        friend class OpenGLUtils;
+        static GLuint m_boundVAO;
       protected:
         GLVBO m_vbo;
         GLEBO m_ebo;
@@ -101,8 +103,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         GLEBO *Ebo();
         void SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const;
         void SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data) const;
-        static void EnableAttributeArray(const GLuint &index);
-        static void DisableAttributeArray(const GLuint &index);
+        void EnableAttributeArray(const GLuint &index);
+        void DisableAttributeArray(const GLuint &index);
         void SetAttributePointer(
             const GLuint &index,
             const GLint &size,
@@ -123,6 +125,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLRenderBuffer : public GLObject
     {
+        friend class OpenGLUtils;
+        static GLuint m_boundRenderBuffer;
       public:
         void Bind();
         static void BindDefault();
@@ -405,10 +409,11 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLFrameBuffer : public GLObject
     {
+        friend class OpenGLUtils;
         bool m_color;
         bool m_depth;
         bool m_stencil;
-
+        static GLuint m_boundFrameBuffer;
       public:
         static void Enable(const GLenum &cap);
         static void Disable(const GLenum &cap);
@@ -461,9 +466,10 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
     class UNIENGINE_API GLProgram : public GLObject, public ResourceBehaviour
     {
+        friend class OpenGLUtils;
         friend class ResourceManager;
         std::vector<std::shared_ptr<GLShader>> m_shaders;
-
+        static GLuint m_boundProgram;
       public:
         void OnCreate() override;
         ~GLProgram() override;

@@ -258,55 +258,55 @@ std::vector<SkinnedVertex> &SkinnedMesh::UnsafeGetSkinnedVertices()
 
 void SkinnedMesh::Draw() const
 {
-    OpenGLUtils::GLVAO::DisableAttributeArray(12);
-    OpenGLUtils::GLVAO::DisableAttributeArray(13);
-    OpenGLUtils::GLVAO::DisableAttributeArray(14);
-    OpenGLUtils::GLVAO::DisableAttributeArray(15);
-
     m_vao->Bind();
+    m_vao->DisableAttributeArray(12);
+    m_vao->DisableAttributeArray(13);
+    m_vao->DisableAttributeArray(14);
+    m_vao->DisableAttributeArray(15);
+
     glDrawElements(
         GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, (GLvoid *)(sizeof(GLuint) * m_offset));
+    OpenGLUtils::GLVAO::BindDefault();
 }
 void SkinnedMesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 {
     auto count = matrices.size();
     m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
-
-    OpenGLUtils::GLVAO::EnableAttributeArray(12);
+    m_vao->Bind();
+    m_vao->EnableAttributeArray(12);
     m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    OpenGLUtils::GLVAO::EnableAttributeArray(13);
+    m_vao->EnableAttributeArray(13);
     m_vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    OpenGLUtils::GLVAO::EnableAttributeArray(14);
+    m_vao->EnableAttributeArray(14);
     m_vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    OpenGLUtils::GLVAO::EnableAttributeArray(15);
+    m_vao->EnableAttributeArray(15);
     m_vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
     m_vao->SetAttributeDivisor(12, 1);
     m_vao->SetAttributeDivisor(13, 1);
     m_vao->SetAttributeDivisor(14, 1);
     m_vao->SetAttributeDivisor(15, 1);
 
-    m_vao->Bind();
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
+    OpenGLUtils::GLVAO::BindDefault();
 }
 void SkinnedMesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) const
 {
     auto count = matrices.size();
     m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
-
-    OpenGLUtils::GLVAO::EnableAttributeArray(12);
+    m_vao->Bind();
+    m_vao->EnableAttributeArray(12);
     m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    OpenGLUtils::GLVAO::EnableAttributeArray(13);
+    m_vao->EnableAttributeArray(13);
     m_vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    OpenGLUtils::GLVAO::EnableAttributeArray(14);
+    m_vao->EnableAttributeArray(14);
     m_vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    OpenGLUtils::GLVAO::EnableAttributeArray(15);
+    m_vao->EnableAttributeArray(15);
     m_vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
     m_vao->SetAttributeDivisor(12, 1);
     m_vao->SetAttributeDivisor(13, 1);
     m_vao->SetAttributeDivisor(14, 1);
     m_vao->SetAttributeDivisor(15, 1);
 
-    m_vao->Bind();
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
-
+    OpenGLUtils::GLVAO::BindDefault();
 }
