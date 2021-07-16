@@ -146,10 +146,10 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
     static void PrepareBrdfLut();
     static void DeferredPrepassInternal(const Mesh *mesh);
-    static void DeferredPrepassInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
+    static void DeferredPrepassInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices);
     static void DeferredPrepassInternal(const SkinnedMesh *skinnedMesh);
     static void DeferredPrepassInstancedInternal(
-        const SkinnedMesh *skinnedMesh, const glm::mat4 *matrices, const size_t &count);
+        const SkinnedMesh *skinnedMesh, const std::vector<glm::mat4> &matrices);
 
     static void DrawMesh(const Mesh *mesh, const Material *material, const glm::mat4 &model, const bool &receiveShadow);
     static void DrawMeshInternal(const Mesh *mesh);
@@ -161,8 +161,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 *matrices,
         const size_t &count,
         const bool &receiveShadow);
-    static void DrawMeshInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count);
-    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const glm::mat4 *matrices, const size_t &count);
+    static void DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4>& matrices);
+    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4>& matrices);
     static void DrawGizmoMesh(
         const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstanced(

@@ -5,6 +5,7 @@
 #include <Core/OpenGLUtils.hpp>
 #include <World.hpp>
 #include <uniengine_export.h>
+#include <Transform.hpp>
 namespace UniEngine
 {
 struct UNIENGINE_API SkinnedVertex
@@ -23,11 +24,16 @@ struct UNIENGINE_API SkinnedVertex
 
 class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
 {
+    static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
+
     std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
+    size_t m_offset = 0;
+
     unsigned m_mask = 0;
     Bound m_bound;
     friend class SkinnedMeshRenderer;
     friend class Particles;
+    friend class RenderManager;
     friend class EditorManager;
     size_t m_version = 0;
     std::vector<SkinnedVertex> m_skinnedVertices;
@@ -38,6 +44,10 @@ class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
     std::vector<std::shared_ptr<Bone>> m_bones;
 
   public:
+    void Draw() const;
+    void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
+    void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
+
     void OnCreate() override;
     std::shared_ptr<Animation> m_animation;
     void FetchIndices();
@@ -59,5 +69,6 @@ class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
     [[nodiscard]] size_t &GetVersion();
     [[nodiscard]] std::vector<SkinnedVertex> &UnsafeGetSkinnedVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
+
 };
 } // namespace UniEngine

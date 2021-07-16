@@ -3,7 +3,7 @@
 #include <ResourceBehaviour.hpp>
 #include <World.hpp>
 #include <uniengine_export.h>
-
+#include <Transform.hpp>
 namespace UniEngine
 {
 struct UNIENGINE_API Vertex
@@ -23,19 +23,43 @@ enum class UNIENGINE_API VertexAttribute
     TexCoord = 1 << 4, // 16
 };
 
+enum class MeshType{
+    //Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.
+    Persistent,
+    //Meshes here will have it's own VAO. It's relatively more lightweight to make changes here.
+    Temporal
+};
+
+class UNIENGINE_API MeshStorage{
+    static size_t m_persistentMeshesSize;
+    static std::shared_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
+};
+
 class UNIENGINE_API Mesh : public ResourceBehaviour
 {
+    static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
+
     std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
+    size_t m_offset = 0;
+
     unsigned m_mask = 0;
     Bound m_bound;
+    friend class RenderManager;
     friend class MeshRenderer;
     friend class Particles;
     friend class EditorManager;
     size_t m_version = 0;
+
+
+
     std::vector<Vertex> m_vertices;
     std::vector<glm::uvec3> m_triangles;
 
   public:
+    void Draw() const;
+    void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
+    void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
+
     void OnGui();
     [[nodiscard]] glm::vec3 GetCenter() const;
     [[nodiscard]] Bound GetBound() const;

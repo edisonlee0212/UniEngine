@@ -101,8 +101,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         GLEBO *Ebo();
         void SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const;
         void SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data) const;
-        void EnableAttributeArray(const GLuint &index) const;
-        void DisableAttributeArray(const GLuint &index) const;
+        static void EnableAttributeArray(const GLuint &index);
+        static void DisableAttributeArray(const GLuint &index);
         void SetAttributePointer(
             const GLuint &index,
             const GLint &size,

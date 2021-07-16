@@ -15,6 +15,7 @@
 #include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <WindowManager.hpp>
+#include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -90,15 +91,9 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &mmc = entity.GetPrivateComponent<MeshRenderer>();
         if (mmc.IsEnabled() && mmc.m_material != nullptr && mmc.m_mesh != nullptr)
         {
-            auto *mesh = mmc.m_mesh.get();
-            mesh->Enable();
-            mesh->Vao()->DisableAttributeArray(12);
-            mesh->Vao()->DisableAttributeArray(13);
-            mesh->Vao()->DisableAttributeArray(14);
-            mesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+            mmc.m_mesh->Draw();
         }
     }
     if (entity.HasPrivateComponent<Particles>())
@@ -106,29 +101,9 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &immc = entity.GetPrivateComponent<Particles>();
         if (immc.IsEnabled() && immc.m_material != nullptr && immc.m_mesh != nullptr)
         {
-            const auto count = immc.m_matrices.size();
-            std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-            matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc.m_matrices.data(), GL_STATIC_DRAW);
-            auto *mesh = immc.m_mesh.get();
-            mesh->Enable();
-            mesh->Vao()->EnableAttributeArray(12);
-            mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-            mesh->Vao()->EnableAttributeArray(13);
-            mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-            mesh->Vao()->EnableAttributeArray(14);
-            mesh->Vao()->SetAttributePointer(
-                14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-            mesh->Vao()->EnableAttributeArray(15);
-            mesh->Vao()->SetAttributePointer(
-                15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-            mesh->Vao()->SetAttributeDivisor(12, 1);
-            mesh->Vao()->SetAttributeDivisor(13, 1);
-            mesh->Vao()->SetAttributeDivisor(14, 1);
-            mesh->Vao()->SetAttributeDivisor(15, 1);
             GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            glDrawElementsInstanced(
-                GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+            immc.m_mesh->DrawInstanced(immc.m_matrices);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -136,16 +111,10 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
         if (smmc.IsEnabled() && smmc.m_material != nullptr && smmc.m_skinnedMesh != nullptr)
         {
-            auto *skinnedMesh = smmc.m_skinnedMesh.get();
             smmc.UploadBones();
-            skinnedMesh->Enable();
-            skinnedMesh->Vao()->DisableAttributeArray(12);
-            skinnedMesh->Vao()->DisableAttributeArray(13);
-            skinnedMesh->Vao()->DisableAttributeArray(14);
-            skinnedMesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+            smmc.m_skinnedMesh->Draw();
         }
     }
 }
@@ -162,14 +131,9 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = mmc.m_mesh.get();
-            mesh->Enable();
-            mesh->Vao()->DisableAttributeArray(12);
-            mesh->Vao()->DisableAttributeArray(13);
-            mesh->Vao()->DisableAttributeArray(14);
-            mesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
             GetInstance().m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
-            glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+            mesh->Draw();
         }
     }
     if (entity.HasPrivateComponent<Particles>())
@@ -177,29 +141,10 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto &immc = entity.GetPrivateComponent<Particles>();
         if (immc.IsEnabled() && immc.m_material != nullptr && immc.m_mesh != nullptr)
         {
-            auto count = immc.m_matrices.size();
-            std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-            matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), immc.m_matrices.data(), GL_STATIC_DRAW);
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = immc.m_mesh.get();
-            mesh->Enable();
-            mesh->Vao()->EnableAttributeArray(12);
-            mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-            mesh->Vao()->EnableAttributeArray(13);
-            mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-            mesh->Vao()->EnableAttributeArray(14);
-            mesh->Vao()->SetAttributePointer(
-                14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-            mesh->Vao()->EnableAttributeArray(15);
-            mesh->Vao()->SetAttributePointer(
-                15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-            mesh->Vao()->SetAttributeDivisor(12, 1);
-            mesh->Vao()->SetAttributeDivisor(13, 1);
-            mesh->Vao()->SetAttributeDivisor(14, 1);
-            mesh->Vao()->SetAttributeDivisor(15, 1);
             GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
-            glDrawElementsInstanced(
-                GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+            mesh->DrawInstanced(immc.m_matrices);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -210,14 +155,9 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *skinnedMesh = smmc.m_skinnedMesh.get();
             smmc.UploadBones();
-            skinnedMesh->Enable();
-            skinnedMesh->Vao()->DisableAttributeArray(12);
-            skinnedMesh->Vao()->DisableAttributeArray(13);
-            skinnedMesh->Vao()->DisableAttributeArray(14);
-            skinnedMesh->Vao()->DisableAttributeArray(15);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
-            glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+            skinnedMesh->Draw();
         }
     }
 }
@@ -765,15 +705,9 @@ void EditorManager::Update()
                         program->Bind();
                         auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        auto *mesh = meshRenderer->m_mesh.get();
-                        mesh->Enable();
-                        mesh->Vao()->DisableAttributeArray(12);
-                        mesh->Vao()->DisableAttributeArray(13);
-                        mesh->Vao()->DisableAttributeArray(14);
-                        mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
-                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        meshRenderer->m_mesh->Draw();
                         break;
                     }
                     case RenderInstanceType::Skinned: {
@@ -781,15 +715,9 @@ void EditorManager::Update()
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                         skinnedMeshRenderer->UploadBones();
-                        auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
-                        mesh->Enable();
-                        mesh->Vao()->DisableAttributeArray(12);
-                        mesh->Vao()->DisableAttributeArray(13);
-                        mesh->Vao()->DisableAttributeArray(14);
-                        mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
-                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        skinnedMeshRenderer->m_skinnedMesh->Draw();
                         break;
                     }
                     }
@@ -809,15 +737,9 @@ void EditorManager::Update()
                         program->Bind();
                         auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        auto *mesh = meshRenderer->m_mesh.get();
-                        mesh->Enable();
-                        mesh->Vao()->DisableAttributeArray(12);
-                        mesh->Vao()->DisableAttributeArray(13);
-                        mesh->Vao()->DisableAttributeArray(14);
-                        mesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
-                        glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        meshRenderer->m_mesh->Draw();
                         break;
                     }
                     case RenderInstanceType::Skinned: {
@@ -825,15 +747,9 @@ void EditorManager::Update()
                         program->Bind();
                         auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                         skinnedMeshRenderer->UploadBones();
-                        auto *skinnedMesh = skinnedMeshRenderer->m_skinnedMesh.get();
-                        skinnedMesh->Enable();
-                        skinnedMesh->Vao()->DisableAttributeArray(12);
-                        skinnedMesh->Vao()->DisableAttributeArray(13);
-                        skinnedMesh->Vao()->DisableAttributeArray(14);
-                        skinnedMesh->Vao()->DisableAttributeArray(15);
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
-                        glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                        skinnedMeshRenderer->m_skinnedMesh->Draw();
                         break;
                     }
                     }
@@ -851,15 +767,9 @@ void EditorManager::Update()
                     program->Bind();
                     auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    auto *mesh = meshRenderer->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                         "EntityIndex", renderInstance.m_owner.GetIndex());
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    meshRenderer->m_mesh->Draw();
                     break;
                 }
                 case RenderInstanceType::Skinned: {
@@ -867,15 +777,9 @@ void EditorManager::Update()
                     program->Bind();
                     auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                         "EntityIndex", renderInstance.m_owner.GetIndex());
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    skinnedMeshRenderer->m_skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -895,34 +799,11 @@ void EditorManager::Update()
                         program->Bind();
                         auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                        auto count = particles->m_matrices.size();
-                        std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                        matricesBuffer->SetData(
-                            (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                        auto *mesh = particles->m_mesh.get();
-                        mesh->Enable();
-                        mesh->Vao()->EnableAttributeArray(12);
-                        mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                        mesh->Vao()->EnableAttributeArray(13);
-                        mesh->Vao()->SetAttributePointer(
-                            13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                        mesh->Vao()->EnableAttributeArray(14);
-                        mesh->Vao()->SetAttributePointer(
-                            14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                        mesh->Vao()->EnableAttributeArray(15);
-                        mesh->Vao()->SetAttributePointer(
-                            15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                        mesh->Vao()->SetAttributeDivisor(12, 1);
-                        mesh->Vao()->SetAttributeDivisor(13, 1);
-                        mesh->Vao()->SetAttributeDivisor(14, 1);
-                        mesh->Vao()->SetAttributeDivisor(15, 1);
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderInstance.m_globalTransform.m_value);
-                        glDrawElementsInstanced(
-                            GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                        particles->m_mesh->DrawInstanced(particles->m_matrices);
                         break;
                     }
                     }
@@ -942,34 +823,11 @@ void EditorManager::Update()
                         program->Bind();
                         auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                        auto count = particles->m_matrices.size();
-                        std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                        matricesBuffer->SetData(
-                            (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                        auto *mesh = particles->m_mesh.get();
-                        mesh->Enable();
-                        mesh->Vao()->EnableAttributeArray(12);
-                        mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                        mesh->Vao()->EnableAttributeArray(13);
-                        mesh->Vao()->SetAttributePointer(
-                            13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                        mesh->Vao()->EnableAttributeArray(14);
-                        mesh->Vao()->SetAttributePointer(
-                            14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                        mesh->Vao()->EnableAttributeArray(15);
-                        mesh->Vao()->SetAttributePointer(
-                            15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                        mesh->Vao()->SetAttributeDivisor(12, 1);
-                        mesh->Vao()->SetAttributeDivisor(13, 1);
-                        mesh->Vao()->SetAttributeDivisor(14, 1);
-                        mesh->Vao()->SetAttributeDivisor(15, 1);
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                             "EntityIndex", renderInstance.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderInstance.m_globalTransform.m_value);
-                        glDrawElementsInstanced(
-                            GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                        particles->m_mesh->DrawInstanced(particles->m_matrices);
                         break;
                     }
                     }
@@ -987,34 +845,11 @@ void EditorManager::Update()
                     program->Bind();
                     auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                    auto count = particles->m_matrices.size();
-                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                    matricesBuffer->SetData(
-                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                    auto *mesh = particles->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->EnableAttributeArray(12);
-                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                    mesh->Vao()->EnableAttributeArray(13);
-                    mesh->Vao()->SetAttributePointer(
-                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(14);
-                    mesh->Vao()->SetAttributePointer(
-                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(15);
-                    mesh->Vao()->SetAttributePointer(
-                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                    mesh->Vao()->SetAttributeDivisor(12, 1);
-                    mesh->Vao()->SetAttributeDivisor(13, 1);
-                    mesh->Vao()->SetAttributeDivisor(14, 1);
-                    mesh->Vao()->SetAttributeDivisor(15, 1);
                     editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                         "EntityIndex", renderInstance.m_owner.GetIndex());
                     editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                         "model", renderInstance.m_globalTransform.m_value);
-                    glDrawElementsInstanced(
-                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    particles->m_mesh->DrawInstanced(particles->m_matrices);
                     break;
                 }
                 }

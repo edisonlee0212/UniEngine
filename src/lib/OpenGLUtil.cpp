@@ -192,15 +192,13 @@ void OpenGLUtils::GLVAO::SubData(const GLintptr &offset, const GLsizeiptr &size,
     m_vbo.SubData(offset, size, data);
 }
 
-void OpenGLUtils::GLVAO::EnableAttributeArray(const GLuint &index) const
+void OpenGLUtils::GLVAO::EnableAttributeArray(const GLuint &index)
 {
-    Bind();
     glEnableVertexAttribArray(index);
 }
 
-void OpenGLUtils::GLVAO::DisableAttributeArray(const GLuint &index) const
+void OpenGLUtils::GLVAO::DisableAttributeArray(const GLuint &index)
 {
-    Bind();
     glDisableVertexAttribArray(index);
 }
 

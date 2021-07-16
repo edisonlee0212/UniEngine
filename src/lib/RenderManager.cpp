@@ -2,10 +2,8 @@
 #include <LightProbe.hpp>
 #include <ReflectionProbe.hpp>
 #include <ResourceManager.hpp>
-
 #include <Application.hpp>
 #include <CameraComponent.hpp>
-#include <Core/FileIO.hpp>
 #include <Cubemap.hpp>
 #include <EditorManager.hpp>
 #include <InputManager.hpp>
@@ -13,6 +11,7 @@
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <RenderManager.hpp>
+#include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
 void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
@@ -97,7 +96,7 @@ void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
                             0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         DeferredPrepassInstancedInternal(
-                            particles->m_mesh.get(), particles->m_matrices.data(), particles->m_matrices.size());
+                            particles->m_mesh.get(), particles->m_matrices);
                         break;
                     }
                     }
@@ -247,7 +246,7 @@ void RenderManager::RenderToCameraForward(const CameraComponent &cameraComponent
                             0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                         program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
                         DrawMeshInstancedInternal(
-                            particles->m_mesh.get(), particles->m_matrices.data(), particles->m_matrices.size());
+                            particles->m_mesh.get(), particles->m_matrices);
                         break;
                     }
                     }
@@ -279,14 +278,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    auto *mesh = meshRenderer->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     program->SetInt("index", enabledSize);
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    meshRenderer->m_mesh->Draw();
                     break;
                 }
                 case RenderInstanceType::Skinned: {
@@ -294,14 +287,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     program->SetInt("index", enabledSize);
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    skinnedMeshRenderer->m_skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -321,14 +308,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    auto *mesh = meshRenderer->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     program->SetInt("index", enabledSize);
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    meshRenderer->m_mesh->Draw();
                     break;
                 }
                 case RenderInstanceType::Skinned: {
@@ -336,14 +317,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
                     skinnedMeshRenderer->UploadBones();
-                    auto *mesh = skinnedMeshRenderer->m_skinnedMesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->DisableAttributeArray(12);
-                    mesh->Vao()->DisableAttributeArray(13);
-                    mesh->Vao()->DisableAttributeArray(14);
-                    mesh->Vao()->DisableAttributeArray(15);
                     program->SetInt("index", enabledSize);
-                    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
+                    skinnedMeshRenderer->m_skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -361,31 +336,8 @@ void RenderManager::ShadowMapPass(
                 program->Bind();
                 auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                 program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                auto count = particles->m_matrices.size();
-                std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                matricesBuffer->SetData(
-                    (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                auto *mesh = particles->m_mesh.get();
-                mesh->Enable();
-                mesh->Vao()->EnableAttributeArray(12);
-                mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                mesh->Vao()->EnableAttributeArray(13);
-                mesh->Vao()->SetAttributePointer(
-                    13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                mesh->Vao()->EnableAttributeArray(14);
-                mesh->Vao()->SetAttributePointer(
-                    14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                mesh->Vao()->EnableAttributeArray(15);
-                mesh->Vao()->SetAttributePointer(
-                    15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                mesh->Vao()->SetAttributeDivisor(12, 1);
-                mesh->Vao()->SetAttributeDivisor(13, 1);
-                mesh->Vao()->SetAttributeDivisor(14, 1);
-                mesh->Vao()->SetAttributeDivisor(15, 1);
                 program->SetInt("index", enabledSize);
-                glDrawElementsInstanced(
-                    GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                particles->m_mesh->DrawInstanced(particles->m_matrices);
                 break;
             }
             }
@@ -405,31 +357,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                    auto count = particles->m_matrices.size();
-                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                    matricesBuffer->SetData(
-                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                    auto *mesh = particles->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->EnableAttributeArray(12);
-                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                    mesh->Vao()->EnableAttributeArray(13);
-                    mesh->Vao()->SetAttributePointer(
-                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(14);
-                    mesh->Vao()->SetAttributePointer(
-                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(15);
-                    mesh->Vao()->SetAttributePointer(
-                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                    mesh->Vao()->SetAttributeDivisor(12, 1);
-                    mesh->Vao()->SetAttributeDivisor(13, 1);
-                    mesh->Vao()->SetAttributeDivisor(14, 1);
-                    mesh->Vao()->SetAttributeDivisor(15, 1);
                     program->SetInt("index", enabledSize);
-                    glDrawElementsInstanced(
-                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    particles->m_mesh->DrawInstanced(particles->m_matrices);
                     break;
                 }
                 }
@@ -449,31 +378,8 @@ void RenderManager::ShadowMapPass(
                     program->Bind();
                     auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                     program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                    auto count = particles->m_matrices.size();
-                    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                    matricesBuffer->SetData(
-                        (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                    auto *mesh = particles->m_mesh.get();
-                    mesh->Enable();
-                    mesh->Vao()->EnableAttributeArray(12);
-                    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                    mesh->Vao()->EnableAttributeArray(13);
-                    mesh->Vao()->SetAttributePointer(
-                        13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(14);
-                    mesh->Vao()->SetAttributePointer(
-                        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                    mesh->Vao()->EnableAttributeArray(15);
-                    mesh->Vao()->SetAttributePointer(
-                        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                    mesh->Vao()->SetAttributeDivisor(12, 1);
-                    mesh->Vao()->SetAttributeDivisor(13, 1);
-                    mesh->Vao()->SetAttributeDivisor(14, 1);
-                    mesh->Vao()->SetAttributeDivisor(15, 1);
                     program->SetInt("index", enabledSize);
-                    glDrawElementsInstanced(
-                        GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                    particles->m_mesh->DrawInstanced(particles->m_matrices);
                     break;
                 }
                 }
@@ -491,31 +397,8 @@ void RenderManager::ShadowMapPass(
                 program->Bind();
                 auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
                 program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-
-                auto count = particles->m_matrices.size();
-                std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-                matricesBuffer->SetData(
-                    (GLsizei)count * sizeof(glm::mat4), particles->m_matrices.data(), GL_STATIC_DRAW);
-                auto *mesh = particles->m_mesh.get();
-                mesh->Enable();
-                mesh->Vao()->EnableAttributeArray(12);
-                mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-                mesh->Vao()->EnableAttributeArray(13);
-                mesh->Vao()->SetAttributePointer(
-                    13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-                mesh->Vao()->EnableAttributeArray(14);
-                mesh->Vao()->SetAttributePointer(
-                    14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-                mesh->Vao()->EnableAttributeArray(15);
-                mesh->Vao()->SetAttributePointer(
-                    15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-                mesh->Vao()->SetAttributeDivisor(12, 1);
-                mesh->Vao()->SetAttributeDivisor(13, 1);
-                mesh->Vao()->SetAttributeDivisor(14, 1);
-                mesh->Vao()->SetAttributeDivisor(15, 1);
                 program->SetInt("index", enabledSize);
-                glDrawElementsInstanced(
-                    GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+                particles->m_mesh->DrawInstanced(particles->m_matrices);
                 break;
             }
             }
@@ -1001,6 +884,9 @@ void RenderManager::Init()
     SkinnedMesh::GenerateMatrices();
 
     PrepareBrdfLut();
+
+    Mesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+    SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
 #pragma region Kernel Setup
     std::vector<glm::vec4> uniformKernel;
     std::vector<glm::vec4> gaussianKernel;
@@ -2408,90 +2294,38 @@ void RenderManager::DeferredPrepassInternal(const Mesh *mesh)
 {
     if (mesh == nullptr)
         return;
-    mesh->Enable();
-    mesh->Vao()->DisableAttributeArray(12);
-    mesh->Vao()->DisableAttributeArray(13);
-    mesh->Vao()->DisableAttributeArray(14);
-    mesh->Vao()->DisableAttributeArray(15);
-
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    auto &program = GetInstance().m_gBufferPrepass;
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-    OpenGLUtils::GLVAO::BindDefault();
+    mesh->Draw();
 }
 
-void RenderManager::DeferredPrepassInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count)
+void RenderManager::DeferredPrepassInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices)
 {
-    if (mesh == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || matrices.empty())
         return;
-    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    mesh->Enable();
-    mesh->Vao()->EnableAttributeArray(12);
-    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    mesh->Vao()->EnableAttributeArray(13);
-    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(14);
-    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(15);
-    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    mesh->Vao()->SetAttributeDivisor(12, 1);
-    mesh->Vao()->SetAttributeDivisor(13, 1);
-    mesh->Vao()->SetAttributeDivisor(14, 1);
-    mesh->Vao()->SetAttributeDivisor(15, 1);
-
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
-    OpenGLUtils::GLVAO::BindDefault();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    mesh->DrawInstanced(matrices);
 }
 
 void RenderManager::DeferredPrepassInternal(const SkinnedMesh *skinnedMesh)
 {
     if (skinnedMesh == nullptr)
         return;
-    skinnedMesh->Enable();
-    skinnedMesh->Vao()->DisableAttributeArray(12);
-    skinnedMesh->Vao()->DisableAttributeArray(13);
-    skinnedMesh->Vao()->DisableAttributeArray(14);
-    skinnedMesh->Vao()->DisableAttributeArray(15);
-
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += skinnedMesh->GetTriangleAmount();
-    glDrawElements(GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-    OpenGLUtils::GLVAO::BindDefault();
+    skinnedMesh->Draw();
 }
 
 void RenderManager::DeferredPrepassInstancedInternal(
-    const SkinnedMesh *skinnedMesh, const glm::mat4 *matrices, const size_t &count)
+    const SkinnedMesh *skinnedMesh, const std::vector<glm::mat4> &matrices)
 {
-    if (skinnedMesh == nullptr || matrices == nullptr || count == 0)
+    if (skinnedMesh == nullptr || matrices.empty())
         return;
-    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    skinnedMesh->Enable();
-    skinnedMesh->Vao()->EnableAttributeArray(12);
-    skinnedMesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    skinnedMesh->Vao()->EnableAttributeArray(13);
-    skinnedMesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    skinnedMesh->Vao()->EnableAttributeArray(14);
-    skinnedMesh->Vao()->SetAttributePointer(
-        14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    skinnedMesh->Vao()->EnableAttributeArray(15);
-    skinnedMesh->Vao()->SetAttributePointer(
-        15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    skinnedMesh->Vao()->SetAttributeDivisor(12, 1);
-    skinnedMesh->Vao()->SetAttributeDivisor(13, 1);
-    skinnedMesh->Vao()->SetAttributeDivisor(14, 1);
-    skinnedMesh->Vao()->SetAttributeDivisor(15, 1);
-
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += skinnedMesh->GetTriangleAmount() * count;
+    GetInstance().m_triangles += skinnedMesh->GetTriangleAmount() * matrices.size();
     auto &program = GetInstance().m_gBufferInstancedPrepass;
-    glDrawElementsInstanced(
-        GL_TRIANGLES, (GLsizei)skinnedMesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
-    OpenGLUtils::GLVAO::BindDefault();
+    skinnedMesh->DrawInstanced(matrices);
 }
 
 void RenderManager::DrawMeshInstanced(
@@ -2545,54 +2379,22 @@ void RenderManager::DrawMeshInstanced(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const glm::mat4 *matrices, const size_t &count)
+void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4>& matrices)
 {
-    if (mesh == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || matrices.empty())
         return;
-    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    mesh->Enable();
-    mesh->Vao()->EnableAttributeArray(12);
-    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    mesh->Vao()->EnableAttributeArray(13);
-    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(14);
-    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(15);
-    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    mesh->Vao()->SetAttributeDivisor(12, 1);
-    mesh->Vao()->SetAttributeDivisor(13, 1);
-    mesh->Vao()->SetAttributeDivisor(14, 1);
-    mesh->Vao()->SetAttributeDivisor(15, 1);
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
-    OpenGLUtils::GLVAO::BindDefault();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const glm::mat4 *matrices, const size_t &count)
+void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4>& matrices)
 {
-    if (mesh == nullptr || matrices == nullptr || count == 0)
+    if (mesh == nullptr || matrices.empty())
         return;
-    std::unique_ptr<OpenGLUtils::GLVBO> matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices, GL_STATIC_DRAW);
-    mesh->Enable();
-    mesh->Vao()->EnableAttributeArray(12);
-    mesh->Vao()->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
-    mesh->Vao()->EnableAttributeArray(13);
-    mesh->Vao()->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(14);
-    mesh->Vao()->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
-    mesh->Vao()->EnableAttributeArray(15);
-    mesh->Vao()->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
-    mesh->Vao()->SetAttributeDivisor(12, 1);
-    mesh->Vao()->SetAttributeDivisor(13, 1);
-    mesh->Vao()->SetAttributeDivisor(14, 1);
-    mesh->Vao()->SetAttributeDivisor(15, 1);
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * count;
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
-    OpenGLUtils::GLVAO::BindDefault();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    mesh->DrawInstanced(matrices);
 }
 
 void RenderManager::DrawMesh(
@@ -2634,30 +2436,18 @@ void RenderManager::DrawMeshInternal(const Mesh *mesh)
 {
     if (mesh == nullptr)
         return;
-    mesh->Enable();
-    mesh->Vao()->DisableAttributeArray(12);
-    mesh->Vao()->DisableAttributeArray(13);
-    mesh->Vao()->DisableAttributeArray(14);
-    mesh->Vao()->DisableAttributeArray(15);
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-    OpenGLUtils::GLVAO::BindDefault();
+    mesh->Draw();
 }
 
 void RenderManager::DrawMeshInternal(const SkinnedMesh *mesh)
 {
     if (mesh == nullptr)
         return;
-    mesh->Enable();
-    mesh->Vao()->DisableAttributeArray(12);
-    mesh->Vao()->DisableAttributeArray(13);
-    mesh->Vao()->DisableAttributeArray(14);
-    mesh->Vao()->DisableAttributeArray(15);
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh->GetTriangleAmount() * 3, GL_UNSIGNED_INT, 0);
-    OpenGLUtils::GLVAO::BindDefault();
+    mesh->Draw();
 }
 
 void RenderManager::DrawTexture2D(

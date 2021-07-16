@@ -29,4 +29,5 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
+
 } // namespace UniEngine
