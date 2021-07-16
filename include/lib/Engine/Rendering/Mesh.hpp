@@ -26,19 +26,13 @@ enum class UNIENGINE_API VertexAttribute
 class UNIENGINE_API Mesh : public ResourceBehaviour
 {
     std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
-    size_t m_verticesSize = 0;
-    size_t m_triangleSize = 0;
     unsigned m_mask = 0;
     Bound m_bound;
     friend class MeshRenderer;
     friend class Particles;
     friend class EditorManager;
     size_t m_version = 0;
-    std::vector<glm::vec3> m_positions;
-    std::vector<glm::vec3> m_normals;
-    std::vector<glm::vec3> m_tangents;
-    std::vector<glm::vec4> m_colors;
-    std::vector<glm::vec2> m_texCoords;
+    std::vector<Vertex> m_vertices;
     std::vector<glm::uvec3> m_triangles;
 
   public:
@@ -55,13 +49,8 @@ class UNIENGINE_API Mesh : public ResourceBehaviour
     void RecalculateTangent();
     [[nodiscard]] std::shared_ptr<OpenGLUtils::GLVAO> Vao() const;
     void Enable() const;
-    [[nodiscard]] bool HasVertexColors();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexPositions();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexNormals();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexTangents();
-    [[nodiscard]] std::vector<glm::vec4> &UnsafeGetVertexColors();
-    [[nodiscard]] std::vector<glm::vec2> &UnsafeGetVertexTexCoords();
     [[nodiscard]] size_t &GetVersion();
+    [[nodiscard]] std::vector<Vertex> &UnsafeGetVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
 };
 } // namespace UniEngine

@@ -24,24 +24,13 @@ struct UNIENGINE_API SkinnedVertex
 class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
 {
     std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
-    size_t m_verticesSize = 0;
-    size_t m_triangleSize = 0;
     unsigned m_mask = 0;
     Bound m_bound;
     friend class SkinnedMeshRenderer;
     friend class Particles;
     friend class EditorManager;
     size_t m_version = 0;
-    std::vector<glm::vec3> m_positions;
-    std::vector<glm::vec3> m_normals;
-    std::vector<glm::vec3> m_tangents;
-    std::vector<glm::vec4> m_colors;
-    std::vector<glm::vec2> m_texCoords;
-    std::vector<glm::ivec4> m_boneIds;
-    std::vector<glm::vec4> m_weights;
-    std::vector<glm::ivec4> m_boneId2s;
-    std::vector<glm::vec4> m_weight2s;
-
+    std::vector<SkinnedVertex> m_skinnedVertices;
     std::vector<glm::uvec3> m_triangles;
     friend class ResourceManager;
     friend struct SkinnedMeshBonesBlock;
@@ -59,23 +48,16 @@ class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
     [[nodiscard]] glm::vec3 GetCenter() const;
     [[nodiscard]] Bound GetBound() const;
     void Upload();
-    void SetVertices(const unsigned &mask, std::vector<SkinnedVertex> &vertices, std::vector<unsigned> &indices);
-    void SetVertices(const unsigned &mask, std::vector<SkinnedVertex> &vertices, std::vector<glm::uvec3> &triangles);
-    [[nodiscard]] size_t GetVerticesAmount() const;
+    void SetVertices(const unsigned &mask, std::vector<SkinnedVertex> &skinnedVertices, std::vector<unsigned> &indices);
+    void SetVertices(const unsigned &mask, std::vector<SkinnedVertex> &skinnedVertices, std::vector<glm::uvec3> &triangles);
+    [[nodiscard]] size_t GetSkinnedVerticesAmount() const;
     [[nodiscard]] size_t GetTriangleAmount() const;
     void RecalculateNormal();
     void RecalculateTangent();
     [[nodiscard]] std::shared_ptr<OpenGLUtils::GLVAO> Vao() const;
     void Enable() const;
-    [[nodiscard]] bool HasVertexColors();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexPositions();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexNormals();
-    [[nodiscard]] std::vector<glm::vec3> &UnsafeGetVertexTangents();
-    [[nodiscard]] std::vector<glm::vec4> &UnsafeGetVertexColors();
-    [[nodiscard]] std::vector<glm::vec2> &UnsafeGetVertexTexCoords();
-    [[nodiscard]] std::vector<glm::ivec4> &UnsafeGetVertexBoneIds();
-    [[nodiscard]] std::vector<glm::vec4> &UnsafeGetVertexWeights();
     [[nodiscard]] size_t &GetVersion();
+    [[nodiscard]] std::vector<SkinnedVertex> &UnsafeGetSkinnedVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
 };
 } // namespace UniEngine
