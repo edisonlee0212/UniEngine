@@ -1,21 +1,21 @@
-#include <Gui.hpp>
-#include <LightProbe.hpp>
-#include <ReflectionProbe.hpp>
-#include <ResourceManager.hpp>
 #include <Application.hpp>
 #include <CameraComponent.hpp>
 #include <Cubemap.hpp>
 #include <EditorManager.hpp>
+#include <Gui.hpp>
 #include <InputManager.hpp>
+#include <LightProbe.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
+#include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
+#include <ResourceManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
-
-void RenderManager::DispatchRenderCommands(
-    const std::function<void(const RenderCommandType &renderCommandType, const RenderCommand &renderCommand)> &func, const bool &setMaterial)
+#pragma region RenderCommand Dispatch
+void RenderManager::DispatchDeferredRenderCommands(
+    const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial)
 {
     auto &renderManager = GetInstance();
     for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
@@ -35,11 +35,11 @@ void RenderManager::DispatchRenderCommands(
                 switch (renderInstance.m_type)
                 {
                 case RenderInstanceType::Default: {
-                    func(RenderCommandType::Deferred, renderInstance);
+                    func(renderInstance);
                     break;
                 }
                 case RenderInstanceType::Skinned: {
-                    func(RenderCommandType::Deferred, renderInstance);
+                    func(renderInstance);
                     break;
                 }
                 }
@@ -48,6 +48,12 @@ void RenderManager::DispatchRenderCommands(
         if (setMaterial)
             ReleaseTextureHandles(material);
     }
+}
+
+void RenderManager::DispatchDeferredInstanceRenderCommands(
+    const std::function<void(const RenderCommand &)> &func, const bool &setMaterial)
+{
+    auto &renderManager = GetInstance();
     for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
     {
         Material *material = nullptr;
@@ -65,11 +71,11 @@ void RenderManager::DispatchRenderCommands(
                 switch (renderInstance.m_type)
                 {
                 case RenderInstanceType::Default: {
-                    func(RenderCommandType::DeferredInstanced, renderInstance);
+                    func(renderInstance);
                     break;
                 }
                 case RenderInstanceType::Skinned: {
-                    func(RenderCommandType::DeferredInstanced, renderInstance);
+                    func(renderInstance);
                     break;
                 }
                 }
@@ -78,10 +84,105 @@ void RenderManager::DispatchRenderCommands(
         if (setMaterial)
             ReleaseTextureHandles(material);
     }
-
 }
 
+void RenderManager::DispatchForwardRenderCommands(
+    const std::function<void(const RenderCommand &renderCommand)> &func,
+    const bool &setMaterial,
+    const bool bindProgram)
+{
+    auto &renderManager = GetInstance();
+    for (const auto &renderCollection : renderManager.m_forwardRenderInstances)
+    {
+        Material *material = nullptr;
+        if (setMaterial)
+        {
+            material = renderCollection.first;
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            BindTextures(material);
+            if (bindProgram)
+            {
+                material->m_program->Bind();
+            }
+        }
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    func(renderInstance);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    func(renderInstance);
+                    break;
+                }
+                }
+            }
+        }
+        if (setMaterial)
+            ReleaseTextureHandles(material);
+    }
+}
 
+void RenderManager::DispatchForwardInstanceRenderCommands(
+    const std::function<void(const RenderCommand &)> &func, const bool &setMaterial, const bool bindProgram)
+{
+    auto &renderManager = GetInstance();
+    for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
+    {
+        Material *material = nullptr;
+        if (setMaterial)
+        {
+            material = renderCollection.first;
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            BindTextures(material);
+            if (bindProgram)
+            {
+                material->m_program->Bind();
+            }
+        }
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    func(renderInstance);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    func(renderInstance);
+                    break;
+                }
+                }
+            }
+        }
+        if (setMaterial)
+            ReleaseTextureHandles(material);
+    }
+}
+
+void RenderManager::DispatchTransparentRenderCommands(
+    const std::function<void(const RenderCommand &renderCommand)> &func,
+    const bool &setMaterial,
+    const bool bindProgram)
+{
+    auto &renderManager = GetInstance();
+}
+void RenderManager::DispatchTransparentInstanceRenderCommands(
+    const std::function<void(const RenderCommand &renderCommand)> &func,
+    const bool &setMaterial,
+    const bool bindProgram)
+{
+    auto &renderManager = GetInstance();
+}
+#pragma endregion
 void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
 {
     auto &renderManager = GetInstance();
@@ -90,89 +191,57 @@ void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
     cameraComponent.m_gBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
     cameraComponent.m_gBuffer->Clear();
-    if (!renderManager.m_deferredRenderInstances.empty())
-    {
 
-        for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
+    DispatchDeferredRenderCommands([&](const RenderCommand &renderCommand) {
+        switch (renderCommand.m_type)
         {
-            auto *material = renderCollection.first;
-            MaterialPropertySetter(material, true);
-            GetInstance().m_materialSettings = MaterialSettingsBlock();
-            BindTextures(material);
-            for (const auto &renderInstances : renderCollection.second)
-            {
-                for (const auto &renderInstance : renderInstances.second)
-                {
-                    switch (renderInstance.m_type)
-                    {
-                    case RenderInstanceType::Default: {
-                        auto &program = renderManager.m_gBufferPrepass;
-                        program->Bind();
-                        ApplyProgramSettings(program.get());
+        case RenderInstanceType::Default: {
+            auto &program = renderManager.m_gBufferPrepass;
+            program->Bind();
+            ApplyProgramSettings(program.get());
 
-                        auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
-                        renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        DeferredPrepassInternal(meshRenderer->m_mesh.get());
-                        break;
-                    }
-                    case RenderInstanceType::Skinned: {
-                        auto &program = renderManager.m_gBufferSkinnedPrepass;
-                        program->Bind();
-                        ApplyProgramSettings(program.get());
-
-                        auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                        skinnedMeshRenderer->UploadBones();
-                        renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        DeferredPrepassInternal(skinnedMeshRenderer->m_skinnedMesh.get());
-                        break;
-                    }
-                    }
-                }
-            }
-            ReleaseTextureHandles(material);
+            auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+            renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+            DeferredPrepassInternal(meshRenderer->m_mesh.get());
+            break;
         }
-    }
+        case RenderInstanceType::Skinned: {
+            auto &program = renderManager.m_gBufferSkinnedPrepass;
+            program->Bind();
+            ApplyProgramSettings(program.get());
 
-    if (!renderManager.m_deferredInstancedRenderInstances.empty())
-    {
-
-        for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
+            auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+            skinnedMeshRenderer->UploadBones();
+            renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            DeferredPrepassInternal(skinnedMeshRenderer->m_skinnedMesh.get());
+            break;
+        }
+        }
+    });
+    DispatchDeferredInstanceRenderCommands([&](const RenderCommand &renderCommand) {
+        switch (renderCommand.m_type)
         {
-            auto *material = renderCollection.first;
-            MaterialPropertySetter(material, true);
-            GetInstance().m_materialSettings = MaterialSettingsBlock();
-            BindTextures(material);
-            for (const auto &renderInstances : renderCollection.second)
-            {
-                for (const auto &renderInstance : renderInstances.second)
-                {
-                    switch (renderInstance.m_type)
-                    {
-                    case RenderInstanceType::Default: {
-                        auto &program = renderManager.m_gBufferInstancedPrepass;
-                        program->Bind();
-                        ApplyProgramSettings(program.get());
+        case RenderInstanceType::Default: {
+            auto &program = renderManager.m_gBufferInstancedPrepass;
+            program->Bind();
+            ApplyProgramSettings(program.get());
 
-                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                        renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        DeferredPrepassInstancedInternal(
-                            particles->m_mesh.get(), particles->m_matrices);
-                        break;
-                    }
-                    }
-                }
-            }
-            ReleaseTextureHandles(material);
+            auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+            renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+            DeferredPrepassInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
+            break;
         }
-    }
+        }
+    });
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
@@ -233,96 +302,43 @@ void RenderManager::RenderToCameraForward(const CameraComponent &cameraComponent
     bool debug = &cameraComponent == &EditorManager::GetInstance().m_sceneCamera;
     cameraComponent.Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    if (!renderManager.m_forwardRenderInstances.empty())
-    {
-        for (const auto &renderCollection : renderManager.m_forwardRenderInstances)
+    DispatchForwardRenderCommands([&](const RenderCommand &renderCommand) {
+        switch (renderCommand.m_type)
         {
-            auto *material = renderCollection.first;
-            auto &program = material->m_program;
-            program->Bind();
-            for (auto j : material->m_floatPropertyList)
-            {
-                program->SetFloat(j.m_name, j.m_value);
-            }
-            for (auto j : material->m_float4X4PropertyList)
-            {
-                program->SetFloat4x4(j.m_name, j.m_value);
-            }
-            MaterialPropertySetter(material, true);
-            GetInstance().m_materialSettings = MaterialSettingsBlock();
-            BindTextures(material);
-            ApplyProgramSettings(program.get());
-            for (const auto &renderInstances : renderCollection.second)
-            {
-                for (const auto &renderInstance : renderInstances.second)
-                {
-                    switch (renderInstance.m_type)
-                    {
-                    case RenderInstanceType::Default: {
-                        auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
-                        renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        DrawMeshInternal(meshRenderer->m_mesh.get());
-                        break;
-                    }
-                    case RenderInstanceType::Skinned: {
-                        auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                        skinnedMeshRenderer->UploadBones();
-                        renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
-                        break;
-                    }
-                    }
-                }
-            }
-            ReleaseTextureHandles(material);
+        case RenderInstanceType::Default: {
+            auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+            renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            meshRenderer->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+            DrawMeshInternal(meshRenderer->m_mesh.get());
+            break;
         }
-    }
-    if (!renderManager.m_forwardInstancedRenderInstances.empty())
-    {
-        for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
+        case RenderInstanceType::Skinned: {
+            auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+            skinnedMeshRenderer->UploadBones();
+            renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
+            break;
+        }
+        }
+    });
+    DispatchForwardInstanceRenderCommands([&](const RenderCommand &renderCommand) {
+        switch (renderCommand.m_type)
         {
-            auto *material = renderCollection.first;
-            auto &program = material->m_program;
-            program->Bind();
-            for (auto j : material->m_floatPropertyList)
-            {
-                program->SetFloat(j.m_name, j.m_value);
-            }
-            for (auto j : material->m_float4X4PropertyList)
-            {
-                program->SetFloat4x4(j.m_name, j.m_value);
-            }
-            MaterialPropertySetter(material, true);
-            GetInstance().m_materialSettings = MaterialSettingsBlock();
-            BindTextures(material);
-            ApplyProgramSettings(program.get());
-            for (const auto &renderInstances : renderCollection.second)
-            {
-                for (const auto &renderInstance : renderInstances.second)
-                {
-                    switch (renderInstance.m_type)
-                    {
-                    case RenderInstanceType::Default: {
-                        auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                        renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
-                        renderManager.m_materialSettingsBuffer->SubData(
-                            0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                        program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                        DrawMeshInstancedInternal(
-                            particles->m_mesh.get(), particles->m_matrices);
-                        break;
-                    }
-                    }
-                }
-            }
-            ReleaseTextureHandles(material);
+        case RenderInstanceType::Default: {
+            auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+            renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+            renderManager.m_materialSettingsBuffer->SubData(
+                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+            particles->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+            DrawMeshInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
+            break;
         }
-    }
+        }
+    });
 }
 
 void RenderManager::ShadowMapPass(
@@ -333,145 +349,90 @@ void RenderManager::ShadowMapPass(
     std::shared_ptr<OpenGLUtils::GLProgram> &instancedSkinnedProgram)
 {
     auto &renderManager = GetInstance();
-    for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
-    {
-        for (const auto &renderInstances : renderCollection.second)
-        {
-            for (const auto &renderInstance : renderInstances.second)
+    DispatchDeferredRenderCommands(
+        [&](const RenderCommand &renderCommand) {
+            switch (renderCommand.m_type)
             {
-                switch (renderInstance.m_type)
-                {
-                case RenderInstanceType::Default: {
-                    auto &program = defaultProgram;
-                    program->Bind();
-                    auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
-                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    program->SetInt("index", enabledSize);
-                    meshRenderer->m_mesh->Draw();
-                    break;
-                }
-                case RenderInstanceType::Skinned: {
-                    auto &program = skinnedProgram;
-                    program->Bind();
-                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                    skinnedMeshRenderer->UploadBones();
-                    program->SetInt("index", enabledSize);
-                    skinnedMeshRenderer->m_skinnedMesh->Draw();
-                    break;
-                }
-                }
+            case RenderInstanceType::Default: {
+                auto &program = defaultProgram;
+                program->Bind();
+                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                program->SetInt("index", enabledSize);
+                meshRenderer->m_mesh->Draw();
+                break;
             }
-        }
-    }
-    for (const auto &renderCollection : renderManager.m_forwardRenderInstances)
-    {
-        for (const auto &renderInstances : renderCollection.second)
-        {
-            for (const auto &renderInstance : renderInstances.second)
-            {
-                switch (renderInstance.m_type)
-                {
-                case RenderInstanceType::Default: {
-                    auto &program = defaultProgram;
-                    program->Bind();
-                    auto *meshRenderer = static_cast<MeshRenderer *>(renderInstance.m_renderer);
-                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    program->SetInt("index", enabledSize);
-                    meshRenderer->m_mesh->Draw();
-                    break;
-                }
-                case RenderInstanceType::Skinned: {
-                    auto &program = skinnedProgram;
-                    program->Bind();
-                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderInstance.m_renderer);
-                    skinnedMeshRenderer->UploadBones();
-                    program->SetInt("index", enabledSize);
-                    skinnedMeshRenderer->m_skinnedMesh->Draw();
-                    break;
-                }
-                }
+            case RenderInstanceType::Skinned: {
+                auto &program = skinnedProgram;
+                program->Bind();
+                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                skinnedMeshRenderer->UploadBones();
+                program->SetInt("index", enabledSize);
+                skinnedMeshRenderer->m_skinnedMesh->Draw();
+                break;
             }
-        }
-    }
-    for (const auto &renderInstances : renderManager.m_transparentRenderInstances)
-    {
-        for (const auto &renderInstance : renderInstances.second)
-        {
-            switch (renderInstance.m_type)
+            }
+        },
+        false);
+    DispatchDeferredInstanceRenderCommands(
+        [&](const RenderCommand &renderCommand) {
+            switch (renderCommand.m_type)
             {
             case RenderInstanceType::Default: {
                 auto &program = defaultInstancedProgram;
                 program->Bind();
-                auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 program->SetInt("index", enabledSize);
                 particles->m_mesh->DrawInstanced(particles->m_matrices);
                 break;
             }
             }
-        }
-    }
-
-    for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
-    {
-        for (const auto &renderInstances : renderCollection.second)
-        {
-            for (const auto &renderInstance : renderInstances.second)
+        },
+        false);
+    DispatchForwardRenderCommands(
+        [&](const RenderCommand &renderCommand) {
+            switch (renderCommand.m_type)
             {
-                switch (renderInstance.m_type)
-                {
-                case RenderInstanceType::Default: {
-                    auto &program = defaultInstancedProgram;
-                    program->Bind();
-                    auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    program->SetInt("index", enabledSize);
-                    particles->m_mesh->DrawInstanced(particles->m_matrices);
-                    break;
-                }
-                }
+            case RenderInstanceType::Default: {
+                auto &program = defaultProgram;
+                program->Bind();
+                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                program->SetInt("index", enabledSize);
+                meshRenderer->m_mesh->Draw();
+                break;
             }
-        }
-    }
-    for (const auto &renderCollection : renderManager.m_forwardInstancedRenderInstances)
-    {
-        for (const auto &renderInstances : renderCollection.second)
-        {
-            for (const auto &renderInstance : renderInstances.second)
-            {
-                switch (renderInstance.m_type)
-                {
-                case RenderInstanceType::Default: {
-                    auto &program = defaultInstancedProgram;
-                    program->Bind();
-                    auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                    program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
-                    program->SetInt("index", enabledSize);
-                    particles->m_mesh->DrawInstanced(particles->m_matrices);
-                    break;
-                }
-                }
+            case RenderInstanceType::Skinned: {
+                auto &program = skinnedProgram;
+                program->Bind();
+                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                skinnedMeshRenderer->UploadBones();
+                program->SetInt("index", enabledSize);
+                skinnedMeshRenderer->m_skinnedMesh->Draw();
+                break;
             }
-        }
-    }
-    for (const auto &renderInstances : renderManager.m_instancedTransparentRenderInstances)
-    {
-        for (const auto &renderInstance : renderInstances.second)
-        {
-            switch (renderInstance.m_type)
+            }
+        },
+        false,
+        false);
+    DispatchForwardInstanceRenderCommands(
+        [&](const RenderCommand &renderCommand) {
+            switch (renderCommand.m_type)
             {
             case RenderInstanceType::Default: {
                 auto &program = defaultInstancedProgram;
                 program->Bind();
-                auto *particles = static_cast<Particles *>(renderInstance.m_renderer);
-                program->SetFloat4x4("model", renderInstance.m_globalTransform.m_value);
+                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 program->SetInt("index", enabledSize);
                 particles->m_mesh->DrawInstanced(particles->m_matrices);
                 break;
             }
             }
-        }
-    }
+        },
+        false,
+        false);
 }
 
 void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComponent, const Entity &mainCameraEntity)
@@ -1780,7 +1741,10 @@ void RenderManager::OnGui()
             {
                 ImGui::DragFloat("Max shadow distance", &renderManager.m_maxShadowDistance, 1.0f, 0.1f);
                 ImGui::DragFloat(
-                    "Split 1", &renderManager.m_shadowCascadeSplit[0], 0.01f, 0.0f,
+                    "Split 1",
+                    &renderManager.m_shadowCascadeSplit[0],
+                    0.01f,
+                    0.0f,
                     renderManager.m_shadowCascadeSplit[1]);
                 ImGui::DragFloat(
                     "Split 2",
@@ -1795,14 +1759,18 @@ void RenderManager::OnGui()
                     renderManager.m_shadowCascadeSplit[1],
                     renderManager.m_shadowCascadeSplit[3]);
                 ImGui::DragFloat(
-                    "Split 4", &renderManager.m_shadowCascadeSplit[3], 0.01f,
-                    renderManager.m_shadowCascadeSplit[2], 1.0f);
+                    "Split 4",
+                    &renderManager.m_shadowCascadeSplit[3],
+                    0.01f,
+                    renderManager.m_shadowCascadeSplit[2],
+                    1.0f);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode("PCSS"))
             {
                 ImGui::DragFloat("PCSS Factor", &renderManager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
-                ImGui::DragInt("Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
+                ImGui::DragInt(
+                    "Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
                 ImGui::DragInt("PCF Sample Size", &renderManager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
                 ImGui::TreePop();
             }
@@ -1881,7 +1849,7 @@ void RenderManager::LateUpdate()
         }
     }
 #pragma endregion
-#pragma region Post-processing
+#pragma region Post - processing
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
     if (postProcessingEntities != nullptr)
@@ -2295,7 +2263,7 @@ void RenderManager::DrawMeshInstanced(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4>& matrices)
+void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices)
 {
     if (mesh == nullptr || matrices.empty())
         return;
@@ -2304,7 +2272,7 @@ void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vecto
     mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4>& matrices)
+void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4> &matrices)
 {
     if (mesh == nullptr || matrices.empty())
         return;
@@ -2619,8 +2587,7 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
 
-    DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2640,8 +2607,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2701,8 +2667,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2731,8 +2696,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
 }
 
 void RenderManager::DrawGizmoRay(

@@ -60,15 +60,6 @@ struct EnvironmentalMapSettingsBlock
     float m_environmentalPadding2 = 0.0f;
 };
 
-enum class RenderCommandType{
-    Deferred,
-    DeferredInstanced,
-    Opaque,
-    OpaqueInstanced,
-    Transparent,
-    TransparentInstanced
-};
-
 enum class RenderInstanceType
 {
     Default,
@@ -197,9 +188,18 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
   public:
 
-    static void RenderManager::DispatchRenderCommands(
-        const std::function<void(const RenderCommandType &renderCommandType, const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
-
+    static void RenderManager::DispatchDeferredRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
+    static void RenderManager::DispatchDeferredInstanceRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
+    static void RenderManager::DispatchForwardRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
+    static void RenderManager::DispatchForwardInstanceRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
+    static void RenderManager::DispatchTransparentRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
+    static void RenderManager::DispatchTransparentInstanceRenderCommands(
+        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
 
     bool m_stableFit = true;
     float m_maxShadowDistance = 300;
