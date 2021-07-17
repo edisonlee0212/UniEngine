@@ -44,7 +44,6 @@ struct UNIENGINE_API Entity final
   public:
     [[nodiscard]] unsigned GetIndex() const;
     [[nodiscard]] unsigned GetVersion() const;
-    Entity();
     bool operator==(const Entity &other) const;
     bool operator!=(const Entity &other) const;
     size_t operator()(Entity const &key) const;

@@ -102,6 +102,7 @@ void Application::PreUpdateInternal()
 
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
     EditorManager::PreUpdate();
+    RenderManager::PreUpdate();
     InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
     AnimationManager::PreUpdate();

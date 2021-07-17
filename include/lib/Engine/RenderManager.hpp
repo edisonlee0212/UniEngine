@@ -60,6 +60,10 @@ struct EnvironmentalMapSettingsBlock
     float m_environmentalPadding2 = 0.0f;
 };
 
+enum class RenderCommandType
+{
+};
+
 enum class RenderInstanceType
 {
     Default,
@@ -67,9 +71,19 @@ enum class RenderInstanceType
 };
 struct RenderCommand
 {
-    Entity m_owner;
     RenderInstanceType m_type;
-    IPrivateComponent *m_renderer;
+    union {
+        Entity m_owner = Entity();
+        struct
+        {
+            Mesh *m_mesh;
+            Material *m_material;
+        };
+    };
+    union {
+        IPrivateComponent *m_renderer = nullptr;
+        std::vector<glm::mat4> *m_matrices;
+    };
     GlobalTransform m_globalTransform;
 };
 
@@ -83,12 +97,16 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredInstancedRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardInstancedRenderInstances;
-    std::map<float, std::vector<RenderCommand>> m_transparentRenderInstances;
-    std::map<float, std::vector<RenderCommand>> m_instancedTransparentRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
+        m_deferredRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
+        m_deferredInstancedRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
+        m_forwardRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
+        m_forwardInstancedRenderInstances;
+    std::map<CameraComponent *, std::map<float, std::vector<RenderCommand>>> m_transparentRenderInstances;
+    std::map<CameraComponent *, std::map<float, std::vector<RenderCommand>>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -137,8 +155,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
     std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
 
-
-
     std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
     std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;
     std::unique_ptr<SpotLightShadowMap> m_spotLightShadowMap;
@@ -161,8 +177,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model,
         const std::vector<glm::mat4> &matrices,
         const bool &receiveShadow);
-    static void DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4>& matrices);
-    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4>& matrices);
+    static void DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices);
+    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4> &matrices);
     static void DrawGizmoMesh(
         const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstanced(
@@ -187,19 +203,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderQuad();
 
   public:
-
-    static void RenderManager::DispatchDeferredRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
-    static void RenderManager::DispatchDeferredInstanceRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
-    static void RenderManager::DispatchForwardRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
-    static void RenderManager::DispatchForwardInstanceRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
-    static void RenderManager::DispatchTransparentRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
-    static void RenderManager::DispatchTransparentInstanceRenderCommands(
-        const std::function<void(const RenderCommand &renderCommand)> &func, const bool &setMaterial = true, const bool bindProgram = true);
+    static void RenderManager::DispatchRenderCommands(
+        const std::map<Material *, std::map<float, std::vector<RenderCommand>>> &renderCommands,
+        const std::function<void(const RenderCommand &renderCommand)> &func,
+        const bool &setMaterial,
+        const bool &bindProgram);
 
     bool m_stableFit = true;
     float m_maxShadowDistance = 300;
@@ -214,7 +222,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);
     static void RenderToCamera(CameraComponent &cameraComponent);
-    static void ShadowMapPass(
+    static void ShadowMapPrePass(
         const int &enabledSize,
         std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,
         std::shared_ptr<OpenGLUtils::GLProgram> &defaultInstancedProgram,
@@ -224,7 +232,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void Init();
     // Main rendering happens here.
 
-    static void CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound);
+    static void CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool& calculateBound = false);
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetShadowMapResolution(const size_t &value);
@@ -233,10 +241,10 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region RenderAPI
     static void OnGui();
+    static void PreUpdate();
     static void LateUpdate();
     static size_t Triangles();
     static size_t DrawCall();
-
     static void DrawTexture2D(
         const OpenGLUtils::GLTexture2D *texture, const float &depth, const glm::vec2 &center, const glm::vec2 &size);
     static void DrawTexture2D(
@@ -257,7 +265,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::vec2 &center,
         const glm::vec2 &size,
         const CameraComponent &cameraComponent);
-
     static void SetMainCamera(CameraComponent *value);
     static CameraComponent *GetMainCamera();
 #pragma region Gizmos
@@ -308,7 +315,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
-
     static void DrawGizmoRay(
         const CameraComponent &cameraComponent,
         const glm::vec4 &color,
@@ -327,7 +333,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const float &width = 0.01f);
     static void DrawGizmoRay(
         const CameraComponent &cameraComponent, const glm::vec4 &color, Ray &ray, const float &width = 0.01f);
-
     static void DrawGizmoRay(
         const CameraComponent &cameraComponent,
         const glm::vec3 &cameraPosition,
@@ -358,7 +363,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         Ray &ray,
         const float &width = 0.01f);
 #pragma endregion
-
     static void DrawMesh(
         const Mesh *mesh,
         const Material *material,
@@ -372,7 +376,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const std::vector<glm::mat4> &matrices,
         const CameraComponent &cameraComponent,
         const bool &receiveShadow = true);
-
 #pragma endregion
 };
 } // namespace UniEngine

@@ -21,12 +21,6 @@ bool DataComponentType::operator!=(const DataComponentType &other) const
     return (other.m_typeId != m_typeId) || (other.m_size != m_size);
 }
 
-Entity::Entity()
-{
-    m_index = 0;
-    m_version = 0;
-}
-
 bool Entity::operator==(const Entity &other) const
 {
     return (other.m_index == m_index) && (other.m_version == m_version);
