@@ -638,55 +638,13 @@ void EditorManager::PreUpdate()
         }
         ImGui::EndMainMenuBar();
     }
-    const auto resolution = editorManager.m_sceneCamera.m_gBuffer->GetResolution();
-    if (editorManager.m_sceneCameraResolutionX != 0 && editorManager.m_sceneCameraResolutionY != 0 &&
-        (resolution.x != editorManager.m_sceneCameraResolutionX ||
-         resolution.y != editorManager.m_sceneCameraResolutionY))
-    {
-        editorManager.m_sceneCamera.ResizeResolution(
-            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
-        editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
-            0,
-            GL_R32F,
-            GL_RED,
-            GL_FLOAT,
-            0,
-            editorManager.m_sceneCameraResolutionX,
-            editorManager.m_sceneCameraResolutionY);
-        editorManager.m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
-            GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
-        editorManager.m_sceneCameraEntityRecorder->SetResolution(
-            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
-    }
-    editorManager.m_sceneCamera.Clear();
-    editorManager.m_sceneCameraEntityRecorder->Clear();
-    if (editorManager.m_lockCamera)
-    {
-        const float elapsedTime = Application::Time().CurrentTime() - editorManager.m_transitionTimer;
-        float a = 1.0f - glm::pow(1.0 - elapsedTime / editorManager.m_transitionTime, 4.0f);
-        if (elapsedTime >= editorManager.m_transitionTime)
-            a = 1.0f;
-        editorManager.m_sceneCameraRotation =
-            glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
-        editorManager.m_sceneCameraPosition =
-            glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
-        if (a >= 1.0f)
-        {
-            editorManager.m_lockCamera = false;
-            editorManager.m_sceneCameraRotation = editorManager.m_targetRotation;
-            editorManager.m_sceneCameraPosition = editorManager.m_targetPosition;
-            CameraComponent::ReverseAngle(
-                editorManager.m_targetRotation,
-                editorManager.m_sceneCameraPitchAngle,
-                editorManager.m_sceneCameraYawAngle);
-        }
-    }
 }
 
-void EditorManager::Update()
+void EditorManager::RenderSceneCamera()
 {
     auto &editorManager = GetInstance();
     auto &renderManager = RenderManager::GetInstance();
+
     if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
     {
         CameraComponent::m_cameraInfoBlock.UpdateMatrices(
@@ -700,6 +658,8 @@ void EditorManager::Update()
             {
                 for (const auto &renderInstance : renderInstances.second)
                 {
+                    if (renderInstance.m_owner.IsNull())
+                        continue;
                     switch (renderInstance.m_type)
                     {
                     case RenderInstanceType::Default: {
@@ -732,6 +692,8 @@ void EditorManager::Update()
             {
                 for (const auto &renderInstance : renderInstances.second)
                 {
+                    if (renderInstance.m_owner.IsNull())
+                        continue;
                     switch (renderInstance.m_type)
                     {
                     case RenderInstanceType::Default: {
@@ -762,6 +724,8 @@ void EditorManager::Update()
         {
             for (const auto &renderInstance : renderInstances.second)
             {
+                if (renderInstance.m_owner.IsNull())
+                    continue;
                 switch (renderInstance.m_type)
                 {
                 case RenderInstanceType::Default: {
@@ -794,6 +758,8 @@ void EditorManager::Update()
             {
                 for (const auto &renderInstance : renderInstances.second)
                 {
+                    if (renderInstance.m_owner.IsNull())
+                        continue;
                     switch (renderInstance.m_type)
                     {
                     case RenderInstanceType::Default: {
@@ -818,6 +784,8 @@ void EditorManager::Update()
             {
                 for (const auto &renderInstance : renderInstances.second)
                 {
+                    if (renderInstance.m_owner.IsNull())
+                        continue;
                     switch (renderInstance.m_type)
                     {
                     case RenderInstanceType::Default: {
@@ -840,6 +808,8 @@ void EditorManager::Update()
         {
             for (const auto &renderInstance : renderInstances.second)
             {
+                if (renderInstance.m_owner.IsNull())
+                    continue;
                 switch (renderInstance.m_type)
                 {
                 case RenderInstanceType::Default: {
@@ -1375,7 +1345,7 @@ void EditorManager::SceneCameraWindow()
 #pragma region Scene Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    if(ImGui::Begin("Scene"))
+    if (ImGui::Begin("Scene"))
     {
         // Using a Child allow to fill all the space of the window.
         // It also allows customization
@@ -1636,7 +1606,7 @@ void EditorManager::SceneCameraWindow()
             HighLightEntity(editorManager.m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
         }
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+        if (ImGui::IsWindowFocused())
         {
             if (!editorManager.m_sceneCameraWindowFocused)
             {
@@ -1650,12 +1620,17 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraWindowFocused = false;
         }
         ImGui::EndChild();
-        editorManager.m_sceneCamera.SetEnabled(
-            !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
     }
+    else
+    {
+        editorManager.m_sceneCameraWindowFocused = false;
+    }
+
+    editorManager.m_sceneCamera.SetEnabled(
+        !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+
     ImGui::End();
     ImGui::PopStyleVar();
-
 
 #pragma endregion
 }
@@ -1666,7 +1641,7 @@ void EditorManager::MainCameraWindow()
 #pragma region Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    if(ImGui::Begin("Camera"))
+    if (ImGui::Begin("Camera"))
     {
         static int corner = 1;
         // Using a Child allow to fill all the space of the window.
@@ -1692,8 +1667,8 @@ void EditorManager::MainCameraWindow()
                 viewPortSize.y = 0;
             renderManager.m_mainCameraResolutionX = viewPortSize.x;
             renderManager.m_mainCameraResolutionY = viewPortSize.y;
-            //UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
-            // Get the size of the child (i.e. the whole draw size of the windows).
+            // UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
+            //  Get the size of the child (i.e. the whole draw size of the windows).
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
             bool cameraActive = false;
@@ -1801,7 +1776,7 @@ void EditorManager::MainCameraWindow()
                 ImGui::EndChild();
             }
         }
-        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows))
+        if (ImGui::IsWindowFocused())
         {
             if (!editorManager.m_mainCameraWindowFocused)
             {
@@ -1814,11 +1789,14 @@ void EditorManager::MainCameraWindow()
         {
             editorManager.m_mainCameraWindowFocused = false;
         }
-
         ImGui::EndChild();
-        renderManager.m_mainCameraViewable =
-            !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
     }
+    else
+    {
+        editorManager.m_mainCameraWindowFocused = false;
+    }
+    renderManager.m_mainCameraViewable =
+        !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
     ImGui::End();
     ImGui::PopStyleVar();
 #pragma endregion

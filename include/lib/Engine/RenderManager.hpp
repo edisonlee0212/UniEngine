@@ -65,7 +65,7 @@ enum class RenderInstanceType
     Default,
     Skinned
 };
-struct RenderInstance
+struct RenderCommand
 {
     Entity m_owner;
     RenderInstanceType m_type;
@@ -83,12 +83,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredInstancedRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedRenderInstances;
-    std::map<float, std::vector<RenderInstance>> m_transparentRenderInstances;
-    std::map<float, std::vector<RenderInstance>> m_instancedTransparentRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredInstancedRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardInstancedRenderInstances;
+    std::map<float, std::vector<RenderCommand>> m_transparentRenderInstances;
+    std::map<float, std::vector<RenderCommand>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -213,6 +213,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     // Main rendering happens here.
 
     static void CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound);
+    static void PreUpdate();
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetShadowMapResolution(const size_t &value);
