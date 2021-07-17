@@ -125,7 +125,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void Init();
     static void Destroy();
     static void PreUpdate();
-    static void RenderSceneCamera();
+    static void Update();
     static Entity GetSelectedEntity();
     static void SetSelectedEntity(const Entity &entity, const bool &openMenu = true);
     static CameraComponent &GetSceneCamera();

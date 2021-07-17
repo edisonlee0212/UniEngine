@@ -105,7 +105,6 @@ void Application::PreUpdateInternal()
     InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
     AnimationManager::PreUpdate();
-    RenderManager::PreUpdate();
     for (const auto &i : application.m_externalPreUpdateFunctions)
         i();
     if (application.m_playing)
@@ -136,7 +135,7 @@ void Application::UpdateInternal()
     auto &application = GetInstance();
     if (!application.m_initialized)
         return;
-
+    EditorManager::Update();
     for (const auto &i : application.m_externalUpdateFunctions)
         i();
     if (application.m_playing)

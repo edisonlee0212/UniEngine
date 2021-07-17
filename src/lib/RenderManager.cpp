@@ -1157,7 +1157,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
 
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
+            RenderInstance renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &mmc;
@@ -1206,7 +1206,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
                 (glm::max)(maxBound.z, center.z + size.z));
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
+            RenderInstance renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &particles;
@@ -1266,7 +1266,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
 
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
+            RenderInstance renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &smmc;
@@ -1285,10 +1285,6 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
             }
         }
     }
-}
-void RenderManager::PreUpdate()
-{
-
 }
 
 inline float RenderManager::Lerp(const float &a, const float &b, const float &f)
@@ -1774,7 +1770,6 @@ void RenderManager::LateUpdate()
         }
     }
 #pragma endregion
-
 #pragma region Shadowmap prepass
     Bound worldBound;
     if (renderManager.m_mainCameraComponent)
@@ -1833,8 +1828,6 @@ void RenderManager::LateUpdate()
         }
     }
 #pragma endregion
-
-    EditorManager::RenderSceneCamera();
 }
 
 #pragma endregion
