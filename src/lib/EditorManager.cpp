@@ -699,23 +699,22 @@ void EditorManager::RenderToSceneCamera()
             const auto &cameraComponent = i.first;
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_type)
+                [&](Material* material, const RenderCommand &renderCommand) {
+                  switch (renderCommand.m_meshType)
                   {
-                  case RenderInstanceType::Default: {
+                  case RenderCommandMeshType::Default: {
                       auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
                       program->Bind();
-                      auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
                       program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                       editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
-                      meshRenderer->m_mesh->Draw();
+                      renderCommand.m_mesh->Draw();
                       break;
                   }
-                  case RenderInstanceType::Skinned: {
+                  case RenderCommandMeshType::Skinned: {
                       auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                       program->Bind();
-                      auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                      auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                       skinnedMeshRenderer->UploadBones();
                       editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
@@ -731,19 +730,18 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_type)
+                [&](Material* material, const RenderCommand &renderCommand) {
+                  switch (renderCommand.m_meshType)
                   {
-                  case RenderInstanceType::Default: {
+                  case RenderCommandMeshType::Default: {
                       auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
                       program->Bind();
-                      auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
                       program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                       editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
                       editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                           "model", renderCommand.m_globalTransform.m_value);
-                      particles->m_mesh->DrawInstanced(particles->m_matrices);
+                      renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
                       break;
                   }
                   }
@@ -755,23 +753,22 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_type)
+                [&](Material* material, const RenderCommand &renderCommand) {
+                  switch (renderCommand.m_meshType)
                   {
-                  case RenderInstanceType::Default: {
+                  case RenderCommandMeshType::Default: {
                       auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
                       program->Bind();
-                      auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
                       program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                       editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
-                      meshRenderer->m_mesh->Draw();
+                      renderCommand.m_mesh->Draw();
                       break;
                   }
-                  case RenderInstanceType::Skinned: {
+                  case RenderCommandMeshType::Skinned: {
                       auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                       program->Bind();
-                      auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                      auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                       skinnedMeshRenderer->UploadBones();
                       editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
@@ -787,19 +784,18 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_type)
+                [&](Material* material, const RenderCommand &renderCommand) {
+                  switch (renderCommand.m_meshType)
                   {
-                  case RenderInstanceType::Default: {
+                  case RenderCommandMeshType::Default: {
                       auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
                       program->Bind();
-                      auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
                       program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                       editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                           "EntityIndex", renderCommand.m_owner.GetIndex());
                       editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                           "model", renderCommand.m_globalTransform.m_value);
-                      particles->m_mesh->DrawInstanced(particles->m_matrices);
+                      renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
                       break;
                   }
                   }

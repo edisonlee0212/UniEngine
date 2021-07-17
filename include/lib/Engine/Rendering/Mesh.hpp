@@ -23,7 +23,7 @@ enum class UNIENGINE_API VertexAttribute
     TexCoord = 1 << 4, // 16
 };
 
-enum class MeshType{
+enum class MeshStoreType{
     //Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.
     Persistent,
     //Meshes here will have it's own VAO. It's relatively more lightweight to make changes here.

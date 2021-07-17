@@ -62,28 +62,28 @@ struct EnvironmentalMapSettingsBlock
 
 enum class RenderCommandType
 {
+    FromRenderer,
+    FromAPI,
+    FromAPIInstanced
 };
 
-enum class RenderInstanceType
+enum class RenderCommandMeshType
 {
     Default,
     Skinned
 };
 struct RenderCommand
 {
-    RenderInstanceType m_type;
+    RenderCommandType m_commandType = RenderCommandType::FromRenderer;
+    RenderCommandMeshType m_meshType = RenderCommandMeshType::Default;
+    Entity m_owner = Entity();
     union {
-        Entity m_owner = Entity();
-        struct
-        {
-            Mesh *m_mesh;
-            Material *m_material;
-        };
+        Mesh *m_mesh;
+        SkinnedMeshRenderer *m_skinnedMeshRenderer; //We require the skinned mesh renderer to provide bones.
     };
-    union {
-        IPrivateComponent *m_renderer = nullptr;
-        std::vector<glm::mat4> *m_matrices;
-    };
+    bool m_castShadow = true;
+    bool m_receiveShadow = true;
+    std::vector<glm::mat4> *m_matrices = nullptr;
     GlobalTransform m_globalTransform;
 };
 
@@ -205,7 +205,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
   public:
     static void RenderManager::DispatchRenderCommands(
         const std::map<Material *, std::map<float, std::vector<RenderCommand>>> &renderCommands,
-        const std::function<void(const RenderCommand &renderCommand)> &func,
+        const std::function<void(Material* material, const RenderCommand &renderCommand)> &func,
         const bool &setMaterial,
         const bool &bindProgram);
 
@@ -364,18 +364,20 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const float &width = 0.01f);
 #pragma endregion
     static void DrawMesh(
-        const Mesh *mesh,
-        const Material *material,
+        Mesh *mesh,
+        Material *material,
         const glm::mat4 &model,
-        const CameraComponent &cameraComponent,
-        const bool &receiveShadow = true);
+        CameraComponent &cameraComponent,
+        const bool &receiveShadow = true,
+        const bool &castShadow = true);
     static void DrawMeshInstanced(
-        const Mesh *mesh,
-        const Material *material,
+        Mesh *mesh,
+        Material *material,
         const glm::mat4 &model,
-        const std::vector<glm::mat4> &matrices,
-        const CameraComponent &cameraComponent,
-        const bool &receiveShadow = true);
+        std::vector<glm::mat4> &matrices,
+        CameraComponent &cameraComponent,
+        const bool &receiveShadow = true,
+        const bool &castShadow = true);
 #pragma endregion
 };
 } // namespace UniEngine

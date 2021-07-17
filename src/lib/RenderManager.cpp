@@ -16,7 +16,7 @@ using namespace UniEngine;
 #pragma region RenderCommand Dispatch
 void RenderManager::DispatchRenderCommands(
     const std::map<Material *, std::map<float, std::vector<RenderCommand>>> &renderCommands,
-    const std::function<void(const RenderCommand &renderCommand)> &func,
+    const std::function<void(Material*, const RenderCommand &renderCommand)> &func,
     const bool &setMaterial,
     const bool &bindProgram)
 {
@@ -38,14 +38,14 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderInstance : renderInstances.second)
             {
-                switch (renderInstance.m_type)
+                switch (renderInstance.m_meshType)
                 {
-                case RenderInstanceType::Default: {
-                    func(renderInstance);
+                case RenderCommandMeshType::Default: {
+                    func(material, renderInstance);
                     break;
                 }
-                case RenderInstanceType::Skinned: {
-                    func(renderInstance);
+                case RenderCommandMeshType::Skinned: {
+                    func(material, renderInstance);
                     break;
                 }
                 }
@@ -67,28 +67,26 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
     cameraComponent.m_gBuffer->Clear();
     DispatchRenderCommands(
         renderManager.m_deferredRenderInstances[&cameraComponent],
-        [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
+        [&](Material* material, const RenderCommand &renderCommand) {
+            switch (renderCommand.m_meshType)
             {
-            case RenderInstanceType::Default: {
+            case RenderCommandMeshType::Default: {
                 auto &program = renderManager.m_gBufferPrepass;
                 program->Bind();
                 ApplyProgramSettings(program.get());
-
-                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
-                renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInternal(meshRenderer->m_mesh.get());
+                DeferredPrepassInternal(renderCommand.m_mesh);
                 break;
             }
-            case RenderInstanceType::Skinned: {
+            case RenderCommandMeshType::Skinned: {
                 auto &program = renderManager.m_gBufferSkinnedPrepass;
                 program->Bind();
                 ApplyProgramSettings(program.get());
 
-                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                 skinnedMeshRenderer->UploadBones();
                 renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
@@ -102,20 +100,18 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         false);
     DispatchRenderCommands(
         renderManager.m_deferredInstancedRenderInstances[&cameraComponent],
-        [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
+        [&](Material* material, const RenderCommand &renderCommand) {
+            switch (renderCommand.m_meshType)
             {
-            case RenderInstanceType::Default: {
+            case RenderCommandMeshType::Default: {
                 auto &program = renderManager.m_gBufferInstancedPrepass;
                 program->Bind();
                 ApplyProgramSettings(program.get());
-
-                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
-                renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
+                DeferredPrepassInstancedInternal(renderCommand.m_mesh, *renderCommand.m_matrices);
                 break;
             }
             }
@@ -160,20 +156,19 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
 #pragma region Forward rendering
     DispatchRenderCommands(
         renderManager.m_forwardRenderInstances[&cameraComponent],
-        [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
+        [&](Material* material, const RenderCommand &renderCommand) {
+            switch (renderCommand.m_meshType)
             {
-            case RenderInstanceType::Default: {
-                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
-                renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
+            case RenderCommandMeshType::Default: {
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                meshRenderer->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInternal(meshRenderer->m_mesh.get());
+                material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                DrawMeshInternal(renderCommand.m_mesh);
                 break;
             }
-            case RenderInstanceType::Skinned: {
-                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+            case RenderCommandMeshType::Skinned: {
+                auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                 skinnedMeshRenderer->UploadBones();
                 renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
@@ -187,16 +182,15 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         true);
     DispatchRenderCommands(
         renderManager.m_forwardInstancedRenderInstances[&cameraComponent],
-        [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
+        [&](Material* material, const RenderCommand &renderCommand) {
+            switch (renderCommand.m_meshType)
             {
-            case RenderInstanceType::Default: {
-                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
-                renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+            case RenderCommandMeshType::Default: {
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                particles->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
+                material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                DrawMeshInstancedInternal(renderCommand.m_mesh, *renderCommand.m_matrices);
                 break;
             }
             }
@@ -687,8 +681,10 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &mmc;
-            renderInstance.m_type = RenderInstanceType::Default;
+            renderInstance.m_mesh = mmc.m_mesh.get();
+            renderInstance.m_castShadow = mmc.m_castShadow;
+            renderInstance.m_receiveShadow = mmc.m_receiveShadow;
+            renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_transparentRenderInstances[&camera][distance].push_back(renderInstance);
@@ -738,8 +734,11 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &particles;
-            renderInstance.m_type = RenderInstanceType::Default;
+            renderInstance.m_mesh = particles.m_mesh.get();
+            renderInstance.m_castShadow = particles.m_castShadow;
+            renderInstance.m_receiveShadow = particles.m_receiveShadow;
+            renderInstance.m_matrices = &particles.m_matrices;
+            renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_instancedTransparentRenderInstances[&camera][distance].push_back(renderInstance);
@@ -797,8 +796,10 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &smmc;
-            renderInstance.m_type = RenderInstanceType::Skinned;
+            renderInstance.m_skinnedMeshRenderer = &smmc;
+            renderInstance.m_castShadow = smmc.m_castShadow;
+            renderInstance.m_receiveShadow = smmc.m_receiveShadow;
+            renderInstance.m_meshType = RenderCommandMeshType::Skinned;
             if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_transparentRenderInstances[&camera][distance].push_back(renderInstance);
@@ -1199,22 +1200,21 @@ void RenderManager::ShadowMapPrePass(
         const auto &cameraComponent = i.first;
         DispatchRenderCommands(
             i.second,
-            [&](const RenderCommand &renderCommand) {
-                switch (renderCommand.m_type)
+            [&](Material* material, const RenderCommand &renderCommand) {
+                switch (renderCommand.m_meshType)
                 {
-                case RenderInstanceType::Default: {
+                case RenderCommandMeshType::Default: {
                     auto &program = defaultProgram;
                     program->Bind();
-                    auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    meshRenderer->m_mesh->Draw();
+                    renderCommand.m_mesh->Draw();
                     break;
                 }
-                case RenderInstanceType::Skinned: {
+                case RenderCommandMeshType::Skinned: {
                     auto &program = skinnedProgram;
                     program->Bind();
-                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                    auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                     skinnedMeshRenderer->UploadBones();
                     program->SetInt("index", enabledSize);
                     skinnedMeshRenderer->m_skinnedMesh->Draw();
@@ -1229,16 +1229,15 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](const RenderCommand &renderCommand) {
-                switch (renderCommand.m_type)
+            [&](Material* material, const RenderCommand &renderCommand) {
+                switch (renderCommand.m_meshType)
                 {
-                case RenderInstanceType::Default: {
+                case RenderCommandMeshType::Default: {
                     auto &program = defaultInstancedProgram;
                     program->Bind();
-                    auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    particles->m_mesh->DrawInstanced(particles->m_matrices);
+                    renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
                     break;
                 }
                 }
@@ -1250,22 +1249,21 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](const RenderCommand &renderCommand) {
-                switch (renderCommand.m_type)
+            [&](Material* material, const RenderCommand &renderCommand) {
+                switch (renderCommand.m_meshType)
                 {
-                case RenderInstanceType::Default: {
+                case RenderCommandMeshType::Default: {
                     auto &program = defaultProgram;
                     program->Bind();
-                    auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    meshRenderer->m_mesh->Draw();
+                    renderCommand.m_mesh->Draw();
                     break;
                 }
-                case RenderInstanceType::Skinned: {
+                case RenderCommandMeshType::Skinned: {
                     auto &program = skinnedProgram;
                     program->Bind();
-                    auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+                    auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                     skinnedMeshRenderer->UploadBones();
                     program->SetInt("index", enabledSize);
                     skinnedMeshRenderer->m_skinnedMesh->Draw();
@@ -1280,16 +1278,15 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](const RenderCommand &renderCommand) {
-                switch (renderCommand.m_type)
+            [&](Material* material, const RenderCommand &renderCommand) {
+                switch (renderCommand.m_meshType)
                 {
-                case RenderInstanceType::Default: {
+                case RenderCommandMeshType::Default: {
                     auto &program = defaultInstancedProgram;
                     program->Bind();
-                    auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    particles->m_mesh->DrawInstanced(particles->m_matrices);
+                    renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
                     break;
                 }
                 }
@@ -2611,93 +2608,43 @@ void RenderManager::DrawGizmoRay(
 }
 
 void RenderManager::DrawMesh(
-    const Mesh *mesh,
-    const Material *material,
+    Mesh *mesh,
+    Material *material,
     const glm::mat4 &model,
-    const CameraComponent &cameraComponent,
-    const bool &receiveShadow)
+    CameraComponent &cameraComponent,
+    const bool &receiveShadow,
+    const bool &castShadow)
 {
-    auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-    if (EditorManager::GetInstance().m_enabled)
-    {
-        if (sceneCamera.IsEnabled())
-        {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-                sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
-            sceneCamera.Bind();
-            ApplyShadowMapSettings(sceneCamera);
-            ApplyEnvironmentalSettings(cameraComponent);
-            DrawMesh(mesh, material, model, receiveShadow);
-        }
-    }
-    if (&cameraComponent == &sceneCamera)
-        return;
-    if (!cameraComponent.IsEnabled())
-        return;
-    const auto entity = cameraComponent.GetOwner();
-
-    const auto ltw = entity.GetDataComponent<GlobalTransform>();
-    glm::vec3 scale;
-    glm::vec3 trans;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
-    ApplyShadowMapSettings(cameraComponent);
-    ApplyEnvironmentalSettings(cameraComponent);
-    DrawMesh(mesh, material, model, receiveShadow);
+    RenderCommand renderCommand;
+    renderCommand.m_commandType = RenderCommandType::FromAPI;
+    renderCommand.m_meshType = RenderCommandMeshType::Default;
+    renderCommand.m_mesh = mesh;
+    renderCommand.m_receiveShadow = receiveShadow;
+    renderCommand.m_castShadow = castShadow;
+    renderCommand.m_globalTransform.m_value = model;
+    GetInstance().m_forwardRenderInstances[&cameraComponent][material][0.0].push_back(renderCommand);
+    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material][0.0].push_back(renderCommand);
 }
 
 void RenderManager::DrawMeshInstanced(
-    const Mesh *mesh,
-    const Material *material,
+    Mesh *mesh,
+    Material *material,
     const glm::mat4 &model,
-    const std::vector<glm::mat4> &matrices,
-    const CameraComponent &cameraComponent,
-    const bool &receiveShadow)
+    std::vector<glm::mat4> &matrices,
+    CameraComponent &cameraComponent,
+    const bool &receiveShadow,
+    const bool &castShadow)
 {
-    auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-    if (EditorManager::GetInstance().m_enabled)
-    {
-        if (sceneCamera.IsEnabled())
-        {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-                sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
-            sceneCamera.Bind();
-            ApplyShadowMapSettings(sceneCamera);
-            ApplyEnvironmentalSettings(cameraComponent);
-            DrawMeshInstanced(mesh, material, model, matrices, receiveShadow);
-        }
-    }
-    if (&cameraComponent == &sceneCamera)
-        return;
-    if (!cameraComponent.IsEnabled())
-        return;
-
-    const auto entity = cameraComponent.GetOwner();
-
-    const auto ltw = entity.GetDataComponent<GlobalTransform>();
-    glm::vec3 scale;
-    glm::vec3 trans;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
-    ApplyShadowMapSettings(cameraComponent);
-    ApplyEnvironmentalSettings(cameraComponent);
-    DrawMeshInstanced(mesh, material, model, matrices, receiveShadow);
+    RenderCommand renderCommand;
+    renderCommand.m_commandType = RenderCommandType::FromAPI;
+    renderCommand.m_meshType = RenderCommandMeshType::Default;
+    renderCommand.m_mesh = mesh;
+    renderCommand.m_matrices = &matrices;
+    renderCommand.m_receiveShadow = receiveShadow;
+    renderCommand.m_castShadow = castShadow;
+    renderCommand.m_globalTransform.m_value = model;
+    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material][0.0].push_back(renderCommand);
+    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material][0.0].push_back(renderCommand);
 }
 
 #pragma region DrawTexture
