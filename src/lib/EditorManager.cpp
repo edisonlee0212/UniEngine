@@ -1650,9 +1650,13 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraWindowFocused = false;
         }
         ImGui::EndChild();
-        editorManager.m_sceneCamera.SetEnabled(
-            !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+
+    }else
+    {
+        editorManager.m_sceneCameraWindowFocused = false;
     }
+    editorManager.m_sceneCamera.SetEnabled(
+        !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
     ImGui::End();
     ImGui::PopStyleVar();
 
@@ -1816,9 +1820,13 @@ void EditorManager::MainCameraWindow()
         }
 
         ImGui::EndChild();
-        renderManager.m_mainCameraViewable =
-            !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
+
+    }else
+    {
+        editorManager.m_mainCameraWindowFocused = false;
     }
+    renderManager.m_mainCameraViewable =
+        !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
     ImGui::End();
     ImGui::PopStyleVar();
 #pragma endregion
