@@ -370,7 +370,7 @@ void Joint::SetDrive(const DriveType &type, const float &stiffness, const float 
     m_drives[static_cast<int>(type)].damping = damping;
     m_drives[static_cast<int>(type)].flags =
         static_cast<PxD6JointDriveFlag::Enum>(isAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-    static_cast<PxD6Joint *>(m_joint)->setDrive(PxD6Drive::eSLERP,  m_drives[static_cast<int>(type)]);
+    static_cast<PxD6Joint *>(m_joint)->setDrive(static_cast<PxD6Drive::Enum>(type),  m_drives[static_cast<int>(type)]);
 }
 void Joint::SetDistanceLimit(const float& toleranceLength, const float& toleranceSpeed, const float &extent, const float &contactDist)
 {
