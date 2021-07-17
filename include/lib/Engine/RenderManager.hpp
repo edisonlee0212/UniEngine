@@ -60,12 +60,21 @@ struct EnvironmentalMapSettingsBlock
     float m_environmentalPadding2 = 0.0f;
 };
 
+enum class RenderCommandType{
+    Deferred,
+    DeferredInstanced,
+    Opaque,
+    OpaqueInstanced,
+    Transparent,
+    TransparentInstanced
+};
+
 enum class RenderInstanceType
 {
     Default,
     Skinned
 };
-struct RenderInstance
+struct RenderCommand
 {
     Entity m_owner;
     RenderInstanceType m_type;
@@ -83,12 +92,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_deferredInstancedRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardRenderInstances;
-    std::map<Material *, std::map<float, std::vector<RenderInstance>>> m_forwardInstancedRenderInstances;
-    std::map<float, std::vector<RenderInstance>> m_transparentRenderInstances;
-    std::map<float, std::vector<RenderInstance>> m_instancedTransparentRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_deferredInstancedRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardRenderInstances;
+    std::map<Material *, std::map<float, std::vector<RenderCommand>>> m_forwardInstancedRenderInstances;
+    std::map<float, std::vector<RenderCommand>> m_transparentRenderInstances;
+    std::map<float, std::vector<RenderCommand>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -187,6 +196,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderQuad();
 
   public:
+
+    static void RenderManager::DispatchRenderCommands(
+        const std::function<void(const RenderCommandType &renderCommandType, const RenderCommand &renderCommand)> &func, const bool &setMaterial = true);
+
+
     bool m_stableFit = true;
     float m_maxShadowDistance = 300;
     float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = {0.075f, 0.15f, 0.3f, 1.0f};

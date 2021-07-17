@@ -683,7 +683,7 @@ void EditorManager::PreUpdate()
     }
 }
 
-void EditorManager::Update()
+void EditorManager::RenderToSceneCamera()
 {
     auto &editorManager = GetInstance();
     auto &renderManager = RenderManager::GetInstance();

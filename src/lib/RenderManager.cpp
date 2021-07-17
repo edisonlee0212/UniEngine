@@ -14,6 +14,74 @@
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
+void RenderManager::DispatchRenderCommands(
+    const std::function<void(const RenderCommandType &renderCommandType, const RenderCommand &renderCommand)> &func, const bool &setMaterial)
+{
+    auto &renderManager = GetInstance();
+    for (const auto &renderCollection : renderManager.m_deferredRenderInstances)
+    {
+        Material *material = nullptr;
+        if (setMaterial)
+        {
+            material = renderCollection.first;
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            BindTextures(material);
+        }
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    func(RenderCommandType::Deferred, renderInstance);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    func(RenderCommandType::Deferred, renderInstance);
+                    break;
+                }
+                }
+            }
+        }
+        if (setMaterial)
+            ReleaseTextureHandles(material);
+    }
+    for (const auto &renderCollection : renderManager.m_deferredInstancedRenderInstances)
+    {
+        Material *material = nullptr;
+        if (setMaterial)
+        {
+            material = renderCollection.first;
+            MaterialPropertySetter(material, true);
+            GetInstance().m_materialSettings = MaterialSettingsBlock();
+            BindTextures(material);
+        }
+        for (const auto &renderInstances : renderCollection.second)
+        {
+            for (const auto &renderInstance : renderInstances.second)
+            {
+                switch (renderInstance.m_type)
+                {
+                case RenderInstanceType::Default: {
+                    func(RenderCommandType::DeferredInstanced, renderInstance);
+                    break;
+                }
+                case RenderInstanceType::Skinned: {
+                    func(RenderCommandType::DeferredInstanced, renderInstance);
+                    break;
+                }
+                }
+            }
+        }
+        if (setMaterial)
+            ReleaseTextureHandles(material);
+    }
+
+}
+
+
 void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
 {
     auto &renderManager = GetInstance();
@@ -1157,7 +1225,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
 
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderInstance renderInstance;
+            RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &mmc;
@@ -1206,7 +1274,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
                 (glm::max)(maxBound.z, center.z + size.z));
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderInstance renderInstance;
+            RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &particles;
@@ -1266,7 +1334,7 @@ void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransfor
 
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
             float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderInstance renderInstance;
+            RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
             renderInstance.m_renderer = &smmc;
@@ -1828,6 +1896,8 @@ void RenderManager::LateUpdate()
         }
     }
 #pragma endregion
+
+    EditorManager::RenderToSceneCamera();
 }
 
 #pragma endregion
