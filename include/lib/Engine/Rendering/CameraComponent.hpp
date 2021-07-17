@@ -7,22 +7,6 @@ namespace UniEngine
 class CameraComponent;
 struct GlobalTransform;
 
-enum class CameraLayer
-{
-    None = 0,
-    MainCamera = 1 << 0,
-    DebugCamera = 1 << 1,
-};
-
-struct UNIENGINE_API CameraLayerMask : IDataComponent
-{
-    size_t m_value;
-    bool operator==(const CameraLayerMask &other) const
-    {
-        return other.m_value == m_value;
-    }
-    CameraLayerMask();
-};
 struct UNIENGINE_API Plane
 {
     float m_a, m_b, m_c, m_d;

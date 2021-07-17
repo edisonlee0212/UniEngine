@@ -665,9 +665,6 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
             if (!mmc.IsEnabled() || mmc.m_material == nullptr || mmc.m_mesh == nullptr)
                 continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
-                continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
             auto meshBound = mmc.m_mesh->GetBound();
@@ -717,9 +714,6 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
                 continue;
             auto &particles = owner.GetPrivateComponent<Particles>();
             if (!particles.IsEnabled() || particles.m_material == nullptr || particles.m_mesh == nullptr)
-                continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
@@ -771,9 +765,6 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
                 continue;
             auto &smmc = owner.GetPrivateComponent<SkinnedMeshRenderer>();
             if (!smmc.IsEnabled() || smmc.m_material == nullptr || smmc.m_skinnedMesh == nullptr)
-                continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
                 continue;
             GlobalTransform gt;
             if (smmc.m_animator.IsValid())

@@ -11,7 +11,6 @@ ComponentDataRegistration<Ray> RayRegistry(1);
 ComponentDataRegistration<SpotLight> SpotLightRegistry(1);
 ComponentDataRegistration<PointLight> PointLightRegistry(1);
 ComponentDataRegistration<DirectionalLight> DirectionalLightRegistry(1);
-ComponentDataRegistration<CameraLayerMask> CameraLayerMaskRegistry(1);
 
 SerializableRegistration<CameraComponent> CameraComponentRegistry(1);
 SerializableRegistration<Particles> ParticlesRegistry(1);
@@ -102,131 +101,6 @@ void UniEngine::SerializationManager::Init()
              IMPORT_PARAM(stream, out->m_start, temp);
              IMPORT_PARAM(stream, out->m_direction, temp);
              IMPORT_PARAM(stream, out->m_length, temp);
-         }});
-    /*
-    RegisterComponentDataSerializerDeserializer<SpotLight>(
-        {
-        [](IDataComponent* data)
-        {
-            SpotLight* out = static_cast<SpotLight*>(data);
-            std::stringstream stream;
-            EXPORT_PARAM(stream, out->innerDegrees);
-            EXPORT_PARAM(stream, out->outerDegrees);
-            EXPORT_PARAM(stream, out->constant);
-            EXPORT_PARAM(stream, out->linear);
-            EXPORT_PARAM(stream, out->quadratic);
-            EXPORT_PARAM(stream, out->bias);
-            EXPORT_PARAM(stream, out->farPlane);
-            EXPORT_PARAM(stream, out->diffuse);
-            EXPORT_PARAM(stream, out->diffuseBrightness);
-            EXPORT_PARAM(stream, out->specular);
-            EXPORT_PARAM(stream, out->specularBrightness);
-            EXPORT_PARAM(stream, out->lightSize);
-            return stream.str();
-        },
-        [](const std::string& data, IDataComponent* ptr)
-        {
-            std::stringstream stream;
-            stream << data;
-            SpotLight* out = static_cast<SpotLight*>(ptr);
-            char temp;
-            IMPORT_PARAM(stream, out->innerDegrees, temp);
-            IMPORT_PARAM(stream, out->outerDegrees, temp);
-            IMPORT_PARAM(stream, out->constant, temp);
-            IMPORT_PARAM(stream, out->linear, temp);
-            IMPORT_PARAM(stream, out->quadratic, temp);
-            IMPORT_PARAM(stream, out->bias, temp);
-            IMPORT_PARAM(stream, out->farPlane, temp);
-            IMPORT_PARAM(stream, out->diffuse, temp);
-            IMPORT_PARAM(stream, out->diffuseBrightness, temp);
-            IMPORT_PARAM(stream, out->specular, temp);
-            IMPORT_PARAM(stream, out->specularBrightness, temp);
-            IMPORT_PARAM(stream, out->lightSize, temp);
-        }
-        }
-    );
-    RegisterComponentDataSerializerDeserializer<PointLight>(
-        {
-        [](IDataComponent* data)
-        {
-            PointLight* out = static_cast<PointLight*>(data);
-            std::stringstream stream;
-            EXPORT_PARAM(stream, out->constant);
-            EXPORT_PARAM(stream, out->linear);
-            EXPORT_PARAM(stream, out->quadratic);
-            EXPORT_PARAM(stream, out->bias);
-            EXPORT_PARAM(stream, out->farPlane);
-            EXPORT_PARAM(stream, out->diffuse);
-            EXPORT_PARAM(stream, out->diffuseBrightness);
-            EXPORT_PARAM(stream, out->specular);
-            EXPORT_PARAM(stream, out->specularBrightness);
-            EXPORT_PARAM(stream, out->lightSize);
-            return stream.str();
-        },
-        [](const std::string& data, IDataComponent* ptr)
-        {
-            std::stringstream stream;
-            stream << data;
-            PointLight* out = static_cast<PointLight*>(ptr);
-            char temp;
-            IMPORT_PARAM(stream, out->constant, temp);
-            IMPORT_PARAM(stream, out->linear, temp);
-            IMPORT_PARAM(stream, out->quadratic, temp);
-            IMPORT_PARAM(stream, out->bias, temp);
-            IMPORT_PARAM(stream, out->farPlane, temp);
-            IMPORT_PARAM(stream, out->diffuse, temp);
-            IMPORT_PARAM(stream, out->diffuseBrightness, temp);
-            IMPORT_PARAM(stream, out->specular, temp);
-            IMPORT_PARAM(stream, out->specularBrightness, temp);
-            IMPORT_PARAM(stream, out->lightSize, temp);
-        }
-        }
-    );
-    RegisterComponentDataSerializerDeserializer<DirectionalLight>(
-        {
-        [](IDataComponent* data)
-        {
-            DirectionalLight* out = static_cast<DirectionalLight*>(data);
-            std::stringstream stream;
-            EXPORT_PARAM(stream, out->bias);
-            EXPORT_PARAM(stream, out->normalOffset);
-            EXPORT_PARAM(stream, out->diffuse);
-            EXPORT_PARAM(stream, out->diffuseBrightness);
-            EXPORT_PARAM(stream, out->specular);
-            EXPORT_PARAM(stream, out->specularBrightness);
-            EXPORT_PARAM(stream, out->lightSize);
-            return stream.str();
-        },
-        [](const std::string& data, IDataComponent* ptr)
-        {
-            std::stringstream stream;
-            stream << data;
-            DirectionalLight* out = static_cast<DirectionalLight*>(ptr);
-            char temp;
-            IMPORT_PARAM(stream, out->bias, temp);
-            IMPORT_PARAM(stream, out->normalOffset, temp);
-            IMPORT_PARAM(stream, out->diffuse, temp);
-            IMPORT_PARAM(stream, out->diffuseBrightness, temp);
-            IMPORT_PARAM(stream, out->specular, temp);
-            IMPORT_PARAM(stream, out->specularBrightness, temp);
-            IMPORT_PARAM(stream, out->lightSize, temp);
-        }
-        }
-    );
-    */
-    RegisterComponentDataSerializerDeserializer<CameraLayerMask>(
-        {[](IDataComponent *data) {
-             CameraLayerMask *out = static_cast<CameraLayerMask *>(data);
-             std::stringstream stream;
-             EXPORT_PARAM(stream, out->m_value);
-             return stream.str();
-         },
-         [](const std::string &data, IDataComponent *ptr) {
-             std::stringstream stream;
-             stream << data;
-             CameraLayerMask *out = static_cast<CameraLayerMask *>(ptr);
-             char temp;
-             IMPORT_PARAM(stream, out->m_value, temp);
          }});
 }
 

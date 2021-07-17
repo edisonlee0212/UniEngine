@@ -43,7 +43,7 @@ void Application::Init(bool fullScreen)
     application.m_initialized = true;
 #pragma region Main Camera
     EntityArchetype archetype =
-        EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform(), CameraLayerMask());
+        EntityManager::CreateEntityArchetype("Camera", GlobalTransform(), Transform());
     const auto mainCameraEntity = EntityManager::CreateEntity(archetype, "Main Camera");
     Transform cameraLtw;
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));

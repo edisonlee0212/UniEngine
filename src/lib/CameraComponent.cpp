@@ -14,10 +14,7 @@ using namespace UniEngine;
 
 CameraInfoBlock CameraComponent::m_cameraInfoBlock;
 std::unique_ptr<OpenGLUtils::GLUBO> CameraComponent::m_cameraUniformBufferBlock;
-CameraLayerMask::CameraLayerMask()
-{
-    m_value = 0;
-}
+
 
 Plane::Plane() : m_a(0), m_b(0), m_c(0), m_d(0)
 {
