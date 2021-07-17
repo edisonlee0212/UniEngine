@@ -183,7 +183,7 @@ void RenderManager::DispatchTransparentInstanceRenderCommands(
     auto &renderManager = GetInstance();
 }
 #pragma endregion
-void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
+void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
 {
     auto &renderManager = GetInstance();
     cameraComponent.m_gBuffer->Bind();
@@ -191,7 +191,6 @@ void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
     cameraComponent.m_gBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
     cameraComponent.m_gBuffer->Clear();
-
     DispatchDeferredRenderCommands([&](const RenderCommand &renderCommand) {
         switch (renderCommand.m_type)
         {
@@ -241,16 +240,15 @@ void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
         }
         }
     });
-
+    glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     DefaultResources::GLPrograms::ScreenVAO->Bind();
-
     cameraComponent.Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
+#pragma region Apply GBuffer with lighting
     renderManager.m_gBufferLightingPass->Bind();
-
     cameraComponent.m_gPositionBuffer->Bind(12);
     cameraComponent.m_gNormalBuffer->Bind(13);
     cameraComponent.m_gColorSpecularBuffer->Bind(14);
@@ -269,20 +267,56 @@ void RenderManager::RenderToCameraDeferred(CameraComponent &cameraComponent)
     renderManager.m_gBufferLightingPass->SetInt("gNormalShininess", 13);
     renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 14);
     renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 15);
-
+#pragma endregion
+#pragma region Copy GBuffer back to camera
     glDrawArrays(GL_TRIANGLES, 0, 6);
     auto res = cameraComponent.GetResolution();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent.m_gBuffer->GetFrameBuffer()->Id());
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent.GetFrameBuffer()->Id()); // write to default framebuffer
     glBlitFramebuffer(0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    RenderTarget::BindDefault();
-}
-
-void RenderManager::RenderBackGround(const CameraComponent &cameraComponent)
-{
-    cameraComponent.Bind();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+#pragma endregion
+#pragma region Forward rendering
+    DispatchForwardRenderCommands([&](const RenderCommand &renderCommand) {
+      switch (renderCommand.m_type)
+      {
+      case RenderInstanceType::Default: {
+          auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+          renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
+          renderManager.m_materialSettingsBuffer->SubData(
+              0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+          meshRenderer->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+          DrawMeshInternal(meshRenderer->m_mesh.get());
+          break;
+      }
+      case RenderInstanceType::Skinned: {
+          auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+          skinnedMeshRenderer->UploadBones();
+          renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
+          renderManager.m_materialSettingsBuffer->SubData(
+              0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+          DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
+          break;
+      }
+      }
+    });
+    DispatchForwardInstanceRenderCommands([&](const RenderCommand &renderCommand) {
+      switch (renderCommand.m_type)
+      {
+      case RenderInstanceType::Default: {
+          auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+          renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
+          renderManager.m_materialSettingsBuffer->SubData(
+              0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+          particles->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+          DrawMeshInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
+          break;
+      }
+      }
+    });
+#pragma endregion
+#pragma region Transparent
+#pragma endregion
+#pragma region Environment
     glDepthFunc(
         GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     DefaultResources::GLPrograms::SkyboxProgram->Bind();
@@ -292,55 +326,956 @@ void RenderManager::RenderBackGround(const CameraComponent &cameraComponent)
         DefaultResources::GLPrograms::SkyboxProgram->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
     }
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    OpenGLUtils::GLVAO::BindDefault();
     glDepthFunc(GL_LESS); // set depth function back to default
+#pragma endregion
 }
-
-void RenderManager::RenderToCameraForward(const CameraComponent &cameraComponent)
+void RenderManager::LateUpdate()
 {
     auto &renderManager = GetInstance();
-    bool debug = &cameraComponent == &EditorManager::GetInstance().m_sceneCamera;
-    cameraComponent.Bind();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    DispatchForwardRenderCommands([&](const RenderCommand &renderCommand) {
-        switch (renderCommand.m_type)
+#pragma region Collect RenderCommands
+    Bound worldBound;
+    if (renderManager.m_mainCameraComponent)
+    {
+        CollectRenderInstances(
+            renderManager.m_mainCameraComponent->GetOwner().GetDataComponent<GlobalTransform>(), worldBound);
+    }
+    else
+    {
+        CollectRenderInstances(GlobalTransform(), worldBound);
+    }
+#pragma endregion
+#pragma region Shadowmap prepass
+    EntityManager::GetCurrentWorld()->SetBound(worldBound);
+    if (renderManager.m_mainCameraComponent != nullptr)
+    {
+        if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
         {
-        case RenderInstanceType::Default: {
-            auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
-            renderManager.m_materialSettings.m_receiveShadow = meshRenderer->m_receiveShadow;
-            renderManager.m_materialSettingsBuffer->SubData(
-                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-            meshRenderer->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-            DrawMeshInternal(meshRenderer->m_mesh.get());
-            break;
+            RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
         }
-        case RenderInstanceType::Skinned: {
-            auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
-            skinnedMeshRenderer->UploadBones();
-            renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
-            renderManager.m_materialSettingsBuffer->SubData(
-                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-            DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
-            break;
-        }
-        }
-    });
-    DispatchForwardInstanceRenderCommands([&](const RenderCommand &renderCommand) {
-        switch (renderCommand.m_type)
+    }
+#pragma endregion
+#pragma region Render to cameras
+    renderManager.m_triangles = 0;
+    renderManager.m_drawCall = 0;
+    if (renderManager.m_mainCameraComponent != nullptr)
+    {
+        if (renderManager.m_mainCameraComponent->m_allowAutoResize)
+            renderManager.m_mainCameraComponent->ResizeResolution(
+                renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
+    }
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
+    if (cameraEntities != nullptr)
+    {
+        for (auto cameraEntity : *cameraEntities)
         {
-        case RenderInstanceType::Default: {
-            auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
-            renderManager.m_materialSettings.m_receiveShadow = particles->m_receiveShadow;
-            renderManager.m_materialSettingsBuffer->SubData(
-                0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-            particles->m_material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-            DrawMeshInstancedInternal(particles->m_mesh.get(), particles->m_matrices);
-            break;
+            if (!cameraEntity.IsEnabled())
+                continue;
+            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+            if (cameraComponent.IsEnabled())
+            {
+                cameraComponent.Clear();
+                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
+                CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+                    cameraComponent, ltw.GetPosition(), ltw.GetRotation());
+                CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+                ApplyShadowMapSettings(cameraComponent);
+                ApplyEnvironmentalSettings(cameraComponent);
+                RenderToCamera(cameraComponent);
+            }
         }
-        }
-    });
-}
+    }
 
+    EditorManager::RenderToSceneCamera();
+#pragma endregion
+#pragma region Post - processing
+    const std::vector<Entity> *postProcessingEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
+    if (postProcessingEntities != nullptr)
+    {
+        for (auto postProcessingEntity : *postProcessingEntities)
+        {
+            if (!postProcessingEntity.IsEnabled())
+                continue;
+            auto &postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
+            if (postProcessing.IsEnabled())
+                postProcessing.Process();
+        }
+    }
+#pragma endregion
+}
+glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
+{
+    const float lineLength = distance(a, b);
+    const glm::vec3 vector = point - a;
+    const glm::vec3 lineDirection = (b - a) / lineLength;
+
+    // Project Vector to LineDirection to get the distance of point from a
+    const float distance = dot(vector, lineDirection);
+    return a + lineDirection * distance;
+}
+void RenderManager::OnGui()
+{
+    auto &renderManager = GetInstance();
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Render Manager", &renderManager.m_enableRenderMenu);
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    if (renderManager.m_enableRenderMenu)
+    {
+        ImGui::Begin("Render Manager");
+        ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
+        if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Text("Environmental map:");
+            ImGui::SameLine();
+            EditorManager::DragAndDrop(renderManager.m_environmentalMap);
+            ImGui::DragFloat(
+                "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
+        }
+        bool enableShadow = renderManager.m_materialSettings.m_enableShadow;
+        if (ImGui::Checkbox("Enable shadow", &enableShadow))
+        {
+            renderManager.m_materialSettings.m_enableShadow = enableShadow;
+        }
+        if (renderManager.m_materialSettings.m_enableShadow &&
+            ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if (ImGui::TreeNode("Distance"))
+            {
+                ImGui::DragFloat("Max shadow distance", &renderManager.m_maxShadowDistance, 1.0f, 0.1f);
+                ImGui::DragFloat(
+                    "Split 1",
+                    &renderManager.m_shadowCascadeSplit[0],
+                    0.01f,
+                    0.0f,
+                    renderManager.m_shadowCascadeSplit[1]);
+                ImGui::DragFloat(
+                    "Split 2",
+                    &renderManager.m_shadowCascadeSplit[1],
+                    0.01f,
+                    renderManager.m_shadowCascadeSplit[0],
+                    renderManager.m_shadowCascadeSplit[2]);
+                ImGui::DragFloat(
+                    "Split 3",
+                    &renderManager.m_shadowCascadeSplit[2],
+                    0.01f,
+                    renderManager.m_shadowCascadeSplit[1],
+                    renderManager.m_shadowCascadeSplit[3]);
+                ImGui::DragFloat(
+                    "Split 4",
+                    &renderManager.m_shadowCascadeSplit[3],
+                    0.01f,
+                    renderManager.m_shadowCascadeSplit[2],
+                    1.0f);
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNode("PCSS"))
+            {
+                ImGui::DragFloat("PCSS Factor", &renderManager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
+                ImGui::DragInt(
+                    "Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
+                ImGui::DragInt("PCF Sample Size", &renderManager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
+                ImGui::TreePop();
+            }
+            ImGui::DragFloat("Seam fix ratio", &renderManager.m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
+            ImGui::Checkbox("Stable fit", &renderManager.m_stableFit);
+        }
+        ImGui::End();
+    }
+}
+void RenderManager::Init()
+{
+    auto &manager = GetInstance();
+
+    CameraComponent::GenerateMatrices();
+    manager.m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
+    manager.m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
+    manager.m_materialSettingsBuffer->SetBase(6);
+
+    manager.m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
+    manager.m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
+    manager.m_environmentalMapSettingsBuffer->SetBase(7);
+    SkinnedMesh::GenerateMatrices();
+
+    PrepareBrdfLut();
+
+    Mesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+    SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
+#pragma region Kernel Setup
+    std::vector<glm::vec4> uniformKernel;
+    std::vector<glm::vec4> gaussianKernel;
+    for (unsigned int i = 0; i < DefaultResources::ShaderIncludes::MaxKernelAmount; i++)
+    {
+        uniformKernel.emplace_back(glm::vec4(glm::ballRand(1.0f), 1.0f));
+        gaussianKernel.emplace_back(
+            glm::gaussRand(0.0f, 1.0f),
+            glm::gaussRand(0.0f, 1.0f),
+            glm::gaussRand(0.0f, 1.0f),
+            glm::gaussRand(0.0f, 1.0f));
+    }
+    manager.m_kernelBlock = std::make_unique<OpenGLUtils::GLUBO>();
+    manager.m_kernelBlock->SetBase(5);
+    manager.m_kernelBlock->SetData(
+        sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
+    manager.m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
+    manager.m_kernelBlock->SubData(
+        sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
+
+#pragma endregion
+#pragma region Shadow
+    manager.m_shadowCascadeInfoBlock.SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
+    manager.m_shadowCascadeInfoBlock.SetBase(4);
+
+#pragma region LightInfoBlocks
+    size_t size = 16 + DefaultResources::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
+    manager.m_directionalLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+    manager.m_directionalLightBlock.SetBase(1);
+    size = 16 + DefaultResources::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
+    manager.m_pointLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+    manager.m_pointLightBlock.SetBase(2);
+    size = 16 + DefaultResources::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
+    manager.m_spotLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
+    manager.m_spotLightBlock.SetBase(3);
+#pragma endregion
+#pragma region DirectionalLight
+    manager.m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(manager.m_shadowMapResolution);
+
+    std::string vertShaderCode =
+        std::string("#version 450 core\n") +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMap.vert"));
+    std::string fragShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DirectionalLightShadowMap.frag"));
+    std::string geomShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
+
+    auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+    auto geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
+    geomShader->Compile(geomShaderCode);
+    manager.m_directionalLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_directionalLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightInstancedProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_directionalLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightSkinnedProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(
+                         FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_directionalLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_directionalLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
+#pragma region PointLight
+    manager.m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(manager.m_shadowMapResolution);
+    vertShaderCode = std::string("#version 450 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
+    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PointLightShadowMap.frag"));
+    geomShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
+
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+    geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
+    geomShader->Compile(geomShaderCode);
+
+    manager.m_pointLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstanced.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_pointLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightInstancedProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_pointLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightSkinnedProgram->Link(vertShader, fragShader, geomShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_pointLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_pointLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
+#pragma endregion
+#pragma region SpotLight
+    manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_shadowMapResolution);
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
+    fragShaderCode = std::string("#version 450 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
+
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+    manager.m_spotLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightProgram->Link(vertShader, fragShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_spotLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightInstancedProgram->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_spotLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightSkinnedProgram->Link(vertShader, fragShader);
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_spotLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_spotLightInstancedSkinnedProgram->Link(vertShader, fragShader);
+#pragma endregion
+#pragma endregion
+
+#pragma region GBuffer
+    vertShaderCode = std::string("#version 450 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+    fragShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));
+
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+
+    manager.m_gBufferLightingPass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferLightingPass->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
+    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferred.frag"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+    manager.m_gBufferPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferPrepass->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_gBufferSkinnedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferSkinnedPrepass->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_gBufferInstancedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferInstancedPrepass->Link(vertShader, fragShader);
+
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstancedSkinned.vert"));
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    manager.m_gBufferInstancedSkinnedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
+    manager.m_gBufferInstancedSkinnedPrepass->Link(vertShader, fragShader);
+#pragma endregion
+#pragma region SSAO
+    vertShaderCode = std::string("#version 450 core\n") +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
+
+    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
+    vertShader->Compile(vertShaderCode);
+    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
+    fragShader->Compile(fragShaderCode);
+
+#pragma endregion
+
+    manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
+}
+void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound)
+{
+    auto &renderManager = GetInstance();
+    renderManager.m_deferredRenderInstances.clear();
+    renderManager.m_deferredInstancedRenderInstances.clear();
+    renderManager.m_forwardRenderInstances.clear();
+    renderManager.m_forwardInstancedRenderInstances.clear();
+    renderManager.m_transparentRenderInstances.clear();
+    renderManager.m_instancedTransparentRenderInstances.clear();
+    auto &minBound = worldBound.m_min;
+    auto &maxBound = worldBound.m_max;
+    minBound = glm::vec3(INT_MAX);
+    maxBound = glm::vec3(INT_MIN);
+
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
+    if (owners)
+    {
+        for (auto owner : *owners)
+        {
+            if (!owner.IsEnabled())
+                continue;
+            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
+            if (!mmc.IsEnabled() || mmc.m_material == nullptr || mmc.m_mesh == nullptr)
+                continue;
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+                continue;
+            auto gt = owner.GetDataComponent<GlobalTransform>();
+            auto ltw = gt.m_value;
+            auto meshBound = mmc.m_mesh->GetBound();
+            meshBound.ApplyTransform(ltw);
+            glm::vec3 center = meshBound.Center();
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+
+            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            RenderCommand renderInstance;
+            renderInstance.m_owner = owner;
+            renderInstance.m_globalTransform = gt;
+            renderInstance.m_renderer = &mmc;
+            renderInstance.m_type = RenderInstanceType::Default;
+            if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            {
+                renderManager.m_transparentRenderInstances[distance].push_back(renderInstance);
+            }
+            else if (mmc.m_forwardRendering)
+            {
+                renderManager.m_forwardRenderInstances[mmc.m_material.get()][distance].push_back(renderInstance);
+            }
+            else
+            {
+                renderManager.m_deferredRenderInstances[mmc.m_material.get()][distance].push_back(renderInstance);
+            }
+        }
+    }
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Particles>();
+    if (owners)
+    {
+        for (auto owner : *owners)
+        {
+            if (!owner.IsEnabled())
+                continue;
+            auto &particles = owner.GetPrivateComponent<Particles>();
+            if (!particles.IsEnabled() || particles.m_material == nullptr || particles.m_mesh == nullptr)
+                continue;
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+                continue;
+            auto gt = owner.GetDataComponent<GlobalTransform>();
+            auto ltw = gt.m_value;
+            auto meshBound = particles.m_mesh->GetBound();
+            meshBound.ApplyTransform(ltw);
+            glm::vec3 center = meshBound.Center();
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            RenderCommand renderInstance;
+            renderInstance.m_owner = owner;
+            renderInstance.m_globalTransform = gt;
+            renderInstance.m_renderer = &particles;
+            renderInstance.m_type = RenderInstanceType::Default;
+            if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            {
+                renderManager.m_instancedTransparentRenderInstances[distance].push_back(renderInstance);
+            }
+            else if (particles.m_forwardRendering)
+            {
+                renderManager.m_forwardInstancedRenderInstances[particles.m_material.get()][distance].push_back(
+                    renderInstance);
+            }
+            else
+            {
+                renderManager.m_deferredInstancedRenderInstances[particles.m_material.get()][distance].push_back(
+                    renderInstance);
+            }
+        }
+    }
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
+    if (owners)
+    {
+        for (auto owner : *owners)
+        {
+            if (!owner.IsEnabled())
+                continue;
+            auto &smmc = owner.GetPrivateComponent<SkinnedMeshRenderer>();
+            if (!smmc.IsEnabled() || smmc.m_material == nullptr || smmc.m_skinnedMesh == nullptr)
+                continue;
+            if (owner.HasDataComponent<CameraLayerMask>() &&
+                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
+                continue;
+            GlobalTransform gt;
+            if (smmc.m_animator.IsValid())
+            {
+                gt = smmc.m_animator.GetDataComponent<GlobalTransform>();
+            }
+            else
+            {
+                smmc.m_animator = Entity();
+                gt = owner.GetDataComponent<GlobalTransform>();
+            }
+            auto ltw = gt.m_value;
+            auto meshBound = smmc.m_skinnedMesh->GetBound();
+            meshBound.ApplyTransform(ltw);
+            glm::vec3 center = meshBound.Center();
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+
+            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            RenderCommand renderInstance;
+            renderInstance.m_owner = owner;
+            renderInstance.m_globalTransform = gt;
+            renderInstance.m_renderer = &smmc;
+            renderInstance.m_type = RenderInstanceType::Skinned;
+            if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            {
+                renderManager.m_transparentRenderInstances[distance].push_back(renderInstance);
+            }
+            else if (smmc.m_forwardRendering)
+            {
+                renderManager.m_forwardRenderInstances[smmc.m_material.get()][distance].push_back(renderInstance);
+            }
+            else
+            {
+                renderManager.m_deferredRenderInstances[smmc.m_material.get()][distance].push_back(renderInstance);
+            }
+        }
+    }
+}
+#pragma region Helpers
+inline float RenderManager::Lerp(const float &a, const float &b, const float &f)
+{
+    return a + f * (b - a);
+}
+unsigned int environmentalMapCubeVAO = 0;
+unsigned int environmentalMapCubeVBO = 0;
+void RenderManager::RenderCube()
+{
+    // initialize (if necessary)
+    if (environmentalMapCubeVAO == 0)
+    {
+        float vertices[] = {
+            // back face
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            1.0f,
+            1.0f, // top-right
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f, // top-left
+            // front face
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            1.0f, // top-right
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f, // top-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f, // bottom-left
+            // left face
+            -1.0f,
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-right
+            -1.0f,
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-left
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-right
+                  // right face
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-left
+            1.0f,
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f, // bottom-right
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f,
+            0.0f, // top-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-left
+            // bottom face
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-right
+            1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-left
+            1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-left
+            -1.0f,
+            -1.0f,
+            1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            -1.0f,
+            -1.0f,
+            0.0f,
+            -1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-right
+            // top face
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-left
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-right
+            1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            1.0f, // top-right
+            1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f, // bottom-right
+            -1.0f,
+            1.0f,
+            -1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            1.0f, // top-left
+            -1.0f,
+            1.0f,
+            1.0f,
+            0.0f,
+            1.0f,
+            0.0f,
+            0.0f,
+            0.0f // bottom-left
+        };
+        glGenVertexArrays(1, &environmentalMapCubeVAO);
+        glGenBuffers(1, &environmentalMapCubeVBO);
+        // fill buffer
+        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapCubeVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // link vertex attributes
+        glBindVertexArray(environmentalMapCubeVAO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+    // render Cube
+    glBindVertexArray(environmentalMapCubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    OpenGLUtils::GLVAO::BindDefault();
+}
+unsigned int environmentalMapQuadVAO = 0;
+unsigned int environmentalMapQuadVBO;
+void RenderManager::RenderQuad()
+{
+    if (environmentalMapQuadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+            1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &environmentalMapQuadVAO);
+        glGenBuffers(1, &environmentalMapQuadVBO);
+        glBindVertexArray(environmentalMapQuadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapQuadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    }
+    glBindVertexArray(environmentalMapQuadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+#pragma endregion
+#pragma region Shadow
+void RenderManager::SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4)
+{
+    GetInstance().m_shadowCascadeSplit[0] = r1;
+    GetInstance().m_shadowCascadeSplit[1] = r2;
+    GetInstance().m_shadowCascadeSplit[2] = r3;
+    GetInstance().m_shadowCascadeSplit[3] = r4;
+}
+void RenderManager::SetShadowMapResolution(const size_t &value)
+{
+    GetInstance().m_shadowMapResolution = value;
+    if (GetInstance().m_directionalLightShadowMap != nullptr)
+        GetInstance().m_directionalLightShadowMap->SetResolution(value);
+}
 void RenderManager::ShadowMapPass(
     const int &enabledSize,
     std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,
@@ -351,90 +1286,89 @@ void RenderManager::ShadowMapPass(
     auto &renderManager = GetInstance();
     DispatchDeferredRenderCommands(
         [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
-            {
-            case RenderInstanceType::Default: {
-                auto &program = defaultProgram;
-                program->Bind();
-                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
-                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                program->SetInt("index", enabledSize);
-                meshRenderer->m_mesh->Draw();
-                break;
-            }
-            case RenderInstanceType::Skinned: {
-                auto &program = skinnedProgram;
-                program->Bind();
-                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
-                skinnedMeshRenderer->UploadBones();
-                program->SetInt("index", enabledSize);
-                skinnedMeshRenderer->m_skinnedMesh->Draw();
-                break;
-            }
-            }
+          switch (renderCommand.m_type)
+          {
+          case RenderInstanceType::Default: {
+              auto &program = defaultProgram;
+              program->Bind();
+              auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+              program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+              program->SetInt("index", enabledSize);
+              meshRenderer->m_mesh->Draw();
+              break;
+          }
+          case RenderInstanceType::Skinned: {
+              auto &program = skinnedProgram;
+              program->Bind();
+              auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+              skinnedMeshRenderer->UploadBones();
+              program->SetInt("index", enabledSize);
+              skinnedMeshRenderer->m_skinnedMesh->Draw();
+              break;
+          }
+          }
         },
         false);
     DispatchDeferredInstanceRenderCommands(
         [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
-            {
-            case RenderInstanceType::Default: {
-                auto &program = defaultInstancedProgram;
-                program->Bind();
-                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
-                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                program->SetInt("index", enabledSize);
-                particles->m_mesh->DrawInstanced(particles->m_matrices);
-                break;
-            }
-            }
+          switch (renderCommand.m_type)
+          {
+          case RenderInstanceType::Default: {
+              auto &program = defaultInstancedProgram;
+              program->Bind();
+              auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+              program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+              program->SetInt("index", enabledSize);
+              particles->m_mesh->DrawInstanced(particles->m_matrices);
+              break;
+          }
+          }
         },
         false);
     DispatchForwardRenderCommands(
         [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
-            {
-            case RenderInstanceType::Default: {
-                auto &program = defaultProgram;
-                program->Bind();
-                auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
-                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                program->SetInt("index", enabledSize);
-                meshRenderer->m_mesh->Draw();
-                break;
-            }
-            case RenderInstanceType::Skinned: {
-                auto &program = skinnedProgram;
-                program->Bind();
-                auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
-                skinnedMeshRenderer->UploadBones();
-                program->SetInt("index", enabledSize);
-                skinnedMeshRenderer->m_skinnedMesh->Draw();
-                break;
-            }
-            }
+          switch (renderCommand.m_type)
+          {
+          case RenderInstanceType::Default: {
+              auto &program = defaultProgram;
+              program->Bind();
+              auto *meshRenderer = static_cast<MeshRenderer *>(renderCommand.m_renderer);
+              program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+              program->SetInt("index", enabledSize);
+              meshRenderer->m_mesh->Draw();
+              break;
+          }
+          case RenderInstanceType::Skinned: {
+              auto &program = skinnedProgram;
+              program->Bind();
+              auto *skinnedMeshRenderer = static_cast<SkinnedMeshRenderer *>(renderCommand.m_renderer);
+              skinnedMeshRenderer->UploadBones();
+              program->SetInt("index", enabledSize);
+              skinnedMeshRenderer->m_skinnedMesh->Draw();
+              break;
+          }
+          }
         },
         false,
         false);
     DispatchForwardInstanceRenderCommands(
         [&](const RenderCommand &renderCommand) {
-            switch (renderCommand.m_type)
-            {
-            case RenderInstanceType::Default: {
-                auto &program = defaultInstancedProgram;
-                program->Bind();
-                auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
-                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                program->SetInt("index", enabledSize);
-                particles->m_mesh->DrawInstanced(particles->m_matrices);
-                break;
-            }
-            }
+          switch (renderCommand.m_type)
+          {
+          case RenderInstanceType::Default: {
+              auto &program = defaultInstancedProgram;
+              program->Bind();
+              auto *particles = static_cast<Particles *>(renderCommand.m_renderer);
+              program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+              program->SetInt("index", enabledSize);
+              particles->m_mesh->DrawInstanced(particles->m_matrices);
+              break;
+          }
+          }
         },
         false,
         false);
 }
-
 void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComponent, const Entity &mainCameraEntity)
 {
     glDisable(GL_BLEND);
@@ -503,28 +1437,28 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                         // More detail but cause shimmering when rotating camera.
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                         max =
                             (glm::
-                                 max)(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                            max)(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
                     }
 
                     glm::vec3 p0 = ClosestPointOnLine(
@@ -897,977 +1831,6 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
     }
 #pragma endregion
 }
-
-void RenderManager::Init()
-{
-    auto &manager = GetInstance();
-
-    CameraComponent::GenerateMatrices();
-    manager.m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
-    manager.m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
-    manager.m_materialSettingsBuffer->SetBase(6);
-
-    manager.m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
-    manager.m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
-    manager.m_environmentalMapSettingsBuffer->SetBase(7);
-    SkinnedMesh::GenerateMatrices();
-
-    PrepareBrdfLut();
-
-    Mesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-    SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
-#pragma region Kernel Setup
-    std::vector<glm::vec4> uniformKernel;
-    std::vector<glm::vec4> gaussianKernel;
-    for (unsigned int i = 0; i < DefaultResources::ShaderIncludes::MaxKernelAmount; i++)
-    {
-        uniformKernel.emplace_back(glm::vec4(glm::ballRand(1.0f), 1.0f));
-        gaussianKernel.emplace_back(
-            glm::gaussRand(0.0f, 1.0f),
-            glm::gaussRand(0.0f, 1.0f),
-            glm::gaussRand(0.0f, 1.0f),
-            glm::gaussRand(0.0f, 1.0f));
-    }
-    manager.m_kernelBlock = std::make_unique<OpenGLUtils::GLUBO>();
-    manager.m_kernelBlock->SetBase(5);
-    manager.m_kernelBlock->SetData(
-        sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
-    manager.m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
-    manager.m_kernelBlock->SubData(
-        sizeof(glm::vec4) * uniformKernel.size(), sizeof(glm::vec4) * gaussianKernel.size(), gaussianKernel.data());
-
-#pragma endregion
-#pragma region Shadow
-    manager.m_shadowCascadeInfoBlock.SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
-    manager.m_shadowCascadeInfoBlock.SetBase(4);
-
-#pragma region LightInfoBlocks
-    size_t size = 16 + DefaultResources::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
-    manager.m_directionalLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-    manager.m_directionalLightBlock.SetBase(1);
-    size = 16 + DefaultResources::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
-    manager.m_pointLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-    manager.m_pointLightBlock.SetBase(2);
-    size = 16 + DefaultResources::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
-    manager.m_spotLightBlock.SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-    manager.m_spotLightBlock.SetBase(3);
-#pragma endregion
-#pragma region DirectionalLight
-    manager.m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(manager.m_shadowMapResolution);
-
-    std::string vertShaderCode =
-        std::string("#version 450 core\n") +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMap.vert"));
-    std::string fragShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/DirectionalLightShadowMap.frag"));
-    std::string geomShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/DirectionalLightShadowMap.geom"));
-
-    auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-    auto geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
-    geomShader->Compile(geomShaderCode);
-    manager.m_directionalLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_directionalLightProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstanced.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_directionalLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_directionalLightInstancedProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_directionalLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_directionalLightSkinnedProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(
-                         FileIO::GetResourcePath("Shaders/Vertex/DirectionalLightShadowMapInstancedSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_directionalLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_directionalLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
-#pragma region PointLight
-    manager.m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(manager.m_shadowMapResolution);
-    vertShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
-    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PointLightShadowMap.frag"));
-    geomShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Geometry/PointLightShadowMap.geom"));
-
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-    geomShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Geometry);
-    geomShader->Compile(geomShaderCode);
-
-    manager.m_pointLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_pointLightProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstanced.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_pointLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_pointLightInstancedProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_pointLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_pointLightSkinnedProgram->Link(vertShader, fragShader, geomShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMapInstancedSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_pointLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_pointLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
-#pragma endregion
-#pragma region SpotLight
-    manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_shadowMapResolution);
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
-    fragShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SpotLightShadowMap.frag"));
-
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-    manager.m_spotLightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_spotLightProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstanced.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_spotLightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_spotLightInstancedProgram->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_spotLightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_spotLightSkinnedProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMapInstancedSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_spotLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_spotLightInstancedSkinnedProgram->Link(vertShader, fragShader);
-#pragma endregion
-#pragma endregion
-
-#pragma region GBuffer
-    vertShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
-    fragShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));
-
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-
-    manager.m_gBufferLightingPass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_gBufferLightingPass->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Standard.vert"));
-    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferred.frag"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-    manager.m_gBufferPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_gBufferPrepass->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_gBufferSkinnedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_gBufferSkinnedPrepass->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstanced.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_gBufferInstancedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_gBufferInstancedPrepass->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/StandardInstancedSkinned.vert"));
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    manager.m_gBufferInstancedSkinnedPrepass = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
-    manager.m_gBufferInstancedSkinnedPrepass->Link(vertShader, fragShader);
-#pragma endregion
-#pragma region SSAO
-    vertShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
-    fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
-
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-
-#pragma endregion
-
-    manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
-}
-
-void RenderManager::CollectRenderInstances(const GlobalTransform &cameraTransform, Bound &worldBound)
-{
-    auto &renderManager = GetInstance();
-    renderManager.m_deferredRenderInstances.clear();
-    renderManager.m_deferredInstancedRenderInstances.clear();
-    renderManager.m_forwardRenderInstances.clear();
-    renderManager.m_forwardInstancedRenderInstances.clear();
-    renderManager.m_transparentRenderInstances.clear();
-    renderManager.m_instancedTransparentRenderInstances.clear();
-    auto &minBound = worldBound.m_min;
-    auto &maxBound = worldBound.m_max;
-    minBound = glm::vec3(INT_MAX);
-    maxBound = glm::vec3(INT_MIN);
-
-    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
-    if (owners)
-    {
-        for (auto owner : *owners)
-        {
-            if (!owner.IsEnabled())
-                continue;
-            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
-            if (!mmc.IsEnabled() || mmc.m_material == nullptr || mmc.m_mesh == nullptr)
-                continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
-                continue;
-            auto gt = owner.GetDataComponent<GlobalTransform>();
-            auto ltw = gt.m_value;
-            auto meshBound = mmc.m_mesh->GetBound();
-            meshBound.ApplyTransform(ltw);
-            glm::vec3 center = meshBound.Center();
-            glm::vec3 size = meshBound.Size();
-            minBound = glm::vec3(
-                (glm::min)(minBound.x, center.x - size.x),
-                (glm::min)(minBound.y, center.y - size.y),
-                (glm::min)(minBound.z, center.z - size.z));
-            maxBound = glm::vec3(
-                (glm::max)(maxBound.x, center.x + size.x),
-                (glm::max)(maxBound.y, center.y + size.y),
-                (glm::max)(maxBound.z, center.z + size.z));
-
-            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &mmc;
-            renderInstance.m_type = RenderInstanceType::Default;
-            if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
-            {
-                renderManager.m_transparentRenderInstances[distance].push_back(renderInstance);
-            }
-            else if (mmc.m_forwardRendering)
-            {
-                renderManager.m_forwardRenderInstances[mmc.m_material.get()][distance].push_back(renderInstance);
-            }
-            else
-            {
-                renderManager.m_deferredRenderInstances[mmc.m_material.get()][distance].push_back(renderInstance);
-            }
-        }
-    }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Particles>();
-    if (owners)
-    {
-        for (auto owner : *owners)
-        {
-            if (!owner.IsEnabled())
-                continue;
-            auto &particles = owner.GetPrivateComponent<Particles>();
-            if (!particles.IsEnabled() || particles.m_material == nullptr || particles.m_mesh == nullptr)
-                continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
-                continue;
-            auto gt = owner.GetDataComponent<GlobalTransform>();
-            auto ltw = gt.m_value;
-            auto meshBound = particles.m_mesh->GetBound();
-            meshBound.ApplyTransform(ltw);
-            glm::vec3 center = meshBound.Center();
-            glm::vec3 size = meshBound.Size();
-            minBound = glm::vec3(
-                (glm::min)(minBound.x, center.x - size.x),
-                (glm::min)(minBound.y, center.y - size.y),
-                (glm::min)(minBound.z, center.z - size.z));
-
-            maxBound = glm::vec3(
-                (glm::max)(maxBound.x, center.x + size.x),
-                (glm::max)(maxBound.y, center.y + size.y),
-                (glm::max)(maxBound.z, center.z + size.z));
-            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &particles;
-            renderInstance.m_type = RenderInstanceType::Default;
-            if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
-            {
-                renderManager.m_instancedTransparentRenderInstances[distance].push_back(renderInstance);
-            }
-            else if (particles.m_forwardRendering)
-            {
-                renderManager.m_forwardInstancedRenderInstances[particles.m_material.get()][distance].push_back(
-                    renderInstance);
-            }
-            else
-            {
-                renderManager.m_deferredInstancedRenderInstances[particles.m_material.get()][distance].push_back(
-                    renderInstance);
-            }
-        }
-    }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
-    if (owners)
-    {
-        for (auto owner : *owners)
-        {
-            if (!owner.IsEnabled())
-                continue;
-            auto &smmc = owner.GetPrivateComponent<SkinnedMeshRenderer>();
-            if (!smmc.IsEnabled() || smmc.m_material == nullptr || smmc.m_skinnedMesh == nullptr)
-                continue;
-            if (owner.HasDataComponent<CameraLayerMask>() &&
-                !(owner.GetDataComponent<CameraLayerMask>().m_value & static_cast<size_t>(CameraLayer::MainCamera)))
-                continue;
-            GlobalTransform gt;
-            if (smmc.m_animator.IsValid())
-            {
-                gt = smmc.m_animator.GetDataComponent<GlobalTransform>();
-            }
-            else
-            {
-                smmc.m_animator = Entity();
-                gt = owner.GetDataComponent<GlobalTransform>();
-            }
-            auto ltw = gt.m_value;
-            auto meshBound = smmc.m_skinnedMesh->GetBound();
-            meshBound.ApplyTransform(ltw);
-            glm::vec3 center = meshBound.Center();
-            glm::vec3 size = meshBound.Size();
-            minBound = glm::vec3(
-                (glm::min)(minBound.x, center.x - size.x),
-                (glm::min)(minBound.y, center.y - size.y),
-                (glm::min)(minBound.z, center.z - size.z));
-            maxBound = glm::vec3(
-                (glm::max)(maxBound.x, center.x + size.x),
-                (glm::max)(maxBound.y, center.y + size.y),
-                (glm::max)(maxBound.z, center.z + size.z));
-
-            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_renderer = &smmc;
-            renderInstance.m_type = RenderInstanceType::Skinned;
-            if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
-            {
-                renderManager.m_transparentRenderInstances[distance].push_back(renderInstance);
-            }
-            else if (smmc.m_forwardRendering)
-            {
-                renderManager.m_forwardRenderInstances[smmc.m_material.get()][distance].push_back(renderInstance);
-            }
-            else
-            {
-                renderManager.m_deferredRenderInstances[smmc.m_material.get()][distance].push_back(renderInstance);
-            }
-        }
-    }
-}
-
-inline float RenderManager::Lerp(const float &a, const float &b, const float &f)
-{
-    return a + f * (b - a);
-}
-
-unsigned int environmentalMapCubeVAO = 0;
-unsigned int environmentalMapCubeVBO = 0;
-void RenderManager::RenderCube()
-{
-    // initialize (if necessary)
-    if (environmentalMapCubeVAO == 0)
-    {
-        float vertices[] = {
-            // back face
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            0.0f, // bottom-left
-            1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            1.0f,
-            1.0f, // top-right
-            1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            1.0f,
-            0.0f, // bottom-right
-            1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            1.0f,
-            1.0f, // top-right
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            0.0f, // bottom-left
-            -1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            1.0f, // top-left
-            // front face
-            -1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f, // bottom-left
-            1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f,
-            0.0f, // bottom-right
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f,
-            1.0f, // top-right
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f,
-            1.0f, // top-right
-            -1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            1.0f, // top-left
-            -1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f, // bottom-left
-            // left face
-            -1.0f,
-            1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f, // top-right
-            -1.0f,
-            1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f, // top-left
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f, // bottom-left
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f, // bottom-left
-            -1.0f,
-            -1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f, // bottom-right
-            -1.0f,
-            1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f, // top-right
-                  // right face
-            1.0f,
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f, // top-left
-            1.0f,
-            -1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f, // bottom-right
-            1.0f,
-            1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            1.0f, // top-right
-            1.0f,
-            -1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f, // bottom-right
-            1.0f,
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f,
-            0.0f, // top-left
-            1.0f,
-            -1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f, // bottom-left
-            // bottom face
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            1.0f, // top-right
-            1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            1.0f, // top-left
-            1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f, // bottom-left
-            1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f, // bottom-left
-            -1.0f,
-            -1.0f,
-            1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            0.0f, // bottom-right
-            -1.0f,
-            -1.0f,
-            -1.0f,
-            0.0f,
-            -1.0f,
-            0.0f,
-            0.0f,
-            1.0f, // top-right
-            // top face
-            -1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f, // top-left
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            0.0f, // bottom-right
-            1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            1.0f, // top-right
-            1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            0.0f, // bottom-right
-            -1.0f,
-            1.0f,
-            -1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            1.0f, // top-left
-            -1.0f,
-            1.0f,
-            1.0f,
-            0.0f,
-            1.0f,
-            0.0f,
-            0.0f,
-            0.0f // bottom-left
-        };
-        glGenVertexArrays(1, &environmentalMapCubeVAO);
-        glGenBuffers(1, &environmentalMapCubeVBO);
-        // fill buffer
-        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapCubeVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-        // link vertex attributes
-        glBindVertexArray(environmentalMapCubeVAO);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
-    // render Cube
-    glBindVertexArray(environmentalMapCubeVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    OpenGLUtils::GLVAO::BindDefault();
-}
-unsigned int environmentalMapQuadVAO = 0;
-unsigned int environmentalMapQuadVBO;
-void RenderManager::RenderQuad()
-{
-    if (environmentalMapQuadVAO == 0)
-    {
-        float quadVertices[] = {
-            // positions        // texture Coords
-            -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-            1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
-        };
-        // setup plane VAO
-        glGenVertexArrays(1, &environmentalMapQuadVAO);
-        glGenBuffers(1, &environmentalMapQuadVBO);
-        glBindVertexArray(environmentalMapQuadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, environmentalMapQuadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    }
-    glBindVertexArray(environmentalMapQuadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-}
-
-#pragma region Settings
-
-#pragma endregion
-#pragma region Shadow
-
-void RenderManager::SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4)
-{
-    GetInstance().m_shadowCascadeSplit[0] = r1;
-    GetInstance().m_shadowCascadeSplit[1] = r2;
-    GetInstance().m_shadowCascadeSplit[2] = r3;
-    GetInstance().m_shadowCascadeSplit[3] = r4;
-}
-
-void RenderManager::SetShadowMapResolution(const size_t &value)
-{
-    GetInstance().m_shadowMapResolution = value;
-    if (GetInstance().m_directionalLightShadowMap != nullptr)
-        GetInstance().m_directionalLightShadowMap->SetResolution(value);
-}
-
-glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
-{
-    const float lineLength = distance(a, b);
-    const glm::vec3 vector = point - a;
-    const glm::vec3 lineDirection = (b - a) / lineLength;
-
-    // Project Vector to LineDirection to get the distance of point from a
-    const float distance = dot(vector, lineDirection);
-    return a + lineDirection * distance;
-}
-
-void RenderManager::OnGui()
-{
-    auto &renderManager = GetInstance();
-
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::Checkbox("Render Manager", &renderManager.m_enableRenderMenu);
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
-    if (renderManager.m_enableRenderMenu)
-    {
-        ImGui::Begin("Render Manager");
-        ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
-        if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::Text("Environmental map:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(renderManager.m_environmentalMap);
-            ImGui::DragFloat(
-                "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
-        }
-        bool enableShadow = renderManager.m_materialSettings.m_enableShadow;
-        if (ImGui::Checkbox("Enable shadow", &enableShadow))
-        {
-            renderManager.m_materialSettings.m_enableShadow = enableShadow;
-        }
-        if (renderManager.m_materialSettings.m_enableShadow &&
-            ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            if (ImGui::TreeNode("Distance"))
-            {
-                ImGui::DragFloat("Max shadow distance", &renderManager.m_maxShadowDistance, 1.0f, 0.1f);
-                ImGui::DragFloat(
-                    "Split 1",
-                    &renderManager.m_shadowCascadeSplit[0],
-                    0.01f,
-                    0.0f,
-                    renderManager.m_shadowCascadeSplit[1]);
-                ImGui::DragFloat(
-                    "Split 2",
-                    &renderManager.m_shadowCascadeSplit[1],
-                    0.01f,
-                    renderManager.m_shadowCascadeSplit[0],
-                    renderManager.m_shadowCascadeSplit[2]);
-                ImGui::DragFloat(
-                    "Split 3",
-                    &renderManager.m_shadowCascadeSplit[2],
-                    0.01f,
-                    renderManager.m_shadowCascadeSplit[1],
-                    renderManager.m_shadowCascadeSplit[3]);
-                ImGui::DragFloat(
-                    "Split 4",
-                    &renderManager.m_shadowCascadeSplit[3],
-                    0.01f,
-                    renderManager.m_shadowCascadeSplit[2],
-                    1.0f);
-                ImGui::TreePop();
-            }
-            if (ImGui::TreeNode("PCSS"))
-            {
-                ImGui::DragFloat("PCSS Factor", &renderManager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
-                ImGui::DragInt(
-                    "Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
-                ImGui::DragInt("PCF Sample Size", &renderManager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
-                ImGui::TreePop();
-            }
-            ImGui::DragFloat("Seam fix ratio", &renderManager.m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
-            ImGui::Checkbox("Stable fit", &renderManager.m_stableFit);
-        }
-        ImGui::End();
-    }
-}
-
-void RenderManager::LateUpdate()
-{
-    auto &renderManager = GetInstance();
-    renderManager.m_triangles = 0;
-    renderManager.m_drawCall = 0;
-#pragma region Resize and clear
-    if (renderManager.m_mainCameraComponent != nullptr)
-    {
-        if (renderManager.m_mainCameraComponent->m_allowAutoResize)
-            renderManager.m_mainCameraComponent->ResizeResolution(
-                renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
-    }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
-    if (cameraEntities != nullptr)
-    {
-        for (auto cameraEntity : *cameraEntities)
-        {
-            if (!cameraEntity.IsEnabled())
-                continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
-            if (cameraComponent.IsEnabled())
-                cameraComponent.Clear();
-        }
-    }
-#pragma endregion
-#pragma region Shadowmap prepass
-    Bound worldBound;
-    if (renderManager.m_mainCameraComponent)
-    {
-        CollectRenderInstances(
-            renderManager.m_mainCameraComponent->GetOwner().GetDataComponent<GlobalTransform>(), worldBound);
-    }
-    else
-    {
-        CollectRenderInstances(GlobalTransform(), worldBound);
-    }
-    EntityManager::GetCurrentWorld()->SetBound(worldBound);
-    if (renderManager.m_mainCameraComponent != nullptr)
-    {
-        if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
-        {
-            RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
-        }
-    }
-#pragma endregion
-#pragma region Render to cameras
-    if (cameraEntities != nullptr)
-    {
-        for (auto cameraEntity : *cameraEntities)
-        {
-            if (!cameraEntity.IsEnabled())
-                continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
-            if (cameraComponent.IsEnabled())
-            {
-                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
-                CameraComponent::m_cameraInfoBlock.UpdateMatrices(
-                    cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-                CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-                ApplyShadowMapSettings(cameraComponent);
-                ApplyEnvironmentalSettings(cameraComponent);
-                RenderToCameraDeferred(cameraComponent);
-                RenderBackGround(cameraComponent);
-                RenderToCameraForward(cameraComponent);
-            }
-        }
-    }
-#pragma endregion
-#pragma region Post - processing
-    const std::vector<Entity> *postProcessingEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
-    if (postProcessingEntities != nullptr)
-    {
-        for (auto postProcessingEntity : *postProcessingEntities)
-        {
-            if (!postProcessingEntity.IsEnabled())
-                continue;
-            auto &postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
-            if (postProcessing.IsEnabled())
-                postProcessing.Process();
-        }
-    }
-#pragma endregion
-
-    EditorManager::RenderToSceneCamera();
-}
-
 #pragma endregion
 #pragma region RenderAPI
 #pragma region Internal

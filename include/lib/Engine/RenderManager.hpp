@@ -213,9 +213,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void BindTextures(const Material *material);
     static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
     static void ReleaseTextureHandles(const Material *material);
-    static void RenderToCameraDeferred(CameraComponent &cameraComponent);
-    static void RenderBackGround(const CameraComponent &cameraComponent);
-    static void RenderToCameraForward(const CameraComponent &cameraComponent);
+    static void RenderToCamera(CameraComponent &cameraComponent);
     static void ShadowMapPass(
         const int &enabledSize,
         std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,

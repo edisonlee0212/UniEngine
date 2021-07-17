@@ -36,6 +36,8 @@ void OpenGLUtils::Init()
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
+
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;

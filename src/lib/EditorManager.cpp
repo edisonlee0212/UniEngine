@@ -860,9 +860,7 @@ void EditorManager::RenderToSceneCamera()
 #pragma endregion
         RenderManager::ApplyShadowMapSettings(editorManager.m_sceneCamera);
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
-        RenderManager::RenderToCameraDeferred(editorManager.m_sceneCamera);
-        RenderManager::RenderBackGround(editorManager.m_sceneCamera);
-        RenderManager::RenderToCameraForward(editorManager.m_sceneCamera);
+        RenderManager::RenderToCamera(editorManager.m_sceneCamera);
     }
 }
 
