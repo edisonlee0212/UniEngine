@@ -98,9 +98,10 @@ int main()
 
             auto &rigidBody = sphere.SetPrivateComponent<RigidBody>();
             rigidBody.SetEnabled(true);
+            rigidBody.SetDensityAndMassCenter(0.1);
             auto sphereCollider = ResourceManager::CreateResource<Collider>();
             sphereCollider->SetShapeType(ShapeType::Sphere);
-            sphereCollider->SetShapeParam(glm::vec3(scaleFactor));
+            sphereCollider->SetShapeParam(glm::vec3(2.0 * scaleFactor));
             rigidBody.AttachCollider(sphereCollider);
             sphere.SetParent(collection);
         }
@@ -152,7 +153,7 @@ int main()
         for (int i = 1; i < 10; i++)
         {
             const auto link = CreateDynamicSphere(
-                1.0 - i * 0.1, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
+                1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
             auto &joint = link.SetPrivateComponent<Joint>();
             joint.SetType(JointType::D6);
             joint.Link(lastLink);
