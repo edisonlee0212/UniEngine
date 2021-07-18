@@ -32,7 +32,6 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     bool m_currentRegistered = false;
     PxVec3 m_linearVelocity = PxVec3(0.0f);
     PxVec3 m_angularVelocity = PxVec3(0.0f);
-    bool m_shapeUpdated = false;
     friend class Joint;
     friend class EditorManager;
     bool m_kinematic = false;

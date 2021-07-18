@@ -38,7 +38,6 @@ void PhysicsManager::PreUpdate()
         for (auto entity : *entities)
         {
             auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
-            if(!playing) UpdateShape(rigidBody);
             auto globalTransform = entity.GetDataComponent<GlobalTransform>();
             globalTransform.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
             globalTransform.SetScale(glm::vec3(1.0f));
@@ -109,8 +108,6 @@ void PhysicsManager::Destroy()
 
 void PhysicsManager::UpdateShape(RigidBody &rigidBody)
 {
-    if (rigidBody.m_shapeUpdated)
-        return;
     if (rigidBody.m_shape != nullptr)
     {
         rigidBody.m_rigidActor->detachShape(*rigidBody.m_shape);
@@ -137,8 +134,6 @@ void PhysicsManager::UpdateShape(RigidBody &rigidBody)
     if (!rigidBody.m_static)
         PxRigidBodyExt::updateMassAndInertia(
             *reinterpret_cast<PxRigidDynamic *>(rigidBody.m_rigidActor), rigidBody.m_density);
-
-    rigidBody.m_shapeUpdated = true;
 }
 
 void PhysicsManager::UpdateShape(Articulation &articulation)

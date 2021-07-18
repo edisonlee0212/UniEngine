@@ -28,7 +28,7 @@ void UniEngine::RigidBody::ApplyMeshBound()
     }
     m_density = glm::max(0.001f, m_density);
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
 }
 
 void UniEngine::RigidBody::SetShapeType(ShapeType type)
@@ -36,7 +36,7 @@ void UniEngine::RigidBody::SetShapeType(ShapeType type)
     if (m_shapeType == type)
         return;
     m_shapeType = type;
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
 }
 
 void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
@@ -45,7 +45,7 @@ void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
         return;
     m_shapeParam = value;
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
 }
 
 void UniEngine::RigidBody::SetStatic(bool value)
@@ -61,7 +61,7 @@ void UniEngine::RigidBody::SetStatic(bool value)
         SetKinematic(false);
     }
     m_static = value;
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
 
     UpdateBody();
 }
@@ -72,7 +72,7 @@ void UniEngine::RigidBody::SetShapeTransform(glm::mat4 value)
     ltw.m_value = value;
     ltw.SetScale(glm::vec3(1.0f));
     m_shapeTransform = ltw.m_value;
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
 }
 
 void UniEngine::RigidBody::OnDestroy()
@@ -103,7 +103,7 @@ void UniEngine::RigidBody::UpdateBody()
     else
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
     m_currentRegistered = false;
-    m_shapeUpdated = false;
+    PhysicsManager::UpdateShape(*this);
     auto linkedEntities = m_linkedEntities;
     for(auto& i : linkedEntities){
         i.GetPrivateComponent<Joint>().Unlink();
@@ -190,11 +190,13 @@ void UniEngine::RigidBody::OnGui()
             staticChanged = true;
         }
     }
+    /*
     if (Application::IsPlaying())
     {
         ImGui::Text("Pause Engine to edit shape.");
     }
     else
+     */
     {
         ImGui::Combo(
             "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape));
@@ -269,7 +271,7 @@ void UniEngine::RigidBody::OnGui()
         {
             m_density = glm::max(0.001f, m_density);
             m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-            m_shapeUpdated = false;
+            PhysicsManager::UpdateShape(*this);
         }
         if (staticChanged)
         {
@@ -290,7 +292,7 @@ void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial> &value)
     if (value && m_material != value)
     {
         m_material = value;
-        m_shapeUpdated = false;
+        PhysicsManager::UpdateShape(*this);
     }
 }
 void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
