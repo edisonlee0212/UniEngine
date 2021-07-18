@@ -1741,23 +1741,20 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
         bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[0];
             chunk.SetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+                static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
             transformUpdated = true;
         }
         else if (id == typeid(GlobalTransform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[1];
             chunk.SetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), value);
             globalTransformUpdated = true;
         }
         if (transformUpdated || globalTransformUpdated)
         {
-            const auto &type = chunkInfo->m_componentTypes[2];
             auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size)));
+                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
             if(transformUpdated) transformStatus->UpdateTransform();
             if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
             return;
@@ -1767,7 +1764,7 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
             if (type.m_typeId == id)
             {
                 chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size),
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)),
                     value);
                 return;
             }
@@ -1795,29 +1792,24 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
         const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
         ComponentDataChunk chunk =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-
-
         bool transformUpdated = false;
         bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[0];
             chunk.SetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+                static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
             transformUpdated = true;
         }
         else if (id == typeid(GlobalTransform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[1];
             chunk.SetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), value);
             globalTransformUpdated = true;
         }
         if (transformUpdated || globalTransformUpdated)
         {
-            const auto &type = chunkInfo->m_componentTypes[2];
             auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size)));
+                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
             if(transformUpdated) transformStatus->UpdateTransform();
             if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
             return;
@@ -1827,7 +1819,7 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
             if (type.m_typeId == id)
             {
                 chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size),
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)),
                     value);
                 return;
             }
@@ -1853,28 +1845,25 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[0];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>(chunkPointer * sizeof(Transform)));
         }
         if (id == typeid(GlobalTransform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[1];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
         if (id == typeid(TransformStatus).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[2];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus)));
         }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
             if (type.m_typeId == id)
             {
                 return chunk.GetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)));
             }
         }
         UNIENGINE_LOG("ComponentData doesn't exist");
@@ -1933,28 +1922,25 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[0];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>(chunkPointer * sizeof(Transform)));
         }
         if (id == typeid(GlobalTransform).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[1];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
         if (id == typeid(TransformStatus).hash_code())
         {
-            const auto &type = chunkInfo->m_componentTypes[2];
             return chunk.GetData<T>(
-                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus)));
         }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
             if (type.m_typeId == id)
             {
                 return chunk.GetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)));
             }
         }
         UNIENGINE_LOG("ComponentData doesn't exist");

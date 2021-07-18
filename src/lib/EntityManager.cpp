@@ -890,23 +890,30 @@ void EntityManager::SetDataComponent(const Entity &entity, size_t id, size_t siz
     const auto chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
     const auto chunk =
         GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+    bool transformUpdated = false;
+    bool globalTransformUpdated = false;
     if (id == typeid(Transform).hash_code())
     {
-        const auto &type = chunkInfo->m_componentTypes[0];
         chunk.SetData(
-            static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
-        return;
+            static_cast<size_t>(chunkPointer * sizeof(Transform)), sizeof(Transform), data);
+        transformUpdated = true;
     }
     if (id == typeid(GlobalTransform).hash_code())
     {
-        const auto &type = chunkInfo->m_componentTypes[1];
         chunk.SetData(
-            static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), size, data);
+            static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), sizeof(GlobalTransform), data);
+        globalTransformUpdated = true;
+    }
+    if (transformUpdated || globalTransformUpdated)
+    {
+        auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
+            static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
+        if(transformUpdated) transformStatus->UpdateTransform();
+        if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
         return;
     }
     for (const auto &type : chunkInfo->m_componentTypes)
     {
-
         if (type.m_typeId == id)
         {
             chunk.SetData(
