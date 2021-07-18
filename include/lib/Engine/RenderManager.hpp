@@ -79,12 +79,18 @@ struct RenderCommand
     Entity m_owner = Entity();
     union {
         Mesh *m_mesh;
-        SkinnedMeshRenderer *m_skinnedMeshRenderer; //We require the skinned mesh renderer to provide bones.
+        SkinnedMeshRenderer *m_skinnedMeshRenderer; // We require the skinned mesh renderer to provide bones.
     };
     bool m_castShadow = true;
     bool m_receiveShadow = true;
     std::vector<glm::mat4> *m_matrices = nullptr;
     GlobalTransform m_globalTransform;
+};
+
+struct RenderCommandGroup
+{
+    std::map<float, std::map<Mesh *, std::vector<RenderCommand>>> m_meshes;
+    std::map<float, std::map<SkinnedMesh *, std::vector<RenderCommand>>> m_skinnedMeshes;
 };
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
@@ -97,16 +103,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
-        m_deferredRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
-        m_deferredInstancedRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
-        m_forwardRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, std::map<float, std::vector<RenderCommand>>>>
-        m_forwardInstancedRenderInstances;
-    std::map<CameraComponent *, std::map<float, std::vector<RenderCommand>>> m_transparentRenderInstances;
-    std::map<CameraComponent *, std::map<float, std::vector<RenderCommand>>> m_instancedTransparentRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_deferredRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_deferredInstancedRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_forwardRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_forwardInstancedRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_transparentRenderInstances;
+    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -204,8 +206,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
   public:
     static void RenderManager::DispatchRenderCommands(
-        const std::map<Material *, std::map<float, std::vector<RenderCommand>>> &renderCommands,
-        const std::function<void(Material* material, const RenderCommand &renderCommand)> &func,
+        const std::map<Material *, RenderCommandGroup> &renderCommands,
+        const std::function<void(Material *material, const RenderCommand &renderCommand)> &func,
         const bool &setMaterial,
         const bool &bindProgram);
 
@@ -232,7 +234,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void Init();
     // Main rendering happens here.
 
-    static void CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool& calculateBound = false);
+    static void CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool &calculateBound = false);
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetShadowMapResolution(const size_t &value);
