@@ -121,7 +121,7 @@ template <typename T> DataComponentType Typeof()
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 
-struct ComponentDataChunk
+struct UNIENGINE_API ComponentDataChunk
 {
     void *m_data;
     template <typename T> T GetData(const size_t &offset);

@@ -3,6 +3,19 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
+struct UNIENGINE_API TransformStatus : IDataComponent
+{
+    bool m_transformUpdated = false;
+    bool m_globalTransformUpdated = false;
+
+    void UpdateTransform(){
+        m_transformUpdated = true;
+    }
+    void UpdateGlobalTransform(){
+        m_globalTransformUpdated = true;
+    }
+};
+
 struct UNIENGINE_API GlobalTransform : IDataComponent
 {
     glm::mat4 m_value =

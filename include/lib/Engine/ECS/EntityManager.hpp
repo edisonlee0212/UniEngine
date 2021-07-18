@@ -528,8 +528,9 @@ std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, T
     auto retVal = std::vector<DataComponentType>();
     retVal.push_back(Typeof<Transform>());
     retVal.push_back(Typeof<GlobalTransform>());
+    retVal.push_back(Typeof<TransformStatus>());
     CollectDataComponentTypes(&retVal, arg, args...);
-    std::sort(retVal.begin() + 2, retVal.end(), ComponentTypeComparator);
+    std::sort(retVal.begin() + 3, retVal.end(), ComponentTypeComparator);
     size_t offset = 0;
     EraseDuplicates(retVal);
     for (auto &i : retVal)
@@ -1468,6 +1469,10 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     {
         return;
     }
+    if (id == typeid(TransformStatus).hash_code())
+    {
+        return;
+    }
     auto &entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
     if (GetInstance().m_entities->at(entity.m_index) != entity)
@@ -1597,6 +1602,10 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     {
         return;
     }
+    if (id == typeid(TransformStatus).hash_code())
+    {
+        return;
+    }
     EntityInfo &entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
     if (GetInstance().m_entities->at(entity.m_index) != entity)
     {
@@ -1712,10 +1721,14 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
 
 template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
 {
+    const size_t id = typeid(T).hash_code();
+    if (id == typeid(TransformStatus).hash_code()){
+        UNIENGINE_ERROR("Updating TransformStatus is not allowed!");
+        return;
+    }
     if (!entity.IsValid())
         return;
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
-
     if (GetInstance().m_entities->at(entity.m_index) == entity)
     {
         EntityArchetypeInfo *chunkInfo =
@@ -1724,19 +1737,29 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
         const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
         ComponentDataChunk chunk =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-        const size_t id = typeid(T).hash_code();
+        bool transformUpdated = false;
+        bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
             const auto &type = chunkInfo->m_componentTypes[0];
             chunk.SetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
-            return;
+            transformUpdated = true;
         }
-        if (id == typeid(GlobalTransform).hash_code())
+        else if (id == typeid(GlobalTransform).hash_code())
         {
             const auto &type = chunkInfo->m_componentTypes[1];
             chunk.SetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+            globalTransformUpdated = true;
+        }
+        if (transformUpdated || globalTransformUpdated)
+        {
+            const auto &type = chunkInfo->m_componentTypes[2];
+            auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
+                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size)));
+            if(transformUpdated) transformStatus->UpdateTransform();
+            if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
             return;
         }
         for (const auto &type : chunkInfo->m_componentTypes)
@@ -1756,10 +1779,14 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
 }
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
+    const size_t id = typeid(T).hash_code();
+    if (id == typeid(TransformStatus).hash_code()){
+        UNIENGINE_ERROR("Updating TransformStatus is not allowed!");
+        return;
+    }
     if (index > GetInstance().m_entityInfos->size())
         return;
     EntityInfo &info = GetInstance().m_entityInfos->at(index);
-
     if (GetInstance().m_entities->at(index).m_version != 0)
     {
         EntityArchetypeInfo *chunkInfo =
@@ -1768,19 +1795,31 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
         const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
         ComponentDataChunk chunk =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-        const size_t id = typeid(T).hash_code();
+
+
+        bool transformUpdated = false;
+        bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
             const auto &type = chunkInfo->m_componentTypes[0];
             chunk.SetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
-            return;
+            transformUpdated = true;
         }
-        if (id == typeid(GlobalTransform).hash_code())
+        else if (id == typeid(GlobalTransform).hash_code())
         {
             const auto &type = chunkInfo->m_componentTypes[1];
             chunk.SetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size), value);
+            globalTransformUpdated = true;
+        }
+        if (transformUpdated || globalTransformUpdated)
+        {
+            const auto &type = chunkInfo->m_componentTypes[2];
+            auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
+                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size)));
+            if(transformUpdated) transformStatus->UpdateTransform();
+            if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
             return;
         }
         for (const auto &type : chunkInfo->m_componentTypes)
@@ -1824,6 +1863,12 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
             return chunk.GetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
         }
+        if (id == typeid(TransformStatus).hash_code())
+        {
+            const auto &type = chunkInfo->m_componentTypes[2];
+            return chunk.GetData<T>(
+                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+        }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
             if (type.m_typeId == id)
@@ -1853,6 +1898,10 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
             return true;
         }
         if (id == typeid(GlobalTransform).hash_code())
+        {
+            return true;
+        }
+        if (id == typeid(TransformStatus).hash_code())
         {
             return true;
         }
@@ -1894,6 +1943,12 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
             return chunk.GetData<T>(
                 static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
         }
+        if (id == typeid(TransformStatus).hash_code())
+        {
+            const auto &type = chunkInfo->m_componentTypes[2];
+            return chunk.GetData<T>(
+                static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+        }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
             if (type.m_typeId == id)
@@ -1923,6 +1978,10 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
             return true;
         }
         if (id == typeid(GlobalTransform).hash_code())
+        {
+            return true;
+        }
+        if (id == typeid(TransformStatus).hash_code())
         {
             return true;
         }

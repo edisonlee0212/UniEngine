@@ -768,6 +768,10 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
     {
         return;
     }
+    if (typeID == typeid(TransformStatus).hash_code())
+    {
+        return;
+    }
     EntityInfo &entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
     EntityArchetypeInfo *archetypeInfo =
         GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_archetypeInfo;
@@ -960,8 +964,9 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     std::vector<DataComponentType> actualTypes;
     actualTypes.push_back(Typeof<Transform>());
     actualTypes.push_back(Typeof<GlobalTransform>());
+    actualTypes.push_back(Typeof<TransformStatus>());
     actualTypes.insert(actualTypes.end(), types.begin(), types.end());
-    std::sort(actualTypes.begin() + 2, actualTypes.end(), ComponentTypeComparator);
+    std::sort(actualTypes.begin() + 3, actualTypes.end(), ComponentTypeComparator);
     size_t offset = 0;
     DataComponentType prev = actualTypes[0];
     // Erase duplicates

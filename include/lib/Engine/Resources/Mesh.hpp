@@ -31,8 +31,7 @@ enum class MeshStoreType{
 };
 
 class UNIENGINE_API MeshStorage{
-    static size_t m_persistentMeshesSize;
-    static std::shared_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
+    std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
 };
 
 class UNIENGINE_API Mesh : public ResourceBehaviour
