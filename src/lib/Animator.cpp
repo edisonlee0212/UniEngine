@@ -175,7 +175,6 @@ void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
     }
     RenderManager::DrawGizmoMeshInstanced(
         DefaultResources::Primitives::Sphere.get(),
-        EditorManager::GetSceneCamera(),
         color,
         debugRenderingMatrices,
         Transform().m_value,

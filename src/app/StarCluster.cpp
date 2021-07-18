@@ -19,16 +19,15 @@ int main()
 #pragma region Star System
     auto *starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
-    auto postProcessing = std::make_unique<PostProcessing>();
-    postProcessing->PushLayer(std::make_unique<Bloom>());
-    Bloom *bloom = postProcessing->GetLayer<Bloom>();
+    auto& postProcessing = RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
+    Bloom *bloom = postProcessing.GetLayer<Bloom>();
     if (bloom != nullptr)
     {
-        bloom->m_intensity = 0.03f;
-        bloom->m_diffusion = 20;
+        bloom->m_intensity = 0.1f;
+        bloom->m_diffusion = 8;
         bloom->m_enabled = true;
     }
-    RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
+
     RenderManager::GetMainCamera()->m_useClearColor = true;
 #pragma region EngineLoop
     Application::Run();

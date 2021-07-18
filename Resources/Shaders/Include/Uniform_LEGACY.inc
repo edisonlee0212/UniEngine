@@ -47,6 +47,7 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	float UE_PBR_METALLIC;
 	float UE_PBR_ROUGHNESS;
 	float UE_PBR_AO;
+    float UE_PBR_EMISSION;
 	float UE_APLHA_DISCARD_OFFSET;
 };
 

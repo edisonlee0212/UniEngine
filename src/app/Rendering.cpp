@@ -100,7 +100,7 @@ int main()
     pointLightLeftRenderer.m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer.m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
-    pointLightLeftRenderer.m_material->m_ambientOcclusion = 10.0f;
+    pointLightLeftRenderer.m_material->m_emission = 10.0f;
     pointLightLeftRenderer.m_mesh = DefaultResources::Primitives::Sphere;
     auto &pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
     pointLightLeft.m_diffuseBrightness = 20;
@@ -115,7 +115,7 @@ int main()
     pointLightRightRenderer.m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer.m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
-    pointLightRightRenderer.m_material->m_ambientOcclusion = 10.0f;
+    pointLightRightRenderer.m_material->m_emission = 10.0f;
     pointLightRightRenderer.m_mesh = DefaultResources::Primitives::Sphere;
     auto &pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
     pointLightRight.m_diffuseBrightness = 20;

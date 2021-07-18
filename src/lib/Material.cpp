@@ -57,7 +57,8 @@ void Material::OnGui()
         if (!m_textures[TextureType::Roughness])
             ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f);
         if (!m_textures[TextureType::AO])
-            ImGui::DragFloat("AO##Material", &m_ambientOcclusion, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("AO##Material", &m_ambient, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("Emission##Material", &m_emission, 0.01f, 0.0f, 10.0f);
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Others##Material"))

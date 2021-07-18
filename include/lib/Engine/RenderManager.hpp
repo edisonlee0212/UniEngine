@@ -45,6 +45,7 @@ struct MaterialSettingsBlock
     float m_metallicVal = 0.5f;
     float m_roughnessVal = 0.5f;
     float m_aoVal = 1.0f;
+    float m_emissionVal = 0.0f;
     float m_alphaDiscardOffset = 0.1f;
 };
 struct EnvironmentalMapSettingsBlock
@@ -220,9 +221,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void ApplyShadowMapSettings(const CameraComponent &cameraComponent);
     static void ApplyEnvironmentalSettings(const CameraComponent &cameraComponent);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
-    static void BindTextures(const Material *material);
+    static void ApplyMaterialSettings(const Material *material);
     static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
-    static void ReleaseTextureHandles(const Material *material);
+    static void ReleaseMaterialSettings(const Material *material);
     static void RenderToCamera(CameraComponent &cameraComponent);
     static void ShadowMapPrePass(
         const int &enabledSize,
@@ -272,20 +273,17 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma region Gizmos
     static void DrawGizmoMesh(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
         const glm::vec4 &color = glm::vec4(1.0f),
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstanced(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
         const glm::vec4 &color,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
         const std::vector<glm::vec4> &colors,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
@@ -318,23 +316,20 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoRay(
-        const CameraComponent &cameraComponent,
         const glm::vec4 &color,
         const glm::vec3 &start,
         const glm::vec3 &end,
         const float &width = 0.01f);
     static void DrawGizmoRays(
-        const CameraComponent &cameraComponent,
         const glm::vec4 &color,
         std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
         const float &width = 0.01f);
     static void DrawGizmoRays(
-        const CameraComponent &cameraComponent,
         const glm::vec4 &color,
         std::vector<Ray> &rays,
         const float &width = 0.01f);
     static void DrawGizmoRay(
-        const CameraComponent &cameraComponent, const glm::vec4 &color, Ray &ray, const float &width = 0.01f);
+        const glm::vec4 &color, Ray &ray, const float &width = 0.01f);
     static void DrawGizmoRay(
         const CameraComponent &cameraComponent,
         const glm::vec3 &cameraPosition,

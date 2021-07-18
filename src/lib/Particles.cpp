@@ -60,7 +60,6 @@ void Particles::OnGui()
         const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
         RenderManager::DrawGizmoMesh(
             DefaultResources::Primitives::Cube.get(),
-            EditorManager::GetSceneCamera(),
             displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),
             1);

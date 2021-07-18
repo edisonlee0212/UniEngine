@@ -16,7 +16,6 @@ void MeshRenderer::RenderBound(glm::vec4 &color) const
         size.y = 0.01f;
     RenderManager::DrawGizmoMesh(
         DefaultResources::Primitives::Cube.get(),
-        EditorManager::GetSceneCamera(),
         color,
         transform * (glm::translate(m_mesh->m_bound.Center()) * glm::scale(size)),
         1);

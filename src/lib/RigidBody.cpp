@@ -160,7 +160,6 @@ void UniEngine::RigidBody::OnGui()
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Sphere.get(),
-                        EditorManager::GetSceneCamera(),
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam.x))),
                         1);
@@ -169,7 +168,6 @@ void UniEngine::RigidBody::OnGui()
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cube.get(),
-                        EditorManager::GetSceneCamera(),
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
                         1);
@@ -178,7 +176,6 @@ void UniEngine::RigidBody::OnGui()
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cylinder.get(),
-                        EditorManager::GetSceneCamera(),
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
                         1);

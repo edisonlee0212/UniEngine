@@ -90,7 +90,6 @@ void Articulation::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Sphere.get(),
-                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
                     1);
@@ -109,7 +108,6 @@ void Articulation::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cube.get(),
-                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);
@@ -120,7 +118,6 @@ void Articulation::OnGui()
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
                     DefaultResources::Primitives::Cylinder.get(),
-                    EditorManager::GetSceneCamera(),
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);

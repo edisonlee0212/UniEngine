@@ -28,7 +28,7 @@ void RenderManager::DispatchRenderCommands(
         {
             MaterialPropertySetter(material, true);
             GetInstance().m_materialSettings = MaterialSettingsBlock();
-            BindTextures(material);
+            ApplyMaterialSettings(material);
         }
         if (bindProgram)
         {
@@ -55,7 +55,7 @@ void RenderManager::DispatchRenderCommands(
             }
         }
         if (setMaterial)
-            ReleaseTextureHandles(material);
+            ReleaseMaterialSettings(material);
     }
 }
 
@@ -88,7 +88,6 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
                 auto &program = renderManager.m_gBufferSkinnedPrepass;
                 program->Bind();
                 ApplyProgramSettings(program.get());
-
                 auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
                 skinnedMeshRenderer->UploadBones();
                 renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
@@ -145,7 +144,7 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
     }
     renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 12);
-    renderManager.m_gBufferLightingPass->SetInt("gNormalShininess", 13);
+    renderManager.m_gBufferLightingPass->SetInt("gNormalEmission", 13);
     renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 14);
     renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 15);
 #pragma endregion
@@ -1920,7 +1919,7 @@ void RenderManager::MaterialPropertySetter(const Material *material, const bool 
     glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::BindTextures(const Material *material)
+void RenderManager::ApplyMaterialSettings(const Material *material)
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
@@ -2008,7 +2007,8 @@ void RenderManager::BindTextures(const Material *material)
     manager.m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
     manager.m_materialSettings.m_metallicVal = material->m_metallic;
     manager.m_materialSettings.m_roughnessVal = material->m_roughness;
-    manager.m_materialSettings.m_aoVal = material->m_ambientOcclusion;
+    manager.m_materialSettings.m_aoVal = material->m_ambient;
+    manager.m_materialSettings.m_emissionVal = material->m_emission;
     if (supportBindlessTexture)
     {
         manager.m_materialSettings.m_directionalShadowMap =
@@ -2054,7 +2054,7 @@ void RenderManager::ApplyProgramSettings(const OpenGLUtils::GLProgram *program)
     }
 }
 
-void RenderManager::ReleaseTextureHandles(const Material *material)
+void RenderManager::ReleaseMaterialSettings(const Material *material)
 {
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
         return;
@@ -2161,10 +2161,10 @@ void RenderManager::DrawMeshInstanced(
     MaterialPropertySetter(material);
     GetInstance().m_materialSettings = MaterialSettingsBlock();
     GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
-    BindTextures(material);
+    ApplyMaterialSettings(material);
     ApplyProgramSettings(program);
     mesh->DrawInstanced(matrices);
-    ReleaseTextureHandles(material);
+    ReleaseMaterialSettings(material);
     OpenGLUtils::GLVAO::BindDefault();
 }
 
@@ -2209,10 +2209,10 @@ void RenderManager::DrawMesh(
     GetInstance().m_materialSettings = MaterialSettingsBlock();
     GetInstance().m_materialSettings.m_receiveShadow = receiveShadow;
     MaterialPropertySetter(material);
-    BindTextures(material);
+    ApplyMaterialSettings(material);
     ApplyProgramSettings(program);
     mesh->Draw();
-    ReleaseTextureHandles(material);
+    ReleaseMaterialSettings(material);
 }
 
 void RenderManager::DrawMeshInternal(const Mesh *mesh)
@@ -2328,7 +2328,6 @@ void RenderManager::DrawGizmoMesh(
 #pragma region External
 void RenderManager::DrawGizmoMeshInstanced(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
     const glm::vec4 &color,
     const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
@@ -2348,27 +2347,10 @@ void RenderManager::DrawGizmoMeshInstanced(
             DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
-    if (&cameraComponent == &sceneCamera)
-        return;
-    if (!cameraComponent.IsEnabled())
-        return;
-    const auto entity = cameraComponent.GetOwner();
-    const auto ltw = entity.GetDataComponent<GlobalTransform>();
-    glm::vec3 scale;
-    glm::vec3 trans;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
-    DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
@@ -2388,23 +2370,6 @@ void RenderManager::DrawGizmoMeshInstancedColored(
             DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
         }
     }
-    if (&cameraComponent == &sceneCamera)
-        return;
-    if (!cameraComponent.IsEnabled())
-        return;
-    const auto entity = cameraComponent.GetOwner();
-
-    const auto ltw = entity.GetDataComponent<GlobalTransform>();
-    glm::vec3 scale;
-    glm::vec3 trans;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
-    DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMesh(
@@ -2416,7 +2381,6 @@ void RenderManager::DrawGizmoMesh(
     const glm::mat4 &model,
     const float &size)
 {
-
     CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
@@ -2456,7 +2420,6 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 }
 
 void RenderManager::DrawGizmoRay(
-    const CameraComponent &cameraComponent,
     const glm::vec4 &color,
     const glm::vec3 &start,
     const glm::vec3 &end,
@@ -2467,11 +2430,10 @@ void RenderManager::DrawGizmoRay(
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), color, model);
 }
 
 void RenderManager::DrawGizmoRays(
-    const CameraComponent &cameraComponent,
     const glm::vec4 &color,
     std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
     const float &width)
@@ -2492,11 +2454,11 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
 
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), color, models);
 }
 
 void RenderManager::DrawGizmoRays(
-    const CameraComponent &cameraComponent, const glm::vec4 &color, std::vector<Ray> &rays, const float &width)
+    const glm::vec4 &color, std::vector<Ray> &rays, const float &width)
 {
     if (rays.empty())
         return;
@@ -2512,18 +2474,18 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), color, models);
 }
 
 void RenderManager::DrawGizmoRay(
-    const CameraComponent &cameraComponent, const glm::vec4 &color, Ray &ray, const float &width)
+    const glm::vec4 &color, Ray &ray, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                        glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), color, model);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2535,15 +2497,12 @@ void RenderManager::DrawGizmoRay(
     const glm::vec3 &end,
     const float &width)
 {
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
     glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2556,9 +2515,6 @@ void RenderManager::DrawGizmoRays(
 {
     if (connections.empty())
         return;
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
     std::vector<glm::mat4> models;
     models.resize(connections.size());
     for (int i = 0; i < connections.size(); i++)
@@ -2572,7 +2528,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2585,10 +2541,6 @@ void RenderManager::DrawGizmoRays(
 {
     if (rays.empty())
         return;
-
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
     std::vector<glm::mat4> models;
     models.resize(rays.size());
     for (int i = 0; i < rays.size(); i++)
@@ -2601,7 +2553,7 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2612,15 +2564,12 @@ void RenderManager::DrawGizmoRay(
     Ray &ray,
     const float &width)
 {
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
     glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                        glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
 void RenderManager::DrawMesh(
@@ -2736,7 +2685,6 @@ void RenderManager::DrawTexture2D(
 
 void RenderManager::DrawGizmoMesh(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
     const glm::vec4 &color,
     const glm::mat4 &model,
     const float &size)
@@ -2755,24 +2703,6 @@ void RenderManager::DrawGizmoMesh(
             DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
-    if (&cameraComponent == &sceneCamera)
-        return;
-    if (!cameraComponent.IsEnabled())
-        return;
-    const auto entity = cameraComponent.GetOwner();
-    if (entity.IsNull() || !entity.IsValid() || !entity.IsEnabled())
-        return;
-    const auto ltw = entity.GetDataComponent<GlobalTransform>();
-    glm::vec3 scale;
-    glm::vec3 trans;
-    glm::quat rotation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose(ltw.m_value, scale, rotation, trans, skew, perspective);
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, trans, rotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
-    DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 #pragma endregion
 #pragma endregion

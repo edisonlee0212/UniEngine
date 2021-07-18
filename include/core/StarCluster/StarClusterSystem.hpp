@@ -274,8 +274,6 @@ class StarClusterSystem : public ISystem
     std::vector<StarClusterPattern> m_starClusterPatterns;
     bool m_useFront = true;
 #pragma region Rendering
-    std::vector<glm::mat4> m_frontMatrices;
-    std::vector<glm::mat4> m_backMatrices;
     std::vector<glm::vec4> m_frontColors;
     std::vector<glm::vec4> m_backColors;
 
@@ -290,7 +288,7 @@ class StarClusterSystem : public ISystem
     float m_calcPositionTimer = 0;
     float m_calcPositionResult = 0;
     float m_speed = 0.0f;
-    float m_size = 0.1f;
+    float m_size = 0.05f;
     float m_galaxyTime = 0.0;
     std::future<void> m_currentStatus;
     bool m_firstTime = true;

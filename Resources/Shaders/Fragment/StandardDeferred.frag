@@ -1,5 +1,5 @@
 layout (location = 0) out vec4 gPositionShadow;
-layout (location = 1) out vec4 gNormalShininess;
+layout (location = 1) out vec4 gNormalEmission;
 layout (location = 2) out vec4 gAlbedoSpecular;
 layout (location = 3) out vec4 gMetallicRoughnessAO;
 
@@ -28,6 +28,7 @@ void main()
 	vec4 albedo = UE_PBR_ALBEDO;
 	float roughness = UE_PBR_ROUGHNESS;
 	float metallic = UE_PBR_METALLIC;
+	float emission = UE_PBR_EMISSION;
 	float ao = UE_PBR_AO;
 	if(UE_ALBEDO_MAP_ENABLED) albedo = vec4(texture(UE_ALBEDO_MAP, texCoords).rgb, 1.0);
 
@@ -44,8 +45,8 @@ void main()
 	gPositionShadow.a = float(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW);
 
 	// also store the per-fragment normals into the gbuffer
-	gNormalShininess.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
-	
+	gNormalEmission.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
+	gNormalEmission.a = emission;
 	// store specular intensity in gAlbedoSpecular's alpha component
 	float specular = 1.0;
 	
