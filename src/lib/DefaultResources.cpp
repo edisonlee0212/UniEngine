@@ -10,6 +10,8 @@
 #include <ResourceManager.hpp>
 #include <SkinnedMesh.hpp>
 #include <PostProcessing.hpp>
+#include <PhysicsMaterial.hpp>
+#include <Collider.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -465,7 +467,8 @@ void DefaultResources::Load()
     ResourceManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
     ResourceManager::RegisterResourceType<Animation>("Animation");
     ResourceManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
-
+    ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
+    ResourceManager::RegisterResourceType<Collider>("Collider");
     LoadShaders();
     LoadTextures();
     LoadPrimitives();

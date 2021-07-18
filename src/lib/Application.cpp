@@ -32,10 +32,11 @@ void Application::Init(bool fullScreen)
     WindowManager::Init("UniEngine", fullScreen);
     InputManager::Init();
     JobManager::Init();
-    PhysicsManager::Init();
-    EntityManager::Init();
     OpenGLUtils::Init();
     ResourceManager::Init();
+    PhysicsManager::Init();
+
+    EntityManager::Init();
     TransformManager::Init();
     RenderManager::Init();
     EditorManager::Init();

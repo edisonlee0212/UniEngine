@@ -6,48 +6,6 @@
 #include <Transform.hpp>
 using namespace UniEngine;
 
-void UniEngine::RigidBody::ApplyMeshBound()
-{
-    if (!GetOwner().IsValid() || !GetOwner().HasPrivateComponent<MeshRenderer>())
-        return;
-    auto &meshRenderer = GetOwner().GetPrivateComponent<MeshRenderer>();
-    auto bound = meshRenderer.m_mesh->GetBound();
-    glm::vec3 scale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
-    switch (m_shapeType)
-    {
-    case ShapeType::Sphere:
-        scale = bound.Size() * scale;
-        m_shapeParam = glm::vec3((scale.x + scale.y + scale.z) / 3.0f, 1.0f, 1.0f);
-        break;
-    case ShapeType::Box:
-        m_shapeParam = bound.Size() * scale;
-        break;
-    case ShapeType::Capsule:
-        m_shapeParam = bound.Size() * scale;
-        break;
-    }
-    m_density = glm::max(0.001f, m_density);
-    m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-    PhysicsManager::UpdateShape(*this);
-}
-
-void UniEngine::RigidBody::SetShapeType(ShapeType type)
-{
-    if (m_shapeType == type)
-        return;
-    m_shapeType = type;
-    PhysicsManager::UpdateShape(*this);
-}
-
-void UniEngine::RigidBody::SetShapeParam(glm::vec3 value)
-{
-    if (m_shapeParam == value)
-        return;
-    m_shapeParam = value;
-    m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-    PhysicsManager::UpdateShape(*this);
-}
-
 void UniEngine::RigidBody::SetStatic(bool value)
 {
     if (m_static == value)
@@ -61,8 +19,6 @@ void UniEngine::RigidBody::SetStatic(bool value)
         SetKinematic(false);
     }
     m_static = value;
-    PhysicsManager::UpdateShape(*this);
-
     UpdateBody();
 }
 
@@ -72,7 +28,6 @@ void UniEngine::RigidBody::SetShapeTransform(glm::mat4 value)
     ltw.m_value = value;
     ltw.SetScale(glm::vec3(1.0f));
     m_shapeTransform = ltw.m_value;
-    PhysicsManager::UpdateShape(*this);
 }
 
 void UniEngine::RigidBody::OnDestroy()
@@ -82,15 +37,11 @@ void UniEngine::RigidBody::OnDestroy()
         i.GetPrivateComponent<Joint>().Unlink();
     }
 
+    while(!m_colliders.empty()) DetachCollider(0);
     if (m_rigidActor)
     {
         m_rigidActor->release();
     }
-    if (m_shape)
-    {
-        m_shape->release();
-    }
-
 }
 
 void UniEngine::RigidBody::UpdateBody()
@@ -103,7 +54,6 @@ void UniEngine::RigidBody::UpdateBody()
     else
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
     m_currentRegistered = false;
-    PhysicsManager::UpdateShape(*this);
     auto linkedEntities = m_linkedEntities;
     for(auto& i : linkedEntities){
         i.GetPrivateComponent<Joint>().Unlink();
@@ -118,21 +68,14 @@ void UniEngine::RigidBody::UpdateBody()
 
 void UniEngine::RigidBody::OnCreate()
 {
-    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
     UpdateBody();
     PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
     SetEnabled(false);
 }
 
-static const char *RigidBodyShape[]{"Sphere", "Box", "Capsule"};
+
 void UniEngine::RigidBody::OnGui()
 {
-    if (ImGui::TreeNode("Material"))
-    {
-        m_material->OnGui();
-        ImGui::TreePop();
-    }
-
     ImGui::Checkbox("Draw bounds", &m_drawBounds);
     static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
     if (m_drawBounds)
@@ -190,16 +133,7 @@ void UniEngine::RigidBody::OnGui()
             staticChanged = true;
         }
     }
-    /*
-    if (Application::IsPlaying())
     {
-        ImGui::Text("Pause Engine to edit shape.");
-    }
-    else
-     */
-    {
-        ImGui::Combo(
-            "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape));
         glm::vec3 scale;
         glm::vec3 trans;
         glm::quat rotation;
@@ -218,50 +152,38 @@ void UniEngine::RigidBody::OnGui()
 
         auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
-
-        switch (m_shapeType)
+        for(const auto& collider : m_colliders)
         {
-        case ShapeType::Sphere:
-            if (ImGui::DragFloat("Radius", &m_shapeParam.x, 0.01f, 0.0001f))
-                statusChanged = true;
-            if (m_drawBounds)
-                RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Sphere.get(),
-                    EditorManager::GetSceneCamera(),
-                    displayBoundColor,
-                    ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
-                    1);
-            break;
-        case ShapeType::Box:
-            if (GetOwner().HasPrivateComponent<MeshRenderer>())
+            switch (collider->m_shapeType)
             {
-                if (ImGui::Button("Apply mesh bound"))
-                {
-                    statusChanged = true;
-                    ApplyMeshBound();
-                }
+            case ShapeType::Sphere:
+                if (m_drawBounds)
+                    RenderManager::DrawGizmoMesh(
+                        DefaultResources::Primitives::Sphere.get(),
+                        EditorManager::GetSceneCamera(),
+                        displayBoundColor,
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam.x))),
+                        1);
+                break;
+            case ShapeType::Box:
+                if (m_drawBounds)
+                    RenderManager::DrawGizmoMesh(
+                        DefaultResources::Primitives::Cube.get(),
+                        EditorManager::GetSceneCamera(),
+                        displayBoundColor,
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
+                        1);
+                break;
+            case ShapeType::Capsule:
+                if (m_drawBounds)
+                    RenderManager::DrawGizmoMesh(
+                        DefaultResources::Primitives::Cylinder.get(),
+                        EditorManager::GetSceneCamera(),
+                        displayBoundColor,
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
+                        1);
+                break;
             }
-            if (ImGui::DragFloat3("XYZ Size", &m_shapeParam.x, 0.01f, 0.0f))
-                statusChanged = true;
-            if (m_drawBounds)
-                RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Cube.get(),
-                    EditorManager::GetSceneCamera(),
-                    displayBoundColor,
-                    ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
-                    1);
-            break;
-        case ShapeType::Capsule:
-            if (ImGui::DragFloat2("R/HalfH", &m_shapeParam.x, 0.01f, 0.0001f))
-                statusChanged = true;
-            if (m_drawBounds)
-                RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Cylinder.get(),
-                    EditorManager::GetSceneCamera(),
-                    displayBoundColor,
-                    ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
-                    1);
-            break;
         }
         if (ImGui::DragFloat("Density", &m_density, 0.1f, 0.001f))
             statusChanged = true;
@@ -270,8 +192,6 @@ void UniEngine::RigidBody::OnGui()
         if (statusChanged)
         {
             m_density = glm::max(0.001f, m_density);
-            m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
-            PhysicsManager::UpdateShape(*this);
         }
         if (staticChanged)
         {
@@ -287,14 +207,7 @@ void RigidBody::SetDensityAndMassCenter(const float &value, const glm::vec3 &cen
         PxRigidBodyExt::updateMassAndInertia(
             *reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
 }
-void RigidBody::SetMaterial(const std::shared_ptr<PhysicsMaterial> &value)
-{
-    if (value && m_material != value)
-    {
-        m_material = value;
-        PhysicsManager::UpdateShape(*this);
-    }
-}
+
 void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
 {
     PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
@@ -353,4 +266,19 @@ void RigidBody::SetEnableGravity(const bool &value)
 {
     m_gravity = value;
     m_rigidActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+}
+void RigidBody::AttachCollider(std::shared_ptr<Collider> &collider)
+{
+    if(collider->m_attached){
+        UNIENGINE_ERROR("Collider alreadu attached to a RigidBody!");
+        return;
+    }
+    m_colliders.push_back(collider);
+    m_rigidActor->attachShape(*collider->m_shape);
+}
+void RigidBody::DetachCollider(const size_t &index)
+{
+    m_rigidActor->detachShape(*m_colliders[index]->m_shape);
+    m_colliders[index]->m_attached = false;
+    m_colliders.erase(m_colliders.begin() + index);
 }

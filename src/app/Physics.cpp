@@ -5,6 +5,7 @@
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <RigidBody.hpp>
+#include <Collider.hpp>
 using namespace UniEngine;
 
 Entity CreateDynamicCube(
@@ -72,6 +73,7 @@ int main()
     const float scaleFactor = 0.1f;
     const auto collection = EntityManager::CreateEntity("Spheres");
     auto spheres = EntityManager::CreateEntities(amount * amount, "Instance");
+
     for (int i = 0; i < amount; i++)
     {
         for (int j = 0; j < amount; j++)
@@ -96,9 +98,10 @@ int main()
 
             auto &rigidBody = sphere.SetPrivateComponent<RigidBody>();
             rigidBody.SetEnabled(true);
-            rigidBody.SetShapeType(ShapeType::Sphere);
-            rigidBody.ApplyMeshBound();
-
+            auto sphereCollider = ResourceManager::CreateResource<Collider>();
+            sphereCollider->SetShapeType(ShapeType::Sphere);
+            sphereCollider->SetShapeParam(glm::vec3(scaleFactor));
+            rigidBody.AttachCollider(sphereCollider);
             sphere.SetParent(collection);
         }
     }
@@ -226,14 +229,17 @@ Entity CreateSolidCube(
     const std::string &name)
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
-    auto &rb = cube.SetPrivateComponent<RigidBody>();
-    rb.SetShapeType(ShapeType::Box);
-    rb.SetStatic(true);
-    rb.SetDensityAndMassCenter(1);
+    auto &rigidBody = cube.SetPrivateComponent<RigidBody>();
+    rigidBody.SetStatic(true);
+    rigidBody.SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    rb.ApplyMeshBound();
-    rb.SetEnabled(true);
-    rb.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+    rigidBody.SetEnabled(true);
+    rigidBody.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+
+    auto collider = ResourceManager::CreateResource<Collider>();
+    collider->SetShapeType(ShapeType::Box);
+    collider->SetShapeParam(scale);
+    rigidBody.AttachCollider(collider);
     return cube;
 }
 
@@ -246,14 +252,17 @@ Entity CreateDynamicCube(
     const std::string &name)
 {
     auto cube = CreateCube(color, position, rotation, scale, name);
-    auto &rb = cube.SetPrivateComponent<RigidBody>();
-    rb.SetShapeType(ShapeType::Box);
-    rb.SetStatic(false);
-    rb.SetDensityAndMassCenter(1);
+    auto &rigidBody = cube.SetPrivateComponent<RigidBody>();
+    rigidBody.SetStatic(false);
+    rigidBody.SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    rb.ApplyMeshBound();
-    rb.SetEnabled(true);
-    rb.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+    rigidBody.SetEnabled(true);
+    rigidBody.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
+
+    auto collider = ResourceManager::CreateResource<Collider>();
+    collider->SetShapeType(ShapeType::Box);
+    collider->SetShapeParam(scale);
+    rigidBody.AttachCollider(collider);
     return cube;
 }
 
@@ -290,14 +299,17 @@ Entity CreateDynamicSphere(
     const std::string &name)
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
-    auto &rb = sphere.SetPrivateComponent<RigidBody>();
-    rb.SetShapeType(ShapeType::Sphere);
-    rb.SetStatic(false);
-    rb.SetDensityAndMassCenter(1);
+    auto &rigidBody = sphere.SetPrivateComponent<RigidBody>();
+    rigidBody.SetStatic(false);
+    rigidBody.SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    rb.ApplyMeshBound();
-    rb.SetEnabled(true);
-    rb.SetDensityAndMassCenter(mass / scale / scale / scale);
+    rigidBody.SetEnabled(true);
+    rigidBody.SetDensityAndMassCenter(mass / scale / scale / scale);
+
+    auto collider = ResourceManager::CreateResource<Collider>();
+    collider->SetShapeType(ShapeType::Sphere);
+    collider->SetShapeParam(glm::vec3(scale));
+    rigidBody.AttachCollider(collider);
     return sphere;
 }
 
@@ -310,14 +322,17 @@ Entity CreateSolidSphere(
     const std::string &name)
 {
     auto sphere = CreateSphere(color, position, rotation, scale, name);
-    auto &rb = sphere.SetPrivateComponent<RigidBody>();
-    rb.SetShapeType(ShapeType::Sphere);
-    rb.SetStatic(true);
-    rb.SetDensityAndMassCenter(1);
+    auto &rigidBody = sphere.SetPrivateComponent<RigidBody>();
+    rigidBody.SetStatic(true);
+    rigidBody.SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
-    rb.ApplyMeshBound();
-    rb.SetEnabled(true);
-    rb.SetDensityAndMassCenter(mass / scale / scale / scale);
+    rigidBody.SetEnabled(true);
+    rigidBody.SetDensityAndMassCenter(mass / scale / scale / scale);
+
+    auto collider = ResourceManager::CreateResource<Collider>();
+    collider->SetShapeType(ShapeType::Sphere);
+    collider->SetShapeParam(glm::vec3(scale));
+    rigidBody.AttachCollider(collider);
     return sphere;
 }
 

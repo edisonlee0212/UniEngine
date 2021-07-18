@@ -4,14 +4,8 @@
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
 #include <Articulation.hpp>
+#include <Collider.hpp>
 using namespace physx;
-
-#define PX_RELEASE(x)                                                                                                  \
-    if (x)                                                                                                             \
-    {                                                                                                                  \
-        x->release();                                                                                                  \
-        x = nullptr;                                                                                                   \
-    }
 namespace UniEngine
 {
 class RigidBody;
@@ -30,6 +24,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     friend class Articulation;
     friend class PhysicsSystem;
     friend class PhysicsMaterial;
+    friend class Collider;
   public:
     std::shared_ptr<PhysicsMaterial> m_defaultMaterial;
     static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
@@ -37,8 +32,6 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     static void PreUpdate();
     static void Init();
     static void Destroy();
-    static void UpdateShape(RigidBody &rigidBody);
-    static void UpdateShape(Articulation &articulation);
 };
 
 class UNIENGINE_API PhysicsSystem : public ISystem

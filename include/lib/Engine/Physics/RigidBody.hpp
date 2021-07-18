@@ -2,31 +2,24 @@
 #include <EntityManager.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
+#include <Collider.hpp>
 using namespace physx;
 namespace UniEngine
 {
-enum class UNIENGINE_API ShapeType
-{
-    Sphere,
-    Box,
-    Capsule
-};
 class UNIENGINE_API RigidBody : public IPrivateComponent
 {
     glm::mat4 m_shapeTransform =
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
     bool m_drawBounds = false;
-    glm::vec3 m_shapeParam = glm::vec3(1.0f);
-    ShapeType m_shapeType = ShapeType::Box;
 
+    std::vector<std::shared_ptr<Collider>> m_colliders;
 
     bool m_static = false;
     friend class PhysicsSystem;
     friend class PhysicsManager;
     friend class TransformManager;
     PxRigidActor *m_rigidActor = nullptr;
-    std::shared_ptr<PhysicsMaterial> m_material;
-    PxShape *m_shape = nullptr;
+
     float m_density = 10.0f;
     PxVec3 m_massCenter = PxVec3(0.0f);
     bool m_currentRegistered = false;
@@ -44,6 +37,8 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     std::vector<Entity> m_linkedEntities;
     bool m_gravity = true;
   public:
+    void AttachCollider(std::shared_ptr<Collider>& collider);
+    void DetachCollider(const size_t& index);
     [[nodiscard]] bool IsKinematic();
     void SetSolverIterations(const unsigned &position = 4, const unsigned &velocity = 1);
     void SetEnableGravity(const bool& value);
@@ -53,14 +48,10 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     void SetDensityAndMassCenter(const float &value, const glm::vec3 &center = glm::vec3(0.0f));
     void SetLinearVelocity(const glm::vec3 &velocity);
     void SetAngularVelocity(const glm::vec3 &velocity);
-    void ApplyMeshBound();
-    void SetShapeType(ShapeType type);
-    void SetShapeParam(glm::vec3 value);
     void SetStatic(bool value);
     bool IsStatic();
     void SetShapeTransform(glm::mat4 value);
     void OnDestroy() override;
-    void SetMaterial(const std::shared_ptr<PhysicsMaterial> &value);
     void UpdateBody();
     void OnCreate() override;
     void OnGui() override;

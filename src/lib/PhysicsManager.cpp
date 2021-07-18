@@ -58,7 +58,6 @@ void PhysicsManager::PreUpdate()
         for (auto entity : *entities)
         {
             auto &articulation = entity.GetPrivateComponent<Articulation>();
-            if(!playing) UpdateShape(articulation);
             auto globalTransform = entity.GetDataComponent<GlobalTransform>();
             if(!playing) UploadTransform(globalTransform, articulation);
         }
@@ -85,12 +84,15 @@ void PhysicsManager::Init()
         physicsManager.m_physVisDebugger);
     PxInitExtensions(*physicsManager.m_physics, physicsManager.m_physVisDebugger);
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
-
-    ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
-
     physicsManager.m_defaultMaterial = ResourceManager::CreateResource<PhysicsMaterial>();
 }
 
+#define PX_RELEASE(x)                                                                                                  \
+    if (x)                                                                                                             \
+    {                                                                                                                  \
+        x->release();                                                                                                  \
+        x = nullptr;                                                                                                   \
+    }
 void PhysicsManager::Destroy()
 {
     auto &physicsManager = GetInstance();
@@ -106,70 +108,6 @@ void PhysicsManager::Destroy()
     PX_RELEASE(physicsManager.m_physicsFoundation);
 }
 
-void PhysicsManager::UpdateShape(RigidBody &rigidBody)
-{
-    if (rigidBody.m_shape != nullptr)
-    {
-        rigidBody.m_rigidActor->detachShape(*rigidBody.m_shape);
-        rigidBody.m_shape->release();
-    }
-
-    switch (rigidBody.m_shapeType)
-    {
-    case ShapeType::Sphere:
-        rigidBody.m_shape = GetInstance().m_physics->createShape(
-            PxSphereGeometry(rigidBody.m_shapeParam.x), *rigidBody.m_material->m_value);
-        break;
-    case ShapeType::Box:
-        rigidBody.m_shape = GetInstance().m_physics->createShape(
-            PxBoxGeometry(rigidBody.m_shapeParam.x, rigidBody.m_shapeParam.y, rigidBody.m_shapeParam.z),
-            *rigidBody.m_material->m_value);
-        break;
-    case ShapeType::Capsule:
-        rigidBody.m_shape = GetInstance().m_physics->createShape(
-            PxCapsuleGeometry(rigidBody.m_shapeParam.x, rigidBody.m_shapeParam.y), *rigidBody.m_material->m_value);
-        break;
-    }
-    rigidBody.m_rigidActor->attachShape(*rigidBody.m_shape);
-    if (!rigidBody.m_static)
-        PxRigidBodyExt::updateMassAndInertia(
-            *reinterpret_cast<PxRigidDynamic *>(rigidBody.m_rigidActor), rigidBody.m_density);
-}
-
-void PhysicsManager::UpdateShape(Articulation &articulation)
-{
-    if (articulation.m_shapeUpdated)
-        return;
-    if (articulation.m_shape != nullptr)
-    {
-        articulation.m_root->detachShape(*articulation.m_shape);
-        articulation.m_shape->release();
-    }
-
-    switch (articulation.m_shapeType)
-    {
-    case ShapeType::Sphere:
-        articulation.m_shape = GetInstance().m_physics->createShape(
-            PxSphereGeometry(articulation.m_shapeParam.x), *articulation.m_material->m_value);
-        break;
-    case ShapeType::Box:
-        articulation.m_shape = GetInstance().m_physics->createShape(
-            PxBoxGeometry(articulation.m_shapeParam.x, articulation.m_shapeParam.y, articulation.m_shapeParam.z),
-            *articulation.m_material->m_value);
-        break;
-    case ShapeType::Capsule:
-        articulation.m_shape = GetInstance().m_physics->createShape(
-            PxCapsuleGeometry(articulation.m_shapeParam.x, articulation.m_shapeParam.y),
-            *articulation.m_material->m_value);
-        break;
-    }
-    articulation.m_root->attachShape(*articulation.m_shape);
-
-    PxRigidBodyExt::updateMassAndInertia(
-        *reinterpret_cast<PxRigidDynamic *>(articulation.m_root), articulation.m_density);
-
-    articulation.m_shapeUpdated = true;
-}
 
 void PhysicsSystem::OnCreate()
 {
