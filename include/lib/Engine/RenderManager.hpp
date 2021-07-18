@@ -89,8 +89,8 @@ struct RenderCommand
 
 struct RenderCommandGroup
 {
-    std::map<float, std::map<Mesh *, std::vector<RenderCommand>>> m_meshes;
-    std::map<float, std::map<SkinnedMesh *, std::vector<RenderCommand>>> m_skinnedMeshes;
+    std::map<float, std::map<OpenGLUtils::GLVAO *, std::vector<RenderCommand>>> m_meshes;
+    std::map<float, std::map<OpenGLUtils::GLVAO *, std::vector<RenderCommand>>> m_skinnedMeshes;
 };
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>

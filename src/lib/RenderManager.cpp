@@ -38,7 +38,6 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderCommands : renderCommandGroup.second)
             {
-                Mesh *mesh = renderCommands.first;
                 for (const auto &renderCommand : renderCommands.second)
                 {
                     func(material, renderCommand);
@@ -49,7 +48,6 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderCommands : renderCommandGroup.second)
             {
-                SkinnedMesh *skinnedMesh = renderCommands.first;
                 for (const auto &renderCommand : renderCommands.second)
                 {
                     func(material, renderCommand);
@@ -694,19 +692,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_transparentRenderInstances[&camera][mmc.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (mmc.m_forwardRendering)
             {
                 renderManager.m_forwardRenderInstances[&camera][mmc.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else
             {
                 renderManager.m_deferredRenderInstances[&camera][mmc.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
         }
@@ -752,19 +750,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_instancedTransparentRenderInstances[&camera][particles.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (particles.m_forwardRendering)
             {
                 renderManager.m_forwardInstancedRenderInstances[&camera][particles.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else
             {
                 renderManager.m_deferredInstancedRenderInstances[&camera][particles.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh]
+                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
         }
@@ -817,19 +815,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
                 renderManager.m_transparentRenderInstances[&camera][smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh.get()]
+                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
             else if (smmc.m_forwardRendering)
             {
                 renderManager.m_forwardRenderInstances[&camera][smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh.get()]
+                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
             else
             {
                 renderManager.m_deferredRenderInstances[&camera][smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh.get()]
+                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
         }
@@ -2640,8 +2638,8 @@ void RenderManager::DrawMesh(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    GetInstance().m_forwardRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh].push_back(renderCommand);
-    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh].push_back(renderCommand);
+    GetInstance().m_forwardRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
 }
 
 void RenderManager::DrawMeshInstanced(
@@ -2661,8 +2659,8 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh].push_back(renderCommand);
-    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh].push_back(
+    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(
         renderCommand);
 }
 
