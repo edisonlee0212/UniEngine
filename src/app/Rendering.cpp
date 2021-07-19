@@ -20,8 +20,6 @@ int main()
     mainCameraEntity.SetDataComponent(mainCameraTransform);
     mainCameraEntity.SetPrivateComponent<PostProcessing>();
     auto& camera = mainCameraEntity.GetPrivateComponent<CameraComponent>();
-    camera.m_nearDistance = 10.0f;
-    camera.m_farDistance = 300.0f;
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties

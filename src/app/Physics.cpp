@@ -197,7 +197,7 @@ int main()
             auto &joint = link.SetPrivateComponent<Joint>();
             joint.SetType(JointType::Spherical);
             joint.Link(lastLink);
-            link.GetPrivateComponent<MeshRenderer>().m_material->m_ambientOcclusion = 2.0f;
+            link.GetPrivateComponent<MeshRenderer>().m_material->m_ambient = 2.0f;
             link.GetPrivateComponent<MeshRenderer>().m_material->m_roughness = 0.0f;
             link.GetPrivateComponent<MeshRenderer>().m_material->m_metallic = 0.0f;
             link.SetParent(anchor);
@@ -206,7 +206,7 @@ int main()
         auto &joint = anchor.SetPrivateComponent<Joint>();
         joint.SetType(JointType::Spherical);
         joint.Link(lastLink);
-        anchor.GetPrivateComponent<MeshRenderer>().m_material->m_ambientOcclusion = 3.0f;
+        anchor.GetPrivateComponent<MeshRenderer>().m_material->m_ambient = 3.0f;
         anchor.GetPrivateComponent<MeshRenderer>().m_material->m_roughness = 0.0f;
         anchor.GetPrivateComponent<MeshRenderer>().m_material->m_metallic = 0.0f;
     }

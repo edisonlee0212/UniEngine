@@ -22,7 +22,8 @@ void main()
     float ndcDepth = texture(gNormalDepth, fs_in.TexCoords).a;
     vec3 viewPos = UE_DEPTH_TO_VIEW_POS(fs_in.TexCoords, ndcDepth);
     vec3 normal = texture(gNormalDepth, fs_in.TexCoords).rgb;
-    if(normal == vec3(0.0)) discard;
+    originalColor = texture(image, fs_in.TexCoords);
+    if(normal == vec3(0.0)) return;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
     vec3 randomVec = UE_UNIFORM_KERNEL[int(InterleavedGradientNoise(viewPos) * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;
     // create TBN change-of-basis matrix: from tangent-space to view-space
@@ -56,5 +57,5 @@ void main()
     }else{
         proximity = occlusion / validAmount;
     }
-    originalColor = texture(image, fs_in.TexCoords);
+
 }

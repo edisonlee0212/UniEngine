@@ -98,6 +98,8 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 float UE_LINEARIZE_DEPTH(float ndcDepth);
+
+vec3 UE_DEPTH_TO_CLIP_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth);
 
@@ -105,23 +107,26 @@ float UE_LINEARIZE_DEPTH(float ndcDepth)
 {
 	float near = UE_CAMERA_RESERVED[0];
 	float far = UE_CAMERA_RESERVED[1];
-	float z = ndcDepth * 2.0 - 1.0; // back to NDC
+	float z = ndcDepth * 2.0 - 1.0;
 	return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth){
-	vec4 projectedPos = vec4(texCoords * 2 - vec2(1), ndcDepth * 2.0 - 1.0, 1.0); //(X, Y, Z range -1 to 1) with depth =gl_FragCoord.z;
-	vec4 viewPos = inverse(UE_CAMERA_PROJECTION) * projectedPos;
-	viewPos = viewPos / viewPos.w;
+	vec4 viewPos = vec4(UE_DEPTH_TO_VIEW_POS(texCoords, ndcDepth), 1.0);
 	vec4 worldPos = inverse(UE_CAMERA_VIEW) * viewPos;
 	return worldPos.xyz;
 }
 
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth){
-	vec4 projectedPos = vec4(texCoords * 2 - vec2(1), ndcDepth * 2.0 - 1.0, 1.0); //(X, Y, Z range -1 to 1) with depth =gl_FragCoord.z;
-	vec4 viewPos = inverse(UE_CAMERA_PROJECTION) * projectedPos;
+	vec4 clipPos = vec4(UE_DEPTH_TO_CLIP_POS(texCoords, ndcDepth), 1.0);
+	vec4 viewPos = inverse(UE_CAMERA_PROJECTION) * clipPos;
 	viewPos = viewPos / viewPos.w;
 	return viewPos.xyz;
+}
+
+vec3 UE_DEPTH_TO_CLIP_POS(vec2 texCoords, float ndcDepth){
+	vec4 clipPos = vec4(texCoords * 2 - vec2(1), ndcDepth * 2.0 - 1.0, 1.0);
+	return clipPos.xyz;
 }
 
 const float PI = 3.14159265359;

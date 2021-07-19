@@ -27,7 +27,7 @@ int main()
         bloom->m_diffusion = 8;
         bloom->m_enabled = true;
     }
-
+    postProcessing.GetLayer<SSAO>()->m_enabled = false;
     RenderManager::GetMainCamera()->m_useClearColor = true;
 #pragma region EngineLoop
     Application::Run();
