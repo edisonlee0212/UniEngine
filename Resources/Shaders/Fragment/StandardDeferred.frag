@@ -1,4 +1,4 @@
-layout (location = 0) out vec4 gPositionShadow;
+layout (location = 0) out vec4 gMaterialProps;
 layout (location = 1) out vec4 gNormalDepth;
 layout (location = 2) out vec4 gAlbedoEmission;
 layout (location = 3) out vec4 gMetallicRoughnessAO;
@@ -9,8 +9,6 @@ in VS_OUT {
     vec3 Tangent;
     vec2 TexCoords;
 } fs_in;
-
-
 
 void main()
 {
@@ -39,13 +37,10 @@ void main()
     if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoords).r;
     if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
 
-
-    // store the fragment position vector in the first gbuffer texture
-    gPositionShadow.rgb = fs_in.FragPos;
-    gPositionShadow.a = float(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW);
+    gMaterialProps.a = float(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW);
 
     // also store the per-fragment normals into the gbuffer
-    gNormalDepth.rgb = (gl_FrontFacing ? 1.0 : -1.0) * normalize(normal);
+    gNormalDepth.rgb = normalize((gl_FrontFacing ? 1.0 : -1.0) * normal);
     gNormalDepth.a = gl_FragCoord.z;
     gAlbedoEmission = vec4(albedo.rgb, emission);
     gMetallicRoughnessAO = vec4(metallic, roughness, ao, 1.0);

@@ -1,12 +1,12 @@
-layout (location = 0) out vec4 OriginalColor;
-layout (location = 1) out float FragColor;
+layout (location = 0) out vec4 originalColor;
+layout (location = 1) out float proximity;
 
 in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
+
 uniform sampler2D image;
-uniform sampler2D gPositionShadow;
-uniform sampler2D gNormalShininess;
+uniform sampler2D gNormalDepth;
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 uniform int kernelSize;
@@ -19,11 +19,12 @@ uniform vec2 noiseScale;
 void main()
 {
     // get input for SSAO algorithm
-    vec3 fragPos = vec3(UE_CAMERA_VIEW * vec4(texture(gPositionShadow, fs_in.TexCoords).xyz, 1.0));
-    vec3 normal = normalize(texture(gNormalShininess, fs_in.TexCoords).rgb);
+    float ndcDepth = texture(gNormalDepth, fs_in.TexCoords).a;
+    vec3 viewPos = UE_DEPTH_TO_VIEW_POS(fs_in.TexCoords, ndcDepth);
+    vec3 normal = texture(gNormalDepth, fs_in.TexCoords).rgb;
     if(normal == vec3(0.0)) discard;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
-    vec3 randomVec = UE_UNIFORM_KERNEL[int(InterleavedGradientNoise(fragPos) * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;
+    vec3 randomVec = UE_UNIFORM_KERNEL[int(InterleavedGradientNoise(viewPos) * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;
     // create TBN change-of-basis matrix: from tangent-space to view-space
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
@@ -37,26 +38,23 @@ void main()
         point.z = abs(point.z);
         // get sample position
         vec3 samplePos = TBN * point; // from tangent to view-space
-        samplePos = fragPos + samplePos * radius; 
-        
+        samplePos = viewPos + samplePos * radius;
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = vec4(samplePos, 1.0);
         offset = UE_CAMERA_PROJECTION * offset; // from view to clip-space
         offset.xyz /= offset.w; // perspective divide
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
-        if(texture(gPositionShadow, offset.xy).xyz == vec3(0.0)) continue;
         validAmount = validAmount + 1;
         // get sample depth
-        float sampleDepth = vec3(UE_CAMERA_VIEW * texture(gPositionShadow, offset.xy)).z; // get depth value of kernel sample
-        
+        float sampleDepth = UE_DEPTH_TO_VIEW_POS(offset.xy, texture(gNormalDepth, offset.xy).a).z;
         // range check & accumulate
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(viewPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           
     }
     if(validAmount == 0){
-        FragColor = 0.0;
+        proximity = 0.0;
     }else{
-        FragColor = occlusion / validAmount;
+        proximity = occlusion / validAmount;
     }
-    OriginalColor = texture(image, fs_in.TexCoords);
+    originalColor = texture(image, fs_in.TexCoords);
 }

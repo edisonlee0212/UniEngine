@@ -10,7 +10,6 @@ std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_separateProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_filterProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> Bloom::m_combineProgram;
 
-std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_positionReconstructProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_geometryProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_blurProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_combineProgram;
@@ -232,13 +231,6 @@ void SSAO::Init()
     m_originalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_originalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_position = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-    m_position->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
-    m_position->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_position->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_position->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_position->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
     m_ssaoPosition = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R32F, 1, 1, false);
     m_ssaoPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
     m_ssaoPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -260,7 +252,6 @@ void SSAO::Init()
 void SSAO::ResizeResolution(int x, int y)
 {
     m_originalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-    m_position->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
     m_ssaoPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
     m_blur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
 }
@@ -274,26 +265,15 @@ void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget)
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     DefaultResources::GLPrograms::ScreenVAO->Bind();
 
-    m_positionReconstructProgram->Bind();
-    renderTarget.AttachTexture(m_position.get(), GL_COLOR_ATTACHMENT0);
-    renderTarget.Bind();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    cameraComponent.m_depthStencilBuffer->Bind(0);
-    m_positionReconstructProgram->SetInt("inputTex", 0);
-
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
     m_geometryProgram->Bind();
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
     glDrawBuffers(2, enums);
+    renderTarget.Bind();
     cameraComponent.m_colorTexture->Texture()->Bind(0);
-    m_position->Bind(1);
-    //cameraComponent.m_gPositionBuffer->Bind(1);
-    cameraComponent.m_gNormalBuffer->Bind(2);
+    cameraComponent.m_gNormalBuffer->Bind(1);
     m_geometryProgram->SetInt("image", 0);
-    m_geometryProgram->SetInt("gPositionShadow", 1);
-    m_geometryProgram->SetInt("gNormalShininess", 2);
+    m_geometryProgram->SetInt("gNormalDepth", 1);
     m_geometryProgram->SetFloat("radius", m_kernelRadius);
     m_geometryProgram->SetFloat("bias", m_kernelBias);
     m_geometryProgram->SetFloat("noiseScale", m_scale);
@@ -349,11 +329,11 @@ void SSAO::OnGui(CameraComponent &cameraComponent)
     }
     if (ImGui::TreeNode("Debug##SSAO"))
     {
-        ImGui::Image(
-            (ImTextureID)cameraComponent.m_gPositionBuffer->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::Image((ImTextureID)m_position->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Text("Original Color");
         ImGui::Image((ImTextureID)m_originalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Text("SSAO Proximity");
         ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Text("Blur");
         ImGui::Image((ImTextureID)m_blur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::TreePop();
     }

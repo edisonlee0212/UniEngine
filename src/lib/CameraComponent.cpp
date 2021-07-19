@@ -227,7 +227,7 @@ void CameraComponent::ResizeResolution(int x, int y)
     m_resolutionX = x > 0 ? x : 1;
     m_resolutionY = y > 0 ? y : 1;
     m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
-    m_gPositionBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gMaterialProps->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gNormalBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gColorSpecularBuffer->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gMetallicRoughnessAo->ReSize(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
@@ -269,13 +269,13 @@ void CameraComponent::OnCreate()
     m_gDepthBuffer->AllocateStorage(GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY);
     m_gBuffer->AttachRenderBuffer(m_gDepthBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 
-    m_gPositionBuffer = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
-    m_gPositionBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
-    m_gPositionBuffer->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_gPositionBuffer->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_gPositionBuffer->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_gPositionBuffer->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_gBuffer->AttachTexture(m_gPositionBuffer.get(), GL_COLOR_ATTACHMENT0);
+    m_gMaterialProps = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
+    m_gMaterialProps->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);
+    m_gMaterialProps->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_gMaterialProps->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_gMaterialProps->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_gMaterialProps->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_gBuffer->AttachTexture(m_gMaterialProps.get(), GL_COLOR_ATTACHMENT0);
 
     m_gNormalBuffer = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA32F, m_resolutionX, m_resolutionY, false);
     m_gNormalBuffer->SetData(0, GL_RGBA32F, GL_RGBA, GL_FLOAT, 0);

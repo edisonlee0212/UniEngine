@@ -39,7 +39,7 @@ class UNIENGINE_API CameraComponent final : public IPrivateComponent, public Ren
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_depthStencilBuffer;
     std::unique_ptr<RenderTarget> m_gBuffer;
     std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_gDepthBuffer;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gPositionBuffer;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gMaterialProps;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gNormalBuffer;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gColorSpecularBuffer;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gMetallicRoughnessAo;

@@ -74,10 +74,8 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     friend class DefaultResources;
 
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_originalColor;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_position;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_ssaoPosition;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_blur;
-    static std::shared_ptr<OpenGLUtils::GLProgram> m_positionReconstructProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_geometryProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_blurProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;

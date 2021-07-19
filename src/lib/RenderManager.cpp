@@ -140,7 +140,7 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 #pragma region Apply GBuffer with lighting
     renderManager.m_gBufferLightingPass->Bind();
-    cameraComponent.m_gPositionBuffer->Bind(12);
+    cameraComponent.m_gMaterialProps->Bind(12);
     cameraComponent.m_gNormalBuffer->Bind(13);
     cameraComponent.m_gColorSpecularBuffer->Bind(14);
     cameraComponent.m_gMetallicRoughnessAo->Bind(15);
@@ -154,7 +154,7 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
     }
-    renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 12);
+    renderManager.m_gBufferLightingPass->SetInt("gMaterialProps", 12);
     renderManager.m_gBufferLightingPass->SetInt("gNormalDepth", 13);
     renderManager.m_gBufferLightingPass->SetInt("gAlbedoEmission", 14);
     renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 15);
@@ -588,7 +588,7 @@ void RenderManager::Init()
 
 #pragma region GBuffer
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
     fragShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));

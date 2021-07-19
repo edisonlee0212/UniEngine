@@ -22,9 +22,6 @@ int main()
     auto& camera = mainCameraEntity.GetPrivateComponent<CameraComponent>();
     camera.m_nearDistance = 10.0f;
     camera.m_farDistance = 300.0f;
-    camera.m_fov = 90;
-    camera.m_allowAutoResize = false;
-    camera.ResizeResolution(400, 400);
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties

@@ -336,18 +336,6 @@ void DefaultResources::LoadShaders()
                 OpenGLUtils::ShaderType::Fragment,
                 std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomCombine.frag"))));
-        std::string vertShaderCode =
-            std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-            FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
-
-        std::string fragShaderCode =
-            std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-            FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/PositionReconstruct.frag"));
-
-        SSAO::m_positionReconstructProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-        SSAO::m_positionReconstructProgram->Link(
-            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
-            std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
 
         vertShaderCode = std::string("#version 460 core\n") +
                          FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
