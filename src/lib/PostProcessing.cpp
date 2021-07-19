@@ -288,8 +288,8 @@ void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget)
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
     glDrawBuffers(2, enums);
     cameraComponent.m_colorTexture->Texture()->Bind(0);
-    //_Position->Bind(1);
-    cameraComponent.m_gPositionBuffer->Bind(1);
+    m_position->Bind(1);
+    //cameraComponent.m_gPositionBuffer->Bind(1);
     cameraComponent.m_gNormalBuffer->Bind(2);
     m_geometryProgram->SetInt("image", 0);
     m_geometryProgram->SetInt("gPositionShadow", 1);

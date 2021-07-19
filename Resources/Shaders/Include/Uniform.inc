@@ -483,21 +483,3 @@ float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal){
 	return shadow;
 }
 
-float UE_LINEAR_DEPTH(vec2 TexCoords, sampler2D depthMap)
-{
-	float depth = texture(depthMap, TexCoords).x;
-	float z = depth * 2.0 - 1.0; // back to NDC
-	float near = UE_CAMERA_RESERVED.x;
-	float far = UE_CAMERA_RESERVED.y;
-    return (2.0 * near * far) / (far + near - z * (far - near));
-}
-
-vec3 UE_CALCULATE_VIEWSPACE_POS(vec2 ViewRay, vec2 TexCoords, sampler2D depthMap){
-	float linearDepth = UE_LINEAR_DEPTH(TexCoords, depthMap);
-
-	float ViewX = ViewRay.x * linearDepth;
-	float ViewY = ViewRay.y * linearDepth;
-
-	return vec3(ViewX, ViewY, linearDepth);
-}
-

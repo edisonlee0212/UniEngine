@@ -196,9 +196,13 @@ void DefaultResources::LoadShaders()
     float quadVertices[] = {
         // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
-        -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,  1.0f, 1.0f};
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f,  -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f,  1.0f, 1.0f};
 
     GLPrograms::ScreenVAO = new OpenGLUtils::GLVAO();
     GLPrograms::ScreenVAO->SetData(sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);

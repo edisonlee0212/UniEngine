@@ -410,8 +410,8 @@ void CameraInfoBlock::UpdateMatrices(const CameraComponent &camera, glm::vec3 po
     m_reservedParameters = glm::vec4(
         camera.m_nearDistance,
         camera.m_farDistance,
-        glm::tan(camera.m_fov * 0.5f),
-        camera.m_resolutionX / camera.m_resolutionY);
+        glm::tan(glm::radians(camera.m_fov * 0.5f)),
+        static_cast<float>(camera.m_resolutionX) / camera.m_resolutionY);
 }
 
 void CameraInfoBlock::UploadMatrices(const CameraComponent &camera) const

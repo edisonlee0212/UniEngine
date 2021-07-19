@@ -120,12 +120,23 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         },
         true,
         false);
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
     glEnable(GL_CULL_FACE);
-    DefaultResources::GLPrograms::ScreenVAO->Bind();
+
+#pragma region Copy Depth Buffer back to camera
+
+    auto res = cameraComponent.GetResolution();
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent.m_gBuffer->GetFrameBuffer()->Id());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent.GetFrameBuffer()->Id()); // write to default framebuffer
+    glBlitFramebuffer(0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+#pragma endregion
+
     cameraComponent.Bind();
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 #pragma region Apply GBuffer with lighting
     renderManager.m_gBufferLightingPass->Bind();
@@ -144,17 +155,13 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
     }
     renderManager.m_gBufferLightingPass->SetInt("gPositionShadow", 12);
-    renderManager.m_gBufferLightingPass->SetInt("gNormalEmission", 13);
-    renderManager.m_gBufferLightingPass->SetInt("gAlbedoSpecular", 14);
+    renderManager.m_gBufferLightingPass->SetInt("gNormalDepth", 13);
+    renderManager.m_gBufferLightingPass->SetInt("gAlbedoEmission", 14);
     renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 15);
-#pragma endregion
-#pragma region Copy GBuffer back to camera
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    auto res = cameraComponent.GetResolution();
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent.m_gBuffer->GetFrameBuffer()->Id());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent.GetFrameBuffer()->Id()); // write to default framebuffer
-    glBlitFramebuffer(0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 #pragma endregion
+
+    glEnable(GL_DEPTH_TEST);
 #pragma region Forward rendering
     DispatchRenderCommands(
         renderManager.m_forwardRenderInstances[&cameraComponent],
@@ -580,8 +587,8 @@ void RenderManager::Init()
 #pragma endregion
 
 #pragma region GBuffer
-    vertShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThrough.vert"));
+    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/TexturePassThroughViewRay.vert"));
     fragShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/StandardDeferredLighting.frag"));

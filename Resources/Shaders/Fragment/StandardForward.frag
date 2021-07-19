@@ -12,7 +12,7 @@ void main()
 {	
 	vec2 texCoords = fs_in.TexCoords;
 	vec4 albedo = UE_PBR_ALBEDO;
-	if(UE_ALBEDO_MAP_ENABLED) albedo = vec4(texture(UE_ALBEDO_MAP, texCoords).rgb, 1.0);
+	if(UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoords);
 	if(UE_APLHA_DISCARD_ENABLED && albedo.a < UE_APLHA_DISCARD_OFFSET)
 		discard;
 	float roughness = UE_PBR_ROUGHNESS;
