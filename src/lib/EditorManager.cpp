@@ -693,6 +693,10 @@ void EditorManager::RenderToSceneCamera()
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
         CameraComponent::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera);
 #pragma region For entity selection
+        glEnable(GL_DEPTH_TEST);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDisable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
         editorManager.m_sceneCameraEntityRecorder->Bind();
         for (auto &i : renderManager.m_deferredRenderInstances)
         {

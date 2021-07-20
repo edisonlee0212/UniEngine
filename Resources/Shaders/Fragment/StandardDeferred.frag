@@ -36,8 +36,6 @@ void main()
     if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoords).r;
     if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
 
-    //gDepth.r = gl_FragCoord.z;
-
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = normalize((gl_FrontFacing ? 1.0 : -1.0) * normal);
     gAlbedoEmission = vec4(albedo.rgb, emission);
