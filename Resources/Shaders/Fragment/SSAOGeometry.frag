@@ -1,12 +1,13 @@
-layout (location = 0) out vec4 originalColor;
+layout (location = 0) out vec3 originalColor;
 layout (location = 1) out float proximity;
 
 in VS_OUT {
 	vec2 TexCoords;
 } fs_in;
 
-uniform sampler2D image;
-uniform sampler2D gNormalDepth;
+uniform sampler2D color;
+uniform sampler2D gNormal;
+uniform sampler2D gDepth;
 
 // parameters (you'd probably want to use them as uniforms to more easily tweak the effect)
 uniform int kernelSize;
@@ -19,10 +20,10 @@ uniform vec2 noiseScale;
 void main()
 {
     // get input for SSAO algorithm
-    float ndcDepth = texture(gNormalDepth, fs_in.TexCoords).a;
+    float ndcDepth = texture(gDepth, fs_in.TexCoords).r;
     vec3 viewPos = UE_DEPTH_TO_VIEW_POS(fs_in.TexCoords, ndcDepth);
-    vec3 normal = texture(gNormalDepth, fs_in.TexCoords).rgb;
-    originalColor = texture(image, fs_in.TexCoords);
+    vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
+    originalColor = texture(color, fs_in.TexCoords).rgb;
     if(normal == vec3(0.0)) return;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
     vec3 randomVec = UE_UNIFORM_KERNEL[int(InterleavedGradientNoise(viewPos) * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;
@@ -47,7 +48,7 @@ void main()
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         validAmount = validAmount + 1;
         // get sample depth
-        float sampleDepth = UE_DEPTH_TO_VIEW_POS(offset.xy, texture(gNormalDepth, offset.xy).a).z;
+        float sampleDepth = UE_DEPTH_TO_VIEW_POS(offset.xy, texture(gDepth, offset.xy).r).z;
         // range check & accumulate
         float rangeCheck = smoothstep(0.0, 1.0, radius / abs(viewPos.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;           

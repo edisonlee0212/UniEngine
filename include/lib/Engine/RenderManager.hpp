@@ -10,9 +10,9 @@ namespace UniEngine
 struct UNIENGINE_API LightSettingsBlock
 {
     float m_splitDistance[4];
-    int m_pcfSampleAmount = 16;
+    int m_pcfSampleAmount = 64;
     float m_scaleFactor = 1.0f;
-    int m_blockerSearchAmount = 2;
+    int m_blockerSearchAmount = 1;
     float m_seamFixRatio = 0.05f;
     float m_vsmMaxVariance = 0.001f;
     float m_lightBleedFactor = 0.5f;
@@ -137,7 +137,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     OpenGLUtils::GLUBO m_pointLightBlock;
     OpenGLUtils::GLUBO m_spotLightBlock;
 
-    size_t m_shadowMapResolution = 4096;
+    size_t m_directionalLightShadowMapResolution = 2048;
+    size_t m_movableLightShadowMapResolution = 1024;
     OpenGLUtils::GLUBO m_shadowCascadeInfoBlock;
 
     DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];

@@ -388,7 +388,7 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	for(int i = 0; i < sampleAmount; i++)
 	{
-		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * texelSize;
+		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * (texelSize + 0.001);
 		float closestDepth = texture(UE_DIRECTIONAL_LIGHT_SM, vec3(texCoord * texScale + texBase, splitIndex)).r;
 		if(closestDepth == 0.0) continue;
 		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;

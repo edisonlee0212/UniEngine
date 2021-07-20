@@ -1,7 +1,7 @@
-layout (location = 0) out vec4 gMaterialProps;
-layout (location = 1) out vec4 gNormalDepth;
+layout (location = 0) out float gDepth;
+layout (location = 1) out vec4 gNormal;
 layout (location = 2) out vec4 gAlbedoEmission;
-layout (location = 3) out vec4 gMetallicRoughnessAO;
+layout (location = 3) out vec3 gMetallicRoughnessAmbient;
 
 in VS_OUT {
     vec3 FragPos;
@@ -37,11 +37,10 @@ void main()
     if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoords).r;
     if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
 
-    gMaterialProps.a = float(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW);
+    gDepth.r = gl_FragCoord.z;
 
     // also store the per-fragment normals into the gbuffer
-    gNormalDepth.rgb = normalize((gl_FrontFacing ? 1.0 : -1.0) * normal);
-    gNormalDepth.a = gl_FragCoord.z;
+    gNormal.rgb = normalize((gl_FrontFacing ? 1.0 : -1.0) * normal);
     gAlbedoEmission = vec4(albedo.rgb, emission);
-    gMetallicRoughnessAO = vec4(metallic, roughness, ao, 1.0);
+    gMetallicRoughnessAmbient = vec3(metallic, roughness, ao);
 }

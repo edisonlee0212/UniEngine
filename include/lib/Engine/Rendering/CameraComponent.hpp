@@ -36,13 +36,13 @@ class UNIENGINE_API CameraComponent final : public IPrivateComponent, public Ren
     friend class SSAO;
     friend class GreyScale;
     std::shared_ptr<Texture2D> m_colorTexture;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_depthStencilBuffer;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_depthStencilTexture;
     std::unique_ptr<RenderTarget> m_gBuffer;
-    std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_gDepthBuffer;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gMaterialProps;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gNormalBuffer;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gColorSpecularBuffer;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gMetallicRoughnessAo;
+    std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_gBufferDepthComponent;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferDepth;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferNormal;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferAlbedoEmission;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferMetallicRoughnessAmbient;
 
     static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
     bool m_isMainCamera = false;

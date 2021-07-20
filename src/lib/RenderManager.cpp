@@ -130,10 +130,10 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 #pragma region Apply GBuffer with lighting
     renderManager.m_gBufferLightingPass->Bind();
-    cameraComponent.m_gMaterialProps->Bind(12);
-    cameraComponent.m_gNormalBuffer->Bind(13);
-    cameraComponent.m_gColorSpecularBuffer->Bind(14);
-    cameraComponent.m_gMetallicRoughnessAo->Bind(15);
+    cameraComponent.m_gBufferDepth->Bind(12);
+    cameraComponent.m_gBufferNormal->Bind(13);
+    cameraComponent.m_gBufferAlbedoEmission->Bind(14);
+    cameraComponent.m_gBufferMetallicRoughnessAmbient->Bind(15);
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
         renderManager.m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
@@ -144,10 +144,10 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
         renderManager.m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
     }
-    renderManager.m_gBufferLightingPass->SetInt("gMaterialProps", 12);
-    renderManager.m_gBufferLightingPass->SetInt("gNormalDepth", 13);
+    renderManager.m_gBufferLightingPass->SetInt("gDepth", 12);
+    renderManager.m_gBufferLightingPass->SetInt("gNormal", 13);
     renderManager.m_gBufferLightingPass->SetInt("gAlbedoEmission", 14);
-    renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAO", 15);
+    renderManager.m_gBufferLightingPass->SetInt("gMetallicRoughnessAmbient", 15);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 #pragma endregion
 #pragma region Copy Depth Buffer back to camera
@@ -283,7 +283,6 @@ void RenderManager::LateUpdate()
             auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
             if (cameraComponent.IsEnabled())
             {
-                cameraComponent.Clear();
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
                 CameraComponent::m_cameraInfoBlock.UpdateMatrices(
                     cameraComponent, ltw.GetPosition(), ltw.GetRotation());
@@ -454,7 +453,7 @@ void RenderManager::Init()
     manager.m_spotLightBlock.SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-    manager.m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(manager.m_shadowMapResolution);
+    manager.m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(manager.m_directionalLightShadowMapResolution);
 
     std::string vertShaderCode =
         std::string("#version 450 core\n") +
@@ -499,7 +498,7 @@ void RenderManager::Init()
     manager.m_directionalLightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>(false);
     manager.m_directionalLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
 #pragma region PointLight
-    manager.m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(manager.m_shadowMapResolution);
+    manager.m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(manager.m_movableLightShadowMapResolution);
     vertShaderCode = std::string("#version 450 core\n") +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/PointLightShadowMap.vert"));
     fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -542,7 +541,7 @@ void RenderManager::Init()
     manager.m_pointLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
 #pragma endregion
 #pragma region SpotLight
-    manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_shadowMapResolution);
+    manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_movableLightShadowMapResolution);
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/SpotLightShadowMap.vert"));
     fragShaderCode = std::string("#version 450 core\n") +
@@ -1199,7 +1198,7 @@ void RenderManager::SetSplitRatio(const float &r1, const float &r2, const float 
 }
 void RenderManager::SetShadowMapResolution(const size_t &value)
 {
-    GetInstance().m_shadowMapResolution = value;
+    GetInstance().m_directionalLightShadowMapResolution = value;
     if (GetInstance().m_directionalLightShadowMap != nullptr)
         GetInstance().m_directionalLightShadowMap->SetResolution(value);
 }
@@ -1458,28 +1457,28 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                     {
                     case 0:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            0, 0, renderManager.m_shadowMapResolution / 2, renderManager.m_shadowMapResolution / 2);
+                            0, 0, renderManager.m_directionalLightShadowMapResolution / 2, renderManager.m_directionalLightShadowMapResolution / 2);
                         break;
                     case 1:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            renderManager.m_shadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2,
                             0,
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2);
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2);
                         break;
                     case 2:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
                             0,
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2);
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2);
                         break;
                     case 3:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2,
-                            renderManager.m_shadowMapResolution / 2);
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2);
                         break;
                     }
 
@@ -1604,28 +1603,28 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 {
                 case 0:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        0, 0, renderManager.m_shadowMapResolution / 2, renderManager.m_shadowMapResolution / 2);
+                        0, 0, renderManager.m_movableLightShadowMapResolution / 2, renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 1:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_shadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
                         0,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 2:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
                         0,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 3:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 }
                 enabledSize++;
@@ -1709,28 +1708,28 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 {
                 case 0:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        0, 0, renderManager.m_shadowMapResolution / 2, renderManager.m_shadowMapResolution / 2);
+                        0, 0, renderManager.m_movableLightShadowMapResolution / 2, renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 1:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_shadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
                         0,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 2:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
                         0,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 case 3:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2,
-                        renderManager.m_shadowMapResolution / 2);
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2,
+                        renderManager.m_movableLightShadowMapResolution / 2);
                     break;
                 }
                 enabledSize++;

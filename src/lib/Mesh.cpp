@@ -266,7 +266,6 @@ void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 
 
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
-    OpenGLUtils::GLVAO::BindDefault();
 }
 void Mesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) const
 {
@@ -289,5 +288,4 @@ void Mesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) const
 
 
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
-    OpenGLUtils::GLVAO::BindDefault();
 }

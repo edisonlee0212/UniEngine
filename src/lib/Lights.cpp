@@ -86,7 +86,7 @@ void UniEngine::DirectionalLightShadowMap::Allocate()
 {
     float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
     m_depthMapArray = std::make_unique<OpenGLUtils::GLTexture2DArray>(
-        1, GL_DEPTH_COMPONENT32, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY, (GLsizei)4);
+        1, GL_DEPTH_COMPONENT16, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY, (GLsizei)4);
     m_depthMapArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_depthMapArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -117,7 +117,7 @@ void UniEngine::DirectionalLightShadowMap::Bind()
 void UniEngine::SpotLightShadowMap::Allocate()
 {
     m_depthMap = std::make_unique<OpenGLUtils::GLTexture2D>(
-        1, GL_DEPTH_COMPONENT32, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY);
+        1, GL_DEPTH_COMPONENT16, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY);
     m_depthMap->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_depthMap->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_depthMap->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -149,7 +149,7 @@ void UniEngine::SpotLightShadowMap::Bind()
 void PointLightShadowMap::Allocate()
 {
     m_depthMapArray = std::make_unique<OpenGLUtils::GLTexture2DArray>(
-        1, GL_DEPTH_COMPONENT32, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY, (GLsizei)6);
+        1, GL_DEPTH_COMPONENT16, (GLsizei)m_resolutionX, (GLsizei)m_resolutionY, (GLsizei)6);
     m_depthMapArray->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_depthMapArray->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_depthMapArray->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

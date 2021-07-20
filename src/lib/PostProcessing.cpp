@@ -111,22 +111,22 @@ void Bloom::Init()
     m_graph = BezierCubic2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
-    m_brightColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-    m_brightColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+    m_brightColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_brightColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
     m_brightColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_brightColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_brightColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_brightColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_result = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-    m_result->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+    m_result = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_result->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
     m_result->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_result->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_result->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_result->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_flatColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-    m_flatColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
+    m_flatColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_flatColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
     m_flatColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_flatColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_flatColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -138,9 +138,9 @@ void Bloom::Init()
 
 void Bloom::ResizeResolution(int x, int y)
 {
-    m_brightColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-    m_result->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-    m_flatColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_brightColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_result->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_flatColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
 }
 
 void Bloom::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
@@ -224,24 +224,24 @@ void SSAO::Init()
     m_graph = BezierCubic2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
-    m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB32F, 1, 1, false);
-    m_originalColor->SetData(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0);
-    m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_originalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_originalColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_originalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_originalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_originalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_ssaoPosition = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R32F, 1, 1, false);
-    m_ssaoPosition->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
-    m_ssaoPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_ssaoPosition->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_ssaoPosition = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R16F, 1, 1, false);
+    m_ssaoPosition->SetData(0, GL_R16F, GL_RED, GL_FLOAT, 0);
+    m_ssaoPosition->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_ssaoPosition->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_ssaoPosition->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R32F, 1, 1, false);
-    m_blur->SetData(0, GL_R32F, GL_RED, GL_FLOAT, 0);
-    m_blur->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_blur->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_R16F, 1, 1, false);
+    m_blur->SetData(0, GL_R16F, GL_RED, GL_FLOAT, 0);
+    m_blur->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_blur->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_blur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_blur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -251,9 +251,9 @@ void SSAO::Init()
 
 void SSAO::ResizeResolution(int x, int y)
 {
-    m_originalColor->ReSize(0, GL_RGB32F, GL_RGB, GL_FLOAT, 0, x, y);
-    m_ssaoPosition->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
-    m_blur->ReSize(0, GL_R32F, GL_RED, GL_FLOAT, 0, x, y);
+    m_originalColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_ssaoPosition->ReSize(0, GL_R16F, GL_RED, GL_FLOAT, 0, x, y);
+    m_blur->ReSize(0, GL_R16F, GL_RED, GL_FLOAT, 0, x, y);
 }
 
 void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
@@ -271,9 +271,11 @@ void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget)
     glDrawBuffers(2, enums);
     renderTarget.Bind();
     cameraComponent.m_colorTexture->Texture()->Bind(0);
-    cameraComponent.m_gNormalBuffer->Bind(1);
-    m_geometryProgram->SetInt("image", 0);
-    m_geometryProgram->SetInt("gNormalDepth", 1);
+    cameraComponent.m_gBufferNormal->Bind(1);
+    cameraComponent.m_gBufferDepth->Bind(2);
+    m_geometryProgram->SetInt("color", 0);
+    m_geometryProgram->SetInt("gNormal", 1);
+    m_geometryProgram->SetInt("gDepth", 2);
     m_geometryProgram->SetFloat("radius", m_kernelRadius);
     m_geometryProgram->SetFloat("bias", m_kernelBias);
     m_geometryProgram->SetFloat("noiseScale", m_scale);
