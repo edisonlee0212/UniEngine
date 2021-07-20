@@ -37,8 +37,9 @@ class UNIENGINE_API CameraComponent final : public IPrivateComponent, public Ren
     friend class GreyScale;
     std::shared_ptr<Texture2D> m_colorTexture;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_depthStencilTexture;
+
+    //Deferred shading GBuffer
     std::unique_ptr<RenderTarget> m_gBuffer;
-    std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_gBufferDepthComponent;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferDepth;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferNormal;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferAlbedoEmission;

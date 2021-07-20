@@ -9,8 +9,6 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedoEmission;
 uniform sampler2D gMetallicRoughnessAmbient;
 
-
-
 void main()
 {
 	vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
@@ -23,7 +21,7 @@ void main()
 	float emission = texture(gAlbedoEmission, fs_in.TexCoords).a;
 	vec3 fragPos = UE_DEPTH_TO_WORLD_POS(fs_in.TexCoords, ndcDepth);
 	vec3 viewDir = normalize(UE_CAMERA_POSITION - fragPos);
-	bool receiveShadow = true;//bool(texture(gMaterialProps, fs_in.TexCoords).a);
+	bool receiveShadow = true;
 	vec3 F0 = vec3(0.04); 
 	F0 = mix(F0, albedo, metallic);
 	vec3 result = UE_FUNC_CALCULATE_LIGHTS(receiveShadow, albedo, 1.0, depth, normal, viewDir, fragPos, metallic, roughness, F0);
