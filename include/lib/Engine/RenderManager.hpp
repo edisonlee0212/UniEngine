@@ -137,8 +137,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     OpenGLUtils::GLUBO m_pointLightBlock;
     OpenGLUtils::GLUBO m_spotLightBlock;
 
-    size_t m_directionalLightShadowMapResolution = 2048;
-    size_t m_movableLightShadowMapResolution = 1024;
+    size_t m_directionalLightShadowMapResolution = 4096;
+    size_t m_pointLightShadowMapResolution = 2048;
+    size_t m_spotLightShadowMapResolution = 2048;
     OpenGLUtils::GLUBO m_shadowCascadeInfoBlock;
 
     DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];
@@ -239,8 +240,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool &calculateBound = false);
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
-    static void SetShadowMapResolution(const size_t &value);
-
+    static void SetDirectionalLightShadowMapResolution(const size_t &value);
+    static void SetPointLightShadowMapResolution(const size_t &value);
+    static void SetSpotLightShadowMapResolution(const size_t &value);
     static glm::vec3 ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b);
 #pragma endregion
 #pragma region RenderAPI
