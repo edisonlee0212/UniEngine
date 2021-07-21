@@ -18,14 +18,14 @@ int main()
     auto &world = EntityManager::GetCurrentWorld();
     EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
-    CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+    auto ccs = world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
     ccs->SetSensitivity(0.1f);
     ccs->SetVelocity(15.0f);
     ccs->Enable();
 
     RenderManager::GetMainCamera()->m_useClearColor = false;
 
-    PlanetTerrainSystem *pts = world->CreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
+    auto pts = world->CreateSystem<PlanetTerrainSystem>("PlanetTerrainSystem", SystemGroup::SimulationSystemGroup);
     pts->Enable();
 
     PlanetInfo pi;
@@ -89,7 +89,6 @@ int main()
     plc.m_constant = 1.0f;
     plc.m_linear = 0.09f;
     plc.m_quadratic = 0.032f;
-    plc.m_farPlane = 70.0f;
     plc.m_diffuse = glm::vec3(1.0f);
     plc.m_diffuseBrightness = 5;
 
@@ -100,7 +99,6 @@ int main()
     plc2.m_constant = 1.0f;
     plc2.m_linear = 0.09f;
     plc2.m_quadratic = 0.032f;
-    plc2.m_farPlane = 70.0f;
     plc2.m_diffuse = glm::vec3(1.0f);
     plc2.m_diffuseBrightness = 5;
 

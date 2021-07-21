@@ -22,8 +22,9 @@ void TransformManager::PreUpdate()
             Transform &transform,
             GlobalTransform &globalTransform,
             GlobalTransformUpdateFlag &transformStatus) {
-            if ((!transformManager.m_physicsSystemOverride && EntityManager::IsEntityStatic(entity)) ||
-                !EntityManager::GetParent(entity).IsNull())
+            EntityInfo& entityInfo = EntityManager::GetInstance().m_entityInfos->at(entity.GetIndex());
+            if ((!transformManager.m_physicsSystemOverride && entityInfo.m_static) ||
+                !entityInfo.m_parent.IsNull())
                 return;
             if (transformStatus.m_value)
             {
@@ -42,18 +43,19 @@ void TransformManager::PreUpdate()
 void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)
 {
     auto &transformManager = GetInstance();
-    if (!transformManager.m_physicsSystemOverride && EntityManager::IsEntityStatic(parent))
+    EntityInfo& entityInfo = EntityManager::GetInstance().m_entityInfos->at(parent.GetIndex());
+    if (!transformManager.m_physicsSystemOverride && entityInfo.m_static)
         return;
-    for (const auto &entity : EntityManager::GetChildren(parent))
+    for (const auto &entity : entityInfo.m_children)
     {
-        auto transformStatus = entity.GetDataComponent<GlobalTransformUpdateFlag>();
+        auto* transformStatus = reinterpret_cast<GlobalTransformUpdateFlag *>(
+                                   EntityManager::GetDataComponentPointer(entity, typeid(GlobalTransformUpdateFlag).hash_code()));
         GlobalTransform ltw;
-        if (transformStatus.m_value)
+        if (transformStatus->m_value)
         {
             ltw = entity.GetDataComponent<GlobalTransform>();
-            Transform ltp;
-            ltp.m_value = glm::inverse(pltw.m_value) * ltw.m_value;
-            *reinterpret_cast<Transform *>(EntityManager::GetDataComponentPointer(entity, typeid(Transform).hash_code())) = ltp;
+            reinterpret_cast<Transform *>(EntityManager::GetDataComponentPointer(entity, typeid(Transform).hash_code()))->m_value = glm::inverse(pltw.m_value) * ltw.m_value;
+            transformStatus->m_value = false;
         }
         else
         {
@@ -61,8 +63,6 @@ void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity
             ltw.m_value = pltw.m_value * ltp.m_value;
             *reinterpret_cast<GlobalTransform *>(EntityManager::GetDataComponentPointer(entity, typeid(GlobalTransform).hash_code())) = ltw;
         }
-        reinterpret_cast<GlobalTransformUpdateFlag *>(
-            EntityManager::GetDataComponentPointer(entity, typeid(GlobalTransformUpdateFlag).hash_code()))->m_value = false;
         CalculateLtwRecursive(ltw, entity);
     }
 }

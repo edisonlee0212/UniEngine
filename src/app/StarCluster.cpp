@@ -12,12 +12,12 @@ int main()
 #pragma region Application Preparations
     Application::Init();
     auto &world = EntityManager::GetCurrentWorld();
-    CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+    auto ccs = world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
     ccs->Enable();
 
 #pragma endregion
 #pragma region Star System
-    auto *starClusterSystem = world->CreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+    auto starClusterSystem = world->CreateSystem<StarClusterSystem>("StarClusterSystem", SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto& postProcessing = RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
     Bloom *bloom = postProcessing.GetLayer<Bloom>();

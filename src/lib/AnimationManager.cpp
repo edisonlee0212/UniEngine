@@ -7,7 +7,10 @@ void UniEngine::AnimationManager::PreUpdate()
     ProfilerManager::StartEvent("AnimationManager");
     const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
     if (!owners)
+    {
+        ProfilerManager::EndEvent("AnimationManager");
         return;
+    }
     auto &workers = JobManager::PrimaryWorkers();
     std::vector<std::shared_future<void>> results;
     auto threadSize = workers.Size();
@@ -54,7 +57,10 @@ void UniEngine::AnimationManager::PreUpdate()
 
     owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
     if (!owners)
+    {
+        ProfilerManager::EndEvent("AnimationManager");
         return;
+    }
     threadSize = workers.Size();
     threadLoad = owners->size() / threadSize;
     loadReminder = owners->size() % threadSize;

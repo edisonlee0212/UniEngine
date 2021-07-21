@@ -58,7 +58,7 @@ int main()
 {
     Application::Init();
     auto &world = EntityManager::GetCurrentWorld();
-    world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+    world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
 
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();

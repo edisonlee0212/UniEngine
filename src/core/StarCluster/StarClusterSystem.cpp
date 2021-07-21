@@ -382,7 +382,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     imr.m_receiveShadow = false;
     imr.m_material->m_ambient = 0.0f;
     imr.m_material->m_emission = 3.0f;
-    imr.m_mesh = DefaultResources::Primitives::Sphere;
+    imr.m_mesh = DefaultResources::Primitives::Cube;
     imr.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
     m_rendererFront.SetDataComponent(ltw);
@@ -431,7 +431,7 @@ void Galaxy::StarClusterSystem::Update()
     // Do not touch below functions.
     m_counter++;
     RenderManager::DrawGizmoMeshInstancedColored(
-        DefaultResources::Primitives::Sphere.get(),
+        DefaultResources::Primitives::Cube.get(),
         m_useFront ? m_frontColors : m_backColors,
         m_useFront ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices : m_rendererBack.GetPrivateComponent<Particles>().m_matrices,
         glm::mat4(1.0f),
