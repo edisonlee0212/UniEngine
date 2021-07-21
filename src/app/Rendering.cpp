@@ -74,27 +74,23 @@ int main()
     capoeiraEntity.SetDataComponent(capoeiraTransform);
 #endif
 #pragma endregion
-    /*
+
 #pragma region Create ground
     auto ground = EntityManager::CreateEntity("Ground");
-    auto groundMeshRenderer = std::make_unique<MeshRenderer>();
-    groundMeshRenderer->m_value = DefaultResources::Materials::StandardMaterial;
-    groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
+    auto& groundMeshRenderer = ground.SetPrivateComponent<MeshRenderer>();
+    groundMeshRenderer.m_material = DefaultResources::Materials::StandardMaterial;
+    groundMeshRenderer.m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
-    groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
+    groundTransform.SetValue(glm::vec3(0, -16, -90), glm::vec3(0), glm::vec3(160, 1, 220));
     ground.SetDataComponent(groundTransform);
-    ground.SetPrivateComponent(std::move(groundMeshRenderer));
 #pragma endregion
-    */
+
 #pragma region Lighting
 
-    auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
+    auto dirLightEntity = EntityManager::CreateEntity("Directional Light");
     auto &dirLight = dirLightEntity.SetPrivateComponent<DirectionalLight>();
     dirLight.m_diffuseBrightness = 3.0f;
     dirLight.m_lightSize = 0.2f;
-    Transform dirLightTransform;
-    dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100, 0, 0)));
-    dirLightEntity.SetDataComponent(dirLightTransform);
 
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
     auto &pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
@@ -106,10 +102,9 @@ int main()
     auto &pointLightLeft = pointLightLeftEntity.SetPrivateComponent<PointLight>();
     pointLightLeft.m_diffuseBrightness = 20;
     pointLightLeft.m_lightSize = 0.2f;
+    pointLightLeft.m_linear = 0.02;
+    pointLightLeft.m_quadratic = 0.0001;
     pointLightLeft.m_diffuse = glm::vec3(0.0, 0.5, 1.0);
-    Transform pointLightLeftTransform;
-    pointLightLeftTransform.SetPosition(glm::vec3(glm::vec3(-40, 12, -50)));
-    pointLightLeftEntity.SetDataComponent(pointLightLeftTransform);
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
     auto &pointLightRightRenderer = pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
@@ -121,10 +116,9 @@ int main()
     auto &pointLightRight = pointLightRightEntity.SetPrivateComponent<PointLight>();
     pointLightRight.m_diffuseBrightness = 20;
     pointLightRight.m_lightSize = 0.2f;
+    pointLightRight.m_linear = 0.02;
+    pointLightRight.m_quadratic = 0.0001;
     pointLightRight.m_diffuse = glm::vec3(1.0, 0.8, 0.0);
-    Transform pointLightRightTransform;
-    pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
-    pointLightRightEntity.SetDataComponent(pointLightRightTransform);
 
     auto spotLightConeEntity = EntityManager::CreateEntity("Top Spot Light");
     Transform spotLightConeTransform;
@@ -134,24 +128,43 @@ int main()
     auto &spotLightRenderer = spotLightConeEntity.SetPrivateComponent<MeshRenderer>();
     spotLightRenderer.m_material =
         ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    spotLightRenderer.m_material->m_albedoColor = glm::vec3(1, 1, 0);
+    spotLightRenderer.m_material->m_albedoColor = glm::vec3(1, 0.7, 0.7);
     spotLightRenderer.m_material->m_emission = 10.0f;
     spotLightRenderer.m_mesh = DefaultResources::Primitives::Cone;
 
-    auto spotLightEntity = EntityManager::CreateEntity("Light");
+    auto spotLightEntity = EntityManager::CreateEntity("Spot Light");
     Transform spotLightTransform;
     spotLightTransform.SetEulerRotation(glm::radians(glm::vec3(-90, 0, 0)));
     spotLightEntity.SetDataComponent(spotLightTransform);
     spotLightEntity.SetParent(spotLightConeEntity);
     auto &spotLight = spotLightEntity.SetPrivateComponent<SpotLight>();
-    spotLight.m_diffuse = glm::vec3(1, 1, 0);
+    spotLight.m_diffuse = glm::vec3(1, 0.7, 0.7);
     spotLight.m_diffuseBrightness = 40;
 #pragma endregion
+
+    double time = 0;
+    const float sinTime = glm::sin(time / 5.0f);
+    const float cosTime = glm::cos(time / 5.0f);
+
+    Transform dirLightTransform;
+    dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, time * 10, 0.0f)));
+    dirLightEntity.SetDataComponent(dirLightTransform);
+
+    Transform pointLightLeftTransform;
+    pointLightLeftTransform.SetPosition(glm::vec3(-40, 12, sinTime * 50 - 50));
+    pointLightLeftEntity.SetDataComponent(pointLightLeftTransform);
+
+    Transform pointLightRightTransform;
+    pointLightRightTransform.SetPosition(glm::vec3(40, 12, cosTime * 50 - 50));
+    pointLightRightEntity.SetDataComponent(pointLightRightTransform);
+
     Application::RegisterUpdateFunction([&]() {
+        if(!Application::IsPlaying()) return;
         const float currentTime = Application::Time().CurrentTime();
-        const float sinTime = glm::sin(currentTime / 5.0f);
-        const float cosTime = glm::cos(currentTime / 5.0f);
-        dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, currentTime * 10, 0.0f)));
+        time += Application::Time().DeltaTime();
+        const float sinTime = glm::sin(time / 5.0f);
+        const float cosTime = glm::cos(time / 5.0f);
+        dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, time * 10, 0.0f)));
         dirLightEntity.SetDataComponent(dirLightTransform);
         pointLightLeftTransform.SetPosition(glm::vec3(-40, 12, sinTime * 50 - 50));
         pointLightRightTransform.SetPosition(glm::vec3(40, 12, cosTime * 50 - 50));

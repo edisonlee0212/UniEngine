@@ -28,8 +28,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     size_t m_archetypeChunkSize = ARCHETYPE_CHUNK_SIZE;
     EntityArchetype m_basicArchetype = EntityArchetype();
 
-
-
 #pragma region Data Storage
     std::unique_ptr<World> m_world;
 
@@ -248,8 +246,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static std::vector<DataComponentStorage> UnsafeGetDataComponentStorage(const EntityQuery &entityQuery);
     static void UnsafeForEachDataComponent(
         const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func);
-    static void UnsafeForEachEntityStorage(
-        const std::function<void(int i, const DataComponentStorage &storage)> &func);
+    static void UnsafeForEachEntityStorage(const std::function<void(int i, const DataComponentStorage &storage)> &func);
 
     /**
      * \brief Unsafe method, directly retrieve the pointers and sizes of component data array.
@@ -506,7 +503,8 @@ template <typename T, typename... Ts> bool EntityManager::CheckDataComponentType
     return std::is_standard_layout<T>::value && CheckDataComponentTypes(args...);
 }
 
-template <typename T> size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg)
+template <typename T>
+size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg)
 {
     const auto type = Typeof<T>();
     componentTypes->push_back(type);
@@ -528,7 +526,7 @@ std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, T
     auto retVal = std::vector<DataComponentType>();
     retVal.push_back(Typeof<Transform>());
     retVal.push_back(Typeof<GlobalTransform>());
-    retVal.push_back(Typeof<TransformStatus>());
+    retVal.push_back(Typeof<GlobalTransformUpdateFlag>());
     CollectDataComponentTypes(&retVal, arg, args...);
     std::sort(retVal.begin() + 3, retVal.end(), ComponentTypeComparator);
     size_t offset = 0;
@@ -552,19 +550,12 @@ void EntityManager::ForEachStorage(
     auto targetType1 = Typeof<T1>();
     const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
     auto found1 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
             targetType1 = type;
             found1 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1)
@@ -590,11 +581,6 @@ void EntityManager::ForEachStorage(
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -607,11 +593,6 @@ void EntityManager::ForEachStorage(
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -631,8 +612,6 @@ void EntityManager::ForEachStorage(
     const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -644,11 +623,6 @@ void EntityManager::ForEachStorage(
         {
             targetType2 = type;
             found2 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
 
@@ -676,11 +650,6 @@ void EntityManager::ForEachStorage(
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -694,11 +663,6 @@ void EntityManager::ForEachStorage(
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -720,8 +684,6 @@ void EntityManager::ForEachStorage(
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -738,11 +700,6 @@ void EntityManager::ForEachStorage(
         {
             targetType3 = type;
             found3 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1 || !found2 || !found3)
@@ -772,11 +729,6 @@ void EntityManager::ForEachStorage(
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
-                        if(updateTransform || updateGlobalTransform){
-                            TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                            if(updateTransform) transformStatus->UpdateTransform();
-                            if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                        }
                     }
                     if (threadIndex < loadReminder)
                     {
@@ -792,11 +744,6 @@ void EntityManager::ForEachStorage(
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
-                        if(updateTransform || updateGlobalTransform){
-                            TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                            if(updateTransform) transformStatus->UpdateTransform();
-                            if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                        }
                     }
                 })
                 .share());
@@ -820,8 +767,6 @@ void EntityManager::ForEachStorage(
     bool found2 = false;
     bool found3 = false;
     bool found4 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -843,11 +788,6 @@ void EntityManager::ForEachStorage(
         {
             targetType4 = type;
             found4 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1 || !found2 || !found3 || !found4)
@@ -882,11 +822,6 @@ void EntityManager::ForEachStorage(
                                           address2[remainder],
                                           address3[remainder],
                                           address4[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
 
                                   if (threadIndex < loadReminder)
@@ -909,11 +844,6 @@ void EntityManager::ForEachStorage(
                                           address2[remainder],
                                           address3[remainder],
                                           address4[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -939,8 +869,6 @@ void EntityManager::ForEachStorage(
     bool found3 = false;
     bool found4 = false;
     bool found5 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -967,11 +895,6 @@ void EntityManager::ForEachStorage(
         {
             targetType5 = type;
             found5 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5)
@@ -1008,11 +931,6 @@ void EntityManager::ForEachStorage(
                                           address3[remainder],
                                           address4[remainder],
                                           address5[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -1036,11 +954,6 @@ void EntityManager::ForEachStorage(
                                           address3[remainder],
                                           address4[remainder],
                                           address5[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -1068,8 +981,6 @@ void EntityManager::ForEachStorage(
     bool found4 = false;
     bool found5 = false;
     bool found6 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -1101,11 +1012,6 @@ void EntityManager::ForEachStorage(
         {
             targetType6 = type;
             found6 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6)
@@ -1144,11 +1050,6 @@ void EntityManager::ForEachStorage(
                                           address4[remainder],
                                           address5[remainder],
                                           address6[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -1174,11 +1075,6 @@ void EntityManager::ForEachStorage(
                                           address4[remainder],
                                           address5[remainder],
                                           address6[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -1208,8 +1104,6 @@ void EntityManager::ForEachStorage(
     bool found5 = false;
     bool found6 = false;
     bool found7 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -1246,11 +1140,6 @@ void EntityManager::ForEachStorage(
         {
             targetType7 = type;
             found7 = true;
-        }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
         }
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7)
@@ -1291,11 +1180,6 @@ void EntityManager::ForEachStorage(
                                           address5[remainder],
                                           address6[remainder],
                                           address7[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -1323,11 +1207,6 @@ void EntityManager::ForEachStorage(
                                           address5[remainder],
                                           address6[remainder],
                                           address7[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -1359,8 +1238,6 @@ void EntityManager::ForEachStorage(
     bool found6 = false;
     bool found7 = false;
     bool found8 = false;
-    bool updateTransform = false;
-    bool updateGlobalTransform = false;
     for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
@@ -1403,11 +1280,6 @@ void EntityManager::ForEachStorage(
             targetType8 = type;
             found8 = true;
         }
-        if(type.m_typeId == typeid(Transform).hash_code()){
-            updateTransform = true;
-        }else if(type.m_typeId == typeid(GlobalTransform).hash_code()){
-            updateGlobalTransform = true;
-        }
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7 || !found8)
         return;
@@ -1449,11 +1321,6 @@ void EntityManager::ForEachStorage(
                                           address6[remainder],
                                           address7[remainder],
                                           address8[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                                   if (threadIndex < loadReminder)
                                   {
@@ -1483,11 +1350,6 @@ void EntityManager::ForEachStorage(
                                           address6[remainder],
                                           address7[remainder],
                                           address8[remainder]);
-                                      if(updateTransform || updateGlobalTransform){
-                                          TransformStatus* transformStatus = reinterpret_cast<TransformStatus *>(data + (sizeof(Transform) + sizeof(GlobalTransform)) * capacity);
-                                          if(updateTransform) transformStatus->UpdateTransform();
-                                          if(updateGlobalTransform) transformStatus->UpdateGlobalTransform();
-                                      }
                                   }
                               })
                               .share());
@@ -1601,7 +1463,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     {
         return;
     }
-    if (id == typeid(TransformStatus).hash_code())
+    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
     {
         return;
     }
@@ -1734,7 +1596,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     {
         return;
     }
-    if (id == typeid(TransformStatus).hash_code())
+    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
     {
         return;
     }
@@ -1854,10 +1716,6 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
 template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
 {
     const size_t id = typeid(T).hash_code();
-    if (id == typeid(TransformStatus).hash_code()){
-        UNIENGINE_ERROR("Updating TransformStatus is not allowed!");
-        return;
-    }
     if (!entity.IsValid())
         return;
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
@@ -1869,26 +1727,26 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
         const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
         ComponentDataChunk chunk =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-        bool transformUpdated = false;
         bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
-            chunk.SetData<T>(
-                static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
-            transformUpdated = true;
+            chunk.SetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
         }
         else if (id == typeid(GlobalTransform).hash_code())
         {
             chunk.SetData<T>(
-                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), value);
+                static_cast<size_t>(
+                    sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
+                value);
             globalTransformUpdated = true;
         }
-        if (transformUpdated || globalTransformUpdated)
+        if (globalTransformUpdated)
         {
-            auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
-                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
-            if(transformUpdated) transformStatus->UpdateTransform();
-            if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
+            static_cast<GlobalTransformUpdateFlag *>(
+                chunk.GetDataPointer(static_cast<size_t>(
+                    (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                    chunkPointer * sizeof(GlobalTransformUpdateFlag))))
+                ->m_value = true;
             return;
         }
         for (const auto &type : chunkInfo->m_componentTypes)
@@ -1896,8 +1754,7 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
             if (type.m_typeId == id)
             {
                 chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)),
-                    value);
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)), value);
                 return;
             }
         }
@@ -1909,10 +1766,6 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
     const size_t id = typeid(T).hash_code();
-    if (id == typeid(TransformStatus).hash_code()){
-        UNIENGINE_ERROR("Updating TransformStatus is not allowed!");
-        return;
-    }
     if (index > GetInstance().m_entityInfos->size())
         return;
     EntityInfo &info = GetInstance().m_entityInfos->at(index);
@@ -1924,26 +1777,26 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
         const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
         ComponentDataChunk chunk =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-        bool transformUpdated = false;
         bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
-            chunk.SetData<T>(
-                static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
-            transformUpdated = true;
+            chunk.SetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
         }
         else if (id == typeid(GlobalTransform).hash_code())
         {
             chunk.SetData<T>(
-                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), value);
+                static_cast<size_t>(
+                    sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
+                value);
             globalTransformUpdated = true;
         }
-        if (transformUpdated || globalTransformUpdated)
+        if (globalTransformUpdated)
         {
-            auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
-                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
-            if(transformUpdated) transformStatus->UpdateTransform();
-            if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
+            static_cast<GlobalTransformUpdateFlag *>(
+                chunk.GetDataPointer(static_cast<size_t>(
+                    (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                    chunkPointer * sizeof(GlobalTransformUpdateFlag))))
+                ->m_value = true;
             return;
         }
         for (const auto &type : chunkInfo->m_componentTypes)
@@ -1951,8 +1804,7 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
             if (type.m_typeId == id)
             {
                 chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)),
-                    value);
+                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)), value);
                 return;
             }
         }
@@ -1977,18 +1829,18 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>(chunkPointer * sizeof(Transform)));
+            return chunk.GetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)));
         }
         if (id == typeid(GlobalTransform).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+            return chunk.GetData<T>(static_cast<size_t>(
+                sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
-        if (id == typeid(TransformStatus).hash_code())
+        if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus)));
+            return chunk.GetData<T>(static_cast<size_t>(
+                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                chunkPointer * sizeof(GlobalTransformUpdateFlag)));
         }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
@@ -2022,7 +1874,7 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
         {
             return true;
         }
-        if (id == typeid(TransformStatus).hash_code())
+        if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
             return true;
         }
@@ -2054,18 +1906,18 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>(chunkPointer * sizeof(Transform)));
+            return chunk.GetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)));
         }
         if (id == typeid(GlobalTransform).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+            return chunk.GetData<T>(static_cast<size_t>(
+                sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
-        if (id == typeid(TransformStatus).hash_code())
+        if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
-            return chunk.GetData<T>(
-                static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus)));
+            return chunk.GetData<T>(static_cast<size_t>(
+                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                chunkPointer * sizeof(GlobalTransformUpdateFlag)));
         }
         for (const auto &type : chunkInfo->m_componentTypes)
         {
@@ -2099,7 +1951,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
         {
             return true;
         }
-        if (id == typeid(TransformStatus).hash_code())
+        if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
             return true;
         }
@@ -2136,7 +1988,7 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
     if (!entity.IsValid())
         throw 0;
     size_t i = 0;
-    auto& elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (dynamic_cast<T *>(element.m_privateComponentData))
@@ -2144,26 +1996,23 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
             element.m_privateComponentData = new T();
             element.ResetOwner(entity);
             element.m_privateComponentData->OnCreate();
-            return *dynamic_cast<T*>(element.m_privateComponentData);
+            return *dynamic_cast<T *>(element.m_privateComponentData);
         }
         i++;
     }
     GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    elements.emplace_back(
-            std::string(typeid(T).name()), typeid(T).hash_code(), new T(), entity);
-    return *dynamic_cast<T*>(elements.back().m_privateComponentData);
+    elements.emplace_back(std::string(typeid(T).name()), typeid(T).hash_code(), new T(), entity);
+    return *dynamic_cast<T *>(elements.back().m_privateComponentData);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
     if (!entity.IsValid())
         return;
-    auto& elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
-        if (dynamic_cast<T *>(GetInstance()
-                                  .m_entityInfos->at(entity.m_index)
-                                  .m_privateComponentElements[i]
-                                  .m_privateComponentData))
+        if (dynamic_cast<T *>(
+                GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements[i].m_privateComponentData))
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();

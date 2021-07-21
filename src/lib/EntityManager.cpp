@@ -72,7 +72,8 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         info.m_version = actualEntity.m_version + 1;
         info.m_static = false;
         info.m_enabled = true;
-        while(!info.m_privateComponentElements.empty()){
+        while (!info.m_privateComponentElements.empty())
+        {
             info.m_privateComponentElements.back().m_privateComponentData->OnDestroy();
             delete info.m_privateComponentElements.back().m_privateComponentData;
             info.m_privateComponentElements.pop_back();
@@ -356,6 +357,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
     }
     retVal.SetDataComponent(Transform());
     retVal.SetDataComponent(GlobalTransform());
+    retVal.SetDataComponent(GlobalTransformUpdateFlag());
     return retVal;
 }
 
@@ -375,6 +377,7 @@ std::vector<Entity> EntityManager::CreateEntities(
     auto remainAmount = amount;
     const Transform transform;
     const GlobalTransform globalTransform;
+    const GlobalTransformUpdateFlag transformStatus;
     while (remainAmount > 0 && info->m_entityAliveCount != info->m_entityCount)
     {
         remainAmount--;
@@ -400,6 +403,7 @@ std::vector<Entity> EntityManager::CreateEntities(
         retVal.push_back(entity);
         entity.SetDataComponent(transform);
         entity.SetDataComponent(globalTransform);
+        entity.SetDataComponent(GlobalTransformUpdateFlag());
     }
     if (remainAmount == 0)
         return retVal;
@@ -452,6 +456,7 @@ std::vector<Entity> EntityManager::CreateEntities(
                                           auto &entity = GetInstance().m_entities->at(index);
                                           entity.SetDataComponent(transform);
                                           entity.SetDataComponent(globalTransform);
+                                          entity.SetDataComponent(GlobalTransformUpdateFlag());
                                       }
                                   })
                                   .share());
@@ -467,6 +472,7 @@ std::vector<Entity> EntityManager::CreateEntities(
                                       auto &entity = GetInstance().m_entities->at(index);
                                       entity.SetDataComponent(transform);
                                       entity.SetDataComponent(globalTransform);
+                                      entity.SetDataComponent(GlobalTransformUpdateFlag());
                                   }
                               })
                               .share());
@@ -519,6 +525,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
         retVal.push_back(entity);
         entity.SetDataComponent(transform);
         entity.SetDataComponent(globalTransform);
+        entity.SetDataComponent(GlobalTransformUpdateFlag());
     }
     if (remainAmount == 0)
         return retVal;
@@ -549,6 +556,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
         entityInfo.m_chunkArrayIndex = info->m_entityAliveCount - remainAmount + i;
         entity.SetDataComponent(transform);
         entity.SetDataComponent(globalTransform);
+        entity.SetDataComponent(GlobalTransformUpdateFlag());
     }
 
     storage.m_chunkArray->Entities.insert(
@@ -571,6 +579,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
                                           auto &entity = GetInstance().m_entities->at(index);
                                           entity.SetDataComponent(transform);
                                           entity.SetDataComponent(globalTransform);
+                                          entity.SetDataComponent(GlobalTransformUpdateFlag());
                                       }
                                   })
                                   .share());
@@ -586,6 +595,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
                                       auto &entity = GetInstance().m_entities->at(index);
                                       entity.SetDataComponent(transform);
                                       entity.SetDataComponent(globalTransform);
+                                      entity.SetDataComponent(GlobalTransformUpdateFlag());
                                   }
                               })
                               .share());
@@ -760,15 +770,7 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
 {
     if (!entity.IsValid())
         return;
-    if (typeID == typeid(Transform).hash_code())
-    {
-        return;
-    }
-    if (typeID == typeid(GlobalTransform).hash_code())
-    {
-        return;
-    }
-    if (typeID == typeid(TransformStatus).hash_code())
+    if (typeID == typeid(Transform).hash_code() || typeID == typeid(GlobalTransform).hash_code() || typeID == typeid(GlobalTransformUpdateFlag).hash_code())
     {
         return;
     }
@@ -890,26 +892,25 @@ void EntityManager::SetDataComponent(const Entity &entity, size_t id, size_t siz
     const auto chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
     const auto chunk =
         GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-    bool transformUpdated = false;
     bool globalTransformUpdated = false;
     if (id == typeid(Transform).hash_code())
     {
-        chunk.SetData(
-            static_cast<size_t>(chunkPointer * sizeof(Transform)), sizeof(Transform), data);
-        transformUpdated = true;
-    }
-    if (id == typeid(GlobalTransform).hash_code())
+        chunk.SetData(static_cast<size_t>(chunkPointer * sizeof(Transform)), sizeof(Transform), data);
+    }else if (id == typeid(GlobalTransform).hash_code())
     {
         chunk.SetData(
-            static_cast<size_t>(sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)), sizeof(GlobalTransform), data);
+            static_cast<size_t>(
+                sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
+            sizeof(GlobalTransform),
+            data);
         globalTransformUpdated = true;
     }
-    if (transformUpdated || globalTransformUpdated)
+    if (globalTransformUpdated)
     {
-        auto* transformStatus = static_cast<TransformStatus*>(chunk.GetDataPointer(
-            static_cast<size_t>((sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(TransformStatus))));
-        if(transformUpdated) transformStatus->UpdateTransform();
-        if(globalTransformUpdated) transformStatus->UpdateGlobalTransform();
+        static_cast<GlobalTransformUpdateFlag *>(chunk.GetDataPointer(static_cast<size_t>(
+                                           (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                                           chunkPointer * sizeof(GlobalTransformUpdateFlag))))
+            ->m_value = true;
         return;
     }
     for (const auto &type : chunkInfo->m_componentTypes)
@@ -940,15 +941,18 @@ IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, con
         GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
     if (id == typeid(Transform).hash_code())
     {
-        const auto &type = chunkInfo->m_componentTypes[0];
-        return chunk.GetDataPointer(
-            static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+        return chunk.GetDataPointer(static_cast<size_t>(chunkPointer * sizeof(Transform)));
     }
     if (id == typeid(GlobalTransform).hash_code())
     {
-        const auto &type = chunkInfo->m_componentTypes[1];
-        return chunk.GetDataPointer(
-            static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * type.m_size));
+        return chunk.GetDataPointer(static_cast<size_t>(
+            sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+    }
+    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
+    {
+        return chunk.GetDataPointer(static_cast<size_t>(
+            (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+            chunkPointer * sizeof(GlobalTransformUpdateFlag)));
     }
     for (const auto &type : chunkInfo->m_componentTypes)
     {
@@ -971,7 +975,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     std::vector<DataComponentType> actualTypes;
     actualTypes.push_back(Typeof<Transform>());
     actualTypes.push_back(Typeof<GlobalTransform>());
-    actualTypes.push_back(Typeof<TransformStatus>());
+    actualTypes.push_back(Typeof<GlobalTransformUpdateFlag>());
     actualTypes.insert(actualTypes.end(), types.begin(), types.end());
     std::sort(actualTypes.begin() + 3, actualTypes.end(), ComponentTypeComparator);
     size_t offset = 0;
@@ -1034,13 +1038,14 @@ void EntityManager::SetPrivateComponent(
     ptr->m_enabled = true;
     bool found = false;
     size_t i = 0;
-    auto& elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (id == element.m_typeId)
         {
             found = true;
-            if(element.m_privateComponentData){
+            if (element.m_privateComponentData)
+            {
                 element.m_privateComponentData->OnDestroy();
                 delete element.m_privateComponentData;
             }
@@ -1101,16 +1106,15 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
     if (!entity.IsValid())
         return;
-    auto& entityManager = GetInstance();
-    auto& privateComponentElements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &entityManager = GetInstance();
+    auto &privateComponentElements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < privateComponentElements.size(); i++)
     {
         if (privateComponentElements[i].m_typeId == typeId)
         {
             privateComponentElements[i].m_privateComponentData->OnDestroy();
             delete privateComponentElements[i].m_privateComponentData;
-            privateComponentElements.erase(
-                privateComponentElements.begin() + i);
+            privateComponentElements.erase(privateComponentElements.begin() + i);
             break;
         }
     }
@@ -1320,7 +1324,7 @@ template <typename T> const std::vector<Entity> EntityManager::GetPrivateCompone
 }
 void EntityManager::Init()
 {
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     entityManager.m_world = std::make_unique<World>(0);
     EntityManager::Attach(entityManager.m_world);
 }

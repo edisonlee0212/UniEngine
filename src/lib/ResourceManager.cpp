@@ -1057,11 +1057,6 @@ void UniEngine::ResourceManager::AttachChildren(
     entity.SetName(parentName);
     entity.SetParent(parentEntity);
     entity.SetDataComponent(modelNode->m_localTransform);
-    GlobalTransform globalTransform;
-    globalTransform.m_value =
-        parentEntity.GetDataComponent<GlobalTransform>().m_value * modelNode->m_localTransform.m_value;
-    entity.SetDataComponent(globalTransform);
-
     if (modelNode->m_mesh)
     {
         auto &mmc = entity.SetPrivateComponent<MeshRenderer>();

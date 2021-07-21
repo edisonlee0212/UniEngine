@@ -59,7 +59,7 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
-    float m_intensity = 0.05f;
+    float m_intensity = 0.1f;
     float m_threshold = 1.0f;
     float m_clamp = 0.0f;
     int m_diffusion = 8;

@@ -894,7 +894,6 @@ void EditorManager::OnGui()
             {
                 auto newEntity = EntityManager::CreateEntity(editorManager.m_basicEntityArchetype);
                 newEntity.SetDataComponent(Transform());
-                newEntity.SetDataComponent(GlobalTransform());
             }
             ImGui::EndPopup();
         }
@@ -1528,7 +1527,6 @@ void EditorManager::SceneCameraWindow()
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
                     editorManager.m_selectedEntity.SetDataComponent(transform);
-                    // editorManager.m_selectedEntity.SetDataComponent(globalTransform);
                     transform.Decompose(
                         editorManager.m_previouslyStoredPosition,
                         editorManager.m_previouslyStoredRotation,

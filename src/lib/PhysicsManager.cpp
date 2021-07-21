@@ -220,6 +220,7 @@ void PhysicsSystem::Simulate(float time) const
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
                                               rigidBodyEntity.SetDataComponent(globalTransform);
+
                                           }
                                       }
                                       if (reminder > i)
