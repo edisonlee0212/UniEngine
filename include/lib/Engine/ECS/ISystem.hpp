@@ -7,6 +7,7 @@ class World;
 class UNIENGINE_API ISystem
 {
     friend class World;
+    std::string m_name;
 
   protected:
     bool m_enabled;
@@ -15,10 +16,11 @@ class UNIENGINE_API ISystem
     virtual void OnStopRunning();
 
   public:
+    [[nodiscard]] std::string GetName();
     ISystem();
     void Enable();
     void Disable();
-    bool Enabled() const;
+    [[nodiscard]] bool Enabled() const;
     virtual void OnCreate();
     virtual void OnDestroy();
     virtual void PreUpdate();
@@ -26,7 +28,7 @@ class UNIENGINE_API ISystem
     virtual void FixedUpdate();
     virtual void LateUpdate();
 
-    //Will only exec when editor is enabled, and no matter application is running or not.
+    // Will only exec when editor is enabled, and no matter application is running or not.
     virtual void OnGui();
 };
 } // namespace UniEngine

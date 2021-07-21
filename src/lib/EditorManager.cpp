@@ -638,25 +638,34 @@ void EditorManager::PreUpdate()
         }
         ImGui::EndMainMenuBar();
     }
+
+}
+
+void EditorManager::RenderToSceneCamera()
+{
+    ProfilerManager::StartEvent("RenderToSceneCamera");
+    auto &editorManager = GetInstance();
+    auto &renderManager = RenderManager::GetInstance();
+
     const auto resolution = editorManager.m_sceneCamera.m_gBuffer->GetResolution();
     if (editorManager.m_sceneCameraResolutionX != 0 && editorManager.m_sceneCameraResolutionY != 0 &&
         (resolution.x != editorManager.m_sceneCameraResolutionX ||
          resolution.y != editorManager.m_sceneCameraResolutionY))
     {
         editorManager.m_sceneCamera.ResizeResolution(
-            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+                editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
-            0,
-            GL_R32F,
-            GL_RED,
-            GL_FLOAT,
-            0,
-            editorManager.m_sceneCameraResolutionX,
-            editorManager.m_sceneCameraResolutionY);
+                0,
+                GL_R32F,
+                GL_RED,
+                GL_FLOAT,
+                0,
+                editorManager.m_sceneCameraResolutionX,
+                editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
-            GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+                GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorder->SetResolution(
-            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+                editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
     }
     editorManager.m_sceneCamera.Clear();
     editorManager.m_sceneCameraEntityRecorder->Clear();
@@ -667,26 +676,22 @@ void EditorManager::PreUpdate()
         if (elapsedTime >= editorManager.m_transitionTime)
             a = 1.0f;
         editorManager.m_sceneCameraRotation =
-            glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
+                glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
         editorManager.m_sceneCameraPosition =
-            glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
+                glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
         if (a >= 1.0f)
         {
             editorManager.m_lockCamera = false;
             editorManager.m_sceneCameraRotation = editorManager.m_targetRotation;
             editorManager.m_sceneCameraPosition = editorManager.m_targetPosition;
             CameraComponent::ReverseAngle(
-                editorManager.m_targetRotation,
-                editorManager.m_sceneCameraPitchAngle,
-                editorManager.m_sceneCameraYawAngle);
+                    editorManager.m_targetRotation,
+                    editorManager.m_sceneCameraPitchAngle,
+                    editorManager.m_sceneCameraYawAngle);
         }
     }
-}
 
-void EditorManager::RenderToSceneCamera()
-{
-    auto &editorManager = GetInstance();
-    auto &renderManager = RenderManager::GetInstance();
+
     if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
     {
         CameraComponent::m_cameraInfoBlock.UpdateMatrices(
@@ -812,6 +817,7 @@ void EditorManager::RenderToSceneCamera()
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
         RenderManager::RenderToCamera(editorManager.m_sceneCamera);
     }
+    ProfilerManager::EndEvent("RenderToSceneCamera");
 }
 
 Entity EditorManager::GetSelectedEntity()

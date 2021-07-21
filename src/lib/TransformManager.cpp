@@ -1,6 +1,7 @@
 #include <Articulation.hpp>
 #include <RigidBody.hpp>
 #include <TransformManager.hpp>
+#include <ProfilerManager.hpp>
 using namespace UniEngine;
 using namespace UniEngine;
 void TransformManager::Init()
@@ -11,6 +12,7 @@ void TransformManager::Init()
 
 void TransformManager::PreUpdate()
 {
+    ProfilerManager::StartEvent("TransformManager");
     auto &transformManager = GetInstance();
     EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
         JobManager::PrimaryWorkers(),
@@ -34,6 +36,7 @@ void TransformManager::PreUpdate()
         },
         false);
     transformManager.m_physicsSystemOverride = false;
+    ProfilerManager::EndEvent("TransformManager");
 }
 
 void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)

@@ -64,3 +64,7 @@ void ISystem::FixedUpdate()
 void ISystem::LateUpdate()
 {
 }
+std::string ISystem::GetName()
+{
+    return m_name;
+}

@@ -4,10 +4,10 @@
 #include <Animator.hpp>
 void UniEngine::AnimationManager::PreUpdate()
 {
+    ProfilerManager::StartEvent("AnimationManager");
     const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
     if (!owners)
         return;
-
     auto &workers = JobManager::PrimaryWorkers();
     std::vector<std::shared_future<void>> results;
     auto threadSize = workers.Size();
@@ -78,24 +78,5 @@ void UniEngine::AnimationManager::PreUpdate()
     }
     for (const auto &i : results)
         i.wait();
-    /*
-    for (auto &i : *owners)
-    {
-        auto &smmc = i.GetPrivateComponent<Animator>();
-        if (smmc->m_autoPlay)
-        {
-            smmc->AutoPlay();
-            smmc->Animate();
-            continue;
-        }
-
-        if (smmc->IsEnabled() || !smmc->m_animation)
-            continue;
-        if (Application::IsPlaying() && smmc->m_needUpdate)
-        {
-            smmc->Animate();
-            smmc->m_needUpdate = false;
-        }
-    }
-    */
+    ProfilerManager::EndEvent("AnimationManager");
 }

@@ -1,5 +1,6 @@
 #include <Core/Debug.hpp>
 #include <DefaultResources.hpp>
+#include <ProfilerManager.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>
 
@@ -90,9 +91,11 @@ GLFWmonitor *WindowManager::PrimaryMonitor()
 
 void WindowManager::PreUpdate()
 {
+    ProfilerManager::StartEvent("WindowManager");
     glfwPollEvents();
     RenderTarget::BindDefault();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    ProfilerManager::EndEvent("WindowManager");
 }
 
 void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)

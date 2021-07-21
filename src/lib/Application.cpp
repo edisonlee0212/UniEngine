@@ -52,6 +52,9 @@ void Application::Init(bool fullScreen)
     RenderManager::SetMainCamera(&mainCameraComponent);
     mainCameraComponent.m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
+
+    application.m_playing = false;
+    ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
 }
 
 double ApplicationTime::TimeStep() const
@@ -96,21 +99,29 @@ void Application::PreUpdateInternal()
         return;
     application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
     application.m_time.m_frameStartTime = glfwGetTime();
-    ProfilerManager::PreUpdate();
-    WindowManager::PreUpdate();
-
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
     EditorManager::PreUpdate();
+    ProfilerManager::PreUpdate();
+    ProfilerManager::StartEvent("PreUpdate");
+    ProfilerManager::StartEvent("Internals");
+    WindowManager::PreUpdate();
     RenderManager::PreUpdate();
     InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
     AnimationManager::PreUpdate();
+    ProfilerManager::EndEvent("Internals");
+    ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalPreUpdateFunctions)
         i();
+    ProfilerManager::EndEvent("Externals");
+
     if (application.m_playing)
     {
+        ProfilerManager::StartEvent("World");
         EntityManager::GetInstance().m_world->PreUpdate();
+        ProfilerManager::EndEvent("World");
     }
+
     application.m_needFixedUpdate = false;
     auto fixedDeltaTime = application.m_time.FixedDeltaTime();
     if (fixedDeltaTime >= application.m_time.m_timeStep)
@@ -120,14 +131,22 @@ void Application::PreUpdateInternal()
     PhysicsManager::PreUpdate();
     if (application.m_needFixedUpdate)
     {
+        ProfilerManager::StartEvent("FixedUpdate");
         application.m_time.StartFixedUpdate();
+        ProfilerManager::StartEvent("Externals");
         for (const auto &i : application.m_externalFixedUpdateFunctions)
             i();
-        if (application.m_playing)
+        ProfilerManager::EndEvent("Externals");
+        if (application.m_playing){
+            ProfilerManager::StartEvent("World");
             EntityManager::GetInstance().m_world->FixedUpdate();
+            ProfilerManager::EndEvent("World");
+        }
         application.m_time.EndFixedUpdate();
+        ProfilerManager::EndEvent("FixedUpdate");
     }
     TransformManager::PreUpdate();
+    ProfilerManager::EndEvent("PreUpdate");
 }
 
 void Application::UpdateInternal()
@@ -135,13 +154,18 @@ void Application::UpdateInternal()
     auto &application = GetInstance();
     if (!application.m_initialized)
         return;
-
+    ProfilerManager::StartEvent("Update");
+    ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalUpdateFunctions)
         i();
+    ProfilerManager::EndEvent("Externals");
     if (application.m_playing)
     {
+        ProfilerManager::StartEvent("World");
         EntityManager::GetInstance().m_world->Update();
+        ProfilerManager::EndEvent("World");
     }
+    ProfilerManager::EndEvent("Update");
 }
 
 bool Application::LateUpdateInternal()
@@ -149,13 +173,18 @@ bool Application::LateUpdateInternal()
     auto &application = GetInstance();
     if (!application.m_initialized)
         return false;
+    ProfilerManager::StartEvent("LateUpdate");
+    ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalLateUpdateFunctions)
         i();
+    ProfilerManager::EndEvent("Externals");
     if (application.m_playing)
     {
+        ProfilerManager::StartEvent("World");
         EntityManager::GetInstance().m_world->LateUpdate();
+        ProfilerManager::EndEvent("World");
     }
-
+    ProfilerManager::StartEvent("Internals");
     EntityManager::GetInstance().m_world->OnGui();
 
     //Post-processing happens here
@@ -165,8 +194,9 @@ bool Application::LateUpdateInternal()
     ResourceManager::OnGui();
     RenderManager::OnGui();
     EditorManager::OnGui();
-
+    ProfilerManager::EndEvent("Internals");
     //Profile
+    ProfilerManager::EndEvent("LateUpdate");
     ProfilerManager::LateUpdate();
     ProfilerManager::OnGui();
 

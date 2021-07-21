@@ -218,19 +218,25 @@ void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
 }
 void RenderManager::PreUpdate()
 {
+    ProfilerManager::StartEvent("RenderManager");
     EditorManager::RenderToSceneCamera();
     auto &renderManager = GetInstance();
+    ProfilerManager::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
     renderManager.m_deferredInstancedRenderInstances.clear();
     renderManager.m_forwardRenderInstances.clear();
     renderManager.m_forwardInstancedRenderInstances.clear();
     renderManager.m_transparentRenderInstances.clear();
     renderManager.m_instancedTransparentRenderInstances.clear();
+    ProfilerManager::EndEvent("Clear GBuffer");
+    ProfilerManager::EndEvent("RenderManager");
 }
 void RenderManager::LateUpdate()
 {
+    ProfilerManager::StartEvent("RenderManager");
     auto &renderManager = GetInstance();
 #pragma region Collect RenderCommands
+    ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
     const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
     bool boundCalculated = false;
@@ -252,9 +258,10 @@ void RenderManager::LateUpdate()
     }
 
     CollectRenderInstances(EditorManager::GetSceneCamera(), worldBound, !boundCalculated);
-
+    ProfilerManager::EndEvent("RenderCommand Collection");
 #pragma endregion
 #pragma region Shadowmap prepass
+    ProfilerManager::StartEvent("Shadowmap Prepass");
     EntityManager::GetCurrentWorld()->SetBound(worldBound);
     if (renderManager.m_mainCameraComponent != nullptr)
     {
@@ -263,8 +270,10 @@ void RenderManager::LateUpdate()
             RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
         }
     }
+    ProfilerManager::EndEvent("Shadowmap Prepass");
 #pragma endregion
 #pragma region Render to cameras
+    ProfilerManager::StartEvent("Main Rendering");
     renderManager.m_triangles = 0;
     renderManager.m_drawCall = 0;
     if (renderManager.m_mainCameraComponent != nullptr)
@@ -293,9 +302,10 @@ void RenderManager::LateUpdate()
             }
         }
     }
-
+    ProfilerManager::EndEvent("Main Rendering");
 #pragma endregion
 #pragma region Post - processing
+    ProfilerManager::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
     if (postProcessingEntities != nullptr)
@@ -309,7 +319,10 @@ void RenderManager::LateUpdate()
                 postProcessing.Process();
         }
     }
+    ProfilerManager::EndEvent("Post Processing");
 #pragma endregion
+
+    ProfilerManager::EndEvent("RenderManager");
 }
 glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
 {
@@ -644,6 +657,14 @@ void RenderManager::Init()
 void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool &calculateBound)
 {
     auto &renderManager = GetInstance();
+
+    auto& deferredRenderInstances = renderManager.m_deferredRenderInstances[&camera];
+    auto& deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[&camera];
+    auto& forwardRenderInstances = renderManager.m_forwardRenderInstances[&camera];
+    auto& forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[&camera];
+    auto& transparentRenderInstances = renderManager.m_transparentRenderInstances[&camera];
+    auto& instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[&camera];
+
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
     if (calculateBound)
@@ -690,19 +711,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                renderManager.m_transparentRenderInstances[&camera][mmc.m_material.get()]
+                transparentRenderInstances[mmc.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (mmc.m_forwardRendering)
             {
-                renderManager.m_forwardRenderInstances[&camera][mmc.m_material.get()]
+                forwardRenderInstances[mmc.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else
             {
-                renderManager.m_deferredRenderInstances[&camera][mmc.m_material.get()]
+                deferredRenderInstances[mmc.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
@@ -748,19 +769,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                renderManager.m_instancedTransparentRenderInstances[&camera][particles.m_material.get()]
+                instancedTransparentRenderInstances[particles.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (particles.m_forwardRendering)
             {
-                renderManager.m_forwardInstancedRenderInstances[&camera][particles.m_material.get()]
+                forwardInstancedRenderInstances[particles.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else
             {
-                renderManager.m_deferredInstancedRenderInstances[&camera][particles.m_material.get()]
+                deferredInstancedRenderInstances[particles.m_material.get()]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
@@ -813,19 +834,19 @@ void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &world
             renderInstance.m_meshType = RenderCommandMeshType::Skinned;
             if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                renderManager.m_transparentRenderInstances[&camera][smmc.m_material.get()]
+                transparentRenderInstances[smmc.m_material.get()]
                         .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
             else if (smmc.m_forwardRendering)
             {
-                renderManager.m_forwardRenderInstances[&camera][smmc.m_material.get()]
+                forwardRenderInstances[smmc.m_material.get()]
                         .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
             else
             {
-                renderManager.m_deferredRenderInstances[&camera][smmc.m_material.get()]
+                deferredRenderInstances[smmc.m_material.get()]
                         .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
                         .push_back(renderInstance);
             }
@@ -2601,8 +2622,17 @@ void RenderManager::DrawMesh(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    GetInstance().m_forwardRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
-    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    const auto owner = cameraComponent.GetOwner();
+    float distance = 0.0f;
+    if(owner.IsValid())
+    {
+        auto meshCenter = mesh->GetBound().Center();
+        meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
+        const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
+        distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+    }
+    GetInstance().m_forwardRenderInstances[&cameraComponent][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
 }
 
 void RenderManager::DrawMeshInstanced(
@@ -2622,8 +2652,17 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
-    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[0.0][renderCommand.m_mesh->m_vao.get()].push_back(
+    const auto owner = cameraComponent.GetOwner();
+    float distance = 0.0f;
+    if(owner.IsValid())
+    {
+        auto meshCenter = mesh->GetBound().Center();
+        meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
+        const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
+        distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+    }
+    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(
         renderCommand);
 }
 

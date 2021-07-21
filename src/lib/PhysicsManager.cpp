@@ -142,6 +142,7 @@ void PhysicsSystem::FixedUpdate()
 
 void PhysicsSystem::Simulate(float time) const
 {
+
     const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
     const std::vector<Entity> *articulationEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();

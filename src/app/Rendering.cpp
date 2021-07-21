@@ -10,7 +10,7 @@ int main()
 {
     Application::Init();
     auto &world = EntityManager::GetCurrentWorld();
-    CameraControlSystem *ccs = world->CreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
+    auto ccs = world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
     ccs->Enable();
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation

@@ -53,26 +53,15 @@ World::World(size_t index)
     m_worldEntityStorage.m_entityQueries.emplace_back();
     m_worldEntityStorage.m_entityQueryInfos.emplace_back();
 
-    CreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+    CreateSystem<PhysicsSystem>("PhysicsSystem", SystemGroup::SimulationSystemGroup);
 }
 
 World::~World()
 {
     Purge();
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        i->OnDestroy();
-        delete i;
-    }
-    for (auto i : m_simulationSystems)
-    {
-        i->OnDestroy();
-        delete i;
-    }
-    for (auto i : m_presentationSystems)
-    {
-        i->OnDestroy();
-        delete i;
+        i.second->OnDestroy();
     }
     if (EntityManager::GetInstance().m_currentAttachedWorldEntityStorage == &m_worldEntityStorage)
     {
@@ -82,98 +71,57 @@ World::~World()
 
 void World::PreUpdate()
 {
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        if (i->Enabled())
-            i->PreUpdate();
-    }
-
-    for (auto i : m_simulationSystems)
-    {
-        if (i->Enabled())
-            i->PreUpdate();
-    }
-
-    for (auto i : m_presentationSystems)
-    {
-        if (i->Enabled())
-            i->PreUpdate();
+        if (i.second->Enabled())
+        {
+            ProfilerManager::StartEvent(i.second->m_name);
+            i.second->PreUpdate();
+            ProfilerManager::EndEvent(i.second->m_name);
+        }
     }
 }
 
 void World::Update()
 {
-
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        if (i->Enabled())
-            i->Update();
-    }
-    for (auto i : m_simulationSystems)
-    {
-        if (i->Enabled())
-            i->Update();
-    }
-    for (auto i : m_presentationSystems)
-    {
-        if (i->Enabled())
-            i->Update();
+        if (i.second->Enabled())
+        {
+            ProfilerManager::StartEvent(i.second->m_name);
+            i.second->Update();
+            ProfilerManager::EndEvent(i.second->m_name);
+        }
     }
 }
 
 void World::LateUpdate()
 {
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        if (i->Enabled())
-            i->LateUpdate();
-    }
-
-    for (auto i : m_simulationSystems)
-    {
-        if (i->Enabled())
-            i->LateUpdate();
-    }
-
-    for (auto i : m_presentationSystems)
-    {
-        if (i->Enabled())
-            i->LateUpdate();
+        if (i.second->Enabled()){
+            ProfilerManager::StartEvent(i.second->m_name);
+            i.second->LateUpdate();
+            ProfilerManager::EndEvent(i.second->m_name);
+        }
     }
 }
 void World::FixedUpdate()
 {
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        if (i->Enabled())
-            i->FixedUpdate();
-    }
-    for (auto i : m_simulationSystems)
-    {
-        if (i->Enabled())
-            i->FixedUpdate();
-    }
-    for (auto i : m_presentationSystems)
-    {
-        if (i->Enabled())
-            i->FixedUpdate();
+        if (i.second->Enabled()){
+            ProfilerManager::StartEvent(i.second->m_name);
+            i.second->FixedUpdate();
+            ProfilerManager::EndEvent(i.second->m_name);
+        }
     }
 }
 
 void World::OnGui()
 {
-    for (auto i : m_preparationSystems)
+    for (auto &i : m_systems)
     {
-        i->OnGui();
-    }
-
-    for (auto i : m_simulationSystems)
-    {
-        i->OnGui();
-    }
-
-    for (auto i : m_presentationSystems)
-    {
-        i->OnGui();
+        i.second->OnGui();
     }
 }
