@@ -58,20 +58,39 @@ int main()
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
 
+    auto title = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/UniEngine.obj"));
+    auto titleEntity = ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), title);
+    titleEntity.SetName("Title");
+    Transform titleTransform;
+    titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
+    titleEntity.SetDataComponent(titleTransform);
+    auto& titleMaterial = titleEntity.GetChildren()[0].GetPrivateComponent<MeshRenderer>().m_material;
+    titleMaterial->m_emission = 4;
+    titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
 #ifdef USE_ASSIMP
-
     auto dancingStormTrooper =
         ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/dancing-stormtrooper/silly_dancing.fbx"));
     auto dancingStormTrooperEntity =
         ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), dancingStormTrooper);
+    dancingStormTrooperEntity.SetName("StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
     auto capoeira = ResourceManager::LoadModel(true, FileIO::GetResourcePath("Models/Capoeira.fbx"));
     auto capoeiraEntity = ResourceManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
+    capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;
-    capoeiraTransform.SetValue(glm::vec3(0, -14, -15), glm::vec3(0), glm::vec3(0.1));
+    capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
     capoeiraEntity.SetDataComponent(capoeiraTransform);
+    auto& capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1].GetChildren()[0].GetPrivateComponent<SkinnedMeshRenderer>().m_material;
+    capoeiraBodyMaterial->m_albedoColor = glm::vec3(0, 1, 1);
+    capoeiraBodyMaterial->m_metallic = 1;
+    capoeiraBodyMaterial->m_roughness = 0;
+    auto& capoeiraJointsMaterial = capoeiraEntity.GetChildren()[0].GetChildren()[0].GetPrivateComponent<SkinnedMeshRenderer>().m_material;
+    capoeiraJointsMaterial->m_albedoColor = glm::vec3(0.3, 1.0, 0.5);
+    capoeiraJointsMaterial->m_metallic = 1;
+    capoeiraJointsMaterial->m_roughness = 0;
+    capoeiraJointsMaterial->m_emission = 6;
 #endif
 #pragma endregion
 
