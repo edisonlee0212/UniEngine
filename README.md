@@ -48,7 +48,7 @@ Here lists the features that already exists in the UniEngine. Some of them I may
        - Splitting: CSM
        - Warping: CSSM
        - Soft shadow: PCSS
-       - Support for dir/point/spot light
+       - Multiple types of light
     - Post-processing
        - Bloom
        - SSAO
@@ -62,15 +62,18 @@ Here lists the features that already exists in the UniEngine. Some of them I may
  - Exportable as shared library (For my own research purposes, I'm using the UniEngine as the underlying rendering framework for my other research projects. Those are private.)
  - I/O
     - Asset import
-       - Texture (2D, Cubemap)
+       - Texture
        - 3D Model
-       - 3D animated model (Windows only)
+       - 3D Animated Model
     - Scene import/export (in development stage)
  - Physics
     - Integrated PhysX for 3D physics (Incomplete and in development)
-       - RigidBody with Box/Sphere/Capsule collider
+       - RigidBody with colliders
+       - Joints
+       - Articulations
 ## Upcoming features
 Here lists the features that will be introduced to UniEngine in future, though I don't have a concrete plan of when these will come.
+- Post-processing - Screen Space Reflection
 - Procedural terrain and world generation
 - Artificial Intelligence
 - Audio system
