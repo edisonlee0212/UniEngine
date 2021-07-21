@@ -8,12 +8,6 @@ E.g. For Linux, the command may be :
  - bash build.sh --clean release (clean and build in release mode)
 Please visit script for further details.
 ## Examples
-- Star Cluster
-  - The Star Cluster example shows the potential of Job System with ECS by rendering hundreds of thousands stars at the same time with instanced rendering. The position of each star is calculated in real time in parallel with a single lambda-expression based API similiar to the Entities.ForEach() in Unity. 
-  - Screenshot: ![StarClusterProjectScreenshot](/Resources/GitHub/StarClusterProjectScreenshot.png?raw=true "StarClusterProjectScreenshot")
-- Planet
-  - The Planet example shows the ability to use ECS for complex behaviour. The application contains a simple sphere generation program with dynamic LOD calculation based on the position of the scene camera.
-  - Screenshot: ![PlanetProjectScreenshot](/Resources/GitHub/PlanetProjectScreenshot.png?raw=true "PlanetProjectScreenshot")
 - Rendering
   - This project is mainly for testing and debugging rendering system. It's consists of:
      - Spheres with different material properties.
@@ -22,12 +16,18 @@ Please visit script for further details.
      - Directional light, point light, and spot light.
      - Post-processing
   - Screenshot: ![RenderingProjectScreenshot](/Resources/GitHub/RenderingProjectScreenshot.png?raw=true "RenderingProjectScreenshot")
+- Planet
+  - The Planet example shows the ability to use ECS for complex behaviour. The application contains a simple sphere generation program with dynamic LOD calculation based on the position of the scene camera.
+  - Screenshot: ![PlanetProjectScreenshot](/Resources/GitHub/PlanetProjectScreenshot.png?raw=true "PlanetProjectScreenshot")
 - Physics
   - The Physics example is for testing and debugging the physics system. It's consists of:
      - Hundrends of small balls with sphere collider
      - Boundary with static rigidbody and box collider
      - Chain of joints - "Rope"
   - Screenshot: ![PhysicsProjectScreenshot](/Resources/GitHub/PhysicsProjectScreenshot.png?raw=true "PhysicsProjectScreenshot")
+- Star Cluster
+  - The Star Cluster example shows the potential of Job System with ECS by rendering hundreds of thousands stars at the same time with instanced rendering. The position of each star is calculated in real time in parallel with a single lambda-expression based API similiar to the Entities.ForEach() in Unity. 
+  - Screenshot: ![StarClusterProjectScreenshot](/Resources/GitHub/StarClusterProjectScreenshot.png?raw=true "StarClusterProjectScreenshot")
 ## Main features
 Here lists the features that already exists in the UniEngine. Some of them I may still developing it.
  - Complete Entity Component System (ECS) 
@@ -57,6 +57,8 @@ Here lists the features that already exists in the UniEngine. Some of them I may
        - Environmental map
        - Basic light probe/reflection probe support
     - Instanced rendering
+    - High-level rendering API - You can issue a complete render command with no glXXX command involved at all!
+       - Similiar to https://docs.unity3d.com/ScriptReference/Graphics.DrawMesh.html
  - 3D Animations
  - Cross-platform support for Linux, Windows
  - Native high-level rendering API support (Please visit RenderManager for further details)
