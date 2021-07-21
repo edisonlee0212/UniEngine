@@ -16,16 +16,17 @@ Please visit script for further details.
   - Screenshot: ![PlanetProjectScreenshot](/Resources/GitHub/PlanetProjectScreenshot.png?raw=true "PlanetProjectScreenshot")
 - Rendering
   - This project is mainly for testing and debugging rendering system. It's consists of:
-     - Spheres being rendered in different material properties.
+     - Spheres with different material properties.
      - Multiple animated models.
-     - Sponza
-     - Directional light and point lights
+     - Classic Sponza Test Scene
+     - Directional light, point light, and spot light.
      - Post-processing
   - Screenshot: ![RenderingProjectScreenshot](/Resources/GitHub/RenderingProjectScreenshot.png?raw=true "RenderingProjectScreenshot")
 - Physics
   - The Physics example is for testing and debugging the physics system. It's consists of:
      - Hundrends of small balls with sphere collider
      - Boundary with static rigidbody and box collider
+     - Chain of joints - "Rope"
   - Screenshot: ![PhysicsProjectScreenshot](/Resources/GitHub/PhysicsProjectScreenshot.png?raw=true "PhysicsProjectScreenshot")
 ## Main features
 Here lists the features that already exists in the UniEngine. Some of them I may still developing it.
