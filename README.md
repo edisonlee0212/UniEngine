@@ -29,7 +29,7 @@ Please visit script for further details.
   - The Star Cluster example shows the potential of Job System with ECS by rendering hundreds of thousands stars at the same time with instanced rendering. The position of each star is calculated in real time in parallel with a single lambda-expression based API similiar to the Entities.ForEach() in Unity. 
   - Screenshot: ![StarClusterProjectScreenshot](/Resources/GitHub/StarClusterProjectScreenshot.png?raw=true "StarClusterProjectScreenshot")
 ## Main features
-Here lists the features that already exists in the UniEngine. Some of them I may still developing it.
+Here lists the features that already exists in the UniEngine.
  - Complete Entity Component System (ECS) 
     - Cache-friendly data component, similiar to the ComponentData in Unity Engine) 
     - Customizable private component, similiar to Component in Unity Engine. 
