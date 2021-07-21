@@ -126,6 +126,26 @@ int main()
     pointLightRightTransform.SetPosition(glm::vec3(glm::vec3(40, 12, -50)));
     pointLightRightEntity.SetDataComponent(pointLightRightTransform);
 
+    auto spotLightConeEntity = EntityManager::CreateEntity("Top Spot Light");
+    Transform spotLightConeTransform;
+    spotLightConeTransform.SetPosition(glm::vec3(12, 14, 0));
+    spotLightConeEntity.SetDataComponent(spotLightConeTransform);
+
+    auto &spotLightRenderer = spotLightConeEntity.SetPrivateComponent<MeshRenderer>();
+    spotLightRenderer.m_material =
+        ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    spotLightRenderer.m_material->m_albedoColor = glm::vec3(1, 1, 0);
+    spotLightRenderer.m_material->m_emission = 10.0f;
+    spotLightRenderer.m_mesh = DefaultResources::Primitives::Cone;
+
+    auto spotLightEntity = EntityManager::CreateEntity("Light");
+    Transform spotLightTransform;
+    spotLightTransform.SetEulerRotation(glm::radians(glm::vec3(-90, 0, 0)));
+    spotLightEntity.SetDataComponent(spotLightTransform);
+    spotLightEntity.SetParent(spotLightConeEntity);
+    auto &spotLight = spotLightEntity.SetPrivateComponent<SpotLight>();
+    spotLight.m_diffuse = glm::vec3(1, 1, 0);
+    spotLight.m_diffuseBrightness = 40;
 #pragma endregion
     Application::RegisterUpdateFunction([&]() {
         const float currentTime = Application::Time().CurrentTime();

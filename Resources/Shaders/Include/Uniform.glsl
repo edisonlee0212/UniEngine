@@ -30,13 +30,14 @@ struct PointLight {
 struct SpotLight {
 	vec3 position;
 	float SpotLightPadding0;
+
 	vec3 direction;
 	float SpotLightPadding1;
+
 	mat4 lightSpaceMatrix;
 	vec4 cutOffOuterCutOffLightSizeBias;
 	vec4 constantLinearQuadFarPlane;
 	vec4 diffuse;
-	float SpotLightPadding2;
 	vec3 specular;
 	float SpotLightPadding3;
 	int viewPortXStart;
@@ -397,6 +398,49 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 	return shadow;
 }
 
+float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal){
+	SpotLight light = UE_SPOT_LIGHTS[i];
+	float bias = light.cutOffOuterCutOffLightSizeBias.w;
+	vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
+	fragPosLightSpace.z -= bias;
+	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
+	projCoords = projCoords * 0.5 + 0.5;
+	float texScale = float(light.viewPortXSize) / float(textureSize(UE_SPOT_LIGHT_SM, 0).x);
+	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y), float(light.viewPortYStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y));
+
+	//Blocker Search
+	int sampleAmount = UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
+	float lightSize = light.cutOffOuterCutOffLightSizeBias.z * projCoords.z / light.cutOffOuterCutOffLightSizeBias.y;
+	float blockers = 0;
+	float avgDistance = 0;
+	float sampleWidth = lightSize / sampleAmount;
+	for(int i = -sampleAmount; i <= sampleAmount; i++)
+	{
+		for(int j = -sampleAmount; j <= sampleAmount; j++){
+			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
+			float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
+			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
+			avgDistance += closestDepth * tf;
+			blockers += tf;
+		}
+	}
+	if(blockers == 0) return 1.0;
+	float blockerDistance = avgDistance / blockers;
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;
+	//End search
+	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
+	float shadow = 0.0;
+	for(int i = 0; i < sampleAmount; i++)
+	{
+		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * (penumbraWidth + 0.001);
+		float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
+		if(closestDepth == 0.0) continue;
+		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
+	}
+	shadow /= sampleAmount;
+	return shadow;
+}
+
 float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 {
 	PointLight light = UE_POINT_LIGHTS[i];
@@ -460,7 +504,7 @@ float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	for(int i = 0; i < sampleAmount; i++)
 	{
-		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
+		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * (penumbraWidth + 0.001);
 		texCoord.x = clamp(texCoord.x, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		texCoord.y = clamp(texCoord.y, 1.0 / float(light.viewPortXSize), 1.0 - 1.0 / float(light.viewPortXSize));
 		float closestDepth = texture(UE_POINT_LIGHT_SM, vec3(texCoord * texScale + texBase, slice)).r;
@@ -471,46 +515,5 @@ float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 	return shadow;
 }
 
-float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal){
-	SpotLight light = UE_SPOT_LIGHTS[i];
-	float bias = light.cutOffOuterCutOffLightSizeBias.w;
-	vec4 fragPosLightSpace = light.lightSpaceMatrix * vec4(fragPos, 1.0);
-	fragPosLightSpace.z -= bias;
-	vec3 projCoords = (fragPosLightSpace.xyz) / fragPosLightSpace.w;
-	projCoords = projCoords * 0.5 + 0.5;
-	float texScale = float(light.viewPortXSize) / float(textureSize(UE_SPOT_LIGHT_SM, 0).x);
-	vec2 texBase = vec2(float(light.viewPortXStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y), float(light.viewPortYStart) / float(textureSize(UE_SPOT_LIGHT_SM, 0).y));
 
-	//Blocker Search
-	int sampleAmount = UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
-	float lightSize = light.cutOffOuterCutOffLightSizeBias.z * projCoords.z / light.cutOffOuterCutOffLightSizeBias.y;
-	float blockers = 0;
-	float avgDistance = 0;
-	float sampleWidth = lightSize / sampleAmount;
-	for(int i = -sampleAmount; i <= sampleAmount; i++)
-	{
-		for(int j = -sampleAmount; j <= sampleAmount; j++){
-			vec2 texCoord = projCoords.xy + vec2(i, j) * sampleWidth;
-			float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
-			int tf = int(closestDepth != 0.0 && projCoords.z > closestDepth);
-			avgDistance += closestDepth * tf;
-			blockers += tf;
-		}
-	}
-	if(blockers == 0) return 1.0;
-	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;	
-	//End search
-	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
-	float shadow = 0.0;
-	for(int i = 0; i < sampleAmount; i++)
-	{
-		vec2 texCoord = projCoords.xy + VogelDiskSample(i, sampleAmount, InterleavedGradientNoise(fragPos * 3141)) * penumbraWidth;
-		float closestDepth = texture(UE_SPOT_LIGHT_SM, vec2(texCoord * texScale + texBase)).r;
-		if(closestDepth == 0.0) continue;
-		shadow += projCoords.z < closestDepth ? 1.0 : 0.0;
-	}
-	shadow /= sampleAmount;
-	return shadow;
-}
 

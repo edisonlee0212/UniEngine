@@ -1571,7 +1571,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 renderManager.m_pointLights[enabledSize].m_diffuse =
                     glm::vec4(plc.m_diffuse * plc.m_diffuseBrightness, plc.m_castShadow);
                 renderManager.m_pointLights[enabledSize].m_specular = glm::vec4(0);
-                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc.m_farPlane;
+                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc.GetFarPlane();
 
                 glm::mat4 shadowProj = glm::perspective(
                     glm::radians(90.0f),
@@ -1686,7 +1686,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                 renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.x = slc.m_constant;
                 renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.y = slc.m_linear;
                 renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.z = slc.m_quadratic;
-                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc.m_farPlane;
+                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc.GetFarPlane();
                 renderManager.m_spotLights[enabledSize].m_diffuse =
                     glm::vec4(slc.m_diffuse * slc.m_diffuseBrightness, slc.m_castShadow);
                 renderManager.m_spotLights[enabledSize].m_specular = glm::vec4(0);

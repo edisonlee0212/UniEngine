@@ -56,7 +56,7 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] bool IsDeleted() const;
     [[nodiscard]] bool IsValid() const;
 
-    void SetParent(const Entity &parent, const bool &recalculateTransform = true) const;
+    void SetParent(const Entity &parent, const bool &recalculateTransform = false) const;
     [[nodiscard]] Entity GetParent() const;
     [[nodiscard]] std::vector<Entity> GetChildren() const;
     [[nodiscard]] size_t GetChildrenAmount() const;

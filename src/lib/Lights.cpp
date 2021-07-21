@@ -31,6 +31,20 @@ void SpotLight::Deserialize(const YAML::Node &in)
 {
 }
 
+float PointLight::GetFarPlane() const
+{
+    float lightMax = glm::max(glm::max(m_diffuse.x, m_diffuse.y), m_diffuse.z);
+    return (-m_linear + glm::sqrt(m_linear * m_linear - 4 * m_quadratic * (m_constant - (256.0 / 5.0) * lightMax)))
+           / (2 * m_quadratic);
+}
+
+float SpotLight::GetFarPlane() const
+{
+    float lightMax = glm::max(glm::max(m_diffuse.x, m_diffuse.y), m_diffuse.z);
+    return (-m_linear + glm::sqrt(m_linear * m_linear - 4 * m_quadratic * (m_constant - (256.0 / 5.0) * lightMax)))
+        / (2 * m_quadratic);
+}
+
 void PointLight::OnGui()
 {
     ImGui::Checkbox("Cast Shadow", &m_castShadow);

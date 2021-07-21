@@ -850,7 +850,7 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Entity));
-            EntityManager::SetParent(*static_cast<Entity *>(payload->Data), entity);
+            EntityManager::SetParent(*static_cast<Entity *>(payload->Data), entity, true);
         }
         ImGui::EndDragDropTarget();
     }

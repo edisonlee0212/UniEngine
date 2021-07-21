@@ -344,7 +344,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World> &world,
         }
         for (const auto &[fst, snd] : childParentPairs)
         {
-            EntityManager::SetParent(entityMap[fst], entityMap[snd]);
+            EntityManager::SetParent(entityMap[fst], entityMap[snd], false);
         }
     }
     return true;

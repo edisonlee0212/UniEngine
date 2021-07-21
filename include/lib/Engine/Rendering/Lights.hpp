@@ -47,7 +47,6 @@ class UNIENGINE_API PointLight : public IPrivateComponent
     float m_constant = 1.0f;
     float m_linear = 0.07f;
     float m_quadratic = 0.0015f;
-    float m_farPlane = 200.0f;
     float m_bias = 0.05f;
     glm::vec3 m_diffuse = glm::vec3(1.0f);
     float m_diffuseBrightness = 0.8f;
@@ -56,6 +55,7 @@ class UNIENGINE_API PointLight : public IPrivateComponent
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+    [[nodiscard]] float GetFarPlane() const;
 };
 struct UNIENGINE_API SpotLightInfo
 {
@@ -78,7 +78,6 @@ class UNIENGINE_API SpotLight : public IPrivateComponent
     float m_linear = 0.07f;
     float m_quadratic = 0.0015f;
     float m_bias = 0.001f;
-    float m_farPlane = 200.0f;
     glm::vec3 m_diffuse = glm::vec3(1.0f);
     float m_diffuseBrightness = 0.8f;
     float m_lightSize = 0.1f;
@@ -86,6 +85,7 @@ class UNIENGINE_API SpotLight : public IPrivateComponent
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+    [[nodiscard]] float GetFarPlane() const;
 };
 #pragma endregion
 #pragma region Shadow map

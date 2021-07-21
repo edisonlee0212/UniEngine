@@ -71,11 +71,11 @@ void DefaultResources::LoadShaders()
     std::string add;
     if (OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
-        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_BT.inc"));
+        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_BT.glsl"));
     }
     else
     {
-        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_LEGACY.inc"));
+        add += FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform_LEGACY.glsl"));
     }
 
     add += "\n#define MAX_BONES_AMOUNT " + std::to_string(ShaderIncludes::MaxBonesAmount) +
@@ -87,7 +87,7 @@ void DefaultResources::LoadShaders()
            "\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
     ShaderIncludes::Uniform =
-        new std::string(add + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform.inc")));
+        new std::string(add + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Include/Uniform.glsl")));
 
 #pragma endregion
 #pragma region Skybox
