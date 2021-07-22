@@ -118,7 +118,7 @@ public:
 	virtual         void            exportData(PxBase&, PxSerializationContext&) const									= 0;
 
 	/**
-	\brief Register references that the object maintains to other objects.
+	\brief RegisterDataComponent references that the object maintains to other objects.
 	*/
 	virtual			void			registerReferences(PxBase& obj, PxSerializationContext& s) const					= 0;
 

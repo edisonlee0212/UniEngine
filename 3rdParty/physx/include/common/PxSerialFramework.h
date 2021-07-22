@@ -297,7 +297,7 @@ public:
 	//@{
 
 	/**
-	\brief Register a serializer for a concrete type 
+	\brief RegisterDataComponent a serializer for a concrete type
 
 	\param	type PxConcreteType corresponding to the serializer
 	\param	serializer The PxSerializer to be registered
@@ -317,7 +317,7 @@ public:
 	virtual PxSerializer*               unregisterSerializer(PxType type) = 0;
 
 	/**
-	\brief Register binary meta data callback
+	\brief RegisterDataComponent binary meta data callback
 
 	The callback is executed when calling PxSerialization::dumpBinaryMetaData.
 
@@ -345,7 +345,7 @@ public:
 	//@{
 
 	/**
-	\brief Register a RepX serializer for a concrete type
+	\brief RegisterDataComponent a RepX serializer for a concrete type
 
 	\param	type PxConcreteType corresponding to the RepX serializer
 	\param	serializer The PxRepXSerializer to be registered

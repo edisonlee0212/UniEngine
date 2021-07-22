@@ -1,16 +1,16 @@
 #include <CameraComponent.hpp>
 #include <ISerializable.hpp>
 #include <MeshRenderer.hpp>
+#include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
-#include <PhysicsManager.hpp>
+#include <PostProcessing.hpp>
 using namespace UniEngine;
 
 ComponentDataRegistration<Transform> TransformRegistry("Transform");
 ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry("GlobalTransform");
 ComponentDataRegistration<GlobalTransformUpdateFlag> GlobalTransformUpdateFlagRegistry("GlobalTransformUpdateFlag");
 ComponentDataRegistration<Ray> RayRegistry("Ray");
-
 
 SerializableRegistration<Animator> AnimatorRegistry("Animator");
 SerializableRegistration<Joint> JointRegistry("Joint");
@@ -22,11 +22,18 @@ SerializableRegistration<DirectionalLight> DirectionalLightRegistry("Directional
 SerializableRegistration<CameraComponent> CameraComponentRegistry("CameraComponent");
 SerializableRegistration<Particles> ParticlesRegistry("Particles");
 SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
+SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 SerializableRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
 
+std::string ComponentFactory::GetSerializableTypeName(const size_t& typeId)
+{
+    return GetInstance().m_serializableNames.find(typeId)->second;
+}
 
-bool ComponentFactory::Register(
-    const std::string &typeName, const size_t& typeId, const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
+bool ComponentFactory::RegisterDataComponent(
+    const std::string &typeName,
+    const size_t &typeId,
+    const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
 {
     GetInstance().m_dataComponentNames[typeId] = typeName;
     return GetInstance().m_dataComponentGenerators.insert({typeName, func}).second;
@@ -41,78 +48,27 @@ std::shared_ptr<IDataComponent> ComponentFactory::ProduceDataComponent(
     {
         return it->second(hashCode, size);
     }
-    UNIENGINE_ERROR("Component " + typeName + "is not registered!");
+    UNIENGINE_ERROR("DataComponent " + typeName + "is not registered!");
     throw 1;
 }
 
-bool ComponentFactory::Register(const std::string &typeName, const size_t& typeId, const std::function<ISerializable *(size_t &)> &func)
+bool ComponentFactory::RegisterSerializable(
+    const std::string &typeName, const size_t &typeId,
+    const std::function<ISerializable*(size_t &)> &func)
 {
     GetInstance().m_serializableNames[typeId] = typeName;
     return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
-ISerializable *ComponentFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
+ISerializable* ComponentFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
     const auto it = GetInstance().m_serializableGenerators.find(typeName);
     if (it != GetInstance().m_serializableGenerators.end())
     {
-        return it->second(hashCode);
+        return std::move(it->second(hashCode));
     }
-    UNIENGINE_ERROR("Component " + typeName + "is not registered!");
+    UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
-}
-
-void UniEngine::SerializationManager::Init()
-{
-    RegisterComponentDataSerializerDeserializer<Transform>(
-        {[](IDataComponent *data) {
-             Transform *out = static_cast<Transform *>(data);
-             glm::mat4 val = out->m_value;
-             std::stringstream stream;
-             EXPORT_PARAM(stream, val);
-             return stream.str();
-         },
-         [](const std::string &data, IDataComponent *ptr) {
-             std::stringstream stream;
-             stream << data;
-             Transform *out = static_cast<Transform *>(ptr);
-             char temp;
-             IMPORT_PARAM(stream, out->m_value, temp);
-         }});
-    RegisterComponentDataSerializerDeserializer<GlobalTransform>(
-        {[](IDataComponent *data) {
-             GlobalTransform *out = static_cast<GlobalTransform *>(data);
-             glm::mat4 val = out->m_value;
-             std::stringstream stream;
-             EXPORT_PARAM(stream, val);
-             return stream.str();
-         },
-         [](const std::string &data, IDataComponent *ptr) {
-             std::stringstream stream;
-             stream << data;
-             GlobalTransform *out = static_cast<GlobalTransform *>(ptr);
-             char temp;
-             IMPORT_PARAM(stream, out->m_value, temp);
-         }});
-
-    RegisterComponentDataSerializerDeserializer<Ray>(
-        {[](IDataComponent *data) {
-             Ray *out = static_cast<Ray *>(data);
-             std::stringstream stream;
-             EXPORT_PARAM(stream, out->m_start);
-             EXPORT_PARAM(stream, out->m_direction);
-             EXPORT_PARAM(stream, out->m_length);
-             return stream.str();
-         },
-         [](const std::string &data, IDataComponent *ptr) {
-             std::stringstream stream;
-             stream << data;
-             Ray *out = static_cast<Ray *>(ptr);
-             char temp;
-             IMPORT_PARAM(stream, out->m_start, temp);
-             IMPORT_PARAM(stream, out->m_direction, temp);
-             IMPORT_PARAM(stream, out->m_length, temp);
-         }});
 }
 
 YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::vec2 &v)
@@ -210,7 +166,7 @@ void UniEngine::SerializationManager::SerializeEntity(
     out << YAML::Key << "Name" << YAML::Value << entity.GetName();
     out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).GetIndex();
 #pragma region ComponentData
-    out << YAML::Key << "ComponentData" << YAML::Value << YAML::BeginSeq;
+    out << YAML::Key << "DataComponent" << YAML::Value << YAML::BeginSeq;
     auto &storage = world->m_worldEntityStorage;
     std::vector<DataComponentType> &componentTypes =
         storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex]
@@ -219,14 +175,8 @@ void UniEngine::SerializationManager::SerializeEntity(
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << type.m_name;
-        std::string value;
-        const auto it = GetInstance().m_componentDataSerializers.find(type.m_typeId);
-        if (it != GetInstance().m_componentDataSerializers.end())
-        {
-            IDataComponent *ptr = EntityManager::GetDataComponentPointer(entity, type.m_typeId);
-            value = it->second.first(ptr);
-        }
-        out << YAML::Key << "Content" << YAML::Value << value;
+        auto *ptr = reinterpret_cast<const unsigned char*>(EntityManager::GetDataComponentPointer(entity, type.m_typeId));
+        out << YAML::Key << "Data" << YAML::Value << YAML::Binary(ptr, type.m_size);
         out << YAML::EndMap;
     }
     out << YAML::EndSeq;
@@ -236,7 +186,7 @@ void UniEngine::SerializationManager::SerializeEntity(
     out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
     EntityManager::ForEachPrivateComponent(entity, [&](PrivateComponentElement &data) {
         out << YAML::BeginMap;
-        out << YAML::Key << "Name" << YAML::Value << data.m_name;
+        out << YAML::Key << "Name" << YAML::Value << ComponentFactory::GetSerializableTypeName(data.m_typeId);
         out << YAML::Key << "IsEnabled" << YAML::Value << data.m_privateComponentData->m_enabled;
         data.m_privateComponentData->Serialize(out);
         out << YAML::EndMap;
@@ -252,7 +202,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
 {
     const auto entityName = node["Name"].as<std::string>();
     const auto archetypeName = node["ArchetypeName"].as<std::string>();
-    auto componentDatum = node["ComponentData"];
+    auto componentDatum = node["DataComponent"];
     Entity retVal;
 
     std::vector<std::shared_ptr<IDataComponent>> ptrs;
@@ -263,13 +213,8 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
         size_t hashCode;
         size_t size;
         auto ptr = ComponentFactory::ProduceDataComponent(name, hashCode, size);
-
-        // Deserialize componentData here.
-        const auto it = GetInstance().m_componentDataSerializers.find(hashCode);
-        if (it != GetInstance().m_componentDataSerializers.end())
-        {
-            it->second.second(componentData["Content"].as<std::string>(), ptr.get());
-        }
+        auto data = componentData["Data"].as<YAML::Binary>();
+        std::memcpy(ptr.get(), data.data(), data.size());
         ptrs.push_back(ptr);
         types.emplace_back(name, hashCode, size);
     }
@@ -287,8 +232,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
         {
             auto name = privateComponent["Name"].as<std::string>();
             size_t hashCode;
-            auto *ptr =
-                dynamic_cast<IPrivateComponent *>(ComponentFactory::ProduceSerializable(name, hashCode));
+            auto* ptr = dynamic_cast<IPrivateComponent*>(ComponentFactory::ProduceSerializable(name, hashCode));
             ptr->Deserialize(privateComponent);
             ptr->m_enabled = privateComponent["IsEnabled"].as<bool>();
             EntityManager::SetPrivateComponent(retVal, name, hashCode, ptr);
@@ -313,7 +257,6 @@ void UniEngine::SerializationManager::Serialize(std::unique_ptr<World> &world, c
         SerializeEntity(world, out, entity);
     }
     out << YAML::EndSeq;
-
     out << YAML::EndMap;
     std::ofstream fout(path);
     fout << out.c_str();
