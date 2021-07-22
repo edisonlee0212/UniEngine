@@ -35,9 +35,8 @@ class UNIENGINE_API Scene
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     size_t m_index;
     Bound m_worldBound;
-
   public:
-
+    std::string m_name = "New Scene";
     void Purge();
     Scene &operator=(Scene &&) = delete;
     Scene &operator=(const Scene &) = delete;

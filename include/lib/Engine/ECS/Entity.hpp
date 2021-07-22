@@ -23,6 +23,7 @@ struct UNIENGINE_API EntityArchetype final
 {
   private:
     friend class EntityManager;
+    friend class SerializationManager;
     size_t m_index = 0;
 
   public:
@@ -38,6 +39,7 @@ struct UNIENGINE_API Entity final
 {
   private:
     friend class EntityManager;
+    friend class SerializationManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
 
@@ -141,7 +143,6 @@ struct PrivateComponentElement
 
 struct EntityInfo
 {
-    friend class PrivateComponentStorage;
     std::string m_name;
     unsigned m_version = 1;
     bool m_static = false;
@@ -170,6 +171,7 @@ struct UNIENGINE_API EntityQuery final
 {
   private:
     friend class EntityManager;
+    friend class SerializationManager;
     size_t m_index = 0;
 
   public:
