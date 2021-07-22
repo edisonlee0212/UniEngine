@@ -1,9 +1,9 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
-#include <ResourceBehaviour.hpp>
+#include <IAsset.hpp>
+#include <Transform.hpp>
 #include <World.hpp>
 #include <uniengine_export.h>
-#include <Transform.hpp>
 namespace UniEngine
 {
 struct UNIENGINE_API Vertex
@@ -34,7 +34,7 @@ class UNIENGINE_API MeshStorage{
     std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
 };
 
-class UNIENGINE_API Mesh : public ResourceBehaviour
+class UNIENGINE_API Mesh : public IAsset
 {
     static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
 

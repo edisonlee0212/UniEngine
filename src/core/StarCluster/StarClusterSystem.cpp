@@ -1,6 +1,6 @@
+#include <AssetManager.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
-#include <ResourceManager.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
 void Galaxy::StarClusterPattern::OnGui()
 {
@@ -369,7 +369,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    m_starRenderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_starRenderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     m_starRenderProgram->Link(standardVert, standardFrag);
 
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
@@ -377,7 +377,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
     auto &imr = m_rendererFront.SetPrivateComponent<Particles>();
-    imr.m_material = ResourceManager::CreateResource<Material>();
+    imr.m_material = AssetManager::CreateResource<Material>();
     imr.m_castShadow = false;
     imr.m_receiveShadow = false;
     imr.m_material->m_ambient = 0.0f;

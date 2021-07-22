@@ -1,11 +1,11 @@
 #pragma once
 #include <EntityManager.hpp>
-#include <ResourceBehaviour.hpp>
+#include <IAsset.hpp>
 #include <uniengine_export.h>
 using namespace physx;
 namespace UniEngine
 {
-class UNIENGINE_API PhysicsMaterial : public ResourceBehaviour
+class UNIENGINE_API PhysicsMaterial : public IAsset
 {
     friend class PhysicsManager;
     friend class Collider;

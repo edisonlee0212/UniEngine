@@ -78,7 +78,7 @@ struct UNIENGINE_API Bone
 };
 
 #pragma endregion
-class UNIENGINE_API Animation : public ResourceBehaviour
+class UNIENGINE_API Animation : public IAsset
 {
   public:
     std::map<std::string, float> m_animationNameAndLength;

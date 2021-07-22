@@ -1,5 +1,6 @@
 #include <AnimationManager.hpp>
 #include <Application.hpp>
+#include <AssetManager.hpp>
 #include <Core/OpenGLUtils.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
@@ -9,7 +10,6 @@
 #include <JobManager.hpp>
 #include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
-#include <ResourceManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
 using namespace UniEngine;
@@ -33,7 +33,7 @@ void Application::Init(bool fullScreen)
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
-    ResourceManager::Init();
+    AssetManager::Init();
     PhysicsManager::Init();
 
     EntityManager::Init();
@@ -191,7 +191,7 @@ bool Application::LateUpdateInternal()
     RenderManager::LateUpdate();
     //Manager settings
     InputManager::OnGui();
-    ResourceManager::OnGui();
+    AssetManager::OnGui();
     RenderManager::OnGui();
     EditorManager::OnGui();
     ProfilerManager::EndEvent("Internals");

@@ -1,4 +1,4 @@
-#include <ResourceManager.hpp>
+#include <AssetManager.hpp>
 
 #include <EnvironmentalMap.hpp>
 using namespace UniEngine;
@@ -18,9 +18,9 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
     m_targetCubemap = targetCubemap;
     m_gamma = targetCubemap->m_gamma;
 
-    m_lightProbe = ResourceManager::CreateResource<LightProbe>();
+    m_lightProbe = AssetManager::CreateResource<LightProbe>();
     m_lightProbe->ConstructFromCubemap(m_targetCubemap);
-    m_reflectionProbe = ResourceManager::CreateResource<ReflectionProbe>();
+    m_reflectionProbe = AssetManager::CreateResource<ReflectionProbe>();
     m_reflectionProbe->ConstructFromCubemap(m_targetCubemap);
     m_ready = true;
 }

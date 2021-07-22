@@ -1,6 +1,6 @@
 #include <Application.hpp>
+#include <AssetManager.hpp>
 #include <PhysicsManager.hpp>
-#include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <TransformManager.hpp>
 using namespace UniEngine;
@@ -84,7 +84,7 @@ void PhysicsManager::Init()
         physicsManager.m_physVisDebugger);
     PxInitExtensions(*physicsManager.m_physics, physicsManager.m_physVisDebugger);
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
-    physicsManager.m_defaultMaterial = ResourceManager::CreateResource<PhysicsMaterial>();
+    physicsManager.m_defaultMaterial = AssetManager::CreateResource<PhysicsMaterial>();
 }
 
 #define PX_RELEASE(x)                                                                                                  \

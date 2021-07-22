@@ -25,10 +25,10 @@ struct UNIENGINE_API AssimpNode
     void AttachChild(std::shared_ptr<Bone> &parent, size_t &index);
 };
 #endif
-class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
+class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
     bool m_enableAssetMenu = true;
-    std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<ResourceBehaviour>>>> m_resources;
+    std::map<size_t, std::pair<std::string, std::map<size_t, std::shared_ptr<IAsset>>>> m_assets;
     friend class DefaultResources;
 #pragma region Model Loading
     static void AttachAnimator(const Entity &parent, const Entity &animator);
@@ -82,7 +82,7 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static std::string GetTypeName(size_t id);
   public:
     template <typename T> static std::string GetTypeName();
-    static std::string GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource);
+    static std::string GetTypeName(const std::shared_ptr<IAsset> &resource);
     template <typename T> static void RegisterResourceType(const std::string &name);
     template <typename T>
     static std::shared_ptr<T> CreateResource(const bool &addResource = false, const std::string &name = "");
@@ -132,25 +132,26 @@ class UNIENGINE_API ResourceManager : public ISingleton<ResourceManager>
     static void Init();
 };
 
-template <typename T> std::string ResourceManager::GetTypeName()
+template <typename T> std::string AssetManager::GetTypeName()
 {
     auto &resourceManager = GetInstance();
     const auto id = typeid(T).hash_code();
-    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
     {
-        return resourceManager.m_resources[id].first;
+        return resourceManager.m_assets[id].first;
     }
     UNIENGINE_ERROR("Resource type not registered!");
     throw 0;
 }
 
-template <typename T> void ResourceManager::RegisterResourceType(const std::string &name)
+template <typename T> void AssetManager::RegisterResourceType(const std::string &name)
 {
     auto &resourceManager = GetInstance();
     const auto id = typeid(T).hash_code();
-    if (resourceManager.m_resources.find(id) == resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) == resourceManager.m_assets.end())
     {
-        resourceManager.m_resources[id].first = name;
+        resourceManager.m_assets[id].first = name;
+        ComponentFactory::RegisterSerializable<T>(name);
         return;
     }
     UNIENGINE_ERROR("Resource type already registered!");
@@ -158,15 +159,15 @@ template <typename T> void ResourceManager::RegisterResourceType(const std::stri
 }
 
 template <typename T>
-std::shared_ptr<T> ResourceManager::CreateResource(const bool &addResource, const std::string &name)
+std::shared_ptr<T> AssetManager::CreateResource(const bool &addResource, const std::string &name)
 {
     auto &resourceManager = GetInstance();
     const auto id = typeid(T).hash_code();
-    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
     {
         auto retVal = std::make_shared<T>();
-        dynamic_cast<ResourceBehaviour *>(retVal.get())->m_typeId = id;
-        dynamic_cast<ResourceBehaviour *>(retVal.get())->OnCreate();
+        dynamic_cast<IAsset *>(retVal.get())->m_typeId = id;
+        dynamic_cast<IAsset *>(retVal.get())->OnCreate();
         if (addResource)
             Push(retVal);
         if (!name.empty())
@@ -177,18 +178,18 @@ std::shared_ptr<T> ResourceManager::CreateResource(const bool &addResource, cons
     throw 0;
 }
 
-template <typename T> void ResourceManager::Push(std::shared_ptr<T> resource)
+template <typename T> void AssetManager::Push(std::shared_ptr<T> resource)
 {
     auto &resourceManager = GetInstance();
-    const auto id = dynamic_cast<ResourceBehaviour *>(resource.get())->m_typeId;
+    const auto id = dynamic_cast<IAsset *>(resource.get())->m_typeId;
     if (id == 0)
     {
-        UNIENGINE_ERROR("Resource not created with ResourceManager!");
+        UNIENGINE_ERROR("Resource not created with AssetManager!");
         return;
     }
-    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
     {
-        resourceManager.m_resources[id].second[std::dynamic_pointer_cast<ResourceBehaviour>(resource)->GetHashCode()] =
+        resourceManager.m_assets[id].second[std::dynamic_pointer_cast<IAsset>(resource)->GetHashCode()] =
             resource;
         return;
     }
@@ -196,24 +197,24 @@ template <typename T> void ResourceManager::Push(std::shared_ptr<T> resource)
     throw 0;
 }
 
-template <typename T> std::shared_ptr<T> ResourceManager::Get(size_t hashCode)
+template <typename T> std::shared_ptr<T> AssetManager::Get(size_t hashCode)
 {
-    return std::dynamic_pointer_cast<ResourceBehaviour>(
-        GetInstance().m_resources[typeid(T).hash_code()].second[hashCode]);
+    return std::dynamic_pointer_cast<IAsset>(
+        GetInstance().m_assets[typeid(T).hash_code()].second[hashCode]);
 }
 
-template <typename T> std::shared_ptr<T> ResourceManager::Find(std::string objectName)
+template <typename T> std::shared_ptr<T> AssetManager::Find(std::string objectName)
 {
-    for (const auto &i : GetInstance().m_resources[typeid(T).hash_code()].second)
+    for (const auto &i : GetInstance().m_assets[typeid(T).hash_code()].second)
     {
         if (i.second->m_name.compare(objectName) == 0)
-            return std::dynamic_pointer_cast<ResourceBehaviour>(i.second);
+            return std::dynamic_pointer_cast<IAsset>(i.second);
     }
     return nullptr;
 }
 
-template <typename T> void ResourceManager::Remove(size_t hashCode)
+template <typename T> void AssetManager::Remove(size_t hashCode)
 {
-    GetInstance().m_resources[typeid(T).hash_code()].second.erase(hashCode);
+    GetInstance().m_assets[typeid(T).hash_code()].second.erase(hashCode);
 }
 } // namespace UniEngine

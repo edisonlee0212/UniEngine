@@ -1,8 +1,8 @@
 #pragma once
 #include <Animator.hpp>
+#include <IAsset.hpp>
 #include <Material.hpp>
 #include <Mesh.hpp>
-#include <ResourceBehaviour.hpp>
 #include <SkinnedMesh.hpp>
 #include <Transform.hpp>
 
@@ -25,9 +25,9 @@ struct ModelNode
     std::shared_ptr<ModelNode> m_parent;
     std::vector<std::shared_ptr<ModelNode>> m_children;
 };
-class UNIENGINE_API Model : public ResourceBehaviour
+class UNIENGINE_API Model : public IAsset
 {
-    friend class ResourceManager;
+    friend class AssetManager;
     std::shared_ptr<ModelNode> m_rootNode;
     std::shared_ptr<Animation> m_animation;
 

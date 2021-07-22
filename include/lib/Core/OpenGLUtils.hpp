@@ -1,6 +1,6 @@
 ﻿#pragma once
+#include <IAsset.hpp>
 #include <ISingleton.hpp>
-#include <ResourceBehaviour.hpp>
 #include <uniengine_export.h>
 namespace UniEngine
 {
@@ -464,10 +464,10 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void Detach(GLuint programID) const;
     };
 
-    class UNIENGINE_API GLProgram : public GLObject, public ResourceBehaviour
+    class UNIENGINE_API GLProgram : public GLObject, public IAsset
     {
         friend class OpenGLUtils;
-        friend class ResourceManager;
+        friend class AssetManager;
         std::vector<std::shared_ptr<GLShader>> m_shaders;
         static GLuint m_boundProgram;
       public:

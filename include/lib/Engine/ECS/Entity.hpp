@@ -109,15 +109,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
 
 };
 
-template <typename T> DataComponentType Typeof()
-{
-    DataComponentType type;
-    type.m_name = std::string(typeid(T).name());
-    type.m_size = sizeof(T);
-    type.m_offset = 0;
-    type.m_typeId = typeid(T).hash_code();
-    return type;
-}
+
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 

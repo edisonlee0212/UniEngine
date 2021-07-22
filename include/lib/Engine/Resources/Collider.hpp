@@ -1,7 +1,7 @@
 #pragma once
 #include <EntityManager.hpp>
+#include <IAsset.hpp>
 #include <PhysicsMaterial.hpp>
-#include <ResourceBehaviour.hpp>
 #include <uniengine_export.h>
 namespace UniEngine
 {
@@ -11,7 +11,7 @@ enum class UNIENGINE_API ShapeType
     Box,
     Capsule
 };
-class UNIENGINE_API Collider : public ResourceBehaviour
+class UNIENGINE_API Collider : public IAsset
 {
     friend class PhysicsManager;
     friend class RigidBody;

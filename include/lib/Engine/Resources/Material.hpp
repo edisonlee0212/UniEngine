@@ -35,7 +35,7 @@ struct MaterialMat4Property
     glm::mat4 m_value;
     MaterialMat4Property(const std::string &name, const glm::mat4 &value);
 };
-class UNIENGINE_API Material : public ResourceBehaviour
+class UNIENGINE_API Material : public IAsset
 {
   public:
     std::map<TextureType, std::shared_ptr<Texture2D>> m_textures;

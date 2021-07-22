@@ -10,14 +10,14 @@ enum class UNIENGINE_API TextureType
     Roughness,
     AO,
 };
-class UNIENGINE_API Texture2D : public ResourceBehaviour
+class UNIENGINE_API Texture2D : public IAsset
 {
     friend class Material;
     friend class RenderManager;
     friend class Bloom;
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
     std::string m_path;
-    friend class ResourceManager;
+    friend class AssetManager;
     friend class EnvironmentalMap;
     friend class CameraComponent;
 

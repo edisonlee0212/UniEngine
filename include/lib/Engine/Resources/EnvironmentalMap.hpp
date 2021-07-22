@@ -5,7 +5,7 @@
 #include <ReflectionProbe.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API EnvironmentalMap : public ResourceBehaviour
+class UNIENGINE_API EnvironmentalMap : public IAsset
 {
     friend class RenderManager;
     friend class DefaultResources;

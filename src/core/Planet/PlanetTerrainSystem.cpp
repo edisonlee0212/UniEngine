@@ -1,4 +1,4 @@
-#include "ResourceManager.hpp"
+#include "AssetManager.hpp"
 
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <glm/gtc/noise.hpp>
@@ -7,8 +7,8 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 
 void Planet::PlanetTerrainSystem::OnCreate()
 {
-    m_defaultSurfaceMaterial = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png")));
+    m_defaultSurfaceMaterial = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, AssetManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png")));
 }
 
 void Planet::PlanetTerrainSystem::Update()

@@ -1,4 +1,4 @@
-#include "ResourceManager.hpp"
+#include "AssetManager.hpp"
 
 #include <Core/FileIO.hpp>
 
@@ -242,7 +242,7 @@ void CameraComponent::OnCreate()
     m_resolutionX = 1;
     m_resolutionY = 1;
 
-    m_colorTexture = ResourceManager::CreateResource<Texture2D>();
+    m_colorTexture = AssetManager::CreateResource<Texture2D>();
     m_colorTexture->m_name = "CameraTexture";
     m_colorTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);

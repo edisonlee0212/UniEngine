@@ -203,7 +203,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
     friend class ReflectionProbe;
     friend class LightProbe;
-    friend class ResourceManager;
+    friend class AssetManager;
     static void RenderCube();
     static void RenderQuad();
 

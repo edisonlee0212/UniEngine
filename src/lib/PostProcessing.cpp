@@ -1,8 +1,8 @@
+#include <AssetManager.hpp>
 #include <Core/FileIO.hpp>
 #include <DefaultResources.hpp>
 #include <Gui.hpp>
 #include <PostProcessing.hpp>
-#include <ResourceManager.hpp>
 #include <Texture2D.hpp>
 using namespace UniEngine;
 

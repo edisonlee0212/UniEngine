@@ -1,6 +1,8 @@
 #pragma once
-#include <EntityManager.hpp>
+#include <Entity.hpp>
 #include <ISerializable.hpp>
+#include <ISingleton.hpp>
+#include <World.hpp>
 namespace YAML
 {
 class Node;
@@ -14,35 +16,47 @@ namespace UniEngine
 #pragma region Component Factory
 class UNIENGINE_API ComponentFactory : public ISingleton<ComponentFactory>
 {
-    std::unordered_map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>>
-        m_componentDataGenerators;
-    std::unordered_map<std::string, std::function<ISerializable *(size_t &)>> m_classComponentGenerators;
+    std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
+    std::map<std::string, std::function<ISerializable *(size_t &)>> m_serializableGenerators;
+
+    std::map<size_t, std::string> m_dataComponentNames;
+    std::map<size_t, std::string> m_serializableNames;
 
   public:
-    template <typename T = ISerializable> static bool RegisterComponentData();
-    template <typename T = IDataComponent> static bool RegisterSerializable();
+    template <typename T = ISerializable> static bool RegisterDataComponent(const std::string &name);
+    template <typename T = IDataComponent> static bool RegisterSerializable(const std::string &name);
     static bool Register(
-        const std::string &id, const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func);
-    static std::shared_ptr<IDataComponent> ProduceComponentData(
-        const std::string &id, size_t &hashCode, size_t &size);
-    static bool Register(const std::string &id, const std::function<ISerializable *(size_t &)> &func);
-    static ISerializable *ProduceSerializableObject(const std::string &id, size_t &hashCode);
+        const std::string &typeName,
+        const size_t &typeId,
+        const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func);
+    static std::shared_ptr<IDataComponent> ProduceDataComponent(
+        const std::string &typeName, size_t &hashCode, size_t &size);
+    static bool Register(
+        const std::string &typeName, const size_t &typeId, const std::function<ISerializable *(size_t &)> &func);
+    static ISerializable *ProduceSerializable(const std::string &typeName, size_t &hashCode);
+    template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
+    template <typename T = ISerializable> static std::string GetSerializableTypeName();
 };
-
-template <typename T> bool ComponentFactory::RegisterComponentData()
+template <typename T> std::string ComponentFactory::GetDataComponentTypeName()
 {
-    std::string id = typeid(T).name();
-    return Register(id, [](size_t &hashCode, size_t &size) {
+    return GetInstance().m_dataComponentNames.find(typeid(T).hash_code())->second;
+}
+template <typename T> std::string ComponentFactory::GetSerializableTypeName()
+{
+    return GetInstance().m_serializableNames.find(typeid(T).hash_code())->second;
+}
+template <typename T> bool ComponentFactory::RegisterDataComponent(const std::string &name)
+{
+    return Register(name, typeid(T).hash_code(), [](size_t &hashCode, size_t &size) {
         hashCode = typeid(T).hash_code();
         size = sizeof(T);
         return std::move(std::dynamic_pointer_cast<IDataComponent>(std::make_shared<T>()));
     });
 }
 
-template <typename T> bool ComponentFactory::RegisterSerializable()
+template <typename T> bool ComponentFactory::RegisterSerializable(const std::string &name)
 {
-    std::string id = typeid(T).name();
-    return Register(id, [](size_t &hashCode) {
+    return Register(name, typeid(T).hash_code(), [](size_t &hashCode) {
         hashCode = typeid(T).hash_code();
         return dynamic_cast<ISerializable *>(new T());
     });
@@ -51,10 +65,9 @@ template <typename T> bool ComponentFactory::RegisterSerializable()
 template <typename T = IDataComponent> class UNIENGINE_API ComponentDataRegistration
 {
   public:
-    ComponentDataRegistration(int none)
+    ComponentDataRegistration(const std::string &name)
     {
-        std::string id = typeid(T).name();
-        ComponentFactory::Register(id, [](size_t &hashCode, size_t &size) {
+        ComponentFactory::Register(name, typeid(T).hash_code(), [](size_t &hashCode, size_t &size) {
             hashCode = typeid(T).hash_code();
             size = sizeof(T);
             return std::move(std::dynamic_pointer_cast<IDataComponent>(std::make_shared<T>()));
@@ -65,10 +78,9 @@ template <typename T = IDataComponent> class UNIENGINE_API ComponentDataRegistra
 template <typename T = ISerializable> class UNIENGINE_API SerializableRegistration
 {
   public:
-    SerializableRegistration(int none)
+    SerializableRegistration(const std::string &name)
     {
-        std::string id = typeid(T).name();
-        ComponentFactory::Register(id, [](size_t &hashCode) {
+        ComponentFactory::Register(name, typeid(T).hash_code(), [](size_t &hashCode) {
             hashCode = typeid(T).hash_code();
             return dynamic_cast<ISerializable *>(new T());
         });

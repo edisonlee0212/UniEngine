@@ -3,51 +3,62 @@
 #include <MeshRenderer.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
+#include <PhysicsManager.hpp>
 using namespace UniEngine;
 
-ComponentDataRegistration<Transform> TransformRegistry(1);
-ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry(1);
-ComponentDataRegistration<Ray> RayRegistry(1);
-ComponentDataRegistration<SpotLight> SpotLightRegistry(1);
-ComponentDataRegistration<PointLight> PointLightRegistry(1);
-ComponentDataRegistration<DirectionalLight> DirectionalLightRegistry(1);
+ComponentDataRegistration<Transform> TransformRegistry("Transform");
+ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry("GlobalTransform");
+ComponentDataRegistration<GlobalTransformUpdateFlag> GlobalTransformUpdateFlagRegistry("GlobalTransformUpdateFlag");
+ComponentDataRegistration<Ray> RayRegistry("Ray");
 
-SerializableRegistration<CameraComponent> CameraComponentRegistry(1);
-SerializableRegistration<Particles> ParticlesRegistry(1);
-SerializableRegistration<MeshRenderer> MeshRendererRegistry(1);
+
+SerializableRegistration<Animator> AnimatorRegistry("Animator");
+SerializableRegistration<Joint> JointRegistry("Joint");
+SerializableRegistration<Articulation> ArticulationRegistry("Articulation");
+SerializableRegistration<RigidBody> RigidBodyRegistry("RigidBody");
+SerializableRegistration<SpotLight> SpotLightRegistry("SpotLight");
+SerializableRegistration<PointLight> PointLightRegistry("PointLight");
+SerializableRegistration<DirectionalLight> DirectionalLightRegistry("DirectionalLight");
+SerializableRegistration<CameraComponent> CameraComponentRegistry("CameraComponent");
+SerializableRegistration<Particles> ParticlesRegistry("Particles");
+SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
+SerializableRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
+
 
 bool ComponentFactory::Register(
-    const std::string &id, const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
+    const std::string &typeName, const size_t& typeId, const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
 {
-    return GetInstance().m_componentDataGenerators.insert({id, func}).second;
+    GetInstance().m_dataComponentNames[typeId] = typeName;
+    return GetInstance().m_dataComponentGenerators.insert({typeName, func}).second;
 }
 
-std::shared_ptr<IDataComponent> ComponentFactory::ProduceComponentData(
-    const std::string &id, size_t &hashCode, size_t &size)
+std::shared_ptr<IDataComponent> ComponentFactory::ProduceDataComponent(
+    const std::string &typeName, size_t &hashCode, size_t &size)
 {
     auto &factory = GetInstance();
-    const auto it = factory.m_componentDataGenerators.find(id);
-    if (it != GetInstance().m_componentDataGenerators.end())
+    const auto it = factory.m_dataComponentGenerators.find(typeName);
+    if (it != GetInstance().m_dataComponentGenerators.end())
     {
         return it->second(hashCode, size);
     }
-    UNIENGINE_ERROR("Component " + id + "is not registered!");
+    UNIENGINE_ERROR("Component " + typeName + "is not registered!");
     throw 1;
 }
 
-bool ComponentFactory::Register(const std::string &id, const std::function<ISerializable *(size_t &)> &func)
+bool ComponentFactory::Register(const std::string &typeName, const size_t& typeId, const std::function<ISerializable *(size_t &)> &func)
 {
-    return GetInstance().m_classComponentGenerators.insert({id, func}).second;
+    GetInstance().m_serializableNames[typeId] = typeName;
+    return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
-ISerializable *ComponentFactory::ProduceSerializableObject(const std::string &id, size_t &hashCode)
+ISerializable *ComponentFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
-    const auto it = GetInstance().m_classComponentGenerators.find(id);
-    if (it != GetInstance().m_classComponentGenerators.end())
+    const auto it = GetInstance().m_serializableGenerators.find(typeName);
+    if (it != GetInstance().m_serializableGenerators.end())
     {
         return it->second(hashCode);
     }
-    UNIENGINE_ERROR("Component " + id + "is not registered!");
+    UNIENGINE_ERROR("Component " + typeName + "is not registered!");
     throw 1;
 }
 
@@ -251,7 +262,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
         auto name = componentData["Name"].as<std::string>();
         size_t hashCode;
         size_t size;
-        auto ptr = ComponentFactory::ProduceComponentData(name, hashCode, size);
+        auto ptr = ComponentFactory::ProduceDataComponent(name, hashCode, size);
 
         // Deserialize componentData here.
         const auto it = GetInstance().m_componentDataSerializers.find(hashCode);
@@ -277,7 +288,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
             auto name = privateComponent["Name"].as<std::string>();
             size_t hashCode;
             auto *ptr =
-                dynamic_cast<IPrivateComponent *>(ComponentFactory::ProduceSerializableObject(name, hashCode));
+                dynamic_cast<IPrivateComponent *>(ComponentFactory::ProduceSerializable(name, hashCode));
             ptr->Deserialize(privateComponent);
             ptr->m_enabled = privateComponent["IsEnabled"].as<bool>();
             EntityManager::SetPrivateComponent(retVal, name, hashCode, ptr);

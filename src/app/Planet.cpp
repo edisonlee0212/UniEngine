@@ -1,7 +1,7 @@
 // Planet.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include "ResourceManager.hpp"
+#include "AssetManager.hpp"
 
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
@@ -12,7 +12,7 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-    ComponentFactory::RegisterSerializable<PlanetTerrain>();
+    ComponentFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
     Application::Init();
 #pragma region Preparations
     auto &world = EntityManager::GetCurrentWorld();
@@ -71,7 +71,7 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-    auto sharedMat = ResourceManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    auto sharedMat = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
 
     Transform ltw;
 

@@ -22,7 +22,7 @@ struct UNIENGINE_API SkinnedVertex
     glm::vec4 m_weight2;
 };
 
-class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
+class UNIENGINE_API SkinnedMesh : public IAsset
 {
     static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
 
@@ -38,7 +38,7 @@ class UNIENGINE_API SkinnedMesh : public ResourceBehaviour
     size_t m_version = 0;
     std::vector<SkinnedVertex> m_skinnedVertices;
     std::vector<glm::uvec3> m_triangles;
-    friend class ResourceManager;
+    friend class AssetManager;
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
     std::vector<std::shared_ptr<Bone>> m_bones;

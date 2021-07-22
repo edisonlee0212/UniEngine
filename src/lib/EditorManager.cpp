@@ -1,5 +1,6 @@
 #include <Application.hpp>
 #include <Articulation.hpp>
+#include <AssetManager.hpp>
 #include <CameraComponent.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
@@ -12,7 +13,6 @@
 #include <Particles.hpp>
 #include <PhysicsManager.hpp>
 #include <PostProcessing.hpp>
-#include <ResourceManager.hpp>
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <WindowManager.hpp>
@@ -274,22 +274,21 @@ void EditorManager::Init()
     auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneCameraEntityRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram =
-        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -297,7 +296,7 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram =
-        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
 #pragma endregion
 
@@ -313,21 +312,21 @@ void EditorManager::Init()
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneHighlightPrePassProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassInstancedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedPrePassProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedPrePassProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -335,7 +334,7 @@ void EditorManager::Init()
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram =
-        ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
 #pragma region Highlight
@@ -343,31 +342,30 @@ void EditorManager::Init()
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstancedSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedSkinnedProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedSkinnedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
-
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
         glm::vec3 er;
@@ -379,7 +377,6 @@ void EditorManager::Init()
         ImGui::InputFloat3("Rotation##Global", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
         ImGui::InputFloat3("Scale##Global", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
     });
-
     RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
         if (entity.IsStatic())
@@ -449,6 +446,12 @@ void EditorManager::Init()
                            glm::scale(editorManager.m_previouslyStoredScale);
         }
     });
+    RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
+      auto *ray = static_cast<Ray *>(static_cast<void *>(data));
+      ImGui::InputFloat3("Start", &ray->m_start.x);
+      ImGui::InputFloat3("Direction", &ray->m_direction.x);
+      ImGui::InputFloat("Length", &ray->m_length);
+    });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
         if (owner.HasPrivateComponent<Animator>())
             return;
@@ -457,7 +460,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<Animator>();
         }
     });
-
     RegisterPrivateComponentMenu<Joint>([](Entity owner) {
         if (owner.HasPrivateComponent<Joint>())
             return;
@@ -466,7 +468,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<Joint>();
         }
     });
-
     RegisterPrivateComponentMenu<Articulation>([](Entity owner) {
         if (owner.HasPrivateComponent<Articulation>())
             return;
@@ -475,7 +476,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<Articulation>();
         }
     });
-
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
         if (owner.HasPrivateComponent<DirectionalLight>())
             return;
@@ -500,7 +500,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<SpotLight>();
         }
     });
-
     RegisterPrivateComponentMenu<CameraComponent>([](Entity owner) {
         if (owner.HasPrivateComponent<CameraComponent>())
             return;
@@ -517,6 +516,7 @@ void EditorManager::Init()
             owner.SetPrivateComponent<MeshRenderer>();
         }
     });
+
     RegisterPrivateComponentMenu<PostProcessing>([](Entity owner) {
         if (owner.HasPrivateComponent<PostProcessing>())
             return;
@@ -525,7 +525,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<PostProcessing>();
         }
     });
-
     RegisterPrivateComponentMenu<Particles>([](Entity owner) {
         if (owner.HasPrivateComponent<Particles>())
             return;
@@ -534,7 +533,6 @@ void EditorManager::Init()
             owner.SetPrivateComponent<Particles>();
         }
     });
-
     RegisterPrivateComponentMenu<RigidBody>([](Entity owner) {
         if (owner.HasPrivateComponent<RigidBody>())
             return;
@@ -899,7 +897,6 @@ void EditorManager::OnGui()
             if (ImGui::Button("Create new entity"))
             {
                 auto newEntity = EntityManager::CreateEntity(editorManager.m_basicEntityArchetype);
-                newEntity.SetDataComponent(Transform());
             }
             ImGui::EndPopup();
         }
@@ -1033,7 +1030,8 @@ void EditorManager::OnGui()
                         [&skip, &i, &editorManager](DataComponentType type, void *data) {
                             if (skip)
                                 return;
-                            std::string info = type.m_name.substr(7);
+
+                            std::string info = type.m_name;
                             info += " Size: " + std::to_string(type.m_size);
                             ImGui::Text(info.c_str());
                             ImGui::PushID(i);
@@ -1271,10 +1269,10 @@ bool EditorManager::DragAndDrop(Entity &entity)
     return statusChanged;
 }
 
-bool EditorManager::Draggable(const size_t &id, std::shared_ptr<ResourceBehaviour> &target)
+bool EditorManager::Draggable(const size_t &id, std::shared_ptr<IAsset> &target)
 {
     assert(!(target && target->m_typeId == 0));
-    const std::string type = ResourceManager::GetTypeName(id);
+    const std::string type = AssetManager::GetTypeName(id);
     ImGui::Button(target ? target->m_name.c_str() : "none");
     bool removed = false;
     if (target)
@@ -1282,7 +1280,7 @@ bool EditorManager::Draggable(const size_t &id, std::shared_ptr<ResourceBehaviou
         const std::string tag = "##" + type + (target ? std::to_string(target->GetHashCode()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<ResourceBehaviour>));
+            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
             if (target->m_icon)
                 ImGui::Image(
                     reinterpret_cast<ImTextureID>(target->m_icon->Texture()->Id()),
@@ -1371,25 +1369,25 @@ void EditorManager::SceneCameraWindow()
                 ImVec2(1, 0));
             if (ImGui::BeginDragDropTarget())
             {
-                const std::string modelTypeHash = ResourceManager::GetTypeName<Model>();
+                const std::string modelTypeHash = AssetManager::GetTypeName<Model>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
                     std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
                     EntityArchetype archetype =
                         EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                    ResourceManager::ToEntity(archetype, payload_n);
+                    AssetManager::ToEntity(archetype, payload_n);
                 }
-                const std::string texture2DTypeHash = ResourceManager::GetTypeName<Texture2D>();
+                const std::string texture2DTypeHash = AssetManager::GetTypeName<Texture2D>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
                     std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
                     EntityArchetype archetype =
                         EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                    ResourceManager::ToEntity(archetype, payload_n);
+                    AssetManager::ToEntity(archetype, payload_n);
                 }
-                const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
+                const std::string meshTypeHash = AssetManager::GetTypeName<Mesh>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
@@ -1397,11 +1395,11 @@ void EditorManager::SceneCameraWindow()
                     Entity entity = EntityManager::CreateEntity("Mesh");
                     auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                     meshRenderer.m_mesh = payload_n;
-                    meshRenderer.m_material = ResourceManager::CreateResource<Material>();
+                    meshRenderer.m_material = AssetManager::CreateResource<Material>();
                     meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                 }
 
-                const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();
+                const std::string environmentalMapTypeHash = AssetManager::GetTypeName<EnvironmentalMap>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
@@ -1409,7 +1407,7 @@ void EditorManager::SceneCameraWindow()
                     RenderManager::GetInstance().m_environmentalMap = payload_n;
                 }
 
-                const std::string cubeMapTypeHash = ResourceManager::GetTypeName<Cubemap>();
+                const std::string cubeMapTypeHash = AssetManager::GetTypeName<Cubemap>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
@@ -1662,7 +1660,7 @@ void EditorManager::MainCameraWindow()
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
                     if (ImGui::BeginDragDropTarget())
                     {
-                        const std::string modelTypeHash = ResourceManager::GetTypeName<Model>();
+                        const std::string modelTypeHash = AssetManager::GetTypeName<Model>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
@@ -1670,9 +1668,9 @@ void EditorManager::MainCameraWindow()
                             EntityArchetype archetype =
                                 EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
                             Transform ltw;
-                            ResourceManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
+                            AssetManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
                         }
-                        const std::string meshTypeHash = ResourceManager::GetTypeName<Mesh>();
+                        const std::string meshTypeHash = AssetManager::GetTypeName<Mesh>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
@@ -1682,11 +1680,11 @@ void EditorManager::MainCameraWindow()
                             entity.SetDataComponent(ltw);
                             auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer.m_mesh = payload_n;
-                            meshRenderer.m_material = ResourceManager::CreateResource<Material>();
+                            meshRenderer.m_material = AssetManager::CreateResource<Material>();
                             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                         }
 
-                        const std::string environmentalMapTypeHash = ResourceManager::GetTypeName<EnvironmentalMap>();
+                        const std::string environmentalMapTypeHash = AssetManager::GetTypeName<EnvironmentalMap>();
                         if (const ImGuiPayload *payload =
                                 ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                         {
@@ -1696,7 +1694,7 @@ void EditorManager::MainCameraWindow()
                             renderManager.m_environmentalMap = payload_n;
                         }
 
-                        const std::string cubeMapTypeHash = ResourceManager::GetTypeName<Cubemap>();
+                        const std::string cubeMapTypeHash = AssetManager::GetTypeName<Cubemap>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));

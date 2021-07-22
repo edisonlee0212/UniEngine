@@ -1,3 +1,5 @@
+#include <AssetManager.hpp>
+#include <Collider.hpp>
 #include <Core/FileIO.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
@@ -5,13 +7,11 @@
 #include <Material.hpp>
 #include <Mesh.hpp>
 #include <PhysicsMaterial.hpp>
+#include <PostProcessing.hpp>
+#include <Prefab.hpp>
 #include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
-#include <ResourceManager.hpp>
 #include <SkinnedMesh.hpp>
-#include <PostProcessing.hpp>
-#include <PhysicsMaterial.hpp>
-#include <Collider.hpp>
 using namespace UniEngine;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::ConvolutionProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::PrefilterProgram;
@@ -125,7 +125,7 @@ void DefaultResources::LoadShaders()
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
         std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Skybox.frag")));
     skyboxfrag->Compile(fragShaderCode);
-    GLPrograms::SkyboxProgram = ResourceManager::LoadProgram(false, skyboxvert, skyboxfrag);
+    GLPrograms::SkyboxProgram = AssetManager::LoadProgram(false, skyboxvert, skyboxfrag);
     GLPrograms::SkyboxProgram->SetInt("skybox", 0);
     GLPrograms::SkyboxProgram->m_name = "Skybox";
     {
@@ -139,10 +139,10 @@ void DefaultResources::LoadShaders()
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EquirectangularMapToCubemap.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        ResourceManager::GetInstance().m_2DToCubemapProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
-        ResourceManager::GetInstance().m_2DToCubemapProgram->Link(convertCubemapvert, convertCubemapfrag);
-        ResourceManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
-        ResourceManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
+        AssetManager::GetInstance().m_2DToCubemapProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+        AssetManager::GetInstance().m_2DToCubemapProgram->Link(convertCubemapvert, convertCubemapfrag);
+        AssetManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
+        AssetManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
     }
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
@@ -155,7 +155,7 @@ void DefaultResources::LoadShaders()
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapIrradianceConvolution.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::ConvolutionProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::ConvolutionProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         GLPrograms::ConvolutionProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::ConvolutionProgram->SetInt("environmentMap", 0);
         GLPrograms::ConvolutionProgram->m_name = "EnvironmentalMapIrradianceConvolution";
@@ -171,7 +171,7 @@ void DefaultResources::LoadShaders()
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapPrefilter.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::PrefilterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::PrefilterProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         GLPrograms::PrefilterProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::PrefilterProgram->SetInt("environmentMap", 0);
         GLPrograms::PrefilterProgram->m_name = "EnvironmentalMapPrefilter";
@@ -187,7 +187,7 @@ void DefaultResources::LoadShaders()
                          std::string(FileIO::LoadFileAsString(
                              FileIO::GetResourcePath("Shaders/Fragment/EnvironmentalMapBrdf.frag")));
         convertCubemapfrag->Compile(fragShaderCode);
-        GLPrograms::BrdfProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        GLPrograms::BrdfProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         GLPrograms::BrdfProgram->Link(convertCubemapvert, convertCubemapfrag);
         GLPrograms::BrdfProgram->m_name = "EnvironmentalMapBrdf";
     }
@@ -220,7 +220,7 @@ void DefaultResources::LoadShaders()
     fragShaderCode = std::string("#version 450 core\n") +
                      std::string(FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Screen.frag")));
     screenfrag->Compile(fragShaderCode);
-    GLPrograms::ScreenProgram = ResourceManager::LoadProgram(false, screenvert, screenfrag);
+    GLPrograms::ScreenProgram = AssetManager::LoadProgram(false, screenvert, screenfrag);
     GLPrograms::ScreenProgram->m_name = "Screen";
 #pragma endregion
 #pragma region Standard Shader
@@ -234,7 +234,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardProgram = AssetManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardProgram->m_name = "Standard";
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
@@ -243,7 +243,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardSkinnedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardSkinnedProgram = AssetManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardSkinnedProgram->m_name = "Standard Skinned";
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
@@ -252,7 +252,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardInstancedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardInstancedProgram = AssetManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardInstancedProgram->m_name = "Standard Instanced";
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
@@ -261,7 +261,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardInstancedSkinnedProgram = ResourceManager::LoadProgram(true, standardVert, standardFrag);
+    GLPrograms::StandardInstancedSkinnedProgram = AssetManager::LoadProgram(true, standardVert, standardFrag);
     GLPrograms::StandardInstancedSkinnedProgram->m_name = "Standard Instanced Skinned";
 #pragma endregion
 #pragma region Gizmo Shader
@@ -275,7 +275,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::GizmoProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
+    GLPrograms::GizmoProgram = AssetManager::LoadProgram(false, standardVert, standardFrag);
     GLPrograms::GizmoProgram->m_name = "Gizmo";
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
                      FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/GizmoInstanced.vert"));
@@ -284,7 +284,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::GizmoInstancedProgram = ResourceManager::LoadProgram(false, standardVert, standardFrag);
+    GLPrograms::GizmoInstancedProgram = AssetManager::LoadProgram(false, standardVert, standardFrag);
     GLPrograms::GizmoInstancedProgram->m_name = "Gizmo Instanced";
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
@@ -296,7 +296,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::GizmoInstancedColoredProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+    GLPrograms::GizmoInstancedColoredProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
     GLPrograms::GizmoInstancedColoredProgram->Attach(standardVert);
     GLPrograms::GizmoInstancedColoredProgram->Attach(standardFrag);
     GLPrograms::GizmoInstancedColoredProgram->Link();
@@ -305,7 +305,7 @@ void DefaultResources::LoadShaders()
 #pragma region Post-Processing
 
     {
-        Bloom::m_separateProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_separateProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         Bloom::m_separateProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
@@ -316,7 +316,7 @@ void DefaultResources::LoadShaders()
                 std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BloomSeparator.frag"))));
 
-        Bloom::m_filterProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_filterProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         Bloom::m_filterProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
@@ -326,7 +326,7 @@ void DefaultResources::LoadShaders()
                 OpenGLUtils::ShaderType::Fragment,
                 std::string("#version 450 core\n") +
                 FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"))));
-        Bloom::m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        Bloom::m_combineProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         Bloom::m_combineProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
@@ -343,7 +343,7 @@ void DefaultResources::LoadShaders()
         fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                          FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOGeometry.frag"));
 
-        SSAO::m_geometryProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_geometryProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         SSAO::m_geometryProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
@@ -354,7 +354,7 @@ void DefaultResources::LoadShaders()
         fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                          FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/BlurFilter.frag"));
 
-        SSAO::m_blurProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_blurProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         SSAO::m_blurProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
@@ -362,7 +362,7 @@ void DefaultResources::LoadShaders()
         fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                          FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/SSAOCombine.frag"));
 
-        SSAO::m_combineProgram = ResourceManager::CreateResource<OpenGLUtils::GLProgram>();
+        SSAO::m_combineProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
         SSAO::m_combineProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex, vertShaderCode),
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
@@ -376,7 +376,7 @@ void DefaultResources::LoadTextures()
 {
 #pragma region Textures
     Textures::MissingTexture =
-        ResourceManager::LoadTexture(false, FileIO::GetResourcePath("Textures/texture-missing.png"));
+        AssetManager::LoadTexture(false, FileIO::GetResourcePath("Textures/texture-missing.png"));
     Textures::MissingTexture->m_name = "Missing";
 
 #pragma endregion
@@ -388,59 +388,59 @@ void DefaultResources::LoadPrimitives()
     if (true)
     {
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/quad.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/quad.obj"));
             Primitives::Quad = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Quad);
+            AssetManager::Push(Primitives::Quad);
             Primitives::Quad->m_name = "Quad";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/sphere.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/sphere.obj"));
             Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh
                                      ? model->RootNode()->m_children[0]->m_mesh
                                      : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Sphere);
+            AssetManager::Push(Primitives::Sphere);
             Primitives::Sphere->m_name = "Sphere";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cube.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cube.obj"));
             Primitives::Cube = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Cube);
+            AssetManager::Push(Primitives::Cube);
             Primitives::Cube->m_name = "Cube";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cone.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cone.obj"));
             Primitives::Cone = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Cone);
+            AssetManager::Push(Primitives::Cone);
             Primitives::Cone->m_name = "Cone";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cylinder.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/cylinder.obj"));
             Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh
                                        ? model->RootNode()->m_children[0]->m_mesh
                                        : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Cylinder);
+            AssetManager::Push(Primitives::Cylinder);
             Primitives::Cylinder->m_name = "Cylinder";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/ring.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/ring.obj"));
             Primitives::Ring = model->RootNode()->m_children[0]->m_mesh
                                    ? model->RootNode()->m_children[0]->m_mesh
                                    : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Ring);
+            AssetManager::Push(Primitives::Ring);
             Primitives::Ring->m_name = "Ring";
         }
         {
-            auto model = ResourceManager::LoadModel(false, FileIO::GetResourcePath("Primitives/monkey.obj"));
+            auto model = AssetManager::LoadModel(false, FileIO::GetResourcePath("Primitives/monkey.obj"));
             Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh
                                      ? model->RootNode()->m_children[0]->m_mesh
                                      : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
-            ResourceManager::Push(Primitives::Monkey);
+            AssetManager::Push(Primitives::Monkey);
             Primitives::Monkey->m_name = "Monkey";
         }
     }
@@ -448,50 +448,52 @@ void DefaultResources::LoadPrimitives()
 }
 void DefaultResources::Load()
 {
-    ResourceManager::RegisterResourceType<Material>("Material");
-    ResourceManager::RegisterResourceType<Mesh>("Mesh");
-    ResourceManager::RegisterResourceType<Texture2D>("Texture2D");
-    ResourceManager::RegisterResourceType<Cubemap>("Cubemap");
-    ResourceManager::RegisterResourceType<Model>("Model");
-    ResourceManager::RegisterResourceType<LightProbe>("LightProbe");
-    ResourceManager::RegisterResourceType<ReflectionProbe>("ReflectionProbe");
-    ResourceManager::RegisterResourceType<OpenGLUtils::GLProgram>("GLProgram");
-    ResourceManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
-    ResourceManager::RegisterResourceType<Animation>("Animation");
-    ResourceManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
-    ResourceManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
-    ResourceManager::RegisterResourceType<Collider>("Collider");
+    AssetManager::RegisterResourceType<Material>("Material");
+    AssetManager::RegisterResourceType<Mesh>("Mesh");
+    AssetManager::RegisterResourceType<Texture2D>("Texture2D");
+    AssetManager::RegisterResourceType<Cubemap>("Cubemap");
+    AssetManager::RegisterResourceType<Model>("Model");
+    AssetManager::RegisterResourceType<LightProbe>("LightProbe");
+    AssetManager::RegisterResourceType<ReflectionProbe>("ReflectionProbe");
+    AssetManager::RegisterResourceType<OpenGLUtils::GLProgram>("GLProgram");
+    AssetManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
+    AssetManager::RegisterResourceType<Animation>("Animation");
+    AssetManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
+    AssetManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
+    AssetManager::RegisterResourceType<Collider>("Collider");
+    AssetManager::RegisterResourceType<Prefab>("Prefab");
     LoadShaders();
     LoadTextures();
     LoadPrimitives();
 #pragma region Environmental
-    Materials::StandardMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardProgram);
+    Materials::StandardMaterial = AssetManager::LoadMaterial(true, GLPrograms::StandardProgram);
     Materials::StandardMaterial->m_name = "Standard";
 
-    Materials::StandardInstancedMaterial = ResourceManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
+    Materials::StandardInstancedMaterial = AssetManager::LoadMaterial(true, GLPrograms::StandardInstancedProgram);
     Materials::StandardInstancedMaterial->m_name = "Standard Instanced";
 
-    Environmental::DefaultSkybox = ResourceManager::LoadCubemap(
+    Environmental::DefaultSkybox =
+        AssetManager::LoadCubemap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr"));
     Environmental::DefaultSkybox->m_name = "Default";
-    Environmental::DefaultEnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Default");
+    Environmental::DefaultEnvironmentalMap = AssetManager::CreateResource<EnvironmentalMap>(true, "Default");
     Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
 
     /*
     Environmental::MilkyWaySkybox =
-        ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
+        AssetManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
     Environmental::MilkyWaySkybox->m_name = "Milky Way";
     Environmental::MilkyWayHDRSkybox =
-        ResourceManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
+        AssetManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
     Environmental::MilkyWayHDRSkybox->m_name = "Milky Way HDR";
-    Environmental::MilkyWayEnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Milky Way");
+    Environmental::MilkyWayEnvironmentalMap = AssetManager::CreateResource<EnvironmentalMap>(true, "Milky Way");
     Environmental::MilkyWayEnvironmentalMap->Construct(Environmental::MilkyWaySkybox);
-    Environmental::MilkyWayHDREnvironmentalMap = ResourceManager::CreateResource<EnvironmentalMap>(true, "Milky Way
+    Environmental::MilkyWayHDREnvironmentalMap = AssetManager::CreateResource<EnvironmentalMap>(true, "Milky Way
     HDR"); Environmental::MilkyWayHDREnvironmentalMap->Construct(Environmental::MilkyWayHDRSkybox);
-    Environmental::CircusEnvironmentalMap = ResourceManager::LoadEnvironmentalMap(
+    Environmental::CircusEnvironmentalMap = AssetManager::LoadEnvironmentalMap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
     Environmental::CircusEnvironmentalMap->m_name = "Circus";
-    Environmental::CircusHDREnvironmentalMap = ResourceManager::LoadEnvironmentalMap(
+    Environmental::CircusHDREnvironmentalMap = AssetManager::LoadEnvironmentalMap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_3k.hdr"));
     Environmental::CircusHDREnvironmentalMap->m_name = "Circus HDR";
     */

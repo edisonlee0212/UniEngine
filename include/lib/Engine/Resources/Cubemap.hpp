@@ -2,9 +2,9 @@
 #include <Core/OpenGLUtils.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API Cubemap : public ResourceBehaviour
+class UNIENGINE_API Cubemap : public IAsset
 {
-    friend class ResourceManager;
+    friend class AssetManager;
     friend class LightProbe;
     friend class ReflectionProbe;
     std::unique_ptr<OpenGLUtils::GLTextureCubeMap> m_texture;

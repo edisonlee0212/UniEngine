@@ -1,21 +1,21 @@
 #include <Application.hpp>
+#include <AssetManager.hpp>
 #include <Core/FileIO.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <MeshRenderer.hpp>
 #include <RenderManager.hpp>
-#include <ResourceManager.hpp>
 #include <SerializationManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
-void ResourceManager::Remove(size_t id, size_t hashCode)
+void AssetManager::Remove(size_t id, size_t hashCode)
 {
-    GetInstance().m_resources[id].second.erase(hashCode);
+    GetInstance().m_assets[id].second.erase(hashCode);
 }
 
-std::shared_ptr<Model> ResourceManager::LoadModel(
+std::shared_ptr<Model> AssetManager::LoadModel(
     const bool &addResource, std::string const &path, const unsigned &flags, const bool &optimize, const float &gamma)
 {
 #ifdef USE_ASSIMP
@@ -363,7 +363,7 @@ std::shared_ptr<Model> ResourceManager::LoadModel(
 #endif
 }
 
-Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
+Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> model)
 {
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(model->m_name);
@@ -398,7 +398,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Mode
     return entity;
 }
 
-Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture)
+Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture)
 {
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(texture->m_name);
@@ -409,7 +409,7 @@ Entity ResourceManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Text
     return entity;
 }
 
-void ResourceManager::AttachAnimator(const Entity &parent, const Entity &animator)
+void AssetManager::AttachAnimator(const Entity &parent, const Entity &animator)
 {
     if (parent.HasPrivateComponent<SkinnedMeshRenderer>())
     {
@@ -487,7 +487,7 @@ bool AssimpNode::NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &b
     return necessary;
 }
 
-void ResourceManager::ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAnim *channel)
+void AssetManager::ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAnim *channel)
 {
     const auto numPositions = channel->mNumPositionKeys;
     boneAnimation.m_positions.resize(numPositions);
@@ -528,7 +528,7 @@ void ResourceManager::ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAni
         boneAnimation.m_maxTimeStamp = glm::max(boneAnimation.m_maxTimeStamp, timeStamp);
     }
 }
-void ResourceManager::ReadAnimations(
+void AssetManager::ReadAnimations(
     const aiScene *importerScene,
     std::shared_ptr<Animation> &animator,
     std::map<std::string, std::shared_ptr<Bone>> &bonesMap)
@@ -556,7 +556,7 @@ void ResourceManager::ReadAnimations(
     }
 }
 
-std::shared_ptr<Material> ResourceManager::ReadMaterial(
+std::shared_ptr<Material> AssetManager::ReadMaterial(
     const std::string &directory,
     const std::shared_ptr<OpenGLUtils::GLProgram> &glProgram,
     std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
@@ -617,7 +617,7 @@ std::shared_ptr<Material> ResourceManager::ReadMaterial(
     return targetMaterial;
 }
 
-bool ResourceManager::ProcessNode(
+bool AssetManager::ProcessNode(
     const std::string &directory,
     std::shared_ptr<ModelNode> &modelNode,
     std::map<unsigned, std::shared_ptr<Material>> &loadedMaterials,
@@ -710,7 +710,7 @@ bool ResourceManager::ProcessNode(
     return addedMeshRenderer;
 }
 
-std::shared_ptr<Mesh> ResourceManager::ReadMesh(aiMesh *importerMesh)
+std::shared_ptr<Mesh> AssetManager::ReadMesh(aiMesh *importerMesh)
 {
     unsigned mask = 1;
     std::vector<Vertex> vertices;
@@ -784,7 +784,7 @@ std::shared_ptr<Mesh> ResourceManager::ReadMesh(aiMesh *importerMesh)
     return mesh;
 }
 
-std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
+std::shared_ptr<SkinnedMesh> AssetManager::ReadSkinnedMesh(
     std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh)
 {
     unsigned mask = 1;
@@ -854,7 +854,7 @@ std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
         for (int j = 0; j < 3; j++)
             indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
-    auto skinnedMesh = ResourceManager::CreateResource<SkinnedMesh>();
+    auto skinnedMesh = AssetManager::CreateResource<SkinnedMesh>();
 #pragma region Read bones
     std::vector<std::vector<std::pair<int, float>>> verticesBoneIdWeights;
     verticesBoneIdWeights.resize(vertices.size());
@@ -941,7 +941,7 @@ std::shared_ptr<SkinnedMesh> ResourceManager::ReadSkinnedMesh(
     return skinnedMesh;
 }
 #else
-void ResourceManager::ProcessNode(
+void AssetManager::ProcessNode(
     const std::string &directory,
     std::map<int, std::vector<Vertex>> &meshMaterials,
     const tinyobj::shape_t &shape,
@@ -1024,7 +1024,7 @@ void ResourceManager::ProcessNode(
 
 #endif
 
-std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
+std::shared_ptr<Texture2D> AssetManager::CollectTexture(
     const std::string &directory,
     const std::string &path,
     std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures,
@@ -1040,7 +1040,7 @@ std::shared_ptr<Texture2D> ResourceManager::CollectTexture(
     return texture2D;
 }
 
-void ResourceManager::ApplyBoneIndices(std::shared_ptr<ModelNode> &node)
+void AssetManager::ApplyBoneIndices(std::shared_ptr<ModelNode> &node)
 {
     if (node->m_skinnedMesh)
         node->m_skinnedMesh->FetchIndices();
@@ -1050,7 +1050,7 @@ void ResourceManager::ApplyBoneIndices(std::shared_ptr<ModelNode> &node)
     }
 }
 
-void UniEngine::ResourceManager::AttachChildren(
+void UniEngine::AssetManager::AttachChildren(
     EntityArchetype archetype, std::shared_ptr<ModelNode> &modelNode, Entity parentEntity, std::string parentName)
 {
     Entity entity = EntityManager::CreateEntity(archetype);
@@ -1078,30 +1078,30 @@ void UniEngine::ResourceManager::AttachChildren(
     }
 }
 
-std::string ResourceManager::GetTypeName(size_t id)
+std::string AssetManager::GetTypeName(size_t id)
 {
     auto &resourceManager = GetInstance();
-    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
     {
-        return resourceManager.m_resources[id].first;
+        return resourceManager.m_assets[id].first;
     }
     UNIENGINE_ERROR("Resource type not registered!");
     throw 0;
 }
 
-std::string ResourceManager::GetTypeName(const std::shared_ptr<ResourceBehaviour> &resource)
+std::string AssetManager::GetTypeName(const std::shared_ptr<IAsset> &resource)
 {
     auto &resourceManager = GetInstance();
     const auto id = resource->m_typeId;
-    if (resourceManager.m_resources.find(id) != resourceManager.m_resources.end())
+    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
     {
-        return resourceManager.m_resources[id].first;
+        return resourceManager.m_assets[id].first;
     }
     UNIENGINE_ERROR("Resource type not registered!");
     throw 0;
 }
 
-std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(
     const bool &addResource, const std::string &path, const float &gamma)
 {
     stbi_set_flip_vertically_on_load(true);
@@ -1164,7 +1164,7 @@ std::shared_ptr<Texture2D> ResourceManager::LoadTexture(
     return retVal;
 }
 
-std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
+std::shared_ptr<Cubemap> AssetManager::LoadCubemap(
     const bool &addResource, const std::string &path, const float &gamma)
 {
     auto &manager = GetInstance();
@@ -1261,7 +1261,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     return retVal;
 }
 
-std::shared_ptr<EnvironmentalMap> ResourceManager::LoadEnvironmentalMap(
+std::shared_ptr<EnvironmentalMap> AssetManager::LoadEnvironmentalMap(
     const bool &addResource, const std::string &path, const float &gamma)
 {
     auto retVal = CreateResource<EnvironmentalMap>();
@@ -1272,7 +1272,7 @@ std::shared_ptr<EnvironmentalMap> ResourceManager::LoadEnvironmentalMap(
     return retVal;
 }
 
-std::shared_ptr<LightProbe> ResourceManager::LoadLightProbe(
+std::shared_ptr<LightProbe> AssetManager::LoadLightProbe(
     const bool &addResource, const std::string &path, const float &gamma)
 {
     auto retVal = CreateResource<LightProbe>();
@@ -1283,7 +1283,7 @@ std::shared_ptr<LightProbe> ResourceManager::LoadLightProbe(
     return retVal;
 }
 
-std::shared_ptr<ReflectionProbe> ResourceManager::LoadReflectionProbe(
+std::shared_ptr<ReflectionProbe> AssetManager::LoadReflectionProbe(
     const bool &addResource, const std::string &path, const float &gamma)
 {
     auto retVal = CreateResource<ReflectionProbe>();
@@ -1294,7 +1294,7 @@ std::shared_ptr<ReflectionProbe> ResourceManager::LoadReflectionProbe(
     return retVal;
 }
 
-std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
+std::shared_ptr<Cubemap> AssetManager::LoadCubemap(
     const bool &addResource, const std::vector<std::string> &paths, const float &gamma)
 {
     int width, height, nrComponents;
@@ -1367,7 +1367,7 @@ std::shared_ptr<Cubemap> ResourceManager::LoadCubemap(
     return retVal;
 }
 
-std::shared_ptr<Material> ResourceManager::LoadMaterial(
+std::shared_ptr<Material> AssetManager::LoadMaterial(
     const bool &addResource, const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
     auto retVal = CreateResource<Material>();
@@ -1377,7 +1377,7 @@ std::shared_ptr<Material> ResourceManager::LoadMaterial(
     return retVal;
 }
 
-std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
+std::shared_ptr<OpenGLUtils::GLProgram> AssetManager::LoadProgram(
     const bool &addResource,
     const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
     const std::shared_ptr<OpenGLUtils::GLShader> &fragment)
@@ -1391,7 +1391,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
     return retVal;
 }
 
-std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
+std::shared_ptr<OpenGLUtils::GLProgram> AssetManager::LoadProgram(
     const bool &addResource,
     const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
     const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
@@ -1407,7 +1407,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> ResourceManager::LoadProgram(
     return retVal;
 }
 
-void ResourceManager::OnGui()
+void AssetManager::OnGui()
 {
     auto &resourceManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
@@ -1471,7 +1471,7 @@ void ResourceManager::OnGui()
         {
             if (ImGui::BeginTabItem("Assets"))
             {
-                for (auto &collection : resourceManager.m_resources)
+                for (auto &collection : resourceManager.m_assets)
                 {
                     if (ImGui::CollapsingHeader(collection.second.first.c_str()))
                     {
@@ -1480,9 +1480,9 @@ void ResourceManager::OnGui()
                             const std::string hash = collection.second.first;
                             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
                             {
-                                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<ResourceBehaviour>));
-                                std::shared_ptr<ResourceBehaviour> payload_n =
-                                    *static_cast<std::shared_ptr<ResourceBehaviour> *>(payload->Data);
+                                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+                                std::shared_ptr<IAsset> payload_n =
+                                    *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
                                 Push(payload_n);
                             }
                             ImGui::EndDragDropTarget();
@@ -1505,7 +1505,7 @@ void ResourceManager::OnGui()
         ImGui::End();
     }
 }
-void ResourceManager::Init()
+void AssetManager::Init()
 {
     DefaultResources::Load();
 }

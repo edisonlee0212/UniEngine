@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/Debug.hpp>
-
+#include <SerializationManager.hpp>
 #include <Entity.hpp>
 #include <ISingleton.hpp>
 #include <JobManager.hpp>
@@ -8,6 +8,15 @@
 #include <World.hpp>
 namespace UniEngine
 {
+template <typename T> DataComponentType Typeof()
+{
+    DataComponentType type;
+    type.m_name = ComponentFactory::GetDataComponentTypeName<T>();
+    type.m_size = sizeof(T);
+    type.m_offset = 0;
+    type.m_typeId = typeid(T).hash_code();
+    return type;
+}
 inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, const DataComponentType &b)
 {
     return a.m_typeId < b.m_typeId;
@@ -488,8 +497,11 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static std::unique_ptr<World> &GetCurrentWorld();
 
     static void Init();
+
+
 };
 #pragma endregion
+
 #pragma region Functions
 #pragma region Collectors
 
@@ -3084,5 +3096,4 @@ void EntityQuery::ToEntityArray(
     EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
 }
 #pragma endregion
-
 } // namespace UniEngine

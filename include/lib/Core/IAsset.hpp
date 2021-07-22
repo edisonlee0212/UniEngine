@@ -3,11 +3,11 @@
 namespace UniEngine
 {
 class Texture2D;
-class UNIENGINE_API ResourceBehaviour
+class UNIENGINE_API IAsset
 {
   protected:
     friend class EditorManager;
-    friend class ResourceManager;
+    friend class AssetManager;
     std::shared_ptr<Texture2D> m_icon;
     size_t m_typeId = 0;
 
@@ -17,12 +17,12 @@ class UNIENGINE_API ResourceBehaviour
     [[nodiscard]] virtual size_t GetHashCode() const;
 };
 
-inline void ResourceBehaviour::OnCreate()
+inline void IAsset::OnCreate()
 {
     m_name = "New Resource";
 }
 
-inline size_t ResourceBehaviour::GetHashCode() const
+inline size_t IAsset::GetHashCode() const
 {
     return reinterpret_cast<size_t>(this);
 }

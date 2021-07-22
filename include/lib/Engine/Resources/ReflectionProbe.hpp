@@ -4,7 +4,7 @@
 #include <EntityManager.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API ReflectionProbe : public ResourceBehaviour
+class UNIENGINE_API ReflectionProbe : public IAsset
 {
     friend class RenderManager;
     friend class DefaultResources;
