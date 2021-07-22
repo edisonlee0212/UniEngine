@@ -1253,7 +1253,7 @@ void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<E
         UNIENGINE_ERROR("EntityQuery out of date!");
         return;
     }
-    for (auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto* i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
         GetEntityStorage(*i, container);
     }

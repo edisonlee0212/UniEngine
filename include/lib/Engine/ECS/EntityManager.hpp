@@ -2534,9 +2534,9 @@ void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::v
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto *i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        GetDataComponentArrayStorage(i, container);
+        GetDataComponentArrayStorage(*i, container);
     }
 }
 
