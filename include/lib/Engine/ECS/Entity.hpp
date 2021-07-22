@@ -125,7 +125,7 @@ struct UNIENGINE_API ComponentDataChunk
     void ClearData(const size_t &offset, const size_t &size) const;
 };
 
-struct DataComponentChunkArray
+struct UNIENGINE_API DataComponentChunkArray
 {
     std::vector<Entity> Entities;
     std::vector<ComponentDataChunk> Chunks;
@@ -201,19 +201,19 @@ struct UNIENGINE_API EntityQuery final
         std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc);
     [[nodiscard]] size_t GetEntityAmount() const;
 };
-struct DataComponentStorage
+struct UNIENGINE_API DataComponentStorage
 {
-    EntityArchetypeInfo *m_archetypeInfo = nullptr;
-    DataComponentChunkArray *m_chunkArray = nullptr;
-    UNIENGINE_API DataComponentStorage();
-    UNIENGINE_API DataComponentStorage(EntityArchetypeInfo *info, DataComponentChunkArray *array);
+    EntityArchetypeInfo m_archetypeInfo;
+    DataComponentChunkArray m_chunkArray;
+    DataComponentStorage() = default;
+    DataComponentStorage(const EntityArchetypeInfo& entityArchetypeInfo);
 };
 struct EntityQueryInfo
 {
     std::vector<DataComponentType> m_allComponentTypes;
     std::vector<DataComponentType> m_anyComponentTypes;
     std::vector<DataComponentType> m_noneComponentTypes;
-    std::vector<DataComponentStorage> m_queriedStorage;
+    std::vector<DataComponentStorage*> m_queriedStorage;
 };
 #pragma endregion
 #pragma endregion

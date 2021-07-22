@@ -285,4 +285,7 @@ size_t EntityQuery::GetIndex()
     return m_index;
 }
 
-DataComponentStorage::DataComponentStorage() = default;
+DataComponentStorage::DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo)
+{
+    m_archetypeInfo = entityArchetypeInfo;
+}

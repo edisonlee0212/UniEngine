@@ -16,12 +16,12 @@ void Scene::Purge()
     for (int index = 1; index < m_sceneDataStorage.m_entityComponentStorage.size(); index++)
     {
         auto &i = m_sceneDataStorage.m_entityComponentStorage[index];
-        for (auto &chunk : i.m_chunkArray->Chunks)
+        for (auto &chunk : i.m_chunkArray.Chunks)
             free(chunk.m_data);
-        i.m_chunkArray->Chunks.clear();
-        i.m_chunkArray->Entities.clear();
-        i.m_archetypeInfo->m_entityAliveCount = 0;
-        i.m_archetypeInfo->m_entityCount = 0;
+        i.m_chunkArray.Chunks.clear();
+        i.m_chunkArray.Entities.clear();
+        i.m_archetypeInfo.m_entityAliveCount = 0;
+        i.m_archetypeInfo.m_entityCount = 0;
     }
 
     m_sceneDataStorage.m_entities.emplace_back();
@@ -49,7 +49,7 @@ Scene::Scene(size_t index)
     m_sceneDataStorage = SceneDataStorage();
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
-    m_sceneDataStorage.m_entityComponentStorage.emplace_back(nullptr, nullptr);
+    m_sceneDataStorage.m_entityComponentStorage.emplace_back();
     m_sceneDataStorage.m_entityQueries.emplace_back();
     m_sceneDataStorage.m_entityQueryInfos.emplace_back();
 }

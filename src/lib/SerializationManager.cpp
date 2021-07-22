@@ -170,7 +170,7 @@ void UniEngine::SerializationManager::SerializeEntity(
     auto &storage = world->m_sceneDataStorage;
     std::vector<DataComponentType> &componentTypes =
         storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex]
-            .m_archetypeInfo->m_componentTypes;
+            .m_archetypeInfo.m_componentTypes;
     for (const auto &type : componentTypes)
     {
         out << YAML::BeginMap;

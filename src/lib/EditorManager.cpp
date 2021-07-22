@@ -907,17 +907,17 @@ void EditorManager::OnGui()
             IM_ARRAYSIZE(HierarchyDisplayMode));
         if (editorManager.m_selectedHierarchyDisplayMode == 0)
         {
-            EntityManager::UnsafeForEachEntityStorage([&](int i, DataComponentStorage storage) {
+            EntityManager::UnsafeForEachEntityStorage([&](int i, const DataComponentStorage &storage) {
                 ImGui::Separator();
-                const std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo->m_name;
+                const std::string title = std::to_string(i) + ". " + storage.m_archetypeInfo.m_name;
                 if (ImGui::CollapsingHeader(title.c_str()))
                 {
                     ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
                     ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                     ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-                    for (int j = 0; j < storage.m_archetypeInfo->m_entityAliveCount; j++)
+                    for (int j = 0; j < storage.m_archetypeInfo.m_entityAliveCount; j++)
                     {
-                        Entity entity = storage.m_chunkArray->Entities.at(j);
+                        Entity entity = storage.m_chunkArray.Entities.at(j);
                         std::string title = std::to_string(entity.GetIndex()) + ": ";
                         title += entity.GetName();
                         const bool enabled = entity.IsEnabled();

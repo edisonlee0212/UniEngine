@@ -64,7 +64,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent>
     static void GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container);
     static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container);
-    static size_t SwapEntity(const DataComponentStorage &storage, size_t index1, size_t index2);
+    static size_t SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2);
     static void SetEnableSingle(const Entity &entity, const bool &value);
     static void SetDataComponent(const Entity &entity, size_t id, size_t size, IDataComponent *data);
     friend class SerializationManager;
@@ -252,7 +252,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      */
     static std::vector<Entity> *UnsafeGetAllEntities();
 
-    static std::vector<DataComponentStorage> UnsafeGetDataComponentStorage(const EntityQuery &entityQuery);
+    static std::vector<DataComponentStorage*> UnsafeGetDataComponentStorage(const EntityQuery &entityQuery);
     static void UnsafeForEachDataComponent(
         const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func);
     static void UnsafeForEachEntityStorage(const std::function<void(int i, const DataComponentStorage &storage)> &func);
@@ -498,28 +498,36 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     static void Init();
 
-    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order);
-    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(const std::string &name, const float &order);
+    template <typename T = ISystem>
+    static std::shared_ptr<T> GetOrCreateSystem(
+        std::shared_ptr<Scene> scene, const std::string &name, const float &order);
+    template <typename T = ISystem>
+    static std::shared_ptr<T> GetOrCreateSystem(const std::string &name, const float &order);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
 #pragma endregion
 
 #pragma region Functions
-template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_ptr<Scene> scene){
+template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_ptr<Scene> scene)
+{
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     return nullptr;
 }
-template <typename T> std::shared_ptr<T> EntityManager::GetSystem(){
+template <typename T> std::shared_ptr<T> EntityManager::GetSystem()
+{
     auto scene = GetCurrentScene();
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     return nullptr;
 }
-template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order){
+template <typename T>
+std::shared_ptr<T> EntityManager::GetOrCreateSystem(
+    std::shared_ptr<Scene> scene, const std::string &name, const float &order)
+{
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
@@ -531,7 +539,8 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::s
     system->OnCreate();
     return system;
 }
-template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const std::string &name, const float &order){
+template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const std::string &name, const float &order)
+{
     auto scene = GetCurrentScene();
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
@@ -544,7 +553,6 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const 
     system->OnCreate();
     return system;
 }
-
 
 #pragma region Collectors
 
@@ -603,9 +611,9 @@ void EntityManager::ForEachStorage(
     bool checkEnable)
 {
     auto targetType1 = Typeof<T1>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     auto found1 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -615,9 +623,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -625,12 +633,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       const auto entity = entities->at(i);
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
@@ -642,7 +650,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       const auto entity = entities->at(i);
                                       if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
@@ -664,10 +672,10 @@ void EntityManager::ForEachStorage(
 {
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -683,9 +691,9 @@ void EntityManager::ForEachStorage(
 
     if (!found1 || !found2)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -693,12 +701,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       const auto entity = entities->at(i);
@@ -711,7 +719,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       const auto entity = entities->at(i);
@@ -735,11 +743,11 @@ void EntityManager::ForEachStorage(
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -759,9 +767,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -770,12 +778,12 @@ void EntityManager::ForEachStorage(
     {
         results.push_back(
             workers
-                .Push([=](int id) {
+                .Push([=, &chunkArray, &entities](int id) {
                     for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                     {
                         const auto chunkIndex = i / capacity;
                         const auto remainder = i % capacity;
-                        auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                        auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -790,7 +798,7 @@ void EntityManager::ForEachStorage(
                         const int i = threadIndex + threadSize * threadLoad;
                         const auto chunkIndex = i / capacity;
                         const auto remainder = i % capacity;
-                        auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                        auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -817,12 +825,12 @@ void EntityManager::ForEachStorage(
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
     auto targetType4 = Typeof<T4>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
     bool found4 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -847,9 +855,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3 || !found4)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -857,12 +865,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -884,7 +892,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -918,13 +926,13 @@ void EntityManager::ForEachStorage(
     auto targetType3 = Typeof<T3>();
     auto targetType4 = Typeof<T4>();
     auto targetType5 = Typeof<T5>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
     bool found4 = false;
     bool found5 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -954,9 +962,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -964,12 +972,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -992,7 +1000,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1029,14 +1037,14 @@ void EntityManager::ForEachStorage(
     auto targetType4 = Typeof<T4>();
     auto targetType5 = Typeof<T5>();
     auto targetType6 = Typeof<T6>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
     bool found4 = false;
     bool found5 = false;
     bool found6 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -1071,9 +1079,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -1081,12 +1089,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1111,7 +1119,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1151,7 +1159,7 @@ void EntityManager::ForEachStorage(
     auto targetType5 = Typeof<T5>();
     auto targetType6 = Typeof<T6>();
     auto targetType7 = Typeof<T7>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
@@ -1159,7 +1167,7 @@ void EntityManager::ForEachStorage(
     bool found5 = false;
     bool found6 = false;
     bool found7 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -1199,9 +1207,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -1209,12 +1217,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1241,7 +1249,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1284,7 +1292,7 @@ void EntityManager::ForEachStorage(
     auto targetType6 = Typeof<T6>();
     auto targetType7 = Typeof<T7>();
     auto targetType8 = Typeof<T8>();
-    const auto entityCount = storage.m_archetypeInfo->m_entityAliveCount;
+    const auto entityCount = storage.m_archetypeInfo.m_entityAliveCount;
     bool found1 = false;
     bool found2 = false;
     bool found3 = false;
@@ -1293,7 +1301,7 @@ void EntityManager::ForEachStorage(
     bool found6 = false;
     bool found7 = false;
     bool found8 = false;
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType1.m_typeId)
         {
@@ -1338,9 +1346,9 @@ void EntityManager::ForEachStorage(
     }
     if (!found1 || !found2 || !found3 || !found4 || !found5 || !found6 || !found7 || !found8)
         return;
-    const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
-    const auto *chunkArray = storage.m_chunkArray;
-    const auto *entities = &chunkArray->Entities;
+    const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
+    const auto &chunkArray = storage.m_chunkArray;
+    const auto &entities = &chunkArray.Entities;
     std::vector<std::shared_future<void>> results;
     const auto threadSize = workers.Size();
     const auto threadLoad = entityCount / threadSize;
@@ -1348,12 +1356,12 @@ void EntityManager::ForEachStorage(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([=](int id) {
+                              .Push([=, &chunkArray, &entities](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1382,7 +1390,7 @@ void EntityManager::ForEachStorage(
                                       const int i = threadIndex + threadSize * threadLoad;
                                       const auto chunkIndex = i / capacity;
                                       const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+                                      auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
@@ -1418,16 +1426,16 @@ template <typename T>
 void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container)
 {
     auto targetType = Typeof<T>();
-    for (const auto &type : storage.m_archetypeInfo->m_componentTypes)
+    for (const auto &type : storage.m_archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == targetType.m_typeId)
         {
             targetType = type;
-            size_t amount = storage.m_archetypeInfo->m_entityAliveCount;
+            size_t amount = storage.m_archetypeInfo.m_entityAliveCount;
             if (amount == 0)
                 return;
             container.resize(container.size() + amount);
-            const auto capacity = storage.m_archetypeInfo->m_chunkCapacity;
+            const auto capacity = storage.m_archetypeInfo.m_chunkCapacity;
             const auto chunkAmount = amount / capacity;
             const auto remainAmount = amount % capacity;
             for (size_t i = 0; i < chunkAmount; i++)
@@ -1435,14 +1443,14 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
                 memcpy(
                     &container.at(container.size() - remainAmount - capacity * (chunkAmount - i)),
                     reinterpret_cast<void *>(
-                        static_cast<char *>(storage.m_chunkArray->Chunks[i].m_data) + capacity * targetType.m_offset),
+                        static_cast<char *>(storage.m_chunkArray.Chunks[i].m_data) + capacity * targetType.m_offset),
                     capacity * targetType.m_size);
             }
             if (remainAmount > 0)
                 memcpy(
                     &container.at(container.size() - remainAmount),
                     reinterpret_cast<void *>(
-                        static_cast<char *>(storage.m_chunkArray->Chunks[chunkAmount].m_data) +
+                        static_cast<char *>(storage.m_chunkArray.Chunks[chunkAmount].m_data) +
                         capacity * targetType.m_offset),
                     remainAmount * targetType.m_size);
         }
@@ -1458,40 +1466,37 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
         UNIENGINE_ERROR("CreateEntityArchetype failed: Standard Layout");
         return retVal;
     }
-    auto *info = new EntityArchetypeInfo();
-    info->m_name = name;
-    info->m_entityCount = 0;
-    info->m_componentTypes = CollectDataComponentTypes(arg, args...);
-    info->m_entitySize = info->m_componentTypes.back().m_offset + info->m_componentTypes.back().m_size;
-    info->m_chunkCapacity = GetInstance().m_archetypeChunkSize / info->m_entitySize;
+    EntityArchetypeInfo info;
+    info.m_name = name;
+    info.m_entityCount = 0;
+    info.m_componentTypes = CollectDataComponentTypes(arg, args...);
+    info.m_entitySize = info.m_componentTypes.back().m_offset + info.m_componentTypes.back().m_size;
+    info.m_chunkCapacity = GetInstance().m_archetypeChunkSize / info.m_entitySize;
     int duplicateIndex = -1;
     for (size_t i = 1; i < GetInstance().m_entityComponentStorage->size(); i++)
     {
-        EntityArchetypeInfo *compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
-        if (info->m_chunkCapacity != compareInfo->m_chunkCapacity)
+        EntityArchetypeInfo &compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
+        if (info.m_chunkCapacity != compareInfo.m_chunkCapacity)
             continue;
-        if (info->m_entitySize != compareInfo->m_entitySize)
+        if (info.m_entitySize != compareInfo.m_entitySize)
             continue;
         bool typeCheck = true;
 
-        for (auto &componentType : info->m_componentTypes)
+        for (auto &componentType : info.m_componentTypes)
         {
-            if (!compareInfo->HasType(componentType.m_typeId))
+            if (!compareInfo.HasType(componentType.m_typeId))
                 typeCheck = false;
         }
         if (typeCheck)
         {
-            duplicateIndex = compareInfo->m_index;
-            delete info;
-            info = compareInfo;
+            duplicateIndex = compareInfo.m_index;
             break;
         }
     }
     if (duplicateIndex == -1)
     {
-        retVal.m_index = GetInstance().m_entityComponentStorage->size();
-        info->m_index = retVal.m_index;
-        GetInstance().m_entityComponentStorage->push_back(DataComponentStorage(info, new DataComponentChunkArray()));
+        info.m_index = retVal.m_index = GetInstance().m_entityComponentStorage->size();
+        GetInstance().m_entityComponentStorage->emplace_back(info);
     }
     else
     {
@@ -1510,86 +1515,62 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     if (!entity.IsValid())
         return;
     const auto id = typeid(T).hash_code();
-    if (id == typeid(Transform).hash_code())
-    {
-        return;
-    }
-    if (id == typeid(GlobalTransform).hash_code())
-    {
-        return;
-    }
-    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
-    {
-        return;
-    }
     auto &entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    if (GetInstance().m_entities->at(entity.m_index) != entity)
-    {
-        UNIENGINE_ERROR("Entity version mismatch!");
-        return;
-    }
-    EntityArchetypeInfo *archetypeInfo =
-        GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_archetypeInfo;
-    const auto chunkIndex = entityInfo.m_chunkArrayIndex / archetypeInfo->m_chunkCapacity;
-    const auto chunkPointer = entityInfo.m_chunkArrayIndex % archetypeInfo->m_chunkCapacity;
-    ComponentDataChunk chunk =
-        GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-
-    for (const auto &type : archetypeInfo->m_componentTypes)
+    auto &dataComponentStorage = GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex);
+    EntityArchetypeInfo &archetypeInfo = dataComponentStorage.m_archetypeInfo;
+    const auto chunkIndex = entityInfo.m_chunkArrayIndex / archetypeInfo.m_chunkCapacity;
+    const auto chunkPointer = entityInfo.m_chunkArrayIndex % archetypeInfo.m_chunkCapacity;
+    ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.Chunks[chunkIndex];
+    for (const auto &type : archetypeInfo.m_componentTypes)
     {
         if (type.m_typeId == id)
         {
-            chunk.SetData<T>(
-                static_cast<size_t>(type.m_offset * archetypeInfo->m_chunkCapacity + chunkPointer * type.m_size),
-                value);
+            UNIENGINE_ERROR("Data Component already exists!");
             return;
         }
     }
 #pragma endregion
 #pragma region If not exist, we first need to create a new archetype
-    EntityArchetypeInfo *newArchetypeInfo = new EntityArchetypeInfo();
-    newArchetypeInfo->m_name = "New archetype";
-    newArchetypeInfo->m_entityCount = 0;
-    newArchetypeInfo->m_componentTypes = archetypeInfo->m_componentTypes;
-    newArchetypeInfo->m_componentTypes.push_back(Typeof<T>());
+    EntityArchetypeInfo newArchetypeInfo;
+    newArchetypeInfo.m_name = "New archetype";
+    newArchetypeInfo.m_entityCount = 0;
+    newArchetypeInfo.m_componentTypes = archetypeInfo.m_componentTypes;
+    newArchetypeInfo.m_componentTypes.push_back(Typeof<T>());
 #pragma region Sort types and check duplicate
     std::sort(
-        newArchetypeInfo->m_componentTypes.begin() + 2,
-        newArchetypeInfo->m_componentTypes.end(),
+        newArchetypeInfo.m_componentTypes.begin() + 3,
+        newArchetypeInfo.m_componentTypes.end(),
         ComponentTypeComparator);
     size_t offset = 0;
-    DataComponentType prev = newArchetypeInfo->m_componentTypes[0];
+    DataComponentType prev = newArchetypeInfo.m_componentTypes[0];
     // Erase duplicates
-    EraseDuplicates(newArchetypeInfo->m_componentTypes);
-    for (auto &i : newArchetypeInfo->m_componentTypes)
+    EraseDuplicates(newArchetypeInfo.m_componentTypes);
+    for (auto &i : newArchetypeInfo.m_componentTypes)
     {
         i.m_offset = offset;
         offset += i.m_size;
     }
-
-    newArchetypeInfo->m_entitySize =
-        newArchetypeInfo->m_componentTypes.back().m_offset + newArchetypeInfo->m_componentTypes.back().m_size;
-    newArchetypeInfo->m_chunkCapacity = GetInstance().m_archetypeChunkSize / newArchetypeInfo->m_entitySize;
+    newArchetypeInfo.m_entitySize =
+        newArchetypeInfo.m_componentTypes.back().m_offset + newArchetypeInfo.m_componentTypes.back().m_size;
+    newArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / newArchetypeInfo.m_entitySize;
     int duplicateIndex = -1;
     for (size_t i = 1; i < GetInstance().m_entityComponentStorage->size(); i++)
     {
-        EntityArchetypeInfo *compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
-        if (newArchetypeInfo->m_chunkCapacity != compareInfo->m_chunkCapacity)
+        EntityArchetypeInfo &compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
+        if (newArchetypeInfo.m_chunkCapacity != compareInfo.m_chunkCapacity)
             continue;
-        if (newArchetypeInfo->m_entitySize != compareInfo->m_entitySize)
+        if (newArchetypeInfo.m_entitySize != compareInfo.m_entitySize)
             continue;
         bool typeCheck = true;
-        for (size_t j = 0; j < newArchetypeInfo->m_componentTypes.size(); j++)
+        for (size_t j = 0; j < newArchetypeInfo.m_componentTypes.size(); j++)
         {
-            if (!compareInfo->HasType(newArchetypeInfo->m_componentTypes[j].m_typeId))
+            if (!compareInfo.HasType(newArchetypeInfo.m_componentTypes[j].m_typeId))
                 typeCheck = false;
         }
         if (typeCheck)
         {
-            duplicateIndex = compareInfo->m_index;
-            delete newArchetypeInfo;
-            newArchetypeInfo = compareInfo;
+            duplicateIndex = compareInfo.m_index;
             break;
         }
     }
@@ -1597,10 +1578,8 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     EntityArchetype archetype;
     if (duplicateIndex == -1)
     {
-        archetype.m_index = GetInstance().m_entityComponentStorage->size();
-        newArchetypeInfo->m_index = archetype.m_index;
-        GetInstance().m_entityComponentStorage->push_back(
-            DataComponentStorage(newArchetypeInfo, new DataComponentChunkArray()));
+        newArchetypeInfo.m_index = archetype.m_index = GetInstance().m_entityComponentStorage->size();
+        GetInstance().m_entityComponentStorage->push_back(DataComponentStorage(newArchetypeInfo));
     }
     else
     {
@@ -1610,7 +1589,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
 #pragma region Create new Entity with new archetype.
     Entity newEntity = CreateEntity(archetype);
     // Transfer component data
-    for (const auto &type : archetypeInfo->m_componentTypes)
+    for (const auto &type : archetypeInfo.m_componentTypes)
     {
         SetDataComponent(newEntity, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
@@ -1626,10 +1605,10 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     // Apply to chunk.
     GetInstance()
         .m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex)
-        .m_chunkArray->Entities[entityInfo.m_chunkArrayIndex] = entity;
+        .m_chunkArray.Entities[entityInfo.m_chunkArrayIndex] = entity;
     GetInstance()
         .m_entityComponentStorage->at(newEntityInfo.m_archetypeInfoIndex)
-        .m_chunkArray->Entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
+        .m_chunkArray.Entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
     for (size_t i = 0; i < GetInstance().m_entityQueryInfos->size(); i++)
@@ -1643,82 +1622,67 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     if (!entity.IsValid())
         return;
     const auto id = typeid(T).hash_code();
-    if (id == typeid(Transform).hash_code())
-    {
-        return;
-    }
-    if (id == typeid(GlobalTransform).hash_code())
-    {
-        return;
-    }
-    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
+    if (id == typeid(Transform).hash_code() || id == typeid(GlobalTransform).hash_code() ||
+        id == typeid(GlobalTransformUpdateFlag).hash_code())
     {
         return;
     }
     EntityInfo &entityInfo = GetInstance().m_entityInfos->at(entity.m_index);
-    if (GetInstance().m_entities->at(entity.m_index) != entity)
-    {
-        UNIENGINE_ERROR("Entity version mismatch!");
-        return;
-    }
-    EntityArchetypeInfo *archetypeInfo =
+    EntityArchetypeInfo &archetypeInfo =
         GetInstance().m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex).m_archetypeInfo;
-    if (archetypeInfo->m_componentTypes.size() <= 1)
+    if (archetypeInfo.m_componentTypes.size() <= 3)
     {
-        UNIENGINE_ERROR("Remove Component Data failed: Entity must have at least 1 data component!");
+        UNIENGINE_ERROR("Remove Component Data failed: Entity must have at least 1 data component besides 3 basic data "
+                        "components!");
         return;
     }
 #pragma region Create new archetype
-    EntityArchetypeInfo *newArchetypeInfo = new EntityArchetypeInfo();
-    newArchetypeInfo->m_name = "New archetype";
-    newArchetypeInfo->m_entityCount = 0;
-    newArchetypeInfo->m_componentTypes = archetypeInfo->m_componentTypes;
+    EntityArchetypeInfo newArchetypeInfo;
+    newArchetypeInfo.m_name = "New archetype";
+    newArchetypeInfo.m_entityCount = 0;
+    newArchetypeInfo.m_componentTypes = archetypeInfo.m_componentTypes;
     bool found = false;
-    for (int i = 0; i < newArchetypeInfo->m_componentTypes.size(); i++)
+    for (int i = 0; i < newArchetypeInfo.m_componentTypes.size(); i++)
     {
-        if (newArchetypeInfo->m_componentTypes[i].m_typeId == id)
+        if (newArchetypeInfo.m_componentTypes[i].m_typeId == id)
         {
-            newArchetypeInfo->m_componentTypes.erase(newArchetypeInfo->m_componentTypes.begin() + i);
+            newArchetypeInfo.m_componentTypes.erase(newArchetypeInfo.m_componentTypes.begin() + i);
             found = true;
             break;
         }
     }
     if (!found)
     {
-        delete newArchetypeInfo;
         UNIENGINE_ERROR("Failed to remove component data: Component not found");
         return;
     }
 #pragma region Sort types
     size_t offset = 0;
-    for (auto &i : newArchetypeInfo->m_componentTypes)
+    for (auto &i : newArchetypeInfo.m_componentTypes)
     {
         i.m_offset = offset;
         offset += i.m_size;
     }
-
-    newArchetypeInfo->m_entitySize =
-        newArchetypeInfo->m_componentTypes.back().m_offset + newArchetypeInfo->m_componentTypes.back().m_size;
-    newArchetypeInfo->m_chunkCapacity = GetInstance().m_archetypeChunkSize / newArchetypeInfo->m_entitySize;
+    newArchetypeInfo.m_entitySize =
+        newArchetypeInfo.m_componentTypes.back().m_offset + newArchetypeInfo.m_componentTypes.back().m_size;
+    newArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / newArchetypeInfo.m_entitySize;
     int duplicateIndex = -1;
     for (size_t i = 1; i < GetInstance().m_entityComponentStorage->size(); i++)
     {
-        EntityArchetypeInfo *compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
-        if (newArchetypeInfo->m_chunkCapacity != compareInfo->m_chunkCapacity)
+        EntityArchetypeInfo &compareInfo = GetInstance().m_entityComponentStorage->at(i).m_archetypeInfo;
+        if (newArchetypeInfo.m_chunkCapacity != compareInfo.m_chunkCapacity)
             continue;
-        if (newArchetypeInfo->m_entitySize != compareInfo->m_entitySize)
+        if (newArchetypeInfo.m_entitySize != compareInfo.m_entitySize)
             continue;
         bool typeCheck = true;
-        for (size_t j = 0; j < newArchetypeInfo->m_componentTypes.size(); j++)
+        for (const auto &j : newArchetypeInfo.m_componentTypes)
         {
-            if (!compareInfo->HasType(newArchetypeInfo->m_componentTypes[j].m_typeId))
+            if (!compareInfo.HasType(j.m_typeId))
                 typeCheck = false;
         }
         if (typeCheck)
         {
-            duplicateIndex = compareInfo->m_index;
-            delete newArchetypeInfo;
-            newArchetypeInfo = compareInfo;
+            duplicateIndex = compareInfo.m_index;
             break;
         }
     }
@@ -1726,10 +1690,8 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     EntityArchetype archetype;
     if (duplicateIndex == -1)
     {
-        archetype.m_index = GetInstance().m_entityComponentStorage->size();
-        newArchetypeInfo->m_index = archetype.m_index;
-        GetInstance().m_entityComponentStorage->push_back(
-            DataComponentStorage(newArchetypeInfo, new DataComponentChunkArray()));
+        newArchetypeInfo.m_index = archetype.m_index = GetInstance().m_entityComponentStorage->size();
+        GetInstance().m_entityComponentStorage->push_back(DataComponentStorage(newArchetypeInfo));
     }
     else
     {
@@ -1739,7 +1701,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
 #pragma region Create new Entity with new archetype
     const Entity newEntity = CreateEntity(archetype);
     // Transfer component data
-    for (const auto &type : newArchetypeInfo->m_componentTypes)
+    for (const auto &type : newArchetypeInfo.m_componentTypes)
     {
         SetDataComponent(newEntity, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
@@ -1755,10 +1717,10 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     // Apply to chunk.
     GetInstance()
         .m_entityComponentStorage->at(entityInfo.m_archetypeInfoIndex)
-        .m_chunkArray->Entities[entityInfo.m_chunkArrayIndex] = entity;
+        .m_chunkArray.Entities[entityInfo.m_chunkArrayIndex] = entity;
     GetInstance()
         .m_entityComponentStorage->at(newEntityInfo.m_archetypeInfoIndex)
-        .m_chunkArray->Entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
+        .m_chunkArray.Entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
     for (size_t i = 0; i < GetInstance().m_entityQueryInfos->size(); i++)
@@ -1770,53 +1732,50 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
 
 template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
 {
-    const size_t id = typeid(T).hash_code();
     if (!entity.IsValid())
         return;
+    const size_t id = typeid(T).hash_code();
+    SetDataComponent(entity, id, sizeof(T), (IDataComponent*)&value);
+    /*
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
-    if (GetInstance().m_entities->at(entity.m_index) == entity)
+    EntityArchetypeInfo &chunkInfo =
+        GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
+    const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo.m_chunkCapacity;
+    const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo.m_chunkCapacity;
+    ComponentDataChunk &chunk =
+        GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray.Chunks[chunkIndex];
+    bool globalTransformUpdated = false;
+    if (id == typeid(Transform).hash_code())
     {
-        EntityArchetypeInfo *chunkInfo =
-            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-        ComponentDataChunk chunk =
-            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
-        bool globalTransformUpdated = false;
-        if (id == typeid(Transform).hash_code())
-        {
-            chunk.SetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
-        }
-        else if (id == typeid(GlobalTransform).hash_code())
-        {
-            chunk.SetData<T>(
-                static_cast<size_t>(
-                    sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
-                value);
-            globalTransformUpdated = true;
-        }
-        if (globalTransformUpdated)
-        {
-            static_cast<GlobalTransformUpdateFlag *>(
-                chunk.GetDataPointer(static_cast<size_t>(
-                    (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
-                    chunkPointer * sizeof(GlobalTransformUpdateFlag))))
-                ->m_value = true;
-            return;
-        }
-        for (const auto &type : chunkInfo->m_componentTypes)
-        {
-            if (type.m_typeId == id)
-            {
-                chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)), value);
-                return;
-            }
-        }
-        UNIENGINE_LOG("ComponentData doesn't exist")
+        chunk.SetData<T>(static_cast<size_t>(chunkPointer * sizeof(Transform)), value);
+    }
+    else if (id == typeid(GlobalTransform).hash_code())
+    {
+        chunk.SetData<T>(
+            static_cast<size_t>(sizeof(Transform) * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
+            value);
+        globalTransformUpdated = true;
+    }
+    if (globalTransformUpdated)
+    {
+        static_cast<GlobalTransformUpdateFlag *>(
+            chunk.GetDataPointer(static_cast<size_t>(
+                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo.m_chunkCapacity +
+                chunkPointer * sizeof(GlobalTransformUpdateFlag))))
+            ->m_value = true;
         return;
     }
-    UNIENGINE_ERROR("Entity version mismatch!");
+    for (const auto &type : chunkInfo.m_componentTypes)
+    {
+        if (type.m_typeId == id)
+        {
+            chunk.SetData<T>(
+                static_cast<size_t>(type.m_offset * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(T)), value);
+            return;
+        }
+    }
+    UNIENGINE_LOG("ComponentData doesn't exist")
+    */
 }
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
@@ -1826,12 +1785,12 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
     EntityInfo &info = GetInstance().m_entityInfos->at(index);
     if (GetInstance().m_entities->at(index).m_version != 0)
     {
-        EntityArchetypeInfo *chunkInfo =
+        EntityArchetypeInfo &chunkInfo =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-        ComponentDataChunk chunk =
-            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo.m_chunkCapacity;
+        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo.m_chunkCapacity;
+        ComponentDataChunk &chunk =
+            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray.Chunks[chunkIndex];
         bool globalTransformUpdated = false;
         if (id == typeid(Transform).hash_code())
         {
@@ -1841,7 +1800,7 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
         {
             chunk.SetData<T>(
                 static_cast<size_t>(
-                    sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
+                    sizeof(Transform) * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)),
                 value);
             globalTransformUpdated = true;
         }
@@ -1849,17 +1808,17 @@ template <typename T> void EntityManager::SetDataComponent(const size_t &index, 
         {
             static_cast<GlobalTransformUpdateFlag *>(
                 chunk.GetDataPointer(static_cast<size_t>(
-                    (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                    (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo.m_chunkCapacity +
                     chunkPointer * sizeof(GlobalTransformUpdateFlag))))
                 ->m_value = true;
             return;
         }
-        for (const auto &type : chunkInfo->m_componentTypes)
+        for (const auto &type : chunkInfo.m_componentTypes)
         {
             if (type.m_typeId == id)
             {
                 chunk.SetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)), value);
+                    static_cast<size_t>(type.m_offset * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(T)), value);
                 return;
             }
         }
@@ -1875,12 +1834,12 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
     if (GetInstance().m_entities->at(entity.m_index) == entity)
     {
-        EntityArchetypeInfo *chunkInfo =
+        EntityArchetypeInfo &chunkInfo =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-        ComponentDataChunk chunk =
-            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo.m_chunkCapacity;
+        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo.m_chunkCapacity;
+        ComponentDataChunk &chunk =
+            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray.Chunks[chunkIndex];
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
@@ -1889,20 +1848,20 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
         if (id == typeid(GlobalTransform).hash_code())
         {
             return chunk.GetData<T>(static_cast<size_t>(
-                sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+                sizeof(Transform) * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
         if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
             return chunk.GetData<T>(static_cast<size_t>(
-                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo.m_chunkCapacity +
                 chunkPointer * sizeof(GlobalTransformUpdateFlag)));
         }
-        for (const auto &type : chunkInfo->m_componentTypes)
+        for (const auto &type : chunkInfo.m_componentTypes)
         {
             if (type.m_typeId == id)
             {
                 return chunk.GetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)));
+                    static_cast<size_t>(type.m_offset * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(T)));
             }
         }
         UNIENGINE_LOG("ComponentData doesn't exist");
@@ -1918,7 +1877,7 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
     if (GetInstance().m_entities->at(entity.m_index) == entity)
     {
-        EntityArchetypeInfo *chunkInfo =
+        EntityArchetypeInfo &chunkInfo =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
@@ -1933,7 +1892,7 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
         {
             return true;
         }
-        for (const auto &type : chunkInfo->m_componentTypes)
+        for (const auto &type : chunkInfo.m_componentTypes)
         {
             if (type.m_typeId == id)
             {
@@ -1952,12 +1911,12 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
     EntityInfo &info = GetInstance().m_entityInfos->at(index);
     if (GetInstance().m_entities->at(index).m_version != 0)
     {
-        EntityArchetypeInfo *chunkInfo =
+        EntityArchetypeInfo &chunkInfo =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
-        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo->m_chunkCapacity;
-        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo->m_chunkCapacity;
-        ComponentDataChunk chunk =
-            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray->Chunks[chunkIndex];
+        const size_t chunkIndex = info.m_chunkArrayIndex / chunkInfo.m_chunkCapacity;
+        const size_t chunkPointer = info.m_chunkArrayIndex % chunkInfo.m_chunkCapacity;
+        ComponentDataChunk &chunk =
+            GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_chunkArray.Chunks[chunkIndex];
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
         {
@@ -1966,20 +1925,20 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
         if (id == typeid(GlobalTransform).hash_code())
         {
             return chunk.GetData<T>(static_cast<size_t>(
-                sizeof(Transform) * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+                sizeof(Transform) * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
         }
         if (id == typeid(GlobalTransformUpdateFlag).hash_code())
         {
             return chunk.GetData<T>(static_cast<size_t>(
-                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo->m_chunkCapacity +
+                (sizeof(Transform) + sizeof(GlobalTransform)) * chunkInfo.m_chunkCapacity +
                 chunkPointer * sizeof(GlobalTransformUpdateFlag)));
         }
-        for (const auto &type : chunkInfo->m_componentTypes)
+        for (const auto &type : chunkInfo.m_componentTypes)
         {
             if (type.m_typeId == id)
             {
                 return chunk.GetData<T>(
-                    static_cast<size_t>(type.m_offset * chunkInfo->m_chunkCapacity + chunkPointer * sizeof(T)));
+                    static_cast<size_t>(type.m_offset * chunkInfo.m_chunkCapacity + chunkPointer * sizeof(T)));
             }
         }
         UNIENGINE_LOG("ComponentData doesn't exist");
@@ -1995,7 +1954,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
     EntityInfo &info = GetInstance().m_entityInfos->at(index);
     if (GetInstance().m_entities->at(index).m_version != 0)
     {
-        EntityArchetypeInfo *chunkInfo =
+        EntityArchetypeInfo &chunkInfo =
             GetInstance().m_entityComponentStorage->at(info.m_archetypeInfoIndex).m_archetypeInfo;
         const size_t id = typeid(T).hash_code();
         if (id == typeid(Transform).hash_code())
@@ -2010,7 +1969,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
         {
             return true;
         }
-        for (const auto &type : chunkInfo->m_componentTypes)
+        for (const auto &type : chunkInfo.m_componentTypes)
         {
             if (type.m_typeId == id)
             {
@@ -2152,9 +2111,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2>
@@ -2172,9 +2131,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3>
@@ -2192,9 +2151,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4>
@@ -2212,9 +2171,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -2232,9 +2191,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
@@ -2252,9 +2211,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
@@ -2272,9 +2231,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
@@ -2292,9 +2251,9 @@ void EntityManager::ForEach(
         UNIENGINE_ERROR("EntityQuery not exist!");
         return;
     }
-    for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
+    for (const auto i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
-        ForEachStorage(workers, i, func, checkEnable);
+        ForEachStorage(workers, *i, func, checkEnable);
     }
 }
 
@@ -2994,9 +2953,9 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(c
     for (const auto &i : GetInstance().m_entityQueryInfos->at(index).m_queriedStorage)
     {
         auto targetType = Typeof<T>();
-        const auto entityCount = i.m_archetypeInfo->m_entityAliveCount;
+        const auto entityCount = i->m_archetypeInfo.m_entityAliveCount;
         auto found = false;
-        for (const auto &type : i.m_archetypeInfo->m_componentTypes)
+        for (const auto &type : i->m_archetypeInfo.m_componentTypes)
         {
             if (type.m_typeId == targetType.m_typeId)
             {
@@ -3006,19 +2965,19 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(c
         }
         if (!found)
             continue;
-        const auto capacity = i.m_archetypeInfo->m_chunkCapacity;
-        const auto *chunkArray = i.m_chunkArray;
+        const auto capacity = i->m_archetypeInfo.m_chunkCapacity;
+        const auto &chunkArray = i->m_chunkArray;
         const auto chunkSize = entityCount / capacity;
         const auto chunkReminder = entityCount % capacity;
         for (int chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++)
         {
-            auto *data = static_cast<char *>(chunkArray->Chunks[chunkIndex].m_data);
+            auto *data = static_cast<char *>(chunkArray.Chunks[chunkIndex].m_data);
             T *ptr = reinterpret_cast<T *>(data + targetType.m_offset * capacity);
             retVal.emplace_back(ptr, capacity);
         }
         if (chunkReminder > 0)
         {
-            auto *data = static_cast<char *>(chunkArray->Chunks[chunkSize].m_data);
+            auto *data = static_cast<char *>(chunkArray.Chunks[chunkSize].m_data);
             T *ptr = reinterpret_cast<T *>(data + targetType.m_offset * capacity);
             retVal.emplace_back(ptr, chunkReminder);
         }
