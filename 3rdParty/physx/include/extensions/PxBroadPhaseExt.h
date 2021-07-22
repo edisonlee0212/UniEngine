@@ -57,7 +57,7 @@ public:
 	the game world with a non-uniform set of regions (i.e. not just a grid).
 
 	\param[out]	regions			Regions computed from the input global box
-	\param[in]	globalBounds	World-space box covering the game world
+	\param[in]	globalBounds	Scene-space box covering the game world
 	\param[in]	nbSubdiv		Grid subdivision level. The function will create nbSubdiv*nbSubdiv regions.
 	\param[in]	upAxis			Up axis (0 for X, 1 for Y, 2 for Z).
 	\return		number of regions written out to the 'regions' array

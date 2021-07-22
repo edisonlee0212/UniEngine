@@ -1,5 +1,5 @@
 #pragma once
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API PostProcessingLayer
@@ -13,8 +13,8 @@ class UNIENGINE_API PostProcessingLayer
     bool m_enabled = false;
     virtual void Init() = 0;
     virtual void ResizeResolution(int x, int y) = 0;
-    virtual void Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const = 0;
-    virtual void OnGui(CameraComponent &cameraComponent) = 0;
+    virtual void Process(Camera &cameraComponent, RenderTarget &renderTarget) const = 0;
+    virtual void OnGui(Camera &cameraComponent) = 0;
 };
 
 class UNIENGINE_API PostProcessing final : public IPrivateComponent, public RenderTarget
@@ -66,8 +66,8 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     BezierCubic2D m_graph;
     void Init() override;
     void ResizeResolution(int x, int y) override;
-    void Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const override;
-    void OnGui(CameraComponent &cameraComponent) override;
+    void Process(Camera &cameraComponent, RenderTarget &renderTarget) const override;
+    void OnGui(Camera &cameraComponent) override;
 };
 class UNIENGINE_API SSAO : public PostProcessingLayer
 {
@@ -92,8 +92,8 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
 
     void Init() override;
     void ResizeResolution(int x, int y) override;
-    void Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const override;
-    void OnGui(CameraComponent &cameraComponent) override;
+    void Process(Camera &cameraComponent, RenderTarget &renderTarget) const override;
+    void OnGui(Camera &cameraComponent) override;
 };
 #pragma endregion
 

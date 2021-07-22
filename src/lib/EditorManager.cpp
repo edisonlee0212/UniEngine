@@ -1,7 +1,7 @@
 #include <Application.hpp>
 #include <Articulation.hpp>
 #include <AssetManager.hpp>
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -183,9 +183,9 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled())
         return;
     auto &manager = GetInstance();
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+    Camera::m_cameraInfoBlock.UpdateMatrices(
         manager.m_sceneCamera, manager.m_sceneCameraPosition, manager.m_sceneCameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(manager.m_sceneCamera);
+    Camera::m_cameraInfoBlock.UploadMatrices(manager.m_sceneCamera);
     manager.m_sceneCamera.Bind();
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_BLEND);
@@ -500,12 +500,12 @@ void EditorManager::Init()
             owner.SetPrivateComponent<SpotLight>();
         }
     });
-    RegisterPrivateComponentMenu<CameraComponent>([](Entity owner) {
-        if (owner.HasPrivateComponent<CameraComponent>())
+    RegisterPrivateComponentMenu<Camera>([](Entity owner) {
+        if (owner.HasPrivateComponent<Camera>())
             return;
-        if (ImGui::SmallButton("CameraComponent"))
+        if (ImGui::SmallButton("Camera"))
         {
-            owner.SetPrivateComponent<CameraComponent>();
+            owner.SetPrivateComponent<Camera>();
         }
     });
     RegisterPrivateComponentMenu<MeshRenderer>([](Entity owner) {
@@ -682,7 +682,7 @@ void EditorManager::RenderToSceneCamera()
             editorManager.m_lockCamera = false;
             editorManager.m_sceneCameraRotation = editorManager.m_targetRotation;
             editorManager.m_sceneCameraPosition = editorManager.m_targetPosition;
-            CameraComponent::ReverseAngle(
+            Camera::ReverseAngle(
                     editorManager.m_targetRotation,
                     editorManager.m_sceneCameraPitchAngle,
                     editorManager.m_sceneCameraYawAngle);
@@ -692,9 +692,9 @@ void EditorManager::RenderToSceneCamera()
 
     if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
     {
-        CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+        Camera::m_cameraInfoBlock.UpdateMatrices(
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
-        CameraComponent::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera);
+        Camera::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera);
 #pragma region For entity selection
         glEnable(GL_DEPTH_TEST);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -949,7 +949,7 @@ void EditorManager::OnGui()
         }
         else if (editorManager.m_selectedHierarchyDisplayMode == 1)
         {
-            if (ImGui::CollapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 if (ImGui::BeginDragDropTarget())
                 {
@@ -1075,7 +1075,7 @@ void EditorManager::OnGui()
                         editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
-                            ImGui::Checkbox(data.m_name.substr(6).c_str(), &data.m_privateComponentData->m_enabled);
+                            ImGui::Checkbox(data.m_name.c_str(), &data.m_privateComponentData->m_enabled);
                             ImGui::PushID(i);
                             if (ImGui::BeginPopupContextItem(
                                     ("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
@@ -1217,7 +1217,7 @@ void EditorManager::SetSelectedEntity(const Entity &entity, const bool &openMenu
     }
 }
 
-CameraComponent &EditorManager::GetSceneCamera()
+Camera &EditorManager::GetSceneCamera()
 {
     return GetInstance().m_sceneCamera;
 }
@@ -1489,7 +1489,7 @@ void EditorManager::SceneCameraWindow()
                             if (editorManager.m_sceneCameraPitchAngle < -89.0f)
                                 editorManager.m_sceneCameraPitchAngle = -89.0f;
 
-                            editorManager.m_sceneCameraRotation = CameraComponent::ProcessMouseMovement(
+                            editorManager.m_sceneCameraRotation = Camera::ProcessMouseMovement(
                                 editorManager.m_sceneCameraYawAngle, editorManager.m_sceneCameraPitchAngle, false);
                         }
                     }

@@ -9,9 +9,7 @@ using namespace UniEngine;
 int main()
 {
     Application::Init();
-    auto &world = EntityManager::GetCurrentWorld();
-    auto ccs = world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
-    ccs->Enable();
+    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
@@ -19,7 +17,7 @@ int main()
     mainCameraTransform.SetPosition(glm::vec3(0, 0, 40));
     mainCameraEntity.SetDataComponent(mainCameraTransform);
     mainCameraEntity.SetPrivateComponent<PostProcessing>();
-    auto& camera = mainCameraEntity.GetPrivateComponent<CameraComponent>();
+    auto& camera = mainCameraEntity.GetPrivateComponent<Camera>();
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties

@@ -2,16 +2,16 @@
 #include <Core/FileIO.hpp>
 #include <EntityManager.hpp>
 #include <ISingleton.hpp>
+#include <InputManager.hpp>
 #include <ProfilerManager.hpp>
 #include <RenderManager.hpp>
-#include <World.hpp>
-#include <InputManager.hpp>
+#include <Scene.hpp>
 
 namespace UniEngine
 {
 class UNIENGINE_API ApplicationTime
 {
-    friend class World;
+    friend class Scene;
     friend class Application;
     double m_lastFixedUpdateTime = 0;
     double m_lastUpdateTime = 0;
@@ -48,7 +48,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static void UpdateInternal();
     static bool LateUpdateInternal();
     ApplicationTime m_time;
-    friend class World;
+    friend class Scene;
     bool m_needFixedUpdate = false;
 
   public:

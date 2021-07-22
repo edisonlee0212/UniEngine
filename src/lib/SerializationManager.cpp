@@ -1,10 +1,10 @@
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <ISerializable.hpp>
 #include <MeshRenderer.hpp>
 #include <PhysicsManager.hpp>
+#include <PostProcessing.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
-#include <PostProcessing.hpp>
 using namespace UniEngine;
 
 ComponentDataRegistration<Transform> TransformRegistry("Transform");
@@ -19,7 +19,7 @@ SerializableRegistration<RigidBody> RigidBodyRegistry("RigidBody");
 SerializableRegistration<SpotLight> SpotLightRegistry("SpotLight");
 SerializableRegistration<PointLight> PointLightRegistry("PointLight");
 SerializableRegistration<DirectionalLight> DirectionalLightRegistry("DirectionalLight");
-SerializableRegistration<CameraComponent> CameraComponentRegistry("CameraComponent");
+SerializableRegistration<Camera> CameraRegistry("Camera");
 SerializableRegistration<Particles> ParticlesRegistry("Particles");
 SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
@@ -156,7 +156,7 @@ std::istream &UniEngine::operator>>(std::istream &in, glm::mat4 &v)
 }
 
 void UniEngine::SerializationManager::SerializeEntity(
-    std::unique_ptr<World> &world, YAML::Emitter &out, const Entity &entity)
+    std::shared_ptr<Scene> world, YAML::Emitter &out, const Entity &entity)
 {
     out << YAML::BeginMap;
     out << YAML::Key << "Entity" << YAML::Value << std::to_string(entity.GetIndex());
@@ -167,7 +167,7 @@ void UniEngine::SerializationManager::SerializeEntity(
     out << YAML::Key << "Parent" << YAML::Value << EntityManager::GetParent(entity).GetIndex();
 #pragma region ComponentData
     out << YAML::Key << "DataComponent" << YAML::Value << YAML::BeginSeq;
-    auto &storage = world->m_worldEntityStorage;
+    auto &storage = world->m_sceneDataStorage;
     std::vector<DataComponentType> &componentTypes =
         storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex]
             .m_archetypeInfo->m_componentTypes;
@@ -198,7 +198,7 @@ void UniEngine::SerializationManager::SerializeEntity(
 }
 
 UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
-    std::unique_ptr<World> &world, const YAML::Node &node)
+    std::shared_ptr<Scene> world, const YAML::Node &node)
 {
     const auto entityName = node["Name"].as<std::string>();
     const auto archetypeName = node["ArchetypeName"].as<std::string>();
@@ -242,15 +242,15 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
     return retVal;
 }
 
-void UniEngine::SerializationManager::Serialize(std::unique_ptr<World> &world, const std::string &path)
+void UniEngine::SerializationManager::Serialize(std::shared_ptr<Scene> world, const std::string &path)
 {
     YAML::Emitter out;
     out << YAML::BeginMap;
-    out << YAML::Key << "World";
+    out << YAML::Key << "Scene";
     out << YAML::Value << "World_Name";
     out << YAML::Key << "Entities";
     out << YAML::Value << YAML::BeginSeq;
-    for (const auto &entity : world->m_worldEntityStorage.m_entities)
+    for (const auto &entity : world->m_sceneDataStorage.m_entities)
     {
         if (entity.GetVersion() == 0)
             continue;
@@ -261,15 +261,16 @@ void UniEngine::SerializationManager::Serialize(std::unique_ptr<World> &world, c
     std::ofstream fout(path);
     fout << out.c_str();
     fout.flush();
+    UNIENGINE_LOG("Scene saved to " + path);
 }
 
-bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World> &world, const std::string &path)
+bool UniEngine::SerializationManager::Deserialize(std::shared_ptr<Scene> world, const std::string &path)
 {
     std::ifstream stream(path);
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
     YAML::Node data = YAML::Load(stringStream.str());
-    if (!data["World"])
+    if (!data["Scene"])
     {
         return false;
     }
@@ -286,7 +287,7 @@ bool UniEngine::SerializationManager::Deserialize(std::unique_ptr<World> &world,
             auto parent = node["Parent"].as<unsigned>();
 
             auto entity = DeserializeEntity(world, node);
-            world->m_worldEntityStorage.m_entityInfos[entity.GetIndex()].m_enabled = node["IsEnabled"].as<bool>();
+            world->m_sceneDataStorage.m_entityInfos[entity.GetIndex()].m_enabled = node["IsEnabled"].as<bool>();
             if (entity.IsNull())
             {
                 UNIENGINE_ERROR("Error!");

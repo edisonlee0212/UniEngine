@@ -3294,7 +3294,7 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
     // List of hardcoded separators: .,;!?'"
 
     // Skip extra blanks after a line returns (that includes not counting them in width computation)
-    // e.g. "Hello    world" --> "Hello" "World"
+    // e.g. "Hello    world" --> "Hello" "Scene"
 
     // Cut words that cannot possibly fit within one line.
     // e.g.: "The tropical fish" with ~5 characters worth of width --> "The tr" "opical" "fish"

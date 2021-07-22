@@ -132,7 +132,7 @@ void EditTransform(const Camera& camera, matrix_t& matrix)
 		if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
 			mCurrentGizmoMode = ImGuizmo::LOCAL;
 		ImGui::SameLine();
-		if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+		if (ImGui::RadioButton("Scene", mCurrentGizmoMode == ImGuizmo::WORLD))
 			mCurrentGizmoMode = ImGuizmo::WORLD;
 	}
 	static bool useSnap(false);

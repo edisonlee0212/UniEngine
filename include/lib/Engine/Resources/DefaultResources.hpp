@@ -1,6 +1,6 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
-#include <World.hpp>
+#include <Scene.hpp>
 namespace UniEngine
 {
 class EnvironmentalMap;

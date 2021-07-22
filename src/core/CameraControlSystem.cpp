@@ -1,4 +1,4 @@
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <CameraControlSystem.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -10,9 +10,9 @@ void CameraControlSystem::OnCreate()
 {
     auto *mainCamera = RenderManager::GetMainCamera();
     auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
-    transform.SetRotation(CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
+    transform.SetRotation(Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
     mainCamera->GetOwner().SetDataComponent(transform);
-    m_enabled = true;
+    Enable();
 }
 
 void CameraControlSystem::LateUpdate()
@@ -92,7 +92,7 @@ void CameraControlSystem::LateUpdate()
                     m_sceneCameraPitchAngle = -89.0f;
 
                 transform.SetRotation(
-                    CameraComponent::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
+                    Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
             }
         }
         if (moved)

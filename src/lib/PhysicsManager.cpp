@@ -127,7 +127,7 @@ void PhysicsSystem::OnCreate()
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
     }
 
-    m_enabled = true;
+    Enable();
 }
 
 void PhysicsSystem::OnDestroy()

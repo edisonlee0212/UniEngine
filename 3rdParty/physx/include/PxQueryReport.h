@@ -149,8 +149,8 @@ struct PxLocationHit : public PxQueryHit
 
 	// the following fields are set in accordance with the #PxHitFlags
 	PxHitFlags			flags;		//!< Hit flags specifying which members contain valid values.
-	PxVec3				position;	//!< World-space hit position (flag: #PxHitFlag::ePOSITION)
-	PxVec3				normal;		//!< World-space hit normal (flag: #PxHitFlag::eNORMAL)
+	PxVec3				position;	//!< Scene-space hit position (flag: #PxHitFlag::ePOSITION)
+	PxVec3				normal;		//!< Scene-space hit normal (flag: #PxHitFlag::eNORMAL)
 
 	/**
 	\brief	Distance to hit.

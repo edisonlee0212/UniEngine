@@ -12,9 +12,9 @@ The model for emitting YAML is `std::ostream` manipulators. A `YAML::Emitter` ob
 int main()
 {
    YAML::Emitter out;
-   out << "Hello, World!";
+   out << "Hello, Scene!";
    
-   std::cout << "Here's the output YAML:\n" << out.c_str(); // prints "Hello, World!"
+   std::cout << "Here's the output YAML:\n" << out.c_str(); // prints "Hello, Scene!"
    return 0;
 }
 ```

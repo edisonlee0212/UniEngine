@@ -68,3 +68,7 @@ std::string ISystem::GetName()
 {
     return m_name;
 }
+std::shared_ptr<Scene> ISystem::GetOwner()
+{
+    return m_scene;
+}

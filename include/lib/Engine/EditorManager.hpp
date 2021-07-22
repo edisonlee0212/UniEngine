@@ -1,6 +1,6 @@
 #pragma once
 #include <AssetManager.hpp>
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <Core/OpenGLUtils.hpp>
 #include <Gui.hpp>
 #include <ISingleton.hpp>
@@ -107,7 +107,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     float m_sensitivity = 0.1f;
     bool m_lockCamera;
 
-    CameraComponent m_sceneCamera;
+    Camera m_sceneCamera;
     glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
     glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
     glm::quat m_defaultSceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
@@ -128,7 +128,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void RenderToSceneCamera();
     static Entity GetSelectedEntity();
     static void SetSelectedEntity(const Entity &entity, const bool &openMenu = true);
-    static CameraComponent &GetSceneCamera();
+    static Camera &GetSceneCamera();
     template <typename T = IAsset> static bool DragAndDrop(std::shared_ptr<T> &target);
     template <typename T = IAsset> static bool Draggable(std::shared_ptr<T> &target);
     static bool DragAndDrop(Entity &entity);

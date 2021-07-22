@@ -1,11 +1,11 @@
 #pragma once
 #include <Core/Debug.hpp>
-#include <SerializationManager.hpp>
 #include <Entity.hpp>
 #include <ISingleton.hpp>
 #include <JobManager.hpp>
+#include <Scene.hpp>
+#include <SerializationManager.hpp>
 #include <Transform.hpp>
-#include <World.hpp>
 namespace UniEngine
 {
 template <typename T> DataComponentType Typeof()
@@ -28,7 +28,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend class PrivateComponentStorage;
     friend class TransformManager;
     friend class EditorManager;
-    friend class World;
+    friend class Scene;
     friend class SerializationManager;
     friend struct EntityArchetype;
     friend struct EntityQuery;
@@ -38,9 +38,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     EntityArchetype m_basicArchetype = EntityArchetype();
 
 #pragma region Data Storage
-    std::unique_ptr<World> m_world;
+    std::shared_ptr<Scene> m_scene;
 
-    WorldEntityStorage *m_currentAttachedWorldEntityStorage = nullptr;
+    SceneDataStorage *m_currentAttachedWorldEntityStorage = nullptr;
     std::vector<Entity> *m_entities = nullptr;
     std::vector<EntityInfo> *m_entityInfos = nullptr;
     std::vector<DataComponentStorage> *m_entityComponentStorage = nullptr;
@@ -276,7 +276,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
     static void GetAllEntities(std::vector<Entity> &target);
     static void Detach();
-    static void Attach(std::unique_ptr<World> &world);
+    static void Attach(std::shared_ptr<Scene> scene);
     template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
     static Entity CreateEntity(const std::string &name = "New Entity");
@@ -494,15 +494,45 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
 #pragma endregion
     static void ForAllEntities(const std::function<void(int i, Entity entity)> &func);
-    static std::unique_ptr<World> &GetCurrentWorld();
+    static std::shared_ptr<Scene> GetCurrentScene();
 
     static void Init();
 
+    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order);
+    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(const std::string &name, const float &order);
 
 };
 #pragma endregion
 
 #pragma region Functions
+
+template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order){
+    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
+    if (search != scene->m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    auto system = std::make_shared<T>();
+    system->m_scene = scene;
+    system->m_name = name;
+    scene->m_systems.insert({order, system});
+    scene->m_indexedSystems[typeid(T).hash_code()] = system;
+    system->OnCreate();
+    return system;
+}
+template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const std::string &name, const float &order){
+    auto scene = GetCurrentScene();
+    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
+    if (search != scene->m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    auto system = std::make_shared<T>();
+    system->m_scene = scene;
+    system->m_name = name;
+    scene->m_systems.insert({order, system});
+    scene->m_indexedSystems[typeid(T).hash_code()] = system;
+    system->OnCreate();
+    return system;
+}
+
+
 #pragma region Collectors
 
 template <typename T> bool EntityManager::CheckDataComponentTypes(T arg)
@@ -2013,7 +2043,7 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
         i++;
     }
     GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    elements.emplace_back(std::string(typeid(T).name()), typeid(T).hash_code(), new T(), entity);
+    elements.emplace_back(ComponentFactory::GetSerializableTypeName<T>(), typeid(T).hash_code(), new T(), entity);
     return *dynamic_cast<T *>(elements.back().m_privateComponentData);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)

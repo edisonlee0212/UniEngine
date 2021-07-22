@@ -1,5 +1,5 @@
 #pragma once
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <DefaultResources.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -96,7 +96,7 @@ struct RenderCommandGroup
 
 class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 {
-    CameraComponent *m_mainCameraComponent = nullptr;
+    Camera *m_mainCameraComponent = nullptr;
 #pragma region Global Var
 #pragma region GUI
     bool m_enableRenderMenu = true;
@@ -104,12 +104,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_deferredRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_deferredInstancedRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_forwardRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_forwardInstancedRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_transparentRenderInstances;
-    std::map<CameraComponent *, std::map<Material *, RenderCommandGroup>> m_instancedTransparentRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_deferredRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_deferredInstancedRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_forwardRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_forwardInstancedRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_transparentRenderInstances;
+    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -220,24 +220,24 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     LightSettingsBlock m_lightSettings;
     MaterialSettingsBlock m_materialSettings;
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;
-    static void ApplyShadowMapSettings(const CameraComponent &cameraComponent);
-    static void ApplyEnvironmentalSettings(const CameraComponent &cameraComponent);
+    static void ApplyShadowMapSettings(const Camera &cameraComponent);
+    static void ApplyEnvironmentalSettings(const Camera &cameraComponent);
     static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const Material *material);
     static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
     static void ReleaseMaterialSettings(const Material *material);
-    static void RenderToCamera(CameraComponent &cameraComponent);
+    static void RenderToCamera(Camera &cameraComponent);
     static void ShadowMapPrePass(
         const int &enabledSize,
         std::shared_ptr<OpenGLUtils::GLProgram> &defaultProgram,
         std::shared_ptr<OpenGLUtils::GLProgram> &defaultInstancedProgram,
         std::shared_ptr<OpenGLUtils::GLProgram> &skinnedProgram,
         std::shared_ptr<OpenGLUtils::GLProgram> &instancedSkinnedProgram);
-    static void RenderShadows(Bound &worldBound, CameraComponent &cameraComponent, const Entity &mainCameraEntity);
+    static void RenderShadows(Bound &worldBound, Camera &cameraComponent, const Entity &mainCameraEntity);
     static void Init();
     // Main rendering happens here.
 
-    static void CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool &calculateBound = false);
+    static void CollectRenderInstances(Camera &camera, Bound &worldBound, const bool &calculateBound = false);
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetDirectionalLightShadowMapResolution(const size_t &value);
@@ -270,9 +270,9 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const float &depth,
         const glm::vec2 &center,
         const glm::vec2 &size,
-        const CameraComponent &cameraComponent);
-    static void SetMainCamera(CameraComponent *value);
-    static CameraComponent *GetMainCamera();
+        const Camera &cameraComponent);
+    static void SetMainCamera(Camera *value);
+    static Camera *GetMainCamera();
 #pragma region Gizmos
     static void DrawGizmoMesh(
         const Mesh *mesh,
@@ -294,7 +294,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
     static void DrawGizmoMesh(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color = glm::vec4(1.0f),
@@ -302,7 +302,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const float &size = 1.0f);
     static void DrawGizmoMeshInstanced(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
@@ -311,7 +311,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
         const Mesh *mesh,
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const std::vector<glm::vec4> &colors,
@@ -334,7 +334,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void DrawGizmoRay(
         const glm::vec4 &color, Ray &ray, const float &width = 0.01f);
     static void DrawGizmoRay(
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
@@ -342,21 +342,21 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::vec3 &end,
         const float &width = 0.01f);
     static void DrawGizmoRays(
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
         std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
         const float &width = 0.01f);
     static void DrawGizmoRays(
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
         std::vector<Ray> &rays,
         const float &width = 0.01f);
     static void DrawGizmoRay(
-        const CameraComponent &cameraComponent,
+        const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
@@ -367,7 +367,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         Mesh *mesh,
         Material *material,
         const glm::mat4 &model,
-        CameraComponent &cameraComponent,
+        Camera &cameraComponent,
         const bool &receiveShadow = true,
         const bool &castShadow = true);
     static void DrawMeshInstanced(
@@ -375,7 +375,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         Material *material,
         const glm::mat4 &model,
         std::vector<glm::mat4> &matrices,
-        CameraComponent &cameraComponent,
+        Camera &cameraComponent,
         const bool &receiveShadow = true,
         const bool &castShadow = true);
 #pragma endregion

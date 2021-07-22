@@ -1,7 +1,7 @@
 #pragma once
 #include <Material.hpp>
 #include <Mesh.hpp>
-#include <World.hpp>
+#include <Scene.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API Particles : public IPrivateComponent

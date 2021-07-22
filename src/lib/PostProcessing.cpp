@@ -47,13 +47,13 @@ void PostProcessing::OnCreate()
 
 void PostProcessing::Process()
 {
-    if(!GetOwner().HasPrivateComponent<CameraComponent>()) return;
-    auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
+    if(!GetOwner().HasPrivateComponent<Camera>()) return;
+    auto &cameraComponent = GetOwner().GetPrivateComponent<Camera>();
     ResizeResolution(cameraComponent.m_resolutionX, cameraComponent.m_resolutionY);
     auto ltw = cameraComponent.GetOwner().GetDataComponent<GlobalTransform>();
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+    Camera::m_cameraInfoBlock.UpdateMatrices(
         cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
 
     if (m_layers["SSAO"] && m_layers["SSAO"]->m_enabled)
     {
@@ -85,7 +85,7 @@ void PostProcessing::ResizeResolution(int x, int y)
 
 void PostProcessing::OnGui()
 {
-    auto &cameraComponent = GetOwner().GetPrivateComponent<CameraComponent>();
+    auto &cameraComponent = GetOwner().GetPrivateComponent<Camera>();
     for (auto &layer : m_layers)
     {
         if (layer.second)
@@ -143,7 +143,7 @@ void Bloom::ResizeResolution(int x, int y)
     m_flatColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
 }
 
-void Bloom::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
+void Bloom::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -198,7 +198,7 @@ void Bloom::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Bloom::OnGui(CameraComponent &cameraComponent)
+void Bloom::OnGui(Camera &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
@@ -256,7 +256,7 @@ void SSAO::ResizeResolution(int x, int y)
     m_blur->ReSize(0, GL_R16F, GL_RED, GL_FLOAT, 0, x, y);
 }
 
-void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget) const
+void SSAO::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -316,7 +316,7 @@ void SSAO::Process(CameraComponent &cameraComponent, RenderTarget &renderTarget)
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void SSAO::OnGui(CameraComponent &cameraComponent)
+void SSAO::OnGui(Camera &cameraComponent)
 {
     if (ImGui::TreeNode("SSAO Settings"))
     {

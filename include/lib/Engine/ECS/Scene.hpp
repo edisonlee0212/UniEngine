@@ -13,7 +13,7 @@ enum UNIENGINE_API SystemGroup
     PresentationSystemGroup = 2
 };
 
-struct WorldEntityStorage
+struct SceneDataStorage
 {
     size_t m_parentHierarchyVersion = 0;
     std::vector<Entity> m_entities;
@@ -25,29 +25,28 @@ struct WorldEntityStorage
     std::queue<EntityQuery> m_entityQueryPools;
 };
 
-class UNIENGINE_API World
+class UNIENGINE_API Scene
 {
     friend class Application;
     friend class EntityManager;
     friend class SerializationManager;
-    WorldEntityStorage m_worldEntityStorage;
+    SceneDataStorage m_sceneDataStorage;
     std::multimap<float, std::shared_ptr<ISystem>> m_systems;
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     size_t m_index;
     Bound m_worldBound;
 
   public:
+
     void Purge();
-    World &operator=(World &&) = delete;
-    World &operator=(const World &) = delete;
+    Scene &operator=(Scene &&) = delete;
+    Scene &operator=(const Scene &) = delete;
     [[nodiscard]] Bound GetBound() const;
     void SetBound(const Bound &value);
     [[nodiscard]] size_t GetIndex() const;
-    World(size_t index);
-    template <class T = ISystem> std::shared_ptr<T> CreateSystem(const std::string &name, const float &order);
-    template <class T = ISystem> void DestroySystem();
-    template <class T = ISystem> std::shared_ptr<T> GetSystem();
-    ~World();
+    Scene(size_t index);
+    template <typename T = ISystem> void DestroySystem();
+    ~Scene();
     void FixedUpdate();
     void PreUpdate();
     void Update();
@@ -55,20 +54,7 @@ class UNIENGINE_API World
     void OnGui();
 };
 
-template <class T> std::shared_ptr<T> World::CreateSystem(const std::string &name, const float &order)
-{
-    auto system = GetSystem<T>();
-    if (system != nullptr)
-        return system;
-    system = std::make_shared<T>();
-    system->m_world = this;
-    system->m_name = name;
-    m_systems.insert({order, system});
-    m_indexedSystems[typeid(T).hash_code()] = system;
-    system->OnCreate();
-    return system;
-}
-template <class T> void World::DestroySystem()
+template <typename T> void Scene::DestroySystem()
 {
     auto system = GetSystem<T>();
     if (system != nullptr)
@@ -81,12 +67,5 @@ template <class T> void World::DestroySystem()
             return;
         }
     }
-}
-template <class T> std::shared_ptr<T> World::GetSystem()
-{
-    const auto search = m_indexedSystems.find(typeid(T).hash_code());
-    if (search != m_indexedSystems.end())
-        return std::dynamic_pointer_cast<T>(search->second);
-    return nullptr;
 }
 } // namespace UniEngine

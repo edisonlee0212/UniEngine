@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -60,7 +60,7 @@ void RenderManager::DispatchRenderCommands(
 }
 
 #pragma endregion
-void RenderManager::RenderToCamera(CameraComponent &cameraComponent)
+void RenderManager::RenderToCamera(Camera &cameraComponent)
 {
     auto &renderManager = GetInstance();
     cameraComponent.m_gBuffer->Bind();
@@ -238,7 +238,7 @@ void RenderManager::LateUpdate()
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<CameraComponent>();
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
     bool boundCalculated = false;
     if (cameraEntities != nullptr)
     {
@@ -246,7 +246,7 @@ void RenderManager::LateUpdate()
         {
             if (!cameraEntity.IsEnabled())
                 continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+            auto &cameraComponent = cameraEntity.GetPrivateComponent<Camera>();
             if (cameraComponent.IsEnabled())
             {
                 const bool calculateBound = &cameraComponent == renderManager.m_mainCameraComponent;
@@ -262,7 +262,7 @@ void RenderManager::LateUpdate()
 #pragma endregion
 #pragma region Shadowmap prepass
     ProfilerManager::StartEvent("Shadowmap Prepass");
-    EntityManager::GetCurrentWorld()->SetBound(worldBound);
+    EntityManager::GetCurrentScene()->SetBound(worldBound);
     if (renderManager.m_mainCameraComponent != nullptr)
     {
         if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
@@ -289,13 +289,13 @@ void RenderManager::LateUpdate()
         {
             if (!cameraEntity.IsEnabled())
                 continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<CameraComponent>();
+            auto &cameraComponent = cameraEntity.GetPrivateComponent<Camera>();
             if (cameraComponent.IsEnabled())
             {
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
-                CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+                Camera::m_cameraInfoBlock.UpdateMatrices(
                     cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-                CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+                Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
                 ApplyShadowMapSettings(cameraComponent);
                 ApplyEnvironmentalSettings(cameraComponent);
                 RenderToCamera(cameraComponent);
@@ -415,7 +415,7 @@ void RenderManager::Init()
 {
     auto &manager = GetInstance();
 
-    CameraComponent::GenerateMatrices();
+    Camera::GenerateMatrices();
     manager.m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     manager.m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
     manager.m_materialSettingsBuffer->SetBase(6);
@@ -654,7 +654,7 @@ void RenderManager::Init()
 
     manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
-void RenderManager::CollectRenderInstances(CameraComponent &camera, Bound &worldBound, const bool &calculateBound)
+void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, const bool &calculateBound)
 {
     auto &renderManager = GetInstance();
 
@@ -1345,7 +1345,7 @@ void RenderManager::ShadowMapPrePass(
             false);
     }
 }
-void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComponent, const Entity &mainCameraEntity)
+void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, const Entity &mainCameraEntity)
 {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -1397,7 +1397,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
                     float max = 0;
                     glm::vec3 lightPos;
                     glm::vec3 cornerPoints[8];
-                    CameraComponent::CalculateFrustumPoints(
+                    Camera::CalculateFrustumPoints(
                         cameraComponent, splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
                     glm::vec3 cameraFrustumCenter =
                         (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) +
@@ -1811,7 +1811,7 @@ void RenderManager::RenderShadows(Bound &worldBound, CameraComponent &cameraComp
 #pragma region RenderAPI
 #pragma region Internal
 
-void RenderManager::ApplyShadowMapSettings(const CameraComponent &cameraComponent)
+void RenderManager::ApplyShadowMapSettings(const Camera &cameraComponent)
 {
     auto &renderManager = GetInstance();
 #pragma region Shadow map binding and default texture binding.
@@ -1825,7 +1825,7 @@ void RenderManager::ApplyShadowMapSettings(const CameraComponent &cameraComponen
 #pragma endregion
 }
 
-void RenderManager::ApplyEnvironmentalSettings(const CameraComponent &cameraComponent)
+void RenderManager::ApplyEnvironmentalSettings(const Camera &cameraComponent)
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
@@ -2373,11 +2373,11 @@ void RenderManager::DrawGizmoMeshInstanced(
     {
         if (sceneCamera.IsEnabled())
         {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+            Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+            Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
             DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
@@ -2396,11 +2396,11 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     {
         if (sceneCamera.IsEnabled())
         {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+            Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+            Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
             DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
         }
@@ -2409,22 +2409,22 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 
 void RenderManager::DrawGizmoMesh(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
     const glm::mat4 &model,
     const float &size)
 {
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
     DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2432,15 +2432,15 @@ void RenderManager::DrawGizmoMeshInstanced(
     const glm::mat4 &model,
     const float &size)
 {
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
     DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
     const Mesh *mesh,
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const std::vector<glm::vec4> &colors,
@@ -2448,8 +2448,8 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     const glm::mat4 &model,
     const float &size)
 {
-    CameraComponent::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-    CameraComponent::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent.Bind();
     DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
@@ -2524,7 +2524,7 @@ void RenderManager::DrawGizmoRay(
 }
 
 void RenderManager::DrawGizmoRay(
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2541,7 +2541,7 @@ void RenderManager::DrawGizmoRay(
 }
 
 void RenderManager::DrawGizmoRays(
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2567,7 +2567,7 @@ void RenderManager::DrawGizmoRays(
 }
 
 void RenderManager::DrawGizmoRays(
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2592,7 +2592,7 @@ void RenderManager::DrawGizmoRays(
 }
 
 void RenderManager::DrawGizmoRay(
-    const CameraComponent &cameraComponent,
+    const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2611,7 +2611,7 @@ void RenderManager::DrawMesh(
     Mesh *mesh,
     Material *material,
     const glm::mat4 &model,
-    CameraComponent &cameraComponent,
+    Camera &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)
 {
@@ -2640,7 +2640,7 @@ void RenderManager::DrawMeshInstanced(
     Material *material,
     const glm::mat4 &model,
     std::vector<glm::mat4> &matrices,
-    CameraComponent &cameraComponent,
+    Camera &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)
 {
@@ -2683,18 +2683,18 @@ void RenderManager::DrawTexture2D(
     const float &depth,
     const glm::vec2 &center,
     const glm::vec2 &size,
-    const CameraComponent &cameraComponent)
+    const Camera &cameraComponent)
 {
     if (EditorManager::GetInstance().m_enabled)
     {
         auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
         if (&cameraComponent != &sceneCamera && sceneCamera.IsEnabled())
         {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+            Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+            Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
             DrawTexture2D(texture->Texture().get(), depth, center, size);
         }
@@ -2707,7 +2707,7 @@ void RenderManager::DrawTexture2D(
     cameraComponent.Bind();
     DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
-void RenderManager::SetMainCamera(CameraComponent *value)
+void RenderManager::SetMainCamera(Camera *value)
 {
     if (GetInstance().m_mainCameraComponent)
     {
@@ -2718,7 +2718,7 @@ void RenderManager::SetMainCamera(CameraComponent *value)
         GetInstance().m_mainCameraComponent->m_isMainCamera = true;
 }
 
-CameraComponent *RenderManager::GetMainCamera()
+Camera *RenderManager::GetMainCamera()
 {
     return GetInstance().m_mainCameraComponent;
 }
@@ -2747,11 +2747,11 @@ void RenderManager::DrawGizmoMesh(
     {
         if (sceneCamera.IsEnabled())
         {
-            CameraComponent::m_cameraInfoBlock.UpdateMatrices(
+            Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
-            CameraComponent::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+            Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
             DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }

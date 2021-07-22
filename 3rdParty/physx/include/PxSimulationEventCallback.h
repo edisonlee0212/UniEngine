@@ -116,7 +116,7 @@ public:
 
 
 /**
-\brief World space actor poses of the contact pair rigid bodies
+\brief Scene space actor poses of the contact pair rigid bodies
 
 @see PxContactPairHeader.extraDataStream PxPairFlag::eCONTACT_EVENT_POSE
 */

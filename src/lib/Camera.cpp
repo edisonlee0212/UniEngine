@@ -2,7 +2,7 @@
 
 #include <Core/FileIO.hpp>
 
-#include <CameraComponent.hpp>
+#include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -12,8 +12,8 @@
 #include <Texture2D.hpp>
 using namespace UniEngine;
 
-CameraInfoBlock CameraComponent::m_cameraInfoBlock;
-std::unique_ptr<OpenGLUtils::GLUBO> CameraComponent::m_cameraUniformBufferBlock;
+CameraInfoBlock Camera::m_cameraInfoBlock;
+std::unique_ptr<OpenGLUtils::GLUBO> Camera::m_cameraUniformBufferBlock;
 
 
 Plane::Plane() : m_a(0), m_b(0), m_c(0), m_d(0)
@@ -29,17 +29,17 @@ void Plane::Normalize()
     m_d /= mag;
 }
 
-void CameraComponent::StoreToJpg(const std::string &path, int resizeX, int resizeY) const
+void Camera::StoreToJpg(const std::string &path, int resizeX, int resizeY) const
 {
     m_colorTexture->StoreToPng(path, resizeX, resizeY);
 }
 
-void CameraComponent::StoreToPng(const std::string &path, int resizeX, int resizeY, bool alphaChannel) const
+void Camera::StoreToPng(const std::string &path, int resizeX, int resizeY, bool alphaChannel) const
 {
     m_colorTexture->StoreToPng(path, resizeX, resizeY, alphaChannel);
 }
 
-void CameraComponent::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view)
+void Camera::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view)
 {
     glm::mat4 comboMatrix = projection * glm::transpose(view);
     planes[0].m_a = comboMatrix[3][0] + comboMatrix[0][0];
@@ -80,8 +80,8 @@ void CameraComponent::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 proj
     planes[5].Normalize();
 }
 
-void CameraComponent::CalculateFrustumPoints(
-    CameraComponent &cameraComponrnt,
+void Camera::CalculateFrustumPoints(
+    Camera &cameraComponrnt,
     float nearPlane,
     float farPlane,
     glm::vec3 cameraPos,
@@ -110,7 +110,7 @@ void CameraComponent::CalculateFrustumPoints(
     points[7] = cameraPos + farCenter + right * far_ext_x - up * far_ext_y;
 }
 
-glm::quat CameraComponent::ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch)
+glm::quat Camera::ProcessMouseMovement(float yawAngle, float pitchAngle, bool constrainPitch)
 {
     // Make sure that when pitch is out of bounds, screen doesn't get flipped
     if (constrainPitch)
@@ -133,7 +133,7 @@ glm::quat CameraComponent::ProcessMouseMovement(float yawAngle, float pitchAngle
     return glm::quatLookAt(front, up);
 }
 
-void CameraComponent::ReverseAngle(
+void Camera::ReverseAngle(
     const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch)
 {
     const auto angle = glm::degrees(glm::eulerAngles(rotation));
@@ -148,22 +148,22 @@ void CameraComponent::ReverseAngle(
     }
 }
 
-std::shared_ptr<Texture2D> CameraComponent::GetTexture() const
+std::shared_ptr<Texture2D> Camera::GetTexture() const
 {
     return m_colorTexture;
 }
 
-glm::mat4 CameraComponent::GetProjection() const
+glm::mat4 Camera::GetProjection() const
 {
     return glm::perspective(glm::radians(m_fov * 0.5f), GetResolutionRatio(), m_nearDistance, m_farDistance);
 }
 
-glm::vec3 CameraComponent::Project(GlobalTransform &ltw, glm::vec3 position)
+glm::vec3 Camera::Project(GlobalTransform &ltw, glm::vec3 position)
 {
     return m_cameraInfoBlock.m_projection * m_cameraInfoBlock.m_view * glm::vec4(position, 1.0f);
 }
 
-glm::vec3 CameraComponent::UnProject(GlobalTransform &ltw, glm::vec3 position) const
+glm::vec3 Camera::UnProject(GlobalTransform &ltw, glm::vec3 position) const
 {
     glm::mat4 inversed = glm::inverse(m_cameraInfoBlock.m_projection * m_cameraInfoBlock.m_view);
     glm::vec4 start = glm::vec4(position, 1.0f);
@@ -171,7 +171,7 @@ glm::vec3 CameraComponent::UnProject(GlobalTransform &ltw, glm::vec3 position) c
     return start / start.w;
 }
 
-glm::vec3 CameraComponent::GetMouseWorldPoint(GlobalTransform &ltw, glm::vec2 mousePosition) const
+glm::vec3 Camera::GetMouseWorldPoint(GlobalTransform &ltw, glm::vec2 mousePosition) const
 {
     const float halfX = static_cast<float>(m_resolutionX) / 2.0f;
     const float halfY = static_cast<float>(m_resolutionY) / 2.0f;
@@ -180,14 +180,14 @@ glm::vec3 CameraComponent::GetMouseWorldPoint(GlobalTransform &ltw, glm::vec2 mo
     return start / start.w;
 }
 
-void CameraComponent::SetClearColor(glm::vec3 color) const
+void Camera::SetClearColor(glm::vec3 color) const
 {
     m_frameBuffer->ClearColor(glm::vec4(color.x, color.y, color.z, 0.0f));
     m_frameBuffer->Clear();
     m_frameBuffer->ClearColor(glm::vec4(0.0f));
 }
 
-Ray CameraComponent::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) const
+Ray Camera::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) const
 {
     const auto position = ltw.GetPosition();
     const auto rotation = ltw.GetRotation();
@@ -213,14 +213,14 @@ Ray CameraComponent::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosit
     return {glm::vec3(ltw.m_value[3]) + m_nearDistance * dir, glm::vec3(ltw.m_value[3]) + m_farDistance * dir};
 }
 
-void CameraComponent::GenerateMatrices()
+void Camera::GenerateMatrices()
 {
     m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
     m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
     m_cameraUniformBufferBlock->SetBase(0);
 }
 
-void CameraComponent::ResizeResolution(int x, int y)
+void Camera::ResizeResolution(int x, int y)
 {
     if (m_resolutionX == x && m_resolutionY == y)
         return;
@@ -237,7 +237,7 @@ void CameraComponent::ResizeResolution(int x, int y)
         0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, m_resolutionX, m_resolutionY);
 }
 
-void CameraComponent::OnCreate()
+void Camera::OnCreate()
 {
     m_resolutionX = 1;
     m_resolutionY = 1;
@@ -301,7 +301,7 @@ void CameraComponent::OnCreate()
     SetEnabled(true);
 }
 
-void CameraComponent::Serialize(YAML::Emitter &out)
+void Camera::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "_ResolutionX" << YAML::Value << m_resolutionX;
     out << YAML::Key << "_ResolutionY" << YAML::Value << m_resolutionY;
@@ -314,7 +314,7 @@ void CameraComponent::Serialize(YAML::Emitter &out)
     out << YAML::Key << "FOV" << YAML::Value << m_fov;
 }
 
-void CameraComponent::Deserialize(const YAML::Node &in)
+void Camera::Deserialize(const YAML::Node &in)
 {
     m_resolutionX = in["_ResolutionX"].as<int>();
     m_resolutionY = in["_ResolutionY"].as<int>();
@@ -331,7 +331,7 @@ void CameraComponent::Deserialize(const YAML::Node &in)
     m_fov = in["FOV"].as<float>();
 }
 
-void CameraComponent::OnDestroy()
+void Camera::OnDestroy()
 {
     if (RenderManager::GetMainCamera() == this)
     {
@@ -339,7 +339,7 @@ void CameraComponent::OnDestroy()
     }
 }
 
-void CameraComponent::OnGui()
+void Camera::OnGui()
 {
     ImGui::Checkbox("Allow auto resize", &m_allowAutoResize);
     if (!m_allowAutoResize)
@@ -393,7 +393,7 @@ void CameraComponent::OnGui()
     }
 }
 
-void CameraInfoBlock::UpdateMatrices(const CameraComponent &camera, glm::vec3 position, glm::quat rotation)
+void CameraInfoBlock::UpdateMatrices(const Camera &camera, glm::vec3 position, glm::quat rotation)
 {
     const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
     const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
@@ -409,7 +409,7 @@ void CameraInfoBlock::UpdateMatrices(const CameraComponent &camera, glm::vec3 po
         static_cast<float>(camera.m_resolutionX) / camera.m_resolutionY);
 }
 
-void CameraInfoBlock::UploadMatrices(const CameraComponent &camera) const
+void CameraInfoBlock::UploadMatrices(const Camera &camera) const
 {
-    CameraComponent::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
+    Camera::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
 }

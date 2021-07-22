@@ -1,21 +1,21 @@
 #include <Application.hpp>
 
 #include <EntityManager.hpp>
-#include <World.hpp>
+#include <Scene.hpp>
 
 #include <PhysicsManager.hpp>
 
 using namespace UniEngine;
 
-void World::Purge()
+void Scene::Purge()
 {
-    m_worldEntityStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();
-    m_worldEntityStorage.m_entities.clear();
-    m_worldEntityStorage.m_entityInfos.clear();
-    m_worldEntityStorage.m_parentHierarchyVersion = 0;
-    for (int index = 1; index < m_worldEntityStorage.m_entityComponentStorage.size(); index++)
+    m_sceneDataStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();
+    m_sceneDataStorage.m_entities.clear();
+    m_sceneDataStorage.m_entityInfos.clear();
+    m_sceneDataStorage.m_parentHierarchyVersion = 0;
+    for (int index = 1; index < m_sceneDataStorage.m_entityComponentStorage.size(); index++)
     {
-        auto &i = m_worldEntityStorage.m_entityComponentStorage[index];
+        auto &i = m_sceneDataStorage.m_entityComponentStorage[index];
         for (auto &chunk : i.m_chunkArray->Chunks)
             free(chunk.m_data);
         i.m_chunkArray->Chunks.clear();
@@ -24,52 +24,50 @@ void World::Purge()
         i.m_archetypeInfo->m_entityCount = 0;
     }
 
-    m_worldEntityStorage.m_entities.emplace_back();
-    m_worldEntityStorage.m_entityInfos.emplace_back();
+    m_sceneDataStorage.m_entities.emplace_back();
+    m_sceneDataStorage.m_entityInfos.emplace_back();
 }
 
-Bound World::GetBound() const
+Bound Scene::GetBound() const
 {
     return m_worldBound;
 }
 
-void World::SetBound(const Bound &value)
+void Scene::SetBound(const Bound &value)
 {
     m_worldBound = value;
 }
 
-size_t World::GetIndex() const
+size_t Scene::GetIndex() const
 {
     return m_index;
 }
 
-World::World(size_t index)
+Scene::Scene(size_t index)
 {
     m_index = index;
-    m_worldEntityStorage = WorldEntityStorage();
-    m_worldEntityStorage.m_entities.emplace_back();
-    m_worldEntityStorage.m_entityInfos.emplace_back();
-    m_worldEntityStorage.m_entityComponentStorage.emplace_back(nullptr, nullptr);
-    m_worldEntityStorage.m_entityQueries.emplace_back();
-    m_worldEntityStorage.m_entityQueryInfos.emplace_back();
-
-    CreateSystem<PhysicsSystem>("PhysicsSystem", SystemGroup::SimulationSystemGroup);
+    m_sceneDataStorage = SceneDataStorage();
+    m_sceneDataStorage.m_entities.emplace_back();
+    m_sceneDataStorage.m_entityInfos.emplace_back();
+    m_sceneDataStorage.m_entityComponentStorage.emplace_back(nullptr, nullptr);
+    m_sceneDataStorage.m_entityQueries.emplace_back();
+    m_sceneDataStorage.m_entityQueryInfos.emplace_back();
 }
 
-World::~World()
+Scene::~Scene()
 {
     Purge();
     for (auto &i : m_systems)
     {
         i.second->OnDestroy();
     }
-    if (EntityManager::GetInstance().m_currentAttachedWorldEntityStorage == &m_worldEntityStorage)
+    if (EntityManager::GetInstance().m_currentAttachedWorldEntityStorage == &m_sceneDataStorage)
     {
         EntityManager::Detach();
     };
 }
 
-void World::PreUpdate()
+void Scene::PreUpdate()
 {
     for (auto &i : m_systems)
     {
@@ -82,7 +80,7 @@ void World::PreUpdate()
     }
 }
 
-void World::Update()
+void Scene::Update()
 {
     for (auto &i : m_systems)
     {
@@ -95,7 +93,7 @@ void World::Update()
     }
 }
 
-void World::LateUpdate()
+void Scene::LateUpdate()
 {
     for (auto &i : m_systems)
     {
@@ -106,7 +104,7 @@ void World::LateUpdate()
         }
     }
 }
-void World::FixedUpdate()
+void Scene::FixedUpdate()
 {
     for (auto &i : m_systems)
     {
@@ -118,7 +116,7 @@ void World::FixedUpdate()
     }
 }
 
-void World::OnGui()
+void Scene::OnGui()
 {
     for (auto &i : m_systems)
     {

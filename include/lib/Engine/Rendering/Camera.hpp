@@ -4,7 +4,7 @@
 #include <RenderTarget.hpp>
 namespace UniEngine
 {
-class CameraComponent;
+class Camera;
 struct GlobalTransform;
 
 struct UNIENGINE_API Plane
@@ -20,13 +20,13 @@ struct UNIENGINE_API CameraInfoBlock
     glm::mat4 m_view;
     glm::vec4 m_reservedParameters;
     glm::vec4 m_position;
-    void UpdateMatrices(const CameraComponent &camera, glm::vec3 position, glm::quat rotation);
-    void UploadMatrices(const CameraComponent &camera) const;
+    void UpdateMatrices(const Camera &camera, glm::vec3 position, glm::quat rotation);
+    void UploadMatrices(const Camera &camera) const;
 };
 struct Ray;
 
 class Cubemap;
-class UNIENGINE_API CameraComponent final : public IPrivateComponent, public RenderTarget
+class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 {
     friend class RenderManager;
     friend class EditorManager;
@@ -59,7 +59,7 @@ class UNIENGINE_API CameraComponent final : public IPrivateComponent, public Ren
 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
     static void CalculateFrustumPoints(
-        CameraComponent &cameraComponrnt,
+        Camera &cameraComponrnt,
         float nearPlane,
         float farPlane,
         glm::vec3 cameraPos,

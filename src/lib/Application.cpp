@@ -48,7 +48,7 @@ void Application::Init(bool fullScreen)
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
     mainCameraEntity.SetDataComponent(cameraLtw);
-    auto &mainCameraComponent = mainCameraEntity.SetPrivateComponent<CameraComponent>();
+    auto &mainCameraComponent = mainCameraEntity.SetPrivateComponent<Camera>();
     RenderManager::SetMainCamera(&mainCameraComponent);
     mainCameraComponent.m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
@@ -117,9 +117,9 @@ void Application::PreUpdateInternal()
 
     if (application.m_playing)
     {
-        ProfilerManager::StartEvent("World");
-        EntityManager::GetInstance().m_world->PreUpdate();
-        ProfilerManager::EndEvent("World");
+        ProfilerManager::StartEvent("Scene");
+        EntityManager::GetInstance().m_scene->PreUpdate();
+        ProfilerManager::EndEvent("Scene");
     }
 
     application.m_needFixedUpdate = false;
@@ -138,9 +138,9 @@ void Application::PreUpdateInternal()
             i();
         ProfilerManager::EndEvent("Externals");
         if (application.m_playing){
-            ProfilerManager::StartEvent("World");
-            EntityManager::GetInstance().m_world->FixedUpdate();
-            ProfilerManager::EndEvent("World");
+            ProfilerManager::StartEvent("Scene");
+            EntityManager::GetInstance().m_scene->FixedUpdate();
+            ProfilerManager::EndEvent("Scene");
         }
         application.m_time.EndFixedUpdate();
         ProfilerManager::EndEvent("FixedUpdate");
@@ -161,9 +161,9 @@ void Application::UpdateInternal()
     ProfilerManager::EndEvent("Externals");
     if (application.m_playing)
     {
-        ProfilerManager::StartEvent("World");
-        EntityManager::GetInstance().m_world->Update();
-        ProfilerManager::EndEvent("World");
+        ProfilerManager::StartEvent("Scene");
+        EntityManager::GetInstance().m_scene->Update();
+        ProfilerManager::EndEvent("Scene");
     }
     ProfilerManager::EndEvent("Update");
 }
@@ -180,12 +180,12 @@ bool Application::LateUpdateInternal()
     ProfilerManager::EndEvent("Externals");
     if (application.m_playing)
     {
-        ProfilerManager::StartEvent("World");
-        EntityManager::GetInstance().m_world->LateUpdate();
-        ProfilerManager::EndEvent("World");
+        ProfilerManager::StartEvent("Scene");
+        EntityManager::GetInstance().m_scene->LateUpdate();
+        ProfilerManager::EndEvent("Scene");
     }
     ProfilerManager::StartEvent("Internals");
-    EntityManager::GetInstance().m_world->OnGui();
+    EntityManager::GetInstance().m_scene->OnGui();
 
     //Post-processing happens here
     RenderManager::LateUpdate();
@@ -230,7 +230,7 @@ bool Application::IsInitialized()
 
 void Application::End()
 {
-    EntityManager::GetInstance().m_world.reset();
+    EntityManager::GetInstance().m_scene.reset();
     PhysicsManager::Destroy();
     // glfwTerminate();
 }

@@ -1,9 +1,9 @@
 #pragma once
-#include <Core/OpenGLUtils.hpp>
-#include <Transform.hpp>
-#include <World.hpp>
-#include <uniengine_export.h>
 #include <Animation.hpp>
+#include <Core/OpenGLUtils.hpp>
+#include <Scene.hpp>
+#include <Transform.hpp>
+#include <uniengine_export.h>
 namespace UniEngine
 {
 class UNIENGINE_API Animator : public IPrivateComponent

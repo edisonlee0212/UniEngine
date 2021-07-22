@@ -1,6 +1,7 @@
 #include <Core/Debug.hpp>
 #include <EntityManager.hpp>
-#include <World.hpp>
+#include <Scene.hpp>
+#include <PhysicsManager.hpp>
 using namespace UniEngine;
 
 #pragma region EntityManager
@@ -274,17 +275,17 @@ std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
     return GetInstance().m_entities;
 }
 
-void EntityManager::Attach(std::unique_ptr<World> &world)
+void EntityManager::Attach(std::shared_ptr<Scene> scene)
 {
-    WorldEntityStorage *targetStorage = &world->m_worldEntityStorage;
-    GetInstance().m_currentAttachedWorldEntityStorage = targetStorage;
-    GetInstance().m_entities = &targetStorage->m_entities;
-    GetInstance().m_entityInfos = &targetStorage->m_entityInfos;
-    GetInstance().m_entityComponentStorage = &targetStorage->m_entityComponentStorage;
-    GetInstance().m_entityPrivateComponentStorage = &targetStorage->m_entityPrivateComponentStorage;
-    GetInstance().m_entityQueries = &targetStorage->m_entityQueries;
-    GetInstance().m_entityQueryInfos = &targetStorage->m_entityQueryInfos;
-    GetInstance().m_entityQueryPools = &targetStorage->m_entityQueryPools;
+    auto& targetStorage = scene->m_sceneDataStorage;
+    GetInstance().m_currentAttachedWorldEntityStorage = &targetStorage;
+    GetInstance().m_entities = &targetStorage.m_entities;
+    GetInstance().m_entityInfos = &targetStorage.m_entityInfos;
+    GetInstance().m_entityComponentStorage = &targetStorage.m_entityComponentStorage;
+    GetInstance().m_entityPrivateComponentStorage = &targetStorage.m_entityPrivateComponentStorage;
+    GetInstance().m_entityQueries = &targetStorage.m_entityQueries;
+    GetInstance().m_entityQueryInfos = &targetStorage.m_entityQueryInfos;
+    GetInstance().m_entityQueryPools = &targetStorage.m_entityQueryPools;
     GetInstance().m_basicArchetype = CreateEntityArchetype("Basic", Transform(), GlobalTransform());
 }
 
@@ -1325,12 +1326,13 @@ template <typename T> const std::vector<Entity> EntityManager::GetPrivateCompone
 void EntityManager::Init()
 {
     auto &entityManager = GetInstance();
-    entityManager.m_world = std::make_unique<World>(0);
-    EntityManager::Attach(entityManager.m_world);
+    entityManager.m_scene = std::make_shared<Scene>(0);
+    GetOrCreateSystem<PhysicsSystem>("PhysicsSystem", SystemGroup::SimulationSystemGroup);
+    EntityManager::Attach(entityManager.m_scene);
 }
-std::unique_ptr<World> &EntityManager::GetCurrentWorld()
+std::shared_ptr<Scene> EntityManager::GetCurrentScene()
 {
-    return GetInstance().m_world;
+    return GetInstance().m_scene;
 }
 
 size_t EntityQuery::GetEntityAmount() const

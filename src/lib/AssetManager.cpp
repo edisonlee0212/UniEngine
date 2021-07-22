@@ -1416,16 +1416,16 @@ void AssetManager::OnGui()
         {
             if (ImGui::BeginMenu("Open..."))
             {
-                FileIO::OpenFile("Load World", ".uniengineworld", [](const std::string &filePath) {
-                    SerializationManager::Deserialize(EntityManager::GetCurrentWorld(), filePath);
+                FileIO::OpenFile("Load Scene", ".unienginescene", [](const std::string &filePath) {
+                    SerializationManager::Deserialize(EntityManager::GetCurrentScene(), filePath);
                 });
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Save..."))
             {
-                FileIO::SaveFile("Save World", ".uniengineworld", [](const std::string &filePath) {
-                    SerializationManager::Serialize(EntityManager::GetCurrentWorld(), filePath);
+                FileIO::SaveFile("Save Scene", ".unienginescene", [](const std::string &filePath) {
+                    SerializationManager::Serialize(EntityManager::GetCurrentScene(), filePath);
                 });
                 ImGui::EndMenu();
             }

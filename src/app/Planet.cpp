@@ -15,17 +15,16 @@ int main()
     ComponentFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
     Application::Init();
 #pragma region Preparations
-    auto &world = EntityManager::GetCurrentWorld();
     EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
-    auto ccs = world->CreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
+    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
     ccs->SetSensitivity(0.1f);
     ccs->SetVelocity(15.0f);
     ccs->Enable();
 
     RenderManager::GetMainCamera()->m_useClearColor = false;
 
-    auto pts = world->CreateSystem<PlanetTerrainSystem>("PlanetTerrainSystem", SystemGroup::SimulationSystemGroup);
+    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>("PlanetTerrainSystem", SystemGroup::SimulationSystemGroup);
     pts->Enable();
 
     PlanetInfo pi;

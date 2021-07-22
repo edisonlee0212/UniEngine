@@ -19,7 +19,7 @@ class UNIENGINE_API Texture2D : public IAsset
     std::string m_path;
     friend class AssetManager;
     friend class EnvironmentalMap;
-    friend class CameraComponent;
+    friend class Camera;
 
   public:
     float m_gamma = 1.0f;

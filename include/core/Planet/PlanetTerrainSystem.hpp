@@ -24,7 +24,7 @@ class PlanetTerrainSystem : public ISystem
         std::unique_ptr<TerrainChunk> &chunk,
         Material *material,
         glm::mat4 &matrix,
-        CameraComponent *camera,
+        Camera *camera,
         bool receiveShadow) const;
 };
 } // namespace Planet
