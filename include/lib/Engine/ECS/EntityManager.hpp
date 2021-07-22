@@ -500,12 +500,25 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order);
     template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(const std::string &name, const float &order);
-
+    template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
+    template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
 #pragma endregion
 
 #pragma region Functions
-
+template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_ptr<Scene> scene){
+    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
+    if (search != scene->m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    return nullptr;
+}
+template <typename T> std::shared_ptr<T> EntityManager::GetSystem(){
+    auto scene = GetCurrentScene();
+    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
+    if (search != scene->m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    return nullptr;
+}
 template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const std::string &name, const float &order){
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
