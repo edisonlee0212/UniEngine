@@ -78,13 +78,12 @@ struct RenderCommand
     RenderCommandType m_commandType = RenderCommandType::FromRenderer;
     RenderCommandMeshType m_meshType = RenderCommandMeshType::Default;
     Entity m_owner = Entity();
-    union {
-        Mesh *m_mesh;
-        SkinnedMeshRenderer *m_skinnedMeshRenderer; // We require the skinned mesh renderer to provide bones.
-    };
+    std::shared_ptr<Mesh> m_mesh = nullptr;
+    std::shared_ptr<SkinnedMesh> m_skinnedMesh = nullptr;
     bool m_castShadow = true;
     bool m_receiveShadow = true;
-    std::vector<glm::mat4> *m_matrices = nullptr;
+    std::shared_ptr<ParticleMatrices> m_matrices = nullptr;
+    std::shared_ptr<BoneMatrices> m_boneMatrices; // We require the skinned mesh renderer to provide bones.
     GlobalTransform m_globalTransform;
 };
 
@@ -104,12 +103,12 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma region Render
 
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_deferredRenderInstances;
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_deferredInstancedRenderInstances;
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_forwardRenderInstances;
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_forwardInstancedRenderInstances;
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_transparentRenderInstances;
-    std::map<Camera *, std::map<Material *, RenderCommandGroup>> m_instancedTransparentRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_deferredRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_deferredInstancedRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_forwardRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_forwardInstancedRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_transparentRenderInstances;
+    std::map<Camera *, std::map<std::shared_ptr<Material>, RenderCommandGroup>> m_instancedTransparentRenderInstances;
 
     std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
@@ -167,33 +166,42 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma endregion
 #pragma endregion
     static void PrepareBrdfLut();
-    static void DeferredPrepassInternal(const Mesh *mesh);
-    static void DeferredPrepassInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices);
-    static void DeferredPrepassInternal(const SkinnedMesh *skinnedMesh);
+    static void DeferredPrepassInternal(const std::shared_ptr<Mesh> &mesh);
     static void DeferredPrepassInstancedInternal(
-        const SkinnedMesh *skinnedMesh, const std::vector<glm::mat4> &matrices);
+        const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices);
+    static void DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh> &skinnedMesh);
+    static void DeferredPrepassInstancedInternal(
+        const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::vector<glm::mat4> &matrices);
 
-    static void DrawMesh(const Mesh *mesh, const Material *material, const glm::mat4 &model, const bool &receiveShadow);
-    static void DrawMeshInternal(const Mesh *mesh);
-    static void DrawMeshInternal(const SkinnedMesh *mesh);
+    static void DrawMesh(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Material> &material,
+        const glm::mat4 &model,
+        const bool &receiveShadow);
+    static void DrawMeshInternal(const std::shared_ptr<Mesh> &mesh);
+    static void DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh);
     static void DrawMeshInstanced(
-        const Mesh *mesh,
-        const Material *material,
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
         const std::vector<glm::mat4> &matrices,
         const bool &receiveShadow);
-    static void DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices);
-    static void DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4> &matrices);
+    static void DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices);
+    static void DrawMeshInstancedInternal(
+        const std::shared_ptr<SkinnedMesh> &mesh, const std::vector<glm::mat4> &matrices);
     static void DrawGizmoMesh(
-        const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix);
+        const std::shared_ptr<Mesh> &mesh,
+        const glm::vec4 &color,
+        const glm::mat4 &model,
+        const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstanced(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const glm::vec4 &color,
         const glm::mat4 &model,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &scaleMatrix);
     static void DrawGizmoMeshInstancedColored(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const std::vector<glm::vec4> &colors,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model,
@@ -209,8 +217,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
   public:
     static void RenderManager::DispatchRenderCommands(
-        const std::map<Material *, RenderCommandGroup> &renderCommands,
-        const std::function<void(Material *material, const RenderCommand &renderCommand)> &func,
+        const std::map<std::shared_ptr<Material>, RenderCommandGroup> &renderCommands,
+        const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
         const bool &setMaterial,
         const bool &bindProgram);
 
@@ -222,10 +230,10 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     EnvironmentalMapSettingsBlock m_environmentalMapSettings;
     static void ApplyShadowMapSettings(const Camera &cameraComponent);
     static void ApplyEnvironmentalSettings(const Camera &cameraComponent);
-    static void MaterialPropertySetter(const Material *material, const bool &disableBlending = false);
-    static void ApplyMaterialSettings(const Material *material);
-    static void ApplyProgramSettings(const OpenGLUtils::GLProgram *program);
-    static void ReleaseMaterialSettings(const Material *material);
+    static void MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending = false);
+    static void ApplyMaterialSettings(const std::shared_ptr<Material> &material);
+    static void ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
+    static void ReleaseMaterialSettings(const std::shared_ptr<Material> &material);
     static void RenderToCamera(Camera &cameraComponent);
     static void ShadowMapPrePass(
         const int &enabledSize,
@@ -275,25 +283,25 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static Camera *GetMainCamera();
 #pragma region Gizmos
     static void DrawGizmoMesh(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const glm::vec4 &color = glm::vec4(1.0f),
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstanced(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const glm::vec4 &color,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const std::vector<glm::vec4> &colors,
         const std::vector<glm::mat4> &matrices,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
 
     static void DrawGizmoMesh(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
@@ -301,7 +309,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstanced(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
@@ -310,7 +318,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoMeshInstancedColored(
-        const Mesh *mesh,
+        const std::shared_ptr<Mesh> &mesh,
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
@@ -319,20 +327,13 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
     static void DrawGizmoRay(
-        const glm::vec4 &color,
-        const glm::vec3 &start,
-        const glm::vec3 &end,
-        const float &width = 0.01f);
+        const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width = 0.01f);
     static void DrawGizmoRays(
         const glm::vec4 &color,
-        std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
+        const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
         const float &width = 0.01f);
-    static void DrawGizmoRays(
-        const glm::vec4 &color,
-        std::vector<Ray> &rays,
-        const float &width = 0.01f);
-    static void DrawGizmoRay(
-        const glm::vec4 &color, Ray &ray, const float &width = 0.01f);
+    static void DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width = 0.01f);
+    static void DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width = 0.01f);
     static void DrawGizmoRay(
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
@@ -346,35 +347,35 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
-        std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
+        const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
         const float &width = 0.01f);
     static void DrawGizmoRays(
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
-        std::vector<Ray> &rays,
+        const std::vector<Ray> &rays,
         const float &width = 0.01f);
     static void DrawGizmoRay(
         const Camera &cameraComponent,
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color,
-        Ray &ray,
+        const Ray &ray,
         const float &width = 0.01f);
 #pragma endregion
     static void DrawMesh(
-        Mesh *mesh,
-        Material *material,
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
         Camera &cameraComponent,
         const bool &receiveShadow = true,
         const bool &castShadow = true);
     static void DrawMeshInstanced(
-        Mesh *mesh,
-        Material *material,
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
-        std::vector<glm::mat4> &matrices,
+        const std::shared_ptr<ParticleMatrices> &matrices,
         Camera &cameraComponent,
         const bool &receiveShadow = true,
         const bool &castShadow = true);

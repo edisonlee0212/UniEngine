@@ -89,7 +89,7 @@ void Articulation::OnGui()
                 statusChanged = true;
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Sphere.get(),
+                    DefaultResources::Primitives::Sphere,
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam.x))),
                     1);
@@ -107,7 +107,7 @@ void Articulation::OnGui()
                 statusChanged = true;
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Cube.get(),
+                    DefaultResources::Primitives::Cube,
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);
@@ -117,7 +117,7 @@ void Articulation::OnGui()
                 statusChanged = true;
             if (m_drawBounds)
                 RenderManager::DrawGizmoMesh(
-                    DefaultResources::Primitives::Cylinder.get(),
+                    DefaultResources::Primitives::Cylinder,
                     displayBoundColor,
                     ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(m_shapeParam))),
                     1);

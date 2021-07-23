@@ -15,6 +15,7 @@ void Planet::PlanetTerrainSystem::Update()
 {
     const std::vector<Entity> *const planetTerrainList =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
+    if(planetTerrainList == nullptr) return;
     for (auto i = 0; i < planetTerrainList->size(); i++)
     {
         auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
@@ -107,7 +108,7 @@ void Planet::PlanetTerrainSystem::RenderChunk(
 {
     if (chunk->Active)
         RenderManager::DrawMesh(
-            chunk->m_mesh.get(), m_defaultSurfaceMaterial.get(), matrix, *RenderManager::GetMainCamera(), true);
+            chunk->m_mesh, m_defaultSurfaceMaterial, matrix, *RenderManager::GetMainCamera(), true);
     if (chunk->ChildrenActive)
     {
         RenderChunk(chunk->m_c0, material, matrix, camera, receiveShadow);

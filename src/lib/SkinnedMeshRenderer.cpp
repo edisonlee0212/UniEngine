@@ -16,7 +16,7 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
     if (size.y < 0.01f)
         size.y = 0.01f;
     RenderManager::DrawGizmoMesh(
-        DefaultResources::Primitives::Cube.get(),
+        DefaultResources::Primitives::Cube,
         color,
         transform * (glm::translate(m_skinnedMesh->m_bound.Center()) * glm::scale(size)),
         1);
@@ -26,11 +26,11 @@ void SkinnedMeshRenderer::GetBoneMatrices()
 {
     if (!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>())
         return;
-    m_finalResults.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
+    m_finalResults->m_value.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
     auto &animator = m_animator.GetPrivateComponent<Animator>();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
-        m_finalResults[i] = animator.m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
+        m_finalResults->m_value[i] = animator.m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
     }
 }
 
@@ -45,11 +45,6 @@ void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
     {
         UNIENGINE_ERROR("Animator doesn't share same animation!");
     }
-}
-
-void SkinnedMeshRenderer::UploadBones()
-{
-    m_skinnedMesh->UploadBones(m_finalResults);
 }
 
 void SkinnedMeshRenderer::OnGui()
@@ -87,11 +82,6 @@ void SkinnedMeshRenderer::OnGui()
     }
 }
 
-SkinnedMeshRenderer::SkinnedMeshRenderer()
-{
-    SetEnabled(true);
-}
-
 void SkinnedMeshRenderer::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "ForwardRendering" << m_forwardRendering;
@@ -104,4 +94,13 @@ void SkinnedMeshRenderer::Deserialize(const YAML::Node &in)
     m_forwardRendering = in["ForwardRendering"].as<bool>();
     m_castShadow = in["CastShadow"].as<bool>();
     m_receiveShadow = in["ReceiveShadow"].as<bool>();
+}
+void SkinnedMeshRenderer::OnCreate()
+{
+    m_finalResults = std::make_shared<BoneMatrices>();
+    SetEnabled(true);
+}
+void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh>& skinnedMesh) const
+{
+    skinnedMesh->UploadBones(m_value);
 }

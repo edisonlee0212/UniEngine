@@ -159,7 +159,7 @@ void UniEngine::RigidBody::OnGui()
             case ShapeType::Sphere:
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
-                        DefaultResources::Primitives::Sphere.get(),
+                        DefaultResources::Primitives::Sphere,
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam.x))),
                         1);
@@ -167,7 +167,7 @@ void UniEngine::RigidBody::OnGui()
             case ShapeType::Box:
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
-                        DefaultResources::Primitives::Cube.get(),
+                        DefaultResources::Primitives::Cube,
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
                         1);
@@ -175,7 +175,7 @@ void UniEngine::RigidBody::OnGui()
             case ShapeType::Capsule:
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
-                        DefaultResources::Primitives::Cylinder.get(),
+                        DefaultResources::Primitives::Cylinder,
                         displayBoundColor,
                         ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
                         1);

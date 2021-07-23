@@ -7,13 +7,14 @@ using namespace UniEngine;
 
 void Particles::OnCreate()
 {
+    m_matrices = std::make_shared<ParticleMatrices>();
     m_boundingBox = Bound();
     SetEnabled(true);
 }
 
 void Particles::RecalculateBoundingBox()
 {
-    if (m_matrices.empty())
+    if (m_matrices->m_value.empty())
     {
         m_boundingBox.m_min = glm::vec3(0.0f);
         m_boundingBox.m_max = glm::vec3(0.0f);
@@ -22,7 +23,7 @@ void Particles::RecalculateBoundingBox()
     glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
     glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
     auto meshBound = m_mesh->GetBound();
-    for (auto &i : m_matrices)
+    for (auto &i : m_matrices->m_value)
     {
         glm::vec3 center = i * glm::vec4(meshBound.Center(), 1.0f);
         glm::vec3 size = glm::vec4(meshBound.Size(), 0) * i / 2.0f;
@@ -46,7 +47,7 @@ void Particles::OnGui()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
-    ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices.size())).c_str());
+    ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices->m_value.size())).c_str());
     if (ImGui::Button("Calculate bounds##Particles"))
     {
         RecalculateBoundingBox();
@@ -59,7 +60,7 @@ void Particles::OnGui()
         ImGui::ColorEdit4("Color:##Particles", (float *)(void *)&displayBoundColor);
         const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
         RenderManager::DrawGizmoMesh(
-            DefaultResources::Primitives::Cube.get(),
+            DefaultResources::Primitives::Cube,
             displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),
             1);

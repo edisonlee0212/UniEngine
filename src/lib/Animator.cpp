@@ -174,7 +174,7 @@ void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
             m_transformChain[index] * glm::inverse(m_offsetMatrices[index]) * glm::inverse(glm::scale(selfScale));
     }
     RenderManager::DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Sphere.get(),
+        DefaultResources::Primitives::Sphere,
         color,
         debugRenderingMatrices,
         Transform().m_value,

@@ -2,6 +2,11 @@
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
+#include <SerializationManager.hpp>
+using namespace Galaxy;
+
+
+
 void Galaxy::StarClusterPattern::OnGui()
 {
     static bool autoApply = true;
@@ -339,13 +344,13 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
     auto &matrices = check ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices : m_rendererBack.GetPrivateComponent<Particles>().m_matrices;
     auto &colors = check ? m_frontColors : m_backColors;
     const auto starAmount = m_starQuery.GetEntityAmount();
-    matrices.resize(starAmount);
+    matrices->m_value.resize(starAmount);
     colors.resize(starAmount);
     EntityManager::ForEach<GlobalTransform, DisplayColor>(
         JobManager::SecondaryWorkers(),
         m_starQuery,
         [&](int i, Entity entity, GlobalTransform &globalTransform, DisplayColor &displayColor) {
-            matrices[i] = globalTransform.m_value;
+            matrices->m_value[i] = globalTransform.m_value;
             colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
         },
         false);
@@ -358,6 +363,19 @@ void Galaxy::StarClusterSystem::LateUpdate()
 
 void Galaxy::StarClusterSystem::OnCreate()
 {
+    ComponentFactory::RegisterDataComponent<StarPosition>("StarPosition");
+    ComponentFactory::RegisterDataComponent<SelectionStatus>("SelectionStatus");
+    ComponentFactory::RegisterDataComponent<StarInfo>("StarInfo");
+    ComponentFactory::RegisterDataComponent<SurfaceColor>("SurfaceColor");
+    ComponentFactory::RegisterDataComponent<DisplayColor>("DisplayColor");
+    ComponentFactory::RegisterDataComponent<OriginalColor>("OriginalColor");
+    ComponentFactory::RegisterDataComponent<StarOrbitOffset>("StarOrbitOffset");
+    ComponentFactory::RegisterDataComponent<StarOrbitProportion>("StarOrbitProportion");
+    ComponentFactory::RegisterDataComponent<StarOrbit>("StarOrbit");
+    ComponentFactory::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
+
+
+
     const auto vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
         FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
@@ -431,9 +449,9 @@ void Galaxy::StarClusterSystem::Update()
     // Do not touch below functions.
     m_counter++;
     RenderManager::DrawGizmoMeshInstancedColored(
-        DefaultResources::Primitives::Cube.get(),
+        DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
-        m_useFront ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices : m_rendererBack.GetPrivateComponent<Particles>().m_matrices,
+        m_useFront ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices->m_value : m_rendererBack.GetPrivateComponent<Particles>().m_matrices->m_value,
         glm::mat4(1.0f),
         1.0f);
 }

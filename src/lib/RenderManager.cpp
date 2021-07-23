@@ -15,15 +15,15 @@
 using namespace UniEngine;
 #pragma region RenderCommand Dispatch
 void RenderManager::DispatchRenderCommands(
-    const std::map<Material *, RenderCommandGroup> &renderCommands,
-    const std::function<void(Material *, const RenderCommand &renderCommand)> &func,
+    const std::map<std::shared_ptr<Material>, RenderCommandGroup> &renderCommands,
+    const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
     const bool &setMaterial,
     const bool &bindProgram)
 {
     auto &renderManager = GetInstance();
     for (const auto &renderCollection : renderCommands)
     {
-        Material *material = renderCollection.first;
+        const auto &material = renderCollection.first;
         if (setMaterial)
         {
             MaterialPropertySetter(material, true);
@@ -70,13 +70,13 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
     cameraComponent.m_gBuffer->Clear();
     DispatchRenderCommands(
         renderManager.m_deferredRenderInstances[&cameraComponent],
-        [&](Material *material, const RenderCommand &renderCommand) {
+        [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
                 auto &program = renderManager.m_gBufferPrepass;
                 program->Bind();
-                ApplyProgramSettings(program.get());
+                ApplyProgramSettings(program);
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -87,13 +87,12 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
             case RenderCommandMeshType::Skinned: {
                 auto &program = renderManager.m_gBufferSkinnedPrepass;
                 program->Bind();
-                ApplyProgramSettings(program.get());
-                auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                skinnedMeshRenderer->UploadBones();
-                renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
+                ApplyProgramSettings(program);
+                renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                DeferredPrepassInternal(skinnedMeshRenderer->m_skinnedMesh.get());
+                DeferredPrepassInternal(renderCommand.m_skinnedMesh);
                 break;
             }
             }
@@ -102,18 +101,18 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
         false);
     DispatchRenderCommands(
         renderManager.m_deferredInstancedRenderInstances[&cameraComponent],
-        [&](Material *material, const RenderCommand &renderCommand) {
+        [&](const std::shared_ptr<Material> &, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
                 auto &program = renderManager.m_gBufferInstancedPrepass;
                 program->Bind();
-                ApplyProgramSettings(program.get());
+                ApplyProgramSettings(program);
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInstancedInternal(renderCommand.m_mesh, *renderCommand.m_matrices);
+                DeferredPrepassInstancedInternal(renderCommand.m_mesh, renderCommand.m_matrices->m_value);
                 break;
             }
             }
@@ -159,7 +158,7 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
 #pragma region Forward rendering
     DispatchRenderCommands(
         renderManager.m_forwardRenderInstances[&cameraComponent],
-        [&](Material *material, const RenderCommand &renderCommand) {
+        [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
@@ -171,12 +170,11 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
                 break;
             }
             case RenderCommandMeshType::Skinned: {
-                auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                skinnedMeshRenderer->UploadBones();
-                renderManager.m_materialSettings.m_receiveShadow = skinnedMeshRenderer->m_receiveShadow;
+                renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                DrawMeshInternal(skinnedMeshRenderer->m_skinnedMesh.get());
+                DrawMeshInternal(renderCommand.m_skinnedMesh);
                 break;
             }
             }
@@ -185,7 +183,7 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
         true);
     DispatchRenderCommands(
         renderManager.m_forwardInstancedRenderInstances[&cameraComponent],
-        [&](Material *material, const RenderCommand &renderCommand) {
+        [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
@@ -193,7 +191,7 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInstancedInternal(renderCommand.m_mesh, *renderCommand.m_matrices);
+                DrawMeshInstancedInternal(renderCommand.m_mesh, renderCommand.m_matrices->m_value);
                 break;
             }
             }
@@ -293,8 +291,7 @@ void RenderManager::LateUpdate()
             if (cameraComponent.IsEnabled())
             {
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
-                Camera::m_cameraInfoBlock.UpdateMatrices(
-                    cameraComponent, ltw.GetPosition(), ltw.GetRotation());
+                Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
                 ApplyShadowMapSettings(cameraComponent);
                 ApplyEnvironmentalSettings(cameraComponent);
@@ -466,7 +463,8 @@ void RenderManager::Init()
     manager.m_spotLightBlock.SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-    manager.m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(manager.m_directionalLightShadowMapResolution);
+    manager.m_directionalLightShadowMap =
+        std::make_unique<DirectionalLightShadowMap>(manager.m_directionalLightShadowMapResolution);
 
     std::string vertShaderCode =
         std::string("#version 450 core\n") +
@@ -658,12 +656,12 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
 {
     auto &renderManager = GetInstance();
 
-    auto& deferredRenderInstances = renderManager.m_deferredRenderInstances[&camera];
-    auto& deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[&camera];
-    auto& forwardRenderInstances = renderManager.m_forwardRenderInstances[&camera];
-    auto& forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[&camera];
-    auto& transparentRenderInstances = renderManager.m_transparentRenderInstances[&camera];
-    auto& instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[&camera];
+    auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[&camera];
+    auto &deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[&camera];
+    auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[&camera];
+    auto &forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[&camera];
+    auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[&camera];
+    auto &instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[&camera];
 
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
@@ -705,25 +703,24 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = mmc.m_mesh.get();
+            renderInstance.m_mesh = mmc.m_mesh;
             renderInstance.m_castShadow = mmc.m_castShadow;
             renderInstance.m_receiveShadow = mmc.m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[mmc.m_material.get()]
+                transparentRenderInstances[mmc.m_material]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (mmc.m_forwardRendering)
             {
-                forwardRenderInstances[mmc.m_material.get()]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                forwardRenderInstances[mmc.m_material].m_meshes[distance][renderInstance.m_mesh->m_vao.get()].push_back(
+                    renderInstance);
             }
             else
             {
-                deferredRenderInstances[mmc.m_material.get()]
+                deferredRenderInstances[mmc.m_material]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
@@ -762,26 +759,26 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = particles.m_mesh.get();
+            renderInstance.m_mesh = particles.m_mesh;
             renderInstance.m_castShadow = particles.m_castShadow;
             renderInstance.m_receiveShadow = particles.m_receiveShadow;
-            renderInstance.m_matrices = &particles.m_matrices;
+            renderInstance.m_matrices = particles.m_matrices;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                instancedTransparentRenderInstances[particles.m_material.get()]
+                instancedTransparentRenderInstances[particles.m_material]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else if (particles.m_forwardRendering)
             {
-                forwardInstancedRenderInstances[particles.m_material.get()]
+                forwardInstancedRenderInstances[particles.m_material]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
             else
             {
-                deferredInstancedRenderInstances[particles.m_material.get()]
+                deferredInstancedRenderInstances[particles.m_material]
                     .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
                     .push_back(renderInstance);
             }
@@ -828,27 +825,28 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_skinnedMeshRenderer = &smmc;
+            renderInstance.m_skinnedMesh = smmc.m_skinnedMesh;
             renderInstance.m_castShadow = smmc.m_castShadow;
             renderInstance.m_receiveShadow = smmc.m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Skinned;
+            renderInstance.m_boneMatrices = smmc.m_finalResults;
             if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
-                        .push_back(renderInstance);
+                transparentRenderInstances[smmc.m_material]
+                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
+                    .push_back(renderInstance);
             }
             else if (smmc.m_forwardRendering)
             {
-                forwardRenderInstances[smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
-                        .push_back(renderInstance);
+                forwardRenderInstances[smmc.m_material]
+                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
+                    .push_back(renderInstance);
             }
             else
             {
-                deferredRenderInstances[smmc.m_material.get()]
-                        .m_skinnedMeshes[distance][renderInstance.m_skinnedMeshRenderer->m_skinnedMesh->m_vao.get()]
-                        .push_back(renderInstance);
+                deferredRenderInstances[smmc.m_material]
+                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
+                    .push_back(renderInstance);
             }
         }
     }
@@ -1250,7 +1248,7 @@ void RenderManager::ShadowMapPrePass(
         const auto &cameraComponent = i.first;
         DispatchRenderCommands(
             i.second,
-            [&](Material *material, const RenderCommand &renderCommand) {
+            [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1264,10 +1262,9 @@ void RenderManager::ShadowMapPrePass(
                 case RenderCommandMeshType::Skinned: {
                     auto &program = skinnedProgram;
                     program->Bind();
-                    auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                    skinnedMeshRenderer->UploadBones();
+                    renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
                     program->SetInt("index", enabledSize);
-                    skinnedMeshRenderer->m_skinnedMesh->Draw();
+                    renderCommand.m_skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -1279,7 +1276,7 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](Material *material, const RenderCommand &renderCommand) {
+            [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1287,7 +1284,7 @@ void RenderManager::ShadowMapPrePass(
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
+                    renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
                     break;
                 }
                 }
@@ -1299,7 +1296,7 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](Material *material, const RenderCommand &renderCommand) {
+            [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1313,10 +1310,9 @@ void RenderManager::ShadowMapPrePass(
                 case RenderCommandMeshType::Skinned: {
                     auto &program = skinnedProgram;
                     program->Bind();
-                    auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                    skinnedMeshRenderer->UploadBones();
+                    renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
                     program->SetInt("index", enabledSize);
-                    skinnedMeshRenderer->m_skinnedMesh->Draw();
+                    renderCommand.m_skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -1328,7 +1324,7 @@ void RenderManager::ShadowMapPrePass(
     {
         DispatchRenderCommands(
             i.second,
-            [&](Material *material, const RenderCommand &renderCommand) {
+            [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1336,7 +1332,7 @@ void RenderManager::ShadowMapPrePass(
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
+                    renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
                     break;
                 }
                 }
@@ -1492,7 +1488,10 @@ void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, co
                     {
                     case 0:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            0, 0, renderManager.m_directionalLightShadowMapResolution / 2, renderManager.m_directionalLightShadowMapResolution / 2);
+                            0,
+                            0,
+                            renderManager.m_directionalLightShadowMapResolution / 2,
+                            renderManager.m_directionalLightShadowMapResolution / 2);
                         break;
                     case 1:
                         renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1638,7 +1637,10 @@ void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, co
                 {
                 case 0:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        0, 0, renderManager.m_pointLightShadowMapResolution / 2, renderManager.m_pointLightShadowMapResolution / 2);
+                        0,
+                        0,
+                        renderManager.m_pointLightShadowMapResolution / 2,
+                        renderManager.m_pointLightShadowMapResolution / 2);
                     break;
                 case 1:
                     renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1743,7 +1745,10 @@ void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, co
                 {
                 case 0:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        0, 0, renderManager.m_spotLightShadowMapResolution / 2, renderManager.m_spotLightShadowMapResolution / 2);
+                        0,
+                        0,
+                        renderManager.m_spotLightShadowMapResolution / 2,
+                        renderManager.m_spotLightShadowMapResolution / 2);
                     break;
                 case 1:
                     renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1908,7 +1913,7 @@ void RenderManager::ApplyEnvironmentalSettings(const Camera &cameraComponent)
         0, sizeof(EnvironmentalMapSettingsBlock), &manager.m_environmentalMapSettings);
 }
 
-void RenderManager::MaterialPropertySetter(const Material *material, const bool &disableBlending)
+void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending)
 {
     switch (material->m_polygonMode)
     {
@@ -1954,7 +1959,7 @@ void RenderManager::MaterialPropertySetter(const Material *material, const bool 
     glEnable(GL_DEPTH_TEST);
 }
 
-void RenderManager::ApplyMaterialSettings(const Material *material)
+void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &material)
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
@@ -2061,7 +2066,7 @@ void RenderManager::ApplyMaterialSettings(const Material *material)
     manager.m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }
 
-void RenderManager::ApplyProgramSettings(const OpenGLUtils::GLProgram *program)
+void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
@@ -2089,7 +2094,7 @@ void RenderManager::ApplyProgramSettings(const OpenGLUtils::GLProgram *program)
     }
 }
 
-void RenderManager::ReleaseMaterialSettings(const Material *material)
+void RenderManager::ReleaseMaterialSettings(const std::shared_ptr<Material> &material)
 {
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
         return;
@@ -2129,7 +2134,7 @@ void RenderManager::PrepareBrdfLut()
     OpenGLUtils::GLFrameBuffer::BindDefault();
 }
 
-void RenderManager::DeferredPrepassInternal(const Mesh *mesh)
+void RenderManager::DeferredPrepassInternal(const std::shared_ptr<Mesh> &mesh)
 {
     if (mesh == nullptr)
         return;
@@ -2138,7 +2143,8 @@ void RenderManager::DeferredPrepassInternal(const Mesh *mesh)
     mesh->Draw();
 }
 
-void RenderManager::DeferredPrepassInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices)
+void RenderManager::DeferredPrepassInstancedInternal(
+    const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices)
 {
     if (mesh == nullptr || matrices.empty())
         return;
@@ -2147,7 +2153,7 @@ void RenderManager::DeferredPrepassInstancedInternal(const Mesh *mesh, const std
     mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DeferredPrepassInternal(const SkinnedMesh *skinnedMesh)
+void RenderManager::DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh>&skinnedMesh)
 {
     if (skinnedMesh == nullptr)
         return;
@@ -2157,7 +2163,7 @@ void RenderManager::DeferredPrepassInternal(const SkinnedMesh *skinnedMesh)
 }
 
 void RenderManager::DeferredPrepassInstancedInternal(
-    const SkinnedMesh *skinnedMesh, const std::vector<glm::mat4> &matrices)
+    const std::shared_ptr<SkinnedMesh>&skinnedMesh, const std::vector<glm::mat4> &matrices)
 {
     if (skinnedMesh == nullptr || matrices.empty())
         return;
@@ -2168,8 +2174,8 @@ void RenderManager::DeferredPrepassInstancedInternal(
 }
 
 void RenderManager::DrawMeshInstanced(
-    const Mesh *mesh,
-    const Material *material,
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Material>&material,
     const glm::mat4 &model,
     const std::vector<glm::mat4> &matrices,
     const bool &receiveShadow)
@@ -2179,9 +2185,9 @@ void RenderManager::DrawMeshInstanced(
 
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
-    auto program = material->m_program.get();
+    auto& program = material->m_program;
     if (program == nullptr)
-        program = DefaultResources::GLPrograms::StandardInstancedProgram.get();
+        program = DefaultResources::GLPrograms::StandardInstancedProgram;
     program->Bind();
     program->SetFloat4x4("model", model);
     for (auto j : material->m_floatPropertyList)
@@ -2203,7 +2209,7 @@ void RenderManager::DrawMeshInstanced(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vector<glm::mat4> &matrices)
+void RenderManager::DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices)
 {
     if (mesh == nullptr || matrices.empty())
         return;
@@ -2212,7 +2218,7 @@ void RenderManager::DrawMeshInstancedInternal(const Mesh *mesh, const std::vecto
     mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std::vector<glm::mat4> &matrices)
+void RenderManager::DrawMeshInstancedInternal(const std::shared_ptr<SkinnedMesh>&mesh, const std::vector<glm::mat4> &matrices)
 {
     if (mesh == nullptr || matrices.empty())
         return;
@@ -2222,15 +2228,18 @@ void RenderManager::DrawMeshInstancedInternal(const SkinnedMesh *mesh, const std
 }
 
 void RenderManager::DrawMesh(
-    const Mesh *mesh, const Material *material, const glm::mat4 &model, const bool &receiveShadow)
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Material> &material,
+    const glm::mat4 &model,
+    const bool &receiveShadow)
 {
     if (mesh == nullptr || material == nullptr)
         return;
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    auto program = material->m_program.get();
+    auto& program = material->m_program;
     if (program == nullptr)
-        program = DefaultResources::GLPrograms::StandardProgram.get();
+        program = DefaultResources::GLPrograms::StandardProgram;
     program->Bind();
     program->SetFloat4x4("model", model);
     for (auto j : material->m_floatPropertyList)
@@ -2250,7 +2259,7 @@ void RenderManager::DrawMesh(
     ReleaseMaterialSettings(material);
 }
 
-void RenderManager::DrawMeshInternal(const Mesh *mesh)
+void RenderManager::DrawMeshInternal(const std::shared_ptr<Mesh> &mesh)
 {
     if (mesh == nullptr)
         return;
@@ -2259,7 +2268,7 @@ void RenderManager::DrawMeshInternal(const Mesh *mesh)
     mesh->Draw();
 }
 
-void RenderManager::DrawMeshInternal(const SkinnedMesh *mesh)
+void RenderManager::DrawMeshInternal(const std::shared_ptr<SkinnedMesh>&mesh)
 {
     if (mesh == nullptr)
         return;
@@ -2283,7 +2292,7 @@ void RenderManager::DrawTexture2D(
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const glm::vec4 &color,
     const glm::mat4 &model,
     const std::vector<glm::mat4> &matrices,
@@ -2308,7 +2317,7 @@ void RenderManager::DrawGizmoMeshInstanced(
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
@@ -2340,7 +2349,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 }
 
 void RenderManager::DrawGizmoMesh(
-    const Mesh *mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix)
+    const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix)
 {
     if (mesh == nullptr)
         return;
@@ -2362,7 +2371,7 @@ void RenderManager::DrawGizmoMesh(
 
 #pragma region External
 void RenderManager::DrawGizmoMeshInstanced(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const glm::vec4 &color,
     const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
@@ -2385,7 +2394,7 @@ void RenderManager::DrawGizmoMeshInstanced(
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
     const glm::mat4 &model,
@@ -2408,7 +2417,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 }
 
 void RenderManager::DrawGizmoMesh(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -2423,7 +2432,7 @@ void RenderManager::DrawGizmoMesh(
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -2439,7 +2448,7 @@ void RenderManager::DrawGizmoMeshInstanced(
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
-    const Mesh *mesh,
+    const std::shared_ptr<Mesh> &mesh,
     const Camera &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -2455,23 +2464,18 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 }
 
 void RenderManager::DrawGizmoRay(
-    const glm::vec4 &color,
-    const glm::vec3 &start,
-    const glm::vec3 &end,
-    const float &width)
+    const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
 }
 
 void RenderManager::DrawGizmoRays(
-    const glm::vec4 &color,
-    std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
-    const float &width)
+    const glm::vec4 &color, const std::vector<std::pair<glm::vec3, glm::vec3>> &connections, const float &width)
 {
     if (connections.empty())
         return;
@@ -2489,11 +2493,10 @@ void RenderManager::DrawGizmoRays(
         models[i] = model;
     }
 
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
 
-void RenderManager::DrawGizmoRays(
-    const glm::vec4 &color, std::vector<Ray> &rays, const float &width)
+void RenderManager::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width)
 {
     if (rays.empty())
         return;
@@ -2509,18 +2512,17 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), color, models);
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
 
-void RenderManager::DrawGizmoRay(
-    const glm::vec4 &color, Ray &ray, const float &width)
+void RenderManager::DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                        glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), color, model);
+    DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2537,7 +2539,8 @@ void RenderManager::DrawGizmoRay(
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, model);
+    DrawGizmoMesh(
+        DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2545,7 +2548,7 @@ void RenderManager::DrawGizmoRays(
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
-    std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
+    const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
     const float &width)
 {
     if (connections.empty())
@@ -2563,7 +2566,8 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, models);
+    DrawGizmoMeshInstanced(
+        DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
 void RenderManager::DrawGizmoRays(
@@ -2571,7 +2575,7 @@ void RenderManager::DrawGizmoRays(
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
-    std::vector<Ray> &rays,
+    const std::vector<Ray> &rays,
     const float &width)
 {
     if (rays.empty())
@@ -2588,7 +2592,8 @@ void RenderManager::DrawGizmoRays(
                            glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
         models[i] = model;
     }
-    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, models);
+    DrawGizmoMeshInstanced(
+        DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2596,7 +2601,7 @@ void RenderManager::DrawGizmoRay(
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
-    Ray &ray,
+    const Ray &ray,
     const float &width)
 {
     glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -2604,12 +2609,13 @@ void RenderManager::DrawGizmoRay(
     const glm::mat4 rotationMat = glm::mat4_cast(rotation);
     const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
                        glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-    DrawGizmoMesh(DefaultResources::Primitives::Cylinder.get(), cameraComponent, cameraPosition, cameraRotation, color, model);
+    DrawGizmoMesh(
+        DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
 void RenderManager::DrawMesh(
-    Mesh *mesh,
-    Material *material,
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
     Camera &cameraComponent,
     const bool &receiveShadow,
@@ -2624,22 +2630,28 @@ void RenderManager::DrawMesh(
     renderCommand.m_globalTransform.m_value = model;
     const auto owner = cameraComponent.GetOwner();
     float distance = 0.0f;
-    if(owner.IsValid())
+    if (owner.IsValid())
     {
         auto meshCenter = mesh->GetBound().Center();
         meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
         const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
         distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
     }
-    GetInstance().m_forwardRenderInstances[&cameraComponent][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
-    GetInstance().m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
+    GetInstance()
+        .m_forwardRenderInstances[&cameraComponent][material]
+        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+        .push_back(renderCommand);
+    GetInstance()
+        .m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material]
+        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+        .push_back(renderCommand);
 }
 
 void RenderManager::DrawMeshInstanced(
-    Mesh *mesh,
-    Material *material,
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
-    std::vector<glm::mat4> &matrices,
+    const std::shared_ptr<ParticleMatrices> &matrices,
     Camera &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)
@@ -2648,22 +2660,27 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_commandType = RenderCommandType::FromAPI;
     renderCommand.m_meshType = RenderCommandMeshType::Default;
     renderCommand.m_mesh = mesh;
-    renderCommand.m_matrices = &matrices;
+    renderCommand.m_matrices = matrices;
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
     const auto owner = cameraComponent.GetOwner();
     float distance = 0.0f;
-    if(owner.IsValid())
+    if (owner.IsValid())
     {
         auto meshCenter = mesh->GetBound().Center();
         meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
         const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
         distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
     }
-    GetInstance().m_forwardInstancedRenderInstances[&cameraComponent][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(renderCommand);
-    GetInstance().m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material].m_meshes[distance][renderCommand.m_mesh->m_vao.get()].push_back(
-        renderCommand);
+    GetInstance()
+        .m_forwardInstancedRenderInstances[&cameraComponent][material]
+        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+        .push_back(renderCommand);
+    GetInstance()
+        .m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material]
+        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+        .push_back(renderCommand);
 }
 
 #pragma region DrawTexture
@@ -2737,10 +2754,7 @@ void RenderManager::DrawTexture2D(
 #pragma region Gizmo
 
 void RenderManager::DrawGizmoMesh(
-    const Mesh *mesh,
-    const glm::vec4 &color,
-    const glm::mat4 &model,
-    const float &size)
+    const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const float &size)
 {
     auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
     if (EditorManager::GetInstance().m_enabled)

@@ -41,7 +41,7 @@ void SkinnedMesh::GenerateMatrices()
     m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
 }
 
-void SkinnedMesh::UploadBones(std::vector<glm::mat4> &matrices)
+void SkinnedMesh::UploadBones(const std::vector<glm::mat4> &matrices)
 {
     m_skinnedMeshBonesUniformBufferBlock->SubData(0, matrices.size() * sizeof(glm::mat4), matrices.data());
 }

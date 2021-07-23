@@ -103,7 +103,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         {
             GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            immc.m_mesh->DrawInstanced(immc.m_matrices);
+            immc.m_mesh->DrawInstanced(immc.m_matrices->m_value);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -111,7 +111,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
         if (smmc.IsEnabled() && smmc.m_material != nullptr && smmc.m_skinnedMesh != nullptr)
         {
-            smmc.UploadBones();
+            smmc.m_finalResults->UploadBones(smmc.m_skinnedMesh);
             GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             smmc.m_skinnedMesh->Draw();
@@ -144,7 +144,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = immc.m_mesh.get();
             GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
-            mesh->DrawInstanced(immc.m_matrices);
+            mesh->DrawInstanced(immc.m_matrices->m_value);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -154,7 +154,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *skinnedMesh = smmc.m_skinnedMesh.get();
-            smmc.UploadBones();
+            smmc.m_finalResults->UploadBones(smmc.m_skinnedMesh);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
             skinnedMesh->Draw();
@@ -447,10 +447,10 @@ void EditorManager::Init()
         }
     });
     RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
-      auto *ray = static_cast<Ray *>(static_cast<void *>(data));
-      ImGui::InputFloat3("Start", &ray->m_start.x);
-      ImGui::InputFloat3("Direction", &ray->m_direction.x);
-      ImGui::InputFloat("Length", &ray->m_length);
+        auto *ray = static_cast<Ray *>(static_cast<void *>(data));
+        ImGui::InputFloat3("Start", &ray->m_start.x);
+        ImGui::InputFloat3("Direction", &ray->m_direction.x);
+        ImGui::InputFloat("Length", &ray->m_length);
     });
     RegisterPrivateComponentMenu<Animator>([](Entity owner) {
         if (owner.HasPrivateComponent<Animator>())
@@ -636,7 +636,6 @@ void EditorManager::PreUpdate()
         }
         ImGui::EndMainMenuBar();
     }
-
 }
 
 void EditorManager::RenderToSceneCamera()
@@ -651,19 +650,19 @@ void EditorManager::RenderToSceneCamera()
          resolution.y != editorManager.m_sceneCameraResolutionY))
     {
         editorManager.m_sceneCamera.ResizeResolution(
-                editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
-                0,
-                GL_R32F,
-                GL_RED,
-                GL_FLOAT,
-                0,
-                editorManager.m_sceneCameraResolutionX,
-                editorManager.m_sceneCameraResolutionY);
+            0,
+            GL_R32F,
+            GL_RED,
+            GL_FLOAT,
+            0,
+            editorManager.m_sceneCameraResolutionX,
+            editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorderRenderBuffer->AllocateStorage(
-                GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+            GL_DEPTH24_STENCIL8, editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorder->SetResolution(
-                editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
+            editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
     }
     editorManager.m_sceneCamera.Clear();
     editorManager.m_sceneCameraEntityRecorder->Clear();
@@ -674,21 +673,20 @@ void EditorManager::RenderToSceneCamera()
         if (elapsedTime >= editorManager.m_transitionTime)
             a = 1.0f;
         editorManager.m_sceneCameraRotation =
-                glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
+            glm::mix(editorManager.m_previousRotation, editorManager.m_targetRotation, a);
         editorManager.m_sceneCameraPosition =
-                glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
+            glm::mix(editorManager.m_previousPosition, editorManager.m_targetPosition, a);
         if (a >= 1.0f)
         {
             editorManager.m_lockCamera = false;
             editorManager.m_sceneCameraRotation = editorManager.m_targetRotation;
             editorManager.m_sceneCameraPosition = editorManager.m_targetPosition;
             Camera::ReverseAngle(
-                    editorManager.m_targetRotation,
-                    editorManager.m_sceneCameraPitchAngle,
-                    editorManager.m_sceneCameraYawAngle);
+                editorManager.m_targetRotation,
+                editorManager.m_sceneCameraPitchAngle,
+                editorManager.m_sceneCameraYawAngle);
         }
     }
-
 
     if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
     {
@@ -706,29 +704,28 @@ void EditorManager::RenderToSceneCamera()
             const auto &cameraComponent = i.first;
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](Material* material, const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_meshType)
-                  {
-                  case RenderCommandMeshType::Default: {
-                      auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
-                      program->Bind();
-                      program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                      editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      renderCommand.m_mesh->Draw();
-                      break;
-                  }
-                  case RenderCommandMeshType::Skinned: {
-                      auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
-                      program->Bind();
-                      auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                      skinnedMeshRenderer->UploadBones();
-                      editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      skinnedMeshRenderer->m_skinnedMesh->Draw();
-                      break;
-                  }
-                  }
+                [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                    switch (renderCommand.m_meshType)
+                    {
+                    case RenderCommandMeshType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        renderCommand.m_mesh->Draw();
+                        break;
+                    }
+                    case RenderCommandMeshType::Skinned: {
+                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        program->Bind();
+                        renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        renderCommand.m_skinnedMesh->Draw();
+                        break;
+                    }
+                    }
                 },
                 false,
                 false);
@@ -737,21 +734,21 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](Material* material, const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_meshType)
-                  {
-                  case RenderCommandMeshType::Default: {
-                      auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
-                      program->Bind();
-                      program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                      editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
-                          "model", renderCommand.m_globalTransform.m_value);
-                      renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
-                      break;
-                  }
-                  }
+                [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                    switch (renderCommand.m_meshType)
+                    {
+                    case RenderCommandMeshType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                            "model", renderCommand.m_globalTransform.m_value);
+                        renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                        break;
+                    }
+                    }
                 },
                 false,
                 false);
@@ -760,29 +757,28 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](Material* material, const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_meshType)
-                  {
-                  case RenderCommandMeshType::Default: {
-                      auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
-                      program->Bind();
-                      program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                      editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      renderCommand.m_mesh->Draw();
-                      break;
-                  }
-                  case RenderCommandMeshType::Skinned: {
-                      auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
-                      program->Bind();
-                      auto *skinnedMeshRenderer = renderCommand.m_skinnedMeshRenderer;
-                      skinnedMeshRenderer->UploadBones();
-                      editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      skinnedMeshRenderer->m_skinnedMesh->Draw();
-                      break;
-                  }
-                  }
+                [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                    switch (renderCommand.m_meshType)
+                    {
+                    case RenderCommandMeshType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        renderCommand.m_mesh->Draw();
+                        break;
+                    }
+                    case RenderCommandMeshType::Skinned: {
+                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        program->Bind();
+                        renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        renderCommand.m_skinnedMesh->Draw();
+                        break;
+                    }
+                    }
                 },
                 false,
                 false);
@@ -791,21 +787,21 @@ void EditorManager::RenderToSceneCamera()
         {
             RenderManager::DispatchRenderCommands(
                 i.second,
-                [&](Material* material, const RenderCommand &renderCommand) {
-                  switch (renderCommand.m_meshType)
-                  {
-                  case RenderCommandMeshType::Default: {
-                      auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
-                      program->Bind();
-                      program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                      editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
-                          "EntityIndex", renderCommand.m_owner.GetIndex());
-                      editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
-                          "model", renderCommand.m_globalTransform.m_value);
-                      renderCommand.m_mesh->DrawInstanced(*renderCommand.m_matrices);
-                      break;
-                  }
-                  }
+                [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                    switch (renderCommand.m_meshType)
+                    {
+                    case RenderCommandMeshType::Default: {
+                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                            "EntityIndex", renderCommand.m_owner.GetIndex());
+                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                            "model", renderCommand.m_globalTransform.m_value);
+                        renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                        break;
+                    }
+                    }
                 },
                 false,
                 false);
@@ -1326,7 +1322,7 @@ void EditorManager::SceneCameraWindow()
 #pragma region Scene Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    if(ImGui::Begin("Scene"))
+    if (ImGui::Begin("Scene"))
     {
         // Using a Child allow to fill all the space of the window.
         // It also allows customization
@@ -1600,8 +1596,8 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraWindowFocused = false;
         }
         ImGui::EndChild();
-
-    }else
+    }
+    else
     {
         editorManager.m_sceneCameraWindowFocused = false;
     }
@@ -1609,7 +1605,6 @@ void EditorManager::SceneCameraWindow()
         !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
     ImGui::End();
     ImGui::PopStyleVar();
-
 
 #pragma endregion
 }
@@ -1620,7 +1615,7 @@ void EditorManager::MainCameraWindow()
 #pragma region Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    if(ImGui::Begin("Camera"))
+    if (ImGui::Begin("Camera"))
     {
         static int corner = 1;
         // Using a Child allow to fill all the space of the window.
@@ -1646,8 +1641,8 @@ void EditorManager::MainCameraWindow()
                 viewPortSize.y = 0;
             renderManager.m_mainCameraResolutionX = viewPortSize.x;
             renderManager.m_mainCameraResolutionY = viewPortSize.y;
-            //UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
-            // Get the size of the child (i.e. the whole draw size of the windows).
+            // UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
+            //  Get the size of the child (i.e. the whole draw size of the windows).
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
             bool cameraActive = false;
@@ -1770,8 +1765,8 @@ void EditorManager::MainCameraWindow()
         }
 
         ImGui::EndChild();
-
-    }else
+    }
+    else
     {
         editorManager.m_mainCameraWindowFocused = false;
     }

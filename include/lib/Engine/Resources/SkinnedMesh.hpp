@@ -53,7 +53,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     void FetchIndices();
     std::vector<unsigned> m_boneAnimatorIndices;
     static void GenerateMatrices();
-    static void UploadBones(std::vector<glm::mat4> &matrices);
+    static void UploadBones(const std::vector<glm::mat4> &matrices);
     void OnGui() const;
     [[nodiscard]] glm::vec3 GetCenter() const;
     [[nodiscard]] Bound GetBound() const;
