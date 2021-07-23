@@ -25,7 +25,7 @@ SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 SerializableRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
 
-std::string ComponentFactory::GetSerializableTypeName(const size_t& typeId)
+std::string ComponentFactory::GetSerializableTypeName(const size_t &typeId)
 {
     return GetInstance().m_serializableNames.find(typeId)->second;
 }
@@ -53,14 +53,13 @@ std::shared_ptr<IDataComponent> ComponentFactory::ProduceDataComponent(
 }
 
 bool ComponentFactory::RegisterSerializable(
-    const std::string &typeName, const size_t &typeId,
-    const std::function<ISerializable*(size_t &)> &func)
+    const std::string &typeName, const size_t &typeId, const std::function<ISerializable *(size_t &)> &func)
 {
     GetInstance().m_serializableNames[typeId] = typeName;
     return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
-ISerializable* ComponentFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
+ISerializable *ComponentFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
     const auto it = GetInstance().m_serializableGenerators.find(typeName);
     if (it != GetInstance().m_serializableGenerators.end())
@@ -154,7 +153,7 @@ std::istream &UniEngine::operator>>(std::istream &in, glm::mat4 &v)
     in >> temp >> v[0] >> temp >> v[1] >> temp >> v[2] >> temp >> v[3] >> temp;
     return in;
 }
-
+/*
 void UniEngine::SerializationManager::SerializeEntity(
     std::shared_ptr<Scene> world, YAML::Emitter &out, const Entity &entity)
 {
@@ -169,13 +168,13 @@ void UniEngine::SerializationManager::SerializeEntity(
     out << YAML::Key << "DataComponent" << YAML::Value << YAML::BeginSeq;
     auto &storage = world->m_sceneDataStorage;
     std::vector<DataComponentType> &componentTypes =
-        storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex]
-            .m_archetypeInfo.m_componentTypes;
+        storage.m_entityComponentStorage[storage.m_entityInfos[entity.GetIndex()].m_archetypeInfoIndex].m_componentTypes;
     for (const auto &type : componentTypes)
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << type.m_name;
-        auto *ptr = reinterpret_cast<const unsigned char*>(EntityManager::GetDataComponentPointer(entity, type.m_typeId));
+        auto *ptr =
+            reinterpret_cast<const unsigned char *>(EntityManager::GetDataComponentPointer(entity, type.m_typeId));
         out << YAML::Key << "Data" << YAML::Value << YAML::Binary(ptr, type.m_size);
         out << YAML::EndMap;
     }
@@ -232,7 +231,7 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
         {
             auto name = privateComponent["Name"].as<std::string>();
             size_t hashCode;
-            auto* ptr = dynamic_cast<IPrivateComponent*>(ComponentFactory::ProduceSerializable(name, hashCode));
+            auto *ptr = dynamic_cast<IPrivateComponent *>(ComponentFactory::ProduceSerializable(name, hashCode));
             ptr->Deserialize(privateComponent);
             ptr->m_enabled = privateComponent["IsEnabled"].as<bool>();
             EntityManager::SetPrivateComponent(retVal, name, hashCode, ptr);
@@ -241,29 +240,35 @@ UniEngine::Entity UniEngine::SerializationManager::DeserializeEntity(
 
     return retVal;
 }
-
-void UniEngine::SerializationManager::Serialize(std::shared_ptr<Scene> scene, const std::string &path)
+*/
+void UniEngine::SerializationManager::SerializeScene(std::shared_ptr<Scene> scene, const std::string &path)
 {
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "Scene" << YAML::Value << scene->m_name;
-    auto& sceneDataStorage = scene->m_sceneDataStorage;
-#pragma region DataComponentStorage
-    out << YAML::Key << "DataComponent" << YAML::Value << YAML::BeginSeq;
-    for(int i = 0; i < sceneDataStorage.m_entityComponentStorage.size(); i++){
-        SerializeDataComponentStorage(sceneDataStorage.m_entityComponentStorage[i], out);
-    }
-    out << YAML::EndSeq;
-#pragma endregion
+    auto &sceneDataStorage = scene->m_sceneDataStorage;
 #pragma region EntityInfo
     out << YAML::Key << "EntityInfo" << YAML::Value << YAML::BeginSeq;
-    for(int i = 0; i < sceneDataStorage.m_entityInfos.size(); i++){
+    for (int i = 1; i < sceneDataStorage.m_entityInfos.size(); i++)
+    {
         SerializeEntityInfo(sceneDataStorage.m_entityInfos[i], out);
     }
     out << YAML::EndSeq;
 #pragma endregion
-    out << YAML::Key << "Entity";
-    out << YAML::Value << YAML::Binary((const unsigned char *)sceneDataStorage.m_entities.data(), sceneDataStorage.m_entities.size() * sizeof(Entity));
+#pragma region DataComponentStorage
+    out << YAML::Key << "DataComponentStorage" << YAML::Value << YAML::BeginSeq;
+    for (int i = 1; i < sceneDataStorage.m_entityComponentStorage.size(); i++)
+    {
+        SerializeDataComponentStorage(sceneDataStorage.m_entityComponentStorage[i], out);
+    }
+    out << YAML::EndSeq;
+#pragma endregion
+#pragma region Entities
+    out << YAML::Key << "Entities" << YAML::Value
+        << YAML::Binary(
+               (const unsigned char *)sceneDataStorage.m_entities.data(),
+               sceneDataStorage.m_entities.size() * sizeof(Entity));
+#pragma endregion
     out << YAML::EndMap;
     std::ofstream fout(path);
     fout << out.c_str();
@@ -271,7 +276,7 @@ void UniEngine::SerializationManager::Serialize(std::shared_ptr<Scene> scene, co
     UNIENGINE_LOG("Scene saved to " + path);
 }
 
-bool UniEngine::SerializationManager::Deserialize(std::shared_ptr<Scene> scene, const std::string &path)
+bool UniEngine::SerializationManager::DeserializeScene(std::shared_ptr<Scene> scene, const std::string &path)
 {
     std::ifstream stream(path);
     std::stringstream stringStream;
@@ -283,68 +288,114 @@ bool UniEngine::SerializationManager::Deserialize(std::shared_ptr<Scene> scene, 
     }
     UNIENGINE_LOG("Loading scene...");
     scene->Purge();
+    auto &storage = scene->m_sceneDataStorage;
+    scene->m_name = data["Scene"].as<std::string>();
 #pragma region DataComponentStorage
+    auto entityComponentStorage = data["DataComponentStorage"];
+    for (const auto &dataComponentStorage : entityComponentStorage)
+    {
+    }
 #pragma endregion
 #pragma region EntityInfo
-#pragma endregion
-
-    auto entities = data["Entities"];
-    if (entities)
+    auto entityInfos = data["EntityInfo"];
+    for (const auto &entityInfo : entityInfos)
     {
-        std::unordered_map<unsigned, Entity> entityMap;
-        std::vector<std::pair<unsigned, unsigned>> childParentPairs;
-        for (const auto &node : entities)
-        {
-            auto id = node["Entity"].as<unsigned>();
-            auto parent = node["Parent"].as<unsigned>();
-
-            auto entity = DeserializeEntity(scene, node);
-            scene->m_sceneDataStorage.m_entityInfos[entity.GetIndex()].m_enabled = node["IsEnabled"].as<bool>();
-            if (entity.IsNull())
-            {
-                UNIENGINE_ERROR("Error!");
-            }
-            entityMap.insert({id, entity});
-            if (parent == 0)
-                continue;
-            childParentPairs.emplace_back(id, parent);
-        }
-        for (const auto &[fst, snd] : childParentPairs)
-        {
-            EntityManager::SetParent(entityMap[fst], entityMap[snd], false);
-        }
+        storage.m_entityInfos.emplace_back();
+        auto &newInfo = storage.m_entityInfos.back();
+        newInfo.m_name = entityInfo["Name"].as<std::string>();
+        newInfo.m_version = entityInfo["Version"].as<bool>();
+        newInfo.m_static = entityInfo["Static"].as<bool>();
+        newInfo.m_enabled = entityInfo["Enabled"].as<bool>();
+        Entity parent;
+        parent.m_index = entityInfo["Parent.m_index"].as<unsigned>();
+        parent.m_version = entityInfo["Parent.m_version"].as<unsigned>();
+        newInfo.m_parent = parent;
+        YAML::Binary childrenData = entityInfo["Children"].as<YAML::Binary>();
+        const unsigned char *data = childrenData.data();
+        std::size_t size = childrenData.size();
+        newInfo.m_children.resize(size / sizeof(Entity));
+        std::memcpy(newInfo.m_children.data(), data, size);
+        //newInfo. = entityInfo["ArchetypeInfoIndex"].as<size_t>();
+        newInfo.m_chunkArrayIndex = entityInfo["ChunkArrayIndex"].as<size_t>();
     }
+#pragma endregion
+#pragma region Entities
+    auto entitiesData = data["Entities"].as<YAML::Binary>();
+    const unsigned char *entitiesDataPtr = entitiesData.data();
+    std::size_t entitiesSize = entitiesData.size();
+    storage.m_entities.resize(entitiesSize / sizeof(Entity));
+    std::memcpy(storage.m_entities.data(), entitiesDataPtr, entitiesSize);
+#pragma endregion
     return true;
 }
 void SerializationManager::SerializeDataComponentStorage(const DataComponentStorage &storage, YAML::Emitter &out)
 {
-
-}
-void SerializationManager::SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out)
-{
     out << YAML::BeginMap;
-    out << YAML::Key << "Name" << YAML::Value << entityInfo.m_name;
-    out << YAML::Key << "Version" << YAML::Value << entityInfo.m_version;
-    out << YAML::Key << "Static" << YAML::Value << entityInfo.m_static;
-    out << YAML::Key << "Enabled" << YAML::Value << entityInfo.m_enabled;
-    out << YAML::Key << "Parent.m_index" << YAML::Value << entityInfo.m_parent.m_index;
-    out << YAML::Key << "Parent.m_version" << YAML::Value << entityInfo.m_parent.m_version;
-    out << YAML::Key << "Children" << YAML::Value << YAML::Binary((const unsigned char *)entityInfo.m_children.data(), entityInfo.m_children.size() * sizeof(Entity));;
-    out << YAML::Key << "ArchetypeInfoIndex" << YAML::Value << entityInfo.m_archetypeInfoIndex;
-    out << YAML::Key << "ChunkArrayIndex" << YAML::Value << entityInfo.m_chunkArrayIndex;
-
-#pragma region Private Components
-    out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
-    for(const auto& element : entityInfo.m_privateComponentElements)
     {
-        out << YAML::BeginMap;
-        out << YAML::Key << "Name" << YAML::Value << ComponentFactory::GetSerializableTypeName(element.m_typeId);
-        out << YAML::Key << "IsEnabled" << YAML::Value << element.m_privateComponentData->m_enabled;
-        element.m_privateComponentData->Serialize(out);
+        out << YAML::Key << "EntityArchetypeInfo" << YAML::Value << YAML::BeginMap;
+        {
+            out << YAML::Key << "EntitySize" << YAML::Value << storage.m_entitySize;
+            out << YAML::Key << "ChunkCapacity" << YAML::Value << storage.m_chunkCapacity;
+            out << YAML::Key << "EntityCount" << YAML::Value << storage.m_entityCount;
+            out << YAML::Key << "EntityAliveCount" << YAML::Value << storage.m_entityAliveCount;
+            out << YAML::Key << "ComponentTypes" << YAML::Value << YAML::BeginSeq;
+            for (const auto &i : storage.m_componentTypes)
+            {
+                out << YAML::BeginMap;
+                out << YAML::Key << "Name" << YAML::Value << i.m_name;
+                out << YAML::Key << "Size" << YAML::Value << i.m_size;
+                out << YAML::Key << "Offset" << YAML::Value << i.m_offset;
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
+        }
+        out << YAML::EndMap;
+        out << YAML::Key << "DataComponentChunkArray" << YAML::Value << YAML::BeginMap;
+        {
+            auto &array = storage.m_chunkArray;
+            out << YAML::Key << "Entities" << YAML::Value
+                << YAML::Binary((const unsigned char *)array.Entities.data(), array.Entities.size() * sizeof(Entity));
+            out << YAML::Key << "Chunks" << YAML::Value << YAML::BeginSeq;
+            for (const auto &i : array.Chunks)
+            {
+                out << YAML::BeginMap;
+                out << YAML::Key << "Data" << YAML::Value
+                    << YAML::Binary((const unsigned char *)i.m_data, ARCHETYPE_CHUNK_SIZE);
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
+        }
         out << YAML::EndMap;
     }
-    out << YAML::EndSeq;
+    out << YAML::EndMap;
+}
+void SerializationManager::SerializeEntityInfo(const EntityInfo &entityInfo, YAML::Emitter &out)
+{
+    out << YAML::BeginMap;
+    {
+        out << YAML::Key << "Name" << YAML::Value << entityInfo.m_name;
+        out << YAML::Key << "Version" << YAML::Value << entityInfo.m_version;
+        out << YAML::Key << "Static" << YAML::Value << entityInfo.m_static;
+        out << YAML::Key << "Enabled" << YAML::Value << entityInfo.m_enabled;
+        out << YAML::Key << "Parent.m_index" << YAML::Value << entityInfo.m_parent.m_index;
+        out << YAML::Key << "Parent.m_version" << YAML::Value << entityInfo.m_parent.m_version;
+        out << YAML::Key << "Children" << YAML::Value
+            << YAML::Binary(
+                   (const unsigned char *)entityInfo.m_children.data(), entityInfo.m_children.size() * sizeof(Entity));
+        //out << YAML::Key << "ArchetypeInfoIndex" << YAML::Value << entityInfo.m_archetypeInfoIndex;
+        out << YAML::Key << "ChunkArrayIndex" << YAML::Value << entityInfo.m_chunkArrayIndex;
+#pragma region Private Components
+        out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
+        for (const auto &element : entityInfo.m_privateComponentElements)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "Name" << YAML::Value << ComponentFactory::GetSerializableTypeName(element.m_typeId);
+            out << YAML::Key << "Enabled" << YAML::Value << element.m_privateComponentData->m_enabled;
+            element.m_privateComponentData->Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
 #pragma endregion
-
+    }
     out << YAML::EndMap;
 }

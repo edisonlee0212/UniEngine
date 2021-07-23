@@ -29,15 +29,11 @@ int main()
         for (int j = 0; j < amount; j++)
         {
             auto &sphere = spheres[i * amount + j];
-            auto transform = sphere.GetDataComponent<Transform>();
-            auto globalTransform = sphere.GetDataComponent<GlobalTransform>();
+            Transform transform;
             glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
             transform.SetPosition(position * 5.0f);
-            globalTransform.SetPosition(position * 5.0f);
             transform.SetScale(glm::vec3(2.0f));
-            globalTransform.SetScale(glm::vec3(2.0f));
             sphere.SetDataComponent(transform);
-            sphere.SetDataComponent(globalTransform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
             meshRenderer.m_material = AssetManager::CreateResource<Material>();

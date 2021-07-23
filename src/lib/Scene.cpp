@@ -20,8 +20,8 @@ void Scene::Purge()
             free(chunk.m_data);
         i.m_chunkArray.Chunks.clear();
         i.m_chunkArray.Entities.clear();
-        i.m_archetypeInfo.m_entityAliveCount = 0;
-        i.m_archetypeInfo.m_entityCount = 0;
+        i.m_entityAliveCount = 0;
+        i.m_entityCount = 0;
     }
 
     m_sceneDataStorage.m_entities.emplace_back();

@@ -287,5 +287,17 @@ size_t EntityQuery::GetIndex()
 
 DataComponentStorage::DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo)
 {
-    m_archetypeInfo = entityArchetypeInfo;
+    m_componentTypes = entityArchetypeInfo.m_componentTypes;
+    m_entitySize = entityArchetypeInfo.m_entitySize;
+    m_chunkCapacity = entityArchetypeInfo.m_chunkCapacity;
+}
+
+bool DataComponentStorage::HasType(const size_t &typeId)
+{
+    for (const auto &type : m_componentTypes)
+    {
+        if (typeId == type.m_typeId)
+            return true;
+    }
+    return false;
 }

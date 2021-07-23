@@ -93,7 +93,8 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class SerializationManager;
     bool m_enabled = true;
     Entity m_owner = Entity();
-    IPrivateComponent & operator=(const IPrivateComponent & other) = default;
+    IPrivateComponent &operator=(const IPrivateComponent &other) = default;
+
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
@@ -108,10 +109,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void OnEntityEnable();
     virtual void OnEntityDisable();
     virtual void OnDestroy();
-
 };
-
-
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 
@@ -135,9 +133,9 @@ struct PrivateComponentElement
 {
     std::string m_name;
     size_t m_typeId;
-    IPrivateComponent * m_privateComponentData;
+    IPrivateComponent *m_privateComponentData;
     UNIENGINE_API PrivateComponentElement(
-        const std::string &name, const size_t &id, IPrivateComponent * data, const Entity &owner);
+        const std::string &name, const size_t &id, IPrivateComponent *data, const Entity &owner);
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
 };
 
@@ -150,19 +148,17 @@ struct EntityInfo
     Entity m_parent = Entity();
     std::vector<PrivateComponentElement> m_privateComponentElements;
     std::vector<Entity> m_children;
-    size_t m_archetypeInfoIndex;
+    EntityArchetype m_archetype;
     size_t m_chunkArrayIndex;
 };
 
 struct UNIENGINE_API EntityArchetypeInfo
 {
-    std::string m_name;
-    size_t m_index = 0;
-    std::vector<DataComponentType> m_componentTypes;
+    std::string m_name = "New Entity Archetype";
+    size_t m_dataComponentStorageIndex = 0;
     size_t m_entitySize = 0;
     size_t m_chunkCapacity = 0;
-    size_t m_entityCount = 0;
-    size_t m_entityAliveCount = 0;
+    std::vector<DataComponentType> m_componentTypes;
     template <typename T> bool HasType();
     bool HasType(const size_t &typeId);
 };
@@ -203,17 +199,23 @@ struct UNIENGINE_API EntityQuery final
 };
 struct UNIENGINE_API DataComponentStorage
 {
-    EntityArchetypeInfo m_archetypeInfo;
+    std::vector<DataComponentType> m_componentTypes;
+    size_t m_entitySize = 0;
+    size_t m_chunkCapacity = 0;
+    size_t m_entityCount = 0;
+    size_t m_entityAliveCount = 0;
+    template <typename T> bool HasType();
+    bool HasType(const size_t &typeId);
     DataComponentChunkArray m_chunkArray;
     DataComponentStorage() = default;
-    DataComponentStorage(const EntityArchetypeInfo& entityArchetypeInfo);
+    DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo);
 };
 struct EntityQueryInfo
 {
     std::vector<DataComponentType> m_allComponentTypes;
     std::vector<DataComponentType> m_anyComponentTypes;
     std::vector<DataComponentType> m_noneComponentTypes;
-    std::vector<DataComponentStorage*> m_queriedStorage;
+    std::vector<DataComponentStorage *> m_queriedStorage;
 };
 #pragma endregion
 #pragma endregion
@@ -227,4 +229,14 @@ template <typename T> bool EntityArchetypeInfo::HasType()
     }
     return false;
 }
+template <typename T> bool DataComponentStorage::HasType()
+{
+    for (const auto &i : m_componentTypes)
+    {
+        if (i.m_typeId == typeid(T).hash_code())
+            return true;
+    }
+    return false;
+}
+
 } // namespace UniEngine

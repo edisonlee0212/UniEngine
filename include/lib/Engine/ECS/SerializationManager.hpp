@@ -20,6 +20,8 @@ class UNIENGINE_API ComponentFactory : public ISingleton<ComponentFactory>
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
     std::map<std::string, std::function<ISerializable *(size_t &)>> m_serializableGenerators;
 
+    std::map<std::string, size_t> m_dataComponentIds;
+
     std::map<size_t, std::string> m_dataComponentNames;
     std::map<size_t, std::string> m_serializableNames;
 
@@ -114,14 +116,11 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
             std::function<std::string(IDataComponent *)>,
             std::function<void(const std::string &, IDataComponent *)>>>
         m_componentDataSerializers;
-    static void SerializeEntity(std::shared_ptr<Scene> world, YAML::Emitter &out, const Entity &entity);
-    static Entity DeserializeEntity(std::shared_ptr<Scene> world, const YAML::Node &node);
-
     static void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
     static void SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out);
   public:
-    static void Serialize(std::shared_ptr<Scene> scene, const std::string &path);
-    static bool Deserialize(std::shared_ptr<Scene> scene, const std::string &path);
+    static void SerializeScene(std::shared_ptr<Scene> scene, const std::string &path);
+    static bool DeserializeScene(std::shared_ptr<Scene> scene, const std::string &path);
 };
 
 } // namespace UniEngine

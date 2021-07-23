@@ -1417,7 +1417,7 @@ void AssetManager::OnGui()
             if (ImGui::BeginMenu("Open..."))
             {
                 FileIO::OpenFile("Load Scene", ".unienginescene", [](const std::string &filePath) {
-                    SerializationManager::Deserialize(EntityManager::GetCurrentScene(), filePath);
+                    SerializationManager::DeserializeScene(EntityManager::GetCurrentScene(), filePath);
                 });
                 ImGui::EndMenu();
             }
@@ -1425,7 +1425,7 @@ void AssetManager::OnGui()
             if (ImGui::BeginMenu("Save..."))
             {
                 FileIO::SaveFile("Save Scene", ".unienginescene", [](const std::string &filePath) {
-                    SerializationManager::Serialize(EntityManager::GetCurrentScene(), filePath);
+                    SerializationManager::SerializeScene(EntityManager::GetCurrentScene(), filePath);
                 });
                 ImGui::EndMenu();
             }

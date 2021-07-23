@@ -100,11 +100,13 @@ void Application::PreUpdateInternal()
     application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
     application.m_time.m_frameStartTime = glfwGetTime();
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+    WindowManager::PreUpdate();
+
     EditorManager::PreUpdate();
     ProfilerManager::PreUpdate();
     ProfilerManager::StartEvent("PreUpdate");
     ProfilerManager::StartEvent("Internals");
-    WindowManager::PreUpdate();
+
     RenderManager::PreUpdate();
     InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
