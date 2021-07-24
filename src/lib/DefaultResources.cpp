@@ -448,20 +448,20 @@ void DefaultResources::LoadPrimitives()
 }
 void DefaultResources::Load()
 {
-    AssetManager::RegisterResourceType<Material>("Material");
-    AssetManager::RegisterResourceType<Mesh>("Mesh");
-    AssetManager::RegisterResourceType<Texture2D>("Texture2D");
-    AssetManager::RegisterResourceType<Cubemap>("Cubemap");
-    AssetManager::RegisterResourceType<Model>("Model");
-    AssetManager::RegisterResourceType<LightProbe>("LightProbe");
-    AssetManager::RegisterResourceType<ReflectionProbe>("ReflectionProbe");
-    AssetManager::RegisterResourceType<OpenGLUtils::GLProgram>("GLProgram");
-    AssetManager::RegisterResourceType<EnvironmentalMap>("EnvironmentalMap");
-    AssetManager::RegisterResourceType<Animation>("Animation");
-    AssetManager::RegisterResourceType<SkinnedMesh>("SkinnedMesh");
-    AssetManager::RegisterResourceType<PhysicsMaterial>("PhysicsMaterial");
-    AssetManager::RegisterResourceType<Collider>("Collider");
-    AssetManager::RegisterResourceType<Prefab>("Prefab");
+    AssetManager::RegisterAssetType<Material>("Material");
+    AssetManager::RegisterAssetType<Mesh>("Mesh");
+    AssetManager::RegisterAssetType<Texture2D>("Texture2D");
+    AssetManager::RegisterAssetType<Cubemap>("Cubemap");
+    AssetManager::RegisterAssetType<Model>("Model");
+    AssetManager::RegisterAssetType<LightProbe>("LightProbe");
+    AssetManager::RegisterAssetType<ReflectionProbe>("ReflectionProbe");
+    AssetManager::RegisterAssetType<OpenGLUtils::GLProgram>("GLProgram");
+    AssetManager::RegisterAssetType<EnvironmentalMap>("EnvironmentalMap");
+    AssetManager::RegisterAssetType<Animation>("Animation");
+    AssetManager::RegisterAssetType<SkinnedMesh>("SkinnedMesh");
+    AssetManager::RegisterAssetType<PhysicsMaterial>("PhysicsMaterial");
+    AssetManager::RegisterAssetType<Collider>("Collider");
+    AssetManager::RegisterAssetType<Prefab>("Prefab");
     LoadShaders();
     LoadTextures();
     LoadPrimitives();
@@ -482,20 +482,20 @@ void DefaultResources::Load()
     /*
     Environmental::MilkyWaySkybox =
         AssetManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_BG.jpg"));
-    Environmental::MilkyWaySkybox->m_name = "Milky Way";
+    Environmental::MilkyWaySkybox->m_typeName = "Milky Way";
     Environmental::MilkyWayHDRSkybox =
         AssetManager::LoadCubemap(true, FileIO::GetResourcePath("Textures/Cubemaps/Milkyway/Milkyway_small.hdr"));
-    Environmental::MilkyWayHDRSkybox->m_name = "Milky Way HDR";
+    Environmental::MilkyWayHDRSkybox->m_typeName = "Milky Way HDR";
     Environmental::MilkyWayEnvironmentalMap = AssetManager::CreateResource<EnvironmentalMap>(true, "Milky Way");
     Environmental::MilkyWayEnvironmentalMap->Construct(Environmental::MilkyWaySkybox);
     Environmental::MilkyWayHDREnvironmentalMap = AssetManager::CreateResource<EnvironmentalMap>(true, "Milky Way
     HDR"); Environmental::MilkyWayHDREnvironmentalMap->Construct(Environmental::MilkyWayHDRSkybox);
     Environmental::CircusEnvironmentalMap = AssetManager::LoadEnvironmentalMap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_8k.jpg"));
-    Environmental::CircusEnvironmentalMap->m_name = "Circus";
+    Environmental::CircusEnvironmentalMap->m_typeName = "Circus";
     Environmental::CircusHDREnvironmentalMap = AssetManager::LoadEnvironmentalMap(
         true, FileIO::GetResourcePath("Textures/Cubemaps/Circus/Circus_Backstage_3k.hdr"));
-    Environmental::CircusHDREnvironmentalMap->m_name = "Circus HDR";
+    Environmental::CircusHDREnvironmentalMap->m_typeName = "Circus HDR";
     */
 #pragma endregion
 }

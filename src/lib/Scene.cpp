@@ -3,8 +3,6 @@
 #include <EntityManager.hpp>
 #include <Scene.hpp>
 
-#include <PhysicsManager.hpp>
-
 using namespace UniEngine;
 
 void Scene::Purge()
@@ -12,20 +10,27 @@ void Scene::Purge()
     m_sceneDataStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();
     m_sceneDataStorage.m_entities.clear();
     m_sceneDataStorage.m_entityInfos.clear();
-    m_sceneDataStorage.m_parentHierarchyVersion = 0;
-    for (int index = 1; index < m_sceneDataStorage.m_entityComponentStorage.size(); index++)
+    for (int index = 1; index < m_sceneDataStorage.m_dataComponentStorages.size(); index++)
     {
-        auto &i = m_sceneDataStorage.m_entityComponentStorage[index];
-        for (auto &chunk : i.m_chunkArray.Chunks)
+        auto &i = m_sceneDataStorage.m_dataComponentStorages[index];
+        for (auto &chunk : i.m_chunkArray.m_chunks)
             free(chunk.m_data);
-        i.m_chunkArray.Chunks.clear();
-        i.m_chunkArray.Entities.clear();
-        i.m_entityAliveCount = 0;
-        i.m_entityCount = 0;
     }
+    m_sceneDataStorage.m_dataComponentStorages.clear();
 
+
+    m_sceneDataStorage.m_dataComponentStorages.emplace_back();
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
+
+    if(EntityManager::GetCurrentScene().get() == this){
+        for(auto& i : EntityManager::GetInstance().m_entityArchetypeInfos){
+            i.m_dataComponentStorageIndex = 0;
+        }
+        for(auto& i : EntityManager::GetInstance().m_entityQueryInfos){
+            i.m_queriedStorage.clear();
+        }
+    }
 }
 
 Bound Scene::GetBound() const
@@ -38,20 +43,11 @@ void Scene::SetBound(const Bound &value)
     m_worldBound = value;
 }
 
-size_t Scene::GetIndex() const
+Scene::Scene()
 {
-    return m_index;
-}
-
-Scene::Scene(size_t index)
-{
-    m_index = index;
-    m_sceneDataStorage = SceneDataStorage();
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
-    m_sceneDataStorage.m_entityComponentStorage.emplace_back();
-    m_sceneDataStorage.m_entityQueries.emplace_back();
-    m_sceneDataStorage.m_entityQueryInfos.emplace_back();
+    m_sceneDataStorage.m_dataComponentStorages.emplace_back();
 }
 
 Scene::~Scene()
@@ -73,9 +69,9 @@ void Scene::PreUpdate()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->m_name);
+            ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->PreUpdate();
-            ProfilerManager::EndEvent(i.second->m_name);
+            ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -86,9 +82,9 @@ void Scene::Update()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->m_name);
+            ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->Update();
-            ProfilerManager::EndEvent(i.second->m_name);
+            ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -98,9 +94,9 @@ void Scene::LateUpdate()
     for (auto &i : m_systems)
     {
         if (i.second->Enabled()){
-            ProfilerManager::StartEvent(i.second->m_name);
+            ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->LateUpdate();
-            ProfilerManager::EndEvent(i.second->m_name);
+            ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -109,9 +105,9 @@ void Scene::FixedUpdate()
     for (auto &i : m_systems)
     {
         if (i.second->Enabled()){
-            ProfilerManager::StartEvent(i.second->m_name);
+            ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->FixedUpdate();
-            ProfilerManager::EndEvent(i.second->m_name);
+            ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
 }

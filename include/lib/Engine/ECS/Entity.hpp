@@ -67,9 +67,6 @@ struct UNIENGINE_API Entity final
     void RemoveChild(const Entity &child) const;
     [[nodiscard]] std::vector<Entity> GetDescendants() const;
     void ForEachDescendant(const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true) const;
-
-    [[nodiscard]] EntityArchetype GetEntityArchetype() const;
-
     template <typename T = IDataComponent> void SetDataComponent(const T &value) const;
     template <typename T = IDataComponent> T GetDataComponent() const;
     template <typename T = IDataComponent> [[nodiscard]] bool HasDataComponent() const;
@@ -125,8 +122,8 @@ struct UNIENGINE_API ComponentDataChunk
 
 struct UNIENGINE_API DataComponentChunkArray
 {
-    std::vector<Entity> Entities;
-    std::vector<ComponentDataChunk> Chunks;
+    std::vector<Entity> m_entities;
+    std::vector<ComponentDataChunk> m_chunks;
 };
 
 struct PrivateComponentElement
@@ -148,8 +145,8 @@ struct EntityInfo
     Entity m_parent = Entity();
     std::vector<PrivateComponentElement> m_privateComponentElements;
     std::vector<Entity> m_children;
-    EntityArchetype m_archetype;
-    size_t m_chunkArrayIndex;
+    size_t m_dataComponentStorageIndex = 0;
+    size_t m_chunkArrayIndex = 0;
 };
 
 struct UNIENGINE_API EntityArchetypeInfo
@@ -158,7 +155,7 @@ struct UNIENGINE_API EntityArchetypeInfo
     size_t m_dataComponentStorageIndex = 0;
     size_t m_entitySize = 0;
     size_t m_chunkCapacity = 0;
-    std::vector<DataComponentType> m_componentTypes;
+    std::vector<DataComponentType> m_dataComponentTypes;
     template <typename T> bool HasType();
     bool HasType(const size_t &typeId);
 };
@@ -176,6 +173,7 @@ struct UNIENGINE_API EntityQuery final
     bool operator!=(const EntityQuery &other) const;
     size_t operator()(const EntityQuery &key) const;
     [[nodiscard]] bool IsNull() const;
+    [[nodiscard]] bool IsValid() const;
     template <typename T = IDataComponent, typename... Ts> void SetAllFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetAnyFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetNoneFilters(T arg, Ts... args);
@@ -199,7 +197,7 @@ struct UNIENGINE_API EntityQuery final
 };
 struct UNIENGINE_API DataComponentStorage
 {
-    std::vector<DataComponentType> m_componentTypes;
+    std::vector<DataComponentType> m_dataComponentTypes;
     size_t m_entitySize = 0;
     size_t m_chunkCapacity = 0;
     size_t m_entityCount = 0;
@@ -210,11 +208,13 @@ struct UNIENGINE_API DataComponentStorage
     DataComponentStorage() = default;
     DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo);
 };
+
+
 struct EntityQueryInfo
 {
-    std::vector<DataComponentType> m_allComponentTypes;
-    std::vector<DataComponentType> m_anyComponentTypes;
-    std::vector<DataComponentType> m_noneComponentTypes;
+    std::vector<DataComponentType> m_allDataComponentTypes;
+    std::vector<DataComponentType> m_anyDataComponentTypes;
+    std::vector<DataComponentType> m_noneDataComponentTypes;
     std::vector<DataComponentStorage *> m_queriedStorage;
 };
 #pragma endregion
@@ -222,7 +222,7 @@ struct EntityQueryInfo
 #pragma endregion
 template <typename T> bool EntityArchetypeInfo::HasType()
 {
-    for (const auto &i : m_componentTypes)
+    for (const auto &i : m_dataComponentTypes)
     {
         if (i.m_typeId == typeid(T).hash_code())
             return true;
@@ -231,7 +231,7 @@ template <typename T> bool EntityArchetypeInfo::HasType()
 }
 template <typename T> bool DataComponentStorage::HasType()
 {
-    for (const auto &i : m_componentTypes)
+    for (const auto &i : m_dataComponentTypes)
     {
         if (i.m_typeId == typeid(T).hash_code())
             return true;

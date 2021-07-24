@@ -93,7 +93,7 @@ std::shared_ptr<Model> AssetManager::LoadModel(
     }
 
     auto retVal = CreateResource<Model>();
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_typeName = path.substr(path.find_last_of("/\\") + 1);
     auto &attribute = reader.GetAttrib();
     auto &shapes = reader.GetShapes();
     auto &materials = reader.GetMaterials();
@@ -1078,28 +1078,7 @@ void UniEngine::AssetManager::AttachChildren(
     }
 }
 
-std::string AssetManager::GetTypeName(size_t id)
-{
-    auto &resourceManager = GetInstance();
-    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
-    {
-        return resourceManager.m_assets[id].first;
-    }
-    UNIENGINE_ERROR("Resource type not registered!");
-    throw 0;
-}
 
-std::string AssetManager::GetTypeName(const std::shared_ptr<IAsset> &resource)
-{
-    auto &resourceManager = GetInstance();
-    const auto id = resource->m_typeId;
-    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
-    {
-        return resourceManager.m_assets[id].first;
-    }
-    UNIENGINE_ERROR("Resource type not registered!");
-    throw 0;
-}
 
 std::shared_ptr<Texture2D> AssetManager::LoadTexture(
     const bool &addResource, const std::string &path, const float &gamma)
@@ -1417,7 +1396,7 @@ void AssetManager::OnGui()
             if (ImGui::BeginMenu("Open..."))
             {
                 FileIO::OpenFile("Load Scene", ".unienginescene", [](const std::string &filePath) {
-                    SerializationManager::DeserializeScene(EntityManager::GetCurrentScene(), filePath);
+                    EntityManager::Attach(SerializationManager::DeserializeScene(filePath));
                 });
                 ImGui::EndMenu();
             }

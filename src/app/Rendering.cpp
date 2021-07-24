@@ -9,7 +9,8 @@ using namespace UniEngine;
 int main()
 {
     Application::Init();
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
+    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
+    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();

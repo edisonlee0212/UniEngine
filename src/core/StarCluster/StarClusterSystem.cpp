@@ -363,16 +363,16 @@ void Galaxy::StarClusterSystem::LateUpdate()
 
 void Galaxy::StarClusterSystem::OnCreate()
 {
-    ComponentFactory::RegisterDataComponent<StarPosition>("StarPosition");
-    ComponentFactory::RegisterDataComponent<SelectionStatus>("SelectionStatus");
-    ComponentFactory::RegisterDataComponent<StarInfo>("StarInfo");
-    ComponentFactory::RegisterDataComponent<SurfaceColor>("SurfaceColor");
-    ComponentFactory::RegisterDataComponent<DisplayColor>("DisplayColor");
-    ComponentFactory::RegisterDataComponent<OriginalColor>("OriginalColor");
-    ComponentFactory::RegisterDataComponent<StarOrbitOffset>("StarOrbitOffset");
-    ComponentFactory::RegisterDataComponent<StarOrbitProportion>("StarOrbitProportion");
-    ComponentFactory::RegisterDataComponent<StarOrbit>("StarOrbit");
-    ComponentFactory::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
+    SerializableFactory::RegisterDataComponent<StarPosition>("StarPosition");
+    SerializableFactory::RegisterDataComponent<SelectionStatus>("SelectionStatus");
+    SerializableFactory::RegisterDataComponent<StarInfo>("StarInfo");
+    SerializableFactory::RegisterDataComponent<SurfaceColor>("SurfaceColor");
+    SerializableFactory::RegisterDataComponent<DisplayColor>("DisplayColor");
+    SerializableFactory::RegisterDataComponent<OriginalColor>("OriginalColor");
+    SerializableFactory::RegisterDataComponent<StarOrbitOffset>("StarOrbitOffset");
+    SerializableFactory::RegisterDataComponent<StarOrbitProportion>("StarOrbitProportion");
+    SerializableFactory::RegisterDataComponent<StarOrbit>("StarOrbit");
+    SerializableFactory::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
 
 
 

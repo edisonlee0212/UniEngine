@@ -11,11 +11,13 @@ int main()
 {
 #pragma region Application Preparations
     Application::Init();
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
+    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
+    SerializableFactory::RegisterSerializable<StarClusterSystem>("StarClusterSystem");
+    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
 
 #pragma endregion
 #pragma region Star System
-    auto starClusterSystem = EntityManager::GetOrCreateSystem<StarClusterSystem>("StarClusterSystem", SystemGroup::SimulationSystemGroup);
+    auto starClusterSystem = EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto& postProcessing = RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
     Bloom *bloom = postProcessing.GetLayer<Bloom>();

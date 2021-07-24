@@ -12,19 +12,20 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-    ComponentFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
+    SerializableFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
+    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
+    SerializableFactory::RegisterSerializable<PlanetTerrainSystem>("PlanetTerrainSystem");
     Application::Init();
 #pragma region Preparations
-    EntityArchetype archetype = EntityManager::CreateEntityArchetype("General", Transform(), GlobalTransform());
 
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>("CameraControlSystem", SystemGroup::SimulationSystemGroup);
+    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     ccs->SetSensitivity(0.1f);
     ccs->SetVelocity(15.0f);
     ccs->Enable();
 
     RenderManager::GetMainCamera()->m_useClearColor = false;
 
-    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>("PlanetTerrainSystem", SystemGroup::SimulationSystemGroup);
+    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
     pts->Enable();
 
     PlanetInfo pi;
@@ -40,7 +41,7 @@ int main()
 
     // Serialization not implemented.
     // planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
-    auto planet1 = EntityManager::CreateEntity(archetype);
+    auto planet1 = EntityManager::CreateEntity();
     auto &planetTerrain1 = planet1.SetPrivateComponent<PlanetTerrain>();
     planetTerrain1.Init(pi);
     planet1.SetDataComponent(planetTransform);
@@ -51,7 +52,7 @@ int main()
     pi.m_radius = 15.0;
     pi.m_index = 1;
 
-    auto planet2 = EntityManager::CreateEntity(archetype);
+    auto planet2 = EntityManager::CreateEntity();
     auto &planetTerrain2 = planet2.SetPrivateComponent<PlanetTerrain>();
     planetTerrain2.Init(pi);
     planet2.SetDataComponent(planetTransform);
@@ -62,7 +63,7 @@ int main()
     pi.m_radius = 5.0;
     pi.m_index = 2;
 
-    auto planet3 = EntityManager::CreateEntity(archetype);
+    auto planet3 = EntityManager::CreateEntity();
     auto &planetTerrain3 = planet3.SetPrivateComponent<PlanetTerrain>();
     planetTerrain3.Init(pi);
     planet3.SetDataComponent(planetTransform);

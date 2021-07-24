@@ -79,11 +79,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
 #pragma endregion
     friend class EditorManager;
-    static std::string GetTypeName(size_t id);
   public:
-    template <typename T> static std::string GetTypeName();
-    static std::string GetTypeName(const std::shared_ptr<IAsset> &resource);
-    template <typename T> static void RegisterResourceType(const std::string &name);
+    template <typename T> static void RegisterAssetType(const std::string &name);
     template <typename T>
     static std::shared_ptr<T> CreateResource(const bool &addResource = false, const std::string &name = "");
     template <typename T> static void Push(std::shared_ptr<T> resource);
@@ -132,26 +129,14 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void Init();
 };
 
-template <typename T> std::string AssetManager::GetTypeName()
-{
-    auto &resourceManager = GetInstance();
-    const auto id = typeid(T).hash_code();
-    if (resourceManager.m_assets.find(id) != resourceManager.m_assets.end())
-    {
-        return resourceManager.m_assets[id].first;
-    }
-    UNIENGINE_ERROR("Resource type not registered!");
-    throw 0;
-}
-
-template <typename T> void AssetManager::RegisterResourceType(const std::string &name)
+template <typename T> void AssetManager::RegisterAssetType(const std::string &name)
 {
     auto &resourceManager = GetInstance();
     const auto id = typeid(T).hash_code();
     if (resourceManager.m_assets.find(id) == resourceManager.m_assets.end())
     {
         resourceManager.m_assets[id].first = name;
-        ComponentFactory::RegisterSerializable<T>(name);
+        SerializableFactory::RegisterSerializable<T>(name);
         return;
     }
     UNIENGINE_ERROR("Resource type already registered!");
@@ -168,6 +153,7 @@ std::shared_ptr<T> AssetManager::CreateResource(const bool &addResource, const s
         auto retVal = std::make_shared<T>();
         dynamic_cast<IAsset *>(retVal.get())->m_typeId = id;
         dynamic_cast<IAsset *>(retVal.get())->OnCreate();
+        dynamic_cast<IAsset *>(retVal.get())->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
         if (addResource)
             Push(retVal);
         if (!name.empty())

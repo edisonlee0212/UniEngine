@@ -1,14 +1,15 @@
 #pragma once
 #include <uniengine_export.h>
+#include <ISerializable.hpp>
 namespace UniEngine
 {
 class ThreadPool;
 class Scene;
-class UNIENGINE_API ISystem
+class UNIENGINE_API ISystem : public ISerializable
 {
     friend class Scene;
     friend class EntityManager;
-    std::string m_name;
+
     std::shared_ptr<Scene> m_scene;
     bool m_enabled;
   protected:
@@ -16,8 +17,6 @@ class UNIENGINE_API ISystem
     virtual void OnStopRunning();
   public:
     std::shared_ptr<Scene> GetOwner();
-
-    [[nodiscard]] std::string GetName();
     ISystem();
     void Enable();
     void Disable();

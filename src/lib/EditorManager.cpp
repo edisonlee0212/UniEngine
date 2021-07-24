@@ -913,7 +913,7 @@ void EditorManager::OnGui()
                     ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
                     for (int j = 0; j < storage.m_entityAliveCount; j++)
                     {
-                        Entity entity = storage.m_chunkArray.Entities.at(j);
+                        Entity entity = storage.m_chunkArray.m_entities.at(j);
                         std::string title = std::to_string(entity.GetIndex()) + ": ";
                         title += entity.GetName();
                         const bool enabled = entity.IsEnabled();
@@ -1268,7 +1268,7 @@ bool EditorManager::DragAndDrop(Entity &entity)
 bool EditorManager::Draggable(const size_t &id, std::shared_ptr<IAsset> &target)
 {
     assert(!(target && target->m_typeId == 0));
-    const std::string type = AssetManager::GetTypeName(id);
+    const std::string type = target->GetTypeName();
     ImGui::Button(target ? target->m_name.c_str() : "none");
     bool removed = false;
     if (target)
@@ -1365,7 +1365,7 @@ void EditorManager::SceneCameraWindow()
                 ImVec2(1, 0));
             if (ImGui::BeginDragDropTarget())
             {
-                const std::string modelTypeHash = AssetManager::GetTypeName<Model>();
+                const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
@@ -1374,7 +1374,7 @@ void EditorManager::SceneCameraWindow()
                         EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
                     AssetManager::ToEntity(archetype, payload_n);
                 }
-                const std::string texture2DTypeHash = AssetManager::GetTypeName<Texture2D>();
+                const std::string texture2DTypeHash = SerializableFactory::GetSerializableTypeName<Texture2D>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
@@ -1383,7 +1383,7 @@ void EditorManager::SceneCameraWindow()
                         EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
                     AssetManager::ToEntity(archetype, payload_n);
                 }
-                const std::string meshTypeHash = AssetManager::GetTypeName<Mesh>();
+                const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
@@ -1395,7 +1395,7 @@ void EditorManager::SceneCameraWindow()
                     meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                 }
 
-                const std::string environmentalMapTypeHash = AssetManager::GetTypeName<EnvironmentalMap>();
+                const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
@@ -1403,7 +1403,7 @@ void EditorManager::SceneCameraWindow()
                     RenderManager::GetInstance().m_environmentalMap = payload_n;
                 }
 
-                const std::string cubeMapTypeHash = AssetManager::GetTypeName<Cubemap>();
+                const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
@@ -1655,7 +1655,7 @@ void EditorManager::MainCameraWindow()
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
                     if (ImGui::BeginDragDropTarget())
                     {
-                        const std::string modelTypeHash = AssetManager::GetTypeName<Model>();
+                        const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
@@ -1665,7 +1665,7 @@ void EditorManager::MainCameraWindow()
                             Transform ltw;
                             AssetManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
                         }
-                        const std::string meshTypeHash = AssetManager::GetTypeName<Mesh>();
+                        const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
@@ -1679,7 +1679,7 @@ void EditorManager::MainCameraWindow()
                             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                         }
 
-                        const std::string environmentalMapTypeHash = AssetManager::GetTypeName<EnvironmentalMap>();
+                        const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
                         if (const ImGuiPayload *payload =
                                 ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                         {
@@ -1689,7 +1689,7 @@ void EditorManager::MainCameraWindow()
                             renderManager.m_environmentalMap = payload_n;
                         }
 
-                        const std::string cubeMapTypeHash = AssetManager::GetTypeName<Cubemap>();
+                        const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
                         {
                             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));

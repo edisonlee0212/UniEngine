@@ -38,7 +38,7 @@ size_t Entity::operator()(Entity const &key) const
 
 bool Entity::IsEnabled() const
 {
-    return EntityManager::IsEntityEnabled(*this);
+    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_enabled;
 }
 
 void Entity::SetStatic(const bool &value) const
@@ -63,19 +63,17 @@ bool Entity::IsNull() const
 
 bool Entity::IsStatic() const
 {
-    return EntityManager::IsEntityStatic(*this);
+    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_static;
 }
 
 bool Entity::IsDeleted() const
 {
-    return EntityManager::IsEntityDeleted(m_index);
+    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_version == 0;
 }
 
 bool Entity::IsValid() const
 {
-    if (!IsNull() && EntityManager::IsEntityValid(*this))
-        return true;
-    return false;
+    return m_index != 0 && m_version != 0 && EntityManager::GetInstance().m_entities->at(m_index).m_version == m_version;
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
@@ -100,10 +98,6 @@ Entity Entity::GetParent() const
 template <typename T> void Entity::RemoveDataComponent() const
 {
     EntityManager::RemoveDataComponent(*this);
-}
-EntityArchetype Entity::GetEntityArchetype() const
-{
-    return EntityManager::GetEntityArchetype(*this);
 }
 
 Entity Entity::GetRoot() const
@@ -220,7 +214,7 @@ bool EntityArchetype::IsNull() const
 
 bool EntityArchetype::IsValid() const
 {
-    return EntityManager::IsEntityArchetypeValid(*this);
+    return m_index != 0 && EntityManager::GetInstance().m_entityArchetypeInfos.size() > m_index;
 }
 
 std::string EntityArchetype::GetName() const
@@ -253,7 +247,7 @@ void PrivateComponentElement::ResetOwner(const Entity &newOwner) const
 
 bool EntityArchetypeInfo::HasType(const size_t &typeId)
 {
-    for (const auto &type : m_componentTypes)
+    for (const auto &type : m_dataComponentTypes)
     {
         if (typeId == type.m_typeId)
             return true;
@@ -284,17 +278,21 @@ size_t EntityQuery::GetIndex()
 {
     return m_index;
 }
+bool EntityQuery::IsValid() const
+{
+    return m_index != 0 && EntityManager::GetInstance().m_entityQueryInfos.size() > m_index;
+}
 
 DataComponentStorage::DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo)
 {
-    m_componentTypes = entityArchetypeInfo.m_componentTypes;
+    m_dataComponentTypes = entityArchetypeInfo.m_dataComponentTypes;
     m_entitySize = entityArchetypeInfo.m_entitySize;
     m_chunkCapacity = entityArchetypeInfo.m_chunkCapacity;
 }
 
 bool DataComponentStorage::HasType(const size_t &typeId)
 {
-    for (const auto &type : m_componentTypes)
+    for (const auto &type : m_dataComponentTypes)
     {
         if (typeId == type.m_typeId)
             return true;
