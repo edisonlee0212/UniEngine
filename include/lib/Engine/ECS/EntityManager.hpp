@@ -526,7 +526,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetSystem()
 }
 template <typename T>
 std::shared_ptr<T> EntityManager::GetOrCreateSystem(
-    std::shared_ptr<Scene> scene, const float &order)
+    std::shared_ptr<Scene> scene, const float &rank)
 {
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
@@ -534,12 +534,13 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(
     auto system = std::make_shared<T>();
     system->m_scene = scene;
     system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
-    scene->m_systems.insert({order, system});
+    system->m_rank = rank;
+    scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
     system->OnCreate();
     return system;
 }
-template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const float &order)
+template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const float &rank)
 {
     auto scene = GetCurrentScene();
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
@@ -548,7 +549,8 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const 
     auto system = std::make_shared<T>();
     system->m_scene = scene;
     system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
-    scene->m_systems.insert({order, system});
+    system->m_rank = rank;
+    scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
     system->OnCreate();
     return system;

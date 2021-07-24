@@ -68,3 +68,7 @@ std::shared_ptr<Scene> ISystem::GetOwner()
 {
     return m_scene;
 }
+float ISystem::GetRank()
+{
+    return m_rank;
+}

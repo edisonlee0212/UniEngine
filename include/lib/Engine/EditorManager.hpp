@@ -178,7 +178,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
     assert(!(ptr && ptr->m_typeId == 0));
-    const std::string type = ptr->GetTypeName();
+    const std::string type = SerializableFactory::GetSerializableTypeName<T>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)
@@ -234,7 +234,7 @@ template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
     assert(!(ptr && ptr->m_typeId == 0));
-    const std::string type = ptr->GetTypeName();
+    const std::string type = SerializableFactory::GetSerializableTypeName<T>();
     bool removed = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)

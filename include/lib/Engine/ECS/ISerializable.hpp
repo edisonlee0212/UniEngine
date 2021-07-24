@@ -13,6 +13,7 @@ class UNIENGINE_API ISerializable
     friend class SerializableFactory;
     friend class AssetManager;
     friend class EntityManager;
+    friend class SerializationManager;
     std::string m_typeName;
   public:
     [[nodiscard]] std::string GetTypeName()

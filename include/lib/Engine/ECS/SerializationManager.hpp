@@ -3,6 +3,8 @@
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
 #include <Scene.hpp>
+#include "ISystem.hpp"
+
 namespace YAML
 {
 class Node;
@@ -121,9 +123,12 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
         m_componentDataSerializers;
     static void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
     static void SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out);
+    static void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
+
   public:
     static void SerializeScene(const std::shared_ptr<Scene>& scene, const std::string &path);
     static std::shared_ptr<Scene> DeserializeScene(const std::string &path);
 };
+
 
 } // namespace UniEngine

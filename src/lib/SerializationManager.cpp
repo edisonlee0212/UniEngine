@@ -175,6 +175,16 @@ void UniEngine::SerializationManager::SerializeScene(const std::shared_ptr<Scene
     }
     out << YAML::EndSeq;
 #pragma endregion
+
+#pragma region Systems
+    out << YAML::Key << "Systems" << YAML::Value << YAML::BeginSeq;
+    for (const auto& i : scene->m_systems)
+    {
+        SerializeSystem(i.second, out);
+    }
+    out << YAML::EndSeq;
+#pragma endregion
+
 #pragma region DataComponentStorage
     out << YAML::Key << "DataComponentStorages" << YAML::Value << YAML::BeginSeq;
     for (int i = 1; i < sceneDataStorage.m_dataComponentStorages.size(); i++)
@@ -189,6 +199,8 @@ void UniEngine::SerializationManager::SerializeScene(const std::shared_ptr<Scene
                (const unsigned char *)sceneDataStorage.m_entities.data(),
                sceneDataStorage.m_entities.size() * sizeof(Entity));
 #pragma endregion
+
+
     out << YAML::EndMap;
     std::ofstream fout(path);
     fout << out.c_str();
@@ -264,6 +276,19 @@ void SerializationManager::SerializeEntityInfo(const EntityInfo &entityInfo, YAM
         }
         out << YAML::EndSeq;
 #pragma endregion
+    }
+    out << YAML::EndMap;
+}
+
+void SerializationManager::SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out)
+{
+    out << YAML::BeginMap;
+    {
+        out << YAML::Key << "TypeName" << YAML::Value << system->m_typeName;
+        out << YAML::Key << "Enabled" << YAML::Value << system->m_enabled;
+        out << YAML::Key << "Rank" << YAML::Value << system->m_rank;
+
+        system->Serialize(out);
     }
     out << YAML::EndMap;
 }
@@ -375,5 +400,22 @@ std::shared_ptr<Scene> UniEngine::SerializationManager::DeserializeScene(const s
     sceneDataStorage.m_entities.resize(entitiesSize / sizeof(Entity));
     std::memcpy(sceneDataStorage.m_entities.data(), entitiesDataPtr, entitiesSize);
 #pragma endregion
+
+#pragma region Systems
+    auto inSystems = data["Systems"];
+    for(const auto& inSystem : inSystems){
+        auto name = inSystem["TypeName"].as<std::string>();
+        size_t hashCode;
+        auto ptr = std::shared_ptr<ISystem>(dynamic_cast<ISystem *>(SerializableFactory::ProduceSerializable(name, hashCode)));
+        ptr->m_enabled = inSystem["Enabled"].as<bool>();
+        ptr->m_scene = scene;
+        ptr->m_rank = inSystem["Rank"].as<float>();
+        scene->m_systems.insert({ptr->m_rank, ptr});
+        scene->m_indexedSystems.insert({hashCode, ptr});
+        ptr->Deserialize(inSystem);
+    }
+#pragma endregion
+
     return scene;
 }
+
