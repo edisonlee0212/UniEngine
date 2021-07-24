@@ -128,11 +128,9 @@ struct UNIENGINE_API DataComponentChunkArray
 
 struct PrivateComponentElement
 {
-    std::string m_name;
     size_t m_typeId;
     IPrivateComponent *m_privateComponentData;
-    UNIENGINE_API PrivateComponentElement(
-        const std::string &name, const size_t &id, IPrivateComponent *data, const Entity &owner);
+    UNIENGINE_API PrivateComponentElement(const size_t &id, IPrivateComponent *data, const Entity &owner);
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
 };
 

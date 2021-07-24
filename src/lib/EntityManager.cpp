@@ -900,7 +900,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(
 }
 
 void EntityManager::SetPrivateComponent(
-    const Entity &entity, const std::string &name, const size_t &id, IPrivateComponent *ptr, const bool &enabled)
+    const Entity &entity, const size_t &id, IPrivateComponent *ptr, const bool &enabled)
 {
     if (!ptr || !entity.IsValid())
         return;
@@ -927,7 +927,7 @@ void EntityManager::SetPrivateComponent(
     if (!found)
     {
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
-        elements.emplace_back(name, id, ptr, entity);
+        elements.emplace_back(id, ptr, entity);
     }
 }
 

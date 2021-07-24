@@ -77,7 +77,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types);
     static void SetPrivateComponent(
         const Entity &entity,
-        const std::string &name,
         const size_t &id,
         IPrivateComponent *ptr,
         const bool &enabled = true);
@@ -1806,6 +1805,7 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
         if (dynamic_cast<T *>(element.m_privateComponentData))
         {
             element.m_privateComponentData = new T();
+            element.m_privateComponentData->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
             element.ResetOwner(entity);
             element.m_privateComponentData->OnCreate();
             return *dynamic_cast<T *>(element.m_privateComponentData);
@@ -1813,7 +1813,9 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
         i++;
     }
     GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    elements.emplace_back(SerializableFactory::GetSerializableTypeName<T>(), typeid(T).hash_code(), new T(), entity);
+    auto* ptr = new T();
+    dynamic_cast<IPrivateComponent*>(ptr)->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
+    elements.emplace_back(typeid(T).hash_code(), ptr, entity);
     return *dynamic_cast<T *>(elements.back().m_privateComponentData);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)

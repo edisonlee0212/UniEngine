@@ -1071,7 +1071,7 @@ void EditorManager::OnGui()
                         editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
-                            ImGui::Checkbox(data.m_name.c_str(), &data.m_privateComponentData->m_enabled);
+                            ImGui::Checkbox(data.m_privateComponentData->GetTypeName().c_str(), &data.m_privateComponentData->m_enabled);
                             ImGui::PushID(i);
                             if (ImGui::BeginPopupContextItem(
                                     ("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))

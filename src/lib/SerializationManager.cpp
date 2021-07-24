@@ -257,7 +257,7 @@ void SerializationManager::SerializeEntityInfo(const EntityInfo &entityInfo, YAM
         for (const auto &element : entityInfo.m_privateComponentElements)
         {
             out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << SerializableFactory::GetSerializableTypeName(element.m_typeId);
+            out << YAML::Key << "TypeName" << YAML::Value << element.m_privateComponentData->GetTypeName();
             out << YAML::Key << "Enabled" << YAML::Value << element.m_privateComponentData->m_enabled;
             element.m_privateComponentData->Serialize(out);
             out << YAML::EndMap;
@@ -360,7 +360,7 @@ std::shared_ptr<Scene> UniEngine::SerializationManager::DeserializeScene(const s
                 size_t hashCode;
                 auto *ptr = dynamic_cast<IPrivateComponent *>(SerializableFactory::ProduceSerializable(name, hashCode));
                 ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
-                newInfo.m_privateComponentElements.emplace_back(name, hashCode, ptr, entity);
+                newInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
                 scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
                 ptr->Deserialize(inPrivateComponent);
             }

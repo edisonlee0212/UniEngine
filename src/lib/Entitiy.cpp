@@ -230,10 +230,8 @@ size_t EntityArchetype::GetIndex()
     return m_index;
 }
 
-PrivateComponentElement::PrivateComponentElement(
-    const std::string &name, const size_t &id, IPrivateComponent * data, const Entity &owner)
+PrivateComponentElement::PrivateComponentElement(const size_t &id, IPrivateComponent * data, const Entity &owner)
 {
-    m_name = name;
     m_typeId = id;
     m_privateComponentData = data;
     m_privateComponentData->m_owner = owner;
