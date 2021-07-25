@@ -375,21 +375,6 @@ void Galaxy::StarClusterSystem::OnCreate()
     SerializableFactory::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
 
 
-
-    const auto vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
-    const auto fragShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
-
-    auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    standardVert->Compile(vertShaderCode);
-    auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    standardFrag->Compile(fragShaderCode);
-    m_starRenderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    m_starRenderProgram->Link(standardVert, standardFrag);
-
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
     m_rendererFront = EntityManager::CreateEntity("Renderer 1");
     GlobalTransform ltw;

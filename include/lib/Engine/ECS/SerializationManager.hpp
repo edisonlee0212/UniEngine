@@ -116,7 +116,7 @@ namespace UniEngine
 #pragma region Component Factory
 class UNIENGINE_API SerializableFactory : public ISingleton<SerializableFactory>
 {
-    friend class SerializationManager;
+    friend class AssetManager;
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
     std::map<std::string, std::function<ISerializable *(size_t &)>> m_serializableGenerators;
 

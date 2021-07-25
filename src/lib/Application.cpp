@@ -33,6 +33,9 @@ void Application::Init(bool fullScreen)
     JobManager::Init();
     OpenGLUtils::Init();
     PhysicsManager::Init();
+
+    AssetManager::SetResourcePath(UNIENGINE_RESOURCE_FOLDER);
+    AssetManager::SetProjectPath(UNIENGINE_DEFAULT_PROJECT_FOLDER);
     AssetManager::Init();
 
     EntityManager::Init();

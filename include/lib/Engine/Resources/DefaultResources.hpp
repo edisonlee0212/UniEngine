@@ -16,7 +16,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static void LoadShaders();
     static void LoadTextures();
     static void LoadPrimitives();
-
+    friend class AssetManager;
     uint64_t m_currentHandle = 0;
 
   public:

@@ -276,10 +276,6 @@ class StarClusterSystem : public ISystem
 #pragma region Rendering
     std::vector<glm::vec4> m_frontColors;
     std::vector<glm::vec4> m_backColors;
-
-    OpenGLUtils::GLVBO m_renderTransformBuffer;
-    OpenGLUtils::GLVBO m_renderColorBuffer;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_starRenderProgram;
 #pragma endregion
     int m_counter = 0;
 

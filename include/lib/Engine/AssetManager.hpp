@@ -26,23 +26,28 @@ struct UNIENGINE_API AssimpNode
 };
 #endif
 
-
-
-struct UNIENGINE_API AssetRecord{
-    std::string m_filePath;
-    std::string m_typeName;
+struct UNIENGINE_API AssetRecord
+{
+    std::string m_filePath = "";
+    bool m_external = false;
+    std::string m_typeName = "";
 };
 
-class UNIENGINE_API AssetRegistry : public ISerializable{
+class UNIENGINE_API AssetRegistry : public ISerializable
+{
+  public:
     size_t m_version = 0;
     std::unordered_map<AssetHandle, AssetRecord> m_assetRecords;
-  public:
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
 
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
+    std::string m_projectPath;
+    std::string m_resourceRootPath;
+
+
     bool m_enableAssetMenu = true;
     std::map<std::string, std::unordered_map<AssetHandle, std::shared_ptr<IAsset>>> m_sharedAssets;
 
@@ -100,42 +105,45 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class EditorManager;
 
   public:
+    static void SetResourcePath(const std::string &path);
+    static std::string GetAssetRootPath();
+    template <typename T>
+    static std::string GetAssetPath();
+    static void SetProjectPath(const std::string &path);
+    static std::string GetProjectPath();
+    static std::string GetResourcePath();
+
+    static void ScanAssetFolder();
+
 
     template <typename T> static void RegisterAssetType(const std::string &name);
+    template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
     template <typename T>
-    static std::shared_ptr<T> CreateAsset(const std::string &name = "");
-    template <typename T>
-    static std::shared_ptr<T> CreateAsset(const AssetHandle& assetHandle, const std::string &name = "");
+    static std::shared_ptr<T> CreateAsset(const AssetHandle &assetHandle, const std::string &name = "");
     template <typename T> static void Share(std::shared_ptr<T> resource);
-    template <typename T> static std::shared_ptr<T> Get(const AssetHandle& handle);
-    template <typename T> static std::shared_ptr<T> Find(const std::string &objectName);
-    template <typename T> static void Remove(const AssetHandle& handle);
-    static void Remove(const std::string& typeName, const AssetHandle& handle);
+    template <typename T> static std::shared_ptr<T> Get(const AssetHandle &handle);
+    template <typename T> static void RemoveFromShared(const AssetHandle &handle);
+    static void RemoveFromShared(const std::string &typeName, const AssetHandle &handle);
 #pragma region Loaders
+    template <typename T>
+    static std::shared_ptr<T> Load(const std::string& path);
+
     static std::shared_ptr<Model> LoadModel(
         std::string const &path,
         const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes |
                                 aiProcess_OptimizeGraph,
         const bool &optimize = false,
         const float &gamma = 0.0f);
-    static std::shared_ptr<Texture2D> LoadTexture(
-        const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<Cubemap> LoadCubemap(
-        const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(
-        const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<Texture2D> LoadTexture(const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<Cubemap> LoadCubemap(const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(const std::string &path, const float &gamma = 0.0f);
 
-    static std::shared_ptr<LightProbe> LoadLightProbe(
-        const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(
-        const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<Cubemap> LoadCubemap(
-        const std::vector<std::string> &paths, const float &gamma = 0.0f);
-    static std::shared_ptr<Material> LoadMaterial(
-        const std::shared_ptr<OpenGLUtils::GLProgram> &program);
+    static std::shared_ptr<LightProbe> LoadLightProbe(const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<Cubemap> LoadCubemap(const std::vector<std::string> &paths, const float &gamma = 0.0f);
+    static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
-        const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
-        const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
+        const std::shared_ptr<OpenGLUtils::GLShader> &vertex, const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex,
         const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
@@ -148,6 +156,28 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 #pragma endregion
     static void Init();
 };
+
+template <typename T> std::shared_ptr<T> AssetManager::Load(const std::string& path)
+{
+    if(typeid(T).hash_code() == typeid(Model).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadModel(path));
+    }
+    if(typeid(T).hash_code() == typeid(Texture2D).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadTexture(path));
+    }
+    if(typeid(T).hash_code() == typeid(Cubemap).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadCubemap(path));
+    }
+    if(typeid(T).hash_code() == typeid(EnvironmentalMap).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadEnvironmentalMap(path));
+    }
+    if(typeid(T).hash_code() == typeid(LightProbe).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadLightProbe(path));
+    }
+    if(typeid(T).hash_code() == typeid(ReflectionProbe).hash_code()){
+        return std::dynamic_pointer_cast<T>(LoadReflectionProbe(path));
+    }
+}
 
 template <typename T> void AssetManager::RegisterAssetType(const std::string &name)
 {
@@ -162,7 +192,7 @@ template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::st
 }
 
 template <typename T>
-std::shared_ptr<T> AssetManager::CreateAsset(const AssetHandle& assetHandle, const std::string &name)
+std::shared_ptr<T> AssetManager::CreateAsset(const AssetHandle &assetHandle, const std::string &name)
 {
     auto &resourceManager = GetInstance();
     if (resourceManager.m_sharedAssets.find(SerializableFactory::GetSerializableTypeName<T>()) !=
@@ -198,24 +228,55 @@ template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
     throw 0;
 }
 
-template <typename T> std::shared_ptr<T> AssetManager::Get(const AssetHandle& handle)
+template <typename T> std::shared_ptr<T> AssetManager::Get(const AssetHandle &handle)
 {
-    return std::dynamic_pointer_cast<IAsset>(
-        GetInstance().m_sharedAssets[SerializableFactory::GetSerializableTypeName<T>()].second[handle]);
-}
-
-template <typename T> std::shared_ptr<T> AssetManager::Find(const std::string &objectName)
-{
-    for (const auto &i : GetInstance().m_sharedAssets[SerializableFactory::GetSerializableTypeName<T>()].second)
+    auto &assetManager = GetInstance();
+    auto typeName = SerializableFactory::GetSerializableTypeName<T>();
+    auto typeSearch = assetManager.m_sharedAssets.find(typeName);
+    if (typeSearch != assetManager.m_sharedAssets.end())
     {
-        if (i.second->m_name.compare(objectName) == 0)
-            return std::dynamic_pointer_cast<IAsset>(i.second);
+        auto umap = typeSearch.second;
+        auto search = umap.find(handle);
+        if(search != umap.end())
+        {
+            return std::dynamic_pointer_cast<IAsset>(search.second);
+        }
+
+        auto search2 = assetManager.m_assetRegistry->m_assetRecords.find(handle);
+        if(search2 != assetManager.m_assetRegistry->m_assetRecords.end()){
+            if(search2->second.m_external){
+
+            }else
+            {
+                auto retVal = CreateAsset<T>();
+                SerializableFactory::Deserialize(search2->second.m_filePath, retVal);
+                return retVal;
+            }
+        }
+        UNIENGINE_ERROR("Asset not registered!");
+        return nullptr;
+    }else{
+        UNIENGINE_ERROR("Type not registered!");
+        return nullptr;
     }
-    return nullptr;
 }
 
-template <typename T> void AssetManager::Remove(const AssetHandle& handle)
+template <typename T> void AssetManager::RemoveFromShared(const AssetHandle &handle)
 {
+    if(handle < DefaultResources::GetInstance().m_currentHandle)
+    {
+        UNIENGINE_WARNING("Not allowed to remove internal assets!");
+        return;
+    }
     GetInstance().m_sharedAssets[SerializableFactory::GetSerializableTypeName<T>()].erase(handle);
+}
+template <typename T> std::string AssetManager::GetAssetPath()
+{
+    auto path = GetAssetRootPath() + SerializableFactory::GetSerializableTypeName<T>() + "/";
+    if (!std::filesystem::exists(path))
+    {
+        std::filesystem::create_directory(path);
+    }
+    return path;
 }
 } // namespace UniEngine

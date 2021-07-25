@@ -5,44 +5,6 @@
 #include <WindowManager.hpp>
 using namespace UniEngine;
 
-std::string FileSystem::GetAssetFolderPath()
-{
-    std::string path = GetProjectPath() + "Assets/";
-    if (!std::filesystem::exists(path))
-    {
-        std::filesystem::create_directory(path);
-    }
-    return path;
-}
-
-void FileSystem::SetProjectPath(const std::string &path)
-{
-    GetInstance().m_projectPath = std::make_unique<std::string>(path);
-}
-
-std::string FileSystem::GetProjectPath()
-{
-    std::string path;
-    if (!GetInstance().m_projectPath)
-        path = GetResourcePath();
-    else
-        path = *GetInstance().m_projectPath;
-    if (!std::filesystem::exists(path))
-    {
-        std::filesystem::create_directory(path);
-    }
-    return path;
-}
-
-void FileSystem::SetResourcePath(const std::string &path)
-{
-    GetInstance().m_resourceRootPath = std::make_unique<std::string>(path);
-}
-
-std::string FileSystem::GetResourcePath(const std::string &path)
-{
-    return *GetInstance().m_resourceRootPath + path;
-}
 
 std::string FileSystem::LoadFileAsString(const std::string &path)
 {

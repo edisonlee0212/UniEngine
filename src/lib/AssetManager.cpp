@@ -10,8 +10,13 @@
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
-void AssetManager::Remove(const std::string &typeName, const AssetHandle &handle)
+void AssetManager::RemoveFromShared(const std::string &typeName, const AssetHandle &handle)
 {
+    if(handle < DefaultResources::GetInstance().m_currentHandle)
+    {
+        UNIENGINE_WARNING("Not allowed to remove internal assets!");
+        return;
+    }
     GetInstance().m_sharedAssets[typeName].erase(handle);
 }
 
@@ -1489,7 +1494,7 @@ void AssetManager::OnGui()
                         {
                             if (EditorManager::Draggable(collection.first, i.second))
                             {
-                                Remove(collection.first, i.second->GetHandle());
+                                RemoveFromShared(collection.first, i.second->GetHandle());
                                 break;
                             }
                         }
@@ -1504,7 +1509,14 @@ void AssetManager::OnGui()
 }
 void AssetManager::Init()
 {
+
     DefaultResources::Load();
+
+
+}
+void AssetManager::ScanAssetFolder()
+{
+
 }
 
 void AssetRegistry::Serialize(YAML::Emitter &out)
@@ -1532,4 +1544,48 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
         m_assetRecords.insert({assetHandle, assetRecord});
     }
+}
+
+
+std::string AssetManager::GetAssetRootPath()
+{
+    std::string assetRootFolder = GetProjectPath() + "Assets/";
+    if (!std::filesystem::exists(assetRootFolder))
+    {
+        std::filesystem::create_directory(assetRootFolder);
+    }
+    return assetRootFolder;
+}
+
+void AssetManager::SetProjectPath(const std::string &path)
+{
+    GetInstance().m_projectPath = path;
+    std::string assetRootFolder = GetAssetRootPath();
+    for(const auto& i : SerializableFactory::GetInstance().m_serializableNames){
+        auto assetFolderPath = assetRootFolder + i.second + "/";
+        if (!std::filesystem::exists(assetFolderPath))
+        {
+            std::filesystem::create_directory(assetFolderPath);
+        }
+    }
+}
+
+std::string AssetManager::GetProjectPath()
+{
+    auto &path = GetInstance().m_projectPath;
+    if (!std::filesystem::exists(path))
+    {
+        std::filesystem::create_directory(path);
+    }
+    return path;
+}
+
+void AssetManager::SetResourcePath(const std::string &path)
+{
+    GetInstance().m_resourceRootPath = path;
+}
+
+std::string AssetManager::GetResourcePath()
+{
+    return GetInstance().m_resourceRootPath;
 }

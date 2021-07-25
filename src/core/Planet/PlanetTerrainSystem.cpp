@@ -8,14 +8,16 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 void Planet::PlanetTerrainSystem::OnCreate()
 {
     m_defaultSurfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, AssetManager::LoadTexture(FileSystem::GetResourcePath("Textures/border.png")));
+    m_defaultSurfaceMaterial->SetTexture(
+        TextureType::Albedo, AssetManager::LoadTexture(AssetManager::GetResourcePath() + "Textures/border.png"));
 }
 
 void Planet::PlanetTerrainSystem::Update()
 {
     const std::vector<Entity> *const planetTerrainList =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
-    if(planetTerrainList == nullptr) return;
+    if (planetTerrainList == nullptr)
+        return;
     for (auto i = 0; i < planetTerrainList->size(); i++)
     {
         auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
@@ -107,8 +109,7 @@ void Planet::PlanetTerrainSystem::RenderChunk(
     bool receiveShadow) const
 {
     if (chunk->Active)
-        RenderManager::DrawMesh(
-            chunk->m_mesh, m_defaultSurfaceMaterial, matrix, *RenderManager::GetMainCamera(), true);
+        RenderManager::DrawMesh(chunk->m_mesh, m_defaultSurfaceMaterial, matrix, *RenderManager::GetMainCamera(), true);
     if (chunk->ChildrenActive)
     {
         RenderChunk(chunk->m_c0, material, matrix, camera, receiveShadow);

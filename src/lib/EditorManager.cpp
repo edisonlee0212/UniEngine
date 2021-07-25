@@ -263,12 +263,12 @@ void EditorManager::Init()
     editorManager.m_sceneCameraEntityRecorder->AttachTexture(
         editorManager.m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
 #pragma region Recorder
-    std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform +
-                                 "\n" +
-                                 FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Empty.vert"));
+    std::string vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Empty.vert");
     std::string fragShaderCode =
         std::string("#version 450 core\n") +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/EntityRecorder.frag");
 
     auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
@@ -278,15 +278,16 @@ void EditorManager::Init()
     editorManager.m_sceneCameraEntityRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneCameraEntityInstancedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
+                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptySkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneCameraEntitySkinnedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -294,7 +295,7 @@ void EditorManager::Init()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram =
@@ -304,12 +305,12 @@ void EditorManager::Init()
 
 #pragma region Highlight Prepass
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Empty.vert"));
+                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Empty.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
     fragShaderCode = std::string("#version 450 core\n") +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Fragment/Highlight.frag"));
+                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Highlight.frag");
 
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
@@ -317,15 +318,16 @@ void EditorManager::Init()
     editorManager.m_sceneHighlightPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightPrePassInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
+                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptySkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightSkinnedPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -333,7 +335,7 @@ void EditorManager::Init()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -341,7 +343,7 @@ void EditorManager::Init()
 #pragma endregion
 #pragma region Highlight
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Highlight.vert"));
+                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Highlight.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -349,14 +351,15 @@ void EditorManager::Init()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightSkinned.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -364,7 +367,7 @@ void EditorManager::Init()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightInstancedSkinned.vert"));
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneHighlightInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
