@@ -18,9 +18,9 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
     m_targetCubemap = targetCubemap;
     m_gamma = targetCubemap->m_gamma;
 
-    m_lightProbe = AssetManager::CreateResource<LightProbe>();
+    m_lightProbe = AssetManager::CreateAsset<LightProbe>();
     m_lightProbe->ConstructFromCubemap(m_targetCubemap);
-    m_reflectionProbe = AssetManager::CreateResource<ReflectionProbe>();
+    m_reflectionProbe = AssetManager::CreateAsset<ReflectionProbe>();
     m_reflectionProbe->ConstructFromCubemap(m_targetCubemap);
     m_ready = true;
 }

@@ -10,7 +10,6 @@ class UNIENGINE_API ISystem : public ISerializable
     friend class Scene;
     friend class EntityManager;
     friend class SerializationManager;
-    std::shared_ptr<Scene> m_scene;
     bool m_enabled;
     float m_rank = 0.0f;
   protected:
@@ -18,7 +17,6 @@ class UNIENGINE_API ISystem : public ISerializable
     virtual void OnStopRunning();
   public:
     [[nodiscard]] float GetRank();
-    std::shared_ptr<Scene> GetOwner();
     ISystem();
     void Enable();
     void Disable();

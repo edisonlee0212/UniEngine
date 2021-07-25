@@ -3,6 +3,7 @@
 #include <ISystem.hpp>
 #include <PrivateComponentStorage.hpp>
 #include <Utilities.hpp>
+#include <IAsset.hpp>
 namespace UniEngine
 {
 
@@ -21,7 +22,7 @@ struct SceneDataStorage
     PrivateComponentStorage m_entityPrivateComponentStorage;
 };
 
-class UNIENGINE_API Scene
+class UNIENGINE_API Scene : public IAsset
 {
     friend class Application;
     friend class EntityManager;
@@ -30,6 +31,13 @@ class UNIENGINE_API Scene
     std::multimap<float, std::shared_ptr<ISystem>> m_systems;
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     Bound m_worldBound;
+
+
+    void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
+    void SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out);
+    void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
+
+
   public:
     std::string m_name = "New Scene";
     void Purge();
@@ -46,6 +54,9 @@ class UNIENGINE_API Scene
     void Update();
     void LateUpdate();
     void OnGui();
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 
 template <typename T> void Scene::DestroySystem()

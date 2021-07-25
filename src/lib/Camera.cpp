@@ -1,6 +1,6 @@
 #include "AssetManager.hpp"
 
-#include <Core/FileIO.hpp>
+#include <Core/FileSystem.hpp>
 
 #include <Camera.hpp>
 #include <Cubemap.hpp>
@@ -242,7 +242,7 @@ void Camera::OnCreate()
     m_resolutionX = 1;
     m_resolutionY = 1;
 
-    m_colorTexture = AssetManager::CreateResource<Texture2D>();
+    m_colorTexture = AssetManager::CreateAsset<Texture2D>();
     m_colorTexture->m_name = "CameraTexture";
     m_colorTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
@@ -303,32 +303,31 @@ void Camera::OnCreate()
 
 void Camera::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "_ResolutionX" << YAML::Value << m_resolutionX;
-    out << YAML::Key << "_ResolutionY" << YAML::Value << m_resolutionY;
-    out << YAML::Key << "_IsMainCamera" << YAML::Value << m_isMainCamera;
-    out << YAML::Key << "DrawSkyBox" << YAML::Value << m_useClearColor;
-    out << YAML::Key << "ClearColor" << YAML::Value << m_clearColor;
-
-    out << YAML::Key << "NearDistance" << YAML::Value << m_nearDistance;
-    out << YAML::Key << "FarDistance" << YAML::Value << m_farDistance;
-    out << YAML::Key << "FOV" << YAML::Value << m_fov;
+    out << YAML::Key << "m_resolutionX" << YAML::Value << m_resolutionX;
+    out << YAML::Key << "m_resolutionY" << YAML::Value << m_resolutionY;
+    out << YAML::Key << "m_isMainCamera" << YAML::Value << m_isMainCamera;
+    out << YAML::Key << "m_useClearColor" << YAML::Value << m_useClearColor;
+    out << YAML::Key << "m_clearColor" << YAML::Value << m_clearColor;
+    out << YAML::Key << "m_allowAutoResize" << YAML::Value << m_allowAutoResize;
+    out << YAML::Key << "m_nearDistance" << YAML::Value << m_nearDistance;
+    out << YAML::Key << "m_farDistance" << YAML::Value << m_farDistance;
+    out << YAML::Key << "m_fov" << YAML::Value << m_fov;
 }
 
 void Camera::Deserialize(const YAML::Node &in)
 {
-    m_resolutionX = in["_ResolutionX"].as<int>();
-    m_resolutionY = in["_ResolutionY"].as<int>();
-    m_isMainCamera = in["_IsMainCamera"].as<bool>();
+    int resolutionX = in["m_resolutionX"].as<int>();
+    int resolutionY = in["m_resolutionY"].as<int>();
+    m_isMainCamera = in["m_isMainCamera"].as<bool>();
     if (m_isMainCamera)
         RenderManager::SetMainCamera(this);
-    m_useClearColor = in["DrawSkyBox"].as<bool>();
-    m_clearColor.x = in["ClearColor"][0].as<float>();
-    m_clearColor.y = in["ClearColor"][1].as<float>();
-    m_clearColor.z = in["ClearColor"][2].as<float>();
-
-    m_nearDistance = in["NearDistance"].as<float>();
-    m_farDistance = in["FarDistance"].as<float>();
-    m_fov = in["FOV"].as<float>();
+    m_useClearColor = in["m_useClearColor"].as<bool>();
+    m_clearColor = in["m_clearColor"].as<glm::vec3>();
+    m_allowAutoResize = in["m_allowAutoResize"].as<bool>();
+    m_nearDistance = in["m_nearDistance"].as<float>();
+    m_farDistance = in["m_farDistance"].as<float>();
+    m_fov = in["m_fov"].as<float>();
+    ResizeResolution(resolutionX, resolutionY);
 }
 
 void Camera::OnDestroy()
@@ -386,8 +385,8 @@ void Camera::OnGui()
             ImVec2(0, 1),
             ImVec2(1, 0));
 
-        FileIO::SaveFile("Save JPG", ".jpg", [this](const std::string &filePath) { StoreToJpg(filePath); });
-        FileIO::SaveFile(
+        FileSystem::SaveFile("Save JPG", ".jpg", [this](const std::string &filePath) { StoreToJpg(filePath); });
+        FileSystem::SaveFile(
             "Save PNG", ".png", [this](const std::string &filePath) { StoreToPng(filePath, -1, -1, true); });
         ImGui::TreePop();
     }

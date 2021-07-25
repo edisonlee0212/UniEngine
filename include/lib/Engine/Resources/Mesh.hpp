@@ -73,5 +73,7 @@ class UNIENGINE_API Mesh : public IAsset
     [[nodiscard]] size_t &GetVersion();
     [[nodiscard]] std::vector<Vertex> &UnsafeGetVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
+
+
 };
 } // namespace UniEngine

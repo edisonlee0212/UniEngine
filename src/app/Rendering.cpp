@@ -37,7 +37,7 @@ int main()
             sphere.SetDataComponent(transform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
-            meshRenderer.m_material = AssetManager::CreateResource<Material>();
+            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer.m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer.m_material->m_metallic = static_cast<float>(j) / (amount - 1);
@@ -47,13 +47,13 @@ int main()
     }
 #pragma endregion
 #pragma region Load models and display
-    auto sponza = AssetManager::LoadModel(true, FileIO::GetResourcePath("Models/Sponza_FBX/Sponza.fbx"));
+    auto sponza = AssetManager::LoadModel(FileSystem::GetResourcePath("Models/Sponza_FBX/Sponza.fbx"));
     auto sponzaEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), sponza);
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
 
-    auto title = AssetManager::LoadModel(true, FileIO::GetResourcePath("Models/UniEngine.obj"));
+    auto title = AssetManager::LoadModel(FileSystem::GetResourcePath("Models/UniEngine.obj"));
     auto titleEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), title);
     titleEntity.SetName("Title");
     Transform titleTransform;
@@ -64,14 +64,14 @@ int main()
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
 #ifdef USE_ASSIMP
     auto dancingStormTrooper =
-        AssetManager::LoadModel(true, FileIO::GetResourcePath("Models/dancing-stormtrooper/silly_dancing.fbx"));
+        AssetManager::LoadModel(FileSystem::GetResourcePath("Models/dancing-stormtrooper/silly_dancing.fbx"));
     auto dancingStormTrooperEntity =
         AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), dancingStormTrooper);
     dancingStormTrooperEntity.SetName("StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
-    auto capoeira = AssetManager::LoadModel(true, FileIO::GetResourcePath("Models/Capoeira.fbx"));
+    auto capoeira = AssetManager::LoadModel(FileSystem::GetResourcePath("Models/Capoeira.fbx"));
     auto capoeiraEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
     capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;
@@ -109,7 +109,7 @@ int main()
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
     auto &pointLightLeftRenderer = pointLightLeftEntity.SetPrivateComponent<MeshRenderer>();
     pointLightLeftRenderer.m_material =
-        AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer.m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     pointLightLeftRenderer.m_material->m_emission = 10.0f;
     pointLightLeftRenderer.m_mesh = DefaultResources::Primitives::Sphere;
@@ -123,7 +123,7 @@ int main()
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
     auto &pointLightRightRenderer = pointLightRightEntity.SetPrivateComponent<MeshRenderer>();
     pointLightRightRenderer.m_material =
-        AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer.m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightRenderer.m_material->m_emission = 10.0f;
     pointLightRightRenderer.m_mesh = DefaultResources::Primitives::Sphere;
@@ -140,7 +140,7 @@ int main()
     spotLightConeEntity.SetDataComponent(spotLightConeTransform);
 
     auto &spotLightRenderer = spotLightConeEntity.SetPrivateComponent<MeshRenderer>();
-    spotLightRenderer.m_material = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    spotLightRenderer.m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     spotLightRenderer.m_material->m_albedoColor = glm::vec3(1, 0.7, 0.7);
     spotLightRenderer.m_material->m_emission = 10.0f;
     spotLightRenderer.m_mesh = DefaultResources::Primitives::Cone;

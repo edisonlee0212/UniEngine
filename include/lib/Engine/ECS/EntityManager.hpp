@@ -275,7 +275,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
     static void GetAllEntities(std::vector<Entity> &target);
     static void Detach();
-    static void Attach(std::shared_ptr<Scene> scene);
+    static void Attach(const std::shared_ptr<Scene> &scene);
     static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
 
     template <typename T = IDataComponent, typename... Ts>
@@ -547,7 +547,6 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const 
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     auto system = std::make_shared<T>();
-    system->m_scene = scene;
     system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
     system->m_rank = rank;
     scene->m_systems.insert({rank, system});

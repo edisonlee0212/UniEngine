@@ -1325,7 +1325,7 @@ void APIENTRY glDebugOutput(
         std::cout << "Type: Marker";
         break;
     case GL_DEBUG_TYPE_PUSH_GROUP:
-        std::cout << "Type: Push Group";
+        std::cout << "Type: Share Group";
         break;
     case GL_DEBUG_TYPE_POP_GROUP:
         std::cout << "Type: Pop Group";

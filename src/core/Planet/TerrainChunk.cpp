@@ -146,7 +146,7 @@ void Planet::TerrainChunk::GenerateTerrain(std::mutex &mutex, std::unique_ptr<Te
         vertices.at(index).m_position = glm::vec3(pointOnUnitCube * m_planetTerrain->m_info.m_radius * elevation);
     }
     std::lock_guard<std::mutex> lock(mutex);
-    auto mesh = AssetManager::CreateResource<Mesh>();
+    auto mesh = AssetManager::CreateAsset<Mesh>();
     mesh->SetVertices(
         1 | static_cast<unsigned>(VertexAttribute::TexCoord),
         m_planetTerrain->m_sharedVertices,

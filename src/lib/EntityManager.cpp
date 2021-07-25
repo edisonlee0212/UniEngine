@@ -305,18 +305,18 @@ std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
     return GetInstance().m_entities;
 }
 
-void EntityManager::Attach(std::shared_ptr<Scene> scene)
+void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
 {
     if (scene == nullptr)
         return;
     auto &entityManager = GetInstance();
-    entityManager.m_scene = scene;
     auto &targetStorage = scene->m_sceneDataStorage;
     entityManager.m_currentAttachedWorldEntityStorage = &targetStorage;
     entityManager.m_entities = &targetStorage.m_entities;
     entityManager.m_entityInfos = &targetStorage.m_entityInfos;
     entityManager.m_entityDataComponentStorage = &targetStorage.m_dataComponentStorages;
     entityManager.m_entityPrivateComponentStorage = &targetStorage.m_entityPrivateComponentStorage;
+    entityManager.m_scene = scene;
 
     GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
 

@@ -6,7 +6,7 @@ using namespace UniEngine;
 
 void Articulation::OnCreate()
 {
-    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
+    m_material = DefaultResources::Physics::DefaultPhysicsMaterial;
     UpdateBody();
     PxRigidBodyExt::updateMassAndInertia(*m_root, m_density, &m_massCenter);
     SetEnabled(false);

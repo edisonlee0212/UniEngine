@@ -70,7 +70,6 @@ void UniEngine::RigidBody::OnCreate()
 {
     UpdateBody();
     PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
-    SetEnabled(false);
 }
 
 
@@ -267,7 +266,7 @@ void RigidBody::SetEnableGravity(const bool &value)
 void RigidBody::AttachCollider(std::shared_ptr<Collider> &collider)
 {
     if(collider->m_attached){
-        UNIENGINE_ERROR("Collider alreadu attached to a RigidBody!");
+        UNIENGINE_ERROR("Collider already attached to a RigidBody!");
         return;
     }
     m_colliders.push_back(collider);
@@ -278,4 +277,25 @@ void RigidBody::DetachCollider(const size_t &index)
     m_rigidActor->detachShape(*m_colliders[index]->m_shape);
     m_colliders[index]->m_attached = false;
     m_colliders.erase(m_colliders.begin() + index);
+}
+void RigidBody::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_shapeTransform" << YAML::Value << m_shapeTransform;
+    out << YAML::Key << "m_drawBounds" << YAML::Value << m_drawBounds;
+    out << YAML::Key << "m_static" << YAML::Value << m_static;
+    out << YAML::Key << "m_density" << YAML::Value << m_density;
+    out << YAML::Key << "m_massCenter" << YAML::Value << m_massCenter;
+    out << YAML::Key << "m_currentRegistered" << YAML::Value << m_currentRegistered;
+    out << YAML::Key << "m_linearVelocity" << YAML::Value << m_linearVelocity;
+    out << YAML::Key << "m_angularVelocity" << YAML::Value << m_angularVelocity;
+    out << YAML::Key << "m_kinematic" << YAML::Value << m_kinematic;
+    out << YAML::Key << "m_linearDamping" << YAML::Value << m_linearDamping;
+    out << YAML::Key << "m_angularDamping" << YAML::Value << m_angularDamping;
+    out << YAML::Key << "m_minPositionIterations" << YAML::Value << m_minPositionIterations;
+    out << YAML::Key << "m_minVelocityIterations" << YAML::Value << m_minVelocityIterations;
+    out << YAML::Key << "m_gravity" << YAML::Value << m_gravity;
+}
+void RigidBody::Deserialize(const YAML::Node &in)
+{
+    m_shapeTransform = in["m_shapeTransform"].as<glm::mat4>();
 }

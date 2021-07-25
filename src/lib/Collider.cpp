@@ -6,7 +6,7 @@ void Collider::OnCreate()
 {
     m_name = "New Collider";
 
-    m_material = PhysicsManager::GetInstance().m_defaultMaterial;
+    m_material = DefaultResources::Physics::DefaultPhysicsMaterial;
 
     m_shape = PhysicsManager::GetInstance().m_physics->createShape(
         PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z),

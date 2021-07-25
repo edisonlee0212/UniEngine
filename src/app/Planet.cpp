@@ -2,7 +2,7 @@
 //
 
 #include "AssetManager.hpp"
-
+#include <PostProcessing.hpp>
 #include <Application.hpp>
 #include <CameraControlSystem.hpp>
 #include <MeshRenderer.hpp>
@@ -24,6 +24,11 @@ int main()
     ccs->Enable();
 
     RenderManager::GetMainCamera()->m_useClearColor = false;
+    auto mainCameraEntity = RenderManager::GetMainCamera()->GetOwner();
+    auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
+    mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
+    mainCameraEntity.SetDataComponent(mainCameraTransform);
+    auto &postProcessing = mainCameraEntity.SetPrivateComponent<PostProcessing>();
 
     auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
     pts->Enable();
@@ -71,7 +76,7 @@ int main()
 #pragma endregion
 
 #pragma region Lights
-    auto sharedMat = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    auto sharedMat = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
 
     Transform ltw;
 

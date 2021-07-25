@@ -1,14 +1,112 @@
 #pragma once
+#include "ISystem.hpp"
 #include <Entity.hpp>
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
 #include <Scene.hpp>
-#include "ISystem.hpp"
 
 namespace YAML
 {
 class Node;
 class Emitter;
+template <> struct convert<glm::vec2>
+{
+    static Node encode(const glm::vec2 &rhs)
+    {
+        Node node;
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        return node;
+    }
+
+    static bool decode(const Node &node, glm::vec2 &rhs)
+    {
+        if (!node.IsSequence() || node.size() != 2)
+        {
+            return false;
+        }
+
+        rhs.x = node[0].as<float>();
+        rhs.y = node[1].as<float>();
+        return true;
+    }
+};
+template <> struct convert<glm::vec3>
+{
+    static Node encode(const glm::vec3 &rhs)
+    {
+        Node node;
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        node.push_back(rhs.z);
+        return node;
+    }
+
+    static bool decode(const Node &node, glm::vec3 &rhs)
+    {
+        if (!node.IsSequence() || node.size() != 3)
+        {
+            return false;
+        }
+
+        rhs.x = node[0].as<float>();
+        rhs.y = node[1].as<float>();
+        rhs.z = node[2].as<float>();
+        return true;
+    }
+};
+template <> struct convert<glm::vec4>
+{
+    static Node encode(const glm::vec4 &rhs)
+    {
+        Node node;
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        node.push_back(rhs.z);
+        node.push_back(rhs.w);
+        return node;
+    }
+
+    static bool decode(const Node &node, glm::vec4 &rhs)
+    {
+        if (!node.IsSequence() || node.size() != 4)
+        {
+            return false;
+        }
+
+        rhs.x = node[0].as<float>();
+        rhs.y = node[1].as<float>();
+        rhs.z = node[2].as<float>();
+        rhs.w = node[3].as<float>();
+        return true;
+    }
+};
+template <> struct convert<glm::mat4>
+{
+    static Node encode(const glm::mat4 &rhs)
+    {
+        Node node;
+        node.push_back(rhs[0]);
+        node.push_back(rhs[1]);
+        node.push_back(rhs[2]);
+        node.push_back(rhs[3]);
+        return node;
+    }
+
+    static bool decode(const Node &node, glm::mat4 &rhs)
+    {
+        if (!node.IsSequence() || node.size() != 4)
+        {
+            return false;
+        }
+
+        rhs[0] = node[0].as<glm::vec4>();
+        rhs[1] = node[1].as<glm::vec4>();
+        rhs[2] = node[2].as<glm::vec4>();
+        rhs[3] = node[3].as<glm::vec4>();
+        return true;
+    }
+};
 } // namespace YAML
 
 #define EXPORT_PARAM(x, y) (x) << "{" << (y) << "}"
@@ -27,6 +125,11 @@ class UNIENGINE_API SerializableFactory : public ISingleton<SerializableFactory>
     std::map<size_t, std::string> m_serializableNames;
 
   public:
+    template <typename T = ISerializable>
+    static void Serialize(const std::string &filePath, const std::shared_ptr<T> &target);
+    template <typename T = ISerializable>
+    static void Deserialize(const std::string &filePath, std::shared_ptr<T> &target);
+
     template <typename T = ISerializable> static bool RegisterDataComponent(const std::string &name);
     template <typename T = IDataComponent> static bool RegisterSerializable(const std::string &name);
     static bool RegisterDataComponent(
@@ -42,6 +145,8 @@ class UNIENGINE_API SerializableFactory : public ISingleton<SerializableFactory>
     template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
     static std::string GetSerializableTypeName(const size_t &typeId);
+
+    static size_t GetDataComponentTypeId(const std::string &typeName);
 };
 template <typename T> std::string SerializableFactory::GetDataComponentTypeName()
 {
@@ -53,8 +158,6 @@ template <typename T> std::string SerializableFactory::GetSerializableTypeName()
 }
 template <typename T> bool SerializableFactory::RegisterDataComponent(const std::string &name)
 {
-    GetInstance().m_dataComponentNames[typeid(T).hash_code()] = name;
-    GetInstance().m_dataComponentIds[name] = typeid(T).hash_code();
     return RegisterDataComponent(name, typeid(T).hash_code(), [](size_t &hashCode, size_t &size) {
         hashCode = typeid(T).hash_code();
         size = sizeof(T);
@@ -64,7 +167,6 @@ template <typename T> bool SerializableFactory::RegisterDataComponent(const std:
 
 template <typename T> bool SerializableFactory::RegisterSerializable(const std::string &name)
 {
-    GetInstance().m_serializableNames[typeid(T).hash_code()] = name;
     return RegisterSerializable(name, typeid(T).hash_code(), [](size_t &hashCode) {
         hashCode = typeid(T).hash_code();
         return dynamic_cast<ISerializable *>(new T());
@@ -103,32 +205,23 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec3 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec4 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::mat4 &v);
 
-std::ostream &operator<<(std::ostream &out, const glm::vec2 &v);
-std::ostream &operator<<(std::ostream &out, const glm::vec3 &v);
-std::ostream &operator<<(std::ostream &out, const glm::vec4 &v);
-std::ostream &operator<<(std::ostream &out, const glm::mat4 &v);
 
-std::istream &operator>>(std::istream &in, glm::vec2 &v);
-std::istream &operator>>(std::istream &in, glm::vec3 &v);
-std::istream &operator>>(std::istream &in, glm::vec4 &v);
-std::istream &operator>>(std::istream &in, glm::mat4 &v);
-
-class UNIENGINE_API SerializationManager : public ISingleton<SerializationManager>
+template <typename T> void SerializableFactory::Serialize(const std::string &filePath, const std::shared_ptr<T> &target)
 {
-    std::unordered_map<
-        size_t,
-        std::pair<
-            std::function<std::string(IDataComponent *)>,
-            std::function<void(const std::string &, IDataComponent *)>>>
-        m_componentDataSerializers;
-    static void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
-    static void SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out);
-    static void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
-
-  public:
-    static void SerializeScene(const std::shared_ptr<Scene>& scene, const std::string &path);
-    static std::shared_ptr<Scene> DeserializeScene(const std::string &path);
-};
-
-
+    auto ptr = std::dynamic_pointer_cast<ISerializable>(target);
+    YAML::Emitter out;
+    ptr->Serialize(out);
+    std::ofstream fout(filePath);
+    fout << out.c_str();
+    fout.flush();
+}
+template <typename T> void SerializableFactory::Deserialize(const std::string &filePath, std::shared_ptr<T> &target)
+{
+    auto ptr = std::dynamic_pointer_cast<ISerializable>(target);
+    std::ifstream stream(filePath);
+    std::stringstream stringStream;
+    stringStream << stream.rdbuf();
+    YAML::Node in = YAML::Load(stringStream.str());
+    ptr->Deserialize(in);
+}
 } // namespace UniEngine

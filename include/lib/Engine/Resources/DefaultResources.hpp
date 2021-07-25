@@ -1,19 +1,32 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
 #include <Scene.hpp>
+#include <ISingleton.hpp>
+
 namespace UniEngine
 {
 class EnvironmentalMap;
 class Cubemap;
 class Mesh;
 class Material;
-class UNIENGINE_API DefaultResources
+class PhysicsMaterial;
+
+class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
 {
     static void LoadShaders();
     static void LoadTextures();
     static void LoadPrimitives();
 
+    uint64_t m_currentHandle = 0;
+
   public:
+    static AssetHandle GenerateInternalAssetHandle();
+
+    class UNIENGINE_API Physics{
+      public:
+        static std::shared_ptr<PhysicsMaterial> DefaultPhysicsMaterial;
+    };
+
     class UNIENGINE_API GLPrograms
     {
       public:
@@ -76,17 +89,8 @@ class UNIENGINE_API DefaultResources
     {
       public:
         static std::shared_ptr<Cubemap> DefaultSkybox;
-        static std::shared_ptr<Cubemap> MilkyWaySkybox;
-        static std::shared_ptr<Cubemap> CircusSkybox;
-        static std::shared_ptr<Cubemap> MilkyWayHDRSkybox;
-        static std::shared_ptr<Cubemap> CircusHDRSkybox;
         static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
-        static std::shared_ptr<EnvironmentalMap> MilkyWayEnvironmentalMap;
-        static std::shared_ptr<EnvironmentalMap> CircusEnvironmentalMap;
-        static std::shared_ptr<EnvironmentalMap> MilkyWayHDREnvironmentalMap;
-        static std::shared_ptr<EnvironmentalMap> CircusHDREnvironmentalMap;
     };
-
     static void Load();
 };
 } // namespace UniEngine

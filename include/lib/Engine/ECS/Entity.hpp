@@ -39,6 +39,7 @@ struct UNIENGINE_API Entity final
 {
   private:
     friend class EntityManager;
+    friend class Scene;
     friend class SerializationManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
@@ -87,7 +88,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class EntityManager;
     friend class EditorManager;
     friend struct PrivateComponentElement;
-    friend class SerializationManager;
+    friend class Scene;
     bool m_enabled = true;
     Entity m_owner = Entity();
     IPrivateComponent &operator=(const IPrivateComponent &other) = default;

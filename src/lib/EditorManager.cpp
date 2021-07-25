@@ -264,106 +264,110 @@ void EditorManager::Init()
         editorManager.m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
 #pragma region Recorder
     std::string vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform +
-                                 "\n" + FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
+                                 "\n" +
+                                 FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Empty.vert"));
     std::string fragShaderCode =
         std::string("#version 450 core\n") +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Fragment/EntityRecorder.frag"));
 
     auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneCameraEntityRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntityInstancedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram =
-        AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
 #pragma endregion
 
 #pragma region Highlight Prepass
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Empty.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Empty.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
     fragShaderCode = std::string("#version 450 core\n") +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Fragment/Highlight.frag"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Fragment/Highlight.frag"));
 
     fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShader->Compile(fragShaderCode);
 
-    editorManager.m_sceneHighlightPrePassProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptySkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedPrePassProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/EmptyInstancedSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram =
-        AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
 #pragma region Highlight
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/Highlight.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/Highlight.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightInstanced.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightSkinned.vert"));
+                     FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileIO::LoadFileAsString(FileIO::GetResourcePath("Shaders/Vertex/HighlightInstancedSkinned.vert"));
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath("Shaders/Vertex/HighlightInstancedSkinned.vert"));
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedSkinnedProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    editorManager.m_sceneHighlightInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     editorManager.m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
@@ -901,65 +905,66 @@ void EditorManager::OnGui()
             &editorManager.m_selectedHierarchyDisplayMode,
             HierarchyDisplayMode,
             IM_ARRAYSIZE(HierarchyDisplayMode));
-        if (editorManager.m_selectedHierarchyDisplayMode == 0)
+        if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            EntityManager::UnsafeForEachEntityStorage([&](int i, const std::string& name, const DataComponentStorage &storage) {
-                ImGui::Separator();
-                const std::string title = std::to_string(i) + ". " + name;
-                if (ImGui::CollapsingHeader(title.c_str()))
-                {
-                    ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
-                    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
-                    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-                    for (int j = 0; j < storage.m_entityAliveCount; j++)
-                    {
-                        Entity entity = storage.m_chunkArray.m_entities.at(j);
-                        std::string title = std::to_string(entity.GetIndex()) + ": ";
-                        title += entity.GetName();
-                        const bool enabled = entity.IsEnabled();
-                        if (enabled)
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({1, 1, 1, 1}));
-                        }
-                        ImGui::TreeNodeEx(
-                            title.c_str(),
-                            ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf |
-                                ImGuiTreeNodeFlags_NoAutoOpenOnLog |
-                                (editorManager.m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed
-                                                                          : ImGuiTreeNodeFlags_FramePadding));
-                        if (enabled)
-                        {
-                            ImGui::PopStyleColor();
-                        }
-                        DrawEntityMenu(enabled, entity);
-                        if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
-                        {
-                            SetSelectedEntity(entity, false);
-                        }
-                    }
-                    ImGui::PopStyleColor();
-                    ImGui::PopStyleColor();
-                    ImGui::PopStyleColor();
-                }
-            });
-        }
-        else if (editorManager.m_selectedHierarchyDisplayMode == 1)
-        {
-            if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::BeginDragDropTarget())
             {
-                if (ImGui::BeginDragDropTarget())
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
                 {
-                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
-                    {
-                        IM_ASSERT(payload->DataSize == sizeof(Entity));
-                        Entity payload_n = *static_cast<Entity *>(payload->Data);
-                        auto parent = EntityManager::GetParent(payload_n);
-                        if (!parent.IsNull())
-                            EntityManager::RemoveChild(payload_n, parent);
-                    }
-                    ImGui::EndDragDropTarget();
+                    IM_ASSERT(payload->DataSize == sizeof(Entity));
+                    Entity payload_n = *static_cast<Entity *>(payload->Data);
+                    auto parent = EntityManager::GetParent(payload_n);
+                    if (!parent.IsNull())
+                        EntityManager::RemoveChild(payload_n, parent);
                 }
-
+                ImGui::EndDragDropTarget();
+            }
+            if (editorManager.m_selectedHierarchyDisplayMode == 0)
+            {
+                EntityManager::UnsafeForEachEntityStorage(
+                    [&](int i, const std::string &name, const DataComponentStorage &storage) {
+                        ImGui::Separator();
+                        const std::string title = std::to_string(i) + ". " + name;
+                        if (ImGui::TreeNode(title.c_str()))
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
+                            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
+                            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
+                            for (int j = 0; j < storage.m_entityAliveCount; j++)
+                            {
+                                Entity entity = storage.m_chunkArray.m_entities.at(j);
+                                std::string title = std::to_string(entity.GetIndex()) + ": ";
+                                title += entity.GetName();
+                                const bool enabled = entity.IsEnabled();
+                                if (enabled)
+                                {
+                                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({1, 1, 1, 1}));
+                                }
+                                ImGui::TreeNodeEx(
+                                    title.c_str(),
+                                    ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf |
+                                        ImGuiTreeNodeFlags_NoAutoOpenOnLog |
+                                        (editorManager.m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed
+                                                                                  : ImGuiTreeNodeFlags_FramePadding));
+                                if (enabled)
+                                {
+                                    ImGui::PopStyleColor();
+                                }
+                                DrawEntityMenu(enabled, entity);
+                                if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+                                {
+                                    SetSelectedEntity(entity, false);
+                                }
+                            }
+                            ImGui::PopStyleColor();
+                            ImGui::PopStyleColor();
+                            ImGui::PopStyleColor();
+                            ImGui::TreePop();
+                        }
+                    });
+            }
+            else if (editorManager.m_selectedHierarchyDisplayMode == 1)
+            {
                 ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
@@ -973,7 +978,6 @@ void EditorManager::OnGui()
                 ImGui::PopStyleColor();
             }
         }
-
         ImGui::End();
     }
 #pragma endregion
@@ -1071,7 +1075,9 @@ void EditorManager::OnGui()
                         editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
-                            ImGui::Checkbox(data.m_privateComponentData->GetTypeName().c_str(), &data.m_privateComponentData->m_enabled);
+                            ImGui::Checkbox(
+                                data.m_privateComponentData->GetTypeName().c_str(),
+                                &data.m_privateComponentData->m_enabled);
                             ImGui::PushID(i);
                             if (ImGui::BeginPopupContextItem(
                                     ("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
@@ -1265,15 +1271,15 @@ bool EditorManager::DragAndDrop(Entity &entity)
     return statusChanged;
 }
 
-bool EditorManager::Draggable(const size_t &id, std::shared_ptr<IAsset> &target)
+bool EditorManager::Draggable(const std::string &typeName, std::shared_ptr<IAsset> &target)
 {
-    assert(!(target && target->m_typeId == 0));
+    assert(!(target && target->GetHandle() == 0));
     const std::string type = target->GetTypeName();
     ImGui::Button(target ? target->m_name.c_str() : "none");
     bool removed = false;
     if (target)
     {
-        const std::string tag = "##" + type + (target ? std::to_string(target->GetHashCode()) : "");
+        const std::string tag = "##" + type + (target ? std::to_string(target->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
@@ -1365,6 +1371,13 @@ void EditorManager::SceneCameraWindow()
                 ImVec2(1, 0));
             if (ImGui::BeginDragDropTarget())
             {
+                const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+                {
+                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
+                    std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
+                    EntityManager::Attach(payload_n);
+                }
                 const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                 {
@@ -1391,11 +1404,12 @@ void EditorManager::SceneCameraWindow()
                     Entity entity = EntityManager::CreateEntity("Mesh");
                     auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                     meshRenderer.m_mesh = payload_n;
-                    meshRenderer.m_material = AssetManager::CreateResource<Material>();
+                    meshRenderer.m_material = AssetManager::CreateAsset<Material>();
                     meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                 }
 
-                const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
+                const std::string environmentalMapTypeHash =
+                    SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                 {
                     IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
@@ -1655,6 +1669,13 @@ void EditorManager::MainCameraWindow()
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
                     if (ImGui::BeginDragDropTarget())
                     {
+                        const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
+                            std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
+                            EntityManager::Attach(payload_n);
+                        }
                         const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
                         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
                         {
@@ -1675,11 +1696,12 @@ void EditorManager::MainCameraWindow()
                             entity.SetDataComponent(ltw);
                             auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
                             meshRenderer.m_mesh = payload_n;
-                            meshRenderer.m_material = AssetManager::CreateResource<Material>();
+                            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
                             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
                         }
 
-                        const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
+                        const std::string environmentalMapTypeHash =
+                            SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
                         if (const ImGuiPayload *payload =
                                 ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
                         {

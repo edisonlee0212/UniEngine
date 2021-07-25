@@ -5,6 +5,34 @@
 #include <TransformManager.hpp>
 using namespace UniEngine;
 
+YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxVec2 &v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
+    return out;
+}
+
+YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxVec3 &v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v.x << v.y << v.z << YAML::EndSeq;
+    return out;
+}
+
+YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxVec4 &v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+    return out;
+}
+
+YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxMat44 &v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v[0] << v[1] << v[2] << v[3] << YAML::EndSeq;
+    return out;
+}
+
 void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody)
 {
     GlobalTransform ltw;
@@ -84,7 +112,6 @@ void PhysicsManager::Init()
         physicsManager.m_physVisDebugger);
     PxInitExtensions(*physicsManager.m_physics, physicsManager.m_physVisDebugger);
     physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
-    physicsManager.m_defaultMaterial = AssetManager::CreateResource<PhysicsMaterial>();
 }
 
 #define PX_RELEASE(x)                                                                                                  \

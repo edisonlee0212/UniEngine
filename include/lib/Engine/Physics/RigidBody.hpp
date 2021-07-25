@@ -55,5 +55,8 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     void UpdateBody();
     void OnCreate() override;
     void OnGui() override;
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine

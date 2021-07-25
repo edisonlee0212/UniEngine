@@ -26,15 +26,14 @@ void Application::SetTimeStep(float value)
 
 void Application::Init(bool fullScreen)
 {
-    FileIO::SetResourcePath(UNIENGINE_RESOURCE_FOLDER);
     auto &application = GetInstance();
     application.m_initialized = false;
     WindowManager::Init("UniEngine", fullScreen);
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
-    AssetManager::Init();
     PhysicsManager::Init();
+    AssetManager::Init();
 
     EntityManager::Init();
     TransformManager::Init();

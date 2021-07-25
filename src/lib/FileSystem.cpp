@@ -1,11 +1,11 @@
 #include <Core/Debug.hpp>
-#include <Core/FileIO.hpp>
+#include <Core/FileSystem.hpp>
 #include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>
 #include <WindowManager.hpp>
 using namespace UniEngine;
 
-std::string FileIO::GetAssetFolderPath()
+std::string FileSystem::GetAssetFolderPath()
 {
     std::string path = GetProjectPath() + "Assets/";
     if (!std::filesystem::exists(path))
@@ -15,12 +15,12 @@ std::string FileIO::GetAssetFolderPath()
     return path;
 }
 
-void FileIO::SetProjectPath(const std::string &path)
+void FileSystem::SetProjectPath(const std::string &path)
 {
     GetInstance().m_projectPath = std::make_unique<std::string>(path);
 }
 
-std::string FileIO::GetProjectPath()
+std::string FileSystem::GetProjectPath()
 {
     std::string path;
     if (!GetInstance().m_projectPath)
@@ -34,17 +34,17 @@ std::string FileIO::GetProjectPath()
     return path;
 }
 
-void FileIO::SetResourcePath(const std::string &path)
+void FileSystem::SetResourcePath(const std::string &path)
 {
     GetInstance().m_resourceRootPath = std::make_unique<std::string>(path);
 }
 
-std::string FileIO::GetResourcePath(const std::string &path)
+std::string FileSystem::GetResourcePath(const std::string &path)
 {
     return *GetInstance().m_resourceRootPath + path;
 }
 
-std::string FileIO::LoadFileAsString(const std::string &path)
+std::string FileSystem::LoadFileAsString(const std::string &path)
 {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -67,7 +67,7 @@ std::string FileIO::LoadFileAsString(const std::string &path)
     }
 }
 
-void FileIO::OpenFile(
+void FileSystem::OpenFile(
     const std::string &dialogTitle,
     const std::string &filters,
     const std::function<void(const std::string &filePath)> &func)
@@ -82,7 +82,7 @@ void FileIO::OpenFile(
     }
 }
 
-void FileIO::SaveFile(
+void FileSystem::SaveFile(
     const std::string &dialogTitle,
     const std::string &filters,
     const std::function<void(const std::string &filePath)> &func)
@@ -97,7 +97,7 @@ void FileIO::SaveFile(
     }
 }
 
-std::pair<bool, uint32_t> FileIO::DirectoryTreeViewRecursive(
+std::pair<bool, uint32_t> FileSystem::DirectoryTreeViewRecursive(
     const std::filesystem::path &path, uint32_t *count, int *selection_mask)
 {
     const ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |

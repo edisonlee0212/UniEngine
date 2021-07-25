@@ -65,8 +65,6 @@ int main()
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
     mainCameraEntity.SetDataComponent(mainCameraTransform);
     auto &postProcessing = mainCameraEntity.SetPrivateComponent<PostProcessing>();
-    postProcessing.GetLayer<Bloom>()->m_intensity = 0.03;
-    postProcessing.GetLayer<Bloom>()->m_diffusion = 16;
 
 #pragma region Create 9 spheres in different PBR properties
     const int amount = 20;
@@ -87,7 +85,7 @@ int main()
             sphere.SetDataComponent(transform);
             auto &meshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
             meshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
-            meshRenderer.m_material = AssetManager::CreateResource<Material>();
+            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
             meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer.m_material->m_roughness = static_cast<float>(i) / (amount - 1);
             meshRenderer.m_material->m_metallic = static_cast<float>(j) / (amount - 1);
@@ -95,7 +93,7 @@ int main()
             auto &rigidBody = sphere.SetPrivateComponent<RigidBody>();
             rigidBody.SetEnabled(true);
             rigidBody.SetDensityAndMassCenter(0.1);
-            auto sphereCollider = AssetManager::CreateResource<Collider>();
+            auto sphereCollider = AssetManager::CreateAsset<Collider>();
             sphereCollider->SetShapeType(ShapeType::Sphere);
             sphereCollider->SetShapeParam(glm::vec3(2.0 * scaleFactor));
             rigidBody.AttachCollider(sphereCollider);
@@ -233,7 +231,7 @@ Entity CreateSolidCube(
     rigidBody.SetEnabled(true);
     rigidBody.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
 
-    auto collider = AssetManager::CreateResource<Collider>();
+    auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Box);
     collider->SetShapeParam(scale);
     rigidBody.AttachCollider(collider);
@@ -256,7 +254,7 @@ Entity CreateDynamicCube(
     rigidBody.SetEnabled(true);
     rigidBody.SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
 
-    auto collider = AssetManager::CreateResource<Collider>();
+    auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Box);
     collider->SetShapeParam(scale);
     rigidBody.AttachCollider(collider);
@@ -272,7 +270,7 @@ Entity CreateCube(
 {
     auto cube = EntityManager::CreateEntity(name);
     auto &groundMeshRenderer = cube.SetPrivateComponent<MeshRenderer>();
-    groundMeshRenderer.m_material = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer.m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer.m_material->m_albedoColor = color;
     groundMeshRenderer.m_mesh = DefaultResources::Primitives::Cube;
     Transform groundTransform;
@@ -302,7 +300,7 @@ Entity CreateDynamicSphere(
     rigidBody.SetEnabled(true);
     rigidBody.SetDensityAndMassCenter(mass / scale / scale / scale);
 
-    auto collider = AssetManager::CreateResource<Collider>();
+    auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Sphere);
     collider->SetShapeParam(glm::vec3(scale));
     rigidBody.AttachCollider(collider);
@@ -325,7 +323,7 @@ Entity CreateSolidSphere(
     rigidBody.SetEnabled(true);
     rigidBody.SetDensityAndMassCenter(mass / scale / scale / scale);
 
-    auto collider = AssetManager::CreateResource<Collider>();
+    auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Sphere);
     collider->SetShapeParam(glm::vec3(scale));
     rigidBody.AttachCollider(collider);
@@ -341,7 +339,7 @@ Entity CreateSphere(
 {
     auto sphere = EntityManager::CreateEntity(name);
     auto &groundMeshRenderer = sphere.SetPrivateComponent<MeshRenderer>();
-    groundMeshRenderer.m_material = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer.m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer.m_material->m_albedoColor = color;
     groundMeshRenderer.m_mesh = DefaultResources::Primitives::Sphere;
     Transform groundTransform;

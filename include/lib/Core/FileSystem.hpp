@@ -3,11 +3,11 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
-class UNIENGINE_API FileIO : ISingleton<FileIO>
+class UNIENGINE_API FileSystem : ISingleton<FileSystem>
 {
     std::unique_ptr<std::string> m_projectPath;
     std::unique_ptr<std::string> m_resourceRootPath;
-    friend class Application;
+    friend class DefaultResources;
     static void SetResourcePath(const std::string &path);
 
   public:

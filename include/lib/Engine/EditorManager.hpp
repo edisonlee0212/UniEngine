@@ -133,7 +133,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     template <typename T = IAsset> static bool DragAndDrop(std::shared_ptr<T> &target);
     template <typename T = IAsset> static bool Draggable(std::shared_ptr<T> &target);
     static bool DragAndDrop(Entity &entity);
-    static bool Draggable(const size_t &id, std::shared_ptr<IAsset> &target);
+    static bool Draggable(const std::string &typeName, std::shared_ptr<IAsset> &target);
 
 
 
@@ -177,13 +177,13 @@ template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::
 template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
-    assert(!(ptr && ptr->m_typeId == 0));
+    assert(!(ptr && ptr->GetHandle() == 0));
     const std::string type = SerializableFactory::GetSerializableTypeName<T>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)
     {
-        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<T>));
@@ -233,13 +233,13 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
 template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
-    assert(!(ptr && ptr->m_typeId == 0));
+    assert(!(ptr && ptr->GetHandle() == 0));
     const std::string type = SerializableFactory::GetSerializableTypeName<T>();
     bool removed = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)
     {
-        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHashCode()) : "");
+        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<T>));

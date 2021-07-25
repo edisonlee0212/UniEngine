@@ -378,16 +378,16 @@ void Galaxy::StarClusterSystem::OnCreate()
 
     const auto vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
     const auto fragShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileIO::LoadFileAsString(FileIO::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
+        FileSystem::LoadFileAsString(FileSystem::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
 
     auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    m_starRenderProgram = AssetManager::CreateResource<OpenGLUtils::GLProgram>();
+    m_starRenderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     m_starRenderProgram->Link(standardVert, standardFrag);
 
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
@@ -395,7 +395,7 @@ void Galaxy::StarClusterSystem::OnCreate()
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
     auto &imr = m_rendererFront.SetPrivateComponent<Particles>();
-    imr.m_material = AssetManager::CreateResource<Material>();
+    imr.m_material = AssetManager::CreateAsset<Material>();
     imr.m_castShadow = false;
     imr.m_receiveShadow = false;
     imr.m_material->m_ambient = 0.0f;

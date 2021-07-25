@@ -59,5 +59,7 @@ class UNIENGINE_API Material : public IAsset
     void SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture);
     void RemoveTexture(TextureType type);
     void SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program);
+
+
 };
 } // namespace UniEngine

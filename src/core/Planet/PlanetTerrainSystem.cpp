@@ -7,8 +7,8 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
 
 void Planet::PlanetTerrainSystem::OnCreate()
 {
-    m_defaultSurfaceMaterial = AssetManager::LoadMaterial(false, DefaultResources::GLPrograms::StandardProgram);
-    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, AssetManager::LoadTexture(false, FileIO::GetResourcePath("Textures/border.png")));
+    m_defaultSurfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    m_defaultSurfaceMaterial->SetTexture(TextureType::Albedo, AssetManager::LoadTexture(FileSystem::GetResourcePath("Textures/border.png")));
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -46,7 +46,7 @@ void Planet::PlanetTerrainSystem::Update()
             // 1. Scan and expand.
             for (auto &chunk : planetTerrain.m_chunks)
             {
-                // futures.push_back(_PrimaryWorkers->Push([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo,
+                // futures.push_back(_PrimaryWorkers->Share([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo,
                 // planetTransform, cameraLtw); }).share());
                 CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw);
             }
