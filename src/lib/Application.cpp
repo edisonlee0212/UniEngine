@@ -35,7 +35,6 @@ void Application::Init(bool fullScreen)
     PhysicsManager::Init();
 
     AssetManager::SetResourcePath(UNIENGINE_RESOURCE_FOLDER);
-    AssetManager::SetProjectPath(UNIENGINE_DEFAULT_PROJECT_FOLDER);
     AssetManager::Init();
 
     EntityManager::Init();

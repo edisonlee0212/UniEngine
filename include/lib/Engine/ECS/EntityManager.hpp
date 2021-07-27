@@ -532,7 +532,6 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     auto system = std::make_shared<T>();
-    system->m_scene = scene;
     system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
     system->m_rank = rank;
     scene->m_systems.insert({rank, system});
