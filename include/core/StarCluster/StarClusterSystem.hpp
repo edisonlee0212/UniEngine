@@ -302,6 +302,6 @@ class StarClusterSystem : public ISystem
     void RandomlyRemoveStars(const size_t &amount = 10000);
     void ClearAllStars();
     void FixedUpdate() override;
-    void OnStartRunning() override;
+    void OnEnable() override;
 };
 } // namespace Galaxy

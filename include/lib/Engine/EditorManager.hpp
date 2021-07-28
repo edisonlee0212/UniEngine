@@ -97,6 +97,8 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 
     static void SceneCameraWindow();
     static void MainCameraWindow();
+
+    static void CameraWindowDragAndDrop();
   public:
     int m_selectedHierarchyDisplayMode = 1;
     static void MoveCamera(

@@ -117,6 +117,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxPhysics *m_physics;
     PxDefaultCpuDispatcher *m_dispatcher;
     PxPvd *m_physVisDebugger;
+
     friend class RigidBody;
     friend class Joint;
     friend class Articulation;
@@ -124,6 +125,8 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     friend class PhysicsMaterial;
     friend class Collider;
   public:
+    static void UploadTransforms(const bool& updateAll);
+
     static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
     static void UploadTransform(const GlobalTransform &globalTransform, Articulation &rigidBody);
     static void PreUpdate();
@@ -135,6 +138,7 @@ class UNIENGINE_API PhysicsSystem : public ISystem
 {
     PxScene *m_physicsScene = nullptr;
   public:
+    void OnEnable();
     void OnCreate() override;
     void OnDestroy() override;
     void FixedUpdate() override;

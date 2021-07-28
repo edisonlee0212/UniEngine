@@ -60,36 +60,7 @@ void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, Art
 void PhysicsManager::PreUpdate()
 {
     const bool playing = Application::IsPlaying();
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-        entities != nullptr)
-    {
-        for (auto entity : *entities)
-        {
-            auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
-            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
-            globalTransform.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
-            globalTransform.SetScale(glm::vec3(1.0f));
-            if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
-            {
-                static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
-                    ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-            }
-            else if(!playing && !rigidBody.m_kinematic)
-            {
-                rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-            }
-        }
-    }
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
-        entities != nullptr)
-    {
-        for (auto entity : *entities)
-        {
-            auto &articulation = entity.GetPrivateComponent<Articulation>();
-            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
-            if(!playing) UploadTransform(globalTransform, articulation);
-        }
-    }
+    UploadTransforms(!playing);
 }
 
 void PhysicsManager::Init()
@@ -134,7 +105,39 @@ void PhysicsManager::Destroy()
     }
     PX_RELEASE(physicsManager.m_physicsFoundation);
 }
-
+void PhysicsManager::UploadTransforms(const bool &updateAll)
+{
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+            entities != nullptr)
+    {
+        for (auto entity : *entities)
+        {
+            auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
+            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
+            globalTransform.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
+            globalTransform.SetScale(glm::vec3(1.0f));
+            if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
+            {
+                static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
+                        ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+            }
+            else if(updateAll && !rigidBody.m_kinematic)
+            {
+                rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+            }
+        }
+    }
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
+            entities != nullptr)
+    {
+        for (auto entity : *entities)
+        {
+            auto &articulation = entity.GetPrivateComponent<Articulation>();
+            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
+            if(updateAll) UploadTransform(globalTransform, articulation);
+        }
+    }
+}
 
 void PhysicsSystem::OnCreate()
 {
@@ -329,4 +332,8 @@ void PhysicsSystem::Simulate(float time) const
 #pragma region Recalculate local transforms
     TransformManager::GetInstance().m_physicsSystemOverride = true;
 #pragma endregion
+}
+void PhysicsSystem::OnEnable()
+{
+    PhysicsManager::UploadTransforms(true);
 }

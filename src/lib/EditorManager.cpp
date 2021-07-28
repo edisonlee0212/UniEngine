@@ -1366,73 +1366,29 @@ void EditorManager::SceneCameraWindow()
                 viewPortSize.y = 0;
             editorManager.m_sceneCameraResolutionX = viewPortSize.x;
             editorManager.m_sceneCameraResolutionY = viewPortSize.y;
-            // Because I use the texture from OpenGL, I need to invert the V from the UV.
-            ImGui::Image(
-                (ImTextureID)editorManager.m_sceneCamera.GetTexture()->Texture()->Id(),
-                viewPortSize,
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-            if (ImGui::BeginDragDropTarget())
+
+            bool cameraActive = false;
+            if (RenderManager::GetMainCamera() != nullptr)
             {
-                const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+                auto entity = RenderManager::GetMainCamera()->GetOwner();
+                if (entity.IsEnabled() && RenderManager::GetMainCamera()->IsEnabled())
                 {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
-                    std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
-                    EntityManager::Attach(payload_n);
-                }
-                const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-                    std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
-                    EntityArchetype archetype =
-                        EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                    AssetManager::ToEntity(archetype, payload_n);
-                }
-                const std::string texture2DTypeHash = SerializableFactory::GetSerializableTypeName<Texture2D>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-                    std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
-                    EntityArchetype archetype =
-                        EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                    AssetManager::ToEntity(archetype, payload_n);
-                }
-                const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
-                    std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
-                    Entity entity = EntityManager::CreateEntity("Mesh");
-                    auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
-                    meshRenderer.m_mesh = payload_n;
-                    meshRenderer.m_material = AssetManager::CreateAsset<Material>();
-                    meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-                }
+                    // Because I use the texture from OpenGL, I need to invert the V from the UV.
+                    ImGui::Image(
+                        (ImTextureID)editorManager.m_sceneCamera.GetTexture()->Texture()->Id(),
+                        viewPortSize,
+                        ImVec2(0, 1),
+                        ImVec2(1, 0));
+                    CameraWindowDragAndDrop();
 
-                const std::string environmentalMapTypeHash =
-                    SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
-                    std::shared_ptr<EnvironmentalMap> payload_n = *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
-                    RenderManager::GetInstance().m_environmentalMap = payload_n;
+                    cameraActive = true;
                 }
-
-                const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
-                {
-                    IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-                    std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
-                    auto *mainCamera = RenderManager::GetMainCamera();
-                    if (mainCamera)
-                    {
-                        mainCamera->m_skybox = payload_n;
-                    }
-                }
-                ImGui::EndDragDropTarget();
             }
+            if (!cameraActive)
+            {
+                ImGui::Text("No active main camera!");
+            }
+
             glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
             if (editorManager.m_sceneCameraWindowFocused)
             {
@@ -1670,63 +1626,7 @@ void EditorManager::MainCameraWindow()
                 {
                     auto id = renderManager.m_mainCameraComponent->GetTexture()->Texture()->Id();
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
-                    if (ImGui::BeginDragDropTarget())
-                    {
-                        const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
-                            std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
-                            EntityManager::Attach(payload_n);
-                        }
-                        const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-                            std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
-                            EntityArchetype archetype =
-                                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-                            Transform ltw;
-                            AssetManager::ToEntity(archetype, payload_n).SetDataComponent(ltw);
-                        }
-                        const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
-                            std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
-                            Transform ltw;
-                            Entity entity = EntityManager::CreateEntity("Mesh");
-                            entity.SetDataComponent(ltw);
-                            auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
-                            meshRenderer.m_mesh = payload_n;
-                            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
-                            meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-                        }
-
-                        const std::string environmentalMapTypeHash =
-                            SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
-                        if (const ImGuiPayload *payload =
-                                ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
-                            std::shared_ptr<EnvironmentalMap> payload_n =
-                                *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
-                            renderManager.m_environmentalMap = payload_n;
-                        }
-
-                        const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
-                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
-                        {
-                            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-                            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
-                            if (renderManager.m_mainCameraComponent)
-                            {
-                                renderManager.m_mainCameraComponent->m_skybox = payload_n;
-                            }
-                        }
-
-                        ImGui::EndDragDropTarget();
-                    }
+                    CameraWindowDragAndDrop();
                     cameraActive = true;
                 }
             }
@@ -1800,4 +1700,68 @@ void EditorManager::MainCameraWindow()
     ImGui::End();
     ImGui::PopStyleVar();
 #pragma endregion
+}
+void EditorManager::CameraWindowDragAndDrop()
+{
+    if (ImGui::BeginDragDropTarget())
+    {
+        const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
+            std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
+            EntityManager::Attach(payload_n);
+        }
+        const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
+            std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
+            EntityArchetype archetype =
+                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+            AssetManager::ToEntity(archetype, payload_n);
+        }
+        const std::string texture2DTypeHash = SerializableFactory::GetSerializableTypeName<Texture2D>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
+            std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
+            EntityArchetype archetype =
+                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+            AssetManager::ToEntity(archetype, payload_n);
+        }
+        const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
+            std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
+            Entity entity = EntityManager::CreateEntity("Mesh");
+            auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
+            meshRenderer.m_mesh = payload_n;
+            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
+            meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+        }
+
+        const std::string environmentalMapTypeHash =
+            SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
+            std::shared_ptr<EnvironmentalMap> payload_n = *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
+            RenderManager::GetInstance().m_environmentalMap = payload_n;
+        }
+
+        const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+            auto *mainCamera = RenderManager::GetMainCamera();
+            if (mainCamera)
+            {
+                mainCamera->m_skybox = payload_n;
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
 }

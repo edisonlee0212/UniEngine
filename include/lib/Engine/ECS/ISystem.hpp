@@ -13,8 +13,8 @@ class UNIENGINE_API ISystem : public ISerializable
     bool m_enabled;
     float m_rank = 0.0f;
   protected:
-    virtual void OnStartRunning();
-    virtual void OnStopRunning();
+    virtual void OnEnable();
+    virtual void OnDisable();
   public:
     [[nodiscard]] float GetRank();
     ISystem();

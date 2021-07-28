@@ -63,6 +63,7 @@ void RenderManager::DispatchRenderCommands(
 void RenderManager::RenderToCamera(Camera &cameraComponent)
 {
     auto &renderManager = GetInstance();
+    glEnable(GL_DEPTH_TEST);
     cameraComponent.m_gBuffer->Bind();
     unsigned int attachments[4] = {
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
@@ -217,8 +218,10 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
 void RenderManager::PreUpdate()
 {
     ProfilerManager::StartEvent("RenderManager");
-    EditorManager::RenderToSceneCamera();
+
     auto &renderManager = GetInstance();
+    if(renderManager.m_mainCameraComponent) EditorManager::RenderToSceneCamera();
+
     ProfilerManager::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
     renderManager.m_deferredInstancedRenderInstances.clear();

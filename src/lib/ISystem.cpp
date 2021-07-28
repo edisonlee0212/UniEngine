@@ -1,11 +1,11 @@
 #include <ISystem.hpp>
 using namespace UniEngine;
 
-void ISystem::OnStartRunning()
+void ISystem::OnEnable()
 {
 }
 
-void ISystem::OnStopRunning()
+void ISystem::OnDisable()
 {
 }
 
@@ -23,7 +23,7 @@ void ISystem::Enable()
     if (!m_enabled)
     {
         m_enabled = true;
-        OnStartRunning();
+        OnEnable();
     }
 }
 
@@ -32,7 +32,7 @@ void ISystem::Disable()
     if (m_enabled)
     {
         m_enabled = false;
-        OnStopRunning();
+        OnDisable();
     }
 }
 

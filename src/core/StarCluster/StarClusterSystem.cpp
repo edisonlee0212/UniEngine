@@ -488,7 +488,7 @@ void Galaxy::StarClusterSystem::FixedUpdate()
 {
 }
 
-void Galaxy::StarClusterSystem::OnStartRunning()
+void Galaxy::StarClusterSystem::OnEnable()
 {
     m_firstTime = true;
 }

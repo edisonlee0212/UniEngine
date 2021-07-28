@@ -1,6 +1,7 @@
 #include <EditorManager.hpp>
 #include <InputManager.hpp>
 #include <WindowManager.hpp>
+#include <RenderManager.hpp>
 using namespace UniEngine;
 
 void InputManager::Init()
@@ -54,7 +55,7 @@ bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
 }
 void InputManager::PreUpdate()
 {
-    if (EditorManager::MainCameraWindowFocused())
+    if (RenderManager::GetMainCamera() != nullptr && EditorManager::MainCameraWindowFocused())
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 
@@ -71,7 +72,9 @@ void InputManager::PreUpdate()
         }
         ImGui::End();
         ImGui::PopStyleVar();
-    }
+    }else{
+        GetInstance().m_mousePositionValid = false;
+    };
 }
 bool InputManager::GetMousePosition(glm::vec2 &pos)
 {
