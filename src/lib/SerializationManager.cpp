@@ -14,7 +14,6 @@ ComponentDataRegistration<Ray> RayRegistry("Ray");
 
 SerializableRegistration<Animator> AnimatorRegistry("Animator");
 SerializableRegistration<Joint> JointRegistry("Joint");
-SerializableRegistration<Articulation> ArticulationRegistry("Articulation");
 SerializableRegistration<RigidBody> RigidBodyRegistry("RigidBody");
 SerializableRegistration<SpotLight> SpotLightRegistry("SpotLight");
 SerializableRegistration<PointLight> PointLightRegistry("PointLight");

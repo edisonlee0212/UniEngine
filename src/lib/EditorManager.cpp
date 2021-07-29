@@ -1,5 +1,4 @@
 #include <Application.hpp>
-#include <Articulation.hpp>
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <DefaultResources.hpp>
@@ -473,14 +472,6 @@ void EditorManager::Init()
         if (ImGui::SmallButton("Joint"))
         {
             owner.SetPrivateComponent<Joint>();
-        }
-    });
-    RegisterPrivateComponentMenu<Articulation>([](Entity owner) {
-        if (owner.HasPrivateComponent<Articulation>())
-            return;
-        if (ImGui::SmallButton("Articulation"))
-        {
-            owner.SetPrivateComponent<Articulation>();
         }
     });
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {

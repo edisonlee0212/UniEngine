@@ -1,4 +1,3 @@
-#include <Articulation.hpp>
 #include <RigidBody.hpp>
 #include <TransformManager.hpp>
 #include <ProfilerManager.hpp>

@@ -3,11 +3,8 @@
 #include <Joint.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
-#include <Articulation.hpp>
 #include <Collider.hpp>
 using namespace physx;
-
-
 namespace YAML
 {
 class Node;
@@ -125,10 +122,9 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     friend class PhysicsMaterial;
     friend class Collider;
   public:
-    static void UploadTransforms(const bool& updateAll);
+    static void UploadTransforms(const bool& updateAll, const bool& freeze = false);
 
     static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
-    static void UploadTransform(const GlobalTransform &globalTransform, Articulation &rigidBody);
     static void PreUpdate();
     static void Init();
     static void Destroy();

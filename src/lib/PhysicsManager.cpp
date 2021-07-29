@@ -49,14 +49,7 @@ void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, Rig
         rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
     }
 }
-void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, Articulation &rigidBody)
-{
-    GlobalTransform ltw;
-    ltw.m_value = globalTransform.m_value * rigidBody.m_shapeTransform;
-    ltw.SetScale(glm::vec3(1.0f));
 
-    rigidBody.m_root->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&ltw.m_value));
-}
 void PhysicsManager::PreUpdate()
 {
     const bool playing = Application::IsPlaying();
@@ -105,7 +98,7 @@ void PhysicsManager::Destroy()
     }
     PX_RELEASE(physicsManager.m_physicsFoundation);
 }
-void PhysicsManager::UploadTransforms(const bool &updateAll)
+void PhysicsManager::UploadTransforms(const bool &updateAll, const bool& freeze)
 {
     if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
             entities != nullptr)
@@ -118,23 +111,23 @@ void PhysicsManager::UploadTransforms(const bool &updateAll)
             globalTransform.SetScale(glm::vec3(1.0f));
             if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
             {
-                static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
+                if(freeze){
+                    static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
+                            ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                }
+                else{
+                    static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
                         ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                }
             }
             else if(updateAll && !rigidBody.m_kinematic)
             {
                 rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                if(freeze){
+                    rigidBody.SetLinearVelocity(glm::vec3(0.0f));
+                    rigidBody.SetAngularVelocity(glm::vec3(0.0f));
+                }
             }
-        }
-    }
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
-            entities != nullptr)
-    {
-        for (auto entity : *entities)
-        {
-            auto &articulation = entity.GetPrivateComponent<Articulation>();
-            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
-            if(updateAll) UploadTransform(globalTransform, articulation);
         }
     }
 }
@@ -172,11 +165,8 @@ void PhysicsSystem::FixedUpdate()
 
 void PhysicsSystem::Simulate(float time) const
 {
-
     const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-    const std::vector<Entity> *articulationEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<Articulation>();
-    if (!rigidBodyEntities && !articulationEntities)
+    if (!rigidBodyEntities)
         return;
 #pragma region Update shape
     if (rigidBodyEntities)
@@ -196,26 +186,6 @@ void PhysicsSystem::Simulate(float time) const
             {
                 rigidBody.m_currentRegistered = false;
                 m_physicsScene->removeActor(*rigidBody.m_rigidActor);
-            }
-        }
-    }
-    if (articulationEntities)
-    {
-        for (auto entity : *articulationEntities)
-        {
-            auto &articulation = entity.GetPrivateComponent<Articulation>();
-            if (articulation.m_currentRegistered == false && entity.IsValid() && entity.IsEnabled() &&
-                articulation.IsEnabled())
-            {
-                articulation.m_currentRegistered = true;
-                m_physicsScene->addArticulation(*articulation.m_articulation);
-            }
-            else if (
-                articulation.m_currentRegistered == true &&
-                (!entity.IsValid() || !entity.IsEnabled() || !articulation.IsEnabled()))
-            {
-                articulation.m_currentRegistered = false;
-                m_physicsScene->removeArticulation(*articulation.m_articulation);
             }
         }
     }
@@ -269,57 +239,6 @@ void PhysicsSystem::Simulate(float time) const
                                               GlobalTransform globalTransform;
                                               globalTransform.SetValue(position, rotation, scale);
                                               rigidBodyEntity.SetDataComponent(globalTransform);
-                                          }
-                                      }
-                                  })
-                                  .share());
-        }
-        for (const auto &i : futures)
-            i.wait();
-    }
-    if (articulationEntities)
-    {
-        std::vector<std::shared_future<void>> futures;
-        auto &list = articulationEntities;
-        auto threadSize = JobManager::PrimaryWorkers().Size();
-        size_t capacity = articulationEntities->size() / threadSize;
-        size_t reminder = articulationEntities->size() % threadSize;
-        for (size_t i = 0; i < threadSize; i++)
-        {
-            futures.push_back(JobManager::PrimaryWorkers()
-                                  .Push([&list, i, capacity, reminder, threadSize](int id) {
-                                      for (size_t j = 0; j < capacity; j++)
-                                      {
-                                          size_t index = capacity * i + j;
-                                          const auto &articulationEntity = list->at(index);
-                                          auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
-                                          if (articulation.IsEnabled())
-                                          {
-                                              PxTransform transform = articulation.m_root->getGlobalPose();
-                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                              glm::vec3 scale =
-                                                  articulationEntity.GetDataComponent<GlobalTransform>().GetScale();
-                                              GlobalTransform globalTransform;
-                                              globalTransform.SetValue(position, rotation, scale);
-                                              articulationEntity.SetDataComponent(globalTransform);
-                                          }
-                                      }
-                                      if (reminder > i)
-                                      {
-                                          size_t index = capacity * threadSize + i;
-                                          const auto &articulationEntity = list->at(index);
-                                          auto &articulation = articulationEntity.GetPrivateComponent<Articulation>();
-                                          if (articulation.IsEnabled())
-                                          {
-                                              PxTransform transform = articulation.m_root->getGlobalPose();
-                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                              glm::vec3 scale =
-                                                  articulationEntity.GetDataComponent<GlobalTransform>().GetScale();
-                                              GlobalTransform globalTransform;
-                                              globalTransform.SetValue(position, rotation, scale);
-                                              articulationEntity.SetDataComponent(globalTransform);
                                           }
                                       }
                                   })
