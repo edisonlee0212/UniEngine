@@ -98,10 +98,10 @@ void PhysicsManager::Destroy()
     }
     PX_RELEASE(physicsManager.m_physicsFoundation);
 }
-void PhysicsManager::UploadTransforms(const bool &updateAll, const bool& freeze)
+void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
 {
     if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-            entities != nullptr)
+        entities != nullptr)
     {
         for (auto entity : *entities)
         {
@@ -111,23 +111,27 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool& freeze)
             globalTransform.SetScale(glm::vec3(1.0f));
             if (rigidBody.m_currentRegistered && rigidBody.m_kinematic)
             {
-                if(freeze){
+                if (freeze)
+                {
                     static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
-                            ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                        ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
                 }
-                else{
+                else
+                {
                     static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
                         ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
                 }
-                if(freeze){
+                if (freeze)
+                {
                     rigidBody.SetLinearVelocity(glm::vec3(0.0f));
                     rigidBody.SetAngularVelocity(glm::vec3(0.0f));
                 }
             }
-            else if(updateAll && !rigidBody.m_kinematic)
+            else if (updateAll && !rigidBody.m_kinematic)
             {
                 rigidBody.m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-                if(freeze){
+                if (freeze)
+                {
                     rigidBody.SetLinearVelocity(glm::vec3(0.0f));
                     rigidBody.SetAngularVelocity(glm::vec3(0.0f));
                 }
@@ -172,91 +176,97 @@ void PhysicsSystem::Simulate(float time) const
     const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (!rigidBodyEntities)
         return;
-#pragma region Update shape
-    if (rigidBodyEntities)
-    {
-        for (auto entity : *rigidBodyEntities)
-        {
-            auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
-            if (rigidBody.m_currentRegistered == false && entity.IsValid() && entity.IsEnabled() &&
-                rigidBody.IsEnabled())
-            {
-                rigidBody.m_currentRegistered = true;
-                m_physicsScene->addActor(*rigidBody.m_rigidActor);
-            }
-            else if (
-                rigidBody.m_currentRegistered == true &&
-                (!entity.IsValid() || !entity.IsEnabled() || !rigidBody.IsEnabled()))
-            {
-                rigidBody.m_currentRegistered = false;
-                m_physicsScene->removeActor(*rigidBody.m_rigidActor);
-            }
-        }
-    }
-#pragma endregion
-#pragma region Simulate
+    UploadRigidBodyShapes(rigidBodyEntities);
     m_physicsScene->simulate(time);
     m_physicsScene->fetchResults(true);
-#pragma endregion
-#pragma region Download transforms from physX
-    if (rigidBodyEntities)
-    {
-        std::vector<std::shared_future<void>> futures;
-        auto &list = rigidBodyEntities;
-        auto threadSize = JobManager::PrimaryWorkers().Size();
-        size_t capacity = rigidBodyEntities->size() / threadSize;
-        size_t reminder = rigidBodyEntities->size() % threadSize;
-        for (size_t i = 0; i < threadSize; i++)
-        {
-            futures.push_back(JobManager::PrimaryWorkers()
-                                  .Push([&list, i, capacity, reminder, threadSize](int id) {
-                                      for (size_t j = 0; j < capacity; j++)
-                                      {
-                                          size_t index = capacity * i + j;
-                                          const auto &rigidBodyEntity = list->at(index);
-                                          auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                                          if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
-                                          {
-                                              PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
-                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                              glm::vec3 scale =
-                                                  rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
-                                              GlobalTransform globalTransform;
-                                              globalTransform.SetValue(position, rotation, scale);
-                                              rigidBodyEntity.SetDataComponent(globalTransform);
-
-                                          }
-                                      }
-                                      if (reminder > i)
-                                      {
-                                          size_t index = capacity * threadSize + i;
-                                          const auto &rigidBodyEntity = list->at(index);
-                                          auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
-                                          if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
-                                          {
-                                              PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
-                                              glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
-                                              glm::quat rotation = *(glm::quat *)(void *)&transform.q;
-                                              glm::vec3 scale =
-                                                  rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
-                                              GlobalTransform globalTransform;
-                                              globalTransform.SetValue(position, rotation, scale);
-                                              rigidBodyEntity.SetDataComponent(globalTransform);
-                                          }
-                                      }
-                                  })
-                                  .share());
-        }
-        for (const auto &i : futures)
-            i.wait();
-    }
-#pragma endregion
-#pragma region Recalculate local transforms
+    DownloadRigidBodyTransforms(rigidBodyEntities);
     TransformManager::GetInstance().m_physicsSystemOverride = true;
-#pragma endregion
 }
 void PhysicsSystem::OnEnable()
 {
     PhysicsManager::UploadTransforms(true);
+}
+void PhysicsSystem::DownloadRigidBodyTransforms() const
+{
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    if (rigidBodyEntities)
+        DownloadRigidBodyTransforms(rigidBodyEntities);
+}
+void PhysicsSystem::UploadRigidBodyShapes() const
+{
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    if (rigidBodyEntities)
+        UploadRigidBodyShapes(rigidBodyEntities);
+}
+void PhysicsSystem::UploadRigidBodyShapes(const std::vector<Entity> *rigidBodyEntities) const
+{
+#pragma region Update shape
+    for (auto entity : *rigidBodyEntities)
+    {
+        auto &rigidBody = entity.GetPrivateComponent<RigidBody>();
+        if (rigidBody.m_currentRegistered == false && entity.IsValid() && entity.IsEnabled() && rigidBody.IsEnabled())
+        {
+            rigidBody.m_currentRegistered = true;
+            m_physicsScene->addActor(*rigidBody.m_rigidActor);
+        }
+        else if (
+            rigidBody.m_currentRegistered == true &&
+            (!entity.IsValid() || !entity.IsEnabled() || !rigidBody.IsEnabled()))
+        {
+            rigidBody.m_currentRegistered = false;
+            m_physicsScene->removeActor(*rigidBody.m_rigidActor);
+        }
+    }
+#pragma endregion
+}
+void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigidBodyEntities) const
+{
+    std::vector<std::shared_future<void>> futures;
+    auto &list = rigidBodyEntities;
+    auto threadSize = JobManager::PrimaryWorkers().Size();
+    size_t capacity = rigidBodyEntities->size() / threadSize;
+    size_t reminder = rigidBodyEntities->size() % threadSize;
+    for (size_t i = 0; i < threadSize; i++)
+    {
+        futures.push_back(JobManager::PrimaryWorkers()
+                              .Push([&list, i, capacity, reminder, threadSize](int id) {
+                                  for (size_t j = 0; j < capacity; j++)
+                                  {
+                                      size_t index = capacity * i + j;
+                                      const auto &rigidBodyEntity = list->at(index);
+                                      auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+                                      if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
+                                      {
+                                          PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
+                                          glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                          glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                          glm::vec3 scale =
+                                              rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
+                                          GlobalTransform globalTransform;
+                                          globalTransform.SetValue(position, rotation, scale);
+                                          rigidBodyEntity.SetDataComponent(globalTransform);
+                                      }
+                                  }
+                                  if (reminder > i)
+                                  {
+                                      size_t index = capacity * threadSize + i;
+                                      const auto &rigidBodyEntity = list->at(index);
+                                      auto &rigidBody = rigidBodyEntity.GetPrivateComponent<RigidBody>();
+                                      if (rigidBody.m_currentRegistered && !rigidBody.m_kinematic)
+                                      {
+                                          PxTransform transform = rigidBody.m_rigidActor->getGlobalPose();
+                                          glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
+                                          glm::quat rotation = *(glm::quat *)(void *)&transform.q;
+                                          glm::vec3 scale =
+                                              rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
+                                          GlobalTransform globalTransform;
+                                          globalTransform.SetValue(position, rotation, scale);
+                                          rigidBodyEntity.SetDataComponent(globalTransform);
+                                      }
+                                  }
+                              })
+                              .share());
+    }
+    for (const auto &i : futures)
+        i.wait();
 }

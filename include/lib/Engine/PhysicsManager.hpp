@@ -133,7 +133,11 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 class UNIENGINE_API PhysicsSystem : public ISystem
 {
     PxScene *m_physicsScene = nullptr;
+    void UploadRigidBodyShapes(const std::vector<Entity> *rigidBodyEntities) const;
+    void DownloadRigidBodyTransforms(const std::vector<Entity> *rigidBodyEntities) const;
   public:
+    void UploadRigidBodyShapes() const;
+    void DownloadRigidBodyTransforms() const;
     void OnEnable();
     void OnCreate() override;
     void OnDestroy() override;
