@@ -119,6 +119,10 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool& freeze)
                     static_cast<PxRigidDynamic *>(rigidBody.m_rigidActor)
                         ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
                 }
+                if(freeze){
+                    rigidBody.SetLinearVelocity(glm::vec3(0.0f));
+                    rigidBody.SetAngularVelocity(glm::vec3(0.0f));
+                }
             }
             else if(updateAll && !rigidBody.m_kinematic)
             {
