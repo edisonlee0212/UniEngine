@@ -1484,8 +1484,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
 #pragma region GetSetHas
 template <typename T> void EntityManager::AddDataComponent(const Entity &entity, const T &value)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
     auto &entityManager = GetInstance();
     auto &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
@@ -1554,8 +1553,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
 
 template <typename T> void EntityManager::RemoveDataComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code() || id == typeid(GlobalTransform).hash_code() ||
         id == typeid(GlobalTransformUpdateFlag).hash_code())
@@ -1631,23 +1629,18 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
 
 template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
 {
-    if (!entity.IsValid())
-        return;
-    const size_t id = typeid(T).hash_code();
-    SetDataComponent(entity.m_index, id, sizeof(T), (IDataComponent *)&value);
+    assert(entity.IsValid());
+    SetDataComponent(entity.m_index, typeid(T).hash_code(), sizeof(T), (IDataComponent *)&value);
 }
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
     const size_t id = typeid(T).hash_code();
-    if (index > GetInstance().m_entityInfos->size())
-        return;
+    assert(index < GetInstance().m_entityInfos->size());
     SetDataComponent(index, id, sizeof(T), (IDataComponent *)&value);
-    UNIENGINE_ERROR("Entity already deleted!");
 }
 template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return T();
+    assert(entity.IsValid());
     auto &entityManager = GetInstance();
     EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -1683,8 +1676,7 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 }
 template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return false;
+    assert(entity.IsValid());
     auto &entityManager = GetInstance();
     EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -1781,8 +1773,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 
 template <typename T> T &EntityManager::GetPrivateComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        throw 0;
+    assert(entity.IsValid());
     int i = 0;
     for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
     {
@@ -1796,8 +1787,7 @@ template <typename T> T &EntityManager::GetPrivateComponent(const Entity &entity
 }
 template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        throw 0;
+    assert(entity.IsValid());
     size_t i = 0;
     auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
@@ -1820,8 +1810,7 @@ template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
@@ -1838,8 +1827,7 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
 
 template <typename T> bool EntityManager::HasPrivateComponent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return false;
+    assert(entity.IsValid());
     for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
     {
         if (dynamic_cast<T *>(element.m_privateComponentData))
@@ -1853,11 +1841,7 @@ template <typename T> bool EntityManager::HasPrivateComponent(const Entity &enti
 template <typename T, typename... Ts>
 void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_allDataComponentTypes = CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfo(entityQuery.m_index);
 }
@@ -1865,11 +1849,7 @@ void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T a
 template <typename T, typename... Ts>
 void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_anyDataComponentTypes = CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfo(entityQuery.m_index);
 }
@@ -1877,11 +1857,7 @@ void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T a
 template <typename T, typename... Ts>
 void EntityManager::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_noneDataComponentTypes =
         CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfo(entityQuery.m_index);
@@ -1895,11 +1871,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1912,11 +1884,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1929,11 +1897,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1946,11 +1910,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1963,11 +1923,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1980,11 +1936,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -1997,11 +1949,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -2014,11 +1962,7 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
@@ -2137,11 +2081,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2156,11 +2096,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2175,11 +2111,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2194,11 +2126,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2213,11 +2141,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2232,11 +2156,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2251,11 +2171,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2270,11 +2186,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
         [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
-            if (!entityQuery.IsValid())
-            {
-                UNIENGINE_ERROR("EntityQuery not valid!");
-                return;
-            }
+            assert(entityQuery.IsValid());
             for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
             {
                 ForEachStorage(workers, *i, func, checkEnable);
@@ -2286,11 +2198,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 template <typename T>
 void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         GetDataComponentArrayStorage(*i, container);
@@ -2301,11 +2209,7 @@ template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(
     const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<T2> componentDataList;
     std::vector<T1> targetDataList;
     GetComponentDataArray(entityQuery, componentDataList);
@@ -2364,11 +2268,7 @@ void EntityManager::GetComponentDataArray(
     std::vector<T1> &container,
     const std::function<bool(const T2 &, const T3 &)> &filterFunc)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<T3> componentDataList2;
     std::vector<T2> componentDataList1;
     std::vector<T1> targetDataList;
@@ -2432,11 +2332,7 @@ void EntityManager::GetComponentDataArray(
 template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<T1> componentDataList;
     std::vector<T2> targetDataList;
     GetComponentDataArray(entityQuery, componentDataList);
@@ -2494,11 +2390,7 @@ void EntityManager::GetEntityArray(
     std::vector<Entity> &container,
     const std::function<bool(const Entity &, const T1 &)> &filterFunc)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
     GetEntityArray(entityQuery, allEntities);
@@ -2556,11 +2448,7 @@ void EntityManager::GetEntityArray(
     std::vector<Entity> &container,
     const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList1;
     std::vector<T2> componentDataList2;
@@ -2622,11 +2510,7 @@ void EntityManager::GetEntityArray(
 template <typename T1>
 void EntityManager::GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
     GetEntityArray(entityQuery, allEntities);
@@ -2680,12 +2564,7 @@ template <typename T>
 std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(const EntityQuery &entityQuery)
 {
     std::vector<std::pair<T *, size_t>> retVal;
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return retVal;
-    }
-
+    assert(entityQuery.IsValid());
     for (const auto &i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         auto targetType = Typeof<T>();

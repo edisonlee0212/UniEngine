@@ -9,8 +9,7 @@ using namespace UniEngine;
 void EntityManager::UnsafeForEachDataComponent(
     const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     auto &entityManager = GetInstance();
     EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -30,8 +29,7 @@ void EntityManager::UnsafeForEachDataComponent(
 void EntityManager::ForEachPrivateComponent(
     const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     EntityInfo &info = GetInstance().m_entityInfos->at(entity.m_index);
     if (GetInstance().m_entities->at(entity.m_index) == entity)
     {
@@ -351,8 +349,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         return Entity();
     }
     auto &entityManager = GetInstance();
-    if (!archetype.IsValid())
-        return Entity();
+    assert(archetype.IsValid());
     Entity retVal;
 
 
@@ -427,8 +424,7 @@ std::vector<Entity> EntityManager::CreateEntities(
         UNIENGINE_ERROR("EntityManager not attached to any world!");
         return std::vector<Entity>();
     }
-    if (!archetype.IsValid())
-        return std::vector<Entity>();
+    assert(archetype.IsValid());
     std::vector<Entity> retVal;
     auto &entityManager = GetInstance();
     EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
@@ -558,8 +554,7 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
 
 void EntityManager::DeleteEntity(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     const size_t entityIndex = entity.m_index;
     if (entity != GetInstance().m_entities->at(entityIndex))
     {
@@ -578,8 +573,7 @@ void EntityManager::DeleteEntity(const Entity &entity)
 
 std::string EntityManager::GetEntityName(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return "";
+    assert(entity.IsValid());
     const size_t index = entity.m_index;
 
     if (entity != GetInstance().m_entities->at(index))
@@ -592,8 +586,7 @@ std::string EntityManager::GetEntityName(const Entity &entity)
 
 void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     const size_t index = entity.m_index;
 
     if (entity != GetInstance().m_entities->at(index))
@@ -611,24 +604,18 @@ void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
 
 void EntityManager::SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform)
 {
-    if (!entity.IsValid() || !parent.IsValid())
-        return;
-    // Check self-contain.
-    bool contained = false;
-    ForEachDescendant(parent, [&](const Entity &iterator) {
-        if (!contained && iterator == entity)
-            contained = true;
-    });
-    if (contained)
-    {
-        UNIENGINE_WARNING("Set parent failed");
-        return;
-    }
+    assert(entity.IsValid() && parent.IsValid());
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
-    if (GetInstance().m_entityInfos->at(childIndex).m_parent.m_index != 0)
+    auto& entityManager = GetInstance();
+    auto& parentEntityInfo = entityManager.m_entityInfos->at(parentIndex);
+    for(const auto& i : parentEntityInfo.m_children){
+        if(i == entity) return;
+    }
+    auto& childEntityInfo = entityManager.m_entityInfos->at(childIndex);
+    if (!childEntityInfo.m_parent.IsNull())
     {
-        RemoveChild(entity, GetInstance().m_entities->at(GetInstance().m_entityInfos->at(childIndex).m_parent.m_index));
+        RemoveChild(entity, childEntityInfo.m_parent);
     }
     if (recalculateTransform)
     {
@@ -638,38 +625,34 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
         childTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * childGlobalTransform.m_value;
         entity.SetDataComponent(childTransform);
     }
-    GetInstance().m_entityInfos->at(childIndex).m_parent = parent;
-    GetInstance().m_entityInfos->at(parentIndex).m_children.push_back(entity);
+    childEntityInfo.m_parent = parent;
+    parentEntityInfo.m_children.push_back(entity);
 }
 
 Entity EntityManager::GetParent(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return Entity();
+    assert(entity.IsValid());
     const size_t entityIndex = entity.m_index;
     return GetInstance().m_entityInfos->at(entityIndex).m_parent;
 }
 
 std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return std::vector<Entity>();
+    assert(entity.IsValid());
     const size_t entityIndex = entity.m_index;
     return GetInstance().m_entityInfos->at(entityIndex).m_children;
 }
 
 size_t EntityManager::GetChildrenAmount(const Entity &entity)
 {
-    if (!entity.IsValid())
-        return 0;
+    assert(entity.IsValid());
     const size_t entityIndex = entity.m_index;
     return GetInstance().m_entityInfos->at(entityIndex).m_children.size();
 }
 
 inline void EntityManager::ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     auto children = GetInstance().m_entityInfos->at(entity.m_index).m_children;
     for (auto i : children)
     {
@@ -680,8 +663,7 @@ inline void EntityManager::ForEachChild(const Entity &entity, const std::functio
 
 void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
 {
-    if (!entity.IsValid() || !parent.IsValid())
-        return;
+    assert(entity.IsValid() && parent.IsValid());
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
     if (GetInstance().m_entityInfos->at(childIndex).m_parent.m_index == 0)
@@ -709,8 +691,7 @@ void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
 
 void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &typeID)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     if (typeID == typeid(Transform).hash_code() || typeID == typeid(GlobalTransform).hash_code() ||
         typeID == typeid(GlobalTransformUpdateFlag).hash_code())
     {
@@ -784,7 +765,7 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
 void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data)
 {
     auto &entityManager = GetInstance();
-    EntityInfo &entityInfo = entityManager.m_entityInfos->at(entityIndex);
+    auto &entityInfo = entityManager.m_entityInfos->at(entityIndex);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -792,7 +773,6 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
     if (id == typeid(Transform).hash_code())
     {
         chunk.SetData(static_cast<size_t>(chunkPointer * sizeof(Transform)), sizeof(Transform), data);
-        return;
     }
     else if (id == typeid(GlobalTransform).hash_code())
     {
@@ -806,7 +786,6 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
                 (sizeof(Transform) + sizeof(GlobalTransform)) * dataComponentStorage.m_chunkCapacity +
                 chunkPointer * sizeof(GlobalTransformUpdateFlag))))
             ->m_value = true;
-        return;
     }
     else if (id == typeid(GlobalTransformUpdateFlag).hash_code())
     {
@@ -816,7 +795,6 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
                 chunkPointer * sizeof(GlobalTransformUpdateFlag)),
             sizeof(GlobalTransformUpdateFlag),
             data);
-        return;
     }
     else
     {
@@ -831,14 +809,13 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
                 return;
             }
         }
+        UNIENGINE_LOG("ComponentData doesn't exist");
     }
-    UNIENGINE_LOG("ComponentData doesn't exist");
 }
 
 IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, const size_t &id)
 {
-    if (!entity.IsValid())
-        return nullptr;
+    assert(entity.IsValid());
     auto &entityManager = GetInstance();
     EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -968,8 +945,7 @@ Entity EntityManager::GetEntity(const size_t &index)
 
 void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     auto &entityManager = GetInstance();
     auto &privateComponentElements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < privateComponentElements.size(); i++)
@@ -988,8 +964,7 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 
 void EntityManager::SetEnable(const Entity &entity, const bool &value)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     if (GetInstance().m_entityInfos->at(entity.m_index).m_enabled != value)
     {
         for (auto &i : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
@@ -1014,16 +989,14 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
 
 void EntityManager::SetStatic(const Entity &entity, const bool &value)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     ForEachDescendant(
         entity, [=](const Entity iterator) { GetInstance().m_entityInfos->at(iterator.m_index).m_static = value; });
 }
 
 void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
 {
-    if (!entity.IsValid())
-        return;
+    assert(entity.IsValid());
     if (GetInstance().m_entityInfos->at(entity.m_index).m_enabled != value)
     {
         for (auto &i : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
@@ -1053,11 +1026,7 @@ EntityQuery EntityManager::CreateEntityQuery()
 
 std::vector<DataComponentStorage *> EntityManager::UnsafeGetDataComponentStorage(const EntityQuery &entityQuery)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return std::vector<DataComponentStorage *>();
-    }
+    assert(entityQuery.IsValid());
     return GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage;
 }
 
@@ -1079,11 +1048,7 @@ std::string EntityManager::GetEntityArchetypeName(const EntityArchetype &entityA
 
 void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return;
-    }
+    assert(entityQuery.IsValid());
     for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         GetEntityStorage(*i, container);
@@ -1097,11 +1062,7 @@ void EntityQuery::ToEntityArray(std::vector<Entity> &container) const
 
 size_t EntityManager::GetEntityAmount(EntityQuery entityQuery)
 {
-    if (!entityQuery.IsValid())
-    {
-        UNIENGINE_ERROR("EntityQuery not valid!");
-        return 0;
-    }
+    assert(entityQuery.IsValid());
     size_t retVal = 0;
     for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {

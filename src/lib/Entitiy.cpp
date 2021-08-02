@@ -73,7 +73,7 @@ bool Entity::IsDeleted() const
 
 bool Entity::IsValid() const
 {
-    return m_index != 0 && m_version != 0 && EntityManager::GetInstance().m_entities->at(m_index).m_version == m_version;
+    return m_index != 0 && m_version != 0 && m_index < EntityManager::GetInstance().m_entities->size() && EntityManager::GetInstance().m_entities->at(m_index).m_version == m_version;
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const

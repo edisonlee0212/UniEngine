@@ -251,14 +251,14 @@ void RenderManager::LateUpdate()
             if (cameraComponent.IsEnabled())
             {
                 const bool calculateBound = &cameraComponent == renderManager.m_mainCameraComponent;
-                CollectRenderInstances(cameraComponent, worldBound, calculateBound);
+                CollectRenderInstances(cameraComponent, cameraComponent.GetOwner().GetDataComponent<GlobalTransform>().GetPosition(), worldBound, calculateBound);
                 if (calculateBound)
                     boundCalculated = true;
             }
         }
     }
 
-    CollectRenderInstances(EditorManager::GetSceneCamera(), worldBound, !boundCalculated);
+    CollectRenderInstances(EditorManager::GetSceneCamera(), EditorManager::GetInstance().m_sceneCameraPosition,worldBound, !boundCalculated);
     ProfilerManager::EndEvent("RenderCommand Collection");
 #pragma endregion
 #pragma region Shadowmap prepass
@@ -670,10 +670,9 @@ void RenderManager::Init()
 
     manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
-void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, const bool &calculateBound)
+void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& position, Bound &worldBound, const bool &calculateBound)
 {
     auto &renderManager = GetInstance();
-
     auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[&camera];
     auto &deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[&camera];
     auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[&camera];
@@ -688,7 +687,6 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
         minBound = glm::vec3(INT_MAX);
         maxBound = glm::vec3(INT_MIN);
     }
-    const auto cameraTransform = camera.GetOwner().GetDataComponent<GlobalTransform>();
     const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
     if (owners)
     {
@@ -717,7 +715,7 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
                     (glm::max)(maxBound.z, center.z + size.z));
             }
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            float distance = glm::distance(glm::vec3(meshCenter), position);
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
@@ -773,7 +771,7 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
                     (glm::max)(maxBound.z, center.z + size.z));
             }
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            float distance = glm::distance(glm::vec3(meshCenter), position);
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
@@ -839,7 +837,7 @@ void RenderManager::CollectRenderInstances(Camera &camera, Bound &worldBound, co
                     (glm::max)(maxBound.z, center.z + size.z));
             }
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
+            float distance = glm::distance(glm::vec3(meshCenter), position);
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;

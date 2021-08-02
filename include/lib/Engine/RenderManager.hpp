@@ -245,7 +245,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void Init();
     // Main rendering happens here.
 
-    static void CollectRenderInstances(Camera &camera, Bound &worldBound, const bool &calculateBound = false);
+    static void CollectRenderInstances(Camera &camera, const glm::vec3& position, Bound &worldBound, const bool &calculateBound = false);
 #pragma region Shadow
     static void SetSplitRatio(const float &r1, const float &r2, const float &r3, const float &r4);
     static void SetDirectionalLightShadowMapResolution(const size_t &value);
