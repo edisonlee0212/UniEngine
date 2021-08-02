@@ -554,13 +554,10 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
 
 void EntityManager::DeleteEntity(const Entity &entity)
 {
-    assert(entity.IsValid());
-    const size_t entityIndex = entity.m_index;
-    if (entity != GetInstance().m_entities->at(entityIndex))
-    {
-        UNIENGINE_ERROR("Entity out of date!");
+    if(!entity.IsValid()){
+        return;
     }
-    // DO NOT CHANGE CODE HERE!
+    const size_t entityIndex = entity.m_index;
     auto children = GetInstance().m_entityInfos->at(entityIndex).m_children;
     for (const auto &child : children)
     {
