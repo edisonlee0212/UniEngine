@@ -38,7 +38,8 @@ size_t Entity::operator()(Entity const &key) const
 
 bool Entity::IsEnabled() const
 {
-    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_enabled;
+    assert(IsValid());
+    return EntityManager::GetInstance().m_entityInfos->at(m_index).m_enabled;
 }
 
 void Entity::SetStatic(const bool &value) const
@@ -63,7 +64,8 @@ bool Entity::IsNull() const
 
 bool Entity::IsStatic() const
 {
-    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_static;
+    assert(IsValid());
+    return EntityManager::GetInstance().m_entityInfos->at(m_index).m_static;
 }
 
 bool Entity::IsValid() const
