@@ -56,7 +56,6 @@ struct UNIENGINE_API Entity final
     void SetEnabledSingle(const bool &value) const;
     [[nodiscard]] bool IsNull() const;
     [[nodiscard]] bool IsStatic() const;
-    [[nodiscard]] bool IsDeleted() const;
     [[nodiscard]] bool IsValid() const;
 
     void SetParent(const Entity &parent, const bool &recalculateTransform = false) const;

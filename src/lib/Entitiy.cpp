@@ -66,11 +66,6 @@ bool Entity::IsStatic() const
     return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_static;
 }
 
-bool Entity::IsDeleted() const
-{
-    return IsValid() && EntityManager::GetInstance().m_entityInfos->at(m_index).m_version == 0;
-}
-
 bool Entity::IsValid() const
 {
     return m_index != 0 && m_version != 0 && m_index < EntityManager::GetInstance().m_entities->size() && EntityManager::GetInstance().m_entities->at(m_index).m_version == m_version;

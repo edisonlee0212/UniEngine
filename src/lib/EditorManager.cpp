@@ -82,7 +82,7 @@ Entity EditorManager::MouseEntitySelection(const glm::vec2 &mousePosition)
 
 void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
 {
-    if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled())
+    if (!entity.IsValid() || !entity.IsEnabled())
         return;
     EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityPrePassHelper(child); });
     if (entity.HasPrivateComponent<MeshRenderer>())
@@ -120,7 +120,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
 
 void EditorManager::HighLightEntityHelper(const Entity &entity)
 {
-    if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled())
+    if (!entity.IsValid() || !entity.IsEnabled())
         return;
     EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityHelper(child); });
     if (entity.HasPrivateComponent<MeshRenderer>())
@@ -179,7 +179,7 @@ void EditorManager::MoveCamera(
 
 void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color)
 {
-    if (!entity.IsValid() || entity.IsDeleted() || !entity.IsEnabled())
+    if (!entity.IsValid() || !entity.IsEnabled())
         return;
     auto &manager = GetInstance();
     Camera::m_cameraInfoBlock.UpdateMatrices(
@@ -979,7 +979,7 @@ void EditorManager::OnGui()
     if (editorManager.m_configFlags & EntityEditorSystem_EnableEntityInspector)
     {
         ImGui::Begin("Entity Inspector");
-        if (!editorManager.m_selectedEntity.IsNull() && !editorManager.m_selectedEntity.IsDeleted())
+        if (editorManager.m_selectedEntity.IsValid())
         {
             std::string title = std::to_string(editorManager.m_selectedEntity.GetIndex()) + ": ";
             title += editorManager.m_selectedEntity.GetName();
@@ -1110,7 +1110,7 @@ void EditorManager::OnGui()
 #pragma endregion
     if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow()))
     {
-        if (!editorManager.m_selectedEntity.IsNull() && !editorManager.m_selectedEntity.IsDeleted())
+        if (editorManager.m_selectedEntity.IsValid())
         {
             EntityManager::DeleteEntity(editorManager.m_selectedEntity);
         }
@@ -1200,7 +1200,7 @@ void EditorManager::SetSelectedEntity(const Entity &entity, const bool &openMenu
         manager.m_selectedEntity = Entity();
         return;
     }
-    if (entity.IsDeleted())
+    if (!entity.IsValid())
         return;
     GetInstance().m_selectedEntity = entity;
     if (!openMenu)
@@ -1458,7 +1458,7 @@ void EditorManager::SceneCameraWindow()
             }
 #pragma region Gizmos and Entity Selection
             bool mouseSelectEntity = true;
-            if (!editorManager.m_selectedEntity.IsNull() && !editorManager.m_selectedEntity.IsDeleted() &&
+            if (editorManager.m_selectedEntity.IsValid() &&
                 !editorManager.m_selectedEntity.IsStatic())
             {
                 ImGuizmo::SetOrthographic(false);

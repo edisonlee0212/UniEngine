@@ -653,7 +653,7 @@ inline void EntityManager::ForEachChild(const Entity &entity, const std::functio
     auto children = GetInstance().m_entityInfos->at(entity.m_index).m_children;
     for (auto i : children)
     {
-        if (!i.IsDeleted())
+        if (i.IsValid())
             func(i);
     }
 }
