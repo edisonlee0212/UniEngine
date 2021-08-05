@@ -130,8 +130,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
     static std::shared_ptr<Model> LoadModel(
         std::string const &path,
-        const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes |
-                                aiProcess_OptimizeGraph,
+        const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals,
         const bool &optimize = false,
         const float &gamma = 0.0f);
     static std::shared_ptr<Texture2D> LoadTexture(const std::string &path, const float &gamma = 0.0f);
