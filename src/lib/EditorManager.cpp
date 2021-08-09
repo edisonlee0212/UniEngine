@@ -87,33 +87,33 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
     EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityPrePassHelper(child); });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
-        auto &mmc = entity.GetPrivateComponent<MeshRenderer>();
-        if (mmc.IsEnabled() && mmc.m_material != nullptr && mmc.m_mesh != nullptr)
+        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
         {
             GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            mmc.m_mesh->Draw();
+            mmc->m_mesh->Draw();
         }
     }
     if (entity.HasPrivateComponent<Particles>())
     {
-        auto &immc = entity.GetPrivateComponent<Particles>();
-        if (immc.IsEnabled() && immc.m_material != nullptr && immc.m_mesh != nullptr)
+        auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
+        if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
         {
             GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            immc.m_mesh->DrawInstanced(immc.m_matrices->m_value);
+            immc->m_mesh->DrawInstanced(immc->m_matrices->m_value);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
     {
-        auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
-        if (smmc.IsEnabled() && smmc.m_material != nullptr && smmc.m_skinnedMesh != nullptr)
+        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
         {
-            smmc.m_finalResults->UploadBones(smmc.m_skinnedMesh);
+            smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
             GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            smmc.m_skinnedMesh->Draw();
+            smmc->m_skinnedMesh->Draw();
         }
     }
 }
@@ -125,11 +125,11 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
     EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityHelper(child); });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
-        auto &mmc = entity.GetPrivateComponent<MeshRenderer>();
-        if (mmc.IsEnabled() && mmc.m_material != nullptr && mmc.m_mesh != nullptr)
+        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *mesh = mmc.m_mesh.get();
+            auto *mesh = mmc->m_mesh.get();
             GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
             GetInstance().m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
             mesh->Draw();
@@ -137,23 +137,23 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
     }
     if (entity.HasPrivateComponent<Particles>())
     {
-        auto &immc = entity.GetPrivateComponent<Particles>();
-        if (immc.IsEnabled() && immc.m_material != nullptr && immc.m_mesh != nullptr)
+        auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
+        if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *mesh = immc.m_mesh.get();
+            auto *mesh = immc->m_mesh.get();
             GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
-            mesh->DrawInstanced(immc.m_matrices->m_value);
+            mesh->DrawInstanced(immc->m_matrices->m_value);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
     {
-        auto &smmc = entity.GetPrivateComponent<SkinnedMeshRenderer>();
-        if (smmc.IsEnabled() && smmc.m_material != nullptr && smmc.m_skinnedMesh != nullptr)
+        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *skinnedMesh = smmc.m_skinnedMesh.get();
-            smmc.m_finalResults->UploadBones(smmc.m_skinnedMesh);
+            auto *skinnedMesh = smmc->m_skinnedMesh.get();
+            smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             GetInstance().m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
             skinnedMesh->Draw();
@@ -185,7 +185,7 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     Camera::m_cameraInfoBlock.UpdateMatrices(
         manager.m_sceneCamera, manager.m_sceneCameraPosition, manager.m_sceneCameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(manager.m_sceneCamera);
-    manager.m_sceneCamera.Bind();
+    manager.m_sceneCamera->Bind();
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -402,10 +402,12 @@ void EditorManager::Init()
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
         bool reload = previousEntity != entity;
-        if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>() &&
-            !entity.GetPrivateComponent<RigidBody>().m_kinematic &&
-            entity.GetPrivateComponent<RigidBody>().m_currentRegistered)
-            reload = true;
+        if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>()){
+            auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
+            if(rigidBody->m_kinematic && rigidBody->m_currentRegistered){
+                reload = true;
+            }
+        }
         if (reload)
         {
             previousEntity = entity;
@@ -463,7 +465,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Animator"))
         {
-            owner.SetPrivateComponent<Animator>();
+            owner.GetOrSetPrivateComponent<Animator>();
         }
     });
     RegisterPrivateComponentMenu<Joint>([](Entity owner) {
@@ -471,7 +473,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Joint"))
         {
-            owner.SetPrivateComponent<Joint>();
+            owner.GetOrSetPrivateComponent<Joint>();
         }
     });
     RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
@@ -479,7 +481,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("DirectionalLight"))
         {
-            owner.SetPrivateComponent<DirectionalLight>();
+            owner.GetOrSetPrivateComponent<DirectionalLight>();
         }
     });
     RegisterPrivateComponentMenu<PointLight>([](Entity owner) {
@@ -487,7 +489,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("PointLight"))
         {
-            owner.SetPrivateComponent<PointLight>();
+            owner.GetOrSetPrivateComponent<PointLight>();
         }
     });
     RegisterPrivateComponentMenu<SpotLight>([](Entity owner) {
@@ -495,7 +497,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("SpotLight"))
         {
-            owner.SetPrivateComponent<SpotLight>();
+            owner.GetOrSetPrivateComponent<SpotLight>();
         }
     });
     RegisterPrivateComponentMenu<Camera>([](Entity owner) {
@@ -503,7 +505,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Camera"))
         {
-            owner.SetPrivateComponent<Camera>();
+            owner.GetOrSetPrivateComponent<Camera>();
         }
     });
     RegisterPrivateComponentMenu<MeshRenderer>([](Entity owner) {
@@ -511,7 +513,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("MeshRenderer"))
         {
-            owner.SetPrivateComponent<MeshRenderer>();
+            owner.GetOrSetPrivateComponent<MeshRenderer>();
         }
     });
 
@@ -520,7 +522,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("PostProcessing"))
         {
-            owner.SetPrivateComponent<PostProcessing>();
+            owner.GetOrSetPrivateComponent<PostProcessing>();
         }
     });
     RegisterPrivateComponentMenu<Particles>([](Entity owner) {
@@ -528,7 +530,7 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("Particles"))
         {
-            owner.SetPrivateComponent<Particles>();
+            owner.GetOrSetPrivateComponent<Particles>();
         }
     });
     RegisterPrivateComponentMenu<RigidBody>([](Entity owner) {
@@ -536,16 +538,18 @@ void EditorManager::Init()
             return;
         if (ImGui::SmallButton("RigidBody"))
         {
-            owner.SetPrivateComponent<RigidBody>();
+            owner.GetOrSetPrivateComponent<RigidBody>();
         }
     });
 
     editorManager.m_selectedEntity = Entity();
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
-    editorManager.m_sceneCamera.m_clearColor = glm::vec3(0.5f);
-    editorManager.m_sceneCamera.m_useClearColor = false;
-    editorManager.m_sceneCamera.OnCreate();
+
+    editorManager.m_sceneCamera = SerializableFactory::ProduceSerializable<Camera>();
+    editorManager.m_sceneCamera->m_clearColor = glm::vec3(0.5f);
+    editorManager.m_sceneCamera->m_useClearColor = false;
+    editorManager.m_sceneCamera->OnCreate();
 }
 
 void EditorManager::Destroy()
@@ -642,12 +646,12 @@ void EditorManager::RenderToSceneCamera()
     auto &editorManager = GetInstance();
     auto &renderManager = RenderManager::GetInstance();
 
-    const auto resolution = editorManager.m_sceneCamera.m_gBuffer->GetResolution();
+    const auto resolution = editorManager.m_sceneCamera->m_gBuffer->GetResolution();
     if (editorManager.m_sceneCameraResolutionX != 0 && editorManager.m_sceneCameraResolutionY != 0 &&
         (resolution.x != editorManager.m_sceneCameraResolutionX ||
          resolution.y != editorManager.m_sceneCameraResolutionY))
     {
-        editorManager.m_sceneCamera.ResizeResolution(
+        editorManager.m_sceneCamera->ResizeResolution(
             editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
         editorManager.m_sceneCameraEntityRecorderTexture->ReSize(
             0,
@@ -662,7 +666,7 @@ void EditorManager::RenderToSceneCamera()
         editorManager.m_sceneCameraEntityRecorder->SetResolution(
             editorManager.m_sceneCameraResolutionX, editorManager.m_sceneCameraResolutionY);
     }
-    editorManager.m_sceneCamera.Clear();
+    editorManager.m_sceneCamera->Clear();
     editorManager.m_sceneCameraEntityRecorder->Clear();
     if (editorManager.m_lockCamera)
     {
@@ -686,7 +690,7 @@ void EditorManager::RenderToSceneCamera()
         }
     }
 
-    if (editorManager.m_enabled && editorManager.m_sceneCamera.IsEnabled())
+    if (editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
     {
         Camera::m_cameraInfoBlock.UpdateMatrices(
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
@@ -711,16 +715,16 @@ void EditorManager::RenderToSceneCamera()
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        renderCommand.m_mesh->Draw();
+                        renderCommand.m_mesh.lock()->Draw();
                         break;
                     }
                     case RenderCommandMeshType::Skinned: {
                         auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
-                        renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                        renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        renderCommand.m_skinnedMesh->Draw();
+                        renderCommand.m_skinnedMesh.lock()->Draw();
                         break;
                     }
                     }
@@ -743,7 +747,7 @@ void EditorManager::RenderToSceneCamera()
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
-                        renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                         break;
                     }
                     }
@@ -764,16 +768,16 @@ void EditorManager::RenderToSceneCamera()
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                         editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        renderCommand.m_mesh->Draw();
+                        renderCommand.m_mesh.lock()->Draw();
                         break;
                     }
                     case RenderCommandMeshType::Skinned: {
                         auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
-                        renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                        renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
                         editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        renderCommand.m_skinnedMesh->Draw();
+                        renderCommand.m_skinnedMesh.lock()->Draw();
                         break;
                     }
                     }
@@ -796,7 +800,7 @@ void EditorManager::RenderToSceneCamera()
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
-                        renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                         break;
                     }
                     }
@@ -805,7 +809,7 @@ void EditorManager::RenderToSceneCamera()
                 false);
         }
 #pragma endregion
-        RenderManager::ApplyShadowMapSettings(editorManager.m_sceneCamera);
+        RenderManager::ApplyShadowMapSettings();
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
         RenderManager::RenderToCamera(editorManager.m_sceneCamera);
     }
@@ -1213,7 +1217,7 @@ void EditorManager::SetSelectedEntity(const Entity &entity, const bool &openMenu
     }
 }
 
-Camera &EditorManager::GetSceneCamera()
+std::weak_ptr<Camera> EditorManager::GetSceneCamera()
 {
     return GetInstance().m_sceneCamera;
 }
@@ -1344,7 +1348,7 @@ void EditorManager::SceneCameraWindow()
                         editorManager.m_defaultSceneCameraPosition = editorManager.m_sceneCameraPosition;
                         editorManager.m_defaultSceneCameraRotation = editorManager.m_sceneCameraRotation;
                     }
-                    ImGui::SliderFloat("FOV", &editorManager.m_sceneCamera.m_fov, 30.0f, 120.0f);
+                    ImGui::SliderFloat("FOV", &editorManager.m_sceneCamera->m_fov, 30.0f, 120.0f);
 #pragma endregion
                     ImGui::EndMenu();
                 }
@@ -1359,14 +1363,15 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraResolutionY = viewPortSize.y;
 
             bool cameraActive = false;
-            if (RenderManager::GetMainCamera() != nullptr)
+            if(!RenderManager::GetMainCamera().expired())
             {
-                auto entity = RenderManager::GetMainCamera()->GetOwner();
-                if (entity.IsEnabled() && RenderManager::GetMainCamera()->IsEnabled())
+                auto mainCamera = RenderManager::GetMainCamera().lock();
+                auto entity = mainCamera->GetOwner();
+                if (entity.IsEnabled() && mainCamera->IsEnabled())
                 {
                     // Because I use the texture from OpenGL, I need to invert the V from the UV.
                     ImGui::Image(
-                        (ImTextureID)editorManager.m_sceneCamera.GetTexture()->Texture()->Id(),
+                        (ImTextureID)editorManager.m_sceneCamera->GetTexture()->Texture()->Id(),
                         viewPortSize,
                         ImVec2(0, 1),
                         ImVec2(1, 0));
@@ -1467,7 +1472,7 @@ void EditorManager::SceneCameraWindow()
                 glm::mat4 cameraView = glm::inverse(
                     glm::translate(editorManager.m_sceneCameraPosition) *
                     glm::mat4_cast(editorManager.m_sceneCameraRotation));
-                glm::mat4 cameraProjection = editorManager.m_sceneCamera.GetProjection();
+                glm::mat4 cameraProjection = editorManager.m_sceneCamera->GetProjection();
                 const auto op = editorManager.m_localPositionSelected   ? ImGuizmo::OPERATION::TRANSLATE
                                 : editorManager.m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE
                                                                         : ImGuizmo::OPERATION::SCALE;
@@ -1565,7 +1570,7 @@ void EditorManager::SceneCameraWindow()
     {
         editorManager.m_sceneCameraWindowFocused = false;
     }
-    editorManager.m_sceneCamera.SetEnabled(
+    editorManager.m_sceneCamera->SetEnabled(
         !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
     ImGui::End();
     ImGui::PopStyleVar();
@@ -1610,12 +1615,13 @@ void EditorManager::MainCameraWindow()
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
             bool cameraActive = false;
-            if (renderManager.m_mainCameraComponent != nullptr)
+            if(!RenderManager::GetMainCamera().expired())
             {
-                auto entity = renderManager.m_mainCameraComponent->GetOwner();
-                if (entity.IsEnabled() && renderManager.m_mainCameraComponent->IsEnabled())
+                auto mainCamera = RenderManager::GetMainCamera().lock();
+                auto entity = mainCamera->GetOwner();
+                if (entity.IsEnabled() && mainCamera->IsEnabled())
                 {
-                    auto id = renderManager.m_mainCameraComponent->GetTexture()->Texture()->Id();
+                    auto id = mainCamera->GetTexture()->Texture()->Id();
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
                     CameraWindowDragAndDrop();
                     cameraActive = true;
@@ -1727,10 +1733,10 @@ void EditorManager::CameraWindowDragAndDrop()
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
             std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
             Entity entity = EntityManager::CreateEntity("Mesh");
-            auto &meshRenderer = entity.SetPrivateComponent<MeshRenderer>();
-            meshRenderer.m_mesh = payload_n;
-            meshRenderer.m_material = AssetManager::CreateAsset<Material>();
-            meshRenderer.m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+            meshRenderer->m_mesh = payload_n;
+            meshRenderer->m_material = AssetManager::CreateAsset<Material>();
+            meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
         }
 
         const std::string environmentalMapTypeHash =
@@ -1745,11 +1751,11 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-            std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
-            auto *mainCamera = RenderManager::GetMainCamera();
-            if (mainCamera)
+            if(!RenderManager::GetMainCamera().expired())
             {
+                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
+                std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+                auto mainCamera = RenderManager::GetMainCamera().lock();
                 mainCamera->m_skybox = payload_n;
             }
         }

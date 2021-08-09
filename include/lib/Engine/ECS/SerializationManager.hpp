@@ -118,7 +118,7 @@ class UNIENGINE_API SerializableFactory : public ISingleton<SerializableFactory>
 {
     friend class AssetManager;
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
-    std::map<std::string, std::function<ISerializable *(size_t &)>> m_serializableGenerators;
+    std::map<std::string, std::function<std::shared_ptr<ISerializable>(size_t &)>> m_serializableGenerators;
 
     std::map<std::string, size_t> m_dataComponentIds;
     std::map<size_t, std::string> m_dataComponentNames;
@@ -140,8 +140,9 @@ class UNIENGINE_API SerializableFactory : public ISingleton<SerializableFactory>
         const std::string &typeName, size_t &hashCode, size_t &size);
 
     static bool RegisterSerializable(
-        const std::string &typeName, const size_t &typeId, const std::function<ISerializable *(size_t &)> &func);
-    static ISerializable *ProduceSerializable(const std::string &typeName, size_t &hashCode);
+        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable> (size_t &)> &func);
+    static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode);
+    template <typename T = ISerializable> static std::shared_ptr<T> ProduceSerializable();
     template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
     static std::string GetSerializableTypeName(const size_t &typeId);
@@ -169,7 +170,8 @@ template <typename T> bool SerializableFactory::RegisterSerializable(const std::
 {
     return RegisterSerializable(name, typeid(T).hash_code(), [](size_t &hashCode) {
         hashCode = typeid(T).hash_code();
-        return dynamic_cast<ISerializable *>(new T());
+        auto ptr = std::static_pointer_cast<ISerializable>(std::make_shared<T>());
+        return ptr;
     });
 }
 
@@ -178,11 +180,7 @@ template <typename T = IDataComponent> class UNIENGINE_API ComponentDataRegistra
   public:
     ComponentDataRegistration(const std::string &name)
     {
-        SerializableFactory::RegisterDataComponent(name, typeid(T).hash_code(), [](size_t &hashCode, size_t &size) {
-            hashCode = typeid(T).hash_code();
-            size = sizeof(T);
-            return std::move(std::dynamic_pointer_cast<IDataComponent>(std::make_shared<T>()));
-        });
+        SerializableFactory::RegisterDataComponent<T>(name);
     }
 };
 
@@ -191,10 +189,7 @@ template <typename T = ISerializable> class UNIENGINE_API SerializableRegistrati
   public:
     SerializableRegistration(const std::string &name)
     {
-        SerializableFactory::RegisterSerializable(name, typeid(T).hash_code(), [](size_t &hashCode) {
-            hashCode = typeid(T).hash_code();
-            return dynamic_cast<ISerializable *>(new T());
-        });
+        SerializableFactory::RegisterSerializable<T>(name);
     }
 };
 
@@ -223,5 +218,19 @@ template <typename T> void SerializableFactory::Deserialize(const std::string &f
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
     ptr->Deserialize(in);
+}
+template <typename T> std::shared_ptr<T> SerializableFactory::ProduceSerializable()
+{
+    const auto typeName = GetSerializableTypeName<T>();
+    const auto it = GetInstance().m_serializableGenerators.find(typeName);
+    if (it != GetInstance().m_serializableGenerators.end())
+    {
+        size_t hashCode;
+        auto retVal = it->second(hashCode);
+        retVal->m_typeName = typeName;
+        return std::move(std::static_pointer_cast<T>(retVal));
+    }
+    UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
+    throw 1;
 }
 } // namespace UniEngine

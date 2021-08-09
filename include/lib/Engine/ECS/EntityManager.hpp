@@ -62,7 +62,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void RefreshAllEntityQueryInfos();
     static void RefreshEntityQueryInfo(const size_t &index);
     static void RefreshAllEntityArchetypeInfos();
-    // TODO: Finish implementation
     static void RefreshEntityArchetypeInfo(const size_t &index);
 
     static void EraseDuplicates(std::vector<DataComponentType> &types);
@@ -75,12 +74,13 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend class SerializationManager;
     static IDataComponent *GetDataComponentPointer(const Entity &entity, const size_t &id);
     static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types);
-    static void SetPrivateComponent(
+    /*
+    static void GetOrSetPrivateComponent(
         const Entity &entity,
         const size_t &id,
         IPrivateComponent *ptr,
         const bool &enabled = true);
-
+    */
     static void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
     static void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
 
@@ -196,8 +196,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent> static T GetDataComponent(const Entity &entity);
     template <typename T = IDataComponent> static bool HasDataComponent(const Entity &entity);
 
-    template <typename T = IPrivateComponent> static T &GetPrivateComponent(const Entity &entity);
-    template <typename T = IPrivateComponent> static T &SetPrivateComponent(const Entity &entity);
+    template <typename T = IPrivateComponent> static std::weak_ptr<T> GetOrSetPrivateComponent(const Entity &entity);
     template <typename T = IPrivateComponent> static void RemovePrivateComponent(const Entity &entity);
     template <typename T = IPrivateComponent> static bool HasPrivateComponent(const Entity &entity);
 #pragma endregion
@@ -1771,42 +1770,25 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
     return false;
 }
 
-template <typename T> T &EntityManager::GetPrivateComponent(const Entity &entity)
+template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const Entity &entity)
 {
     assert(entity.IsValid());
-    int i = 0;
-    for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
-    {
-        if (dynamic_cast<T *>(element.m_privateComponentData))
-        {
-            return *dynamic_cast<T *>(element.m_privateComponentData);
-        }
-        i++;
-    }
-    throw 0;
-}
-template <typename T> T &EntityManager::SetPrivateComponent(const Entity &entity)
-{
-    assert(entity.IsValid());
+    auto& entityManager = GetInstance();
+    auto typeName = SerializableFactory::GetSerializableTypeName<T>();
     size_t i = 0;
-    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
-        if (dynamic_cast<T *>(element.m_privateComponentData))
+        if (typeName == element.m_privateComponentData->GetTypeName())
         {
-            element.m_privateComponentData = new T();
-            element.m_privateComponentData->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
-            element.ResetOwner(entity);
-            element.m_privateComponentData->OnCreate();
-            return *dynamic_cast<T *>(element.m_privateComponentData);
+            return std::static_pointer_cast<T>(element.m_privateComponentData);
         }
         i++;
     }
-    GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    auto* ptr = new T();
-    dynamic_cast<IPrivateComponent*>(ptr)->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
+    entityManager.m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
+    auto ptr = SerializableFactory::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity);
-    return *dynamic_cast<T *>(elements.back().m_privateComponentData);
+    return std::move(ptr);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
@@ -1819,7 +1801,6 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
-            delete elements[i].m_privateComponentData;
             elements.erase(elements.begin() + i);
         }
     }
@@ -1830,7 +1811,7 @@ template <typename T> bool EntityManager::HasPrivateComponent(const Entity &enti
     assert(entity.IsValid());
     for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
     {
-        if (dynamic_cast<T *>(element.m_privateComponentData))
+        if (std::dynamic_pointer_cast<T>(element.m_privateComponentData))
         {
             return true;
         }
@@ -2620,9 +2601,9 @@ template <typename T> bool Entity::HasDataComponent() const
     return EntityManager::HasDataComponent<T>(*this);
 }
 
-template <typename T> T &Entity::SetPrivateComponent() const
+template <typename T> std::weak_ptr<T> Entity::GetOrSetPrivateComponent() const
 {
-    return EntityManager::SetPrivateComponent<T>(*this);
+    return std::move(EntityManager::GetOrSetPrivateComponent<T>(*this));
 }
 
 template <typename T> void Entity::RemovePrivateComponent() const
@@ -2643,18 +2624,6 @@ template <typename T> T ComponentDataChunk::GetData(const size_t &offset)
 template <typename T> void ComponentDataChunk::SetData(const size_t &offset, const T &data)
 {
     *reinterpret_cast<T *>(static_cast<char *>(m_data) + offset) = data;
-}
-
-template <typename T> T &Entity::GetPrivateComponent() const
-{
-    try
-    {
-        return EntityManager::GetPrivateComponent<T>(*this);
-    }
-    catch (int e)
-    {
-        throw;
-    }
 }
 
 template <typename T, typename... Ts> void EntityQuery::SetAllFilters(T arg, Ts... args)

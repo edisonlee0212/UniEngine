@@ -18,39 +18,35 @@ void Planet::PlanetTerrainSystem::Update()
         EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
     if (planetTerrainList == nullptr)
         return;
-    for (auto i = 0; i < planetTerrainList->size(); i++)
-    {
-        auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
-        if (!planetTerrain.IsEnabled())
-            continue;
-        auto &planetChunks = planetTerrain.m_chunks;
-        auto planetTransform = planetTerrain.GetOwner().GetDataComponent<GlobalTransform>();
-        glm::mat4 matrix = glm::scale(
-            glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
-            glm::vec3(1.0f));
-        for (auto j = 0; j < planetChunks.size(); j++)
-        {
-            RenderChunk(planetChunks[j], m_defaultSurfaceMaterial.get(), matrix, RenderManager::GetMainCamera(), true);
-        }
-    }
+
     std::mutex meshGenLock;
-    const auto mainCamera = RenderManager::GetMainCamera();
-    if (mainCamera)
+
+    if (!RenderManager::GetMainCamera().expired())
     {
+        const auto mainCamera = RenderManager::GetMainCamera().lock();
         const auto cameraLtw = mainCamera->GetOwner().GetDataComponent<GlobalTransform>();
         for (auto i = 0; i < planetTerrainList->size(); i++)
         {
-            auto &planetTerrain = planetTerrainList->at(i).GetPrivateComponent<PlanetTerrain>();
-            if (!planetTerrain.IsEnabled())
+            auto planetTerrain = planetTerrainList->at(i).GetOrSetPrivateComponent<PlanetTerrain>().lock();
+            if (!planetTerrain->IsEnabled())
                 continue;
-            auto &planetInfo = planetTerrain.m_info;
-            auto planetTransform = planetTerrain.GetOwner().GetDataComponent<GlobalTransform>();
+            auto &planetInfo = planetTerrain->m_info;
+            auto planetTransform = planetTerrain->GetOwner().GetDataComponent<GlobalTransform>();
+            auto &planetChunks = planetTerrain->m_chunks;
             // 1. Scan and expand.
-            for (auto &chunk : planetTerrain.m_chunks)
+            for (auto &chunk : planetChunks)
             {
                 // futures.push_back(_PrimaryWorkers->Share([&, this](int id) { CheckLod(meshGenLock, chunk, planetInfo,
                 // planetTransform, cameraLtw); }).share());
                 CheckLod(meshGenLock, chunk, planetInfo, planetTransform, cameraLtw);
+            }
+
+            glm::mat4 matrix = glm::scale(
+                glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
+                glm::vec3(1.0f));
+            for (auto j = 0; j < planetChunks.size(); j++)
+            {
+                RenderChunk(planetChunks[j], m_defaultSurfaceMaterial, matrix, mainCamera, true);
             }
         }
     }
@@ -103,13 +99,13 @@ void Planet::PlanetTerrainSystem::CheckLod(
 
 void Planet::PlanetTerrainSystem::RenderChunk(
     std::unique_ptr<TerrainChunk> &chunk,
-    Material *material,
+    const std::shared_ptr<Material> &material,
     glm::mat4 &matrix,
-    Camera *camera,
+    const std::shared_ptr<Camera> &camera,
     bool receiveShadow) const
 {
     if (chunk->Active)
-        RenderManager::DrawMesh(chunk->m_mesh, m_defaultSurfaceMaterial, matrix, *RenderManager::GetMainCamera(), true);
+        RenderManager::DrawMesh(chunk->m_mesh, material, matrix, camera, true);
     if (chunk->ChildrenActive)
     {
         RenderChunk(chunk->m_c0, material, matrix, camera, receiveShadow);

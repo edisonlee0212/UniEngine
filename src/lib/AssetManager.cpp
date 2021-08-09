@@ -373,15 +373,15 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> 
 
     if (modelNode->m_mesh)
     {
-        auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
-        mmc.m_mesh = modelNode->m_mesh;
-        mmc.m_material = modelNode->m_material;
+        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        mmc->m_mesh = modelNode->m_mesh;
+        mmc->m_material = modelNode->m_material;
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto &smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
-        smmc.m_skinnedMesh = modelNode->m_skinnedMesh;
-        smmc.m_material = modelNode->m_material;
+        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
+        smmc->m_material = modelNode->m_material;
     }
     int index = 0;
 
@@ -392,9 +392,9 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Model> 
     }
     if (model->m_animation)
     {
-        auto &animator = entity.SetPrivateComponent<Animator>();
-        animator.Setup(model->m_animation);
-        animator.Animate();
+        auto animator = entity.GetOrSetPrivateComponent<Animator>().lock();
+        animator->Setup(model->m_animation);
+        animator->Animate();
         AttachAnimator(entity, entity);
     }
     return entity;
@@ -404,10 +404,10 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture
 {
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(texture->m_name);
-    auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
-    mmc.m_material = LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    mmc.m_material->SetTexture(TextureType::Albedo, texture);
-    mmc.m_mesh = DefaultResources::Primitives::Quad;
+    auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    mmc->m_material = LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    mmc->m_material->SetTexture(TextureType::Albedo, texture);
+    mmc->m_mesh = DefaultResources::Primitives::Quad;
     return entity;
 }
 
@@ -415,7 +415,7 @@ void AssetManager::AttachAnimator(const Entity &parent, const Entity &animator)
 {
     if (parent.HasPrivateComponent<SkinnedMeshRenderer>())
     {
-        parent.GetPrivateComponent<SkinnedMeshRenderer>().AttachAnimator(animator);
+        parent.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock()->AttachAnimator(animator);
     }
     parent.ForEachChild([&](Entity child) { AttachAnimator(child, animator); });
 }
@@ -1061,15 +1061,15 @@ void UniEngine::AssetManager::AttachChildren(
     entity.SetDataComponent(modelNode->m_localTransform);
     if (modelNode->m_mesh)
     {
-        auto &mmc = entity.SetPrivateComponent<MeshRenderer>();
-        mmc.m_mesh = modelNode->m_mesh;
-        mmc.m_material = modelNode->m_material;
+        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        mmc->m_mesh = modelNode->m_mesh;
+        mmc->m_material = modelNode->m_material;
     }
     else if (modelNode->m_skinnedMesh)
     {
-        auto &smmc = entity.SetPrivateComponent<SkinnedMeshRenderer>();
-        smmc.m_skinnedMesh = modelNode->m_skinnedMesh;
-        smmc.m_material = modelNode->m_material;
+        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        smmc->m_skinnedMesh = modelNode->m_skinnedMesh;
+        smmc->m_material = modelNode->m_material;
     }
 
     int index = 0;

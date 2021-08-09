@@ -48,9 +48,9 @@ void PostProcessing::OnCreate()
 void PostProcessing::Process()
 {
     if(!GetOwner().HasPrivateComponent<Camera>()) return;
-    auto &cameraComponent = GetOwner().GetPrivateComponent<Camera>();
-    ResizeResolution(cameraComponent.m_resolutionX, cameraComponent.m_resolutionY);
-    auto ltw = cameraComponent.GetOwner().GetDataComponent<GlobalTransform>();
+    auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
+    ResizeResolution(cameraComponent->m_resolutionX, cameraComponent->m_resolutionY);
+    auto ltw = cameraComponent->GetOwner().GetDataComponent<GlobalTransform>();
     Camera::m_cameraInfoBlock.UpdateMatrices(
         cameraComponent, ltw.GetPosition(), ltw.GetRotation());
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
@@ -85,7 +85,7 @@ void PostProcessing::ResizeResolution(int x, int y)
 
 void PostProcessing::OnGui()
 {
-    auto &cameraComponent = GetOwner().GetPrivateComponent<Camera>();
+    auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
     for (auto &layer : m_layers)
     {
         if (layer.second)
@@ -143,7 +143,7 @@ void Bloom::ResizeResolution(int x, int y)
     m_flatColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
 }
 
-void Bloom::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
+void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -159,7 +159,7 @@ void Bloom::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     renderTarget.AttachTexture(m_brightColor.get(), GL_COLOR_ATTACHMENT1);
     renderTarget.Bind();
     glDrawBuffers(2, enums);
-    cameraComponent.m_colorTexture->m_texture->Bind(0);
+    cameraComponent->m_colorTexture->m_texture->Bind(0);
     m_separateProgram->SetInt("image", 0);
     m_separateProgram->SetFloat("threshold", m_threshold);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -188,7 +188,7 @@ void Bloom::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent.m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_flatColor->Bind(0);
     m_brightColor->Bind(1);
@@ -198,7 +198,7 @@ void Bloom::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Bloom::OnGui(Camera &cameraComponent)
+void Bloom::OnGui(const std::shared_ptr<Camera> &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
@@ -256,7 +256,7 @@ void SSAO::ResizeResolution(int x, int y)
     m_blur->ReSize(0, GL_R16F, GL_RED, GL_FLOAT, 0, x, y);
 }
 
-void SSAO::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
+void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -270,9 +270,9 @@ void SSAO::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
     glDrawBuffers(2, enums);
     renderTarget.Bind();
-    cameraComponent.m_colorTexture->Texture()->Bind(0);
-    cameraComponent.m_gBufferNormal->Bind(1);
-    cameraComponent.m_gBufferDepth->Bind(2);
+    cameraComponent->m_colorTexture->Texture()->Bind(0);
+    cameraComponent->m_gBufferNormal->Bind(1);
+    cameraComponent->m_gBufferDepth->Bind(2);
     m_geometryProgram->SetInt("color", 0);
     m_geometryProgram->SetInt("gNormal", 1);
     m_geometryProgram->SetInt("gDepth", 2);
@@ -306,7 +306,7 @@ void SSAO::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent.m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_originalColor->Bind(0);
     m_ssaoPosition->Bind(1);
@@ -316,7 +316,7 @@ void SSAO::Process(Camera &cameraComponent, RenderTarget &renderTarget) const
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void SSAO::OnGui(Camera &cameraComponent)
+void SSAO::OnGui(const std::shared_ptr<Camera> &cameraComponent)
 {
     if (ImGui::TreeNode("SSAO Settings"))
     {

@@ -341,7 +341,7 @@ void Galaxy::StarClusterSystem::ApplyPosition()
 void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
 {
     bool check = reverse ? !m_useFront : m_useFront;
-    auto &matrices = check ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices : m_rendererBack.GetPrivateComponent<Particles>().m_matrices;
+    auto matrices = check ? m_rendererFront.GetOrSetPrivateComponent<Particles>().lock()->m_matrices : m_rendererBack.GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
     auto &colors = check ? m_frontColors : m_backColors;
     const auto starAmount = m_starQuery.GetEntityAmount();
     matrices->m_value.resize(starAmount);
@@ -379,21 +379,21 @@ void Galaxy::StarClusterSystem::OnCreate()
     m_rendererFront = EntityManager::CreateEntity("Renderer 1");
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
-    auto &imr = m_rendererFront.SetPrivateComponent<Particles>();
-    imr.m_material = AssetManager::CreateAsset<Material>();
-    imr.m_castShadow = false;
-    imr.m_receiveShadow = false;
-    imr.m_material->m_ambient = 0.0f;
-    imr.m_material->m_emission = 3.0f;
-    imr.m_mesh = DefaultResources::Primitives::Cube;
-    imr.m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    auto imr = m_rendererFront.GetOrSetPrivateComponent<Particles>().lock();
+    imr->m_material = AssetManager::CreateAsset<Material>();
+    imr->m_castShadow = false;
+    imr->m_receiveShadow = false;
+    imr->m_material->m_ambient = 0.0f;
+    imr->m_material->m_emission = 3.0f;
+    imr->m_mesh = DefaultResources::Primitives::Cube;
+    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
     m_rendererFront.SetDataComponent(ltw);
 
     m_rendererBack = EntityManager::CreateEntity("Renderer 2");
     ltw.SetScale(glm::vec3(1.0f));
-    auto &imr2 = m_rendererBack.SetPrivateComponent<Particles>();
-    imr2.m_material = imr.m_material;
+    auto imr2 = m_rendererBack.GetOrSetPrivateComponent<Particles>().lock();
+    imr2->m_material = imr->m_material;
 
     m_rendererBack.SetDataComponent(ltw);
 
@@ -436,7 +436,7 @@ void Galaxy::StarClusterSystem::Update()
     RenderManager::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
-        m_useFront ? m_rendererFront.GetPrivateComponent<Particles>().m_matrices->m_value : m_rendererBack.GetPrivateComponent<Particles>().m_matrices->m_value,
+        m_useFront ? m_rendererFront.GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value : m_rendererBack.GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value,
         glm::mat4(1.0f),
         1.0f);
 }

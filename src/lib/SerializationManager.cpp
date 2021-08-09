@@ -61,7 +61,7 @@ std::shared_ptr<IDataComponent> SerializableFactory::ProduceDataComponent(
 }
 
 bool SerializableFactory::RegisterSerializable(
-    const std::string &typeName, const size_t &typeId, const std::function<ISerializable *(size_t &)> &func)
+        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable>(size_t &)> &func)
 {
     if(GetInstance().m_serializableNames.find(typeId) != GetInstance().m_serializableNames.end()){
         UNIENGINE_ERROR("Serializable already registered!");
@@ -71,7 +71,7 @@ bool SerializableFactory::RegisterSerializable(
     return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
-ISerializable *SerializableFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
+std::shared_ptr<ISerializable> SerializableFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
     const auto it = GetInstance().m_serializableGenerators.find(typeName);
     if (it != GetInstance().m_serializableGenerators.end())

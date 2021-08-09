@@ -22,9 +22,9 @@ class PlanetTerrainSystem : public ISystem
         const GlobalTransform &cameraTransform);
     void RenderChunk(
         std::unique_ptr<TerrainChunk> &chunk,
-        Material *material,
+        const std::shared_ptr<Material> &material,
         glm::mat4 &matrix,
-        Camera *camera,
+        const std::shared_ptr<Camera> &camera,
         bool receiveShadow) const;
 };
 } // namespace Planet

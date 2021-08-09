@@ -19,7 +19,7 @@ int main()
 #pragma region Star System
     auto starClusterSystem = EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
-    auto& postProcessing = RenderManager::GetMainCamera()->GetOwner().SetPrivateComponent<PostProcessing>();
+    auto& postProcessing = RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>();
     Bloom *bloom = postProcessing.GetLayer<Bloom>();
     if (bloom != nullptr)
     {
@@ -28,7 +28,7 @@ int main()
         bloom->m_enabled = true;
     }
     postProcessing.GetLayer<SSAO>()->m_enabled = false;
-    RenderManager::GetMainCamera()->m_useClearColor = true;
+    RenderManager::GetMainCamera().lock()->m_useClearColor = true;
 #pragma region EngineLoop
     Application::Run();
     Application::End();

@@ -81,7 +81,7 @@ void Camera::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, g
 }
 
 void Camera::CalculateFrustumPoints(
-    Camera &cameraComponrnt,
+    const std::shared_ptr<Camera> &cameraComponrnt,
     float nearPlane,
     float farPlane,
     glm::vec3 cameraPos,
@@ -94,11 +94,11 @@ void Camera::CalculateFrustumPoints(
     const glm::vec3 nearCenter = front * nearPlane;
     const glm::vec3 farCenter = front * farPlane;
 
-    const float e = tanf(glm::radians(cameraComponrnt.m_fov * 0.5f));
+    const float e = tanf(glm::radians(cameraComponrnt->m_fov * 0.5f));
     const float near_ext_y = e * nearPlane;
-    const float near_ext_x = near_ext_y * cameraComponrnt.GetResolutionRatio();
+    const float near_ext_x = near_ext_y * cameraComponrnt->GetResolutionRatio();
     const float far_ext_y = e * farPlane;
-    const float far_ext_x = far_ext_y * cameraComponrnt.GetResolutionRatio();
+    const float far_ext_x = far_ext_y * cameraComponrnt->GetResolutionRatio();
 
     points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
     points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
@@ -320,7 +320,7 @@ void Camera::Deserialize(const YAML::Node &in)
     int resolutionY = in["m_resolutionY"].as<int>();
     m_isMainCamera = in["m_isMainCamera"].as<bool>();
     if (m_isMainCamera)
-        RenderManager::SetMainCamera(this);
+        RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
     m_useClearColor = in["m_useClearColor"].as<bool>();
     m_clearColor = in["m_clearColor"].as<glm::vec3>();
     m_allowAutoResize = in["m_allowAutoResize"].as<bool>();
@@ -332,7 +332,7 @@ void Camera::Deserialize(const YAML::Node &in)
 
 void Camera::OnDestroy()
 {
-    if (RenderManager::GetMainCamera() == this)
+    if (!RenderManager::GetMainCamera().expired() && RenderManager::GetMainCamera().lock().get() == this)
     {
         RenderManager::SetMainCamera(nullptr);
     }
@@ -356,7 +356,7 @@ void Camera::OnGui()
     {
         if (m_isMainCamera)
         {
-            RenderManager::SetMainCamera(this);
+            RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
         }
         else
         {
@@ -392,23 +392,23 @@ void Camera::OnGui()
     }
 }
 
-void CameraInfoBlock::UpdateMatrices(const Camera &camera, glm::vec3 position, glm::quat rotation)
+void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {
     const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
     const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
-    const auto ratio = camera.GetResolutionRatio();
+    const auto ratio = camera->GetResolutionRatio();
     m_projection =
-        glm::perspective(glm::radians(camera.m_fov * 0.5f), ratio, camera.m_nearDistance, camera.m_farDistance);
+        glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
     m_position = glm::vec4(position, 0);
     m_view = glm::lookAt(position, position + front, up);
     m_reservedParameters = glm::vec4(
-        camera.m_nearDistance,
-        camera.m_farDistance,
-        glm::tan(glm::radians(camera.m_fov * 0.5f)),
-        static_cast<float>(camera.m_resolutionX) / camera.m_resolutionY);
+        camera->m_nearDistance,
+        camera->m_farDistance,
+        glm::tan(glm::radians(camera->m_fov * 0.5f)),
+        static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
 }
 
-void CameraInfoBlock::UploadMatrices(const Camera &camera) const
+void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera) const
 {
     Camera::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
 }

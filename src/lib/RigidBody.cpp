@@ -14,7 +14,7 @@ void UniEngine::RigidBody::SetStatic(bool value)
     {
         auto linkedEntities = m_linkedEntities;
         for(auto& i : linkedEntities){
-            i.GetPrivateComponent<Joint>().Unlink();
+            i.GetOrSetPrivateComponent<Joint>().lock()->Unlink();
         }
         SetKinematic(false);
     }
@@ -34,7 +34,7 @@ void UniEngine::RigidBody::OnDestroy()
 {
     auto linkedEntities = m_linkedEntities;
     for(auto& i : linkedEntities){
-        i.GetPrivateComponent<Joint>().Unlink();
+        i.GetOrSetPrivateComponent<Joint>().lock()->Unlink();
     }
 
     while(!m_colliders.empty()) DetachCollider(0);
@@ -56,7 +56,7 @@ void UniEngine::RigidBody::UpdateBody()
     m_currentRegistered = false;
     auto linkedEntities = m_linkedEntities;
     for(auto& i : linkedEntities){
-        i.GetPrivateComponent<Joint>().Unlink();
+        i.GetOrSetPrivateComponent<Joint>().lock()->Unlink();
     }
     if(!m_static && !m_kinematic)
     {
@@ -233,7 +233,7 @@ void RigidBody::SetKinematic(const bool &value)
         return;
     m_kinematic = value;
     static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
-    PhysicsManager::UploadTransform(GetOwner().GetDataComponent<GlobalTransform>(), *this);
+    PhysicsManager::UploadTransform(GetOwner().GetDataComponent<GlobalTransform>(), GetOwner().GetOrSetPrivateComponent<RigidBody>().lock());
 }
 bool RigidBody::IsStatic()
 {

@@ -27,17 +27,17 @@ void SkinnedMeshRenderer::GetBoneMatrices()
     if (!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>())
         return;
     m_finalResults->m_value.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
-    auto &animator = m_animator.GetPrivateComponent<Animator>();
+    auto animator = m_animator.GetOrSetPrivateComponent<Animator>().lock();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
-        m_finalResults->m_value[i] = animator.m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
+        m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
     }
 }
 
 void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
 {
     if (animator.HasPrivateComponent<Animator>() &&
-        animator.GetPrivateComponent<Animator>().m_animation.get() == m_skinnedMesh->m_animation.get())
+    animator.GetOrSetPrivateComponent<Animator>().lock()->m_animation.get() == m_skinnedMesh->m_animation.get())
     {
         m_animator = animator;
     }

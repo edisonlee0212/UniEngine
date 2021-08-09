@@ -249,7 +249,8 @@ void Scene::Deserialize(const YAML::Node &in)
             {
                 auto name = inPrivateComponent["TypeName"].as<std::string>();
                 size_t hashCode;
-                auto *ptr = dynamic_cast<IPrivateComponent *>(SerializableFactory::ProduceSerializable(name, hashCode));
+                auto ptr = std::static_pointer_cast<IPrivateComponent>(
+                    SerializableFactory::ProduceSerializable(name, hashCode));
                 ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                 newInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
                 m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
@@ -274,8 +275,7 @@ void Scene::Deserialize(const YAML::Node &in)
     {
         auto name = inSystem["TypeName"].as<std::string>();
         size_t hashCode;
-        auto ptr =
-            std::shared_ptr<ISystem>(dynamic_cast<ISystem *>(SerializableFactory::ProduceSerializable(name, hashCode)));
+        auto ptr = std::static_pointer_cast<ISystem>(SerializableFactory::ProduceSerializable(name, hashCode));
         ptr->m_enabled = inSystem["Enabled"].as<bool>();
         ptr->m_rank = inSystem["Rank"].as<float>();
         m_systems.insert({ptr->m_rank, ptr});

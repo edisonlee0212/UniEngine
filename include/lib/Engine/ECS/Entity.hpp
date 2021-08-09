@@ -72,8 +72,7 @@ struct UNIENGINE_API Entity final
     template <typename T = IDataComponent> [[nodiscard]] bool HasDataComponent() const;
     template <typename T = IDataComponent> void RemoveDataComponent() const;
 
-    template <typename T = IPrivateComponent> T &SetPrivateComponent() const;
-    template <typename T = IPrivateComponent> T &GetPrivateComponent() const;
+    template <typename T = IPrivateComponent> std::weak_ptr<T> GetOrSetPrivateComponent() const;
     template <typename T = IPrivateComponent> [[nodiscard]] bool HasPrivateComponent() const;
     template <typename T = IPrivateComponent> void RemovePrivateComponent() const;
 
@@ -129,8 +128,8 @@ struct UNIENGINE_API DataComponentChunkArray
 struct PrivateComponentElement
 {
     size_t m_typeId;
-    IPrivateComponent *m_privateComponentData;
-    UNIENGINE_API PrivateComponentElement(const size_t &id, IPrivateComponent *data, const Entity &owner);
+    std::shared_ptr<IPrivateComponent> m_privateComponentData;
+    UNIENGINE_API PrivateComponentElement(size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner);
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
 };
 

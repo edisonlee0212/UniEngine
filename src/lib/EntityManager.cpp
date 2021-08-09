@@ -71,12 +71,11 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_static = false;
         entityInfo.m_enabled = true;
-        while (!entityInfo.m_privateComponentElements.empty())
+        for(auto& i : entityInfo.m_privateComponentElements)
         {
-            entityInfo.m_privateComponentElements.back().m_privateComponentData->OnDestroy();
-            delete entityInfo.m_privateComponentElements.back().m_privateComponentData;
-            entityInfo.m_privateComponentElements.pop_back();
+            i.m_privateComponentData->OnDestroy();
         }
+        entityInfo.m_privateComponentElements.clear();
         // Set to version 0, marks it as deleted.
         actualEntity.m_version = 0;
         dataComponentStorage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = actualEntity;
@@ -872,8 +871,8 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     entityArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / entityArchetypeInfo.m_entitySize;
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
-
-void EntityManager::SetPrivateComponent(
+/*
+void EntityManager::GetOrSetPrivateComponent(
     const Entity &entity, const size_t &id, IPrivateComponent *ptr, const bool &enabled)
 {
     if (!ptr || !entity.IsValid())
@@ -904,7 +903,7 @@ void EntityManager::SetPrivateComponent(
         elements.emplace_back(id, ptr, entity);
     }
 }
-
+*/
 void EntityManager::ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func)
 {
     func(target);
@@ -950,7 +949,6 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
         if (privateComponentElements[i].m_typeId == typeId)
         {
             privateComponentElements[i].m_privateComponentData->OnDestroy();
-            delete privateComponentElements[i].m_privateComponentData;
             privateComponentElements.erase(privateComponentElements.begin() + i);
             break;
         }

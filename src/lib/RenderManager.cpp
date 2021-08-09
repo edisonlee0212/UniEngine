@@ -15,66 +15,67 @@
 using namespace UniEngine;
 #pragma region RenderCommand Dispatch
 void RenderManager::DispatchRenderCommands(
-    const std::map<std::shared_ptr<Material>, RenderCommandGroup> &renderCommands,
+    const RenderCommands &renderCommands,
     const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
     const bool &setMaterial,
     const bool &bindProgram)
 {
     auto &renderManager = GetInstance();
-    for (const auto &renderCollection : renderCommands)
+    for (const auto &renderCollection : renderCommands.m_value)
     {
         const auto &material = renderCollection.first;
+        if (material.expired())
+            continue;
+        auto mat = material.lock();
         if (setMaterial)
         {
-            MaterialPropertySetter(material, true);
+            MaterialPropertySetter(mat, true);
             GetInstance().m_materialSettings = MaterialSettingsBlock();
-            ApplyMaterialSettings(material);
+            ApplyMaterialSettings(mat);
         }
         if (bindProgram)
         {
-            material->m_program->Bind();
+            material.lock()->m_program->Bind();
         }
-        for (const auto &renderCommandGroup : renderCollection.second.m_meshes)
+        for (const auto &renderCommands : renderCollection.second.m_meshes)
         {
-            for (const auto &renderCommands : renderCommandGroup.second)
+            for (const auto &renderCommand : renderCommands.second)
             {
-                for (const auto &renderCommand : renderCommands.second)
-                {
-                    func(material, renderCommand);
-                }
+                func(mat, renderCommand);
             }
         }
-        for (const auto &renderCommandGroup : renderCollection.second.m_skinnedMeshes)
+        for (const auto &renderCommands : renderCollection.second.m_skinnedMeshes)
         {
-            for (const auto &renderCommands : renderCommandGroup.second)
+            for (const auto &renderCommand : renderCommands.second)
             {
-                for (const auto &renderCommand : renderCommands.second)
-                {
-                    func(material, renderCommand);
-                }
+                func(mat, renderCommand);
             }
         }
+
         if (setMaterial)
-            ReleaseMaterialSettings(material);
+            ReleaseMaterialSettings(mat);
     }
 }
 
 #pragma endregion
-void RenderManager::RenderToCamera(Camera &cameraComponent)
+void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent)
 {
     auto &renderManager = GetInstance();
     glEnable(GL_DEPTH_TEST);
-    cameraComponent.m_gBuffer->Bind();
+    cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-    cameraComponent.m_gBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
-    cameraComponent.m_gBuffer->Clear();
+    cameraComponent->m_gBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
+    cameraComponent->m_gBuffer->Clear();
     DispatchRenderCommands(
-        renderManager.m_deferredRenderInstances[&cameraComponent],
+        renderManager.m_deferredRenderInstances[cameraComponent],
         [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
+                if (renderCommand.m_mesh.expired())
+                    break;
+                auto mesh = renderCommand.m_mesh.lock();
                 auto &program = renderManager.m_gBufferPrepass;
                 program->Bind();
                 ApplyProgramSettings(program);
@@ -82,18 +83,21 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInternal(renderCommand.m_mesh);
+                DeferredPrepassInternal(mesh);
                 break;
             }
             case RenderCommandMeshType::Skinned: {
+                if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
+                    break;
+                auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
                 auto &program = renderManager.m_gBufferSkinnedPrepass;
                 program->Bind();
                 ApplyProgramSettings(program);
-                renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                DeferredPrepassInternal(renderCommand.m_skinnedMesh);
+                DeferredPrepassInternal(skinnedMesh);
                 break;
             }
             }
@@ -101,11 +105,14 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
         true,
         false);
     DispatchRenderCommands(
-        renderManager.m_deferredInstancedRenderInstances[&cameraComponent],
+        renderManager.m_deferredInstancedRenderInstances[cameraComponent],
         [&](const std::shared_ptr<Material> &, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
+                if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
+                    break;
+                auto mesh = renderCommand.m_mesh.lock();
                 auto &program = renderManager.m_gBufferInstancedPrepass;
                 program->Bind();
                 ApplyProgramSettings(program);
@@ -113,7 +120,7 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInstancedInternal(renderCommand.m_mesh, renderCommand.m_matrices->m_value);
+                DeferredPrepassInstancedInternal(mesh, renderCommand.m_matrices.lock()->m_value);
                 break;
             }
             }
@@ -125,19 +132,19 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
     glDisable(GL_BLEND);
     glDisable(GL_CULL_FACE);
 #pragma region Copy Depth Buffer back to camera
-    auto res = cameraComponent.GetResolution();
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent.m_gBuffer->GetFrameBuffer()->Id());
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent.GetFrameBuffer()->Id()); // write to default framebuffer
+    auto res = cameraComponent->GetResolution();
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->m_gBuffer->GetFrameBuffer()->Id());
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cameraComponent->GetFrameBuffer()->Id()); // write to default framebuffer
     glBlitFramebuffer(0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 #pragma endregion
 
-    cameraComponent.m_frameBuffer->DrawBuffer(GL_COLOR_ATTACHMENT0);
+    cameraComponent->m_frameBuffer->DrawBuffer(GL_COLOR_ATTACHMENT0);
 #pragma region Apply GBuffer with lighting
     renderManager.m_gBufferLightingPass->Bind();
-    cameraComponent.m_gBufferDepth->Bind(12);
-    cameraComponent.m_gBufferNormal->Bind(13);
-    cameraComponent.m_gBufferAlbedoEmission->Bind(14);
-    cameraComponent.m_gBufferMetallicRoughnessAmbient->Bind(15);
+    cameraComponent->m_gBufferDepth->Bind(12);
+    cameraComponent->m_gBufferNormal->Bind(13);
+    cameraComponent->m_gBufferAlbedoEmission->Bind(14);
+    cameraComponent->m_gBufferMetallicRoughnessAmbient->Bind(15);
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
         renderManager.m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
@@ -158,24 +165,32 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
     glEnable(GL_DEPTH_TEST);
 #pragma region Forward rendering
     DispatchRenderCommands(
-        renderManager.m_forwardRenderInstances[&cameraComponent],
+        renderManager.m_forwardRenderInstances[cameraComponent],
         [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
+                if (renderCommand.m_mesh.expired())
+                    break;
+                auto mesh = renderCommand.m_mesh.lock();
+
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInternal(renderCommand.m_mesh);
+                DrawMeshInternal(mesh);
                 break;
             }
             case RenderCommandMeshType::Skinned: {
-                renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
+                    break;
+                auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
+
+                renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                DrawMeshInternal(renderCommand.m_skinnedMesh);
+                DrawMeshInternal(skinnedMesh);
                 break;
             }
             }
@@ -183,16 +198,20 @@ void RenderManager::RenderToCamera(Camera &cameraComponent)
         true,
         true);
     DispatchRenderCommands(
-        renderManager.m_forwardInstancedRenderInstances[&cameraComponent],
+        renderManager.m_forwardInstancedRenderInstances[cameraComponent],
         [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
+                if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
+                    break;
+                auto mesh = renderCommand.m_mesh.lock();
+
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInstancedInternal(renderCommand.m_mesh, renderCommand.m_matrices->m_value);
+                DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock()->m_value);
                 break;
             }
             }
@@ -220,7 +239,8 @@ void RenderManager::PreUpdate()
     ProfilerManager::StartEvent("RenderManager");
 
     auto &renderManager = GetInstance();
-    if(renderManager.m_mainCameraComponent) EditorManager::RenderToSceneCamera();
+    if (!renderManager.m_mainCameraComponent.expired())
+        EditorManager::RenderToSceneCamera();
 
     ProfilerManager::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
@@ -236,6 +256,10 @@ void RenderManager::LateUpdate()
 {
     ProfilerManager::StartEvent("RenderManager");
     auto &renderManager = GetInstance();
+    const bool mainCameraExist = !renderManager.m_mainCameraComponent.expired();
+    std::shared_ptr<Camera> mainCamera;
+    if (mainCameraExist)
+        mainCamera = renderManager.m_mainCameraComponent.lock();
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
@@ -247,28 +271,36 @@ void RenderManager::LateUpdate()
         {
             if (!cameraEntity.IsEnabled())
                 continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<Camera>();
-            if (cameraComponent.IsEnabled())
+            auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+            if (cameraComponent->IsEnabled())
             {
-                const bool calculateBound = &cameraComponent == renderManager.m_mainCameraComponent;
-                CollectRenderInstances(cameraComponent, cameraComponent.GetOwner().GetDataComponent<GlobalTransform>().GetPosition(), worldBound, calculateBound);
+                const bool calculateBound = mainCameraExist && cameraComponent.get() == mainCamera.get();
+                CollectRenderInstances(
+                    cameraComponent,
+                    cameraComponent->GetOwner().GetDataComponent<GlobalTransform>().GetPosition(),
+                    worldBound,
+                    calculateBound);
                 if (calculateBound)
                     boundCalculated = true;
             }
         }
     }
 
-    CollectRenderInstances(EditorManager::GetSceneCamera(), EditorManager::GetInstance().m_sceneCameraPosition,worldBound, !boundCalculated);
+    CollectRenderInstances(
+        EditorManager::GetInstance().m_sceneCamera,
+        EditorManager::GetInstance().m_sceneCameraPosition,
+        worldBound,
+        !boundCalculated);
     ProfilerManager::EndEvent("RenderCommand Collection");
 #pragma endregion
 #pragma region Shadowmap prepass
     ProfilerManager::StartEvent("Shadowmap Prepass");
     EntityManager::GetCurrentScene()->SetBound(worldBound);
-    if (renderManager.m_mainCameraComponent != nullptr)
+    if (mainCameraExist)
     {
-        if (const auto mainCameraEntity = renderManager.m_mainCameraComponent->GetOwner(); mainCameraEntity.IsEnabled())
+        if (const auto mainCameraEntity = mainCamera->GetOwner(); mainCameraEntity.IsEnabled())
         {
-            RenderShadows(worldBound, *renderManager.m_mainCameraComponent, mainCameraEntity);
+            RenderShadows(worldBound, mainCamera, mainCameraEntity);
         }
     }
     ProfilerManager::EndEvent("Shadowmap Prepass");
@@ -277,11 +309,10 @@ void RenderManager::LateUpdate()
     ProfilerManager::StartEvent("Main Rendering");
     renderManager.m_triangles = 0;
     renderManager.m_drawCall = 0;
-    if (renderManager.m_mainCameraComponent != nullptr)
+    if (mainCameraExist)
     {
-        if (renderManager.m_mainCameraComponent->m_allowAutoResize)
-            renderManager.m_mainCameraComponent->ResizeResolution(
-                renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
+        if (mainCamera->m_allowAutoResize)
+            mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
 
     if (cameraEntities != nullptr)
@@ -290,13 +321,13 @@ void RenderManager::LateUpdate()
         {
             if (!cameraEntity.IsEnabled())
                 continue;
-            auto &cameraComponent = cameraEntity.GetPrivateComponent<Camera>();
-            if (cameraComponent.IsEnabled())
+            auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+            if (cameraComponent->IsEnabled())
             {
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
                 Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-                ApplyShadowMapSettings(cameraComponent);
+                ApplyShadowMapSettings();
                 ApplyEnvironmentalSettings(cameraComponent);
                 RenderToCamera(cameraComponent);
             }
@@ -314,9 +345,9 @@ void RenderManager::LateUpdate()
         {
             if (!postProcessingEntity.IsEnabled())
                 continue;
-            auto &postProcessing = postProcessingEntity.GetPrivateComponent<PostProcessing>();
-            if (postProcessing.IsEnabled())
-                postProcessing.Process();
+            auto postProcessing = postProcessingEntity.GetOrSetPrivateComponent<PostProcessing>().lock();
+            if (postProcessing->IsEnabled())
+                postProcessing->Process();
         }
     }
     ProfilerManager::EndEvent("Post Processing");
@@ -638,8 +669,9 @@ void RenderManager::Init()
     manager.m_gBufferSkinnedPrepass = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
     manager.m_gBufferSkinnedPrepass->Link(vertShader, fragShader);
 
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
-                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstanced.vert");
+    vertShaderCode =
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + +"\n" +
+        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     manager.m_gBufferInstancedPrepass = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -670,15 +702,16 @@ void RenderManager::Init()
 
     manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
-void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& position, Bound &worldBound, const bool &calculateBound)
+void RenderManager::CollectRenderInstances(
+    const std::shared_ptr<Camera> &camera, const glm::vec3 &position, Bound &worldBound, const bool &calculateBound)
 {
     auto &renderManager = GetInstance();
-    auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[&camera];
-    auto &deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[&camera];
-    auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[&camera];
-    auto &forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[&camera];
-    auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[&camera];
-    auto &instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[&camera];
+    auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[camera].m_value;
+    auto &deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[camera].m_value;
+    auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[camera].m_value;
+    auto &forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[camera].m_value;
+    auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[camera].m_value;
+    auto &instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[camera].m_value;
 
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
@@ -694,12 +727,12 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
         {
             if (!owner.IsEnabled())
                 continue;
-            auto &mmc = owner.GetPrivateComponent<MeshRenderer>();
-            if (!mmc.IsEnabled() || mmc.m_material == nullptr || mmc.m_mesh == nullptr)
+            auto mmc = owner.GetOrSetPrivateComponent<MeshRenderer>().lock();
+            if (!mmc->IsEnabled() || mmc->m_material == nullptr || mmc->m_mesh == nullptr)
                 continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
-            auto meshBound = mmc.m_mesh->GetBound();
+            auto meshBound = mmc->m_mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -719,26 +752,21 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = mmc.m_mesh;
-            renderInstance.m_castShadow = mmc.m_castShadow;
-            renderInstance.m_receiveShadow = mmc.m_receiveShadow;
+            renderInstance.m_mesh = mmc->m_mesh;
+            renderInstance.m_castShadow = mmc->m_castShadow;
+            renderInstance.m_receiveShadow = mmc->m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (mmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            if (mmc->m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[mmc.m_material]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                transparentRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
             }
-            else if (mmc.m_forwardRendering)
+            else if (mmc->m_forwardRendering)
             {
-                forwardRenderInstances[mmc.m_material].m_meshes[distance][renderInstance.m_mesh->m_vao.get()].push_back(
-                    renderInstance);
+                forwardRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
             }
             else
             {
-                deferredRenderInstances[mmc.m_material]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                deferredRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
             }
         }
     }
@@ -749,12 +777,12 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
         {
             if (!owner.IsEnabled())
                 continue;
-            auto &particles = owner.GetPrivateComponent<Particles>();
-            if (!particles.IsEnabled() || particles.m_material == nullptr || particles.m_mesh == nullptr)
+            auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
+            if (!particles->IsEnabled() || particles->m_material == nullptr || particles->m_mesh == nullptr)
                 continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
-            auto meshBound = particles.m_mesh->GetBound();
+            auto meshBound = particles->m_mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -775,28 +803,25 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = particles.m_mesh;
-            renderInstance.m_castShadow = particles.m_castShadow;
-            renderInstance.m_receiveShadow = particles.m_receiveShadow;
-            renderInstance.m_matrices = particles.m_matrices;
+            renderInstance.m_mesh = particles->m_mesh;
+            renderInstance.m_castShadow = particles->m_castShadow;
+            renderInstance.m_receiveShadow = particles->m_receiveShadow;
+            renderInstance.m_matrices = particles->m_matrices;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (particles.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            if (particles->m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                instancedTransparentRenderInstances[particles.m_material]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                instancedTransparentRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                    renderInstance);
             }
-            else if (particles.m_forwardRendering)
+            else if (particles->m_forwardRendering)
             {
-                forwardInstancedRenderInstances[particles.m_material]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                forwardInstancedRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                    renderInstance);
             }
             else
             {
-                deferredInstancedRenderInstances[particles.m_material]
-                    .m_meshes[distance][renderInstance.m_mesh->m_vao.get()]
-                    .push_back(renderInstance);
+                deferredInstancedRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                    renderInstance);
             }
         }
     }
@@ -807,21 +832,21 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
         {
             if (!owner.IsEnabled())
                 continue;
-            auto &smmc = owner.GetPrivateComponent<SkinnedMeshRenderer>();
-            if (!smmc.IsEnabled() || smmc.m_material == nullptr || smmc.m_skinnedMesh == nullptr)
+            auto smmc = owner.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+            if (!smmc->IsEnabled() || smmc->m_material == nullptr || smmc->m_skinnedMesh == nullptr)
                 continue;
             GlobalTransform gt;
-            if (smmc.m_animator.IsValid())
+            if (smmc->m_animator.IsValid())
             {
-                gt = smmc.m_animator.GetDataComponent<GlobalTransform>();
+                gt = smmc->m_animator.GetDataComponent<GlobalTransform>();
             }
             else
             {
-                smmc.m_animator = Entity();
+                smmc->m_animator = Entity();
                 gt = owner.GetDataComponent<GlobalTransform>();
             }
             auto ltw = gt.m_value;
-            auto meshBound = smmc.m_skinnedMesh->GetBound();
+            auto meshBound = smmc->m_skinnedMesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -841,28 +866,25 @@ void RenderManager::CollectRenderInstances(Camera &camera, const glm::vec3& posi
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_skinnedMesh = smmc.m_skinnedMesh;
-            renderInstance.m_castShadow = smmc.m_castShadow;
-            renderInstance.m_receiveShadow = smmc.m_receiveShadow;
+            renderInstance.m_skinnedMesh = smmc->m_skinnedMesh;
+            renderInstance.m_castShadow = smmc->m_castShadow;
+            renderInstance.m_receiveShadow = smmc->m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Skinned;
-            renderInstance.m_boneMatrices = smmc.m_finalResults;
-            if (smmc.m_material->m_blendingMode != MaterialBlendingMode::Off)
+            renderInstance.m_boneMatrices = smmc->m_finalResults;
+            if (smmc->m_material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[smmc.m_material]
-                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
-                    .push_back(renderInstance);
+                transparentRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                    renderInstance);
             }
-            else if (smmc.m_forwardRendering)
+            else if (smmc->m_forwardRendering)
             {
-                forwardRenderInstances[smmc.m_material]
-                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
-                    .push_back(renderInstance);
+                forwardRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                    renderInstance);
             }
             else
             {
-                deferredRenderInstances[smmc.m_material]
-                    .m_skinnedMeshes[distance][renderInstance.m_skinnedMesh->m_vao.get()]
-                    .push_back(renderInstance);
+                deferredRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                    renderInstance);
             }
         }
     }
@@ -1268,19 +1290,25 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
+                    if (renderCommand.m_mesh.expired())
+                        break;
+                    auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->Draw();
+                    mesh->Draw();
                     break;
                 }
                 case RenderCommandMeshType::Skinned: {
+                    if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
+                        break;
+                    auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
                     auto &program = skinnedProgram;
                     program->Bind();
-                    renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                    renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_skinnedMesh->Draw();
+                    skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -1296,11 +1324,14 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
+                    if (renderCommand.m_mesh.expired())
+                        break;
+                    auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultInstancedProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                    mesh->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                     break;
                 }
                 }
@@ -1316,19 +1347,27 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
+                    if (renderCommand.m_mesh.expired())
+                        break;
+                    auto mesh = renderCommand.m_mesh.lock();
+
                     auto &program = defaultProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->Draw();
+                    mesh->Draw();
                     break;
                 }
                 case RenderCommandMeshType::Skinned: {
+                    if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
+                        break;
+                    auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
+
                     auto &program = skinnedProgram;
                     program->Bind();
-                    renderCommand.m_boneMatrices->UploadBones(renderCommand.m_skinnedMesh);
+                    renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_skinnedMesh->Draw();
+                    skinnedMesh->Draw();
                     break;
                 }
                 }
@@ -1344,11 +1383,15 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
+                    if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
+                        break;
+                    auto mesh = renderCommand.m_mesh.lock();
+
                     auto &program = defaultInstancedProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    renderCommand.m_mesh->DrawInstanced(renderCommand.m_matrices->m_value);
+                    mesh->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                     break;
                 }
                 }
@@ -1357,7 +1400,8 @@ void RenderManager::ShadowMapPrePass(
             false);
     }
 }
-void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, const Entity &mainCameraEntity)
+void RenderManager::RenderShadows(
+    Bound &worldBound, const std::shared_ptr<Camera> &cameraComponent, const Entity &mainCameraEntity)
 {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -1367,464 +1411,454 @@ void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, co
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
 
-    if (renderManager.m_mainCameraComponent->IsEnabled())
+    auto ltw = mainCameraEntity.GetDataComponent<GlobalTransform>();
+    glm::vec3 mainCameraPos = ltw.GetPosition();
+    glm::quat mainCameraRot = ltw.GetRotation();
+    renderManager.m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &renderManager.m_lightSettings);
+    const std::vector<Entity> *directionalLightEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<DirectionalLight>();
+    size_t size = 0;
+    if (directionalLightEntities && !directionalLightEntities->empty())
     {
-        auto ltw = mainCameraEntity.GetDataComponent<GlobalTransform>();
-        glm::vec3 mainCameraPos = ltw.GetPosition();
-        glm::quat mainCameraRot = ltw.GetRotation();
-        renderManager.m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &renderManager.m_lightSettings);
-        const std::vector<Entity> *directionalLightEntities =
-            EntityManager::UnsafeGetPrivateComponentOwnersList<DirectionalLight>();
-        size_t size = 0;
-        if (directionalLightEntities && !directionalLightEntities->empty())
+        size = directionalLightEntities->size();
+        int enabledSize = 0;
+        for (int i = 0; i < size; i++)
         {
-            size = directionalLightEntities->size();
-            int enabledSize = 0;
+            Entity lightEntity = directionalLightEntities->at(i);
+            if (!lightEntity.IsEnabled())
+                continue;
+            const auto dlc = lightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
+            if (!dlc->IsEnabled())
+                continue;
+            glm::quat rotation = lightEntity.GetDataComponent<GlobalTransform>().GetRotation();
+            glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
+            float planeDistance = 0;
+            glm::vec3 center;
+            renderManager.m_directionalLights[enabledSize].m_direction = glm::vec4(lightDir, 0.0f);
+            renderManager.m_directionalLights[enabledSize].m_diffuse =
+                glm::vec4(dlc->m_diffuse * dlc->m_diffuseBrightness, dlc->m_castShadow);
+            renderManager.m_directionalLights[enabledSize].m_specular = glm::vec4(0.0f);
+            for (int split = 0; split < DefaultResources::ShaderIncludes::ShadowCascadeAmount; split++)
+            {
+                float splitStart = 0;
+                float splitEnd = renderManager.m_maxShadowDistance;
+                if (split != 0)
+                    splitStart = renderManager.m_maxShadowDistance * renderManager.m_shadowCascadeSplit[split - 1];
+                if (split != DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
+                    splitEnd = renderManager.m_maxShadowDistance * renderManager.m_shadowCascadeSplit[split];
+                renderManager.m_lightSettings.m_splitDistance[split] = splitEnd;
+                glm::mat4 lightProjection, lightView;
+                float max = 0;
+                glm::vec3 lightPos;
+                glm::vec3 cornerPoints[8];
+                Camera::CalculateFrustumPoints(
+                    cameraComponent, splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
+                glm::vec3 cameraFrustumCenter =
+                    (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) +
+                    mainCameraPos;
+                if (renderManager.m_stableFit)
+                {
+                    // Less detail but no shimmering when rotating the camera.
+                    // max = glm::distance(cornerPoints[4], cameraFrustumCenter);
+                    max = splitEnd;
+                }
+                else
+                {
+                    // More detail but cause shimmering when rotating camera.
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[0],
+                            ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[1],
+                            ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[2],
+                            ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[3],
+                            ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[4],
+                            ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[5],
+                            ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[6],
+                            ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                    max = (glm::max)(
+                        max,
+                        glm::distance(
+                            cornerPoints[7],
+                            ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
+                }
+
+                glm::vec3 p0 = ClosestPointOnLine(
+                    glm::vec3(maxBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+                glm::vec3 p7 = ClosestPointOnLine(
+                    glm::vec3(minBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+
+                float d0 = glm::distance(p0, p7);
+
+                glm::vec3 p1 = ClosestPointOnLine(
+                    glm::vec3(maxBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+                glm::vec3 p6 = ClosestPointOnLine(
+                    glm::vec3(minBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+
+                float d1 = glm::distance(p1, p6);
+
+                glm::vec3 p2 = ClosestPointOnLine(
+                    glm::vec3(maxBound.x, minBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+                glm::vec3 p5 = ClosestPointOnLine(
+                    glm::vec3(minBound.x, maxBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+
+                float d2 = glm::distance(p2, p5);
+
+                glm::vec3 p3 = ClosestPointOnLine(
+                    glm::vec3(maxBound.x, minBound.y, minBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+                glm::vec3 p4 = ClosestPointOnLine(
+                    glm::vec3(minBound.x, maxBound.y, maxBound.z), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+
+                float d3 = glm::distance(p3, p4);
+
+                center = ClosestPointOnLine(worldBound.Center(), cameraFrustumCenter, cameraFrustumCenter + lightDir);
+                planeDistance = (glm::max)((glm::max)(d0, d1), (glm::max)(d2, d3));
+                lightPos = center - lightDir * planeDistance;
+                lightView = glm::lookAt(lightPos, lightPos + lightDir, glm::normalize(rotation * glm::vec3(0, 1, 0)));
+                lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
+                switch (enabledSize)
+                {
+                case 0:
+                    renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
+                        0,
+                        0,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2);
+                    break;
+                case 1:
+                    renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        0,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2);
+                    break;
+                case 2:
+                    renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
+                        0,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2);
+                    break;
+                case 3:
+                    renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2,
+                        renderManager.m_directionalLightShadowMapResolution / 2);
+                    break;
+                }
+
+#pragma region Fix Shimmering due to the movement of the camera
+
+                glm::mat4 shadowMatrix = lightProjection * lightView;
+                glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                shadowOrigin = shadowMatrix * shadowOrigin;
+                GLfloat storedW = shadowOrigin.w;
+                shadowOrigin = shadowOrigin * (float)renderManager.m_directionalLights[enabledSize].m_viewPort.z / 2.0f;
+                glm::vec4 roundedOrigin = glm::round(shadowOrigin);
+                glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
+                roundOffset = roundOffset * 2.0f / (float)renderManager.m_directionalLights[enabledSize].m_viewPort.z;
+                roundOffset.z = 0.0f;
+                roundOffset.w = 0.0f;
+                glm::mat4 shadowProj = lightProjection;
+                shadowProj[3] += roundOffset;
+                lightProjection = shadowProj;
+#pragma endregion
+                renderManager.m_directionalLights[enabledSize].m_lightSpaceMatrix[split] = lightProjection * lightView;
+                renderManager.m_directionalLights[enabledSize].m_lightFrustumWidth[split] = max;
+                renderManager.m_directionalLights[enabledSize].m_lightFrustumDistance[split] = planeDistance;
+                if (split == DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
+                    renderManager.m_directionalLights[enabledSize].m_reservedParameters =
+                        glm::vec4(dlc->m_lightSize, 0, dlc->m_bias, dlc->m_normalOffset);
+            }
+            enabledSize++;
+        }
+        renderManager.m_directionalLightBlock.SubData(0, 4, &enabledSize);
+        if (enabledSize != 0)
+        {
+            renderManager.m_directionalLightBlock.SubData(
+                16, enabledSize * sizeof(DirectionalLightInfo), &renderManager.m_directionalLights[0]);
+        }
+        if (renderManager.m_materialSettings.m_enableShadow)
+        {
+            renderManager.m_directionalLightShadowMap->Bind();
+            renderManager.m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            enabledSize = 0;
+            renderManager.m_directionalLightProgram->Bind();
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = directionalLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                const auto &dlc = lightEntity.GetPrivateComponent<DirectionalLight>();
-                if (!dlc.IsEnabled())
-                    continue;
-                glm::quat rotation = lightEntity.GetDataComponent<GlobalTransform>().GetRotation();
-                glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
-                float planeDistance = 0;
-                glm::vec3 center;
-                renderManager.m_directionalLights[enabledSize].m_direction = glm::vec4(lightDir, 0.0f);
-                renderManager.m_directionalLights[enabledSize].m_diffuse =
-                    glm::vec4(dlc.m_diffuse * dlc.m_diffuseBrightness, dlc.m_castShadow);
-                renderManager.m_directionalLights[enabledSize].m_specular = glm::vec4(0.0f);
-                for (int split = 0; split < DefaultResources::ShaderIncludes::ShadowCascadeAmount; split++)
-                {
-                    float splitStart = 0;
-                    float splitEnd = renderManager.m_maxShadowDistance;
-                    if (split != 0)
-                        splitStart = renderManager.m_maxShadowDistance * renderManager.m_shadowCascadeSplit[split - 1];
-                    if (split != DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
-                        splitEnd = renderManager.m_maxShadowDistance * renderManager.m_shadowCascadeSplit[split];
-                    renderManager.m_lightSettings.m_splitDistance[split] = splitEnd;
-                    glm::mat4 lightProjection, lightView;
-                    float max = 0;
-                    glm::vec3 lightPos;
-                    glm::vec3 cornerPoints[8];
-                    Camera::CalculateFrustumPoints(
-                        cameraComponent, splitStart, splitEnd, mainCameraPos, mainCameraRot, cornerPoints);
-                    glm::vec3 cameraFrustumCenter =
-                        (mainCameraRot * glm::vec3(0, 0, -1)) * ((splitEnd - splitStart) / 2.0f + splitStart) +
-                        mainCameraPos;
-                    if (renderManager.m_stableFit)
-                    {
-                        // Less detail but no shimmering when rotating the camera.
-                        // max = glm::distance(cornerPoints[4], cameraFrustumCenter);
-                        max = splitEnd;
-                    }
-                    else
-                    {
-                        // More detail but cause shimmering when rotating camera.
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[0], ClosestPointOnLine(cornerPoints[0], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[1], ClosestPointOnLine(cornerPoints[1], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[2], ClosestPointOnLine(cornerPoints[2], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[3], ClosestPointOnLine(cornerPoints[3], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[4], ClosestPointOnLine(cornerPoints[4], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[5], ClosestPointOnLine(cornerPoints[5], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[6], ClosestPointOnLine(cornerPoints[6], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                        max =
-                            (glm::
-                                 max)(max, glm::distance(cornerPoints[7], ClosestPointOnLine(cornerPoints[7], cameraFrustumCenter, cameraFrustumCenter - lightDir)));
-                    }
-
-                    glm::vec3 p0 = ClosestPointOnLine(
-                        glm::vec3(maxBound.x, maxBound.y, maxBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-                    glm::vec3 p7 = ClosestPointOnLine(
-                        glm::vec3(minBound.x, minBound.y, minBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-
-                    float d0 = glm::distance(p0, p7);
-
-                    glm::vec3 p1 = ClosestPointOnLine(
-                        glm::vec3(maxBound.x, maxBound.y, minBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-                    glm::vec3 p6 = ClosestPointOnLine(
-                        glm::vec3(minBound.x, minBound.y, maxBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-
-                    float d1 = glm::distance(p1, p6);
-
-                    glm::vec3 p2 = ClosestPointOnLine(
-                        glm::vec3(maxBound.x, minBound.y, maxBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-                    glm::vec3 p5 = ClosestPointOnLine(
-                        glm::vec3(minBound.x, maxBound.y, minBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-
-                    float d2 = glm::distance(p2, p5);
-
-                    glm::vec3 p3 = ClosestPointOnLine(
-                        glm::vec3(maxBound.x, minBound.y, minBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-                    glm::vec3 p4 = ClosestPointOnLine(
-                        glm::vec3(minBound.x, maxBound.y, maxBound.z),
-                        cameraFrustumCenter,
-                        cameraFrustumCenter + lightDir);
-
-                    float d3 = glm::distance(p3, p4);
-
-                    center =
-                        ClosestPointOnLine(worldBound.Center(), cameraFrustumCenter, cameraFrustumCenter + lightDir);
-                    planeDistance = (glm::max)((glm::max)(d0, d1), (glm::max)(d2, d3));
-                    lightPos = center - lightDir * planeDistance;
-                    lightView =
-                        glm::lookAt(lightPos, lightPos + lightDir, glm::normalize(rotation * glm::vec3(0, 1, 0)));
-                    lightProjection = glm::ortho(-max, max, -max, max, 0.0f, planeDistance * 2.0f);
-                    switch (enabledSize)
-                    {
-                    case 0:
-                        renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            0,
-                            0,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2);
-                        break;
-                    case 1:
-                        renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            0,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2);
-                        break;
-                    case 2:
-                        renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            0,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2);
-                        break;
-                    case 3:
-                        renderManager.m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2,
-                            renderManager.m_directionalLightShadowMapResolution / 2);
-                        break;
-                    }
-
-#pragma region Fix Shimmering due to the movement of the camera
-
-                    glm::mat4 shadowMatrix = lightProjection * lightView;
-                    glm::vec4 shadowOrigin = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-                    shadowOrigin = shadowMatrix * shadowOrigin;
-                    GLfloat storedW = shadowOrigin.w;
-                    shadowOrigin =
-                        shadowOrigin * (float)renderManager.m_directionalLights[enabledSize].m_viewPort.z / 2.0f;
-                    glm::vec4 roundedOrigin = glm::round(shadowOrigin);
-                    glm::vec4 roundOffset = roundedOrigin - shadowOrigin;
-                    roundOffset =
-                        roundOffset * 2.0f / (float)renderManager.m_directionalLights[enabledSize].m_viewPort.z;
-                    roundOffset.z = 0.0f;
-                    roundOffset.w = 0.0f;
-                    glm::mat4 shadowProj = lightProjection;
-                    shadowProj[3] += roundOffset;
-                    lightProjection = shadowProj;
-#pragma endregion
-                    renderManager.m_directionalLights[enabledSize].m_lightSpaceMatrix[split] =
-                        lightProjection * lightView;
-                    renderManager.m_directionalLights[enabledSize].m_lightFrustumWidth[split] = max;
-                    renderManager.m_directionalLights[enabledSize].m_lightFrustumDistance[split] = planeDistance;
-                    if (split == DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
-                        renderManager.m_directionalLights[enabledSize].m_reservedParameters =
-                            glm::vec4(dlc.m_lightSize, 0, dlc.m_bias, dlc.m_normalOffset);
-                }
+                glViewport(
+                    renderManager.m_directionalLights[enabledSize].m_viewPort.x,
+                    renderManager.m_directionalLights[enabledSize].m_viewPort.y,
+                    renderManager.m_directionalLights[enabledSize].m_viewPort.z,
+                    renderManager.m_directionalLights[enabledSize].m_viewPort.w);
+                renderManager.m_directionalLightProgram->SetInt("index", enabledSize);
+                ShadowMapPrePass(
+                    enabledSize,
+                    renderManager.m_directionalLightProgram,
+                    renderManager.m_directionalLightInstancedProgram,
+                    renderManager.m_directionalLightSkinnedProgram,
+                    renderManager.m_directionalLightInstancedSkinnedProgram);
                 enabledSize++;
             }
-            renderManager.m_directionalLightBlock.SubData(0, 4, &enabledSize);
-            if (enabledSize != 0)
-            {
-                renderManager.m_directionalLightBlock.SubData(
-                    16, enabledSize * sizeof(DirectionalLightInfo), &renderManager.m_directionalLights[0]);
-            }
-            if (renderManager.m_materialSettings.m_enableShadow)
-            {
-                renderManager.m_directionalLightShadowMap->Bind();
-                renderManager.m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-                glClear(GL_DEPTH_BUFFER_BIT);
-                enabledSize = 0;
-                renderManager.m_directionalLightProgram->Bind();
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = directionalLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.x,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.y,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.z,
-                        renderManager.m_directionalLights[enabledSize].m_viewPort.w);
-                    renderManager.m_directionalLightProgram->SetInt("index", enabledSize);
-                    ShadowMapPrePass(
-                        enabledSize,
-                        renderManager.m_directionalLightProgram,
-                        renderManager.m_directionalLightInstancedProgram,
-                        renderManager.m_directionalLightSkinnedProgram,
-                        renderManager.m_directionalLightInstancedSkinnedProgram);
-                    enabledSize++;
-                }
-            }
         }
-        else
+    }
+    else
+    {
+        renderManager.m_directionalLightBlock.SubData(0, 4, &size);
+    }
+    const std::vector<Entity> *pointLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>();
+    size = 0;
+    if (pointLightEntities && !pointLightEntities->empty())
+    {
+        size = pointLightEntities->size();
+        size_t enabledSize = 0;
+        for (int i = 0; i < size; i++)
         {
-            renderManager.m_directionalLightBlock.SubData(0, 4, &size);
+            Entity lightEntity = pointLightEntities->at(i);
+            if (!lightEntity.IsEnabled())
+                continue;
+            const auto plc = lightEntity.GetOrSetPrivateComponent<PointLight>().lock();
+            if (!plc->IsEnabled())
+                continue;
+            glm::vec3 position = lightEntity.GetDataComponent<GlobalTransform>().m_value[3];
+            renderManager.m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
+            renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc->m_constant;
+            renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc->m_linear;
+            renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.z = plc->m_quadratic;
+            renderManager.m_pointLights[enabledSize].m_diffuse =
+                glm::vec4(plc->m_diffuse * plc->m_diffuseBrightness, plc->m_castShadow);
+            renderManager.m_pointLights[enabledSize].m_specular = glm::vec4(0);
+            renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc->GetFarPlane();
+
+            glm::mat4 shadowProj = glm::perspective(
+                glm::radians(90.0f),
+                renderManager.m_pointLightShadowMap->GetResolutionRatio(),
+                1.0f,
+                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w);
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[0] =
+                shadowProj *
+                glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[1] =
+                shadowProj *
+                glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[2] =
+                shadowProj * glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[3] =
+                shadowProj *
+                glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[4] =
+                shadowProj *
+                glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[5] =
+                shadowProj *
+                glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+            renderManager.m_pointLights[enabledSize].m_reservedParameters =
+                glm::vec4(plc->m_bias, plc->m_lightSize, 0, 0);
+
+            switch (enabledSize)
+            {
+            case 0:
+                renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
+                    0,
+                    0,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2);
+                break;
+            case 1:
+                renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    0,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2);
+                break;
+            case 2:
+                renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
+                    0,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2);
+                break;
+            case 3:
+                renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2,
+                    renderManager.m_pointLightShadowMapResolution / 2);
+                break;
+            }
+            enabledSize++;
         }
-        const std::vector<Entity> *pointLightEntities =
-            EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>();
-        size = 0;
-        if (pointLightEntities && !pointLightEntities->empty())
+        renderManager.m_pointLightBlock.SubData(0, 4, &enabledSize);
+        if (enabledSize != 0)
+            renderManager.m_pointLightBlock.SubData(
+                16, enabledSize * sizeof(PointLightInfo), &renderManager.m_pointLights[0]);
+        if (renderManager.m_materialSettings.m_enableShadow)
         {
-            size = pointLightEntities->size();
-            size_t enabledSize = 0;
+            renderManager.m_pointLightShadowMap->Bind();
+            renderManager.m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            enabledSize = 0;
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = pointLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                const auto &plc = lightEntity.GetPrivateComponent<PointLight>();
-                if (!plc.IsEnabled())
-                    continue;
-                glm::vec3 position = lightEntity.GetDataComponent<GlobalTransform>().m_value[3];
-                renderManager.m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
-                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc.m_constant;
-                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc.m_linear;
-                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.z = plc.m_quadratic;
-                renderManager.m_pointLights[enabledSize].m_diffuse =
-                    glm::vec4(plc.m_diffuse * plc.m_diffuseBrightness, plc.m_castShadow);
-                renderManager.m_pointLights[enabledSize].m_specular = glm::vec4(0);
-                renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w = plc.GetFarPlane();
-
-                glm::mat4 shadowProj = glm::perspective(
-                    glm::radians(90.0f),
-                    renderManager.m_pointLightShadowMap->GetResolutionRatio(),
-                    1.0f,
-                    renderManager.m_pointLights[enabledSize].m_constantLinearQuadFarPlane.w);
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[0] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[1] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[2] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[3] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[4] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                renderManager.m_pointLights[enabledSize].m_lightSpaceMatrix[5] =
-                    shadowProj *
-                    glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                renderManager.m_pointLights[enabledSize].m_reservedParameters =
-                    glm::vec4(plc.m_bias, plc.m_lightSize, 0, 0);
-
-                switch (enabledSize)
-                {
-                case 0:
-                    renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        0,
-                        0,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2);
-                    break;
-                case 1:
-                    renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        0,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2);
-                    break;
-                case 2:
-                    renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        0,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2);
-                    break;
-                case 3:
-                    renderManager.m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2,
-                        renderManager.m_pointLightShadowMapResolution / 2);
-                    break;
-                }
+                glViewport(
+                    renderManager.m_pointLights[enabledSize].m_viewPort.x,
+                    renderManager.m_pointLights[enabledSize].m_viewPort.y,
+                    renderManager.m_pointLights[enabledSize].m_viewPort.z,
+                    renderManager.m_pointLights[enabledSize].m_viewPort.w);
+                ShadowMapPrePass(
+                    enabledSize,
+                    renderManager.m_pointLightProgram,
+                    renderManager.m_pointLightInstancedProgram,
+                    renderManager.m_pointLightSkinnedProgram,
+                    renderManager.m_pointLightInstancedSkinnedProgram);
                 enabledSize++;
             }
-            renderManager.m_pointLightBlock.SubData(0, 4, &enabledSize);
-            if (enabledSize != 0)
-                renderManager.m_pointLightBlock.SubData(
-                    16, enabledSize * sizeof(PointLightInfo), &renderManager.m_pointLights[0]);
-            if (renderManager.m_materialSettings.m_enableShadow)
+        }
+    }
+    else
+    {
+        renderManager.m_pointLightBlock.SubData(0, 4, &size);
+    }
+    const std::vector<Entity> *spotLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>();
+    size = 0;
+    if (spotLightEntities && !spotLightEntities->empty())
+    {
+        size = spotLightEntities->size();
+        size_t enabledSize = 0;
+        for (int i = 0; i < size; i++)
+        {
+            Entity lightEntity = spotLightEntities->at(i);
+            if (!lightEntity.IsEnabled())
+                continue;
+            const auto slc = lightEntity.GetOrSetPrivateComponent<SpotLight>().lock();
+            if (!slc->IsEnabled())
+                continue;
+            auto ltw = lightEntity.GetDataComponent<GlobalTransform>();
+            glm::vec3 position = ltw.m_value[3];
+            glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
+            glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
+            renderManager.m_spotLights[enabledSize].m_position = glm::vec4(position, 0);
+            renderManager.m_spotLights[enabledSize].m_direction = glm::vec4(front, 0);
+            renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.x = slc->m_constant;
+            renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.y = slc->m_linear;
+            renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.z = slc->m_quadratic;
+            renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc->GetFarPlane();
+            renderManager.m_spotLights[enabledSize].m_diffuse =
+                glm::vec4(slc->m_diffuse * slc->m_diffuseBrightness, slc->m_castShadow);
+            renderManager.m_spotLights[enabledSize].m_specular = glm::vec4(0);
+
+            glm::mat4 shadowProj = glm::perspective(
+                glm::radians(slc->m_outerDegrees * 2.0f),
+                renderManager.m_spotLightShadowMap->GetResolutionRatio(),
+                1.0f,
+                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w);
+            renderManager.m_spotLights[enabledSize].m_lightSpaceMatrix =
+                shadowProj * glm::lookAt(position, position + front, up);
+            renderManager.m_spotLights[enabledSize].m_cutOffOuterCutOffLightSizeBias = glm::vec4(
+                glm::cos(glm::radians(slc->m_innerDegrees)),
+                glm::cos(glm::radians(slc->m_outerDegrees)),
+                slc->m_lightSize,
+                slc->m_bias);
+
+            switch (enabledSize)
             {
-                renderManager.m_pointLightShadowMap->Bind();
-                renderManager.m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-                glClear(GL_DEPTH_BUFFER_BIT);
-                enabledSize = 0;
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = pointLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_pointLights[enabledSize].m_viewPort.x,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.y,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.z,
-                        renderManager.m_pointLights[enabledSize].m_viewPort.w);
-                    ShadowMapPrePass(
-                        enabledSize,
-                        renderManager.m_pointLightProgram,
-                        renderManager.m_pointLightInstancedProgram,
-                        renderManager.m_pointLightSkinnedProgram,
-                        renderManager.m_pointLightInstancedSkinnedProgram);
-                    enabledSize++;
-                }
+            case 0:
+                renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
+                    0,
+                    0,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2);
+                break;
+            case 1:
+                renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    0,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2);
+                break;
+            case 2:
+                renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
+                    0,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2);
+                break;
+            case 3:
+                renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2,
+                    renderManager.m_spotLightShadowMapResolution / 2);
+                break;
             }
+            enabledSize++;
         }
-        else
+        renderManager.m_spotLightBlock.SubData(0, 4, &enabledSize);
+        if (enabledSize != 0)
+            renderManager.m_spotLightBlock.SubData(
+                16, enabledSize * sizeof(SpotLightInfo), &renderManager.m_spotLights[0]);
+        if (renderManager.m_materialSettings.m_enableShadow)
         {
-            renderManager.m_pointLightBlock.SubData(0, 4, &size);
-        }
-        const std::vector<Entity> *spotLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>();
-        size = 0;
-        if (spotLightEntities && !spotLightEntities->empty())
-        {
-            size = spotLightEntities->size();
-            size_t enabledSize = 0;
+            renderManager.m_spotLightShadowMap->Bind();
+            renderManager.m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            enabledSize = 0;
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = spotLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                const auto &slc = lightEntity.GetPrivateComponent<SpotLight>();
-                if (!slc.IsEnabled())
-                    continue;
-                auto ltw = lightEntity.GetDataComponent<GlobalTransform>();
-                glm::vec3 position = ltw.m_value[3];
-                glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
-                glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
-                renderManager.m_spotLights[enabledSize].m_position = glm::vec4(position, 0);
-                renderManager.m_spotLights[enabledSize].m_direction = glm::vec4(front, 0);
-                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.x = slc.m_constant;
-                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.y = slc.m_linear;
-                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.z = slc.m_quadratic;
-                renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w = slc.GetFarPlane();
-                renderManager.m_spotLights[enabledSize].m_diffuse =
-                    glm::vec4(slc.m_diffuse * slc.m_diffuseBrightness, slc.m_castShadow);
-                renderManager.m_spotLights[enabledSize].m_specular = glm::vec4(0);
-
-                glm::mat4 shadowProj = glm::perspective(
-                    glm::radians(slc.m_outerDegrees * 2.0f),
-                    renderManager.m_spotLightShadowMap->GetResolutionRatio(),
-                    1.0f,
-                    renderManager.m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w);
-                renderManager.m_spotLights[enabledSize].m_lightSpaceMatrix =
-                    shadowProj * glm::lookAt(position, position + front, up);
-                renderManager.m_spotLights[enabledSize].m_cutOffOuterCutOffLightSizeBias = glm::vec4(
-                    glm::cos(glm::radians(slc.m_innerDegrees)),
-                    glm::cos(glm::radians(slc.m_outerDegrees)),
-                    slc.m_lightSize,
-                    slc.m_bias);
-
-                switch (enabledSize)
-                {
-                case 0:
-                    renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        0,
-                        0,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2);
-                    break;
-                case 1:
-                    renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        0,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2);
-                    break;
-                case 2:
-                    renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        0,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2);
-                    break;
-                case 3:
-                    renderManager.m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2,
-                        renderManager.m_spotLightShadowMapResolution / 2);
-                    break;
-                }
+                glViewport(
+                    renderManager.m_spotLights[enabledSize].m_viewPort.x,
+                    renderManager.m_spotLights[enabledSize].m_viewPort.y,
+                    renderManager.m_spotLights[enabledSize].m_viewPort.z,
+                    renderManager.m_spotLights[enabledSize].m_viewPort.w);
+                ShadowMapPrePass(
+                    enabledSize,
+                    renderManager.m_spotLightProgram,
+                    renderManager.m_spotLightInstancedProgram,
+                    renderManager.m_spotLightSkinnedProgram,
+                    renderManager.m_spotLightInstancedSkinnedProgram);
                 enabledSize++;
             }
-            renderManager.m_spotLightBlock.SubData(0, 4, &enabledSize);
-            if (enabledSize != 0)
-                renderManager.m_spotLightBlock.SubData(
-                    16, enabledSize * sizeof(SpotLightInfo), &renderManager.m_spotLights[0]);
-            if (renderManager.m_materialSettings.m_enableShadow)
-            {
-                renderManager.m_spotLightShadowMap->Bind();
-                renderManager.m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
-                glClear(GL_DEPTH_BUFFER_BIT);
-                enabledSize = 0;
-                for (int i = 0; i < size; i++)
-                {
-                    Entity lightEntity = spotLightEntities->at(i);
-                    if (!lightEntity.IsEnabled())
-                        continue;
-                    glViewport(
-                        renderManager.m_spotLights[enabledSize].m_viewPort.x,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.y,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.z,
-                        renderManager.m_spotLights[enabledSize].m_viewPort.w);
-                    ShadowMapPrePass(
-                        enabledSize,
-                        renderManager.m_spotLightProgram,
-                        renderManager.m_spotLightInstancedProgram,
-                        renderManager.m_spotLightSkinnedProgram,
-                        renderManager.m_spotLightInstancedSkinnedProgram);
-                    enabledSize++;
-                }
 #pragma endregion
-            }
         }
-        else
-        {
-            renderManager.m_spotLightBlock.SubData(0, 4, &size);
-        }
+    }
+    else
+    {
+        renderManager.m_spotLightBlock.SubData(0, 4, &size);
     }
 #pragma endregion
 }
@@ -1832,7 +1866,7 @@ void RenderManager::RenderShadows(Bound &worldBound, Camera &cameraComponent, co
 #pragma region RenderAPI
 #pragma region Internal
 
-void RenderManager::ApplyShadowMapSettings(const Camera &cameraComponent)
+void RenderManager::ApplyShadowMapSettings()
 {
     auto &renderManager = GetInstance();
 #pragma region Shadow map binding and default texture binding.
@@ -1846,16 +1880,16 @@ void RenderManager::ApplyShadowMapSettings(const Camera &cameraComponent)
 #pragma endregion
 }
 
-void RenderManager::ApplyEnvironmentalSettings(const Camera &cameraComponent)
+void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     manager.m_environmentalMapSettings.m_backgroundColor =
-        glm::vec4(cameraComponent.m_clearColor, cameraComponent.m_useClearColor);
+        glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
-    if (cameraComponent.m_skybox)
+    if (cameraComponent->m_skybox)
     {
-        manager.m_environmentalMapSettings.m_skyboxGamma = cameraComponent.m_skybox->m_gamma;
+        manager.m_environmentalMapSettings.m_skyboxGamma = cameraComponent->m_skybox->m_gamma;
     }
     else
     {
@@ -1875,9 +1909,9 @@ void RenderManager::ApplyEnvironmentalSettings(const Camera &cameraComponent)
     }
     if (supportBindlessTexture)
     {
-        if (cameraComponent.m_skybox)
+        if (cameraComponent->m_skybox)
         {
-            manager.m_environmentalMapSettings.m_skybox = cameraComponent.m_skybox->Texture()->GetHandle();
+            manager.m_environmentalMapSettings.m_skybox = cameraComponent->m_skybox->Texture()->GetHandle();
         }
         else
         {
@@ -1904,9 +1938,9 @@ void RenderManager::ApplyEnvironmentalSettings(const Camera &cameraComponent)
     }
     else
     {
-        if (cameraComponent.m_skybox)
+        if (cameraComponent->m_skybox)
         {
-            cameraComponent.m_skybox->Texture()->Bind(8);
+            cameraComponent->m_skybox->Texture()->Bind(8);
         }
         else
         {
@@ -2294,19 +2328,7 @@ void RenderManager::DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh)
     mesh->Draw();
 }
 
-void RenderManager::DrawTexture2D(
-    const OpenGLUtils::GLTexture2D *texture, const float &depth, const glm::vec2 &center, const glm::vec2 &size)
-{
-    const auto program = DefaultResources::GLPrograms::ScreenProgram;
-    program->Bind();
-    DefaultResources::GLPrograms::ScreenVAO->Bind();
-    texture->Bind(0);
-    program->SetInt("screenTexture", 0);
-    program->SetFloat("depth", depth);
-    program->SetFloat2("center", center);
-    program->SetFloat2("size", size);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-}
+
 
 void RenderManager::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
@@ -2397,14 +2419,14 @@ void RenderManager::DrawGizmoMeshInstanced(
     auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
     if (EditorManager::GetInstance().m_enabled)
     {
-        if (sceneCamera.IsEnabled())
+        if (sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
-            sceneCamera.Bind();
+            sceneCamera->Bind();
             DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
@@ -2420,14 +2442,14 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
     if (EditorManager::GetInstance().m_enabled)
     {
-        if (sceneCamera.IsEnabled())
+        if (sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
-            sceneCamera.Bind();
+            sceneCamera->Bind();
             DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
         }
     }
@@ -2435,7 +2457,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 
 void RenderManager::DrawGizmoMesh(
     const std::shared_ptr<Mesh> &mesh,
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2444,13 +2466,13 @@ void RenderManager::DrawGizmoMesh(
 {
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
+    cameraComponent->Bind();
     DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2460,13 +2482,13 @@ void RenderManager::DrawGizmoMeshInstanced(
 {
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
+    cameraComponent->Bind();
     DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
     const std::shared_ptr<Mesh> &mesh,
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const std::vector<glm::vec4> &colors,
@@ -2476,7 +2498,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 {
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-    cameraComponent.Bind();
+    cameraComponent->Bind();
     DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
@@ -2543,7 +2565,7 @@ void RenderManager::DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const f
 }
 
 void RenderManager::DrawGizmoRay(
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2561,7 +2583,7 @@ void RenderManager::DrawGizmoRay(
 }
 
 void RenderManager::DrawGizmoRays(
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2588,7 +2610,7 @@ void RenderManager::DrawGizmoRays(
 }
 
 void RenderManager::DrawGizmoRays(
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2614,7 +2636,7 @@ void RenderManager::DrawGizmoRays(
 }
 
 void RenderManager::DrawGizmoRay(
-    const Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
     const glm::vec4 &color,
@@ -2634,7 +2656,7 @@ void RenderManager::DrawMesh(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
-    Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)
 {
@@ -2645,22 +2667,13 @@ void RenderManager::DrawMesh(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    const auto owner = cameraComponent.GetOwner();
-    float distance = 0.0f;
-    if (owner.IsValid())
-    {
-        auto meshCenter = mesh->GetBound().Center();
-        meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
-        const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
-        distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-    }
     GetInstance()
-        .m_forwardRenderInstances[&cameraComponent][material]
-        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+        .m_forwardRenderInstances[cameraComponent].m_value[material]
+        .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
     GetInstance()
-        .m_forwardRenderInstances[&EditorManager::GetSceneCamera()][material]
-        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+    .m_forwardRenderInstances[EditorManager::GetSceneCamera()].m_value[material]
+        .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
 }
 
@@ -2669,7 +2682,7 @@ void RenderManager::DrawMeshInstanced(
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
     const std::shared_ptr<ParticleMatrices> &matrices,
-    Camera &cameraComponent,
+    const std::shared_ptr<Camera> &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)
 {
@@ -2681,25 +2694,17 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    const auto owner = cameraComponent.GetOwner();
-    float distance = 0.0f;
-    if (owner.IsValid())
-    {
-        auto meshCenter = mesh->GetBound().Center();
-        meshCenter = glm::vec3(model * glm::vec4(meshCenter, 1.0));
-        const auto cameraTransform = owner.GetDataComponent<GlobalTransform>();
-        distance = glm::distance(glm::vec3(meshCenter), cameraTransform.GetPosition());
-    }
     GetInstance()
-        .m_forwardInstancedRenderInstances[&cameraComponent][material]
-        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+    .m_forwardInstancedRenderInstances[cameraComponent].m_value[material]
+        .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
     GetInstance()
-        .m_forwardInstancedRenderInstances[&EditorManager::GetSceneCamera()][material]
-        .m_meshes[distance][renderCommand.m_mesh->m_vao.get()]
+    .m_forwardInstancedRenderInstances[EditorManager::GetSceneCamera()].m_value[material]
+        .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
 }
 
+/*
 #pragma region DrawTexture
 void RenderManager::DrawTexture2D(
     const OpenGLUtils::GLTexture2D *texture,
@@ -2741,22 +2746,19 @@ void RenderManager::DrawTexture2D(
     cameraComponent.Bind();
     DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
-void RenderManager::SetMainCamera(Camera *value)
-{
-    if (GetInstance().m_mainCameraComponent)
+void RenderManager::DrawTexture2D(
+    const OpenGLUtils::GLTexture2D *texture, const float &depth, const glm::vec2 &center, const glm::vec2 &size)
     {
-        GetInstance().m_mainCameraComponent->m_isMainCamera = false;
+    const auto program = DefaultResources::GLPrograms::ScreenProgram;
+    program->Bind();
+    DefaultResources::GLPrograms::ScreenVAO->Bind();
+    texture->Bind(0);
+    program->SetInt("screenTexture", 0);
+    program->SetFloat("depth", depth);
+    program->SetFloat2("center", center);
+    program->SetFloat2("size", size);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     }
-    GetInstance().m_mainCameraComponent = value;
-    if (GetInstance().m_mainCameraComponent)
-        GetInstance().m_mainCameraComponent->m_isMainCamera = true;
-}
-
-Camera *RenderManager::GetMainCamera()
-{
-    return GetInstance().m_mainCameraComponent;
-}
-
 void RenderManager::DrawTexture2D(
     const Texture2D *texture,
     const float &depth,
@@ -2767,6 +2769,24 @@ void RenderManager::DrawTexture2D(
     target->Bind();
     DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
+*/
+void RenderManager::SetMainCamera(const std::shared_ptr<Camera> &value)
+{
+    auto &renderManager = GetInstance();
+    if (!renderManager.m_mainCameraComponent.expired())
+    {
+        renderManager.m_mainCameraComponent.lock()->m_isMainCamera = false;
+    }
+    renderManager.m_mainCameraComponent = value;
+    if (value)
+        value->m_isMainCamera = true;
+}
+
+std::weak_ptr<Camera> RenderManager::GetMainCamera()
+{
+    return GetInstance().m_mainCameraComponent;
+}
+
 #pragma endregion
 #pragma region Gizmo
 
@@ -2776,14 +2796,14 @@ void RenderManager::DrawGizmoMesh(
     auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
     if (EditorManager::GetInstance().m_enabled)
     {
-        if (sceneCamera.IsEnabled())
+        if (sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
                 EditorManager::GetInstance().m_sceneCameraPosition,
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
-            sceneCamera.Bind();
+            sceneCamera->Bind();
             DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }

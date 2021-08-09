@@ -8,7 +8,7 @@ using namespace UniEngine;
 
 void CameraControlSystem::OnCreate()
 {
-    auto *mainCamera = RenderManager::GetMainCamera();
+    auto mainCamera = RenderManager::GetMainCamera().lock();
     auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
     transform.SetRotation(Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
     mainCamera->GetOwner().SetDataComponent(transform);
@@ -17,7 +17,8 @@ void CameraControlSystem::OnCreate()
 
 void CameraControlSystem::LateUpdate()
 {
-    auto *mainCamera = RenderManager::GetMainCamera();
+    if(RenderManager::GetMainCamera().expired()) return;
+    auto mainCamera = RenderManager::GetMainCamera().lock();
     if (EditorManager::MainCameraWindowFocused())
     {
 #pragma region Scene Camera Controller

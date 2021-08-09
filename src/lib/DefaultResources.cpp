@@ -470,7 +470,7 @@ void DefaultResources::Load()
     AssetManager::RegisterAssetType<SkinnedMesh>("SkinnedMesh");
     AssetManager::RegisterAssetType<PhysicsMaterial>("PhysicsMaterial");
     AssetManager::RegisterAssetType<Collider>("Collider");
-    AssetManager::RegisterAssetType<Prefab>("Prefab");
+    AssetManager::RegisterAssetType<PrefabHolder>("PrefabHolder");
     AssetManager::RegisterAssetType<Scene>("Scene");
     LoadShaders();
     LoadTextures();

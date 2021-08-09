@@ -124,7 +124,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
   public:
     static void UploadTransforms(const bool& updateAll, const bool& freeze = false);
 
-    static void UploadTransform(const GlobalTransform &globalTransform, RigidBody &rigidBody);
+    static void UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody);
     static void PreUpdate();
     static void Init();
     static void Destroy();
