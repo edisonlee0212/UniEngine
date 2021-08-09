@@ -59,9 +59,11 @@ int main()
     Transform titleTransform;
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
     titleEntity.SetDataComponent(titleTransform);
-    auto& titleMaterial = titleEntity.GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material;
+
+    auto& titleMaterial = titleEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material;
     titleMaterial->m_emission = 4;
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
+
 #ifdef USE_ASSIMP
     auto dancingStormTrooper =
         AssetManager::LoadModel(AssetManager::GetResourcePath() + "Models/dancing-stormtrooper/silly_dancing.fbx");
@@ -77,6 +79,8 @@ int main()
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
     capoeiraEntity.SetDataComponent(capoeiraTransform);
+
+
     auto& capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1].GetChildren()[0].GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock()->m_material;
     capoeiraBodyMaterial->m_albedoColor = glm::vec3(0, 1, 1);
     capoeiraBodyMaterial->m_metallic = 1;
@@ -86,6 +90,7 @@ int main()
     capoeiraJointsMaterial->m_metallic = 1;
     capoeiraJointsMaterial->m_roughness = 0;
     capoeiraJointsMaterial->m_emission = 6;
+    
 #endif
 #pragma endregion
 
