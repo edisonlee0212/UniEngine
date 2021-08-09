@@ -1,6 +1,6 @@
 #include <AssetManager.hpp>
 #include <Collider.hpp>
-#include <Core/FileSystem.hpp>
+#include <Utilities.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include <LightProbe.hpp>
@@ -64,11 +64,11 @@ void DefaultResources::LoadShaders()
     std::string add;
     if (OpenGLUtils::GetInstance().m_enableBindlessTexture)
     {
-        add += FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform_BT.glsl");
+        add += FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform_BT.glsl");
     }
     else
     {
-        add += FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform_LEGACY.glsl");
+        add += FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform_LEGACY.glsl");
     }
 
     add += "\n#define MAX_BONES_AMOUNT " + std::to_string(ShaderIncludes::MaxBonesAmount) +
@@ -80,7 +80,7 @@ void DefaultResources::LoadShaders()
            "\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
     ShaderIncludes::Uniform = new std::string(
-        add + FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform.glsl"));
+        add + FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Include/Uniform.glsl"));
 
 #pragma endregion
 #pragma region Skybox
@@ -110,12 +110,12 @@ void DefaultResources::LoadShaders()
     auto skyboxvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     std::string vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        std::string(FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Skybox.vert"));
+        std::string(FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Skybox.vert"));
     skyboxvert->Compile(vertShaderCode);
     auto skyboxfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     std::string fragShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        std::string(FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Skybox.frag"));
+        std::string(FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Skybox.frag"));
     skyboxfrag->Compile(fragShaderCode);
     GLPrograms::SkyboxProgram = AssetManager::LoadProgram(skyboxvert, skyboxfrag);
     GLPrograms::SkyboxProgram->SetInt("skybox", 0);
@@ -123,12 +123,12 @@ void DefaultResources::LoadShaders()
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
         vertShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Vertex/EquirectangularMapToCubemap.vert"));
         convertCubemapvert->Compile(vertShaderCode);
         auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
         fragShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Fragment/EquirectangularMapToCubemap.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
         AssetManager::GetInstance().m_2DToCubemapProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -139,13 +139,13 @@ void DefaultResources::LoadShaders()
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
         vertShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Vertex/EquirectangularMapToCubemap.vert"));
         convertCubemapvert->Compile(vertShaderCode);
         auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
         fragShaderCode =
             std::string("#version 450 core\n") +
-            std::string(FileSystem::LoadFileAsString(
+            std::string(FileUtils::LoadFileAsString(
                 AssetManager::GetResourcePath() + "Shaders/Fragment/EnvironmentalMapIrradianceConvolution.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
         GLPrograms::ConvolutionProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -156,12 +156,12 @@ void DefaultResources::LoadShaders()
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
         vertShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Vertex/EquirectangularMapToCubemap.vert"));
         convertCubemapvert->Compile(vertShaderCode);
         auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
         fragShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Fragment/EnvironmentalMapPrefilter.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
         GLPrograms::PrefilterProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -172,12 +172,12 @@ void DefaultResources::LoadShaders()
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
         vertShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Vertex/EnvironmentalMapBrdf.vert"));
         convertCubemapvert->Compile(vertShaderCode);
         auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
         fragShaderCode = std::string("#version 450 core\n") +
-                         std::string(FileSystem::LoadFileAsString(
+                         std::string(FileUtils::LoadFileAsString(
                              AssetManager::GetResourcePath() + "Shaders/Fragment/EnvironmentalMapBrdf.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
         GLPrograms::BrdfProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -204,12 +204,12 @@ void DefaultResources::LoadShaders()
     auto screenvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShaderCode =
         std::string("#version 450 core\n") +
-        std::string(FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Screen.vert"));
+        std::string(FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Screen.vert"));
     screenvert->Compile(vertShaderCode);
     auto screenfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShaderCode =
         std::string("#version 450 core\n") +
-        std::string(FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Screen.frag"));
+        std::string(FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Screen.frag"));
     screenfrag->Compile(fragShaderCode);
     GLPrograms::ScreenProgram = AssetManager::LoadProgram(screenvert, screenfrag);
     GLPrograms::ScreenProgram->m_name = "Screen";
@@ -217,10 +217,10 @@ void DefaultResources::LoadShaders()
 #pragma region Standard Shader
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Standard.vert");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Standard.vert");
     fragShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/StandardForward.frag");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/StandardForward.frag");
 
     auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
@@ -231,7 +231,7 @@ void DefaultResources::LoadShaders()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardSkinned.vert");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardSkinned.vert");
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
@@ -241,7 +241,7 @@ void DefaultResources::LoadShaders()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstanced.vert");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstanced.vert");
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
@@ -251,7 +251,7 @@ void DefaultResources::LoadShaders()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstancedSkinned.vert");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/StandardInstancedSkinned.vert");
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
@@ -261,10 +261,10 @@ void DefaultResources::LoadShaders()
 #pragma endregion
 #pragma region Gizmo Shader
     fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Gizmo.frag");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Gizmo.frag");
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-                     FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Gizmo.vert");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Gizmo.vert");
 
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
@@ -274,7 +274,7 @@ void DefaultResources::LoadShaders()
     GLPrograms::GizmoProgram->m_name = "Gizmo";
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/GizmoInstanced.vert");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/GizmoInstanced.vert");
 
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
@@ -285,10 +285,10 @@ void DefaultResources::LoadShaders()
 
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + +"\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/ColoredGizmos.vert");
     fragShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-        FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
+        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/ColoredGizmos.frag");
 
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
@@ -308,12 +308,12 @@ void DefaultResources::LoadShaders()
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert")),
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Fragment,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Fragment/BloomSeparator.frag")));
 
         Bloom::m_filterProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
@@ -321,33 +321,33 @@ void DefaultResources::LoadShaders()
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert")),
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Fragment,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Fragment/BlurFilter.frag")));
         Bloom::m_combineProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
         Bloom::m_combineProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert")),
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Fragment,
                 std::string("#version 450 core\n") +
-                    FileSystem::LoadFileAsString(
+                    FileUtils::LoadFileAsString(
                         AssetManager::GetResourcePath() + "Shaders/Fragment/BloomCombine.frag")));
 
         vertShaderCode =
             std::string("#version 460 core\n") +
-            FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert");
+            FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert");
 
         fragShaderCode =
             std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-            FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/SSAOGeometry.frag");
+            FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/SSAOGeometry.frag");
 
         SSAO::m_geometryProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
         SSAO::m_geometryProgram->Link(
@@ -356,11 +356,11 @@ void DefaultResources::LoadShaders()
 
         vertShaderCode =
             std::string("#version 460 core\n") +
-            FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert");
+            FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/TexturePassThrough.vert");
 
         fragShaderCode =
             std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-            FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/BlurFilter.frag");
+            FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/BlurFilter.frag");
 
         SSAO::m_blurProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
         SSAO::m_blurProgram->Link(
@@ -369,7 +369,7 @@ void DefaultResources::LoadShaders()
 
         fragShaderCode =
             std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-            FileSystem::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/SSAOCombine.frag");
+            FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/SSAOCombine.frag");
 
         SSAO::m_combineProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
         SSAO::m_combineProgram->Link(

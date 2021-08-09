@@ -1,6 +1,6 @@
 #include "AssetManager.hpp"
 
-#include <Core/FileSystem.hpp>
+#include <Utilities.hpp>
 
 #include <Camera.hpp>
 #include <Cubemap.hpp>
@@ -385,8 +385,8 @@ void Camera::OnGui()
             ImVec2(0, 1),
             ImVec2(1, 0));
 
-        FileSystem::SaveFile("Save JPG", ".jpg", [this](const std::string &filePath) { StoreToJpg(filePath); });
-        FileSystem::SaveFile(
+        FileUtils::SaveFile("Save JPG", ".jpg", [this](const std::string &filePath) { StoreToJpg(filePath); });
+        FileUtils::SaveFile(
             "Save PNG", ".png", [this](const std::string &filePath) { StoreToPng(filePath, -1, -1, true); });
         ImGui::TreePop();
     }

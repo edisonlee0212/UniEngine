@@ -1,5 +1,5 @@
 #include <AssetManager.hpp>
-#include <Core/FileSystem.hpp>
+#include <Utilities.hpp>
 #include <DefaultResources.hpp>
 #include <Gui.hpp>
 #include <PostProcessing.hpp>

@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <Core/FileSystem.hpp>
+#include <Utilities.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -1367,7 +1367,7 @@ void AssetManager::OnGui()
         {
             if (ImGui::BeginMenu("Load..."))
             {
-                FileSystem::OpenFile("Scene##Load", ".uescene", [](const std::string &filePath) {
+                FileUtils::OpenFile("Scene##Load", ".uescene", [](const std::string &filePath) {
                     std::shared_ptr<Scene> scene = AssetManager::CreateAsset<Scene>();
                     bool successful = true;
                     try
@@ -1389,7 +1389,7 @@ void AssetManager::OnGui()
 #else
                 std::string modelFormat = ".obj";
 #endif
-                FileSystem::OpenFile("Model##Load", modelFormat, [](const std::string &filePath) {
+                FileUtils::OpenFile("Model##Load", modelFormat, [](const std::string &filePath) {
                     bool successful = true;
                     std::shared_ptr<Model> model;
                     try
@@ -1406,7 +1406,7 @@ void AssetManager::OnGui()
                         Share(model);
                 });
 
-                FileSystem::OpenFile("Texture2D##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
+                FileUtils::OpenFile("Texture2D##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
                     bool successful = true;
                     std::shared_ptr<Texture2D> texture2D;
                     try
@@ -1423,7 +1423,7 @@ void AssetManager::OnGui()
                         Share(texture2D);
                 });
 
-                FileSystem::OpenFile("Cubemap##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
+                FileUtils::OpenFile("Cubemap##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
                     bool successful = true;
                     std::shared_ptr<Cubemap> cubeMap;
                     try
@@ -1443,7 +1443,7 @@ void AssetManager::OnGui()
             }
             if (ImGui::BeginMenu("Save..."))
             {
-                FileSystem::SaveFile("Scene##Load", ".uescene", [](const std::string &filePath) {
+                FileUtils::SaveFile("Scene##Load", ".uescene", [](const std::string &filePath) {
                   try
                   {
                       SerializableFactory::Serialize(filePath, EntityManager::GetCurrentScene());
