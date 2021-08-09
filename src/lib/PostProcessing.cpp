@@ -14,7 +14,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_geometryProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_blurProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_combineProgram;
 
-void PostProcessing::PushLayer(std::unique_ptr<PostProcessingLayer> layer)
+void PostProcessing::PushLayer(const std::shared_ptr<PostProcessingLayer> &layer)
 {
     if (!layer)
         return;
@@ -39,8 +39,8 @@ void PostProcessing::OnCreate()
 {
     ResizeResolution(1, 1);
 
-    PushLayer(std::make_unique<Bloom>());
-    PushLayer(std::make_unique<SSAO>());
+    PushLayer(std::make_shared<Bloom>());
+    PushLayer(std::make_shared<SSAO>());
 
     SetEnabled(true);
 }

@@ -90,7 +90,7 @@ int main()
     capoeiraJointsMaterial->m_metallic = 1;
     capoeiraJointsMaterial->m_roughness = 0;
     capoeiraJointsMaterial->m_emission = 6;
-    
+
 #endif
 #pragma endregion
 

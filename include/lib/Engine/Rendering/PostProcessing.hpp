@@ -19,11 +19,11 @@ class UNIENGINE_API PostProcessingLayer
 
 class UNIENGINE_API PostProcessing final : public IPrivateComponent, public RenderTarget
 {
-    std::map<std::string, std::unique_ptr<PostProcessingLayer>> m_layers;
+    std::map<std::string, std::shared_ptr<PostProcessingLayer>> m_layers;
 
   public:
-    template <typename T> T *GetLayer();
-    void PushLayer(std::unique_ptr<PostProcessingLayer> layer);
+    template <typename T> std::weak_ptr<T> GetLayer();
+    void PushLayer(const std::shared_ptr<PostProcessingLayer> &layer);
     void RemoveLayer(const std::string &layerName);
     void SetEnableLayer(const std::string &layerName, bool enabled);
     void OnCreate() override;
@@ -34,16 +34,16 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
     void Deserialize(const YAML::Node &in) override;
 };
 
-template <typename T> T *PostProcessing::GetLayer()
+template <typename T> std::weak_ptr<T> PostProcessing::GetLayer()
 {
     for (auto &layer : m_layers)
     {
-        if (dynamic_cast<T *>(layer.second.get()))
+        if (std::dynamic_pointer_cast<T>(layer.second))
         {
-            return dynamic_cast<T *>(layer.second.get());
+            return std::weak_ptr<T>(std::static_pointer_cast<T>(layer.second));
         }
     }
-    return nullptr;
+    throw 0;
 }
 
 #pragma region Effects
