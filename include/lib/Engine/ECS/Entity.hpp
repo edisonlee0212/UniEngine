@@ -89,22 +89,23 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class Scene;
     bool m_enabled = true;
     Entity m_owner = Entity();
-    IPrivateComponent &operator=(const IPrivateComponent &other) = default;
-
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
 
-    virtual void OnGui();
-    virtual ~IPrivateComponent() = default;
+    virtual void OnGui() {};
+    virtual void FixedUpdate() {};
+    virtual void PreUpdate() {};
+    virtual void Update() {};
+    virtual void LateUpdate() {};
 
-    virtual void OnCreate();
-    virtual void OnEnable();
-    virtual void OnDisable();
-    virtual void OnEntityEnable();
-    virtual void OnEntityDisable();
-    virtual void OnDestroy();
+    virtual void OnCreate() {};
+    virtual void OnEnable() {};
+    virtual void OnDisable() {};
+    virtual void OnEntityEnable() {};
+    virtual void OnEntityDisable() {};
+    virtual void OnDestroy() {};
 };
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
@@ -133,7 +134,7 @@ struct PrivateComponentElement
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
 };
 
-struct EntityInfo
+struct EntityMetadata : public ISerializable
 {
     std::string m_name;
     unsigned m_version = 1;

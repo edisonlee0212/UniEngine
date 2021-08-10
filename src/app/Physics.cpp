@@ -1,11 +1,11 @@
 #include "AssetManager.hpp"
 #include <Application.hpp>
-#include <CameraControlSystem.hpp>
 #include <Collider.hpp>
 #include <Joint.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <RigidBody.hpp>
+#include <PlayerController.hpp>
 using namespace UniEngine;
 
 Entity CreateDynamicCube(
@@ -57,13 +57,11 @@ Entity CreateSphere(
 int main()
 {
     Application::Init();
-    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
-
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
     mainCameraEntity.SetDataComponent(mainCameraTransform);
+    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
     auto postProcessing = mainCameraEntity.GetOrSetPrivateComponent<PostProcessing>().lock();
 
 #pragma region Create 9 spheres in different PBR properties

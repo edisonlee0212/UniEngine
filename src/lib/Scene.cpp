@@ -76,6 +76,13 @@ void Scene::PreUpdate()
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->PreUpdate();
+        }
+    }
 }
 
 void Scene::Update()
@@ -87,6 +94,13 @@ void Scene::Update()
             ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->Update();
             ProfilerManager::EndEvent(i.second->GetTypeName());
+        }
+    }
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->Update();
         }
     }
 }
@@ -102,6 +116,13 @@ void Scene::LateUpdate()
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->LateUpdate();
+        }
+    }
 }
 void Scene::FixedUpdate()
 {
@@ -112,6 +133,13 @@ void Scene::FixedUpdate()
             ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->FixedUpdate();
             ProfilerManager::EndEvent(i.second->GetTypeName());
+        }
+    }
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->FixedUpdate();
         }
     }
 }
@@ -323,7 +351,7 @@ void Scene::SerializeDataComponentStorage(const DataComponentStorage &storage, Y
     }
     out << YAML::EndMap;
 }
-void Scene::SerializeEntityInfo(const EntityInfo &entityInfo, YAML::Emitter &out)
+void Scene::SerializeEntityInfo(const EntityMetadata &entityInfo, YAML::Emitter &out)
 {
     out << YAML::BeginMap;
     {

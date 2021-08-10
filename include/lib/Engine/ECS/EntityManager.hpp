@@ -44,7 +44,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     SceneDataStorage *m_currentAttachedWorldEntityStorage = nullptr;
     std::vector<Entity> *m_entities = nullptr;
-    std::vector<EntityInfo> *m_entityInfos = nullptr;
+    std::vector<EntityMetadata> *m_entityInfos = nullptr;
     std::vector<DataComponentStorage> *m_entityDataComponentStorage = nullptr;
     PrivateComponentStorage *m_entityPrivateComponentStorage = nullptr;
 #pragma endregion
@@ -1534,7 +1534,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     }
     newEntity.SetDataComponent(value);
     // 5. Swap entity.
-    EntityInfo &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1609,7 +1609,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     }
     T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
-    EntityInfo &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1641,7 +1641,7 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -1677,7 +1677,7 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityInfo &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
@@ -1706,7 +1706,7 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
     if (index > GetInstance().m_entityInfos->size())
         return T();
     auto &entityManager = GetInstance();
-    EntityInfo &entityInfo = entityManager.m_entityInfos->at(index);
+    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -1744,7 +1744,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
     if (index > GetInstance().m_entityInfos->size())
         return false;
     auto &entityManager = GetInstance();
-    EntityInfo &entityInfo = entityManager.m_entityInfos->at(index);
+    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
 
     const size_t id = typeid(T).hash_code();

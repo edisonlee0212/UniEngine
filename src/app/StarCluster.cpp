@@ -2,19 +2,18 @@
 //
 
 #include <Application.hpp>
-#include <CameraControlSystem.hpp>
 #include <PostProcessing.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
+#include <PlayerController.hpp>
 using namespace UniEngine;
 using namespace Galaxy;
 int main()
 {
 #pragma region Application Preparations
     Application::Init();
-    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
     SerializableFactory::RegisterSerializable<StarClusterSystem>("StarClusterSystem");
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
-
+    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma endregion
 #pragma region Star System
     auto starClusterSystem = EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);

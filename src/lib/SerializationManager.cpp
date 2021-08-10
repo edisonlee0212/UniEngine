@@ -5,6 +5,7 @@
 #include <PostProcessing.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
+#include <PlayerController.hpp>
 using namespace UniEngine;
 
 ComponentDataRegistration<Transform> TransformRegistry("Transform");
@@ -19,6 +20,7 @@ SerializableRegistration<SpotLight> SpotLightRegistry("SpotLight");
 SerializableRegistration<PointLight> PointLightRegistry("PointLight");
 SerializableRegistration<DirectionalLight> DirectionalLightRegistry("DirectionalLight");
 SerializableRegistration<Camera> CameraRegistry("Camera");
+SerializableRegistration<PlayerController> PlayerControllerRegistry("PlayerController");
 SerializableRegistration<Particles> ParticlesRegistry("Particles");
 SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");

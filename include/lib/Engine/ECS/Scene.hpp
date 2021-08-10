@@ -17,8 +17,10 @@ enum UNIENGINE_API SystemGroup
 struct SceneDataStorage
 {
     std::vector<Entity> m_entities;
-    std::vector<EntityInfo> m_entityInfos;
+    std::vector<EntityMetadata> m_entityInfos;
     std::vector<DataComponentStorage> m_dataComponentStorages;
+
+
     PrivateComponentStorage m_entityPrivateComponentStorage;
 };
 
@@ -31,13 +33,9 @@ class UNIENGINE_API Scene : public IAsset
     std::multimap<float, std::shared_ptr<ISystem>> m_systems;
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     Bound m_worldBound;
-
-
     void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
-    void SerializeEntityInfo(const EntityInfo& entityInfo, YAML::Emitter &out);
+    void SerializeEntityInfo(const EntityMetadata & entityInfo, YAML::Emitter &out);
     void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
-
-
   public:
     std::string m_name = "New Scene";
     void Purge();
@@ -46,7 +44,6 @@ class UNIENGINE_API Scene : public IAsset
     Scene &operator=(const Scene &) = delete;
     [[nodiscard]] Bound GetBound() const;
     void SetBound(const Bound &value);
-    [[nodiscard]] size_t GetIndex() const;
     template <typename T = ISystem> void DestroySystem();
     ~Scene();
     void FixedUpdate();

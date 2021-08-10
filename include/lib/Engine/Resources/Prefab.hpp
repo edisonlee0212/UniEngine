@@ -11,7 +11,7 @@ namespace UniEngine
 class UNIENGINE_API Prefab
 {
   private:
-    std::vector<IDataComponent *> m_dataComponents;
+    std::vector<std::shared_ptr<IDataComponent>> m_dataComponents;
     std::vector<std::shared_ptr<IPrivateComponent>> m_privateComponents;
     std::vector<Prefab> m_children;
   public:

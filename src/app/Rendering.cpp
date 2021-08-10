@@ -1,16 +1,14 @@
 #include "AssetManager.hpp"
 
 #include <Application.hpp>
-#include <CameraControlSystem.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
+#include <PlayerController.hpp>
 using namespace UniEngine;
 
 int main()
 {
     Application::Init();
-    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
     RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
@@ -19,6 +17,7 @@ int main()
     mainCameraEntity.SetDataComponent(mainCameraTransform);
     mainCameraEntity.GetOrSetPrivateComponent<PostProcessing>();
     auto camera = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties

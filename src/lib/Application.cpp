@@ -122,6 +122,7 @@ void Application::PreUpdateInternal()
     {
         ProfilerManager::StartEvent("Scene");
         EntityManager::GetInstance().m_scene->PreUpdate();
+
         ProfilerManager::EndEvent("Scene");
     }
 

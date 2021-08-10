@@ -63,14 +63,16 @@ target_link_libraries(uniengine
 
 set(UNIENGINE_INCLUDES_LOCAL
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Core
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Animation
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Core
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/ECS
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Editor
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Managers
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Math
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Physics
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Rendering
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Resources
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Utilities
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/External
         ${3RD_PARTY_DIR}
         ${GLFW_DIR}/include

@@ -1,28 +1,17 @@
-#include <Camera.hpp>
-#include <CameraControlSystem.hpp>
+//
+// Created by lllll on 8/9/2021.
+//
 #include <EditorManager.hpp>
-#include <Gui.hpp>
-#include <InputManager.hpp>
-#include <RenderManager.hpp>
-using namespace UniEngine;
-
-void CameraControlSystem::OnCreate()
+#include <PlayerController.hpp>
+void UniEngine::PlayerController::OnCreate()
 {
-    auto mainCamera = RenderManager::GetMainCamera().lock();
-    auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
-    transform.SetRotation(Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
-    mainCamera->GetOwner().SetDataComponent(transform);
-    Enable();
 }
-
-void CameraControlSystem::LateUpdate()
+void UniEngine::PlayerController::LateUpdate()
 {
-    if(RenderManager::GetMainCamera().expired()) return;
-    auto mainCamera = RenderManager::GetMainCamera().lock();
     if (EditorManager::MainCameraWindowFocused())
     {
 #pragma region Scene Camera Controller
-        auto transform = mainCamera->GetOwner().GetDataComponent<Transform>();
+        auto transform = GetOwner().GetDataComponent<Transform>();
         const auto rotation = transform.GetRotation();
         auto position = transform.GetPosition();
         const auto front = rotation * glm::vec3(0, 0, -1);
@@ -93,23 +82,21 @@ void CameraControlSystem::LateUpdate()
                     m_sceneCameraPitchAngle = -89.0f;
 
                 transform.SetRotation(
-                    Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
+                        Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false));
             }
         }
         if (moved)
         {
-            mainCamera->GetOwner().SetDataComponent(transform);
+            GetOwner().SetDataComponent(transform);
         }
 #pragma endregion
     }
 }
-
-void CameraControlSystem::SetVelocity(float velocity)
+void UniEngine::PlayerController::SetVelocity(float velocity)
 {
     m_velocity = velocity;
 }
-
-void CameraControlSystem::SetSensitivity(float sensitivity)
+void UniEngine::PlayerController::SetSensitivity(float sensitivity)
 {
     m_sensitivity = sensitivity;
 }

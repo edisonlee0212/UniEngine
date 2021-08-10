@@ -1,4 +1,5 @@
 #pragma once
+#include <IHandle.hpp>
 #include <uniengine_export.h>
 namespace YAML
 {
@@ -8,7 +9,7 @@ class Node;
 
 namespace UniEngine
 {
-class UNIENGINE_API ISerializable
+class UNIENGINE_API ISerializable : public IHandle
 {
     friend class SerializableFactory;
     friend class AssetManager;

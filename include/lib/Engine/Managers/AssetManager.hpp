@@ -37,7 +37,7 @@ class UNIENGINE_API AssetRegistry : public ISerializable
 {
   public:
     size_t m_version = 0;
-    std::unordered_map<AssetHandle, AssetRecord> m_assetRecords;
+    std::unordered_map<Handle, AssetRecord> m_assetRecords;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
@@ -49,7 +49,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
 
     bool m_enableAssetMenu = true;
-    std::map<std::string, std::unordered_map<AssetHandle, std::shared_ptr<IAsset>>> m_sharedAssets;
+    std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
 
     std::shared_ptr<AssetRegistry> m_assetRegistry;
 
@@ -119,11 +119,11 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterAssetType(const std::string &name);
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
     template <typename T>
-    static std::shared_ptr<T> CreateAsset(const AssetHandle &assetHandle, const std::string &name = "");
+    static std::shared_ptr<T> CreateAsset(const Handle &assetHandle, const std::string &name = "");
     template <typename T> static void Share(std::shared_ptr<T> resource);
-    template <typename T> static std::shared_ptr<T> Get(const AssetHandle &handle);
-    template <typename T> static void RemoveFromShared(const AssetHandle &handle);
-    static void RemoveFromShared(const std::string &typeName, const AssetHandle &handle);
+    template <typename T> static std::shared_ptr<T> Get(const Handle &handle);
+    template <typename T> static void RemoveFromShared(const Handle &handle);
+    static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
     template <typename T>
     static std::shared_ptr<T> Load(const std::string& path);
@@ -182,16 +182,16 @@ template <typename T> void AssetManager::RegisterAssetType(const std::string &na
 {
     auto &resourceManager = GetInstance();
     SerializableFactory::RegisterSerializable<T>(name);
-    resourceManager.m_sharedAssets[name] = std::unordered_map<AssetHandle, std::shared_ptr<IAsset>>();
+    resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
 }
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)
 {
-    return CreateAsset<T>(AssetHandle(), name);
+    return CreateAsset<T>(Handle(), name);
 }
 
 template <typename T>
-std::shared_ptr<T> AssetManager::CreateAsset(const AssetHandle &assetHandle, const std::string &name)
+std::shared_ptr<T> AssetManager::CreateAsset(const Handle &assetHandle, const std::string &name)
 {
     auto &resourceManager = GetInstance();
     if (resourceManager.m_sharedAssets.find(SerializableFactory::GetSerializableTypeName<T>()) !=
@@ -227,7 +227,7 @@ template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
     throw 0;
 }
 
-template <typename T> std::shared_ptr<T> AssetManager::Get(const AssetHandle &handle)
+template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
 {
     auto &assetManager = GetInstance();
     auto typeName = SerializableFactory::GetSerializableTypeName<T>();
@@ -260,7 +260,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Get(const AssetHandle &ha
     }
 }
 
-template <typename T> void AssetManager::RemoveFromShared(const AssetHandle &handle)
+template <typename T> void AssetManager::RemoveFromShared(const Handle &handle)
 {
     if(handle < DefaultResources::GetInstance().m_currentHandle)
     {

@@ -583,8 +583,8 @@ void DefaultResources::Load()
 #pragma endregion
 }
 
-AssetHandle DefaultResources::GenerateInternalAssetHandle()
+Handle DefaultResources::GenerateInternalAssetHandle()
 {
     GetInstance().m_currentHandle++;
-    return AssetHandle(GetInstance().m_currentHandle);
+    return Handle(GetInstance().m_currentHandle);
 }

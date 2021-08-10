@@ -10,7 +10,7 @@
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
-void AssetManager::RemoveFromShared(const std::string &typeName, const AssetHandle &handle)
+void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &handle)
 {
     if(handle < DefaultResources::GetInstance().m_currentHandle)
     {
@@ -1492,7 +1492,7 @@ void AssetManager::OnGui()
                         }
                         for (auto &i : collection.second)
                         {
-                            if (EditorManager::Draggable(collection.first, i.second))
+                            if (EditorManager::Draggable(i.second))
                             {
                                 RemoveFromShared(collection.first, i.second->GetHandle());
                                 break;
@@ -1538,7 +1538,7 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
     auto inAssetRecords = in["AssetRecords"];
     for (const auto &inAssetRecord : inAssetRecords)
     {
-        AssetHandle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
+        Handle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
         AssetRecord assetRecord;
         assetRecord.m_filePath = inAssetRecord["FilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();

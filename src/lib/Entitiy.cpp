@@ -162,33 +162,6 @@ bool IPrivateComponent::IsEnabled() const
     return m_enabled;
 }
 
-void IPrivateComponent::OnCreate()
-{
-}
-
-void IPrivateComponent::OnEnable()
-{
-}
-
-void IPrivateComponent::OnDisable()
-{
-}
-
-void IPrivateComponent::OnEntityEnable()
-{
-}
-
-void IPrivateComponent::OnEntityDisable()
-{
-}
-
-void IPrivateComponent::OnGui()
-{
-}
-void IPrivateComponent::OnDestroy()
-{
-}
-
 IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {
     return reinterpret_cast<IDataComponent *>(static_cast<char *>(m_data) + offset);

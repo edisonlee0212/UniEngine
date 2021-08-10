@@ -20,7 +20,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     uint64_t m_currentHandle = 0;
 
   public:
-    static AssetHandle GenerateInternalAssetHandle();
+    static Handle GenerateInternalAssetHandle();
 
     class UNIENGINE_API Physics{
       public:

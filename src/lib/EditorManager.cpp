@@ -402,9 +402,11 @@ void EditorManager::Init()
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
         bool reload = previousEntity != entity;
-        if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>()){
+        if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>())
+        {
             auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
-            if(rigidBody->m_kinematic && rigidBody->m_currentRegistered){
+            if (rigidBody->m_kinematic && rigidBody->m_currentRegistered)
+            {
                 reload = true;
             }
         }
@@ -1268,50 +1270,6 @@ bool EditorManager::DragAndDrop(Entity &entity)
     }
     return statusChanged;
 }
-
-bool EditorManager::Draggable(const std::string &typeName, std::shared_ptr<IAsset> &target)
-{
-    assert(!(target && target->GetHandle() == 0));
-    const std::string type = target->GetTypeName();
-    ImGui::Button(target ? target->m_name.c_str() : "none");
-    bool removed = false;
-    if (target)
-    {
-        const std::string tag = "##" + type + (target ? std::to_string(target->GetHandle()) : "");
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-        {
-            ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
-            if (target->m_icon)
-                ImGui::Image(
-                    reinterpret_cast<ImTextureID>(target->m_icon->Texture()->Id()),
-                    ImVec2(30, 30),
-                    ImVec2(0, 1),
-                    ImVec2(1, 0));
-            else
-                ImGui::TextColored(ImVec4(0, 0, 1, 1), (target->m_name + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-        if (ImGui::BeginPopupContextItem(tag.c_str()))
-        {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-            {
-                static char newName[256];
-                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                if (ImGui::Button(("Confirm" + tag).c_str()))
-                    target->m_name = std::string(newName);
-                ImGui::EndMenu();
-            }
-            if (ImGui::Button(("Remove" + tag).c_str()))
-            {
-                target.reset();
-                removed = true;
-            }
-            ImGui::EndPopup();
-        }
-    }
-    return removed;
-}
-
 bool EditorManager::MainCameraWindowFocused()
 {
     return GetInstance().m_mainCameraWindowFocused;
@@ -1363,7 +1321,7 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraResolutionY = viewPortSize.y;
 
             bool cameraActive = false;
-            if(!RenderManager::GetMainCamera().expired())
+            if (!RenderManager::GetMainCamera().expired())
             {
                 auto mainCamera = RenderManager::GetMainCamera().lock();
                 auto entity = mainCamera->GetOwner();
@@ -1463,8 +1421,7 @@ void EditorManager::SceneCameraWindow()
             }
 #pragma region Gizmos and Entity Selection
             bool mouseSelectEntity = true;
-            if (editorManager.m_selectedEntity.IsValid() &&
-                !editorManager.m_selectedEntity.IsStatic())
+            if (editorManager.m_selectedEntity.IsValid() && !editorManager.m_selectedEntity.IsStatic())
             {
                 ImGuizmo::SetOrthographic(false);
                 ImGuizmo::SetDrawlist();
@@ -1615,7 +1572,7 @@ void EditorManager::MainCameraWindow()
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
             bool cameraActive = false;
-            if(!RenderManager::GetMainCamera().expired())
+            if (!RenderManager::GetMainCamera().expired())
             {
                 auto mainCamera = RenderManager::GetMainCamera().lock();
                 auto entity = mainCamera->GetOwner();
@@ -1714,8 +1671,7 @@ void EditorManager::CameraWindowDragAndDrop()
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
             std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
-            EntityArchetype archetype =
-                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+            EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }
         const std::string texture2DTypeHash = SerializableFactory::GetSerializableTypeName<Texture2D>();
@@ -1723,8 +1679,7 @@ void EditorManager::CameraWindowDragAndDrop()
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
             std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
-            EntityArchetype archetype =
-                EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+            EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }
         const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
@@ -1739,8 +1694,7 @@ void EditorManager::CameraWindowDragAndDrop()
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
         }
 
-        const std::string environmentalMapTypeHash =
-            SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
+        const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
@@ -1751,7 +1705,7 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
         {
-            if(!RenderManager::GetMainCamera().expired())
+            if (!RenderManager::GetMainCamera().expired())
             {
                 IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
                 std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;

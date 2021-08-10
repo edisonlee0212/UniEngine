@@ -1,10 +1,9 @@
 // Planet.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
+#include <PlayerController.hpp>
 #include "AssetManager.hpp"
 #include <PostProcessing.hpp>
 #include <Application.hpp>
-#include <CameraControlSystem.hpp>
 #include <MeshRenderer.hpp>
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <SerializationManager.hpp>
@@ -13,21 +12,16 @@ using namespace Planet;
 int main()
 {
     SerializableFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
-    SerializableFactory::RegisterSerializable<CameraControlSystem>("CameraControlSystem");
     SerializableFactory::RegisterSerializable<PlanetTerrainSystem>("PlanetTerrainSystem");
     Application::Init();
 #pragma region Preparations
-
-    auto ccs = EntityManager::GetOrCreateSystem<CameraControlSystem>(SystemGroup::SimulationSystemGroup);
-    ccs->SetSensitivity(0.1f);
-    ccs->SetVelocity(15.0f);
-    ccs->Enable();
 
     RenderManager::GetMainCamera().lock()->m_useClearColor = false;
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
     mainCameraEntity.SetDataComponent(mainCameraTransform);
+    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
     auto postProcessing = mainCameraEntity.GetOrSetPrivateComponent<PostProcessing>().lock();
 
     auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
