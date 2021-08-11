@@ -135,7 +135,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard");
+    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard");
     GLPrograms::StandardProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -146,7 +146,7 @@ void DefaultResources::LoadShaders()
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardSkinnedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Skinned");
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Skinned");
     GLPrograms::StandardSkinnedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -157,7 +157,7 @@ void DefaultResources::LoadShaders()
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardInstancedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced");
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Instanced");
     GLPrograms::StandardInstancedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
@@ -168,7 +168,7 @@ void DefaultResources::LoadShaders()
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardInstancedSkinnedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced Skinned");
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Instanced Skinned");
     GLPrograms::StandardInstancedSkinnedProgram->Link(standardVert, standardFrag);
 #pragma endregion
 
@@ -346,22 +346,22 @@ void DefaultResources::Load()
     LoadEditorManagerResources();
 
 #pragma region Physics
-    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>(Handle(0), "Default");
+    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>("Default");
 #pragma endregion
 
 #pragma region Environmental
-    Materials::StandardMaterial = AssetManager::CreateAsset<Material>(Handle(0), "Standard");
+    Materials::StandardMaterial = AssetManager::CreateAsset<Material>("Standard");
     Materials::StandardMaterial->m_program = GLPrograms::StandardProgram;
 
     Materials::StandardInstancedMaterial =
-        AssetManager::CreateAsset<Material>(Handle(0), "Standard Instanced");
+        AssetManager::CreateAsset<Material>("Standard Instanced");
     Materials::StandardInstancedMaterial->m_program = GLPrograms::StandardInstancedProgram;
 
     Environmental::DefaultSkybox = AssetManager::Load<Cubemap>(
         AssetManager::GetResourceFolderPath() / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->m_name = "Default";
 
-    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>(Handle(0), "Default");
+    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>("Default");
     Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
 #pragma endregion
 

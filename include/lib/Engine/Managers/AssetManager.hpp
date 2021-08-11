@@ -110,8 +110,6 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
     template <typename T> static void RegisterAssetType(const std::string &name);
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
-    template <typename T>
-    static std::shared_ptr<T> CreateAsset(const Handle &assetHandle, const std::string &name = "");
     template <typename T> static void Share(std::shared_ptr<T> resource);
     template <typename T> static std::shared_ptr<T> Get(const Handle &handle);
     template <typename T> static void RemoveFromShared(const Handle &handle);
@@ -179,20 +177,14 @@ template <typename T> void AssetManager::RegisterAssetType(const std::string &na
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)
 {
-    return CreateAsset<T>(Handle(), name);
-}
-
-template <typename T>
-std::shared_ptr<T> AssetManager::CreateAsset(const Handle &assetHandle, const std::string &name)
-{
     auto &resourceManager = GetInstance();
     if (resourceManager.m_sharedAssets.find(SerializationManager::GetSerializableTypeName<T>()) !=
-        resourceManager.m_sharedAssets.end())
+    resourceManager.m_sharedAssets.end())
     {
         auto retVal = std::make_shared<T>();
         dynamic_cast<IAsset *>(retVal.get())->OnCreate();
         dynamic_cast<IAsset *>(retVal.get())->m_typeName = SerializationManager::GetSerializableTypeName<T>();
-        dynamic_cast<IAsset *>(retVal.get())->m_handle = assetHandle;
+        dynamic_cast<IAsset *>(retVal.get())->m_handle = Handle();
         if (!name.empty())
             retVal->m_name = name;
         return retVal;

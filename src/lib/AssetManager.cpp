@@ -45,8 +45,7 @@ std::shared_ptr<Model> AssetManager::LoadModel(
     std::map<std::string, std::shared_ptr<Bone>> bonesMap;
     if (!bonesMap.empty() || scene->HasAnimations())
     {
-        retVal->m_animation = CreateAsset<Animation>(true);
-        retVal->m_animation->m_name = path.filename().string();
+        retVal->m_animation = CreateAsset<Animation>(path.filename().string());
     }
     std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
     if (!ProcessNode(

@@ -1,6 +1,6 @@
 #include <Entity.hpp>
 #include <EntityManager.hpp>
-
+#include <ISerializable.hpp>
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
@@ -134,6 +134,10 @@ unsigned Entity::GetIndex() const
 unsigned Entity::GetVersion() const
 {
     return m_version;
+}
+Handle Entity::GetHandle() const
+{
+    return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).GetHandle();
 }
 
 Entity IPrivateComponent::GetOwner() const

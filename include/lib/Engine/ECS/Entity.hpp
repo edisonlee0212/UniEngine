@@ -45,6 +45,8 @@ struct UNIENGINE_API Entity final
     unsigned m_version = 0;
 
   public:
+    [[nodiscard]] Handle GetHandle() const;
+
     [[nodiscard]] unsigned GetIndex() const;
     [[nodiscard]] unsigned GetVersion() const;
     bool operator==(const Entity &other) const;
