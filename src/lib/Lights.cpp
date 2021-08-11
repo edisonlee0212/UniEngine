@@ -143,6 +143,20 @@ void DirectionalLight::Deserialize(const YAML::Node &in)
     m_lightSize = in["m_lightSize"].as<float>();
     m_normalOffset = in["m_normalOffset"].as<float>();
 }
+void DirectionalLight::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<DirectionalLight>(target);
+}
+
+void PointLight::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<PointLight>(target);
+}
+
+void SpotLight::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<SpotLight>(target);
+}
 
 void UniEngine::DirectionalLightShadowMap::Allocate()
 {

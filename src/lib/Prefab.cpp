@@ -15,6 +15,53 @@ void Prefab::OnCreate()
 {
     m_name = "New Prefab";
 }
+
+Entity Prefab::ToEntity() const
+{
+    const Entity entity = EntityManager::CreateEntity(m_name);
+    for (auto &i : m_dataComponents)
+    {
+        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
+    }
+    for (auto &i : m_privateComponents)
+    {
+        size_t id;
+        auto ptr = std::static_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(i->GetTypeName(), id));
+        ptr->Clone(i);
+        EntityManager::SetPrivateComponent(entity, i);
+    }
+    int index = 0;
+    for (const auto &i : m_children)
+    {
+        AttachChildren(i, entity, m_name + "_" + std::to_string(index));
+        index++;
+    }
+    return entity;
+}
+void Prefab::AttachChildren(
+    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const
+{
+    Entity entity = EntityManager::CreateEntity(parentName);
+    entity.SetParent(parentEntity);
+    for (auto &i : modelNode->m_dataComponents)
+    {
+        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
+    }
+    for (auto &i : modelNode->m_privateComponents)
+    {
+        size_t id;
+        auto ptr = std::static_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(i->GetTypeName(), id));
+        ptr->Clone(i);
+        EntityManager::SetPrivateComponent(entity, i);
+    }
+    int index = 0;
+    for (auto &i : modelNode->m_children)
+    {
+        AttachChildren(i, entity, (parentName + "_" + std::to_string(index)));
+        index++;
+    }
+}
+#pragma region Model Loading
 void Prefab::Load(const std::filesystem::path &path)
 {
     if (path.extension() == ".obj" || path.extension() == ".fbx")
@@ -71,8 +118,8 @@ void Prefab::Load(const std::filesystem::path &path)
             auto animator = SerializationManager::ProduceSerializable<Animator>();
             animator->Setup(animation);
             //animator->Animate();
-
             AttachAnimator(this, animator);
+            m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(animator));
         }
         return;
 #else
@@ -370,13 +417,12 @@ void Prefab::Load(const std::filesystem::path &path)
 #endif
     }
 }
-
 #ifdef USE_ASSIMP
-
 void Prefab::AttachAnimator(Prefab *parent, const std::shared_ptr<Animator> &animator)
 {
     auto smr = parent->GetPrivateComponent<SkinnedMeshRenderer>();
-    if(smr) smr->AttachAnimator(animator);
+    if (smr)
+        smr->AttachAnimator(animator);
     for (auto &i : parent->m_children)
     {
         AttachAnimator(i.get(), animator);
@@ -390,7 +436,6 @@ glm::mat4 mat4_cast(const aiMatrix3x3 &m)
 {
     return glm::transpose(glm::make_mat3(&m.a1));
 }
-
 AssimpNode::AssimpNode(aiNode *node)
 {
     m_correspondingNode = node;
@@ -408,7 +453,6 @@ void AssimpNode::AttachToAnimator(std::shared_ptr<Animation> &animation, size_t 
         i->AttachChild(m_bone, index);
     }
 }
-
 void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent, size_t &index)
 {
     m_bone->m_index = index;
@@ -419,7 +463,6 @@ void AssimpNode::AttachChild(std::shared_ptr<Bone> &parent, size_t &index)
         i->AttachChild(m_bone, index);
     }
 }
-
 bool AssimpNode::NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &boneMap)
 {
     bool necessary = false;
@@ -449,7 +492,6 @@ bool AssimpNode::NecessaryWalker(std::map<std::string, std::shared_ptr<Bone>> &b
 
     return necessary;
 }
-
 void Prefab::ReadKeyFrame(BoneKeyFrames &boneAnimation, const aiNodeAnim *channel)
 {
     const auto numPositions = channel->mNumPositionKeys;
@@ -585,7 +627,6 @@ std::shared_ptr<Material> Prefab::ReadMaterial(
     }
     return targetMaterial;
 }
-
 bool Prefab::ProcessNode(
     const std::string &directory,
     Prefab *modelNode,
@@ -656,7 +697,6 @@ bool Prefab::ProcessNode(
         holder.m_data = transform;
         childNode->m_dataComponents.push_back(holder);
 
-
         modelNode->m_children.push_back(std::move(childNode));
     }
 
@@ -684,7 +724,6 @@ bool Prefab::ProcessNode(
     }
     return addedMeshRenderer;
 }
-
 std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
 {
     unsigned mask = 1;
@@ -758,7 +797,6 @@ std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
     mesh->SetVertices(mask, vertices, indices);
     return mesh;
 }
-
 std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
     std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh)
 {
@@ -915,17 +953,16 @@ std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
     skinnedMesh->SetVertices(mask, vertices, indices);
     return skinnedMesh;
 }
-
 void Prefab::ApplyBoneIndices(Prefab *node)
 {
     auto smr = node->GetPrivateComponent<SkinnedMeshRenderer>();
-    if(smr) smr->m_skinnedMesh->FetchIndices();
+    if (smr)
+        smr->m_skinnedMesh->FetchIndices();
     for (auto &i : node->m_children)
     {
         ApplyBoneIndices(i.get());
     }
 }
-
 #else
 void Prefab::ProcessNode(
     const std::string &directory,
@@ -1007,5 +1044,5 @@ void Prefab::ProcessNode(
         index_offset += fv;
     }
 }
-
 #endif
+#pragma endregion

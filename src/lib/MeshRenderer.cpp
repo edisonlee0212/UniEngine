@@ -78,3 +78,7 @@ void MeshRenderer::Deserialize(const YAML::Node &in)
     m_castShadow = in["CastShadow"].as<bool>();
     m_receiveShadow = in["ReceiveShadow"].as<bool>();
 }
+void MeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<MeshRenderer>(target);
+}

@@ -108,6 +108,8 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void OnEntityEnable() {};
     virtual void OnEntityDisable() {};
     virtual void OnDestroy() {};
+
+    virtual void Clone(const std::shared_ptr<IPrivateComponent>& target) = 0;
 };
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;

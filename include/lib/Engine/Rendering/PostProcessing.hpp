@@ -20,7 +20,6 @@ class UNIENGINE_API PostProcessingLayer
 class UNIENGINE_API PostProcessing final : public IPrivateComponent, public RenderTarget
 {
     std::map<std::string, std::shared_ptr<PostProcessingLayer>> m_layers;
-
   public:
     template <typename T> std::weak_ptr<T> GetLayer();
     void PushLayer(const std::shared_ptr<PostProcessingLayer> &layer);
@@ -32,6 +31,7 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
     void OnGui() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 
 template <typename T> std::weak_ptr<T> PostProcessing::GetLayer()

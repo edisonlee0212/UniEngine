@@ -20,6 +20,7 @@ class UNIENGINE_API IAsset : public ISerializable
     void Save();
     void Load();
 
+    virtual ~IAsset();
     virtual void Save(const std::filesystem::path& path);
     virtual void Load(const std::filesystem::path& path);
     bool m_saved = false;

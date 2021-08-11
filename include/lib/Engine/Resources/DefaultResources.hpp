@@ -14,7 +14,6 @@ class PhysicsMaterial;
 class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
 {
     static void LoadShaders();
-    static void LoadTextures();
     static void LoadPrimitives();
 
     static void LoadRenderManagerResources();
@@ -32,8 +31,6 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class SSAO;
     friend class Bloom;
     friend class WindowManager;
-    uint64_t m_currentHandle = 1;
-
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 
     static std::unique_ptr<Texture2D> m_brdfLut;
@@ -85,8 +82,6 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
 
   public:
-    static Handle GenerateInternalAssetHandle();
-    static Handle GetMaxHandle();
     class UNIENGINE_API Physics
     {
       public:

@@ -66,13 +66,14 @@ class UNIENGINE_API Prefab : public IAsset
     std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(
         std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
 #else
-
     static void ProcessNode(
         const std::string &directory,
         std::map<int, std::vector<Vertex>> &meshMaterials,
         const tinyobj::shape_t &shape,
         const tinyobj::attrib_t &attribute);
 #endif
+    void AttachChildren(
+        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const;
 
 #pragma endregion
   public:
@@ -82,6 +83,8 @@ class UNIENGINE_API Prefab : public IAsset
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetPrivateComponent();
     void OnCreate() override;
     void Load(const std::filesystem::path &path) override;
+
+    [[nodiscard]] Entity ToEntity() const;
 };
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {

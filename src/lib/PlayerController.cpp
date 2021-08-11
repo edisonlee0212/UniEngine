@@ -100,3 +100,7 @@ void UniEngine::PlayerController::SetSensitivity(float sensitivity)
 {
     m_sensitivity = sensitivity;
 }
+void UniEngine::PlayerController::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<PlayerController>(target);
+}

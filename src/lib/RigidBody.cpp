@@ -299,3 +299,7 @@ void RigidBody::Deserialize(const YAML::Node &in)
 {
     m_shapeTransform = in["m_shapeTransform"].as<glm::mat4>();
 }
+void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<RigidBody>(target);
+}

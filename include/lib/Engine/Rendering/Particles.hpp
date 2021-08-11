@@ -25,5 +25,6 @@ class UNIENGINE_API Particles : public IPrivateComponent
     void OnGui() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 } // namespace UniEngine

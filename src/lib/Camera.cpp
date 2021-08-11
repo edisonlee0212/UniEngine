@@ -392,6 +392,18 @@ void Camera::OnGui()
     }
 }
 
+void Camera::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    auto ptr = std::static_pointer_cast<Camera>(target);
+    m_allowAutoResize = ptr->m_allowAutoResize;
+    m_nearDistance = ptr->m_nearDistance;
+    m_farDistance = ptr->m_farDistance;
+    m_fov = ptr->m_fov;
+    m_useClearColor = ptr->m_useClearColor;
+    m_clearColor = ptr->m_clearColor;
+    m_skybox = ptr->m_skybox;
+}
+
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {
     const glm::vec3 front = rotation * glm::vec3(0, 0, -1);

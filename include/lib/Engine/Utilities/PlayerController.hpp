@@ -16,5 +16,7 @@ class UNIENGINE_API PlayerController : public IPrivateComponent
     void LateUpdate() override;
     void SetVelocity(float velocity);
     void SetSensitivity(float sensitivity);
+
+    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 } // namespace UniEngine

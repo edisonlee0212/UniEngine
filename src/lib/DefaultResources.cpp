@@ -1,11 +1,11 @@
 #include <AssetManager.hpp>
 #include <Collider.hpp>
-#include <Utilities.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include <LightProbe.hpp>
 #include <Material.hpp>
 #include <Mesh.hpp>
+#include <MeshRenderer.hpp>
 #include <PhysicsMaterial.hpp>
 #include <PostProcessing.hpp>
 #include <Prefab.hpp>
@@ -13,7 +13,7 @@
 #include <RenderManager.hpp>
 #include <Scene.hpp>
 #include <SkinnedMesh.hpp>
-#include <MeshRenderer.hpp>
+#include <Utilities.hpp>
 using namespace UniEngine;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_2DToCubemapProgram;
@@ -113,12 +113,12 @@ void DefaultResources::LoadShaders()
     }
 
     add += "\n#define MAX_BONES_AMOUNT " + std::to_string(ShaderIncludes::MaxBonesAmount) +
-        "\n#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
-        "\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
-        "\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
-        "\n#define SHADOW_CASCADE_AMOUNT " + std::to_string(ShaderIncludes::ShadowCascadeAmount) +
-        "\n#define MAX_KERNEL_AMOUNT " + std::to_string(ShaderIncludes::MaxKernelAmount) +
-        "\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
+           "\n#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
+           "\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
+           "\n#define POINT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxPointLightAmount) +
+           "\n#define SHADOW_CASCADE_AMOUNT " + std::to_string(ShaderIncludes::ShadowCascadeAmount) +
+           "\n#define MAX_KERNEL_AMOUNT " + std::to_string(ShaderIncludes::MaxKernelAmount) +
+           "\n#define SPOT_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxSpotLightAmount) + "\n";
 
     ShaderIncludes::Uniform = std::make_unique<std::string>(
         add + FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Include/Uniform.glsl"));
@@ -138,7 +138,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard");
+    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard");
     GLPrograms::StandardProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -148,8 +148,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardSkinnedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Skinned");
+    GLPrograms::StandardSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Skinned");
     GLPrograms::StandardSkinnedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -159,19 +158,18 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardInstancedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Instanced");
+    GLPrograms::StandardInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced");
     GLPrograms::StandardInstancedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/StandardInstancedSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/StandardInstancedSkinned.vert");
     standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardInstancedSkinnedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>("Standard Instanced Skinned");
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced Skinned");
     GLPrograms::StandardInstancedSkinnedProgram->Link(standardVert, standardFrag);
 #pragma endregion
 
@@ -183,42 +181,42 @@ void DefaultResources::LoadShaders()
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                FileUtils::LoadFileAsString(
-                    AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
-                    std::make_shared<OpenGLUtils::GLShader>(
-                        OpenGLUtils::ShaderType::Fragment,
-                        std::string("#version 450 core\n") +
-                        FileUtils::LoadFileAsString(
-                            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BloomSeparator.frag")));
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BloomSeparator.frag")));
 
         Bloom::m_filterProgram = std::make_shared<OpenGLUtils::GLProgram>();
         Bloom::m_filterProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                FileUtils::LoadFileAsString(
-                    AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
-                    std::make_shared<OpenGLUtils::GLShader>(
-                        OpenGLUtils::ShaderType::Fragment,
-                        std::string("#version 450 core\n") +
-                        FileUtils::LoadFileAsString(
-                            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BlurFilter.frag")));
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BlurFilter.frag")));
         Bloom::m_combineProgram = std::make_shared<OpenGLUtils::GLProgram>();
         Bloom::m_combineProgram->Link(
             std::make_shared<OpenGLUtils::GLShader>(
                 OpenGLUtils::ShaderType::Vertex,
                 std::string("#version 450 core\n") +
-                FileUtils::LoadFileAsString(
-                    AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
-                    std::make_shared<OpenGLUtils::GLShader>(
-                        OpenGLUtils::ShaderType::Fragment,
-                        std::string("#version 450 core\n") +
-                        FileUtils::LoadFileAsString(
-                            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BloomCombine.frag")));
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert")),
+            std::make_shared<OpenGLUtils::GLShader>(
+                OpenGLUtils::ShaderType::Fragment,
+                std::string("#version 450 core\n") +
+                    FileUtils::LoadFileAsString(
+                        AssetManager::GetResourceFolderPath() / "Shaders/Fragment/BloomCombine.frag")));
 
         vertShaderCode = std::string("#version 460 core\n") +
-            FileUtils::LoadFileAsString(
-                AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert");
+                         FileUtils::LoadFileAsString(
+                             AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert");
 
         fragShaderCode =
             std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -230,8 +228,8 @@ void DefaultResources::LoadShaders()
             std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment, fragShaderCode));
 
         vertShaderCode = std::string("#version 460 core\n") +
-            FileUtils::LoadFileAsString(
-                AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert");
+                         FileUtils::LoadFileAsString(
+                             AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert");
 
         fragShaderCode =
             std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
@@ -255,71 +253,67 @@ void DefaultResources::LoadShaders()
 #pragma endregion
 }
 
-void DefaultResources::LoadTextures()
-{
-#pragma region Textures
-    Textures::MissingTexture =
-    AssetManager::Load<Texture2D>(AssetManager::GetResourceFolderPath() / "Textures/texture-missing.png");
-    Textures::MissingTexture->m_name = "Missing";
-
-#pragma endregion
-}
-
 void DefaultResources::LoadPrimitives()
 {
 #pragma region Models &Primitives
-    if (true)
+
     {
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/quad.obj");
-            Primitives::Quad = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Quad->m_name = "Quad";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/sphere.obj");
-            Primitives::Sphere = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Sphere->m_name = "Sphere";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cube.obj");
-            Primitives::Cube = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Cube->m_name = "Cube";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cone.obj");
-            Primitives::Cone = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Cone->m_name = "Cone";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cylinder.obj");
-            Primitives::Cylinder = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Cylinder->m_name = "Cylinder";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/ring.obj");
-            Primitives::Ring = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Ring->m_name = "Ring";
-        }
-        {
-            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/monkey.obj");
-            Primitives::Monkey = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-            Primitives::Monkey->m_name = "Monkey";
-        }
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/quad.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Quad = AssetManager::CreateAsset<Mesh>(Handle(0), "Quad");
+        Primitives::Quad->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/sphere.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                                 ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                                 : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Sphere = AssetManager::CreateAsset<Mesh>(Handle(0), "Sphere");
+        Primitives::Sphere->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cube.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Cube = AssetManager::CreateAsset<Mesh>(Handle(0), "Cube");
+        Primitives::Cube->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cone.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Cone = AssetManager::CreateAsset<Mesh>(Handle(0), "Cone");
+        Primitives::Cone->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cylinder.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                                   ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                                   : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Cylinder = AssetManager::CreateAsset<Mesh>(Handle(0), "Cylinder");
+        Primitives::Cylinder->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/ring.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Ring = AssetManager::CreateAsset<Mesh>(Handle(0), "Ring");
+        Primitives::Ring->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+    {
+        auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/monkey.obj");
+        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                                 ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                                 : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+        Primitives::Monkey = AssetManager::CreateAsset<Mesh>(Handle(0), "Monkey");
+        Primitives::Monkey->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+    }
+
 #pragma endregion
 }
 void DefaultResources::Load()
@@ -339,57 +333,35 @@ void DefaultResources::Load()
     AssetManager::RegisterAssetType<Prefab>("Prefab");
     AssetManager::RegisterAssetType<Scene>("Scene");
 
-
     LoadShaders();
-    LoadTextures();
     LoadPrimitives();
 
     LoadRenderManagerResources();
     LoadEditorManagerResources();
 
 #pragma region Physics
-    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>("Default");
+    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>(Handle(0), "Default");
 #pragma endregion
 
 #pragma region Environmental
-    Materials::StandardMaterial = AssetManager::CreateAsset<Material>("Standard");
+    Materials::StandardMaterial = AssetManager::CreateAsset<Material>(Handle(0), "Standard");
     Materials::StandardMaterial->m_program = GLPrograms::StandardProgram;
 
-    Materials::StandardInstancedMaterial =
-        AssetManager::CreateAsset<Material>("Standard Instanced");
+    Materials::StandardInstancedMaterial = AssetManager::CreateAsset<Material>(Handle(0), "Standard Instanced");
     Materials::StandardInstancedMaterial->m_program = GLPrograms::StandardInstancedProgram;
 
-    Environmental::DefaultSkybox = AssetManager::Load<Cubemap>(
+    Environmental::DefaultSkybox = AssetManager::CreateAsset<Cubemap>(Handle(0), "Default");
+    Environmental::DefaultSkybox->Load(
         AssetManager::GetResourceFolderPath() / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->m_name = "Default";
 
-    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>("Default");
+
+    Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(Handle(0), "Missing");
+    Textures::MissingTexture->Load(AssetManager::GetResourceFolderPath() / "Textures/texture-missing.png");
+    Textures::MissingTexture->m_name = "Missing";
+
+    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>(Handle(0), "Default");
     Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
-#pragma endregion
-
-#pragma region SetAssetHandle and push
-    DefaultResources::Physics::DefaultPhysicsMaterial->m_handle = GenerateInternalAssetHandle();
-
-    DefaultResources::GLPrograms::StandardProgram->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::GLPrograms::StandardInstancedProgram->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::GLPrograms::StandardSkinnedProgram->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::GLPrograms::StandardInstancedSkinnedProgram->m_handle = GenerateInternalAssetHandle();
-
-    DefaultResources::Textures::MissingTexture->m_handle = GenerateInternalAssetHandle();
-
-    DefaultResources::Primitives::Sphere->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Cube->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Quad->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Cone->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Ring->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Cylinder->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Primitives::Monkey->m_handle = GenerateInternalAssetHandle();
-
-    DefaultResources::Materials::StandardMaterial->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Materials::StandardInstancedMaterial->m_handle = GenerateInternalAssetHandle();
-
-    DefaultResources::Environmental::DefaultSkybox->m_handle = GenerateInternalAssetHandle();
-    DefaultResources::Environmental::DefaultEnvironmentalMap->m_handle = GenerateInternalAssetHandle();
 #pragma endregion
 }
 
@@ -397,23 +369,23 @@ void DefaultResources::LoadRenderManagerResources()
 {
 #pragma region Skybox
     float skyboxVertices[] = {// positions
-        -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,
-        1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
+                              -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f,
+                              1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
 
-        -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f,
-        -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
+                              -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f,
+                              -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,
 
-        1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
+                              1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,
+                              1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f,
 
-        -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,
+                              -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+                              1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,
 
-        -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
+                              -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
+                              1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f,
 
-        -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
-        1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
+                              -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
+                              1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
     SkyboxVAO = std::make_shared<OpenGLUtils::GLVAO>();
     SkyboxVAO->SetData(sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
     SkyboxVAO->EnableAttributeArray(0);
@@ -426,8 +398,8 @@ void DefaultResources::LoadRenderManagerResources()
     skyboxvert->Compile(vertShaderCode);
     auto skyboxfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     std::string fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-        std::string(FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Skybox.frag"));
+                                 std::string(FileUtils::LoadFileAsString(
+                                     AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Skybox.frag"));
     skyboxfrag->Compile(fragShaderCode);
     SkyboxProgram = std::make_shared<OpenGLUtils::GLProgram>();
     SkyboxProgram->Link(skyboxvert, skyboxfrag);
@@ -454,7 +426,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 #pragma endregion
 #pragma region Screen Shader
-float quadVertices[] = {
+    float quadVertices[] = {
         // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
         // positions   // texCoords
         -1.0f, 1.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f,
@@ -475,8 +447,8 @@ float quadVertices[] = {
     screenvert->Compile(vertShaderCode);
     auto screenfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     fragShaderCode = std::string("#version 450 core\n") +
-        std::string(FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Screen.frag"));
+                     std::string(FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Screen.frag"));
     screenfrag->Compile(fragShaderCode);
     ScreenProgram = std::make_shared<OpenGLUtils::GLProgram>();
     ScreenProgram->Link(screenvert, screenfrag);
@@ -484,11 +456,11 @@ float quadVertices[] = {
 #pragma endregion
 
     vertShaderCode = std::string("#version 450 core\n") +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/DirectionalLightShadowMap.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/DirectionalLightShadowMap.vert");
     fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/DirectionalLightShadowMap.frag");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Fragment/DirectionalLightShadowMap.frag");
     std::string geomShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileUtils::LoadFileAsString(
@@ -504,8 +476,8 @@ float quadVertices[] = {
     m_directionalLightProgram->Link(vertShader, fragShader, geomShader);
 
     vertShaderCode = std::string("#version 450 core\n") + FileUtils::LoadFileAsString(
-        AssetManager::GetResourceFolderPath() /
-        "Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
+                                                              AssetManager::GetResourceFolderPath() /
+                                                              "Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_directionalLightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -533,11 +505,11 @@ float quadVertices[] = {
         std::string("#version 450 core\n") +
         FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/PointLightShadowMap.vert");
     fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/PointLightShadowMap.frag");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Fragment/PointLightShadowMap.frag");
     geomShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Geometry/PointLightShadowMap.geom");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Geometry/PointLightShadowMap.geom");
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
@@ -550,16 +522,16 @@ float quadVertices[] = {
     m_pointLightProgram->Link(vertShader, fragShader, geomShader);
 
     vertShaderCode = std::string("#version 450 core\n") +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/PointLightShadowMapInstanced.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/PointLightShadowMapInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_pointLightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
     m_pointLightInstancedProgram->Link(vertShader, fragShader, geomShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/PointLightShadowMapSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/PointLightShadowMapSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_pointLightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -577,9 +549,9 @@ float quadVertices[] = {
     vertShaderCode =
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/SpotLightShadowMap.vert");
-    fragShaderCode = std::string("#version 450 core\n") +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/SpotLightShadowMap.frag");
+    fragShaderCode =
+        std::string("#version 450 core\n") +
+        FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Fragment/SpotLightShadowMap.frag");
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
@@ -589,16 +561,16 @@ float quadVertices[] = {
     m_spotLightProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/SpotLightShadowMapInstanced.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/SpotLightShadowMapInstanced.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_spotLightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
     m_spotLightInstancedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/SpotLightShadowMapSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/SpotLightShadowMapSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_spotLightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -618,8 +590,8 @@ float quadVertices[] = {
         std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
         FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/TexturePassThrough.vert");
     fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Fragment/StandardDeferredLighting.frag");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Fragment/StandardDeferredLighting.frag");
 
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
@@ -659,8 +631,8 @@ float quadVertices[] = {
     m_gBufferInstancedPrepass->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/StandardInstancedSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/StandardInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_gBufferInstancedSkinnedPrepass = std::make_shared<OpenGLUtils::GLProgram>();
@@ -720,13 +692,13 @@ float quadVertices[] = {
     {
         auto convertCubemapvert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
         vertShaderCode = std::string("#version 450 core\n") +
-            std::string(FileUtils::LoadFileAsString(
-                AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EnvironmentalMapBrdf.vert"));
+                         std::string(FileUtils::LoadFileAsString(
+                             AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EnvironmentalMapBrdf.vert"));
         convertCubemapvert->Compile(vertShaderCode);
         auto convertCubemapfrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
         fragShaderCode = std::string("#version 450 core\n") +
-            std::string(FileUtils::LoadFileAsString(
-                AssetManager::GetResourceFolderPath() / "Shaders/Fragment/EnvironmentalMapBrdf.frag"));
+                         std::string(FileUtils::LoadFileAsString(
+                             AssetManager::GetResourceFolderPath() / "Shaders/Fragment/EnvironmentalMapBrdf.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
         BrdfProgram = std::make_shared<OpenGLUtils::GLProgram>();
         BrdfProgram->Link(convertCubemapvert, convertCubemapfrag);
@@ -734,12 +706,11 @@ float quadVertices[] = {
     }
 
 #pragma region Gizmo Shader
-fragShaderCode =
-    std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-    FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Gizmo.frag");
+    fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+                     FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Fragment/Gizmo.frag");
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Gizmo.vert");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Gizmo.vert");
 
     auto standardVert = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     standardVert->Compile(vertShaderCode);
@@ -809,8 +780,8 @@ void DefaultResources::LoadEditorManagerResources()
 {
 #pragma region Recorder
     std::string vertShaderCode =
-    std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-    FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Empty.vert");
+        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+        FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Empty.vert");
     std::string fragShaderCode =
         std::string("#version 450 core\n") +
         FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Fragment/EntityRecorder.frag");
@@ -840,8 +811,8 @@ void DefaultResources::LoadEditorManagerResources()
     m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EmptyInstancedSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EmptyInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_sceneCameraEntityInstancedSkinnedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -849,7 +820,7 @@ void DefaultResources::LoadEditorManagerResources()
 #pragma endregion
 #pragma region Highlight Prepass
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Empty.vert");
+                     FileUtils::LoadFileAsString(AssetManager::GetResourceFolderPath() / "Shaders/Vertex/Empty.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
 
@@ -880,8 +851,8 @@ void DefaultResources::LoadEditorManagerResources()
     m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EmptyInstancedSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/EmptyInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_sceneHighlightPrePassInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -913,19 +884,11 @@ void DefaultResources::LoadEditorManagerResources()
     m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
 
     vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(
-            AssetManager::GetResourceFolderPath() / "Shaders/Vertex/HighlightInstancedSkinned.vert");
+                     FileUtils::LoadFileAsString(
+                         AssetManager::GetResourceFolderPath() / "Shaders/Vertex/HighlightInstancedSkinned.vert");
     vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
     vertShader->Compile(vertShaderCode);
     m_sceneHighlightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
     m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
-}
-Handle DefaultResources::GenerateInternalAssetHandle()
-{
-    return Handle(GetInstance().m_currentHandle++);
-}
-Handle DefaultResources::GetMaxHandle()
-{
-    return GetInstance().m_currentHandle;
 }

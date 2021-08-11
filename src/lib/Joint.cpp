@@ -383,3 +383,7 @@ void Joint::SetDistanceLimit(const float& toleranceLength, const float& toleranc
     scale.speed = toleranceSpeed;
     static_cast<PxD6Joint *>(m_joint)->setDistanceLimit(PxJointLinearLimit(scale, extent, contactDist));
 }
+void Joint::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<Joint>(target);
+}

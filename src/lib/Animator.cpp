@@ -15,6 +15,9 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
     m_offsetMatrices.resize(m_boneSize);
     for (auto &i : m_bones)
         m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
+
+    m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+
 }
 
 void Animator::OnGui()
@@ -198,4 +201,8 @@ void Animator::ResetTransform(const int &index)
         localTransform.m_value = globalTransform.m_value;
     }
     entity.SetDataComponent(localTransform);
+}
+void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<Animator>(target);
 }

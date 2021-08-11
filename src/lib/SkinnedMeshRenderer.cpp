@@ -99,6 +99,10 @@ void SkinnedMeshRenderer::OnCreate()
     m_finalResults = std::make_shared<BoneMatrices>();
     SetEnabled(true);
 }
+void SkinnedMeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<SkinnedMeshRenderer>(target);
+}
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh>& skinnedMesh) const
 {
     skinnedMesh->UploadBones(m_value);

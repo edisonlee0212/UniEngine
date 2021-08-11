@@ -4,14 +4,12 @@
 using namespace UniEngine;
 void IAsset::Save()
 {
-    if(m_handle.m_value < DefaultResources::GetMaxHandle().m_value) return;
     if(m_path.empty()) return;
     Save(m_path);
     m_saved = true;
 }
 void IAsset::Load()
 {
-    if(m_handle.m_value < DefaultResources::GetMaxHandle().m_value) return;
     if(m_path.empty()) return;
     Load(m_path);
 }
@@ -34,4 +32,10 @@ void IAsset::Load(const std::filesystem::path &path)
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
     Deserialize(in);
+}
+IAsset::~IAsset()
+{
+    if(GetHandle() != 0){
+        AssetManager::GetInstance().m_assets[GetTypeName()].erase(GetHandle());
+    }
 }

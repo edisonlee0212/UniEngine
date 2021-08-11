@@ -90,7 +90,7 @@ std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(const s
     throw 1;
 }
 std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(
-    const std::string &typeName, size_t &hashCode, const Handle& handle)
+    const std::string &typeName, size_t &hashCode, const Handle &handle)
 {
     auto &serializationManager = GetInstance();
     const auto it = serializationManager.m_serializableGenerators.find(typeName);

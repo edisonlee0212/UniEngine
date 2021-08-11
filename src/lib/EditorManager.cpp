@@ -1561,7 +1561,7 @@ void EditorManager::CameraWindowDragAndDrop()
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Prefab>));
             std::shared_ptr<Prefab> payload_n = *(std::shared_ptr<Prefab> *)payload->Data;
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            AssetManager::ToEntity(archetype, payload_n);
+            payload_n->ToEntity();
         }
         const std::string texture2DTypeHash = SerializationManager::GetSerializableTypeName<Texture2D>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))

@@ -32,5 +32,6 @@ class UNIENGINE_API Animator : public IPrivateComponent
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
     void OnGui() override;
     void Animate();
+    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 } // namespace UniEngine

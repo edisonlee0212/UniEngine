@@ -2,8 +2,8 @@
 
 #include <Application.hpp>
 #include <MeshRenderer.hpp>
-#include <PostProcessing.hpp>
 #include <PlayerController.hpp>
+#include <PostProcessing.hpp>
 using namespace UniEngine;
 
 int main()
@@ -47,45 +47,51 @@ int main()
 #pragma endregion
 #pragma region Load models and display
     auto sponza = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
-    auto sponzaEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), sponza);
+    auto sponzaEntity = sponza->ToEntity();
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
 
     auto title = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/UniEngine.obj");
-    auto titleEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), title);
+    auto titleEntity = title->ToEntity();
     titleEntity.SetName("Title");
     Transform titleTransform;
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
     titleEntity.SetDataComponent(titleTransform);
 
-    auto& titleMaterial = titleEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material;
+    auto &titleMaterial =
+        titleEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material;
     titleMaterial->m_emission = 4;
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
 
 #ifdef USE_ASSIMP
-    auto dancingStormTrooper =
-        AssetManager::Load<Prefab>(
+    auto dancingStormTrooper = AssetManager::Load<Prefab>(
         AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
-    auto dancingStormTrooperEntity =
-        AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), dancingStormTrooper);
+    auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
     dancingStormTrooperEntity.SetName("StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
     auto capoeira = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
-    auto capoeiraEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
+    auto capoeiraEntity = capoeira->ToEntity();
     capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
     capoeiraEntity.SetDataComponent(capoeiraTransform);
 
-
-    auto& capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1].GetChildren()[0].GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock()->m_material;
+    auto &capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1]
+                                     .GetChildren()[0]
+                                     .GetOrSetPrivateComponent<SkinnedMeshRenderer>()
+                                     .lock()
+                                     ->m_material;
     capoeiraBodyMaterial->m_albedoColor = glm::vec3(0, 1, 1);
     capoeiraBodyMaterial->m_metallic = 1;
     capoeiraBodyMaterial->m_roughness = 0;
-    auto& capoeiraJointsMaterial = capoeiraEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock()->m_material;
+    auto &capoeiraJointsMaterial = capoeiraEntity.GetChildren()[0]
+                                       .GetChildren()[0]
+                                       .GetOrSetPrivateComponent<SkinnedMeshRenderer>()
+                                       .lock()
+                                       ->m_material;
     capoeiraJointsMaterial->m_albedoColor = glm::vec3(0.3, 1.0, 0.5);
     capoeiraJointsMaterial->m_metallic = 1;
     capoeiraJointsMaterial->m_roughness = 0;
@@ -113,8 +119,7 @@ int main()
 
     auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
     auto pointLightLeftRenderer = pointLightLeftEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    pointLightLeftRenderer->m_material =
-        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    pointLightLeftRenderer->m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     pointLightLeftRenderer->m_material->m_emission = 10.0f;
     pointLightLeftRenderer->m_mesh = DefaultResources::Primitives::Sphere;
@@ -127,8 +132,7 @@ int main()
 
     auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
     auto pointLightRightRenderer = pointLightRightEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    pointLightRightRenderer->m_material =
-        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    pointLightRightRenderer->m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightRenderer->m_material->m_emission = 10.0f;
     pointLightRightRenderer->m_mesh = DefaultResources::Primitives::Sphere;
@@ -177,7 +181,8 @@ int main()
     pointLightRightEntity.SetDataComponent(pointLightRightTransform);
 
     Application::RegisterUpdateFunction([&]() {
-        if(!Application::IsPlaying()) return;
+        if (!Application::IsPlaying())
+            return;
         const float currentTime = Application::Time().CurrentTime();
         time += Application::Time().DeltaTime();
         const float sinTime = glm::sin(time / 5.0f);

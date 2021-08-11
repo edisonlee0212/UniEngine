@@ -14,55 +14,7 @@ using namespace UniEngine;
 
 void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &handle)
 {
-    if (handle < DefaultResources::GetInstance().m_currentHandle)
-    {
-        UNIENGINE_WARNING("Not allowed to remove internal assets!");
-        return;
-    }
-    GetInstance().m_sharedAssets[typeName].erase(handle);
-}
-
-Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Prefab> prefab)
-{
-    const Entity entity = EntityManager::CreateEntity(archetype);
-    entity.SetName(prefab->m_name);
-    for (auto &i : prefab->m_dataComponents)
-    {
-        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
-    }
-    for (auto &i : prefab->m_privateComponents)
-    {
-        EntityManager::SetPrivateComponent(entity, i);
-    }
-    int index = 0;
-    for (auto &i : prefab->m_children)
-    {
-        AttachChildren(archetype, i, entity, prefab->m_name + "_" + std::to_string(index));
-        index++;
-    }
-    return entity;
-}
-
-void UniEngine::AssetManager::AttachChildren(
-    EntityArchetype archetype, std::shared_ptr<Prefab> &modelNode, Entity parentEntity, std::string parentName)
-{
-    Entity entity = EntityManager::CreateEntity(archetype);
-    entity.SetName(parentName);
-    entity.SetParent(parentEntity);
-    for (auto &i : modelNode->m_dataComponents)
-    {
-        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
-    }
-    for (auto &i : modelNode->m_privateComponents)
-    {
-        EntityManager::SetPrivateComponent(entity, i);
-    }
-    int index = 0;
-    for (auto &i : modelNode->m_children)
-    {
-        AttachChildren(archetype, i, entity, (parentName + "_" + std::to_string(index)));
-        index++;
-    }
+    GetInstance().m_assets[typeName].erase(handle);
 }
 
 Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture)
@@ -129,8 +81,6 @@ void AssetManager::OnGui()
                         successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
-                    if (successful)
-                        Share(scene);
                 });
 
 #ifdef USE_ASSIMP
@@ -151,8 +101,6 @@ void AssetManager::OnGui()
                         successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
-                    if (successful)
-                        Share(model);
                 });
 
                 FileUtils::OpenFile("Texture2D##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
@@ -168,8 +116,6 @@ void AssetManager::OnGui()
                         successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
-                    if (successful)
-                        Share(texture2D);
                 });
 
                 FileUtils::OpenFile("Cubemap##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
@@ -185,8 +131,6 @@ void AssetManager::OnGui()
                         successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
-                    if (successful)
-                        Share(cubeMap);
                 });
                 ImGui::EndMenu();
             }
@@ -216,13 +160,13 @@ void AssetManager::OnGui()
     }
     if (resourceManager.m_enableAssetMenu)
     {
-        ImGui::Begin("Resource Manager");
+        ImGui::Begin("Asset Manager");
         if (ImGui::BeginTabBar(
                 "##Resource Tab", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
         {
             if (ImGui::BeginTabItem("Assets"))
             {
-                for (auto &collection : resourceManager.m_sharedAssets)
+                for (auto &collection : resourceManager.m_assets)
                 {
                     if (ImGui::CollapsingHeader(collection.first.c_str()))
                     {
@@ -234,17 +178,13 @@ void AssetManager::OnGui()
                                 IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
                                 std::shared_ptr<IAsset> payload_n =
                                     *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                                Share(payload_n);
+                                //Share(payload_n);
                             }
                             ImGui::EndDragDropTarget();
                         }
                         for (auto &i : collection.second)
                         {
-                            if (EditorManager::Draggable(i.second))
-                            {
-                                RemoveFromShared(collection.first, i.second->GetHandle());
-                                break;
-                            }
+                            EditorManager::Draggable(i.second, false);
                         }
                     }
                 }
@@ -309,3 +249,4 @@ std::filesystem::path AssetManager::GetResourceFolderPath()
 {
     return GetInstance().m_resourceRootPath;
 }
+

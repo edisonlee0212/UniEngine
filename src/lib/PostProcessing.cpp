@@ -104,6 +104,10 @@ void PostProcessing::Serialize(YAML::Emitter &out)
 void PostProcessing::Deserialize(const YAML::Node &in)
 {
 }
+void PostProcessing::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    m_layers = std::static_pointer_cast<PostProcessing>(target)->m_layers;
+}
 
 void Bloom::Init()
 {

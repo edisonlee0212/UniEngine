@@ -97,3 +97,7 @@ void Particles::Serialize(YAML::Emitter &out)
 void Particles::Deserialize(const YAML::Node &in)
 {
 }
+void Particles::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    *this = *std::static_pointer_cast<Particles>(target);
+}

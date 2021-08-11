@@ -99,5 +99,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void Link(const Entity &targetEntity);
     void OnGui() override;
     void OnDestroy() override;
+
+    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 } // namespace UniEngine

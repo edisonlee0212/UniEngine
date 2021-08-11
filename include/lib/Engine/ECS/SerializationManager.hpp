@@ -127,8 +127,8 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     std::map<size_t, std::string> m_serializableNames;
 
   public:
-    template <typename T = ISerializable> static bool RegisterDataComponentType(const std::string &name);
-    template <typename T = IDataComponent> static bool RegisterSerializableType(const std::string &name);
+    template <typename T = IDataComponent> static bool RegisterDataComponentType(const std::string &name);
+    template <typename T = ISerializable> static bool RegisterSerializableType(const std::string &name);
     static bool RegisterDataComponentType(
         const std::string &typeName,
         const size_t &typeId,
