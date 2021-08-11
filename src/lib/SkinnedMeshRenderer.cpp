@@ -24,20 +24,19 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
-    if (!m_animator.IsValid() || !m_animator.HasPrivateComponent<Animator>())
+    if (m_animator.expired())
         return;
     m_finalResults->m_value.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
-    auto animator = m_animator.GetOrSetPrivateComponent<Animator>().lock();
+    auto animator = m_animator.lock();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
         m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
     }
 }
 
-void SkinnedMeshRenderer::AttachAnimator(const Entity &animator)
+void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animator)
 {
-    if (animator.HasPrivateComponent<Animator>() &&
-    animator.GetOrSetPrivateComponent<Animator>().lock()->m_animation.get() == m_skinnedMesh->m_animation.get())
+    if (animator->m_animation.get() == m_skinnedMesh->m_animation.get())
     {
         m_animator = animator;
     }

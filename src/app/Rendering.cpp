@@ -46,13 +46,13 @@ int main()
     }
 #pragma endregion
 #pragma region Load models and display
-    auto sponza = AssetManager::LoadModel(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
+    auto sponza = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
     auto sponzaEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), sponza);
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
 
-    auto title = AssetManager::LoadModel(AssetManager::GetResourceFolderPath() / "Models/UniEngine.obj");
+    auto title = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/UniEngine.obj");
     auto titleEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), title);
     titleEntity.SetName("Title");
     Transform titleTransform;
@@ -65,7 +65,7 @@ int main()
 
 #ifdef USE_ASSIMP
     auto dancingStormTrooper =
-        AssetManager::LoadModel(
+        AssetManager::Load<Prefab>(
         AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
     auto dancingStormTrooperEntity =
         AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), dancingStormTrooper);
@@ -73,7 +73,7 @@ int main()
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
-    auto capoeira = AssetManager::LoadModel(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
+    auto capoeira = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
     auto capoeiraEntity = AssetManager::ToEntity(EntityManager::GetDefaultEntityArchetype(), capoeira);
     capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;

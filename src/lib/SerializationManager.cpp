@@ -72,6 +72,7 @@ bool SerializationManager::RegisterSerializableType(
         return false;
     }
     GetInstance().m_serializableNames[typeId] = typeName;
+    GetInstance().m_serializableIds[typeName] = typeId;
     return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
@@ -133,4 +134,9 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::mat4 &v)
 size_t SerializationManager::GetDataComponentTypeId(const std::string &typeName)
 {
     return GetInstance().m_dataComponentIds[typeName];
+}
+
+size_t SerializationManager::GetSerializableTypeId(const std::string &typeName)
+{
+    return GetInstance().m_serializableIds[typeName];
 }

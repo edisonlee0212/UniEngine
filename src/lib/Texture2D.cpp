@@ -1,4 +1,5 @@
 #include <Texture2D.hpp>
+#include <Debug.hpp>
 using namespace UniEngine;
 
 void Texture2D::OnCreate()
@@ -99,4 +100,57 @@ void Texture2D::StoreToJpg(const std::string &path, int resizeX, int resizeY, un
 std::shared_ptr<OpenGLUtils::GLTexture2D> Texture2D::Texture() const
 {
     return m_texture;
+}
+
+void Texture2D::Load(const std::filesystem::path &path)
+{
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrComponents;
+    float actualGamma = 0.0f;
+    if (path.extension() == ".hdr")
+    {
+        actualGamma = 2.2f;
+    }
+    else
+    {
+        actualGamma = 1.0f;
+    }
+
+    stbi_hdr_to_ldr_gamma(actualGamma);
+    stbi_ldr_to_hdr_gamma(actualGamma);
+
+    float *data = stbi_loadf(path.string().c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format = GL_RED;
+        if (nrComponents == 2)
+        {
+            format = GL_RG;
+        }
+        else if (nrComponents == 3)
+        {
+            format = GL_RGB;
+        }
+        else if (nrComponents == 4)
+        {
+            format = GL_RGBA;
+        }
+        GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(width, height))) + 1;
+        m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, width, height, true);
+        m_texture->SetData(0, format, GL_FLOAT, data);
+        m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+        m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+        m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        m_texture->GenerateMipMap();
+        stbi_image_free(data);
+    }
+    else
+    {
+        UNIENGINE_LOG("Texture failed to load at path: " + path.filename().string());
+        stbi_image_free(data);
+        return;
+    }
+    m_name = path.filename().string();
+    m_gamma = actualGamma;
 }

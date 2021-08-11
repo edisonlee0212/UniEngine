@@ -18,4 +18,5 @@ class UNIENGINE_API LightProbe : public IAsset
     void OnCreate() override;
     void ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap);
 };
+
 } // namespace UniEngine

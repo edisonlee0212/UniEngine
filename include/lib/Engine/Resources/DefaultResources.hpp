@@ -34,6 +34,8 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class WindowManager;
     uint64_t m_currentHandle = 1;
 
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
+
     static std::unique_ptr<Texture2D> m_brdfLut;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;

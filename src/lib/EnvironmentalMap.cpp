@@ -24,3 +24,8 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
     m_reflectionProbe->ConstructFromCubemap(m_targetCubemap);
     m_ready = true;
 }
+void EnvironmentalMap::Load(const std::filesystem::path &path)
+{
+    Construct(AssetManager::Load<Cubemap>(path));
+    m_name = path.filename().string();
+}

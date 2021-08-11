@@ -643,13 +643,12 @@ void RenderManager::CollectRenderInstances(
             if (!smmc->IsEnabled() || smmc->m_material == nullptr || smmc->m_skinnedMesh == nullptr)
                 continue;
             GlobalTransform gt;
-            if (smmc->m_animator.IsValid())
+            if (!smmc->m_animator.expired())
             {
-                gt = smmc->m_animator.GetDataComponent<GlobalTransform>();
+                gt = smmc->m_animator.lock()->GetOwner().GetDataComponent<GlobalTransform>();
             }
             else
             {
-                smmc->m_animator = Entity();
                 gt = owner.GetDataComponent<GlobalTransform>();
             }
             auto ltw = gt.m_value;

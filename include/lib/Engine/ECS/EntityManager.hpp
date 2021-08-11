@@ -1,4 +1,5 @@
 #pragma once
+#include "ISerializable.hpp"
 #include <Core/Debug.hpp>
 #include <Entity.hpp>
 #include <ISingleton.hpp>
@@ -6,7 +7,6 @@
 #include <Scene.hpp>
 #include <SerializationManager.hpp>
 #include <Transform.hpp>
-#include "ISerializable.hpp"
 
 namespace UniEngine
 {
@@ -27,6 +27,7 @@ inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, co
 
 class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 {
+    friend class PrefabHolder;
     friend class PrivateComponentStorage;
     friend class TransformManager;
     friend class EditorManager;
@@ -36,6 +37,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend struct EntityQuery;
     friend struct Entity;
     friend struct Application;
+    friend struct AssetManager;
     size_t m_archetypeChunkSize = ARCHETYPE_CHUNK_SIZE;
     EntityArchetype m_basicArchetype = EntityArchetype();
 
@@ -76,13 +78,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend class SerializationManager;
     static IDataComponent *GetDataComponentPointer(const Entity &entity, const size_t &id);
     static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types);
-    /*
-    static void GetOrSetPrivateComponent(
-        const Entity &entity,
-        const size_t &id,
-        IPrivateComponent *ptr,
-        const bool &enabled = true);
-    */
+
+    static void SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr);
+
     static void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
     static void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
 
@@ -500,10 +498,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void Init();
 
     template <typename T = ISystem>
-    static std::shared_ptr<T> GetOrCreateSystem(
-        std::shared_ptr<Scene> scene, const float &order);
-    template <typename T = ISystem>
-    static std::shared_ptr<T> GetOrCreateSystem(const float &order);
+    static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &order);
+    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(const float &order);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
@@ -527,8 +523,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetSystem()
     return nullptr;
 }
 template <typename T>
-std::shared_ptr<T> EntityManager::GetOrCreateSystem(
-    std::shared_ptr<Scene> scene, const float &rank)
+std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &rank)
 {
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
@@ -634,33 +629,34 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(static_cast<int>(i), entity, address1[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(static_cast<int>(i), entity, address1[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(static_cast<int>(i), entity, address1[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(static_cast<int>(i), entity, address1[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -702,35 +698,36 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -866,52 +863,53 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder]);
-                                  }
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder]);
+                    }
 
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder]);
-                                  }
-                              })
-                              .share());
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -973,55 +971,56 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -1090,59 +1089,60 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -1218,63 +1218,64 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder],
-                                          address7[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder],
-                                          address7[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder],
+                            address7[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder],
+                            address7[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -1357,67 +1358,68 @@ void EntityManager::ForEachStorage(
     const auto loadReminder = entityCount % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(workers
-                              .Push([=, &chunkArray, &entities](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
-                                      T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder],
-                                          address7[remainder],
-                                          address8[remainder]);
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      const auto chunkIndex = i / capacity;
-                                      const auto remainder = i % capacity;
-                                      auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
-                                      T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
-                                      T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
-                                      T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
-                                      T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
-                                      T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
-                                      T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
-                                      T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
-                                      T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
-                                      const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                          return;
-                                      func(
-                                          static_cast<int>(i),
-                                          entity,
-                                          address1[remainder],
-                                          address2[remainder],
-                                          address3[remainder],
-                                          address4[remainder],
-                                          address5[remainder],
-                                          address6[remainder],
-                                          address7[remainder],
-                                          address8[remainder]);
-                                  }
-                              })
-                              .share());
+        results.push_back(
+            workers
+                .Push([=, &chunkArray, &entities](int id) {
+                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                    {
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
+                        T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder],
+                            address7[remainder],
+                            address8[remainder]);
+                    }
+                    if (threadIndex < loadReminder)
+                    {
+                        const int i = threadIndex + threadSize * threadLoad;
+                        const auto chunkIndex = i / capacity;
+                        const auto remainder = i % capacity;
+                        auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                        T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
+                        T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
+                        T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
+                        T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
+                        T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
+                        T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
+                        T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
+                        T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
+                        const auto entity = entities->at(i);
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                            return;
+                        func(
+                            static_cast<int>(i),
+                            entity,
+                            address1[remainder],
+                            address2[remainder],
+                            address3[remainder],
+                            address4[remainder],
+                            address5[remainder],
+                            address6[remainder],
+                            address7[remainder],
+                            address8[remainder]);
+                    }
+                })
+                .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -1776,7 +1778,7 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const Entity &entity)
 {
     assert(entity.IsValid());
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     auto typeName = SerializationManager::GetSerializableTypeName<T>();
     size_t i = 0;
     auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
@@ -1799,8 +1801,10 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
     auto &elements = GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
-        if (dynamic_cast<T *>(
-                GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements[i].m_privateComponentData))
+        if (dynamic_cast<T *>(GetInstance()
+                                  .m_entityMetaDataCollection->at(entity.m_index)
+                                  .m_privateComponentElements[i]
+                                  .m_privateComponentData))
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
@@ -1826,7 +1830,8 @@ template <typename T, typename... Ts>
 void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
-    GetInstance().m_entityQueryInfos[entityQuery.m_index].m_allDataComponentTypes = CollectDataComponentTypes(arg, args...);
+    GetInstance().m_entityQueryInfos[entityQuery.m_index].m_allDataComponentTypes =
+        CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfo(entityQuery.m_index);
 }
 
@@ -1834,7 +1839,8 @@ template <typename T, typename... Ts>
 void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
-    GetInstance().m_entityQueryInfos[entityQuery.m_index].m_anyDataComponentTypes = CollectDataComponentTypes(arg, args...);
+    GetInstance().m_entityQueryInfos[entityQuery.m_index].m_anyDataComponentTypes =
+        CollectDataComponentTypes(arg, args...);
     RefreshEntityQueryInfo(entityQuery.m_index);
 }
 

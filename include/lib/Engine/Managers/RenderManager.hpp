@@ -125,7 +125,11 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     friend class RenderTarget;
     friend class DefaultResources;
     friend class EditorManager;
-
+    friend class LightProbe;
+    friend class ReflectionProbe;
+    friend class EnvironmentalMap;
+    friend class Cubemap;
+    friend class AssetManager;
     size_t m_triangles = 0;
     size_t m_drawCall = 0;
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;
@@ -197,9 +201,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 
     static float Lerp(const float &a, const float &b, const float &f);
 
-    friend class ReflectionProbe;
-    friend class LightProbe;
-    friend class AssetManager;
+
     static void RenderCube();
     static void RenderQuad();
 

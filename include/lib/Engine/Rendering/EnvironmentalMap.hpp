@@ -3,6 +3,8 @@
 #include <Cubemap.hpp>
 #include <LightProbe.hpp>
 #include <ReflectionProbe.hpp>
+#include "Texture2D.hpp"
+
 namespace UniEngine
 {
 class UNIENGINE_API EnvironmentalMap : public IAsset
@@ -17,8 +19,11 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
 
   public:
     float m_gamma = 1.0f;
-    bool IsReady() const;
+    [[nodiscard]] bool IsReady() const;
     void OnCreate() override;
     void Construct(const std::shared_ptr<Cubemap> &targetCubemap);
+
+    void Load(const std::filesystem::path & path) override;
 };
+
 } // namespace UniEngine

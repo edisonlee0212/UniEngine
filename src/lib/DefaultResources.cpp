@@ -13,7 +13,10 @@
 #include <RenderManager.hpp>
 #include <Scene.hpp>
 #include <SkinnedMesh.hpp>
+#include <MeshRenderer.hpp>
 using namespace UniEngine;
+
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_2DToCubemapProgram;
 
 std::unique_ptr<Texture2D> DefaultResources::m_brdfLut;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferInstancedPrepass;
@@ -268,52 +271,52 @@ void DefaultResources::LoadPrimitives()
     if (true)
     {
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/quad.obj");
-            Primitives::Quad = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/quad.obj");
+            Primitives::Quad = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Quad->m_name = "Quad";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/sphere.obj");
-            Primitives::Sphere = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/sphere.obj");
+            Primitives::Sphere = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Sphere->m_name = "Sphere";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/cube.obj");
-            Primitives::Cube = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cube.obj");
+            Primitives::Cube = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Cube->m_name = "Cube";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/cone.obj");
-            Primitives::Cone = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cone.obj");
+            Primitives::Cone = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Cone->m_name = "Cone";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/cylinder.obj");
-            Primitives::Cylinder = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cylinder.obj");
+            Primitives::Cylinder = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Cylinder->m_name = "Cylinder";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/ring.obj");
-            Primitives::Ring = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/ring.obj");
+            Primitives::Ring = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Ring->m_name = "Ring";
         }
         {
-            auto model = AssetManager::Load<Model>(AssetManager::GetResourceFolderPath() / "Primitives/monkey.obj");
-            Primitives::Monkey = model->RootNode()->m_children[0]->m_mesh
-                ? model->RootNode()->m_children[0]->m_mesh
-                : model->RootNode()->m_children[0]->m_children[0]->m_mesh;
+            auto model = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/monkey.obj");
+            Primitives::Monkey = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
+                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
+                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
             Primitives::Monkey->m_name = "Monkey";
         }
     }
@@ -325,7 +328,6 @@ void DefaultResources::Load()
     AssetManager::RegisterAssetType<Mesh>("Mesh");
     AssetManager::RegisterAssetType<Texture2D>("Texture2D");
     AssetManager::RegisterAssetType<Cubemap>("Cubemap");
-    AssetManager::RegisterAssetType<Model>("Model");
     AssetManager::RegisterAssetType<LightProbe>("LightProbe");
     AssetManager::RegisterAssetType<ReflectionProbe>("ReflectionProbe");
     AssetManager::RegisterAssetType<OpenGLUtils::GLProgram>("GLProgram");
@@ -334,7 +336,7 @@ void DefaultResources::Load()
     AssetManager::RegisterAssetType<SkinnedMesh>("SkinnedMesh");
     AssetManager::RegisterAssetType<PhysicsMaterial>("PhysicsMaterial");
     AssetManager::RegisterAssetType<Collider>("Collider");
-    AssetManager::RegisterAssetType<PrefabHolder>("PrefabHolder");
+    AssetManager::RegisterAssetType<Prefab>("Prefab");
     AssetManager::RegisterAssetType<Scene>("Scene");
 
 
@@ -444,10 +446,10 @@ void DefaultResources::LoadRenderManagerResources()
             std::string(FileUtils::LoadFileAsString(
                 AssetManager::GetResourceFolderPath() / "Shaders/Fragment/EquirectangularMapToCubemap.frag"));
         convertCubemapfrag->Compile(fragShaderCode);
-        AssetManager::GetInstance().m_2DToCubemapProgram = std::make_shared<OpenGLUtils::GLProgram>();
-        AssetManager::GetInstance().m_2DToCubemapProgram->Link(convertCubemapvert, convertCubemapfrag);
-        AssetManager::GetInstance().m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
-        AssetManager::GetInstance().m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
+        m_2DToCubemapProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        m_2DToCubemapProgram->Link(convertCubemapvert, convertCubemapfrag);
+        m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
+        m_2DToCubemapProgram->m_name = "EquirectangularMapToCubemap";
     }
 
 #pragma endregion

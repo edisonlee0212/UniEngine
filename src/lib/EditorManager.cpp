@@ -8,7 +8,6 @@
 #include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
-#include <Model.hpp>
 #include <Particles.hpp>
 #include <PhysicsManager.hpp>
 #include <PostProcessing.hpp>
@@ -1556,11 +1555,11 @@ void EditorManager::CameraWindowDragAndDrop()
             std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
             EntityManager::Attach(payload_n);
         }
-        const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Model>();
+        const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Prefab>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
-            std::shared_ptr<Model> payload_n = *(std::shared_ptr<Model> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Prefab>));
+            std::shared_ptr<Prefab> payload_n = *(std::shared_ptr<Prefab> *)payload->Data;
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }

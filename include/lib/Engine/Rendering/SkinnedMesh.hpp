@@ -42,7 +42,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
     std::vector<std::shared_ptr<Bone>> m_bones;
-
+    friend class Prefab;
   public:
     void Draw() const;
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;

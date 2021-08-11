@@ -71,7 +71,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_static = false;
         entityInfo.m_enabled = true;
-        for(auto& i : entityInfo.m_privateComponentElements)
+        for (auto &i : entityInfo.m_privateComponentElements)
         {
             i.m_privateComponentData->OnDestroy();
         }
@@ -551,7 +551,8 @@ std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const st
 
 void EntityManager::DeleteEntity(const Entity &entity)
 {
-    if(!entity.IsValid()){
+    if (!entity.IsValid())
+    {
         return;
     }
     const size_t entityIndex = entity.m_index;
@@ -601,12 +602,14 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
     assert(entity.IsValid() && parent.IsValid());
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
-    auto& entityManager = GetInstance();
-    auto& parentEntityInfo = entityManager.m_entityMetaDataCollection->at(parentIndex);
-    for(const auto& i : parentEntityInfo.m_children){
-        if(i == entity) return;
+    auto &entityManager = GetInstance();
+    auto &parentEntityInfo = entityManager.m_entityMetaDataCollection->at(parentIndex);
+    for (const auto &i : parentEntityInfo.m_children)
+    {
+        if (i == entity)
+            return;
     }
-    auto& childEntityInfo = entityManager.m_entityMetaDataCollection->at(childIndex);
+    auto &childEntityInfo = entityManager.m_entityMetaDataCollection->at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
         RemoveChild(entity, childEntityInfo.m_parent);
@@ -797,7 +800,8 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
             if (type.m_typeId == id)
             {
                 chunk.SetData(
-                    static_cast<size_t>(type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size),
+                    static_cast<size_t>(
+                        type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size),
                     size,
                     data);
                 return;
@@ -864,30 +868,28 @@ EntityArchetype EntityManager::CreateEntityArchetype(
         offset += i.m_size;
     }
     entityArchetypeInfo.m_dataComponentTypes = actualTypes;
-    entityArchetypeInfo.m_entitySize =
-        entityArchetypeInfo.m_dataComponentTypes.back().m_offset + entityArchetypeInfo.m_dataComponentTypes.back().m_size;
+    entityArchetypeInfo.m_entitySize = entityArchetypeInfo.m_dataComponentTypes.back().m_offset +
+                                       entityArchetypeInfo.m_dataComponentTypes.back().m_size;
     entityArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / entityArchetypeInfo.m_entitySize;
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
-/*
-void EntityManager::GetOrSetPrivateComponent(
-    const Entity &entity, const size_t &id, IPrivateComponent *ptr, const bool &enabled)
+
+void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
 {
-    if (!ptr || !entity.IsValid())
-        return;
-    ptr->m_enabled = true;
+    assert(ptr && entity.IsValid());
+    auto &entityManager = GetInstance();
+    auto typeName = ptr->GetTypeName();
     bool found = false;
     size_t i = 0;
-    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
-        if (id == element.m_typeId)
+        if (typeName == element.m_privateComponentData->GetTypeName())
         {
             found = true;
             if (element.m_privateComponentData)
             {
                 element.m_privateComponentData->OnDestroy();
-                delete element.m_privateComponentData;
             }
             element.m_privateComponentData = ptr;
             element.ResetOwner(entity);
@@ -897,11 +899,12 @@ void EntityManager::GetOrSetPrivateComponent(
     }
     if (!found)
     {
+        auto id = SerializationManager::GetSerializableTypeId(typeName);
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
         elements.emplace_back(id, ptr, entity);
     }
 }
-*/
+
 void EntityManager::ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func)
 {
     func(target);
@@ -941,7 +944,8 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto &privateComponentElements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto &privateComponentElements =
+        entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < privateComponentElements.size(); i++)
     {
         if (privateComponentElements[i].m_typeId == typeId)
@@ -953,7 +957,6 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
     }
     entityManager.m_entityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
 }
-
 
 void EntityManager::SetEnable(const Entity &entity, const bool &value)
 {
@@ -983,8 +986,9 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
 void EntityManager::SetStatic(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
-    ForEachDescendant(
-        entity, [=](const Entity iterator) { GetInstance().m_entityMetaDataCollection->at(iterator.m_index).m_static = value; });
+    ForEachDescendant(entity, [=](const Entity iterator) {
+        GetInstance().m_entityMetaDataCollection->at(iterator.m_index).m_static = value;
+    });
 }
 
 void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)

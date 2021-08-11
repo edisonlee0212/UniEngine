@@ -122,6 +122,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     std::map<std::string, std::function<std::shared_ptr<ISerializable>(size_t &)>> m_serializableGenerators;
 
     std::map<std::string, size_t> m_dataComponentIds;
+    std::map<std::string, size_t> m_serializableIds;
     std::map<size_t, std::string> m_dataComponentNames;
     std::map<size_t, std::string> m_serializableNames;
 
@@ -144,6 +145,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
     static std::string GetSerializableTypeName(const size_t &typeId);
 
+    static size_t GetSerializableTypeId(const std::string &typeName);
     static size_t GetDataComponentTypeId(const std::string &typeName);
 };
 template <typename T> std::string SerializationManager::GetDataComponentTypeName()
@@ -212,5 +214,6 @@ template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializab
     UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
 }
+
 
 } // namespace UniEngine
