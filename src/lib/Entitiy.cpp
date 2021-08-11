@@ -271,3 +271,9 @@ bool DataComponentStorage::HasType(const size_t &typeId)
     }
     return false;
 }
+
+void EntityRef::Update(const Handle& handle)
+{
+    m_entityHandle = handle;
+    m_value = EntityManager::GetEntity(m_entityHandle);
+}

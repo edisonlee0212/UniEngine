@@ -18,17 +18,11 @@ void Prefab::OnCreate()
 
 Entity Prefab::ToEntity() const
 {
-    const Entity entity = EntityManager::CreateEntity(m_name);
+    const Entity entity =
+        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name, m_entityHandle);
     for (auto &i : m_dataComponents)
     {
         EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
-    }
-    for (auto &i : m_privateComponents)
-    {
-        size_t id;
-        auto ptr = std::static_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(i->GetTypeName(), id));
-        ptr->Clone(i);
-        EntityManager::SetPrivateComponent(entity, i);
     }
     int index = 0;
     for (const auto &i : m_children)
@@ -36,28 +30,65 @@ Entity Prefab::ToEntity() const
         AttachChildren(i, entity, m_name + "_" + std::to_string(index));
         index++;
     }
+
+    for (auto &i : m_privateComponents)
+    {
+        size_t id;
+        auto ptr = std::static_pointer_cast<IPrivateComponent>(
+            SerializationManager::ProduceSerializable(i->GetTypeName(), id));
+        ptr->Clone(i);
+        EntityManager::SetPrivateComponent(entity, ptr);
+    }
+    for (const auto &i : m_children)
+    {
+        AttachChildrenPrivateComponent(i, entity);
+        index++;
+    }
     return entity;
 }
 void Prefab::AttachChildren(
     const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const
 {
-    Entity entity = EntityManager::CreateEntity(parentName);
+    Entity entity =
+        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name, modelNode->m_entityHandle);
     entity.SetParent(parentEntity);
+    assert(entity.GetHandle().GetValue() == modelNode->m_entityHandle.GetValue());
     for (auto &i : modelNode->m_dataComponents)
     {
         EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
-    }
-    for (auto &i : modelNode->m_privateComponents)
-    {
-        size_t id;
-        auto ptr = std::static_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(i->GetTypeName(), id));
-        ptr->Clone(i);
-        EntityManager::SetPrivateComponent(entity, i);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
     {
         AttachChildren(i, entity, (parentName + "_" + std::to_string(index)));
+        index++;
+    }
+}
+
+void Prefab::AttachChildrenPrivateComponent(
+    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity) const
+{
+    Entity entity;
+    auto children = parentEntity.GetChildren();
+    for(auto& i : children)
+    {
+        auto a = i.GetHandle().GetValue();
+        auto b = modelNode->m_entityHandle.GetValue();
+        if(a == b) entity = i;
+    }
+    if(entity.IsNull()) return;
+    for (auto &i : modelNode->m_privateComponents)
+    {
+        size_t id;
+        auto ptr = std::static_pointer_cast<IPrivateComponent>(
+            SerializationManager::ProduceSerializable(i->GetTypeName(), id));
+        ptr->Clone(i);
+        EntityManager::SetPrivateComponent(entity, ptr);
+    }
+    int index = 0;
+    for (auto &i : modelNode->m_children)
+    {
+        AttachChildrenPrivateComponent(i, entity);
         index++;
     }
 }
@@ -117,8 +148,8 @@ void Prefab::Load(const std::filesystem::path &path)
 
             auto animator = SerializationManager::ProduceSerializable<Animator>();
             animator->Setup(animation);
-            //animator->Animate();
-            AttachAnimator(this, animator);
+            // animator->Animate();
+            AttachAnimator(this, m_entityHandle);
             m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(animator));
         }
         return;
@@ -418,14 +449,14 @@ void Prefab::Load(const std::filesystem::path &path)
     }
 }
 #ifdef USE_ASSIMP
-void Prefab::AttachAnimator(Prefab *parent, const std::shared_ptr<Animator> &animator)
+void Prefab::AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle)
 {
     auto smr = parent->GetPrivateComponent<SkinnedMeshRenderer>();
     if (smr)
-        smr->AttachAnimator(animator);
+        smr->m_animator.m_entityHandle = animatorEntityHandle;
     for (auto &i : parent->m_children)
     {
-        AttachAnimator(i.get(), animator);
+        AttachAnimator(i.get(), animatorEntityHandle);
     }
 }
 glm::mat4 mat4_cast(const aiMatrix4x4 &m)

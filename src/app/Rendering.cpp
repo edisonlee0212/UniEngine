@@ -46,6 +46,7 @@ int main()
     }
 #pragma endregion
 #pragma region Load models and display
+    /*
     auto sponza = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
     auto sponzaEntity = sponza->ToEntity();
     Transform sponzaTransform;
@@ -59,11 +60,13 @@ int main()
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
     titleEntity.SetDataComponent(titleTransform);
 
+
     auto &titleMaterial =
         titleEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material;
     titleMaterial->m_emission = 4;
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
 
+     */
 #ifdef USE_ASSIMP
     auto dancingStormTrooper = AssetManager::Load<Prefab>(
         AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
@@ -74,6 +77,7 @@ int main()
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
     auto capoeira = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
     auto capoeiraEntity = capoeira->ToEntity();
+    //auto capoeiraEntity2 = capoeira->ToEntity();
     capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));

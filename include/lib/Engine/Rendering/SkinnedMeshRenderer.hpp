@@ -22,7 +22,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     friend class RenderManager;
 
   public:
-    std::weak_ptr<Animator> m_animator;
+    PrivateComponentRef<Animator> m_animator;
     void AttachAnimator(const std::shared_ptr<Animator> &animator);
     bool m_forwardRendering = false;
     bool m_castShadow = true;

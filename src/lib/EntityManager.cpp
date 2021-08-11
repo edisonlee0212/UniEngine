@@ -71,6 +71,10 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_static = false;
         entityInfo.m_enabled = true;
+
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.erase(entityInfo.m_handle);
+        entityInfo.m_handle = Handle(0);
+
         for (auto &i : entityInfo.m_privateComponentElements)
         {
             i.m_privateComponentData->OnDestroy();
@@ -340,7 +344,7 @@ Entity EntityManager::CreateEntity(const std::string &name)
     return CreateEntity(GetInstance().m_basicArchetype, name);
 }
 
-Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name)
+Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name, const Handle& handle)
 {
     if (!GetInstance().m_currentAttachedWorldEntityStorage)
     {
@@ -377,9 +381,12 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         retVal.m_version = 1;
         EntityMetadata entityInfo;
         entityInfo.m_name = name;
+        entityInfo.m_handle = handle;
         entityInfo.m_dataComponentStorageIndex = archetypeInfo.m_dataComponentStorageIndex;
         entityInfo.m_chunkArrayIndex = storage.m_entityCount;
         storage.m_chunkArray.m_entities.push_back(retVal);
+
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = retVal;
         GetInstance().m_entityMetaDataCollection->push_back(std::move(entityInfo));
         GetInstance().m_entities->push_back(retVal);
         storage.m_entityCount++;
@@ -389,9 +396,12 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
     {
         retVal = storage.m_chunkArray.m_entities.at(storage.m_entityAliveCount);
         EntityMetadata &entityInfo = GetInstance().m_entityMetaDataCollection->at(retVal.m_index);
+        entityInfo.m_handle = handle;
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
         retVal.m_version = entityInfo.m_version;
+
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = retVal;
         storage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = retVal;
         GetInstance().m_entities->at(retVal.m_index) = retVal;
         storage.m_entityAliveCount++;
@@ -419,7 +429,7 @@ std::vector<Entity> EntityManager::CreateEntities(
     if (!GetInstance().m_currentAttachedWorldEntityStorage)
     {
         UNIENGINE_ERROR("EntityManager not attached to any world!");
-        return std::vector<Entity>();
+        return {};
     }
     assert(archetype.IsValid());
     std::vector<Entity> retVal;
@@ -445,6 +455,9 @@ std::vector<Entity> EntityManager::CreateEntities(
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
         entity.m_version = entityInfo.m_version;
+        entityInfo.m_handle = Handle();
+
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = entity;
         storage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
         GetInstance().m_entities->at(entity.m_index) = entity;
         storage.m_entityAliveCount++;
@@ -492,6 +505,10 @@ std::vector<Entity> EntityManager::CreateEntities(
         entityInfo.m_name = name;
         entityInfo.m_dataComponentStorageIndex = archetypeInfo.m_dataComponentStorageIndex;
         entityInfo.m_chunkArrayIndex = storage.m_entityAliveCount - remainAmount + i;
+
+        entityInfo.m_handle = Handle();
+
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = entity;
     }
 
     storage.m_chunkArray.m_entities.insert(
@@ -1156,6 +1173,16 @@ void EntityManager::RefreshAllEntityArchetypeInfos()
     {
         RefreshEntityArchetypeInfo(i);
     }
+}
+Entity EntityManager::GetEntity(const Handle &handle)
+{
+    auto &entityManager = GetInstance();
+    auto search = entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.find(handle);
+    if (search != entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.end())
+    {
+        return search->second;
+    }
+    return Entity();
 }
 
 size_t EntityQuery::GetEntityAmount() const

@@ -240,6 +240,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetEntityAmount(EntityQuery entityQuery);
 #pragma endregion
   public:
+    static Entity GetEntity(const Handle &handle);
+
     static EntityArchetype GetDefaultEntityArchetype();
 
 #pragma region Unsafe
@@ -281,7 +283,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
     static Entity CreateEntity(const std::string &name = "New Entity");
-    static Entity CreateEntity(const EntityArchetype &archetype, const std::string &name = "New Entity");
+    static Entity CreateEntity(const EntityArchetype &archetype, const std::string &name = "New Entity", const Handle& handle = Handle());
     static std::vector<Entity> CreateEntities(
         const EntityArchetype &archetype, const size_t &amount, const std::string &name = "New Entity");
     static std::vector<Entity> CreateEntities(const size_t &amount, const std::string &name = "New Entity");
@@ -2692,4 +2694,58 @@ void EntityQuery::ToEntityArray(
     EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
 }
 #pragma endregion
+
+template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRef : public ISerializable
+{
+    friend class Prefab;
+    std::optional<std::weak_ptr<T>> m_value;
+    Handle m_entityHandle = Handle(0);
+  public:
+    [[nodiscard]] bool HasValue() const
+    {
+        return m_value.has_value();
+    }
+    [[nodiscard]] std::weak_ptr<T> Get()
+    {
+        return m_value.value();
+    }
+    void Update(const std::shared_ptr<T> &target)
+    {
+        m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(target)->GetOwner().GetHandle();
+        m_value = target;
+    }
+    void Update()
+    {
+        auto entity = EntityManager::GetEntity(m_entityHandle);
+        if (!entity.IsNull())
+        {
+            if (entity.HasPrivateComponent<T>())
+            {
+                m_value = entity.GetOrSetPrivateComponent<T>();
+            }
+        }
+    }
+    void Update(const Handle &handle)
+    {
+        m_entityHandle = handle;
+        auto entity = EntityManager::GetEntity(m_entityHandle);
+        if (!entity.IsNull())
+        {
+            if (entity.HasPrivateComponent<T>())
+            {
+                m_value = entity.GetOrSetPrivateComponent<T>();
+            }
+        }
+    }
+    void Serialize(YAML::Emitter &out) override
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "PrivateComponentRef" << YAML::Value << m_entityHandle;
+        out << YAML::EndMap;
+    }
+    void Deserialize(const YAML::Node &in) override
+    {
+        m_entityHandle = Handle(in["EntityRef"].as<uint64_t>());
+    }
+};
 } // namespace UniEngine

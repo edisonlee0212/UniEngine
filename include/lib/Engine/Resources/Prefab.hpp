@@ -34,7 +34,7 @@ struct DataComponentHolder
 class UNIENGINE_API Prefab : public IAsset
 {
 #pragma region Model Loading
-    void AttachAnimator(Prefab *parent, const std::shared_ptr<Animator> &animator);
+    void AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle);
 
     std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
@@ -75,8 +75,12 @@ class UNIENGINE_API Prefab : public IAsset
     void AttachChildren(
         const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const;
 
+    void AttachChildrenPrivateComponent(
+        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity) const;
+
 #pragma endregion
   public:
+    Handle m_entityHandle = Handle();
     std::vector<DataComponentHolder> m_dataComponents;
     std::vector<std::shared_ptr<IPrivateComponent>> m_privateComponents;
     std::vector<std::shared_ptr<Prefab>> m_children;

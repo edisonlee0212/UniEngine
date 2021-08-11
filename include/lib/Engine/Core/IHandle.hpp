@@ -18,12 +18,14 @@ struct UNIENGINE_API Handle
     {
         return m_value;
     }
-
+    [[nodiscard]] uint64_t GetValue() const {
+        return m_value;
+    }
   private:
     uint64_t m_value;
 };
 class UNIENGINE_API IHandle{
-
+    friend class EntityManager;
     friend class EditorManager;
     friend class AssetManager;
     friend class DefaultResources;

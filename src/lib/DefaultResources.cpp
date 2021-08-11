@@ -717,6 +717,9 @@ void DefaultResources::LoadRenderManagerResources()
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GizmoProgram = std::make_shared<OpenGLUtils::GLProgram>();
+    GizmoProgram->Attach(standardVert);
+    GizmoProgram->Attach(standardFrag);
+    GizmoProgram->Link();
     GizmoProgram->m_name = "Gizmo";
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
@@ -727,6 +730,9 @@ void DefaultResources::LoadRenderManagerResources()
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GizmoInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+    GizmoInstancedProgram->Attach(standardVert);
+    GizmoInstancedProgram->Attach(standardFrag);
+    GizmoInstancedProgram->Link();
     GizmoInstancedProgram->m_name = "Gizmo Instanced";
 
     vertShaderCode =

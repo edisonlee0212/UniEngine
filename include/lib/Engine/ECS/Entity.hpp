@@ -91,26 +91,47 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class Scene;
     bool m_enabled = true;
     Entity m_owner = Entity();
+
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
 
-    virtual void OnGui() {};
-    virtual void FixedUpdate() {};
-    virtual void PreUpdate() {};
-    virtual void Update() {};
-    virtual void LateUpdate() {};
+    virtual void OnGui(){};
+    virtual void FixedUpdate(){};
+    virtual void PreUpdate(){};
+    virtual void Update(){};
+    virtual void LateUpdate(){};
 
-    virtual void OnCreate() {};
-    virtual void OnEnable() {};
-    virtual void OnDisable() {};
-    virtual void OnEntityEnable() {};
-    virtual void OnEntityDisable() {};
-    virtual void OnDestroy() {};
+    virtual void OnCreate(){};
+    virtual void OnEnable(){};
+    virtual void OnDisable(){};
+    virtual void OnEntityEnable(){};
+    virtual void OnEntityDisable(){};
+    virtual void OnDestroy(){};
 
-    virtual void Clone(const std::shared_ptr<IPrivateComponent>& target) = 0;
+    virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
 };
+
+struct UNIENGINE_API EntityRef : public ISerializable
+{
+    Entity m_value;
+    Handle m_entityHandle = Handle(0);
+    void Update(const Handle& handle);
+    void Serialize(YAML::Emitter &out) override
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "EntityRef" << YAML::Value << m_entityHandle;
+        out << YAML::EndMap;
+    }
+    void Deserialize(const YAML::Node &in) override
+    {
+        m_entityHandle = Handle(in["EntityRef"].as<uint64_t>());
+    }
+};
+
+
+
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 
@@ -134,7 +155,8 @@ struct PrivateComponentElement
 {
     size_t m_typeId;
     std::shared_ptr<IPrivateComponent> m_privateComponentData;
-    UNIENGINE_API PrivateComponentElement(size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner);
+    UNIENGINE_API PrivateComponentElement(
+        size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner);
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
 };
 
@@ -210,7 +232,6 @@ struct UNIENGINE_API DataComponentStorage
     DataComponentStorage() = default;
     DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo);
 };
-
 
 struct EntityQueryInfo
 {
