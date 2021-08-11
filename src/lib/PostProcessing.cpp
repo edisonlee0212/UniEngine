@@ -151,7 +151,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     glDisable(GL_DEPTH_TEST);
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 
-    DefaultResources::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::ScreenVAO->Bind();
 
     m_separateProgram->Bind();
 
@@ -263,7 +263,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    DefaultResources::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::ScreenVAO->Bind();
 
     m_geometryProgram->Bind();
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);

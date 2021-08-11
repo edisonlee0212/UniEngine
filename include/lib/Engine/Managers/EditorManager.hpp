@@ -56,21 +56,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     friend class RenderManager;
     friend class InputManager;
 
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedPrePassProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedSkinnedProgram;
-
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedSkinnedProgram;
-
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityRecorderProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntitySkinnedRecorderProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
-
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;
     std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
@@ -178,7 +163,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
 {
     const std::shared_ptr<IAsset> ptr = std::static_pointer_cast<IAsset>(target);
     assert(!(ptr && ptr->GetHandle() == 0));
-    const std::string type = SerializableFactory::GetSerializableTypeName<T>();
+    const std::string type = SerializationManager::GetSerializableTypeName<T>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)
@@ -232,7 +217,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
 
 template <typename T> bool EditorManager::DragAndDrop(std::weak_ptr<T> &target){
     bool statusChanged = false;
-    const std::string type = SerializableFactory::GetSerializableTypeName<T>();
+    const std::string type = SerializationManager::GetSerializableTypeName<T>();
     if(!target.expired())
     {
         const std::shared_ptr<IPrivateComponent> ptr = std::static_pointer_cast<IPrivateComponent>(target.lock());
@@ -276,7 +261,7 @@ template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
     assert(!(ptr && ptr->GetHandle() == 0));
-    const std::string type = SerializableFactory::GetSerializableTypeName<T>();
+    const std::string type = SerializationManager::GetSerializableTypeName<T>();
     bool removed = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)

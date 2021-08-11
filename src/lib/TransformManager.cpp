@@ -21,7 +21,7 @@ void TransformManager::PreUpdate()
             Transform &transform,
             GlobalTransform &globalTransform,
             GlobalTransformUpdateFlag &transformStatus) {
-            EntityMetadata & entityInfo = EntityManager::GetInstance().m_entityInfos->at(entity.GetIndex());
+            EntityMetadata & entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex());
             if ((!transformManager.m_physicsSystemOverride && entityInfo.m_static) ||
                 !entityInfo.m_parent.IsNull())
                 return;
@@ -42,7 +42,7 @@ void TransformManager::PreUpdate()
 void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)
 {
     auto &transformManager = GetInstance();
-    EntityMetadata & entityInfo = EntityManager::GetInstance().m_entityInfos->at(parent.GetIndex());
+    EntityMetadata & entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(parent.GetIndex());
     if (!transformManager.m_physicsSystemOverride && entityInfo.m_static)
         return;
     for (const auto &entity : entityInfo.m_children)

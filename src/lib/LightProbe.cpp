@@ -40,15 +40,15 @@ void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCube
 
     // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
     // -----------------------------------------------------------------------------
-    DefaultResources::GLPrograms::ConvolutionProgram->Bind();
-    DefaultResources::GLPrograms::ConvolutionProgram->SetInt("environmentMap", 0);
-    DefaultResources::GLPrograms::ConvolutionProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
+    DefaultResources::ConvolutionProgram->Bind();
+    DefaultResources::ConvolutionProgram->SetInt("environmentMap", 0);
+    DefaultResources::ConvolutionProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
     targetCubemap->m_texture->Bind(0);
     renderTarget->GetFrameBuffer()->ViewPort(
         resolution, resolution); // don't forget to configure the viewport to the capture dimensions.
     for (unsigned int i = 0; i < 6; ++i)
     {
-        DefaultResources::GLPrograms::ConvolutionProgram->SetFloat4x4("view", EnvironmentalMapCaptureViews[i]);
+        DefaultResources::ConvolutionProgram->SetFloat4x4("view", EnvironmentalMapCaptureViews[i]);
         renderTarget->AttachTexture2D(
             m_irradianceMap->Texture().get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
         renderTarget->Clear();

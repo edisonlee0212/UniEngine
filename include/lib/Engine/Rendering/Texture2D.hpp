@@ -16,11 +16,11 @@ class UNIENGINE_API Texture2D : public IAsset
     friend class RenderManager;
     friend class Bloom;
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
-    std::string m_path;
     friend class AssetManager;
     friend class EnvironmentalMap;
     friend class Camera;
 
+    friend class DefaultResources;
   public:
     float m_gamma = 1.0f;
     void OnCreate() override;
@@ -33,6 +33,5 @@ class UNIENGINE_API Texture2D : public IAsset
         unsigned compressionLevel = 8) const;
     void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1, unsigned quality = 100) const;
     [[nodiscard]] std::shared_ptr<OpenGLUtils::GLTexture2D> Texture() const;
-    [[nodiscard]] std::string Path() const;
 };
 } // namespace UniEngine

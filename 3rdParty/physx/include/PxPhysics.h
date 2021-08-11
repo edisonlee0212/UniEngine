@@ -521,7 +521,7 @@ public:
 	//@{
 
 	/**
-	\brief RegisterDataComponent a deletion listener. Listeners will be called whenever an object is deleted.
+	\brief RegisterDataComponentType a deletion listener. Listeners will be called whenever an object is deleted.
 
 	It is illegal to register or unregister a deletion listener while deletions are being processed.
 
@@ -549,7 +549,7 @@ public:
 	virtual void unregisterDeletionListener(PxDeletionListener& observer) = 0;
 
 	/**
-	\brief RegisterDataComponent specific objects for deletion events.
+	\brief RegisterDataComponentType specific objects for deletion events.
 
 	This method allows for a deletion listener to limit deletion events to specific objects only.
 

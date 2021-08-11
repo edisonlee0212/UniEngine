@@ -117,13 +117,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_transparentRenderInstances;
     std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_instancedTransparentRenderInstances;
 
-    std::unique_ptr<Texture2D> m_brdfLut;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedSkinnedPrepass;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferSkinnedPrepass;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
+
     bool m_mainCameraViewable = true;
     int m_mainCameraResolutionX = 1;
     int m_mainCameraResolutionY = 1;
@@ -151,20 +146,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     DirectionalLightInfo m_directionalLights[DefaultResources::ShaderIncludes::MaxDirectionalLightAmount];
     PointLightInfo m_pointLights[DefaultResources::ShaderIncludes::MaxPointLightAmount];
     SpotLightInfo m_spotLights[DefaultResources::ShaderIncludes::MaxSpotLightAmount];
-
-    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedProgram;
-
-    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
 
     std::unique_ptr<DirectionalLightShadowMap> m_directionalLightShadowMap;
     std::unique_ptr<PointLightShadowMap> m_pointLightShadowMap;

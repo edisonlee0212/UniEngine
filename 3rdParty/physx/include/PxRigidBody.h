@@ -112,7 +112,7 @@ struct PxRigidBodyFlag
 		eENABLE_CCD_FRICTION			= (1<<3),
 
 		/**
-		\brief RegisterDataComponent a rigid body for reporting pose changes by the simulation at an early stage.
+		\brief RegisterDataComponentType a rigid body for reporting pose changes by the simulation at an early stage.
 
 		Sometimes it might be advantageous to get access to the new pose of a rigid body as early as possible and
 		not wait until the call to fetchResults() returns. Setting this flag will schedule the rigid body to get reported
@@ -124,7 +124,7 @@ struct PxRigidBodyFlag
 		eENABLE_POSE_INTEGRATION_PREVIEW 	= (1 << 4),
 
 		/**
-		\brief RegisterDataComponent a rigid body to dynamicly adjust contact offset based on velocity. This can be used to achieve a CCD effect.
+		\brief RegisterDataComponentType a rigid body to dynamicly adjust contact offset based on velocity. This can be used to achieve a CCD effect.
 		*/
 		eENABLE_SPECULATIVE_CCD 			= (1 << 5),
 

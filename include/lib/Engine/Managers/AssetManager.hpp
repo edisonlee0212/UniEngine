@@ -1,11 +1,13 @@
 #pragma once
-#include <Core/OpenGLUtils.hpp>
+#include <OpenGLUtils.hpp>
 #include <Cubemap.hpp>
 #include <EntityManager.hpp>
 #include <EnvironmentalMap.hpp>
 #include <LightProbe.hpp>
 #include <Model.hpp>
 #include <ReflectionProbe.hpp>
+#include <IAsset.hpp>
+
 namespace UniEngine
 {
 #ifdef USE_ASSIMP
@@ -44,15 +46,10 @@ class UNIENGINE_API AssetRegistry : public ISerializable
 
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
-    std::string m_projectPath;
-    std::string m_resourceRootPath;
-
-
+    std::filesystem::path m_resourceRootPath;
     bool m_enableAssetMenu = true;
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
-
     std::shared_ptr<AssetRegistry> m_assetRegistry;
-
     friend class DefaultResources;
 #pragma region Model Loading
     static void AttachAnimator(const Entity &parent, const Entity &animator);
@@ -105,14 +102,9 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class EditorManager;
 
   public:
-    static void SetResourcePath(const std::string &path);
-    static std::string GetAssetRootPath();
-    template <typename T>
-    static std::string GetAssetPath();
-    static void SetProjectPath(const std::string &path);
-    static std::string GetProjectPath();
-    static std::string GetResourcePath();
-
+    static void SetResourcePath(const std::filesystem::path &path);
+    static std::filesystem::path GetAssetFolderPath();
+    static std::filesystem::path GetResourceFolderPath();
     static void ScanAssetFolder();
 
 
@@ -126,20 +118,19 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
     template <typename T>
-    static std::shared_ptr<T> Load(const std::string& path);
+    static std::shared_ptr<T> Load(const std::filesystem::path& path);
 
     static std::shared_ptr<Model> LoadModel(
-        std::string const &path,
+        std::filesystem::path const &path,
         const unsigned &flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals,
         const bool &optimize = false,
         const float &gamma = 0.0f);
-    static std::shared_ptr<Texture2D> LoadTexture(const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<Cubemap> LoadCubemap(const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(const std::string &path, const float &gamma = 0.0f);
+    static std::shared_ptr<Texture2D> LoadTexture(const std::filesystem::path &path, const float &gamma = 0.0f);
+    static std::shared_ptr<Cubemap> LoadCubemap(const std::filesystem::path &path, const float &gamma = 0.0f);
+    static std::shared_ptr<EnvironmentalMap> LoadEnvironmentalMap(const std::filesystem::path &path, const float &gamma = 0.0f);
 
-    static std::shared_ptr<LightProbe> LoadLightProbe(const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(const std::string &path, const float &gamma = 0.0f);
-    static std::shared_ptr<Cubemap> LoadCubemap(const std::vector<std::string> &paths, const float &gamma = 0.0f);
+    static std::shared_ptr<LightProbe> LoadLightProbe(const std::filesystem::path &path, const float &gamma = 0.0f);
+    static std::shared_ptr<ReflectionProbe> LoadReflectionProbe(const std::filesystem::path &path, const float &gamma = 0.0f);
     static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex, const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
@@ -156,7 +147,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void Init();
 };
 
-template <typename T> std::shared_ptr<T> AssetManager::Load(const std::string& path)
+
+template <typename T> std::shared_ptr<T> AssetManager::Load(const std::filesystem::path& path)
 {
     if(typeid(T).hash_code() == typeid(Model).hash_code()){
         return std::dynamic_pointer_cast<T>(LoadModel(path));
@@ -181,7 +173,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Load(const std::string& p
 template <typename T> void AssetManager::RegisterAssetType(const std::string &name)
 {
     auto &resourceManager = GetInstance();
-    SerializableFactory::RegisterSerializable<T>(name);
+    SerializationManager::RegisterSerializableType<T>(name);
     resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
 }
 
@@ -194,12 +186,12 @@ template <typename T>
 std::shared_ptr<T> AssetManager::CreateAsset(const Handle &assetHandle, const std::string &name)
 {
     auto &resourceManager = GetInstance();
-    if (resourceManager.m_sharedAssets.find(SerializableFactory::GetSerializableTypeName<T>()) !=
+    if (resourceManager.m_sharedAssets.find(SerializationManager::GetSerializableTypeName<T>()) !=
         resourceManager.m_sharedAssets.end())
     {
         auto retVal = std::make_shared<T>();
         dynamic_cast<IAsset *>(retVal.get())->OnCreate();
-        dynamic_cast<IAsset *>(retVal.get())->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
+        dynamic_cast<IAsset *>(retVal.get())->m_typeName = SerializationManager::GetSerializableTypeName<T>();
         dynamic_cast<IAsset *>(retVal.get())->m_handle = assetHandle;
         if (!name.empty())
             retVal->m_name = name;
@@ -230,7 +222,7 @@ template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
 template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
 {
     auto &assetManager = GetInstance();
-    auto typeName = SerializableFactory::GetSerializableTypeName<T>();
+    auto typeName = SerializationManager::GetSerializableTypeName<T>();
     auto typeSearch = assetManager.m_sharedAssets.find(typeName);
     if (typeSearch != assetManager.m_sharedAssets.end())
     {
@@ -248,7 +240,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
             }else
             {
                 auto retVal = CreateAsset<T>();
-                SerializableFactory::Deserialize(search2->second.m_filePath, retVal);
+                //SerializationManager::Deserialize(search2->second.m_filePath, retVal);
                 return retVal;
             }
         }
@@ -267,15 +259,6 @@ template <typename T> void AssetManager::RemoveFromShared(const Handle &handle)
         UNIENGINE_WARNING("Not allowed to remove internal assets!");
         return;
     }
-    GetInstance().m_sharedAssets[SerializableFactory::GetSerializableTypeName<T>()].erase(handle);
-}
-template <typename T> std::string AssetManager::GetAssetPath()
-{
-    auto path = GetAssetRootPath() + SerializableFactory::GetSerializableTypeName<T>() + "/";
-    if (!std::filesystem::exists(path))
-    {
-        std::filesystem::create_directory(path);
-    }
-    return path;
+    GetInstance().m_sharedAssets[SerializationManager::GetSerializableTypeName<T>()].erase(handle);
 }
 } // namespace UniEngine

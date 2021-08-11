@@ -471,6 +471,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         std::vector<std::shared_ptr<GLShader>> m_shaders;
         static GLuint m_boundProgram;
       public:
+        GLProgram();
         void OnCreate() override;
         ~GLProgram() override;
         std::shared_ptr<GLShader> GetShader(ShaderType type);

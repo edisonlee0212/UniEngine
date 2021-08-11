@@ -107,10 +107,10 @@ void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
     /* Render here */
     glDisable(GL_DEPTH_TEST);
     glDrawBuffer(GL_BACK);
-    auto program = DefaultResources::GLPrograms::ScreenProgram;
+    auto program = DefaultResources::ScreenProgram;
     program->Bind();
     program->SetFloat("depth", 0);
-    DefaultResources::GLPrograms::ScreenVAO->Bind();
+    DefaultResources::ScreenVAO->Bind();
     // Default::Textures::UV->Texture()->Bind(GL_TEXTURE_2D);
     texture->Bind(0);
     program->SetInt("screenTexture", 0);

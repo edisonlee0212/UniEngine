@@ -100,8 +100,3 @@ std::shared_ptr<OpenGLUtils::GLTexture2D> Texture2D::Texture() const
 {
     return m_texture;
 }
-
-std::string Texture2D::Path() const
-{
-    return m_path;
-}

@@ -25,6 +25,8 @@ class UNIENGINE_API IHandle{
     friend class EditorManager;
     friend class AssetManager;
     friend class DefaultResources;
+    friend class SerializationManager;
+    friend class IAsset;
     Handle m_handle;
   public:
     Handle GetHandle()

@@ -11,7 +11,7 @@ int main()
 {
 #pragma region Application Preparations
     Application::Init();
-    SerializableFactory::RegisterSerializable<StarClusterSystem>("StarClusterSystem");
+    SerializationManager::RegisterSerializableType<StarClusterSystem>("StarClusterSystem");
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma endregion

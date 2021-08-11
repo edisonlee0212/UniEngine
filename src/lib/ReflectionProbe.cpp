@@ -40,9 +40,9 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
 
     // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
     // ----------------------------------------------------------------------------------------------------
-    DefaultResources::GLPrograms::PrefilterProgram->Bind();
-    DefaultResources::GLPrograms::PrefilterProgram->SetInt("environmentMap", 0);
-    DefaultResources::GLPrograms::PrefilterProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
+    DefaultResources::PrefilterProgram->Bind();
+    DefaultResources::PrefilterProgram->SetInt("environmentMap", 0);
+    DefaultResources::PrefilterProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
 
     unsigned int maxMipLevels = 5;
     for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
@@ -56,10 +56,10 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
         renderTarget->GetFrameBuffer()->ViewPort(
             mipWidth, mipWidth); // don't forget to configure the viewport to the capture dimensions.
         float roughness = (float)mip / (float)(maxMipLevels - 1);
-        DefaultResources::GLPrograms::PrefilterProgram->SetFloat("roughness", roughness);
+        DefaultResources::PrefilterProgram->SetFloat("roughness", roughness);
         for (unsigned int i = 0; i < 6; ++i)
         {
-            DefaultResources::GLPrograms::PrefilterProgram->SetFloat4x4("view", EnvironmentalMapCaptureViews[i]);
+            DefaultResources::PrefilterProgram->SetFloat4x4("view", EnvironmentalMapCaptureViews[i]);
             renderTarget->AttachTexture2D(
                 m_preFilteredMap->m_texture.get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mip);
             renderTarget->Clear();

@@ -6,12 +6,14 @@
 #include <Scene.hpp>
 #include <SerializationManager.hpp>
 #include <Transform.hpp>
+#include "ISerializable.hpp"
+
 namespace UniEngine
 {
 template <typename T> DataComponentType Typeof()
 {
     DataComponentType type;
-    type.m_name = SerializableFactory::GetDataComponentTypeName<T>();
+    type.m_name = SerializationManager::GetDataComponentTypeName<T>();
     type.m_size = sizeof(T);
     type.m_offset = 0;
     type.m_typeId = typeid(T).hash_code();
@@ -44,7 +46,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     SceneDataStorage *m_currentAttachedWorldEntityStorage = nullptr;
     std::vector<Entity> *m_entities = nullptr;
-    std::vector<EntityMetadata> *m_entityInfos = nullptr;
+    std::vector<EntityMetadata> *m_entityMetaDataCollection = nullptr;
     std::vector<DataComponentStorage> *m_entityDataComponentStorage = nullptr;
     PrivateComponentStorage *m_entityPrivateComponentStorage = nullptr;
 #pragma endregion
@@ -505,6 +507,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
+
 #pragma endregion
 
 #pragma region Functions
@@ -531,7 +534,7 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     auto system = std::make_shared<T>();
-    system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
+    system->m_typeName = SerializationManager::GetSerializableTypeName<T>();
     system->m_rank = rank;
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
@@ -545,7 +548,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const 
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
     auto system = std::make_shared<T>();
-    system->m_typeName = SerializableFactory::GetSerializableTypeName<T>();
+    system->m_typeName = SerializationManager::GetSerializableTypeName<T>();
     system->m_rank = rank;
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
@@ -640,7 +643,7 @@ void EntityManager::ForEachStorage(
                                       auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder]);
                                   }
@@ -652,7 +655,7 @@ void EntityManager::ForEachStorage(
                                       auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder]);
                                   }
@@ -709,7 +712,7 @@ void EntityManager::ForEachStorage(
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                                   }
@@ -722,7 +725,7 @@ void EntityManager::ForEachStorage(
                                       T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                                       T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                                   }
@@ -787,7 +790,7 @@ void EntityManager::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities->at(i);
-                        if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -802,7 +805,7 @@ void EntityManager::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities->at(i);
-                        if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -875,7 +878,7 @@ void EntityManager::ForEachStorage(
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                                       T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -897,7 +900,7 @@ void EntityManager::ForEachStorage(
                                       T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                                       T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -983,7 +986,7 @@ void EntityManager::ForEachStorage(
                                       T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                                       T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1006,7 +1009,7 @@ void EntityManager::ForEachStorage(
                                       T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                                       T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1101,7 +1104,7 @@ void EntityManager::ForEachStorage(
                                       T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                                       T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1126,7 +1129,7 @@ void EntityManager::ForEachStorage(
                                       T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                                       T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1230,7 +1233,7 @@ void EntityManager::ForEachStorage(
                                       T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                                       T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1257,7 +1260,7 @@ void EntityManager::ForEachStorage(
                                       T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                                       T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1370,7 +1373,7 @@ void EntityManager::ForEachStorage(
                                       T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                                       T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1399,7 +1402,7 @@ void EntityManager::ForEachStorage(
                                       T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                                       T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                                       const auto entity = entities->at(i);
-                                      if (checkEnable && !GetInstance().m_entityInfos->at(entity.m_index).m_enabled)
+                                      if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
                                           return;
                                       func(
                                           static_cast<int>(i),
@@ -1486,7 +1489,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
     auto &entityManager = GetInstance();
-    auto &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -1534,7 +1537,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     }
     newEntity.SetDataComponent(value);
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = GetInstance().m_entityMetaDataCollection->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1560,7 +1563,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
         return;
     }
     auto &entityManager = GetInstance();
-    auto &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
@@ -1609,7 +1612,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     }
     T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = GetInstance().m_entityInfos->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = GetInstance().m_entityMetaDataCollection->at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1634,14 +1637,14 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
     const size_t id = typeid(T).hash_code();
-    assert(index < GetInstance().m_entityInfos->size());
+    assert(index < GetInstance().m_entityMetaDataCollection->size());
     SetDataComponent(index, id, sizeof(T), (IDataComponent *)&value);
 }
 template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -1677,7 +1680,7 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(entity.m_index);
+    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
@@ -1703,10 +1706,10 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 }
 template <typename T> T EntityManager::GetDataComponent(const size_t &index)
 {
-    if (index > GetInstance().m_entityInfos->size())
+    if (index > GetInstance().m_entityMetaDataCollection->size())
         return T();
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(index);
+    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -1741,10 +1744,10 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
 }
 template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 {
-    if (index > GetInstance().m_entityInfos->size())
+    if (index > GetInstance().m_entityMetaDataCollection->size())
         return false;
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityInfos->at(index);
+    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(index);
     auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
 
     const size_t id = typeid(T).hash_code();
@@ -1774,9 +1777,9 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
 {
     assert(entity.IsValid());
     auto& entityManager = GetInstance();
-    auto typeName = SerializableFactory::GetSerializableTypeName<T>();
+    auto typeName = SerializationManager::GetSerializableTypeName<T>();
     size_t i = 0;
-    auto &elements = entityManager.m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
@@ -1786,18 +1789,18 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
         i++;
     }
     entityManager.m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
-    auto ptr = SerializableFactory::ProduceSerializable<T>();
+    auto ptr = SerializationManager::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity);
     return std::move(ptr);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
     assert(entity.IsValid());
-    auto &elements = GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements;
+    auto &elements = GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
         if (dynamic_cast<T *>(
-                GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements[i].m_privateComponentData))
+                GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements[i].m_privateComponentData))
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
@@ -1809,7 +1812,7 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
 template <typename T> bool EntityManager::HasPrivateComponent(const Entity &entity)
 {
     assert(entity.IsValid());
-    for (auto &element : GetInstance().m_entityInfos->at(entity.m_index).m_privateComponentElements)
+    for (auto &element : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
     {
         if (std::dynamic_pointer_cast<T>(element.m_privateComponentData))
         {

@@ -9,7 +9,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 {
     m_defaultSurfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     m_defaultSurfaceMaterial->SetTexture(
-        TextureType::Albedo, AssetManager::LoadTexture(AssetManager::GetResourcePath() + "Textures/border.png"));
+        TextureType::Albedo, AssetManager::LoadTexture(AssetManager::GetResourceFolderPath() / "Textures/border.png"));
 }
 
 void Planet::PlanetTerrainSystem::Update()

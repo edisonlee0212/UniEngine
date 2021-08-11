@@ -1115,7 +1115,7 @@ void OpenGLUtils::GLProgram::BindDefault()
 void OpenGLUtils::GLProgram::OnCreate()
 {
     m_name = "New Program";
-    m_id = glCreateProgram();
+
 }
 
 OpenGLUtils::GLProgram::~GLProgram()
@@ -1262,6 +1262,10 @@ void OpenGLUtils::GLProgram::SetFloat4x4(const std::string &name, const glm::mat
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
+OpenGLUtils::GLProgram::GLProgram()
+{
+    m_id = glCreateProgram();
+}
 
 #pragma region OpenGL Debugging
 

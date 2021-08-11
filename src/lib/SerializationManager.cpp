@@ -2,10 +2,10 @@
 #include <ISerializable.hpp>
 #include <MeshRenderer.hpp>
 #include <PhysicsManager.hpp>
+#include <PlayerController.hpp>
 #include <PostProcessing.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
-#include <PlayerController.hpp>
 using namespace UniEngine;
 
 ComponentDataRegistration<Transform> TransformRegistry("Transform");
@@ -26,21 +26,20 @@ SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 SerializableRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
 
-
 SerializableRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
-
-std::string SerializableFactory::GetSerializableTypeName(const size_t &typeId)
+std::string SerializationManager::GetSerializableTypeName(const size_t &typeId)
 {
     return GetInstance().m_serializableNames.find(typeId)->second;
 }
 
-bool SerializableFactory::RegisterDataComponent(
+bool SerializationManager::RegisterDataComponentType(
     const std::string &typeName,
     const size_t &typeId,
     const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
 {
-    if(GetInstance().m_dataComponentNames.find(typeId) != GetInstance().m_dataComponentNames.end()){
+    if (GetInstance().m_dataComponentNames.find(typeId) != GetInstance().m_dataComponentNames.end())
+    {
         UNIENGINE_ERROR("DataComponent already registered!");
         return false;
     }
@@ -49,7 +48,7 @@ bool SerializableFactory::RegisterDataComponent(
     return GetInstance().m_dataComponentGenerators.insert({typeName, func}).second;
 }
 
-std::shared_ptr<IDataComponent> SerializableFactory::ProduceDataComponent(
+std::shared_ptr<IDataComponent> SerializationManager::ProduceDataComponent(
     const std::string &typeName, size_t &hashCode, size_t &size)
 {
     auto &factory = GetInstance();
@@ -62,10 +61,13 @@ std::shared_ptr<IDataComponent> SerializableFactory::ProduceDataComponent(
     throw 1;
 }
 
-bool SerializableFactory::RegisterSerializable(
-        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable>(size_t &)> &func)
+bool SerializationManager::RegisterSerializableType(
+    const std::string &typeName,
+    const size_t &typeId,
+    const std::function<std::shared_ptr<ISerializable>(size_t &)> &func)
 {
-    if(GetInstance().m_serializableNames.find(typeId) != GetInstance().m_serializableNames.end()){
+    if (GetInstance().m_serializableNames.find(typeId) != GetInstance().m_serializableNames.end())
+    {
         UNIENGINE_ERROR("Serializable already registered!");
         return false;
     }
@@ -73,10 +75,11 @@ bool SerializableFactory::RegisterSerializable(
     return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
 }
 
-std::shared_ptr<ISerializable> SerializableFactory::ProduceSerializable(const std::string &typeName, size_t &hashCode)
+std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
-    const auto it = GetInstance().m_serializableGenerators.find(typeName);
-    if (it != GetInstance().m_serializableGenerators.end())
+    auto &serializationManager = GetInstance();
+    const auto it = serializationManager.m_serializableGenerators.find(typeName);
+    if (it != serializationManager.m_serializableGenerators.end())
     {
         auto retVal = it->second(hashCode);
         retVal->m_typeName = typeName;
@@ -85,7 +88,21 @@ std::shared_ptr<ISerializable> SerializableFactory::ProduceSerializable(const st
     UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
 }
-
+std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(
+    const std::string &typeName, size_t &hashCode, const Handle& handle)
+{
+    auto &serializationManager = GetInstance();
+    const auto it = serializationManager.m_serializableGenerators.find(typeName);
+    if (it != serializationManager.m_serializableGenerators.end())
+    {
+        auto retVal = it->second(hashCode);
+        retVal->m_typeName = typeName;
+        retVal->m_handle = handle;
+        return std::move(retVal);
+    }
+    UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
+    throw 1;
+}
 YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::vec2 &v)
 {
     out << YAML::Flow;
@@ -113,7 +130,7 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::mat4 &v)
     out << YAML::BeginSeq << v[0] << v[1] << v[2] << v[3] << YAML::EndSeq;
     return out;
 }
-size_t SerializableFactory::GetDataComponentTypeId(const std::string &typeName)
+size_t SerializationManager::GetDataComponentTypeId(const std::string &typeName)
 {
     return GetInstance().m_dataComponentIds[typeName];
 }

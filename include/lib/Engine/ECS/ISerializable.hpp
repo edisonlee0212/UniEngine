@@ -11,8 +11,9 @@ namespace UniEngine
 {
 class UNIENGINE_API ISerializable : public IHandle
 {
-    friend class SerializableFactory;
+    friend class SerializationManager;
     friend class AssetManager;
+    friend class IAsset;
     friend class EntityManager;
     friend class SerializationManager;
     std::string m_typeName;

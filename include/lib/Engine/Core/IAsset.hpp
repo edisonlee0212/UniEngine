@@ -12,9 +12,14 @@ class UNIENGINE_API IAsset : public ISerializable
     friend class AssetManager;
     friend class DefaultResources;
     std::shared_ptr<Texture2D> m_icon;
+    std::filesystem::path m_path;
   public:
     virtual void OnCreate();
     std::string m_name;
+
+    void Save();
+    void Load();
+    bool m_saved;
 };
 
 inline void IAsset::OnCreate()

@@ -7,7 +7,7 @@ class UNIENGINE_API FileUtils
     {
     friend class DefaultResources;
       public:
-        static std::string LoadFileAsString(const std::string &path = "");
+        static std::string LoadFileAsString(const std::filesystem::path &path = "");
         static void OpenFile(
             const std::string &dialogTitle,
             const std::string &filters,

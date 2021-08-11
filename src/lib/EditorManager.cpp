@@ -90,7 +90,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
         if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
         {
-            GetInstance().m_sceneHighlightPrePassProgram->SetFloat4x4(
+            DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             mmc->m_mesh->Draw();
         }
@@ -100,7 +100,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
         if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
         {
-            GetInstance().m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
+            DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             immc->m_mesh->DrawInstanced(immc->m_matrices->m_value);
         }
@@ -111,7 +111,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
         {
             smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
-            GetInstance().m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
+            DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             smmc->m_skinnedMesh->Draw();
         }
@@ -130,8 +130,8 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = mmc->m_mesh.get();
-            GetInstance().m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
-            GetInstance().m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
+            DefaultResources::m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
+            DefaultResources::m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
             mesh->Draw();
         }
     }
@@ -142,7 +142,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *mesh = immc->m_mesh.get();
-            GetInstance().m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
+            DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
             mesh->DrawInstanced(immc->m_matrices->m_value);
         }
     }
@@ -154,8 +154,8 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             auto *skinnedMesh = smmc->m_skinnedMesh.get();
             smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
-            GetInstance().m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
-            GetInstance().m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
+            DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
+            DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
             skinnedMesh->Draw();
         }
     }
@@ -194,18 +194,18 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     glDisable(GL_CULL_FACE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    manager.m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
-    manager.m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
-    manager.m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
-    manager.m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
 
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-    manager.m_sceneHighlightProgram->SetFloat4("color", color);
-    manager.m_sceneHighlightSkinnedProgram->SetFloat4("color", color);
-    manager.m_sceneHighlightInstancedProgram->SetFloat4("color", color);
-    manager.m_sceneHighlightInstancedSkinnedProgram->SetFloat4("color", color);
+    DefaultResources::m_sceneHighlightProgram->SetFloat4("color", color);
+    DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4("color", color);
+    DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4("color", color);
+    DefaultResources::m_sceneHighlightInstancedSkinnedProgram->SetFloat4("color", color);
 
     HighLightEntityHelper(entity);
     glStencilMask(0xFF);
@@ -261,117 +261,7 @@ void EditorManager::Init()
         editorManager.m_sceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
     editorManager.m_sceneCameraEntityRecorder->AttachTexture(
         editorManager.m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
-#pragma region Recorder
-    std::string vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Empty.vert");
-    std::string fragShaderCode =
-        std::string("#version 450 core\n") +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/EntityRecorder.frag");
 
-    auto vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    auto fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-
-    editorManager.m_sceneCameraEntityRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstanced.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptySkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntitySkinnedRecorderProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstancedSkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
-#pragma endregion
-
-#pragma region Highlight Prepass
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Empty.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-
-    fragShaderCode = std::string("#version 450 core\n") +
-                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Fragment/Highlight.frag");
-
-    fragShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
-    fragShader->Compile(fragShaderCode);
-
-    editorManager.m_sceneHighlightPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstanced.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
-
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptySkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedPrePassProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/EmptyInstancedSkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
-#pragma endregion
-#pragma region Highlight
-    vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-                     FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/Highlight.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightInstanced.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightSkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
-
-    vertShaderCode =
-        std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-        FileUtils::LoadFileAsString(AssetManager::GetResourcePath() + "Shaders/Vertex/HighlightInstancedSkinned.vert");
-    vertShader = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Vertex);
-    vertShader->Compile(vertShaderCode);
-    editorManager.m_sceneHighlightInstancedSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>();
-    editorManager.m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
-#pragma endregion
     RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ltw = reinterpret_cast<GlobalTransform *>(data);
         glm::vec3 er;
@@ -548,7 +438,7 @@ void EditorManager::Init()
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
 
-    editorManager.m_sceneCamera = SerializableFactory::ProduceSerializable<Camera>();
+    editorManager.m_sceneCamera = SerializationManager::ProduceSerializable<Camera>();
     editorManager.m_sceneCamera->m_clearColor = glm::vec3(0.5f);
     editorManager.m_sceneCamera->m_useClearColor = false;
     editorManager.m_sceneCamera->OnCreate();
@@ -712,19 +602,19 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         renderCommand.m_mesh.lock()->Draw();
                         break;
                     }
                     case RenderCommandMeshType::Skinned: {
-                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
                         renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
-                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         renderCommand.m_skinnedMesh.lock()->Draw();
                         break;
@@ -742,12 +632,12 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                        DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
                         renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                         break;
@@ -765,19 +655,19 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        auto &program = editorManager.m_sceneCameraEntityRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                        editorManager.m_sceneCameraEntityRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntityRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         renderCommand.m_mesh.lock()->Draw();
                         break;
                     }
                     case RenderCommandMeshType::Skinned: {
-                        auto &program = editorManager.m_sceneCameraEntitySkinnedRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
                         renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
-                        editorManager.m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         renderCommand.m_skinnedMesh.lock()->Draw();
                         break;
@@ -795,12 +685,12 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        auto &program = editorManager.m_sceneCameraEntityInstancedRecorderProgram;
+                        auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetInt(
+                        DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
-                        editorManager.m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
+                        DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
                         renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
                         break;
@@ -1659,14 +1549,14 @@ void EditorManager::CameraWindowDragAndDrop()
 {
     if (ImGui::BeginDragDropTarget())
     {
-        const std::string sceneTypeHash = SerializableFactory::GetSerializableTypeName<Scene>();
+        const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
             std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
             EntityManager::Attach(payload_n);
         }
-        const std::string modelTypeHash = SerializableFactory::GetSerializableTypeName<Model>();
+        const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Model>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Model>));
@@ -1674,7 +1564,7 @@ void EditorManager::CameraWindowDragAndDrop()
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }
-        const std::string texture2DTypeHash = SerializableFactory::GetSerializableTypeName<Texture2D>();
+        const std::string texture2DTypeHash = SerializationManager::GetSerializableTypeName<Texture2D>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
@@ -1682,7 +1572,7 @@ void EditorManager::CameraWindowDragAndDrop()
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }
-        const std::string meshTypeHash = SerializableFactory::GetSerializableTypeName<Mesh>();
+        const std::string meshTypeHash = SerializationManager::GetSerializableTypeName<Mesh>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
@@ -1694,7 +1584,7 @@ void EditorManager::CameraWindowDragAndDrop()
             meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
         }
 
-        const std::string environmentalMapTypeHash = SerializableFactory::GetSerializableTypeName<EnvironmentalMap>();
+        const std::string environmentalMapTypeHash = SerializationManager::GetSerializableTypeName<EnvironmentalMap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
@@ -1702,7 +1592,7 @@ void EditorManager::CameraWindowDragAndDrop()
             RenderManager::GetInstance().m_environmentalMap = payload_n;
         }
 
-        const std::string cubeMapTypeHash = SerializableFactory::GetSerializableTypeName<Cubemap>();
+        const std::string cubeMapTypeHash = SerializationManager::GetSerializableTypeName<Cubemap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
         {
             if (!RenderManager::GetMainCamera().expired())

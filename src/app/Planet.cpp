@@ -11,8 +11,8 @@ using namespace UniEngine;
 using namespace Planet;
 int main()
 {
-    SerializableFactory::RegisterSerializable<PlanetTerrain>("PlanetTerrain");
-    SerializableFactory::RegisterSerializable<PlanetTerrainSystem>("PlanetTerrainSystem");
+    SerializationManager::RegisterSerializableType<PlanetTerrain>("PlanetTerrain");
+    SerializationManager::RegisterSerializableType<PlanetTerrainSystem>("PlanetTerrainSystem");
     Application::Init();
 #pragma region Preparations
 

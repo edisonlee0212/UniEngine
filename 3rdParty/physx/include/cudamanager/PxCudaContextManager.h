@@ -279,7 +279,7 @@ public:
     /* End query methods that don't require context to be acquired */
 
     /**
-     * \brief RegisterDataComponent a rendering resource with CUDA
+     * \brief RegisterDataComponentType a rendering resource with CUDA
      *
      * This function is called to register render resources (allocated
      * from OpenGL) with CUDA so that the memory may be shared
@@ -301,7 +301,7 @@ public:
     virtual bool registerResourceInCudaGL(CUgraphicsResource &resource, uint32_t buffer, PxCudaInteropRegisterFlags flags = PxCudaInteropRegisterFlags()) = 0;
 
      /**
-     * \brief RegisterDataComponent a rendering resource with CUDA
+     * \brief RegisterDataComponentType a rendering resource with CUDA
      *
      * This function is called to register render resources (allocated
      * from Direct3D) with CUDA so that the memory may be shared

@@ -8,6 +8,7 @@
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 
 void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &handle)
@@ -21,13 +22,13 @@ void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &h
 }
 
 std::shared_ptr<Model> AssetManager::LoadModel(
-    std::string const &path, const unsigned &flags, const bool &optimize, const float &gamma)
+        std::filesystem::path const &path, const unsigned &flags, const bool &optimize, const float &gamma)
 {
 #ifdef USE_ASSIMP
 
     // read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(path, flags);
+    const aiScene *scene = importer.ReadFile(path.string(), flags);
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -35,16 +36,17 @@ std::shared_ptr<Model> AssetManager::LoadModel(
         return nullptr;
     }
     // retrieve the directory path of the filepath
-    const std::string directory = path.substr(0, path.find_last_of('/'));
+    auto temp = path;
+    const std::string directory = temp.remove_filename().string();
     std::map<std::string, std::shared_ptr<Texture2D>> texture2DsLoaded;
     auto retVal = CreateAsset<Model>();
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_name = path.filename().string();
     std::map<unsigned, std::shared_ptr<Material>> loadedMaterials;
     std::map<std::string, std::shared_ptr<Bone>> bonesMap;
     if (!bonesMap.empty() || scene->HasAnimations())
     {
         retVal->m_animation = CreateAsset<Animation>(true);
-        retVal->m_animation->m_name = path.substr(path.find_last_of("/\\") + 1);
+        retVal->m_animation->m_name = path.filename().string();
     }
     std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
     if (!ProcessNode(
@@ -1080,17 +1082,16 @@ void UniEngine::AssetManager::AttachChildren(
     }
 }
 
-std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::string &path, const float &gamma)
+std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::filesystem::path &path, const float &gamma)
 {
     stbi_set_flip_vertically_on_load(true);
     auto retVal = CreateAsset<Texture2D>();
-    const std::string filename = path;
-    retVal->m_path = filename;
+    retVal->m_path = path;
     int width, height, nrComponents;
     float actualGamma = gamma;
     if (gamma == 0.0f)
     {
-        if (path.substr(path.find_last_of(".") + 1) == "hdr")
+        if (path.extension() == ".hdr")
         {
             actualGamma = 2.2f;
         }
@@ -1102,7 +1103,7 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::string &path, co
     stbi_hdr_to_ldr_gamma(actualGamma);
     stbi_ldr_to_hdr_gamma(actualGamma);
 
-    float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+    float *data = stbi_loadf(path.string().c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
         GLenum format = GL_RED;
@@ -1130,28 +1131,26 @@ std::shared_ptr<Texture2D> AssetManager::LoadTexture(const std::string &path, co
     }
     else
     {
-        UNIENGINE_LOG("Texture failed to load at path: " + filename);
+        UNIENGINE_LOG("Texture failed to load at path: " + path.filename().string());
         stbi_image_free(data);
         return nullptr;
     }
     retVal->m_icon = retVal;
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_name = path.filename().string();
     retVal->m_gamma = actualGamma;
     return retVal;
 }
 
-std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::string &path, const float &gamma)
+std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::filesystem::path &path, const float &gamma)
 {
     auto &manager = GetInstance();
     stbi_set_flip_vertically_on_load(true);
     auto texture2D = CreateAsset<Texture2D>();
-    const std::string filename = path;
-    texture2D->m_path = filename;
     int width, height, nrComponents;
     float actualGamma = gamma;
     if (gamma == 0.0f)
     {
-        if (path.substr(path.find_last_of(".") + 1) == "hdr")
+        if (path.extension() == ".hdr")
         {
             actualGamma = 2.2f;
         }
@@ -1162,7 +1161,7 @@ std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::string &path, cons
     }
     stbi_hdr_to_ldr_gamma(actualGamma);
     stbi_ldr_to_hdr_gamma(actualGamma);
-    float *data = stbi_loadf(filename.c_str(), &width, &height, &nrComponents, 0);
+    float *data = stbi_loadf(path.string().c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
         texture2D->m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(1, GL_RGB32F, width, height, true);
@@ -1175,7 +1174,7 @@ std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::string &path, cons
     }
     else
     {
-        UNIENGINE_LOG("Texture failed to load at path: " + filename);
+        UNIENGINE_LOG("Texture failed to load at path: " + path.string());
         stbi_image_free(data);
         return nullptr;
     }
@@ -1229,102 +1228,32 @@ std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::string &path, cons
 #pragma endregion
     auto retVal = CreateAsset<Cubemap>();
     retVal->m_texture = std::move(envCubemap);
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_name = path.filename().string();
     retVal->m_gamma = actualGamma;
     return retVal;
 }
 
-std::shared_ptr<EnvironmentalMap> AssetManager::LoadEnvironmentalMap(const std::string &path, const float &gamma)
+std::shared_ptr<EnvironmentalMap> AssetManager::LoadEnvironmentalMap(const std::filesystem::path &path, const float &gamma)
 {
     auto retVal = CreateAsset<EnvironmentalMap>();
     retVal->Construct(LoadCubemap(path, gamma));
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_name = path.filename().string();
     return retVal;
 }
 
-std::shared_ptr<LightProbe> AssetManager::LoadLightProbe(const std::string &path, const float &gamma)
+std::shared_ptr<LightProbe> AssetManager::LoadLightProbe(const std::filesystem::path &path, const float &gamma)
 {
     auto retVal = CreateAsset<LightProbe>();
     retVal->ConstructFromCubemap(LoadCubemap(path, gamma));
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
+    retVal->m_name = path.filename().string();
     return retVal;
 }
 
-std::shared_ptr<ReflectionProbe> AssetManager::LoadReflectionProbe(const std::string &path, const float &gamma)
+std::shared_ptr<ReflectionProbe> AssetManager::LoadReflectionProbe(const std::filesystem::path &path, const float &gamma)
 {
     auto retVal = CreateAsset<ReflectionProbe>();
     retVal->ConstructFromCubemap(LoadCubemap(path, gamma));
-    retVal->m_name = path.substr(path.find_last_of("/\\") + 1);
-    return retVal;
-}
-
-std::shared_ptr<Cubemap> AssetManager::LoadCubemap(const std::vector<std::string> &paths, const float &gamma)
-{
-    int width, height, nrComponents;
-    auto size = paths.size();
-    if (size != 6)
-    {
-        UNIENGINE_ERROR("Texture::LoadCubeMap: Size error.");
-        return nullptr;
-    }
-
-    float *temp = stbi_loadf(paths[0].c_str(), &width, &height, &nrComponents, 0);
-    stbi_image_free(temp);
-    GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(width, height))) + 1;
-    auto texture = std::make_unique<OpenGLUtils::GLTextureCubeMap>(mipmap, GL_RGBA32F, width, height, true);
-    float actualGamma = gamma;
-    for (int i = 0; i < size; i++)
-    {
-        if (gamma == 0.0f)
-        {
-            if (paths[i].substr(paths[i].find_last_of(".") + 1) == "hdr")
-            {
-                actualGamma = 2.2f;
-            }
-            else
-            {
-                actualGamma = 1.0f;
-            }
-        }
-        stbi_hdr_to_ldr_gamma(actualGamma);
-        stbi_ldr_to_hdr_gamma(actualGamma);
-        float *data = stbi_loadf(paths[i].c_str(), &width, &height, &nrComponents, 0);
-        if (data)
-        {
-            GLenum format = GL_RED;
-            if (nrComponents == 2)
-            {
-                format = GL_RG;
-            }
-            else if (nrComponents == 3)
-            {
-                format = GL_RGB;
-            }
-            else if (nrComponents == 4)
-            {
-                format = GL_RGBA;
-            }
-            texture->SetData(static_cast<OpenGLUtils::CubeMapIndex>(i), 0, format, GL_FLOAT, data);
-            stbi_image_free(data);
-        }
-        else
-        {
-            std::cout << "Cubemap texture failed to load at path: " << paths[i] << std::endl;
-            stbi_image_free(data);
-            return nullptr;
-        }
-    }
-
-    texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    texture->SetInt(GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    texture->GenerateMipMap();
-    auto retVal = CreateAsset<Cubemap>();
-    retVal->m_texture = std::move(texture);
-    retVal->m_name = paths[0].substr(paths[0].find_last_of("/\\") + 1);
-    retVal->m_gamma = actualGamma;
+    retVal->m_name = path.filename().string();
     return retVal;
 }
 
@@ -1372,7 +1301,7 @@ void AssetManager::OnGui()
                     bool successful = true;
                     try
                     {
-                        SerializableFactory::Deserialize(filePath, scene);
+                        //SerializationManager::Deserialize(filePath, scene);
                         UNIENGINE_LOG("Loaded from " + filePath);
                     }
                     catch (std::exception &e)
@@ -1446,7 +1375,6 @@ void AssetManager::OnGui()
                 FileUtils::SaveFile("Scene##Load", ".uescene", [](const std::string &filePath) {
                   try
                   {
-                      SerializableFactory::Serialize(filePath, EntityManager::GetCurrentScene());
                       UNIENGINE_LOG("Saved to " + filePath);
                   }
                   catch (std::exception &e)
@@ -1547,9 +1475,9 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
 }
 
 
-std::string AssetManager::GetAssetRootPath()
+std::filesystem::path AssetManager::GetAssetFolderPath()
 {
-    std::string assetRootFolder = GetProjectPath() + "Assets/";
+    std::filesystem::path assetRootFolder = ProjectManager::GetInstance().m_projectPath / "Assets/";
     if (!std::filesystem::exists(assetRootFolder))
     {
         std::filesystem::create_directory(assetRootFolder);
@@ -1557,35 +1485,12 @@ std::string AssetManager::GetAssetRootPath()
     return assetRootFolder;
 }
 
-void AssetManager::SetProjectPath(const std::string &path)
-{
-    GetInstance().m_projectPath = path;
-    std::string assetRootFolder = GetAssetRootPath();
-    for(const auto& i : SerializableFactory::GetInstance().m_serializableNames){
-        auto assetFolderPath = assetRootFolder + i.second + "/";
-        if (!std::filesystem::exists(assetFolderPath))
-        {
-            std::filesystem::create_directory(assetFolderPath);
-        }
-    }
-}
-
-std::string AssetManager::GetProjectPath()
-{
-    auto &path = GetInstance().m_projectPath;
-    if (!std::filesystem::exists(path))
-    {
-        std::filesystem::create_directory(path);
-    }
-    return path;
-}
-
-void AssetManager::SetResourcePath(const std::string &path)
+void AssetManager::SetResourcePath(const std::filesystem::path &path)
 {
     GetInstance().m_resourceRootPath = path;
 }
 
-std::string AssetManager::GetResourcePath()
+std::filesystem::path AssetManager::GetResourceFolderPath()
 {
     return GetInstance().m_resourceRootPath;
 }

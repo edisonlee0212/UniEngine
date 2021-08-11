@@ -421,7 +421,7 @@ glm::vec3 Ray::GetEnd() const
 
 
 
-std::string FileUtils::LoadFileAsString(const std::string &path)
+std::string FileUtils::LoadFileAsString(const std::filesystem::path &path)
 {
     std::ifstream file;
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
