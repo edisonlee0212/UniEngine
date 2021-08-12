@@ -28,7 +28,6 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture
     return entity;
 }
 
-
 std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
     auto retVal = CreateAsset<Material>();
@@ -166,7 +165,7 @@ void AssetManager::OnGui()
         {
             if (ImGui::BeginTabItem("Assets"))
             {
-                for (auto &collection : resourceManager.m_assets)
+                for (auto &collection : resourceManager.m_sharedAssets)
                 {
                     if (ImGui::CollapsingHeader(collection.first.c_str()))
                     {
@@ -178,10 +177,26 @@ void AssetManager::OnGui()
                                 IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
                                 std::shared_ptr<IAsset> payload_n =
                                     *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                                //Share(payload_n);
+                                // Share(payload_n);
                             }
                             ImGui::EndDragDropTarget();
                         }
+
+                        if (collection.first == "Prefab")
+                        {
+                            if (ImGui::BeginDragDropTarget())
+                            {
+                                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+                                {
+                                    IM_ASSERT(payload->DataSize == sizeof(Entity));
+                                    auto prefab = CreateAsset<Prefab>();
+                                    prefab->FromEntity(*static_cast<Entity *>(payload->Data));
+                                    resourceManager.m_sharedAssets["Prefab"][prefab->GetHandle()] = prefab;
+                                }
+                                ImGui::EndDragDropTarget();
+                            }
+                        }
+
                         for (auto &i : collection.second)
                         {
                             EditorManager::Draggable(i.second, false);
@@ -249,4 +264,3 @@ std::filesystem::path AssetManager::GetResourceFolderPath()
 {
     return GetInstance().m_resourceRootPath;
 }
-

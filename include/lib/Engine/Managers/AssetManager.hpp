@@ -29,6 +29,9 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
     std::filesystem::path m_resourceRootPath;
     bool m_enableAssetMenu = true;
+
+    std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
+
     std::map<std::string, std::unordered_map<Handle, std::weak_ptr<IAsset>>> m_assets;
     std::shared_ptr<AssetRegistry> m_assetRegistry;
     friend class DefaultResources;
@@ -81,6 +84,7 @@ template <typename T> void AssetManager::RegisterAssetType(const std::string &na
     auto &resourceManager = GetInstance();
     SerializationManager::RegisterSerializableType<T>(name);
     resourceManager.m_assets[name] = std::unordered_map<Handle, std::weak_ptr<IAsset>>();
+    resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
 }
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)

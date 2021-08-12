@@ -89,6 +89,8 @@ class UNIENGINE_API Prefab : public IAsset
     void Load(const std::filesystem::path &path) override;
 
     [[nodiscard]] Entity ToEntity() const;
+
+    void FromEntity(const Entity& entity);
 };
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {

@@ -1,8 +1,8 @@
 #pragma once
+#include <Collider.hpp>
 #include <EntityManager.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
-#include <Collider.hpp>
 using namespace physx;
 namespace UniEngine
 {
@@ -33,24 +33,23 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
 
     PxU32 m_minPositionIterations = 4;
     PxU32 m_minVelocityIterations = 1;
-
-    std::vector<Entity> m_linkedEntities;
     bool m_gravity = true;
+
   public:
-    void AttachCollider(std::shared_ptr<Collider>& collider);
-    void DetachCollider(const size_t& index);
+    void AttachCollider(std::shared_ptr<Collider> &collider);
+    void DetachCollider(size_t index);
     [[nodiscard]] bool IsKinematic();
-    void SetSolverIterations(const unsigned &position = 4, const unsigned &velocity = 1);
-    void SetEnableGravity(const bool& value);
-    void SetLinearDamping(const float &value);
-    void SetAngularDamping(const float &value);
-    void SetKinematic(const bool &value);
-    void SetDensityAndMassCenter(const float &value, const glm::vec3 &center = glm::vec3(0.0f));
+    void SetSolverIterations(unsigned position = 4, unsigned velocity = 1);
+    void SetEnableGravity(bool value);
+    void SetLinearDamping(float value);
+    void SetAngularDamping(float value);
+    void SetKinematic(bool value);
+    void SetDensityAndMassCenter(float value, const glm::vec3 &center = glm::vec3(0.0f));
     void SetLinearVelocity(const glm::vec3 &velocity);
     void SetAngularVelocity(const glm::vec3 &velocity);
     void SetStatic(bool value);
     bool IsStatic();
-    void SetShapeTransform(glm::mat4 value);
+    void SetShapeTransform(const glm::mat4 &value);
     void OnDestroy() override;
     void UpdateBody();
     void OnCreate() override;
@@ -59,6 +58,6 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
 };
 } // namespace UniEngine

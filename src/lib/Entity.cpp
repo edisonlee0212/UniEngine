@@ -275,5 +275,21 @@ bool DataComponentStorage::HasType(const size_t &typeId)
 void EntityRef::Update(const Handle& handle)
 {
     m_entityHandle = handle;
-    m_value = EntityManager::GetEntity(m_entityHandle);
+    Update();
+}
+void EntityRef::Update(const Entity &target)
+{
+    if(target.IsNull()) m_entityHandle = Handle(0);
+    else m_entityHandle = target.GetHandle();
+    m_value = target;
+}
+void EntityRef::Reset()
+{
+    m_value = Entity();
+    m_entityHandle = Handle();
+}
+void EntityRef::Update()
+{
+    if(m_entityHandle.GetValue() != 0) m_value = EntityManager::GetEntity(m_entityHandle);
+    else m_value = Entity();
 }

@@ -113,11 +113,18 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
 };
 
-struct UNIENGINE_API EntityRef : public ISerializable
+class UNIENGINE_API EntityRef : public ISerializable
 {
-    Entity m_value;
+    Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);
+  public:
+    [[nodiscard]] Entity Get() const{
+        return m_value;
+    }
     void Update(const Handle& handle);
+    void Update(const Entity& target);
+    void Update();
+    void Reset();
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::BeginMap;

@@ -2711,31 +2711,30 @@ template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRe
     }
     void Update(const std::shared_ptr<T> &target)
     {
-        m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(target)->GetOwner().GetHandle();
+        if(target) m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(target)->GetOwner().GetHandle();
+        else m_entityHandle = Handle(0);
         m_value = target;
     }
     void Update()
     {
-        auto entity = EntityManager::GetEntity(m_entityHandle);
-        if (!entity.IsNull())
+        if(m_entityHandle.GetValue() == 0){
+            m_value.reset();
+        }else
         {
-            if (entity.HasPrivateComponent<T>())
+            auto entity = EntityManager::GetEntity(m_entityHandle);
+            if (!entity.IsNull())
             {
-                m_value = entity.GetOrSetPrivateComponent<T>();
+                if (entity.HasPrivateComponent<T>())
+                {
+                    m_value = entity.GetOrSetPrivateComponent<T>();
+                }
             }
         }
     }
     void Update(const Handle &handle)
     {
         m_entityHandle = handle;
-        auto entity = EntityManager::GetEntity(m_entityHandle);
-        if (!entity.IsNull())
-        {
-            if (entity.HasPrivateComponent<T>())
-            {
-                m_value = entity.GetOrSetPrivateComponent<T>();
-            }
-        }
+        Update();
     }
     void Serialize(YAML::Emitter &out) override
     {

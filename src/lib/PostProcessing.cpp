@@ -37,11 +37,9 @@ void PostProcessing::SetEnableLayer(const std::string &layerName, bool enabled)
 
 void PostProcessing::OnCreate()
 {
-    ResizeResolution(1, 1);
-
     PushLayer(std::make_shared<Bloom>());
     PushLayer(std::make_shared<SSAO>());
-
+    ResizeResolution(1, 1);
     SetEnabled(true);
 }
 

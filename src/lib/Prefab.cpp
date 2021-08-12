@@ -994,6 +994,32 @@ void Prefab::ApplyBoneIndices(Prefab *node)
         ApplyBoneIndices(i.get());
     }
 }
+void Prefab::FromEntity(const Entity& entity)
+{
+    m_entityHandle = entity.GetHandle();
+    m_name = entity.GetName();
+    EntityManager::UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data){
+        DataComponentHolder holder;
+        holder.m_data = std::static_pointer_cast<IDataComponent>(SerializationManager::ProduceDataComponent(type.m_name, holder.m_id, holder.m_size));
+        memcpy(holder.m_data.get(), data, holder.m_size);
+        m_dataComponents.push_back(std::move(holder));
+    });
+
+    auto& elements = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex()).m_privateComponentElements;
+    for(auto& element : elements){
+        size_t id;
+        auto ptr = std::static_pointer_cast<IPrivateComponent>(
+            SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
+        ptr->Clone(element.m_privateComponentData);
+        m_privateComponents.push_back(ptr);
+    }
+
+    auto children = entity.GetChildren();
+    for(auto& i : children){
+        m_children.push_back(AssetManager::CreateAsset<Prefab>(i.GetName()));
+        m_children.back()->FromEntity(i);
+    }
+}
 #else
 void Prefab::ProcessNode(
     const std::string &directory,

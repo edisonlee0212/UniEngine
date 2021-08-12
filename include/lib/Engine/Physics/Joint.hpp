@@ -72,7 +72,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void D6Gui();
 #pragma endregion
 
-    Entity m_linkedEntity;
+    EntityRef m_linkedEntity;
     bool SafetyCheck();
     bool TypeCheck(const JointType &type);
 
