@@ -68,14 +68,14 @@ int main()
 
      */
 #ifdef USE_ASSIMP
-    auto dancingStormTrooper = AssetManager::Load<Prefab>(
+    auto dancingStormTrooper = AssetManager::Import<Prefab>(
         AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
     auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
     dancingStormTrooperEntity.SetName("StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
-    auto capoeira = AssetManager::Load<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
+    auto capoeira = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
     auto capoeiraEntity = capoeira->ToEntity();
     //auto capoeiraEntity2 = capoeira->ToEntity();
     capoeiraEntity.SetName("Capoeira");

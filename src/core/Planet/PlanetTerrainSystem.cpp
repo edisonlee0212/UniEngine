@@ -9,7 +9,8 @@ void Planet::PlanetTerrainSystem::OnCreate()
 {
     m_defaultSurfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     m_defaultSurfaceMaterial->SetTexture(
-        TextureType::Albedo, AssetManager::Load<Texture2D>(AssetManager::GetResourceFolderPath() / "Textures/border.png"));
+        TextureType::Albedo,
+        AssetManager::Import<Texture2D>(AssetManager::GetResourceFolderPath() / "Textures/border.png"));
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -63,7 +64,7 @@ std::shared_ptr<Material> Planet::PlanetTerrainSystem::GetDefaultSurfaceMaterial
 
 void Planet::PlanetTerrainSystem::CheckLod(
     std::mutex &mutex,
-    std::unique_ptr<TerrainChunk> &chunk,
+    std::shared_ptr<TerrainChunk> &chunk,
     const PlanetInfo &info,
     const GlobalTransform &planetTransform,
     const GlobalTransform &cameraTransform)
@@ -98,7 +99,7 @@ void Planet::PlanetTerrainSystem::CheckLod(
 }
 
 void Planet::PlanetTerrainSystem::RenderChunk(
-    std::unique_ptr<TerrainChunk> &chunk,
+    std::shared_ptr<TerrainChunk> &chunk,
     const std::shared_ptr<Material> &material,
     glm::mat4 &matrix,
     const std::shared_ptr<Camera> &camera,

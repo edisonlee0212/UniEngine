@@ -57,7 +57,7 @@ void Planet::TerrainChunk::Expand(std::mutex &mutex)
         return;
     if (!m_c0)
     {
-        auto chunk0 = std::make_unique<TerrainChunk>(
+        auto chunk0 = std::make_shared<TerrainChunk>(
             m_planetTerrain,
             this,
             m_detailLevel + 1,
@@ -69,7 +69,7 @@ void Planet::TerrainChunk::Expand(std::mutex &mutex)
     }
     if (!m_c1)
     {
-        auto chunk1 = std::make_unique<TerrainChunk>(
+        auto chunk1 = std::make_shared<TerrainChunk>(
             m_planetTerrain,
             this,
             m_detailLevel + 1,
@@ -81,7 +81,7 @@ void Planet::TerrainChunk::Expand(std::mutex &mutex)
     }
     if (!m_c2)
     {
-        auto chunk2 = std::make_unique<TerrainChunk>(
+        auto chunk2 = std::make_shared<TerrainChunk>(
             m_planetTerrain,
             this,
             m_detailLevel + 1,
@@ -93,7 +93,7 @@ void Planet::TerrainChunk::Expand(std::mutex &mutex)
     }
     if (!m_c3)
     {
-        auto chunk3 = std::make_unique<TerrainChunk>(
+        auto chunk3 = std::make_shared<TerrainChunk>(
             m_planetTerrain,
             this,
             m_detailLevel + 1,
@@ -111,7 +111,7 @@ void Planet::TerrainChunk::Expand(std::mutex &mutex)
     ChildrenActive = true;
 }
 
-void Planet::TerrainChunk::GenerateTerrain(std::mutex &mutex, std::unique_ptr<TerrainChunk> &targetChunk) const
+void Planet::TerrainChunk::GenerateTerrain(std::mutex &mutex, std::shared_ptr<TerrainChunk> &targetChunk) const
 {
     if (targetChunk->m_mesh)
     {

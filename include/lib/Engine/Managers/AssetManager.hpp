@@ -54,8 +54,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RemoveFromShared(const Handle &handle);
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
-    template <typename T> static std::shared_ptr<T> Load(const std::filesystem::path &path);
-
+    template <typename T = IAsset> static std::shared_ptr<T> Import(const std::filesystem::path &path);
+    template <typename T = IAsset> static void Export(const std::filesystem::path &path, const std::shared_ptr<T> &target);
     static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex, const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
@@ -71,14 +71,18 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void Init();
 };
 
-template <typename T> std::shared_ptr<T> AssetManager::Load(const std::filesystem::path &path)
+template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {
     auto ptr = std::static_pointer_cast<IAsset>(CreateAsset<T>(path.filename().string()));
     ptr->m_path = path;
     ptr->Load();
     return std::static_pointer_cast<T>(ptr);
 }
-
+template <typename T> void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<T> &target)
+{
+    auto ptr = std::static_pointer_cast<IAsset>(target);
+    ptr->Save(path);
+}
 template <typename T> void AssetManager::RegisterAssetType(const std::string &name)
 {
     auto &resourceManager = GetInstance();
@@ -98,7 +102,7 @@ template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const Handle 
 {
     auto &resourceManager = GetInstance();
     if (resourceManager.m_assets.find(SerializationManager::GetSerializableTypeName<T>()) !=
-    resourceManager.m_assets.end())
+        resourceManager.m_assets.end())
     {
         auto retVal = std::make_shared<T>();
         dynamic_cast<IAsset *>(retVal.get())->OnCreate();

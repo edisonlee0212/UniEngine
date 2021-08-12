@@ -6,6 +6,7 @@ namespace UniEngine
 struct UNIENGINE_API Handle
 {
     friend class IAsset;
+    friend class EntityMetadata;
     Handle();
     Handle(uint64_t value);
     Handle(const Handle &other);
@@ -26,6 +27,7 @@ struct UNIENGINE_API Handle
 };
 class UNIENGINE_API IHandle{
     friend class EntityManager;
+    friend class EntityMetadata;
     friend class EditorManager;
     friend class AssetManager;
     friend class DefaultResources;

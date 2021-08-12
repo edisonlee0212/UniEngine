@@ -70,9 +70,7 @@ void Scene::PreUpdate()
     for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
         if(!entityInfo.m_enabled) continue;
         for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(privateComponentElement.m_privateComponentData->m_started) continue;
-            privateComponentElement.m_privateComponentData->Start();
-            privateComponentElement.m_privateComponentData->m_started = true;
+
         }
     }
 
@@ -80,6 +78,11 @@ void Scene::PreUpdate()
         if(!entityInfo.m_enabled) continue;
         for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
             if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            if(!privateComponentElement.m_privateComponentData->m_started)
+            {
+                privateComponentElement.m_privateComponentData->Start();
+                privateComponentElement.m_privateComponentData->m_started = true;
+            }
             privateComponentElement.m_privateComponentData->PreUpdate();
         }
     }
@@ -176,7 +179,7 @@ void Scene::Serialize(YAML::Emitter &out)
     out << YAML::Key << "EntityInfos" << YAML::Value << YAML::BeginSeq;
     for (int i = 1; i < sceneDataStorage.m_entityInfos.size(); i++)
     {
-        SerializeEntityInfo(sceneDataStorage.m_entityInfos[i], out);
+        sceneDataStorage.m_entityInfos[i].Serialize(out);
     }
     out << YAML::EndSeq;
 #pragma endregion
@@ -261,31 +264,37 @@ void Scene::Deserialize(const YAML::Node &in)
 #pragma endregion
 #pragma region EntityInfo
     auto inEntityInfos = in["EntityInfos"];
-    int entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
-        Entity entity;
-        entity.m_index = entityIndex;
         sceneDataStorage.m_entityInfos.emplace_back();
         auto &newInfo = sceneDataStorage.m_entityInfos.back();
-        newInfo.m_name = inEntityInfo["Name"].as<std::string>();
-        entity.m_version = newInfo.m_version = inEntityInfo["Version"].as<unsigned>();
-        newInfo.m_static = inEntityInfo["Static"].as<bool>();
-        newInfo.m_enabled = inEntityInfo["Enabled"].as<bool>();
-        Entity parent;
-        parent.m_index = inEntityInfo["Parent.Index"].as<unsigned>();
-        parent.m_version = inEntityInfo["Parent.Version"].as<unsigned>();
-        newInfo.m_parent = parent;
-        if (inEntityInfo["Children"].IsDefined())
-        {
-            YAML::Binary childrenData = inEntityInfo["Children"].as<YAML::Binary>();
-            const unsigned char *data = childrenData.data();
-            std::size_t size = childrenData.size();
-            newInfo.m_children.resize(size / sizeof(Entity));
-            std::memcpy(newInfo.m_children.data(), data, size);
-        }
-        newInfo.m_dataComponentStorageIndex = inEntityInfo["DataComponentStorageIndex"].as<size_t>();
-        newInfo.m_chunkArrayIndex = inEntityInfo["ChunkArrayIndex"].as<size_t>();
+        newInfo.Deserialize(inEntityInfo);
+    }
+#pragma endregion
+#pragma region Entities
+    auto entitiesData = in["Entities"].as<YAML::Binary>();
+    const unsigned char *entitiesDataPtr = entitiesData.data();
+    std::size_t entitiesSize = entitiesData.size();
+    sceneDataStorage.m_entities.resize(entitiesSize / sizeof(Entity));
+    std::memcpy(sceneDataStorage.m_entities.data(), entitiesDataPtr, entitiesSize);
+#pragma endregion
+    unsigned entityIndex = 1;
+    for (const auto &inEntityInfo : inEntityInfos)
+    {
+        auto& entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
+        Entity entity;
+        entity.m_index = entityIndex;
+        entity.m_version = entityInfo.m_version;
+        sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
+        entityIndex++;
+    }
+    entityIndex = 1;
+    for (const auto &inEntityInfo : inEntityInfos)
+    {
+        auto& entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
+        Entity entity;
+        entity.m_index = entityIndex;
+        entity.m_version = entityInfo.m_version;
         auto inPrivateComponents = inEntityInfo["PrivateComponent"];
         if (inPrivateComponents)
         {
@@ -296,7 +305,8 @@ void Scene::Deserialize(const YAML::Node &in)
                 auto ptr = std::static_pointer_cast<IPrivateComponent>(
                     SerializationManager::ProduceSerializable(name, hashCode));
                 ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
-                newInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                ptr->m_started = false;
+                entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
                 m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
                 ptr->OnCreate();
                 ptr->Deserialize(inPrivateComponent);
@@ -304,15 +314,6 @@ void Scene::Deserialize(const YAML::Node &in)
         }
         entityIndex++;
     }
-#pragma endregion
-#pragma region Entities
-    auto entitiesData = in["Entities"].as<YAML::Binary>();
-    const unsigned char *entitiesDataPtr = entitiesData.data();
-    std::size_t entitiesSize = entitiesData.size();
-    sceneDataStorage.m_entities.resize(entitiesSize / sizeof(Entity));
-    std::memcpy(sceneDataStorage.m_entities.data(), entitiesDataPtr, entitiesSize);
-#pragma endregion
-
 #pragma region Systems
     auto inSystems = in["Systems"];
     for (const auto &inSystem : inSystems)
@@ -364,40 +365,6 @@ void Scene::SerializeDataComponentStorage(const DataComponentStorage &storage, Y
             out << YAML::EndSeq;
         }
         out << YAML::EndMap;
-    }
-    out << YAML::EndMap;
-}
-void Scene::SerializeEntityInfo(const EntityMetadata &entityInfo, YAML::Emitter &out)
-{
-    out << YAML::BeginMap;
-    {
-        out << YAML::Key << "Name" << YAML::Value << entityInfo.m_name;
-        out << YAML::Key << "Version" << YAML::Value << entityInfo.m_version;
-        out << YAML::Key << "Static" << YAML::Value << entityInfo.m_static;
-        out << YAML::Key << "Enabled" << YAML::Value << entityInfo.m_enabled;
-        out << YAML::Key << "Parent.Index" << YAML::Value << entityInfo.m_parent.m_index;
-        out << YAML::Key << "Parent.Version" << YAML::Value << entityInfo.m_parent.m_version;
-        if (!entityInfo.m_children.empty())
-        {
-            out << YAML::Key << "Children" << YAML::Value
-                << YAML::Binary(
-                       (const unsigned char *)entityInfo.m_children.data(),
-                       entityInfo.m_children.size() * sizeof(Entity));
-        }
-        out << YAML::Key << "DataComponentStorageIndex" << YAML::Value << entityInfo.m_dataComponentStorageIndex;
-        out << YAML::Key << "ChunkArrayIndex" << YAML::Value << entityInfo.m_chunkArrayIndex;
-#pragma region Private Components
-        out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
-        for (const auto &element : entityInfo.m_privateComponentElements)
-        {
-            out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << element.m_privateComponentData->GetTypeName();
-            out << YAML::Key << "Enabled" << YAML::Value << element.m_privateComponentData->m_enabled;
-            element.m_privateComponentData->Serialize(out);
-            out << YAML::EndMap;
-        }
-        out << YAML::EndSeq;
-#pragma endregion
     }
     out << YAML::EndMap;
 }

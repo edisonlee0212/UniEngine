@@ -65,19 +65,18 @@ void AssetManager::OnGui()
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::BeginMenu("Load..."))
+            if (ImGui::BeginMenu("Import..."))
             {
-                FileUtils::OpenFile("Scene##Load", ".uescene", [](const std::string &filePath) {
-                    std::shared_ptr<Scene> scene = AssetManager::CreateAsset<Scene>();
-                    bool successful = true;
+                FileUtils::OpenFile("Scene##Import", ".uescene", [&](const std::string &filePath) {
                     try
                     {
-                        // SerializationManager::Deserialize(filePath, scene);
+                        auto asset = Import<Scene>(filePath);
+                        resourceManager.m_sharedAssets["Scene"][asset->m_handle] =
+                            std::static_pointer_cast<IAsset>(asset);
                         UNIENGINE_LOG("Loaded from " + filePath);
                     }
                     catch (std::exception &e)
                     {
-                        successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
                 });
@@ -87,62 +86,62 @@ void AssetManager::OnGui()
 #else
                 std::string modelFormat = ".obj";
 #endif
-                FileUtils::OpenFile("Model##Load", modelFormat, [](const std::string &filePath) {
-                    bool successful = true;
-                    std::shared_ptr<Prefab> model;
+                FileUtils::OpenFile("Model##Import", modelFormat, [&](const std::string &filePath) {
                     try
                     {
-                        model = Load<Prefab>(filePath);
+                        auto asset = Import<Prefab>(filePath);
+                        resourceManager.m_sharedAssets["Prefab"][asset->m_handle] =
+                            std::static_pointer_cast<IAsset>(asset);
                         UNIENGINE_LOG("Loaded from " + filePath);
                     }
                     catch (std::exception &e)
                     {
-                        successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
                 });
 
-                FileUtils::OpenFile("Texture2D##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
-                    bool successful = true;
-                    std::shared_ptr<Texture2D> texture2D;
+                FileUtils::OpenFile("Texture2D##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::string &filePath) {
                     try
                     {
-                        texture2D = Load<Texture2D>(filePath);
+                        auto asset = Import<Texture2D>(filePath);
+                        resourceManager.m_sharedAssets["Texture2D"][asset->m_handle] =
+                            std::static_pointer_cast<IAsset>(asset);
                         UNIENGINE_LOG("Loaded from " + filePath);
                     }
                     catch (std::exception &e)
                     {
-                        successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
                 });
 
-                FileUtils::OpenFile("Cubemap##Load", ".png,.jpg,.jpeg,.tga,.hdr", [](const std::string &filePath) {
-                    bool successful = true;
-                    std::shared_ptr<Cubemap> cubeMap;
+                FileUtils::OpenFile("Cubemap##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::string &filePath) {
                     try
                     {
-                        cubeMap = Load<Cubemap>(filePath);
+                        auto asset = Import<Cubemap>(filePath);
+                        resourceManager.m_sharedAssets["Cubemap"][asset->m_handle] =
+                            std::static_pointer_cast<IAsset>(asset);
                         UNIENGINE_LOG("Loaded from " + filePath);
                     }
                     catch (std::exception &e)
                     {
-                        successful = false;
                         UNIENGINE_ERROR("Failed to load from " + filePath);
                     }
                 });
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Save..."))
+            if (ImGui::BeginMenu("Export..."))
             {
-                FileUtils::SaveFile("Scene##Load", ".uescene", [](const std::string &filePath) {
+                FileUtils::SaveFile("Scene##Export", ".uescene", [](const std::string &filePath) {
+                    std::filesystem::path path = filePath;
+                    path.replace_extension(".uescene");
                     try
                     {
-                        UNIENGINE_LOG("Saved to " + filePath);
+                        Export(path, EntityManager::GetCurrentScene());
+                        UNIENGINE_LOG("Saved to " + path.string());
                     }
                     catch (std::exception &e)
                     {
-                        UNIENGINE_ERROR("Failed to save to " + filePath);
+                        UNIENGINE_ERROR("Failed to save to " + path.string());
                     }
                 });
                 ImGui::EndMenu();

@@ -42,7 +42,7 @@ int main()
     // planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
     auto planet1 = EntityManager::CreateEntity();
     auto planetTerrain1 = planet1.GetOrSetPrivateComponent<PlanetTerrain>().lock();
-    planetTerrain1->Init(pi);
+    planetTerrain1->SetPlanetInfo(pi);
     planet1.SetDataComponent(planetTransform);
     planet1.SetName("Planet 1");
     planetTransform.SetPosition(glm::vec3(35.0f, 0.0f, 0.0f));
@@ -53,7 +53,7 @@ int main()
 
     auto planet2 = EntityManager::CreateEntity();
     auto planetTerrain2 = planet2.GetOrSetPrivateComponent<PlanetTerrain>().lock();
-    planetTerrain2->Init(pi);
+    planetTerrain2->SetPlanetInfo(pi);
     planet2.SetDataComponent(planetTransform);
     planet2.SetName("Planet 2");
     planetTransform.SetPosition(glm::vec3(-20.0f, 0.0f, 0.0f));
@@ -64,7 +64,7 @@ int main()
 
     auto planet3 = EntityManager::CreateEntity();
     auto planetTerrain3 = planet3.GetOrSetPrivateComponent<PlanetTerrain>().lock();
-    planetTerrain3->Init(pi);
+    planetTerrain3->SetPlanetInfo(pi);
     planet3.SetDataComponent(planetTransform);
     planet3.SetName("Planet 3");
 #pragma endregion

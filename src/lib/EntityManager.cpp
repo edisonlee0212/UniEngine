@@ -2,6 +2,8 @@
 #include <EntityManager.hpp>
 #include <PhysicsManager.hpp>
 #include <Scene.hpp>
+#include <Entity.hpp>
+
 using namespace UniEngine;
 
 #pragma region EntityManager
@@ -1110,7 +1112,7 @@ void EntityManager::Init()
 {
     auto &entityManager = GetInstance();
     auto scene = std::make_shared<Scene>();
-    EntityManager::Attach(scene);
+    Attach(scene);
 
     entityManager.m_entityArchetypeInfos.emplace_back();
     entityManager.m_entityQueryInfos.emplace_back();
@@ -1190,3 +1192,4 @@ size_t EntityQuery::GetEntityAmount() const
     return EntityManager::GetEntityAmount(*this);
 }
 #pragma endregion
+

@@ -26,6 +26,6 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
 }
 void EnvironmentalMap::Load(const std::filesystem::path &path)
 {
-    Construct(AssetManager::Load<Cubemap>(path));
+    Construct(AssetManager::Import<Cubemap>(path));
     m_name = path.filename().string();
 }

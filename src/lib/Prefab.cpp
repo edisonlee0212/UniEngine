@@ -605,7 +605,7 @@ std::shared_ptr<Texture2D> Prefab::CollectTexture(
     {
         return search->second;
     }
-    auto texture2D = AssetManager::Load<Texture2D>(directory + "/" + path);
+    auto texture2D = AssetManager::Import<Texture2D>(directory + "/" + path);
     loadedTextures[fileName] = texture2D;
     return texture2D;
 }

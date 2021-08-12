@@ -28,10 +28,10 @@ class TerrainChunk
     bool ChildrenActive = false;
     bool Active = false;
     // The index of four children, upperleft = 0, upperright = 1, lower left = 2, lower right = 3.
-    std::unique_ptr<TerrainChunk> m_c0;
-    std::unique_ptr<TerrainChunk> m_c1;
-    std::unique_ptr<TerrainChunk> m_c2;
-    std::unique_ptr<TerrainChunk> m_c3;
+    std::shared_ptr<TerrainChunk> m_c0;
+    std::shared_ptr<TerrainChunk> m_c1;
+    std::shared_ptr<TerrainChunk> m_c2;
+    std::shared_ptr<TerrainChunk> m_c3;
     glm::dvec3 m_localUp;
     glm::dvec3 m_axisA;
     glm::dvec3 m_axisB;
@@ -44,7 +44,7 @@ class TerrainChunk
         ChunkDirection direction,
         glm::dvec3 localUp);
     void Expand(std::mutex &mutex);
-    void GenerateTerrain(std::mutex &mutex, std::unique_ptr<TerrainChunk> &targetChunk) const;
+    void GenerateTerrain(std::mutex &mutex, std::shared_ptr<TerrainChunk> &targetChunk) const;
     void Collapse();
 };
 } // namespace Planet

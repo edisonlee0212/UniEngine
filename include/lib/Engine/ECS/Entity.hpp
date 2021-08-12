@@ -40,6 +40,7 @@ struct UNIENGINE_API Entity final
   private:
     friend class EntityManager;
     friend class Scene;
+    friend class EntityMetadata;
     friend class SerializationManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
@@ -182,6 +183,9 @@ struct EntityMetadata : public ISerializable
     std::vector<Entity> m_children;
     size_t m_dataComponentStorageIndex = 0;
     size_t m_chunkArrayIndex = 0;
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 
 struct UNIENGINE_API EntityArchetypeInfo

@@ -22,20 +22,13 @@ void Planet::PlanetTerrain::Deserialize(const YAML::Node &out)
     planetInfo.m_radius = info["Radius"].as<double>();
     planetInfo.m_index = info["Index"].as<unsigned>();
     planetInfo.m_resolution = info["Resolution"].as<unsigned>();
-    Init(planetInfo);
 }
-
-void Planet::PlanetTerrain::Init(PlanetInfo &info)
+void Planet::PlanetTerrain::Init(std::shared_ptr<Material> surfaceMaterial)
 {
-    Init(info, PlanetTerrainSystem::m_defaultSurfaceMaterial);
-}
-
-void Planet::PlanetTerrain::Init(PlanetInfo &info, std::shared_ptr<Material> surfaceMaterial)
-{
-    m_info = info;
+    if(m_initialized) return;
     m_surfaceMaterial = std::move(surfaceMaterial);
     m_sharedVertices = std::vector<Vertex>();
-    size_t resolution = info.m_resolution;
+    size_t resolution = m_info.m_resolution;
     m_sharedVertices.resize(resolution * resolution);
     m_sharedTriangles = std::vector<unsigned>();
     m_sharedTriangles.resize((resolution - 1) * (resolution - 1) * 6);
@@ -61,18 +54,20 @@ void Planet::PlanetTerrain::Init(PlanetInfo &info, std::shared_ptr<Material> sur
             }
         }
     }
+
+    m_chunks.clear();
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(1, 0, 0)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(1, 0, 0)));
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 1, 0)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 1, 0)));
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, 1)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, 1)));
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(-1, 0, 0)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(-1, 0, 0)));
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, -1, 0)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, -1, 0)));
     m_chunks.push_back(
-        std::make_unique<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, -1)));
+        std::make_shared<TerrainChunk>(this, nullptr, 0, glm::ivec2(0), ChunkDirection::Root, glm::dvec3(0, 0, -1)));
 
     std::mutex m;
     for (auto &chunk : m_chunks)
@@ -80,11 +75,26 @@ void Planet::PlanetTerrain::Init(PlanetInfo &info, std::shared_ptr<Material> sur
         chunk->GenerateTerrain(m, chunk);
         chunk->Active = true;
     }
-    SetEnabled(true);
+    m_initialized = true;
 }
 
 void Planet::PlanetTerrain::OnGui()
 {
     if (m_surfaceMaterial)
         m_surfaceMaterial->OnGui();
+}
+void Planet::PlanetTerrain::Clone(const std::shared_ptr<IPrivateComponent> &target)
+{
+    m_info = std::static_pointer_cast<Planet::PlanetTerrain>(target)->m_info;
+    m_initialized = false;
+}
+void Planet::PlanetTerrain::Start()
+{
+    Init(PlanetTerrainSystem::m_defaultSurfaceMaterial);
+}
+void Planet::PlanetTerrain::SetPlanetInfo(const PlanetInfo &planetInfo)
+{
+    m_info = planetInfo;
+    m_initialized = false;
+    Init(PlanetTerrainSystem::m_defaultSurfaceMaterial);
 }

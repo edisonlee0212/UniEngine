@@ -36,6 +36,7 @@ void IAsset::Load(const std::filesystem::path &path)
 IAsset::~IAsset()
 {
     if(GetHandle() != 0){
+
         AssetManager::GetInstance().m_assets[GetTypeName()].erase(GetHandle());
     }
 }

@@ -33,7 +33,6 @@ class UNIENGINE_API Scene : public IAsset
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     Bound m_worldBound;
     void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
-    void SerializeEntityInfo(const EntityMetadata & entityInfo, YAML::Emitter &out);
     void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
   public:
     std::string m_name = "New Scene";
