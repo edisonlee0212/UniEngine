@@ -61,8 +61,8 @@ void UniEngine::RigidBody::OnCreate()
     SetAngularDamping(m_angularDamping);
     SetLinearDamping(m_linearDamping);
     SetEnableGravity(m_gravity);
-    SetKinematic(m_kinematic);
-    SetStatic(m_static);
+    if(m_kinematic) SetKinematic(m_kinematic);
+    if(m_static) SetStatic(m_static);
 
     auto colliders = m_colliders;
     m_colliders.clear();
@@ -232,7 +232,6 @@ void RigidBody::SetKinematic(bool value)
     }
     m_kinematic = value;
     static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
-    //PhysicsManager::UploadTransform(GetOwner().GetDataComponent<GlobalTransform>(), GetOwner().GetOrSetPrivateComponent<RigidBody>().lock());
 }
 bool RigidBody::IsStatic()
 {
@@ -260,7 +259,7 @@ void RigidBody::SetSolverIterations(unsigned position, unsigned velocity)
 void RigidBody::SetEnableGravity(bool value)
 {
     m_gravity = value;
-    m_rigidActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
+    m_rigidActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !value);
 }
 void RigidBody::AttachCollider(std::shared_ptr<Collider> &collider)
 {
@@ -303,4 +302,5 @@ void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
     auto ptr = std::static_pointer_cast<RigidBody>(target);
     *this = *ptr;
     m_rigidActor = nullptr;
+    m_currentRegistered = false;
 }

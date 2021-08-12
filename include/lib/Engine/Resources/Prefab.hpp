@@ -73,10 +73,10 @@ class UNIENGINE_API Prefab : public IAsset
         const tinyobj::attrib_t &attribute);
 #endif
     void AttachChildren(
-        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const;
+        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName, std::unordered_map<Handle, Handle> &map) const;
 
     void AttachChildrenPrivateComponent(
-        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity) const;
+        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::unordered_map<Handle, Handle> &map) const;
 
 #pragma endregion
   public:

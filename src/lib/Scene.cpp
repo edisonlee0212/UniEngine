@@ -67,6 +67,23 @@ Scene::~Scene()
 
 void Scene::PreUpdate()
 {
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(privateComponentElement.m_privateComponentData->m_started) continue;
+            privateComponentElement.m_privateComponentData->Start();
+            privateComponentElement.m_privateComponentData->m_started = true;
+        }
+    }
+
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->PreUpdate();
+        }
+    }
+
     for (auto &i : m_systems)
     {
         if (i.second->Enabled())
@@ -76,17 +93,19 @@ void Scene::PreUpdate()
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
-            privateComponentElement.m_privateComponentData->PreUpdate();
-        }
-    }
 }
 
 void Scene::Update()
 {
+
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->Update();
+        }
+    }
+
     for (auto &i : m_systems)
     {
         if (i.second->Enabled())
@@ -96,17 +115,19 @@ void Scene::Update()
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
-            privateComponentElement.m_privateComponentData->Update();
-        }
-    }
 }
 
 void Scene::LateUpdate()
 {
+
+    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
+        if(!entityInfo.m_enabled) continue;
+        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
+            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+            privateComponentElement.m_privateComponentData->LateUpdate();
+        }
+    }
+
     for (auto &i : m_systems)
     {
         if (i.second->Enabled())
@@ -116,16 +137,18 @@ void Scene::LateUpdate()
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
     }
+}
+void Scene::FixedUpdate()
+{
+
     for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
         if(!entityInfo.m_enabled) continue;
         for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
             if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
-            privateComponentElement.m_privateComponentData->LateUpdate();
+            privateComponentElement.m_privateComponentData->FixedUpdate();
         }
     }
-}
-void Scene::FixedUpdate()
-{
+
     for (auto &i : m_systems)
     {
         if (i.second->Enabled())
@@ -133,13 +156,6 @@ void Scene::FixedUpdate()
             ProfilerManager::StartEvent(i.second->GetTypeName());
             i.second->FixedUpdate();
             ProfilerManager::EndEvent(i.second->GetTypeName());
-        }
-    }
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
-            privateComponentElement.m_privateComponentData->FixedUpdate();
         }
     }
 }

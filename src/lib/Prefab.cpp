@@ -18,8 +18,10 @@ void Prefab::OnCreate()
 
 Entity Prefab::ToEntity() const
 {
+    std::unordered_map<Handle, Handle> entityMap;
     const Entity entity =
-        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name, m_entityHandle);
+        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    entityMap[m_entityHandle] = entity.GetHandle();
     for (auto &i : m_dataComponents)
     {
         EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
@@ -27,7 +29,7 @@ Entity Prefab::ToEntity() const
     int index = 0;
     for (const auto &i : m_children)
     {
-        AttachChildren(i, entity, m_name + "_" + std::to_string(index));
+        AttachChildren(i, entity, m_name + "_" + std::to_string(index), entityMap);
         index++;
     }
 
@@ -37,22 +39,23 @@ Entity Prefab::ToEntity() const
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i->GetTypeName(), id));
         ptr->Clone(i);
+        ptr->Relink(entityMap);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     for (const auto &i : m_children)
     {
-        AttachChildrenPrivateComponent(i, entity);
+        AttachChildrenPrivateComponent(i, entity, entityMap);
         index++;
     }
     return entity;
 }
 void Prefab::AttachChildren(
-    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName) const
+    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName, std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity =
-        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name, modelNode->m_entityHandle);
+        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    map[modelNode->m_entityHandle] = entity.GetHandle();
     entity.SetParent(parentEntity);
-    assert(entity.GetHandle().GetValue() == modelNode->m_entityHandle.GetValue());
     for (auto &i : modelNode->m_dataComponents)
     {
         EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
@@ -60,20 +63,20 @@ void Prefab::AttachChildren(
     int index = 0;
     for (auto &i : modelNode->m_children)
     {
-        AttachChildren(i, entity, (parentName + "_" + std::to_string(index)));
+        AttachChildren(i, entity, (parentName + "_" + std::to_string(index)), map);
         index++;
     }
 }
 
 void Prefab::AttachChildrenPrivateComponent(
-    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity) const
+    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity;
     auto children = parentEntity.GetChildren();
     for(auto& i : children)
     {
         auto a = i.GetHandle().GetValue();
-        auto b = modelNode->m_entityHandle.GetValue();
+        auto b = map.at(modelNode->m_entityHandle).GetValue();
         if(a == b) entity = i;
     }
     if(entity.IsNull()) return;
@@ -83,12 +86,13 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i->GetTypeName(), id));
         ptr->Clone(i);
+        ptr->Relink(map);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
     {
-        AttachChildrenPrivateComponent(i, entity);
+        AttachChildrenPrivateComponent(i, entity, map);
         index++;
     }
 }
@@ -1011,6 +1015,7 @@ void Prefab::FromEntity(const Entity& entity)
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
         ptr->Clone(element.m_privateComponentData);
+        ptr->m_started = false;
         m_privateComponents.push_back(ptr);
     }
 

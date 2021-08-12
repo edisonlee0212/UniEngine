@@ -2701,6 +2701,11 @@ template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRe
     std::optional<std::weak_ptr<T>> m_value;
     Handle m_entityHandle = Handle(0);
   public:
+    void Relink(const std::unordered_map<Handle, Handle> &map) {
+        auto search = map.find(m_entityHandle);
+        if(search != map.end()) m_entityHandle = search->second;
+        else m_entityHandle = Handle(0);
+    };
     [[nodiscard]] bool HasValue() const
     {
         return m_value.has_value();

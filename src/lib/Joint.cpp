@@ -132,13 +132,17 @@ bool Joint::Linked()
 }
 bool Joint::SafetyCheck()
 {
+    if(!m_linkedEntity.Get().IsValid()){
+        m_linkedEntity.Reset();
+        return false;
+    }
     if (!m_linkedEntity.Get().HasPrivateComponent<RigidBody>())
     {
         UNIENGINE_ERROR("Linked Entity doesn't contains RigidBody component!");
         return false;
     }
     if (m_linkedEntity.Get().GetOrSetPrivateComponent<RigidBody>().lock()->m_static &&
-    GetOwner().GetOrSetPrivateComponent<RigidBody>().lock()->m_static)
+        GetOwner().GetOrSetPrivateComponent<RigidBody>().lock()->m_static)
     {
         UNIENGINE_ERROR("At least one side of the joint is movable!");
         return false;
@@ -147,13 +151,14 @@ bool Joint::SafetyCheck()
 }
 void Joint::OnCreate()
 {
+    m_linkedEntity.Update();
     const auto owner = GetOwner();
     if (!owner.HasPrivateComponent<RigidBody>())
     {
         owner.GetOrSetPrivateComponent<RigidBody>();
     }
 
-    Link(m_linkedEntity.Get());
+
 }
 static const char *JointTypeNames[]{"Fixed", "Distance", "Spherical", "Revolute", "Prismatic", "D6"};
 void Joint::OnGui()
@@ -208,7 +213,8 @@ void Joint::Link(const Entity &targetEntity)
 {
     Unlink();
     const auto owner = GetOwner();
-    if (targetEntity.IsNull() || owner == targetEntity || (targetEntity.IsValid() && !targetEntity.HasPrivateComponent<RigidBody>()))
+    if (targetEntity.IsNull() || owner == targetEntity ||
+        (targetEntity.IsValid() && !targetEntity.HasPrivateComponent<RigidBody>()))
     {
         return;
     }
@@ -237,7 +243,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                    owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -249,7 +255,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                    owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -261,7 +267,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)),
-                    m_linkedEntity.Get().GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                m_linkedEntity.Get().GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)));
@@ -277,7 +283,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                    owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -289,7 +295,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                    owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -301,7 +307,7 @@ void Joint::Link(const Entity &targetEntity)
                 PxTransform(
                     PxVec3(position0.x, position0.y, position0.z),
                     PxQuat(rotation0.x, rotation0.y, rotation0.z, rotation0.w)),
-                    owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
+                owner.GetOrSetPrivateComponent<RigidBody>().lock()->m_rigidActor,
                 PxTransform(
                     PxVec3(position1.x, position1.y, position1.z),
                     PxQuat(rotation1.x, rotation1.y, rotation1.z, rotation1.w)));
@@ -339,7 +345,6 @@ void Joint::SetMotion(const MotionAxis &axis, const MotionType &type)
     m_motionTypes[static_cast<int>(axis)] = static_cast<PxD6Motion::Enum>(type);
     static_cast<PxD6Joint *>(m_joint)->setMotion(
         static_cast<PxD6Axis::Enum>(axis), static_cast<PxD6Motion::Enum>(type));
-
 }
 void Joint::SetDrive(const DriveType &type, const float &stiffness, const float &damping, const bool &isAcceleration)
 {
@@ -351,9 +356,10 @@ void Joint::SetDrive(const DriveType &type, const float &stiffness, const float 
     m_drives[static_cast<int>(type)].damping = damping;
     m_drives[static_cast<int>(type)].flags =
         static_cast<PxD6JointDriveFlag::Enum>(isAcceleration ? PxU32(PxD6JointDriveFlag::eACCELERATION) : 0);
-    static_cast<PxD6Joint *>(m_joint)->setDrive(static_cast<PxD6Drive::Enum>(type),  m_drives[static_cast<int>(type)]);
+    static_cast<PxD6Joint *>(m_joint)->setDrive(static_cast<PxD6Drive::Enum>(type), m_drives[static_cast<int>(type)]);
 }
-void Joint::SetDistanceLimit(const float& toleranceLength, const float& toleranceSpeed, const float &extent, const float &contactDist)
+void Joint::SetDistanceLimit(
+    const float &toleranceLength, const float &toleranceSpeed, const float &extent, const float &contactDist)
 {
     if (!m_joint)
         return;
@@ -367,4 +373,13 @@ void Joint::SetDistanceLimit(const float& toleranceLength, const float& toleranc
 void Joint::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<Joint>(target);
+    m_joint = nullptr;
+}
+void Joint::Relink(const std::unordered_map<Handle, Handle> &map)
+{
+    m_linkedEntity.Relink(map);
+}
+void Joint::Start()
+{
+    Link(m_linkedEntity.Get());
 }

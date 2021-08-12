@@ -96,13 +96,17 @@ void SkinnedMeshRenderer::Deserialize(const YAML::Node &in)
 }
 void SkinnedMeshRenderer::OnCreate()
 {
+    m_animator.Update();
     m_finalResults = std::make_shared<BoneMatrices>();
     SetEnabled(true);
 }
 void SkinnedMeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<SkinnedMeshRenderer>(target);
-    m_animator.Update();
+}
+void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map)
+{
+    m_animator.Relink(map);
 }
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh>& skinnedMesh) const
 {

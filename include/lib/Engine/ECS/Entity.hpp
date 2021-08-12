@@ -89,9 +89,10 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class EditorManager;
     friend struct PrivateComponentElement;
     friend class Scene;
+    friend class Prefab;
     bool m_enabled = true;
     Entity m_owner = Entity();
-
+    bool m_started = false;
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
@@ -104,12 +105,13 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void LateUpdate(){};
 
     virtual void OnCreate(){};
+    virtual void Start(){};
     virtual void OnEnable(){};
     virtual void OnDisable(){};
     virtual void OnEntityEnable(){};
     virtual void OnEntityDisable(){};
     virtual void OnDestroy(){};
-
+    virtual void Relink(const std::unordered_map<Handle, Handle> &map) {};
     virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
 };
 
@@ -118,6 +120,11 @@ class UNIENGINE_API EntityRef : public ISerializable
     Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);
   public:
+    void Relink(const std::unordered_map<Handle, Handle> &map) {
+        auto search = map.find(m_entityHandle);
+        if(search != map.end()) m_entityHandle = search->second;
+        else m_entityHandle = Handle(0);
+    };
     [[nodiscard]] Entity Get() const{
         return m_value;
     }
@@ -136,9 +143,6 @@ class UNIENGINE_API EntityRef : public ISerializable
         m_entityHandle = Handle(in["EntityRef"].as<uint64_t>());
     }
 };
-
-
-
 
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 

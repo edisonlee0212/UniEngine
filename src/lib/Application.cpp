@@ -101,6 +101,7 @@ void Application::PreUpdateInternal()
     application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
     application.m_time.m_frameStartTime = glfwGetTime();
     application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
+
     WindowManager::PreUpdate();
 
     EditorManager::PreUpdate();
@@ -117,12 +118,10 @@ void Application::PreUpdateInternal()
     for (const auto &i : application.m_externalPreUpdateFunctions)
         i();
     ProfilerManager::EndEvent("Externals");
-
     if (application.m_playing)
     {
         ProfilerManager::StartEvent("Scene");
         EntityManager::GetInstance().m_scene->PreUpdate();
-
         ProfilerManager::EndEvent("Scene");
     }
 
