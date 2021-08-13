@@ -85,6 +85,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 
     static void CameraWindowDragAndDrop();
     template <typename T1 = IPrivateComponent> static void RegisterPrivateComponent();
+    template <typename T1 = IDataComponent> static void RegisterDataComponent();
 
   public:
     int m_selectedHierarchyDisplayMode = 1;
@@ -109,8 +110,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void RegisterComponentDataInspector(
         const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func);
 
-    template <typename T1 = IDataComponent>
-    static void RegisterComponentDataMenu(const std::function<void(Entity owner)> &func);
     static void Init();
     static void Destroy();
     static void PreUpdate();
@@ -158,17 +157,26 @@ template <typename T> void EditorManager::RegisterPrivateComponent()
     editorManager.m_privateComponentMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
-template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::function<void(Entity owner)> &func)
+template <typename T> void EditorManager::RegisterDataComponent()
 {
+    auto id = typeid(T).hash_code();
+    if(id == typeid(Transform).hash_code() || id == typeid(GlobalTransform).hash_code() || id == typeid(GlobalTransformUpdateFlag).hash_code()) return;
+    auto func = [](Entity owner) {
+        if(owner.HasDataComponent<T>()) return;
+        if (ImGui::SmallButton(SerializationManager::GetDataComponentTypeName<T>().c_str()))
+        {
+            EntityManager::AddDataComponent<T>(owner, T());
+        }
+    };
     for (int i = 0; i < GetInstance().m_componentDataMenuList.size(); i++)
     {
-        if (GetInstance().m_componentDataMenuList[i].first == typeid(T1).hash_code())
+        if (GetInstance().m_componentDataMenuList[i].first == typeid(T).hash_code())
         {
             GetInstance().m_componentDataMenuList[i].second = func;
             return;
         }
     }
-    GetInstance().m_componentDataMenuList.emplace_back(typeid(T1).hash_code(), func);
+    GetInstance().m_componentDataMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
 template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target, bool removable)

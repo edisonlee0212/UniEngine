@@ -15,6 +15,7 @@ class UNIENGINE_API ClassRegistry
     template <typename T = IDataComponent> static void RegisterDataComponent(const std::string &name)
     {
         SerializationManager::RegisterDataComponentType<T>(name);
+        EditorManager::RegisterDataComponent<T>();
     }
     template <typename T = IPrivateComponent> static void RegisterPrivateComponent(const std::string &name)
     {

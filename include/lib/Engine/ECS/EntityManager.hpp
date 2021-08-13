@@ -1493,8 +1493,10 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     auto &entityManager = GetInstance();
     auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
+
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = entityManager.m_entityDataComponentStorage->at(entityInfo.m_dataComponentStorageIndex);
+    auto originalComponentTypes = dataComponentStorage.m_dataComponentTypes;
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -1510,7 +1512,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
 #pragma region If not exist, we first need to create a new archetype
     EntityArchetypeInfo newArchetypeInfo;
     newArchetypeInfo.m_name = "New archetype";
-    newArchetypeInfo.m_dataComponentTypes = dataComponentStorage.m_dataComponentTypes;
+    newArchetypeInfo.m_dataComponentTypes = originalComponentTypes;
     newArchetypeInfo.m_dataComponentTypes.push_back(Typeof<T>());
     std::sort(
         newArchetypeInfo.m_dataComponentTypes.begin() + 3,
@@ -1533,7 +1535,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
 #pragma region Create new Entity with new archetype.
     Entity newEntity = CreateEntity(archetype);
     // Transfer component data
-    for (const auto &type : dataComponentStorage.m_dataComponentTypes)
+    for (const auto &type : originalComponentTypes)
     {
         SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
