@@ -19,6 +19,8 @@ enum EntityEditorSystemConfigFlags
 };
 class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 {
+    friend class ClassRegistry;
+
     EntityArchetype m_basicEntityArchetype;
     bool m_enabled = false;
     std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
@@ -82,6 +84,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void MainCameraWindow();
 
     static void CameraWindowDragAndDrop();
+    template <typename T1 = IPrivateComponent> static void RegisterPrivateComponent();
 
   public:
     int m_selectedHierarchyDisplayMode = 1;
@@ -105,8 +108,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
         const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func);
-    template <typename T1 = IPrivateComponent>
-    static void RegisterPrivateComponentMenu(const std::function<void(Entity owner)> &func);
+
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataMenu(const std::function<void(Entity owner)> &func);
     static void Init();
@@ -114,14 +116,14 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void PreUpdate();
     static void RenderToSceneCamera();
     static Entity GetSelectedEntity();
-    static void SetSelectedEntity(const Entity &entity, const bool &openMenu = true);
+    static void SetSelectedEntity(const Entity &entity, bool openMenu = true);
     static std::weak_ptr<Camera> GetSceneCamera();
-    template <typename T = IAsset> static bool DragAndDrop(std::shared_ptr<T> &target, const bool removable = true);
-    template <typename T = IPrivateComponent> static bool DragAndDrop(std::weak_ptr<T> &target, const bool removable = true);
+    template <typename T = IAsset> static bool DragAndDrop(std::shared_ptr<T> &target, bool removable = true);
+    template <typename T = IPrivateComponent> static bool DragAndDrop(std::weak_ptr<T> &target, bool removable = true);
     static bool DragAndDrop(Entity &entity);
 
-    template <typename T = IAsset> static bool Draggable(std::shared_ptr<T> &target, const bool removable = true);
-    template <typename T = IAsset> static bool Draggable(std::weak_ptr<T> &target, const bool removable = true);
+    template <typename T = IAsset> static bool Draggable(std::shared_ptr<T> &target, bool removable = true);
+    template <typename T = IAsset> static bool Draggable(std::weak_ptr<T> &target, bool removable = true);
 
     static bool MainCameraWindowFocused();
     static bool SceneCameraWindowFocused();
@@ -134,17 +136,26 @@ void EditorManager::RegisterComponentDataInspector(
     GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
 }
 
-template <typename T1> void EditorManager::RegisterPrivateComponentMenu(const std::function<void(Entity owner)> &func)
+template <typename T> void EditorManager::RegisterPrivateComponent()
 {
-    for (int i = 0; i < GetInstance().m_privateComponentMenuList.size(); i++)
-    {
-        if (GetInstance().m_privateComponentMenuList[i].first == typeid(T1).hash_code())
+    auto &editorManager = GetInstance();
+    auto func = [&](Entity owner) {
+        if (owner.HasPrivateComponent<T>())
+            return;
+        if (ImGui::SmallButton(SerializationManager::GetSerializableTypeName<T>().c_str()))
         {
-            GetInstance().m_privateComponentMenuList[i].second = func;
+            owner.GetOrSetPrivateComponent<T>();
+        }
+    };
+    for (int i = 0; i < editorManager.m_privateComponentMenuList.size(); i++)
+    {
+        if (editorManager.m_privateComponentMenuList[i].first == typeid(T).hash_code())
+        {
+            editorManager.m_privateComponentMenuList[i].second = func;
             return;
         }
     }
-    GetInstance().m_privateComponentMenuList.emplace_back(typeid(T1).hash_code(), func);
+    editorManager.m_privateComponentMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
 template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::function<void(Entity owner)> &func)
@@ -160,7 +171,7 @@ template <typename T1> void EditorManager::RegisterComponentDataMenu(const std::
     GetInstance().m_componentDataMenuList.emplace_back(typeid(T1).hash_code(), func);
 }
 
-template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target, const bool removable)
+template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target, bool removable)
 {
     const std::shared_ptr<IAsset> ptr = std::static_pointer_cast<IAsset>(target);
     bool statusChanged = false;
@@ -192,7 +203,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-            if(removable)
+            if (removable)
             {
                 if (ImGui::Button(("Remove" + tag).c_str()))
                 {
@@ -219,7 +230,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::shared_ptr<T> &target
     return statusChanged;
 }
 
-template <typename T> bool EditorManager::DragAndDrop(std::weak_ptr<T> &target, const bool removable)
+template <typename T> bool EditorManager::DragAndDrop(std::weak_ptr<T> &target, bool removable)
 {
     bool statusChanged = false;
     if (!target.expired())
@@ -236,7 +247,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::weak_ptr<T> &target, 
                 ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->GetOwner().GetName() + tag).c_str());
                 ImGui::EndDragDropSource();
             }
-            if(removable)
+            if (removable)
             {
                 if (ImGui::BeginPopupContextItem(tag.c_str()))
                 {
@@ -265,7 +276,7 @@ template <typename T> bool EditorManager::DragAndDrop(std::weak_ptr<T> &target, 
     }
     return statusChanged;
 }
-template <typename T> bool EditorManager::Draggable(std::weak_ptr<T> &target, const bool removable)
+template <typename T> bool EditorManager::Draggable(std::weak_ptr<T> &target, bool removable)
 {
     bool statusChanged = false;
     if (!target.expired())
@@ -289,7 +300,7 @@ template <typename T> bool EditorManager::Draggable(std::weak_ptr<T> &target, co
                     ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
                 ImGui::EndDragDropSource();
             }
-            if(removable)
+            if (removable)
             {
                 if (ImGui::BeginPopupContextItem(tag.c_str()))
                 {
@@ -305,7 +316,7 @@ template <typename T> bool EditorManager::Draggable(std::weak_ptr<T> &target, co
     }
     return statusChanged;
 }
-template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target, const bool removable)
+template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target, bool removable)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
     bool removed = false;
@@ -337,7 +348,7 @@ template <typename T> bool EditorManager::Draggable(std::shared_ptr<T> &target, 
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-            if(removable)
+            if (removable)
             {
                 if (ImGui::Button(("Remove" + tag).c_str()))
                 {

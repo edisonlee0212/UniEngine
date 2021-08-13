@@ -403,6 +403,10 @@ void Camera::Clone(const std::shared_ptr<IPrivateComponent> &target)
     m_clearColor = ptr->m_clearColor;
     m_skybox = ptr->m_skybox;
 }
+void Camera::Start()
+{
+    if(m_isMainCamera) RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
+}
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {

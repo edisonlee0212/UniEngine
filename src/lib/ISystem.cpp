@@ -1,18 +1,6 @@
 #include <ISystem.hpp>
 using namespace UniEngine;
 
-void ISystem::OnEnable()
-{
-}
-
-void ISystem::OnDisable()
-{
-}
-
-void ISystem::OnGui()
-{
-}
-
 ISystem::ISystem()
 {
     m_enabled = false;
@@ -39,30 +27,6 @@ void ISystem::Disable()
 bool ISystem::Enabled() const
 {
     return m_enabled;
-}
-
-void ISystem::OnCreate()
-{
-}
-
-void ISystem::OnDestroy()
-{
-}
-
-void ISystem::PreUpdate()
-{
-}
-
-void ISystem::Update()
-{
-}
-
-void ISystem::FixedUpdate()
-{
-}
-
-void ISystem::LateUpdate()
-{
 }
 
 float ISystem::GetRank()

@@ -1,8 +1,9 @@
 #include <Core/Debug.hpp>
+#include <Entity.hpp>
 #include <EntityManager.hpp>
 #include <PhysicsManager.hpp>
 #include <Scene.hpp>
-#include <Entity.hpp>
+#include <AssetManager.hpp>
 
 using namespace UniEngine;
 
@@ -111,7 +112,10 @@ void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
     for (const auto &i : *entityManager.m_entityDataComponentStorage)
     {
         if (i.m_dataComponentTypes.size() != archetypeInfo.m_dataComponentTypes.size())
+        {
+            targetIndex++;
             continue;
+        }
         bool check = true;
         for (int j = 0; j < i.m_dataComponentTypes.size(); j++)
         {
@@ -346,7 +350,7 @@ Entity EntityManager::CreateEntity(const std::string &name)
     return CreateEntity(GetInstance().m_basicArchetype, name);
 }
 
-Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name, const Handle& handle)
+Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name, const Handle &handle)
 {
     if (!GetInstance().m_currentAttachedWorldEntityStorage)
     {
@@ -1111,7 +1115,7 @@ template <typename T> const std::vector<Entity> EntityManager::GetPrivateCompone
 void EntityManager::Init()
 {
     auto &entityManager = GetInstance();
-    auto scene = std::make_shared<Scene>();
+    auto scene = AssetManager::CreateAsset<Scene>("New Scene");
     Attach(scene);
 
     entityManager.m_entityArchetypeInfos.emplace_back();
@@ -1171,7 +1175,8 @@ void EntityManager::RefreshAllEntityQueryInfos()
 
 void EntityManager::RefreshAllEntityArchetypeInfos()
 {
-    for (size_t i = 1; i < GetInstance().m_entityArchetypeInfos.size(); i++)
+    auto& entityManager = GetInstance();
+    for (size_t i = 1; i < entityManager.m_entityArchetypeInfos.size(); i++)
     {
         RefreshEntityArchetypeInfo(i);
     }
@@ -1192,4 +1197,3 @@ size_t EntityQuery::GetEntityAmount() const
     return EntityManager::GetEntityAmount(*this);
 }
 #pragma endregion
-

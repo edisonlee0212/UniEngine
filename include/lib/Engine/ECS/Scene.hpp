@@ -35,9 +35,8 @@ class UNIENGINE_API Scene : public IAsset
     void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
     void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
   public:
-    std::string m_name = "New Scene";
     void Purge();
-    Scene();
+    void OnCreate() override;
     Scene &operator=(Scene &&) = delete;
     Scene &operator=(const Scene &) = delete;
     [[nodiscard]] Bound GetBound() const;
@@ -52,6 +51,8 @@ class UNIENGINE_API Scene : public IAsset
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+
+
 };
 
 template <typename T> void Scene::DestroySystem()

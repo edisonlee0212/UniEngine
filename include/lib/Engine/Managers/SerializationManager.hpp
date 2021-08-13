@@ -4,7 +4,6 @@
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
 #include <Scene.hpp>
-
 namespace YAML
 {
 class Node;
@@ -118,6 +117,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
 {
     friend class AssetManager;
     friend class ISerializable;
+    friend class ClassRegistry;
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
     std::map<std::string, std::function<std::shared_ptr<ISerializable>(size_t &)>> m_serializableGenerators;
 
@@ -125,19 +125,20 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     std::map<std::string, size_t> m_serializableIds;
     std::map<size_t, std::string> m_dataComponentNames;
     std::map<size_t, std::string> m_serializableNames;
-
-  public:
     template <typename T = IDataComponent> static bool RegisterDataComponentType(const std::string &name);
     template <typename T = ISerializable> static bool RegisterSerializableType(const std::string &name);
+
     static bool RegisterDataComponentType(
         const std::string &typeName,
         const size_t &typeId,
         const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func);
+    static bool RegisterSerializableType(
+        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable> (size_t &)> &func);
+  public:
+
     static std::shared_ptr<IDataComponent> ProduceDataComponent(
         const std::string &typeName, size_t &hashCode, size_t &size);
 
-    static bool RegisterSerializableType(
-        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable> (size_t &)> &func);
     static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode);
     static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode, const Handle& handle);
     template <typename T = ISerializable> static std::shared_ptr<T> ProduceSerializable();
@@ -174,23 +175,6 @@ template <typename T> bool SerializationManager::RegisterSerializableType(const 
     });
 }
 
-template <typename T = IDataComponent> class UNIENGINE_API ComponentDataRegistration
-{
-  public:
-    ComponentDataRegistration(const std::string &name)
-    {
-        SerializationManager::RegisterDataComponentType<T>(name);
-    }
-};
-
-template <typename T = ISerializable> class UNIENGINE_API SerializableRegistration
-{
-  public:
-    SerializableRegistration(const std::string &name)
-    {
-        SerializationManager::RegisterSerializableType<T>(name);
-    }
-};
 
 #pragma endregion
 

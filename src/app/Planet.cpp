@@ -9,10 +9,13 @@
 #include <SerializationManager.hpp>
 using namespace UniEngine;
 using namespace Planet;
+
+PrivateComponentRegistration<PlanetTerrain> PlanetTerrainReg("PlanetTerrain");
+SystemRegistration<PlanetTerrainSystem> PlanetTerrainSystemReg("PlanetTerrainSystem");
+
 int main()
 {
-    SerializationManager::RegisterSerializableType<PlanetTerrain>("PlanetTerrain");
-    SerializationManager::RegisterSerializableType<PlanetTerrainSystem>("PlanetTerrainSystem");
+
     Application::Init();
 #pragma region Preparations
 

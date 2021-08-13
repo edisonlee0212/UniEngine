@@ -7,11 +7,25 @@
 #include <PlayerController.hpp>
 using namespace UniEngine;
 using namespace Galaxy;
+
+DataComponentRegistration<StarPosition> StarPositionReg("StarPosition");
+DataComponentRegistration<SelectionStatus> SelectionStatusReg("SelectionStatus");
+DataComponentRegistration<StarInfo> StarInfoReg("StarInfo");
+DataComponentRegistration<SurfaceColor> SurfaceColorReg("SurfaceColor");
+DataComponentRegistration<DisplayColor> DisplayColorReg("DisplayColor");
+DataComponentRegistration<OriginalColor> OriginalColorReg("OriginalColor");
+DataComponentRegistration<StarOrbitOffset> StarOrbitOffsetReg("StarOrbitOffset");
+DataComponentRegistration<StarOrbitProportion> StarOrbitProportionReg("StarOrbitProportion");
+DataComponentRegistration<StarOrbit> StarOrbitReg("StarOrbit");
+DataComponentRegistration<StarClusterIndex> StarClusterIndexReg("StarClusterIndex");
+
+SystemRegistration<StarClusterSystem> StarClusterSystemReg("StarClusterSystem");
 int main()
 {
+
 #pragma region Application Preparations
     Application::Init();
-    SerializationManager::RegisterSerializableType<StarClusterSystem>("StarClusterSystem");
+
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma endregion

@@ -29,7 +29,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
     std::filesystem::path m_resourceRootPath;
     bool m_enableAssetMenu = true;
-
+    friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
 
     std::map<std::string, std::unordered_map<Handle, std::weak_ptr<IAsset>>> m_assets;
@@ -40,14 +40,14 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterAsset(std::shared_ptr<T> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const Handle &handle, const std::string &name = "");
-
+    template <typename T> static void RegisterAssetType(const std::string &name);
   public:
     static void SetResourcePath(const std::filesystem::path &path);
     static std::filesystem::path GetAssetFolderPath();
     static std::filesystem::path GetResourceFolderPath();
     static void ScanAssetFolder();
 
-    template <typename T> static void RegisterAssetType(const std::string &name);
+
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
 
     template <typename T> static std::shared_ptr<T> Get(const Handle &handle);

@@ -45,13 +45,6 @@ void Scene::SetBound(const Bound &value)
     m_worldBound = value;
 }
 
-Scene::Scene()
-{
-    m_sceneDataStorage.m_entities.emplace_back();
-    m_sceneDataStorage.m_entityInfos.emplace_back();
-    m_sceneDataStorage.m_dataComponentStorages.emplace_back();
-}
-
 Scene::~Scene()
 {
     Purge();
@@ -92,6 +85,11 @@ void Scene::PreUpdate()
         if (i.second->Enabled())
         {
             ProfilerManager::StartEvent(i.second->GetTypeName());
+            if(!i.second->m_started)
+            {
+                i.second->Start();
+                i.second->m_started = true;
+            }
             i.second->PreUpdate();
             ProfilerManager::EndEvent(i.second->GetTypeName());
         }
@@ -100,7 +98,6 @@ void Scene::PreUpdate()
 
 void Scene::Update()
 {
-
     for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
         if(!entityInfo.m_enabled) continue;
         for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
@@ -323,10 +320,12 @@ void Scene::Deserialize(const YAML::Node &in)
         auto ptr = std::static_pointer_cast<ISystem>(SerializationManager::ProduceSerializable(name, hashCode));
         ptr->m_enabled = inSystem["Enabled"].as<bool>();
         ptr->m_rank = inSystem["Rank"].as<float>();
+        ptr->m_started = false;
         m_systems.insert({ptr->m_rank, ptr});
         m_indexedSystems.insert({hashCode, ptr});
         ptr->OnCreate();
         ptr->Deserialize(inSystem);
+
     }
 #pragma endregion
 }
@@ -379,4 +378,10 @@ void Scene::SerializeSystem(const std::shared_ptr<ISystem> &system, YAML::Emitte
         system->Serialize(out);
     }
     out << YAML::EndMap;
+}
+void Scene::OnCreate()
+{
+    m_sceneDataStorage.m_entities.emplace_back();
+    m_sceneDataStorage.m_entityInfos.emplace_back();
+    m_sceneDataStorage.m_dataComponentStorages.emplace_back();
 }

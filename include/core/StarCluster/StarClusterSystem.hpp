@@ -291,12 +291,17 @@ class StarClusterSystem : public ISystem
     void OnGui();
 
   public:
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
+
+
     void CalculateStarPositionAsync();
     void CalculateStarPositionSync();
     void ApplyPosition();
     void CopyPosition(const bool &reverse = false);
     void LateUpdate() override;
     void OnCreate() override;
+    void Start() override;
     void Update() override;
     void PushStars(StarClusterPattern &pattern, const size_t &amount = 10000);
     void RandomlyRemoveStars(const size_t &amount = 10000);

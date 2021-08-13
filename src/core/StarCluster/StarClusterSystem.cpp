@@ -363,64 +363,6 @@ void Galaxy::StarClusterSystem::LateUpdate()
 
 void Galaxy::StarClusterSystem::OnCreate()
 {
-    SerializationManager::RegisterDataComponentType<StarPosition>("StarPosition");
-    SerializationManager::RegisterDataComponentType<SelectionStatus>("SelectionStatus");
-    SerializationManager::RegisterDataComponentType<StarInfo>("StarInfo");
-    SerializationManager::RegisterDataComponentType<SurfaceColor>("SurfaceColor");
-    SerializationManager::RegisterDataComponentType<DisplayColor>("DisplayColor");
-    SerializationManager::RegisterDataComponentType<OriginalColor>("OriginalColor");
-    SerializationManager::RegisterDataComponentType<StarOrbitOffset>("StarOrbitOffset");
-    SerializationManager::RegisterDataComponentType<StarOrbitProportion>("StarOrbitProportion");
-    SerializationManager::RegisterDataComponentType<StarOrbit>("StarOrbit");
-    SerializationManager::RegisterDataComponentType<StarClusterIndex>("StarClusterIndex");
-
-
-    EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
-    m_rendererFront = EntityManager::CreateEntity("Renderer 1");
-    GlobalTransform ltw;
-    ltw.SetScale(glm::vec3(1.0f));
-    auto imr = m_rendererFront.GetOrSetPrivateComponent<Particles>().lock();
-    imr->m_material = AssetManager::CreateAsset<Material>();
-    imr->m_castShadow = false;
-    imr->m_receiveShadow = false;
-    imr->m_material->m_ambient = 0.0f;
-    imr->m_material->m_emission = 3.0f;
-    imr->m_mesh = DefaultResources::Primitives::Cube;
-    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
-
-    m_rendererFront.SetDataComponent(ltw);
-
-    m_rendererBack = EntityManager::CreateEntity("Renderer 2");
-    ltw.SetScale(glm::vec3(1.0f));
-    auto imr2 = m_rendererBack.GetOrSetPrivateComponent<Particles>().lock();
-    imr2->m_material = imr->m_material;
-
-    m_rendererBack.SetDataComponent(ltw);
-
-    m_starClusterPatterns.resize(2);
-    auto &starClusterPattern1 = m_starClusterPatterns[0];
-    auto &starClusterPattern2 = m_starClusterPatterns[1];
-    starClusterPattern1.m_starClusterIndex.m_value = 0;
-    starClusterPattern2.m_starClusterIndex.m_value = 1;
-    m_starQuery = EntityManager::CreateEntityQuery();
-    m_starQuery.SetAllFilters(StarInfo());
-
-    m_starArchetype = EntityManager::CreateEntityArchetype(
-        "Star",
-        GlobalTransform(),
-        StarClusterIndex(),
-        StarInfo(),
-        StarOrbit(),
-        StarOrbitOffset(),
-        StarOrbitProportion(),
-        StarPosition(),
-        SelectionStatus(),
-        OriginalColor(),
-        SurfaceColor(),
-        DisplayColor());
-    JobManager::ResizePrimaryWorkers(1);
-    JobManager::ResizeSecondaryWorkers(16);
-    m_firstTime = true;
     Enable();
 }
 
@@ -491,4 +433,66 @@ void Galaxy::StarClusterSystem::FixedUpdate()
 void Galaxy::StarClusterSystem::OnEnable()
 {
     m_firstTime = true;
+}
+void StarClusterSystem::Start()
+{
+    EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
+    m_rendererFront = EntityManager::CreateEntity("Renderer 1");
+    GlobalTransform ltw;
+    ltw.SetScale(glm::vec3(1.0f));
+    auto imr = m_rendererFront.GetOrSetPrivateComponent<Particles>().lock();
+    imr->m_material = AssetManager::CreateAsset<Material>();
+    imr->m_castShadow = false;
+    imr->m_receiveShadow = false;
+    imr->m_material->m_ambient = 0.0f;
+    imr->m_material->m_emission = 3.0f;
+    imr->m_mesh = DefaultResources::Primitives::Cube;
+    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+
+    m_rendererFront.SetDataComponent(ltw);
+
+    m_rendererBack = EntityManager::CreateEntity("Renderer 2");
+    ltw.SetScale(glm::vec3(1.0f));
+    auto imr2 = m_rendererBack.GetOrSetPrivateComponent<Particles>().lock();
+    imr2->m_material = imr->m_material;
+
+    m_rendererBack.SetDataComponent(ltw);
+
+    m_starClusterPatterns.resize(2);
+    auto &starClusterPattern1 = m_starClusterPatterns[0];
+    auto &starClusterPattern2 = m_starClusterPatterns[1];
+    starClusterPattern1.m_starClusterIndex.m_value = 0;
+    starClusterPattern2.m_starClusterIndex.m_value = 1;
+    m_starQuery = EntityManager::CreateEntityQuery();
+    m_starQuery.SetAllFilters(StarInfo());
+
+    m_starArchetype = EntityManager::CreateEntityArchetype(
+        "Star",
+        GlobalTransform(),
+        StarClusterIndex(),
+        StarInfo(),
+        StarOrbit(),
+        StarOrbitOffset(),
+        StarOrbitProportion(),
+        StarPosition(),
+        SelectionStatus(),
+        OriginalColor(),
+        SurfaceColor(),
+        DisplayColor());
+    JobManager::ResizePrimaryWorkers(1);
+    JobManager::ResizeSecondaryWorkers(16);
+    m_firstTime = true;
+
+}
+void StarClusterSystem::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_speed" << YAML::Value << m_speed;
+    out << YAML::Key << "m_size" << YAML::Value << m_size;
+    out << YAML::Key << "m_galaxyTime" << YAML::Value << m_galaxyTime;
+}
+void StarClusterSystem::Deserialize(const YAML::Node &in)
+{
+    m_speed = in["m_speed"].as<float>();
+    m_size = in["m_size"].as<float>();
+    m_galaxyTime = in["m_galaxyTime"].as<float>();
 }

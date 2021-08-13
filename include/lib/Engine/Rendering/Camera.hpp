@@ -82,7 +82,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     static void GenerateMatrices();
     void ResizeResolution(int x, int y);
     void OnCreate() override;
-
+    void Start() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void OnDestroy() override;

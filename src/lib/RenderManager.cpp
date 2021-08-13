@@ -42,6 +42,7 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderCommand : renderCommands.second)
             {
+                if(renderCommand.m_mesh.expired()) continue;
                 func(mat, renderCommand);
             }
         }
@@ -49,6 +50,7 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderCommand : renderCommands.second)
             {
+                if(renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired()) continue;
                 func(mat, renderCommand);
             }
         }
@@ -74,8 +76,6 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if (renderCommand.m_mesh.expired())
-                    break;
                 auto mesh = renderCommand.m_mesh.lock();
                 auto &program = DefaultResources::m_gBufferPrepass;
                 program->Bind();
@@ -88,8 +88,6 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 break;
             }
             case RenderCommandMeshType::Skinned: {
-                if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
-                    break;
                 auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
                 auto &program = DefaultResources::m_gBufferSkinnedPrepass;
                 program->Bind();
@@ -111,8 +109,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
-                    break;
+                if(renderCommand.m_matrices.expired()) break;
                 auto mesh = renderCommand.m_mesh.lock();
                 auto &program = DefaultResources::m_gBufferInstancedPrepass;
                 program->Bind();
@@ -171,8 +168,6 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if (renderCommand.m_mesh.expired())
-                    break;
                 auto mesh = renderCommand.m_mesh.lock();
 
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
@@ -183,10 +178,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 break;
             }
             case RenderCommandMeshType::Skinned: {
-                if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
-                    break;
                 auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
-
                 renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
@@ -204,10 +196,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
-                    break;
+                if(renderCommand.m_matrices.expired()) break;
                 auto mesh = renderCommand.m_mesh.lock();
-
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
@@ -1096,8 +1086,6 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if (renderCommand.m_mesh.expired())
-                        break;
                     auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultProgram;
                     program->Bind();
@@ -1107,8 +1095,6 @@ void RenderManager::ShadowMapPrePass(
                     break;
                 }
                 case RenderCommandMeshType::Skinned: {
-                    if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
-                        break;
                     auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
                     auto &program = skinnedProgram;
                     program->Bind();
@@ -1130,8 +1116,7 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if (renderCommand.m_mesh.expired())
-                        break;
+                    if(renderCommand.m_matrices.expired()) break;
                     auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultInstancedProgram;
                     program->Bind();
@@ -1153,10 +1138,7 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if (renderCommand.m_mesh.expired())
-                        break;
                     auto mesh = renderCommand.m_mesh.lock();
-
                     auto &program = defaultProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -1165,10 +1147,7 @@ void RenderManager::ShadowMapPrePass(
                     break;
                 }
                 case RenderCommandMeshType::Skinned: {
-                    if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
-                        break;
                     auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
-
                     auto &program = skinnedProgram;
                     program->Bind();
                     renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
@@ -1189,10 +1168,8 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if (renderCommand.m_mesh.expired() || renderCommand.m_matrices.expired())
-                        break;
+                    if(renderCommand.m_matrices.expired()) break;
                     auto mesh = renderCommand.m_mesh.lock();
-
                     auto &program = defaultInstancedProgram;
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);

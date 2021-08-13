@@ -318,21 +318,6 @@ void DefaultResources::LoadPrimitives()
 }
 void DefaultResources::Load()
 {
-    AssetManager::RegisterAssetType<Material>("Material");
-    AssetManager::RegisterAssetType<Mesh>("Mesh");
-    AssetManager::RegisterAssetType<Texture2D>("Texture2D");
-    AssetManager::RegisterAssetType<Cubemap>("Cubemap");
-    AssetManager::RegisterAssetType<LightProbe>("LightProbe");
-    AssetManager::RegisterAssetType<ReflectionProbe>("ReflectionProbe");
-    AssetManager::RegisterAssetType<OpenGLUtils::GLProgram>("GLProgram");
-    AssetManager::RegisterAssetType<EnvironmentalMap>("EnvironmentalMap");
-    AssetManager::RegisterAssetType<Animation>("Animation");
-    AssetManager::RegisterAssetType<SkinnedMesh>("SkinnedMesh");
-    AssetManager::RegisterAssetType<PhysicsMaterial>("PhysicsMaterial");
-    AssetManager::RegisterAssetType<Collider>("Collider");
-    AssetManager::RegisterAssetType<Prefab>("Prefab");
-    AssetManager::RegisterAssetType<Scene>("Scene");
-
     LoadShaders();
     LoadPrimitives();
 

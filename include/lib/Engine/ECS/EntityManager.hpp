@@ -1481,10 +1481,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
     info.m_entitySize = info.m_dataComponentTypes.back().m_offset + info.m_dataComponentTypes.back().m_size;
     info.m_chunkCapacity = GetInstance().m_archetypeChunkSize / info.m_entitySize;
     retVal = CreateEntityArchetypeHelper(info);
-    for (size_t i = 0; i < GetInstance().m_entityQueryInfos.size(); i++)
-    {
-        RefreshEntityQueryInfo(i);
-    }
+    RefreshAllEntityArchetypeInfos();
     return retVal;
 }
 #pragma endregion

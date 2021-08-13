@@ -1,32 +1,7 @@
-#include <Camera.hpp>
 #include <ISerializable.hpp>
-#include <MeshRenderer.hpp>
-#include <PhysicsManager.hpp>
-#include <PlayerController.hpp>
-#include <PostProcessing.hpp>
-#include <RenderManager.hpp>
 #include <SerializationManager.hpp>
+#include <Debug.hpp>
 using namespace UniEngine;
-
-ComponentDataRegistration<Transform> TransformRegistry("Transform");
-ComponentDataRegistration<GlobalTransform> GlobalTransformRegistry("GlobalTransform");
-ComponentDataRegistration<GlobalTransformUpdateFlag> GlobalTransformUpdateFlagRegistry("GlobalTransformUpdateFlag");
-ComponentDataRegistration<Ray> RayRegistry("Ray");
-
-SerializableRegistration<Animator> AnimatorRegistry("Animator");
-SerializableRegistration<Joint> JointRegistry("Joint");
-SerializableRegistration<RigidBody> RigidBodyRegistry("RigidBody");
-SerializableRegistration<SpotLight> SpotLightRegistry("SpotLight");
-SerializableRegistration<PointLight> PointLightRegistry("PointLight");
-SerializableRegistration<DirectionalLight> DirectionalLightRegistry("DirectionalLight");
-SerializableRegistration<Camera> CameraRegistry("Camera");
-SerializableRegistration<PlayerController> PlayerControllerRegistry("PlayerController");
-SerializableRegistration<Particles> ParticlesRegistry("Particles");
-SerializableRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
-SerializableRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
-SerializableRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
-
-SerializableRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
 std::string SerializationManager::GetSerializableTypeName(const size_t &typeId)
 {

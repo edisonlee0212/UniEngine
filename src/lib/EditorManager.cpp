@@ -14,6 +14,8 @@
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <WindowManager.hpp>
+#include <PlayerController.hpp>
+#include <ClassRegistry.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -351,87 +353,7 @@ void EditorManager::Init()
         ImGui::InputFloat3("Direction", &ray->m_direction.x);
         ImGui::InputFloat("Length", &ray->m_length);
     });
-    RegisterPrivateComponentMenu<Animator>([](Entity owner) {
-        if (owner.HasPrivateComponent<Animator>())
-            return;
-        if (ImGui::SmallButton("Animator"))
-        {
-            owner.GetOrSetPrivateComponent<Animator>();
-        }
-    });
-    RegisterPrivateComponentMenu<Joint>([](Entity owner) {
-        if (owner.HasPrivateComponent<Joint>())
-            return;
-        if (ImGui::SmallButton("Joint"))
-        {
-            owner.GetOrSetPrivateComponent<Joint>();
-        }
-    });
-    RegisterPrivateComponentMenu<DirectionalLight>([](Entity owner) {
-        if (owner.HasPrivateComponent<DirectionalLight>())
-            return;
-        if (ImGui::SmallButton("DirectionalLight"))
-        {
-            owner.GetOrSetPrivateComponent<DirectionalLight>();
-        }
-    });
-    RegisterPrivateComponentMenu<PointLight>([](Entity owner) {
-        if (owner.HasPrivateComponent<PointLight>())
-            return;
-        if (ImGui::SmallButton("PointLight"))
-        {
-            owner.GetOrSetPrivateComponent<PointLight>();
-        }
-    });
-    RegisterPrivateComponentMenu<SpotLight>([](Entity owner) {
-        if (owner.HasPrivateComponent<SpotLight>())
-            return;
-        if (ImGui::SmallButton("SpotLight"))
-        {
-            owner.GetOrSetPrivateComponent<SpotLight>();
-        }
-    });
-    RegisterPrivateComponentMenu<Camera>([](Entity owner) {
-        if (owner.HasPrivateComponent<Camera>())
-            return;
-        if (ImGui::SmallButton("Camera"))
-        {
-            owner.GetOrSetPrivateComponent<Camera>();
-        }
-    });
-    RegisterPrivateComponentMenu<MeshRenderer>([](Entity owner) {
-        if (owner.HasPrivateComponent<MeshRenderer>())
-            return;
-        if (ImGui::SmallButton("MeshRenderer"))
-        {
-            owner.GetOrSetPrivateComponent<MeshRenderer>();
-        }
-    });
 
-    RegisterPrivateComponentMenu<PostProcessing>([](Entity owner) {
-        if (owner.HasPrivateComponent<PostProcessing>())
-            return;
-        if (ImGui::SmallButton("PostProcessing"))
-        {
-            owner.GetOrSetPrivateComponent<PostProcessing>();
-        }
-    });
-    RegisterPrivateComponentMenu<Particles>([](Entity owner) {
-        if (owner.HasPrivateComponent<Particles>())
-            return;
-        if (ImGui::SmallButton("Particles"))
-        {
-            owner.GetOrSetPrivateComponent<Particles>();
-        }
-    });
-    RegisterPrivateComponentMenu<RigidBody>([](Entity owner) {
-        if (owner.HasPrivateComponent<RigidBody>())
-            return;
-        if (ImGui::SmallButton("RigidBody"))
-        {
-            owner.GetOrSetPrivateComponent<RigidBody>();
-        }
-    });
 
     editorManager.m_selectedEntity = Entity();
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
@@ -631,6 +553,7 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
+                        if(renderCommand.m_matrices.expired()) break;
                         auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -684,6 +607,7 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
+                        if(renderCommand.m_matrices.expired()) break;
                         auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -794,7 +718,7 @@ void EditorManager::OnGui()
             &editorManager.m_selectedHierarchyDisplayMode,
             HierarchyDisplayMode,
             IM_ARRAYSIZE(HierarchyDisplayMode));
-        if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::CollapsingHeader(EntityManager::GetCurrentScene()->m_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::BeginDragDropTarget())
             {
@@ -812,6 +736,7 @@ void EditorManager::OnGui()
             {
                 EntityManager::UnsafeForEachEntityStorage(
                     [&](int i, const std::string &name, const DataComponentStorage &storage) {
+                        if(i == 0) return;
                         ImGui::Separator();
                         const std::string title = std::to_string(i) + ". " + name;
                         if (ImGui::TreeNode(title.c_str()))
@@ -1084,7 +1009,7 @@ void EditorManager::LateUpdate()
 #pragma endregion
 }
 
-void EditorManager::SetSelectedEntity(const Entity &entity, const bool &openMenu)
+void EditorManager::SetSelectedEntity(const Entity &entity, bool openMenu)
 {
     auto &manager = GetInstance();
     if (entity == manager.m_selectedEntity)
