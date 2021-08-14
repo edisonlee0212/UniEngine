@@ -162,8 +162,35 @@ void Material::SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program)
 }
 void Material::Serialize(YAML::Emitter &out)
 {
-    // out << YAML::Key << "m_resolutionX" << YAML::Value << m_resolutionX;
+    m_albedoTexture.Save("m_albedoTexture", out);
+    m_normalTexture.Save("m_normalTexture", out);
+    m_metallicTexture.Save("m_metallicTexture", out);
+    m_roughnessTexture.Save("m_roughnessTexture", out);
+    m_aoTexture.Save("m_aoTexture", out);
+    m_program.Save("m_program", out);
+
+    out << YAML::Key << "m_metallic" << YAML::Value << m_metallic;
+    out << YAML::Key << "m_roughness" << YAML::Value << m_roughness;
+    out << YAML::Key << "m_ambient" << YAML::Value << m_ambient;
+    out << YAML::Key << "m_emission" << YAML::Value << m_emission;
+    out << YAML::Key << "m_albedoColor" << YAML::Value << m_albedoColor;
+    out << YAML::Key << "m_alphaDiscardEnabled" << YAML::Value << m_alphaDiscardEnabled;
+    out << YAML::Key << "m_alphaDiscardOffset" << YAML::Value << m_alphaDiscardOffset;
 }
 void Material::Deserialize(const YAML::Node &in)
 {
+    m_albedoTexture.Load("m_albedoTexture", in);
+    m_normalTexture.Load("m_normalTexture", in);
+    m_metallicTexture.Load("m_metallicTexture", in);
+    m_roughnessTexture.Load("m_roughnessTexture", in);
+    m_aoTexture.Load("m_aoTexture", in);
+    m_program.Load("m_program", in);
+
+    m_metallic = in["m_metallic"].as<float>();
+    m_roughness = in["m_roughness"].as<float>();
+    m_ambient = in["m_ambient"].as<float>();
+    m_emission = in["m_emission"].as<float>();
+    m_albedoColor = in["m_albedoColor"].as<glm::vec3>();
+    m_alphaDiscardEnabled = in["m_alphaDiscardEnabled"].as<bool>();
+    m_alphaDiscardOffset = in["m_alphaDiscardOffset"].as<float>();
 }

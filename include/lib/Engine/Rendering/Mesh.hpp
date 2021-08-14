@@ -74,6 +74,7 @@ class UNIENGINE_API Mesh : public IAsset
     [[nodiscard]] std::vector<Vertex> &UnsafeGetVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
 
-
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine

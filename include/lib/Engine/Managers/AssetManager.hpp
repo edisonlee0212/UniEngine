@@ -73,10 +73,10 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
 template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {
+    auto &assetManager = GetInstance();
     auto ptr = std::static_pointer_cast<IAsset>(CreateAsset<T>(path.filename().string()));
     ptr->m_path = path;
     ptr->Load();
-    auto &assetManager = GetInstance();
     const auto typeName = ptr->m_typeName;
     assert(!typeName.empty());
     AssetRecord assetRecord;

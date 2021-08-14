@@ -6,6 +6,7 @@ using namespace UniEngine;
 void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
     m_animation.Set<Animation>(targetAnimation);
+    if(!targetAnimation) return;
     m_boneSize = targetAnimation->m_boneSize;
     m_transformChain.resize(m_boneSize);
     m_boundEntities.resize(m_boneSize);
@@ -17,7 +18,6 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
         m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
 
     m_currentActivatedAnimation = targetAnimation->m_animationNameAndLength.begin()->first;
-
 }
 
 void Animator::OnGui()
@@ -144,7 +144,6 @@ void Animator::Animate()
     ApplyOffsetMatrices();
 }
 
-
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
 {
     m_names[boneWalker->m_index] = boneWalker->m_name;
@@ -185,11 +184,7 @@ void Animator::DebugBoneRender(const glm::vec4 &color, const float &size) const
             m_transformChain[index] * glm::inverse(m_offsetMatrices[index]) * glm::inverse(glm::scale(selfScale));
     }
     RenderManager::DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Sphere,
-        color,
-        debugRenderingMatrices,
-        Transform().m_value,
-        size);
+        DefaultResources::Primitives::Sphere, color, debugRenderingMatrices, Transform().m_value, size);
 }
 
 void Animator::ResetTransform(const int &index)
@@ -213,4 +208,19 @@ void Animator::ResetTransform(const int &index)
 void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<Animator>(target);
+}
+void Animator::Deserialize(const YAML::Node &in)
+{
+    m_autoPlay = in["m_autoPlay"].as<bool>();
+    m_animation.Load("m_animation", in);
+    Setup(m_animation.Get<Animation>());
+    m_currentActivatedAnimation = in["m_currentActivatedAnimation"].as<std::string>();
+    m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
+}
+void Animator::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_autoPlay" << YAML::Value << m_autoPlay;
+    out << YAML::Key << "m_currentActivatedAnimation" << YAML::Value << m_currentActivatedAnimation;
+    out << YAML::Key << "m_currentAnimationTime" << YAML::Value << m_currentAnimationTime;
+    m_animation.Save("m_animation", out);
 }

@@ -35,6 +35,17 @@ class UNIENGINE_API AssetRef : public ISerializable
     std::string m_assetTypeName;
     bool Update();
 
+  protected:
+    void Serialize(YAML::Emitter &out) override
+    {
+        out << YAML::Key << "AssetRef" << YAML::Value << m_assetHandle;
+        out << YAML::Key << "AssetTypeName" << YAML::Value << m_assetTypeName;
+    }
+    void Deserialize(const YAML::Node &in) override
+    {
+        m_assetHandle = Handle(in["AssetRef"].as<uint64_t>());
+        m_assetTypeName = in["AssetTypeName"].as<std::string>();
+    }
   public:
     AssetRef(){
         m_assetHandle = Handle(0);
@@ -88,17 +99,14 @@ class UNIENGINE_API AssetRef : public ISerializable
     {
         return m_assetHandle;
     }
-    void Serialize(YAML::Emitter &out) override
-    {
-        out << YAML::BeginMap;
-        out << YAML::Key << "AssetRef" << YAML::Value << m_assetHandle;
-        out << YAML::Key << "AssetTypeName" << YAML::Value << m_assetTypeName;
+
+    void Save(const std::string& name, YAML::Emitter &out){
+        out << YAML::Key << name << YAML::Value << YAML::BeginMap;
+        Serialize(out);
         out << YAML::EndMap;
     }
-    void Deserialize(const YAML::Node &in) override
-    {
-        m_assetHandle = Handle(in["AssetRef"].as<uint64_t>());
-        m_assetTypeName = in["AssetTypeName"].as<std::string>();
+    void Load(const std::string& name, const YAML::Node &in){
+        Deserialize(in[name]);
     }
 };
 } // namespace UniEngine

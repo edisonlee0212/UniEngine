@@ -161,3 +161,11 @@ void Animation::Animate(
     }
     m_rootBone->Animate(name, animationTime, rootTransform, rootTransform, boundEntities, results);
 }
+void Animation::Serialize(YAML::Emitter &out)
+{
+
+}
+void Animation::Deserialize(const YAML::Node &in)
+{
+
+}

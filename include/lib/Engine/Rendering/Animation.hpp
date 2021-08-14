@@ -75,6 +75,9 @@ struct UNIENGINE_API Bone
         std::vector<Entity> &boundEntities,
         std::vector<glm::mat4> &results);
     void OnGui();
+
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
 };
 
 #pragma endregion
@@ -93,5 +96,8 @@ class UNIENGINE_API Animation : public IAsset
         const glm::mat4 &rootTransform,
         std::vector<Entity> &boundEntities,
         std::vector<glm::mat4> &results);
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine
