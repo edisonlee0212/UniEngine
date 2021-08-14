@@ -66,9 +66,7 @@ void Particles::OnGui()
             1);
     }
 
-    ImGui::Text("Material:##Particles");
-    ImGui::SameLine();
-    //EditorManager::DragAndDrop(m_material);
+    EditorManager::DragAndDrop<Material>(m_material, "Material");
     if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##Particles"))
@@ -77,9 +75,7 @@ void Particles::OnGui()
             ImGui::TreePop();
         }
     }
-    ImGui::Text("Mesh:##Particles");
-    ImGui::SameLine();
-    //EditorManager::DragAndDrop(m_mesh);
+    EditorManager::DragAndDrop<Mesh>(m_mesh, "Mesh");
     if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##Particles"))

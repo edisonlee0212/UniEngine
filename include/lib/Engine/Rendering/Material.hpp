@@ -38,8 +38,12 @@ struct MaterialMat4Property
 class UNIENGINE_API Material : public IAsset
 {
   public:
-    std::map<TextureType, std::shared_ptr<Texture2D>> m_textures;
-    std::shared_ptr<OpenGLUtils::GLProgram> m_program;
+    AssetRef m_albedoTexture;
+    AssetRef m_normalTexture;
+    AssetRef m_metallicTexture;
+    AssetRef m_roughnessTexture;
+    AssetRef m_aoTexture;
+    AssetRef m_program;
     std::vector<MaterialFloatProperty> m_floatPropertyList;
     std::vector<MaterialMat4Property> m_float4X4PropertyList;
     MaterialPolygonMode m_polygonMode = MaterialPolygonMode::Fill;
@@ -60,6 +64,8 @@ class UNIENGINE_API Material : public IAsset
     void RemoveTexture(TextureType type);
     void SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program);
 
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 
 };
 } // namespace UniEngine

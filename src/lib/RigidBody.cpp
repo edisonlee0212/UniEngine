@@ -68,14 +68,22 @@ void UniEngine::RigidBody::OnCreate()
     m_colliders.clear();
     for(auto i : colliders){
         auto clonedCollider = AssetManager::CreateAsset<Collider>();
-        clonedCollider->SetShapeType(i->m_shapeType);
-        clonedCollider->SetShapeParam(i->m_shapeParam);
+        clonedCollider->SetShapeType(i.Get<Collider>()->m_shapeType);
+        clonedCollider->SetShapeParam(i.Get<Collider>()->m_shapeParam);
         AttachCollider(clonedCollider);
     }
 }
 
 void UniEngine::RigidBody::OnGui()
 {
+    if(ImGui::TreeNodeEx("Colliders")){
+        int index = 0;
+        for(auto& i : m_colliders){
+            EditorManager::DragAndDrop<Collider>(i, ("Collider " + std::to_string(index++)));
+        }
+        ImGui::TreePop();
+    }
+
     ImGui::Checkbox("Draw bounds", &m_drawBounds);
     static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
     if (m_drawBounds)
@@ -152,16 +160,16 @@ void UniEngine::RigidBody::OnGui()
 
         auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
-        for(const auto& collider : m_colliders)
+        for(auto& collider : m_colliders)
         {
-            switch (collider->m_shapeType)
+            switch (collider.Get<Collider>()->m_shapeType)
             {
             case ShapeType::Sphere:
                 if (m_drawBounds)
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Sphere,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam.x))),
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam.x))),
                         1);
                 break;
             case ShapeType::Box:
@@ -169,7 +177,7 @@ void UniEngine::RigidBody::OnGui()
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cube,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
                         1);
                 break;
             case ShapeType::Capsule:
@@ -177,7 +185,7 @@ void UniEngine::RigidBody::OnGui()
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cylinder,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider->m_shapeParam))),
+                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
                         1);
                 break;
             }
@@ -267,13 +275,13 @@ void RigidBody::AttachCollider(std::shared_ptr<Collider> &collider)
         UNIENGINE_ERROR("Collider already attached to a RigidBody!");
         return;
     }
-    m_colliders.push_back(collider);
+    m_colliders.emplace_back(collider);
     if(m_rigidActor) m_rigidActor->attachShape(*collider->m_shape);
 }
 void RigidBody::DetachCollider(size_t index)
 {
-    if(m_rigidActor) m_rigidActor->detachShape(*m_colliders[index]->m_shape);
-    m_colliders[index]->m_attached = false;
+    if(m_rigidActor) m_rigidActor->detachShape(*m_colliders[index].Get<Collider>()->m_shape);
+    m_colliders[index].Get<Collider>()->m_attached = false;
     m_colliders.erase(m_colliders.begin() + index);
 }
 void RigidBody::Serialize(YAML::Emitter &out)

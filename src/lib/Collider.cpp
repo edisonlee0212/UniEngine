@@ -1,16 +1,15 @@
 #include <Collider.hpp>
 #include <PhysicsManager.hpp>
 #include <RenderManager.hpp>
+#include <EditorManager.hpp>
 using namespace UniEngine;
 void Collider::OnCreate()
 {
     m_name = "New Collider";
-
-    m_material = DefaultResources::Physics::DefaultPhysicsMaterial;
-
+    m_physicsMaterial = DefaultResources::Physics::DefaultPhysicsMaterial;
     m_shape = PhysicsManager::GetInstance().m_physics->createShape(
         PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z),
-        *m_material->m_value);
+        *m_physicsMaterial.Get<PhysicsMaterial>()->m_value);
 }
 
 static const char *RigidBodyShape[]{"Sphere", "Box", "Capsule"};
@@ -21,11 +20,15 @@ void Collider::OnGui()
         "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape))){
         statusChanged = true;
     }
-
-    if (ImGui::TreeNode("Material"))
+    EditorManager::DragAndDrop<PhysicsMaterial>(m_physicsMaterial, "Physics Mat");
+    auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
+    if(mat)
     {
-        m_material->OnGui();
-        ImGui::TreePop();
+        if (ImGui::TreeNode("Material"))
+        {
+            mat->OnGui();
+            ImGui::TreePop();
+        }
     }
     glm::vec3 newParam = m_shapeParam;
     switch (m_shapeType)
@@ -61,20 +64,20 @@ void Collider::SetShapeType(const ShapeType& type)
     switch (m_shapeType)
     {
     case ShapeType::Sphere:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_material->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
         break;
     case ShapeType::Box:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_material->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
         break;
     case ShapeType::Capsule:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_material->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
         break;
     }
 }
 void Collider::SetMaterial(std::shared_ptr<PhysicsMaterial> &material)
 {
-    if(m_material == material) return;
-    m_material = material;
+    if(m_physicsMaterial == material) return;
+    m_physicsMaterial = material;
     PxMaterial* materials[1];
     materials[0] = material->m_value;
     m_shape->setMaterials(materials, 1);

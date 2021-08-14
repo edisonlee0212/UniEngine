@@ -29,12 +29,14 @@ struct UNIENGINE_API AssimpNode
 #endif
 struct DataComponentHolder
 {
-    size_t m_id;
-    size_t m_size;
+    DataComponentType m_type;
     std::shared_ptr<IDataComponent> m_data;
 };
 class UNIENGINE_API Prefab : public IAsset
 {
+    bool m_enabled = true;
+    bool m_static = false;
+
 #pragma region Model Loading
     void AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle);
 

@@ -12,7 +12,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
         glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));
     bool m_drawBounds = false;
 
-    std::vector<std::shared_ptr<Collider>> m_colliders;
+    std::vector<AssetRef> m_colliders;
 
     bool m_static = false;
     friend class PhysicsSystem;

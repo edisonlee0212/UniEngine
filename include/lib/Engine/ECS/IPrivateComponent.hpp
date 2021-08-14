@@ -56,7 +56,36 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     Handle m_entityHandle = Handle(0);
     std::string m_privateComponentTypeName;
     bool Update();
+
   public:
+    PrivateComponentRef()
+    {
+        m_entityHandle = Handle(0);
+        m_privateComponentTypeName = "";
+    }
+    template <typename T = IPrivateComponent> PrivateComponentRef(const std::shared_ptr<T> &other)
+    {
+        Set(other);
+    }
+    template <typename T = IPrivateComponent> PrivateComponentRef &operator=(const std::shared_ptr<T> &other)
+    {
+        Set(other);
+        return *this;
+    }
+    template <typename T = IPrivateComponent> PrivateComponentRef &operator=(std::shared_ptr<T> &&other) noexcept
+    {
+        Set(other);
+        return *this;
+    }
+    bool operator==(const PrivateComponentRef &rhs) const
+    {
+        return m_entityHandle == rhs.m_entityHandle;
+    }
+    bool operator!=(const PrivateComponentRef &rhs) const
+    {
+        return m_entityHandle != rhs.m_entityHandle;
+    }
+
     void Relink(const std::unordered_map<Handle, Handle> &map)
     {
         auto search = map.find(m_entityHandle);
@@ -67,16 +96,15 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         m_value.reset();
     };
 
-    template <typename T = IPrivateComponent>
-    [[nodiscard]] std::shared_ptr<T> Get()
+    template <typename T = IPrivateComponent> [[nodiscard]] std::shared_ptr<T> Get()
     {
-        if(Update()){
+        if (Update())
+        {
             return std::static_pointer_cast<T>(m_value.value().lock());
         }
         return nullptr;
     }
-    template <typename T = IPrivateComponent>
-    void Set(const std::shared_ptr<T> &target)
+    template <typename T = IPrivateComponent> void Set(const std::shared_ptr<T> &target)
     {
         if (target)
         {
@@ -89,7 +117,8 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     }
     void Clear();
 
-    [[nodiscard]] Handle GetEntityHandle() const {
+    [[nodiscard]] Handle GetEntityHandle() const
+    {
         return m_entityHandle;
     }
 

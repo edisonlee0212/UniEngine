@@ -52,10 +52,7 @@ void SkinnedMeshRenderer::OnGui()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
-    ImGui::Text("Material:");
-    ImGui::SameLine();
-    //TODO: Add draganddrop here
-    //EditorManager::DragAndDrop(m_material);
+    EditorManager::DragAndDrop<Material>(m_material, "Material");
     if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##SkinnedMeshRenderer"))
@@ -64,6 +61,7 @@ void SkinnedMeshRenderer::OnGui()
             ImGui::TreePop();
         }
     }
+    EditorManager::DragAndDrop<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
     if (m_skinnedMesh.Get<SkinnedMesh>())
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))

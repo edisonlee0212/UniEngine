@@ -136,7 +136,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
 #pragma endregion
 #pragma region Lightings
-    std::shared_ptr<EnvironmentalMap> m_environmentalMap;
+    AssetRef m_environmentalMap;
 
     OpenGLUtils::GLUBO m_directionalLightBlock;
     OpenGLUtils::GLUBO m_pointLightBlock;

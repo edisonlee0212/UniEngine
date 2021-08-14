@@ -25,14 +25,15 @@ void Animator::OnGui()
     ImGui::Text("Animation:");
     ImGui::SameLine();
     auto animation = m_animation.Get<Animation>();
-    /*Animation *previous = animation.get();
+    Animation *previous = animation.get();
 
-    EditorManager::DragAndDrop(m_animation);
+    EditorManager::DragAndDrop<Animation>(m_animation, "Animation");
     if (previous != animation.get() && animation)
     {
         Setup(animation);
+        animation = m_animation.Get<Animation>();
     }
-     */
+
     if (animation)
     {
         static bool debugRenderBones = true;

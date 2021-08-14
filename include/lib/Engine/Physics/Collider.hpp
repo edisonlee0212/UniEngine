@@ -18,7 +18,7 @@ class UNIENGINE_API Collider : public IAsset
     PxShape *m_shape = nullptr;
     glm::vec3 m_shapeParam = glm::vec3(1.0f);
     ShapeType m_shapeType = ShapeType::Box;
-    std::shared_ptr<PhysicsMaterial> m_material;
+    AssetRef m_physicsMaterial;
 
     bool m_attached = false;
 

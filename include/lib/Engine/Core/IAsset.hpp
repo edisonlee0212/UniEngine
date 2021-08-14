@@ -1,8 +1,8 @@
 #pragma once
 #include <IHandle.hpp>
 #include <ISerializable.hpp>
-#include <uniengine_export.h>
 #include <SerializationManager.hpp>
+#include <uniengine_export.h>
 namespace UniEngine
 {
 class Texture2D;
@@ -34,10 +34,40 @@ class UNIENGINE_API AssetRef : public ISerializable
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName;
     bool Update();
+
   public:
+    AssetRef(){
+        m_assetHandle = Handle(0);
+        m_assetTypeName = "";
+        m_value = nullptr;
+    }
+    template <typename T = IAsset>
+    AssetRef(const std::shared_ptr<T> &other){
+        Set(other);
+    }
+    template <typename T = IAsset> AssetRef &operator=(const std::shared_ptr<T> &other)
+    {
+        Set(other);
+        return *this;
+    }
+    template <typename T = IAsset> AssetRef &operator=(std::shared_ptr<T> &&other) noexcept
+    {
+        Set(other);
+        return *this;
+    }
+    bool operator==(const AssetRef &rhs) const
+    {
+        return m_assetHandle == rhs.m_assetHandle;
+    }
+    bool operator!=(const AssetRef &rhs) const
+    {
+        return m_assetHandle != rhs.m_assetHandle;
+    }
+
     template <typename T = IAsset> [[nodiscard]] std::shared_ptr<T> Get()
     {
-        if(Update()){
+        if (Update())
+        {
             return std::static_pointer_cast<T>(m_value);
         }
         return nullptr;
@@ -54,7 +84,8 @@ class UNIENGINE_API AssetRef : public ISerializable
         m_value = std::dynamic_pointer_cast<IAsset>(target);
     }
     void Clear();
-    [[nodiscard]] Handle GetAssetHandle() const {
+    [[nodiscard]] Handle GetAssetHandle() const
+    {
         return m_assetHandle;
     }
     void Serialize(YAML::Emitter &out) override

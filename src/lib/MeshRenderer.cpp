@@ -27,9 +27,7 @@ void MeshRenderer::OnGui()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
-    ImGui::Text("Material:");
-    ImGui::SameLine();
-    //EditorManager::DragAndDrop(m_material);
+    EditorManager::DragAndDrop<Material>(m_material, "Material");
     if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##MeshRenderer"))
@@ -38,9 +36,7 @@ void MeshRenderer::OnGui()
             ImGui::TreePop();
         }
     }
-    ImGui::Text("Mesh:");
-    ImGui::SameLine();
-    //EditorManager::DragAndDrop(m_mesh);
+    EditorManager::DragAndDrop<Mesh>(m_mesh, "Mesh");
     if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))

@@ -34,6 +34,7 @@ class UNIENGINE_API IHandle{
     friend class DefaultResources;
     friend class SerializationManager;
     friend class IAsset;
+    friend class AssetRef;
     Handle m_handle;
   public:
     Handle GetHandle()

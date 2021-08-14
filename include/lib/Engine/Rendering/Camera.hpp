@@ -88,7 +88,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     void OnDestroy() override;
     bool m_useClearColor = false;
     glm::vec3 m_clearColor = glm::vec3(0.0f);
-    std::shared_ptr<Cubemap> m_skybox;
+    AssetRef m_skybox;
     void OnGui() override;
 };
 

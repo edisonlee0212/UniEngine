@@ -288,18 +288,17 @@ class StarClusterSystem : public ISystem
     float m_galaxyTime = 0.0;
     std::future<void> m_currentStatus;
     bool m_firstTime = true;
-    void OnGui();
+
 
   public:
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
+    void OnGui() override;
 
     void CalculateStarPositionAsync();
     void CalculateStarPositionSync();
     void ApplyPosition();
     void CopyPosition(const bool &reverse = false);
-    void LateUpdate() override;
     void OnCreate() override;
     void Start() override;
     void Update() override;

@@ -356,11 +356,6 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
         false);
 }
 
-void Galaxy::StarClusterSystem::LateUpdate()
-{
-    OnGui();
-}
-
 void Galaxy::StarClusterSystem::OnCreate()
 {
     Enable();

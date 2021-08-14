@@ -17,7 +17,6 @@ struct UNIENGINE_API DataComponentType final
     bool operator!=(const DataComponentType &other) const;
 };
 
-
 struct UNIENGINE_API EntityArchetype final
 {
   private:
@@ -87,7 +86,29 @@ class UNIENGINE_API EntityRef : public ISerializable
     Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);
     void Update();
+
   public:
+    EntityRef()
+    {
+        m_entityHandle = Handle(0);
+        m_value = Entity();
+    }
+    template <typename T = IAsset> EntityRef(const Entity &other)
+    {
+        Set(other);
+    }
+    EntityRef &operator=(const Entity &other)
+    {
+        Set(other);
+        return *this;
+    }
+
+    EntityRef &operator=(Entity &&other) noexcept
+    {
+        Set(other);
+        return *this;
+    }
+
     void Relink(const std::unordered_map<Handle, Handle> &map)
     {
         auto search = map.find(m_entityHandle);
@@ -104,7 +125,8 @@ class UNIENGINE_API EntityRef : public ISerializable
         Update();
         return m_value;
     }
-    [[nodiscard]] Handle GetEntityHandle() const {
+    [[nodiscard]] Handle GetEntityHandle() const
+    {
         return m_entityHandle;
     }
     void Set(const Entity &target);
@@ -137,7 +159,6 @@ struct UNIENGINE_API DataComponentChunkArray
     std::vector<Entity> m_entities;
     std::vector<ComponentDataChunk> m_chunks;
 };
-
 
 struct UNIENGINE_API EntityArchetypeInfo
 {

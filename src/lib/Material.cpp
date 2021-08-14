@@ -20,11 +20,6 @@ MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::m
 
 void Material::OnCreate()
 {
-    m_textures[TextureType::Albedo] = nullptr;
-    m_textures[TextureType::Normal] = nullptr;
-    m_textures[TextureType::Metallic] = nullptr;
-    m_textures[TextureType::Roughness] = nullptr;
-    m_textures[TextureType::AO] = nullptr;
     m_name = "New material";
 }
 
@@ -43,20 +38,17 @@ void Material::OnGui()
         }
         ImGui::EndPopup();
     }
-    ImGui::Separator();
-    ImGui::Text("Program:");
-    ImGui::SameLine();
-    EditorManager::DragAndDrop(m_program);
+    EditorManager::DragAndDrop<OpenGLUtils::GLProgram>(m_program, "Program");
     ImGui::Separator();
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        if (!m_textures[TextureType::Albedo])
+        if (!m_albedoTexture.Get())
             ImGui::ColorEdit3("Albedo##Material", &m_albedoColor.x);
-        if (!m_textures[TextureType::Metallic])
+        if (!m_metallicTexture.Get())
             ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f);
-        if (!m_textures[TextureType::Roughness])
+        if (!m_roughnessTexture.Get())
             ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f);
-        if (!m_textures[TextureType::AO])
+        if (!m_aoTexture.Get())
             ImGui::DragFloat("AO##Material", &m_ambient, 0.01f, 0.0f, 1.0f);
         ImGui::DragFloat("Emission##Material", &m_emission, 0.01f, 0.0f, 10.0f);
         ImGui::TreePop();
@@ -85,46 +77,11 @@ void Material::OnGui()
     }
     if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
     {
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Albedo:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Albedo]);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Normal:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Normal]);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Metallic:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Metallic]);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("Roughness:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::Roughness]);
-        }
-
-        {
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Text("AO:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(m_textures[TextureType::AO]);
-        }
-
+        EditorManager::DragAndDrop<Texture2D>(m_albedoTexture, "Albedo Tex");
+        EditorManager::DragAndDrop<Texture2D>(m_normalTexture, "Normal Tex");
+        EditorManager::DragAndDrop<Texture2D>(m_metallicTexture, "Metallic Tex");
+        EditorManager::DragAndDrop<Texture2D>(m_roughnessTexture, "Roughness Tex");
+        EditorManager::DragAndDrop<Texture2D>(m_aoTexture, "AO Tex");
         ImGui::TreePop();
     }
 }
@@ -157,15 +114,56 @@ void UniEngine::Material::SetMaterialProperty(const std::string &name, const glm
 
 void Material::SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture)
 {
-    m_textures[type] = texture;
+    switch (type)
+    {
+    case TextureType::Albedo:
+        m_albedoTexture = texture;
+        break;
+    case TextureType::Normal:
+        m_normalTexture = texture;
+        break;
+    case TextureType::Metallic:
+        m_metallicTexture = texture;
+        break;
+    case TextureType::Roughness:
+        m_roughnessTexture = texture;
+        break;
+    case TextureType::AO:
+        m_aoTexture = texture;
+        break;
+    }
 }
 
 void Material::RemoveTexture(TextureType type)
 {
-    m_textures.erase(type);
+    switch (type)
+    {
+    case TextureType::Albedo:
+        m_albedoTexture.Clear();
+        break;
+    case TextureType::Normal:
+        m_normalTexture.Clear();
+        break;
+    case TextureType::Metallic:
+        m_metallicTexture.Clear();
+        break;
+    case TextureType::Roughness:
+        m_roughnessTexture.Clear();
+        break;
+    case TextureType::AO:
+        m_aoTexture.Clear();
+        break;
+    }
 }
 
 void Material::SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program)
 {
     m_program = std::move(program);
+}
+void Material::Serialize(YAML::Emitter &out)
+{
+    // out << YAML::Key << "m_resolutionX" << YAML::Value << m_resolutionX;
+}
+void Material::Deserialize(const YAML::Node &in)
+{
 }

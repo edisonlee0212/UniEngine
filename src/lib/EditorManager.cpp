@@ -1540,3 +1540,51 @@ void EditorManager::CameraWindowDragAndDrop()
         ImGui::EndDragDropTarget();
     }
 }
+bool EditorManager::DragAndDrop(EntityRef &entityRef, const std::string& name)
+{
+    ImGui::Text(name.c_str());
+    ImGui::SameLine();
+    bool statusChanged = false;
+    auto entity = entityRef.Get();
+    ImGui::Button(!entity.IsNull() ? entity.GetName().c_str() : "none");
+    if (!entity.IsNull())
+    {
+        const std::string tag = "##Entity" + std::to_string(entity.GetIndex());
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (entity.GetName() + tag).c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                    entity.SetName(std::string(newName));
+                ImGui::EndMenu();
+            }
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                entityRef.Clear();
+                statusChanged = true;
+            }
+            ImGui::EndPopup();
+        }
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            entityRef = *static_cast<Entity *>(payload->Data);
+            statusChanged = true;
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return statusChanged;
+}

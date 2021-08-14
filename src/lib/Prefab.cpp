@@ -19,11 +19,19 @@ void Prefab::OnCreate()
 Entity Prefab::ToEntity() const
 {
     std::unordered_map<Handle, Handle> entityMap;
-    const Entity entity = EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    std::vector<DataComponentType> types;
+    for(auto& i : m_dataComponents)
+    {
+        types.emplace_back(i.m_type);
+    }
+    auto archetype = EntityManager::CreateEntityArchetype("", types);
+    const Entity entity = EntityManager::CreateEntity(archetype, m_name);
+    auto& entityInfo = EntityManager::GetInstance().m_currentAttachedWorldEntityStorage->m_entityInfos.at(entity.GetIndex());
+    entityInfo.m_static = m_static;
     entityMap[m_entityHandle] = entity.GetHandle();
     for (auto &i : m_dataComponents)
     {
-        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
+        EntityManager::SetDataComponent(entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
     }
     int index = 0;
     for (const auto &i : m_children)
@@ -46,6 +54,7 @@ Entity Prefab::ToEntity() const
         AttachChildrenPrivateComponent(i, entity, entityMap);
         index++;
     }
+    entity.SetEnabled(m_enabled);
     return entity;
 }
 void Prefab::AttachChildren(
@@ -55,11 +64,13 @@ void Prefab::AttachChildren(
     std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity = EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    auto& entityInfo = EntityManager::GetInstance().m_currentAttachedWorldEntityStorage->m_entityInfos.at(entity.GetIndex());
+    entityInfo.m_static = m_static;
     map[modelNode->m_entityHandle] = entity.GetHandle();
     entity.SetParent(parentEntity);
     for (auto &i : modelNode->m_dataComponents)
     {
-        EntityManager::SetDataComponent(entity.GetIndex(), i.m_id, i.m_size, i.m_data.get());
+        EntityManager::SetDataComponent(entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
@@ -98,6 +109,7 @@ void Prefab::AttachChildrenPrivateComponent(
         AttachChildrenPrivateComponent(i, entity, map);
         index++;
     }
+    entity.SetEnabled(m_enabled);
 }
 #pragma region Model Loading
 void Prefab::Load(const std::filesystem::path &path)
@@ -733,8 +745,7 @@ bool Prefab::ProcessNode(
             transform->m_value = Transform().m_value;
 
         DataComponentHolder holder;
-        holder.m_id = typeid(Transform).hash_code();
-        holder.m_size = sizeof(Transform);
+        holder.m_type = Typeof<Transform>();
         holder.m_data = transform;
         childNode->m_dataComponents.push_back(holder);
 
@@ -1008,11 +1019,16 @@ void Prefab::FromEntity(const Entity &entity)
 {
     m_entityHandle = entity.GetHandle();
     m_name = entity.GetName();
+    m_enabled = entity.IsEnabled();
+    m_static = entity.IsStatic();
     EntityManager::UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data) {
         DataComponentHolder holder;
+        holder.m_type = type;
+        size_t id;
+        size_t size;
         holder.m_data = std::static_pointer_cast<IDataComponent>(
-            SerializationManager::ProduceDataComponent(type.m_name, holder.m_id, holder.m_size));
-        memcpy(holder.m_data.get(), data, holder.m_size);
+            SerializationManager::ProduceDataComponent(type.m_name, id, size));
+        memcpy(holder.m_data.get(), data, type.m_size);
         m_dataComponents.push_back(std::move(holder));
     });
 

@@ -12,9 +12,9 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
     friend class RenderManager;
     friend class DefaultResources;
 
-    std::shared_ptr<Cubemap> m_targetCubemap;
-    std::shared_ptr<LightProbe> m_lightProbe;
-    std::shared_ptr<ReflectionProbe> m_reflectionProbe;
+    AssetRef m_targetCubemap;
+    AssetRef m_lightProbe;
+    AssetRef m_reflectionProbe;
     bool m_ready = false;
 
   public:
@@ -22,7 +22,6 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
     [[nodiscard]] bool IsReady() const;
     void OnCreate() override;
     void Construct(const std::shared_ptr<Cubemap> &targetCubemap);
-
     void Load(const std::filesystem::path & path) override;
 };
 

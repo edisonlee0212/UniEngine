@@ -2,6 +2,7 @@
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <Cubemap.hpp>
+#include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
@@ -12,7 +13,6 @@
 #include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
-#include <DefaultResources.hpp>
 using namespace UniEngine;
 #pragma region RenderCommand Dispatch
 void RenderManager::DispatchRenderCommands(
@@ -36,13 +36,14 @@ void RenderManager::DispatchRenderCommands(
         }
         if (bindProgram)
         {
-            material.lock()->m_program->Bind();
+            material.lock()->m_program.Get<OpenGLUtils::GLProgram>()->Bind();
         }
         for (const auto &renderCommands : renderCollection.second.m_meshes)
         {
             for (const auto &renderCommand : renderCommands.second)
             {
-                if(renderCommand.m_mesh.expired()) continue;
+                if (renderCommand.m_mesh.expired())
+                    continue;
                 func(mat, renderCommand);
             }
         }
@@ -50,7 +51,8 @@ void RenderManager::DispatchRenderCommands(
         {
             for (const auto &renderCommand : renderCommands.second)
             {
-                if(renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired()) continue;
+                if (renderCommand.m_skinnedMesh.expired() || renderCommand.m_boneMatrices.expired())
+                    continue;
                 func(mat, renderCommand);
             }
         }
@@ -109,7 +111,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if(renderCommand.m_matrices.expired()) break;
+                if (renderCommand.m_matrices.expired())
+                    break;
                 auto mesh = renderCommand.m_mesh.lock();
                 auto &program = DefaultResources::m_gBufferInstancedPrepass;
                 program->Bind();
@@ -173,7 +176,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                material->m_program.Get<OpenGLUtils::GLProgram>()->SetFloat4x4(
+                    "model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInternal(mesh);
                 break;
             }
@@ -196,12 +200,14 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             switch (renderCommand.m_meshType)
             {
             case RenderCommandMeshType::Default: {
-                if(renderCommand.m_matrices.expired()) break;
+                if (renderCommand.m_matrices.expired())
+                    break;
                 auto mesh = renderCommand.m_mesh.lock();
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                material->m_program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                material->m_program.Get<OpenGLUtils::GLProgram>()->SetFloat4x4(
+                    "model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock()->m_value);
                 break;
             }
@@ -376,9 +382,7 @@ void RenderManager::OnGui()
         ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
         if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            ImGui::Text("Environmental map:");
-            ImGui::SameLine();
-            EditorManager::DragAndDrop(renderManager.m_environmentalMap);
+            EditorManager::DragAndDrop<EnvironmentalMap>(renderManager.m_environmentalMap, "Environmental Map");
             ImGui::DragFloat(
                 "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
         }
@@ -611,18 +615,15 @@ void RenderManager::CollectRenderInstances(
             renderInstance.m_meshType = RenderCommandMeshType::Default;
             if (material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(
-                    renderInstance);
+                instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
             else if (particles->m_forwardRendering)
             {
-                forwardInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(
-                    renderInstance);
+                forwardInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
             else
             {
-                deferredInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(
-                    renderInstance);
+                deferredInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
         }
     }
@@ -676,18 +677,15 @@ void RenderManager::CollectRenderInstances(
             renderInstance.m_boneMatrices = smmc->m_finalResults;
             if (material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
-                    renderInstance);
+                transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
             }
             else if (smmc->m_forwardRendering)
             {
-                forwardRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
-                    renderInstance);
+                forwardRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
             }
             else
             {
-                deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
-                    renderInstance);
+                deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
             }
         }
     }
@@ -1123,7 +1121,8 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if(renderCommand.m_matrices.expired()) break;
+                    if (renderCommand.m_matrices.expired())
+                        break;
                     auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultInstancedProgram;
                     program->Bind();
@@ -1175,7 +1174,8 @@ void RenderManager::ShadowMapPrePass(
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
-                    if(renderCommand.m_matrices.expired()) break;
+                    if (renderCommand.m_matrices.expired())
+                        break;
                     auto mesh = renderCommand.m_mesh.lock();
                     auto &program = defaultInstancedProgram;
                     program->Bind();
@@ -1677,77 +1677,33 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     manager.m_environmentalMapSettings.m_backgroundColor =
         glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
-    if (cameraComponent->m_skybox)
-    {
-        manager.m_environmentalMapSettings.m_skyboxGamma = cameraComponent->m_skybox->m_gamma;
-    }
-    else
-    {
-        manager.m_environmentalMapSettings.m_skyboxGamma =
-            DefaultResources::Environmental::DefaultEnvironmentalMap->m_gamma;
-    }
+    auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
+    if (!cameraSkybox)
+        cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();
+    manager.m_environmentalMapSettings.m_skyboxGamma = cameraSkybox->m_gamma;
 
-    const bool environmentalReady = manager.m_environmentalMap && manager.m_environmentalMap->m_ready;
-    if (environmentalReady)
+    auto environmentalMap = manager.m_environmentalMap.Get<EnvironmentalMap>();
+    if (!environmentalMap || !environmentalMap->m_ready)
     {
-        manager.m_environmentalMapSettings.m_environmentalLightingGamma = manager.m_environmentalMap->m_gamma;
+        environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
     }
-    else
-    {
-        manager.m_environmentalMapSettings.m_environmentalLightingGamma =
-            DefaultResources::Environmental::DefaultEnvironmentalMap->m_gamma;
-    }
+    manager.m_environmentalMapSettings.m_environmentalLightingGamma = environmentalMap->m_gamma;
+
     if (supportBindlessTexture)
     {
-        if (cameraComponent->m_skybox)
-        {
-            manager.m_environmentalMapSettings.m_skybox = cameraComponent->m_skybox->Texture()->GetHandle();
-        }
-        else
-        {
-            manager.m_environmentalMapSettings.m_skybox =
-                DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap->Texture()->GetHandle();
-        }
+        manager.m_environmentalMapSettings.m_skybox = cameraSkybox->Texture()->GetHandle();
         manager.m_environmentalMapSettings.m_environmentalBrdfLut = DefaultResources::m_brdfLut->Texture()->GetHandle();
-        if (environmentalReady)
-        {
-            manager.m_environmentalMapSettings.m_environmentalIrradiance =
-                manager.m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->GetHandle();
-            manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-                manager.m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->GetHandle();
-        }
-        else
-        {
-            manager.m_environmentalMapSettings.m_environmentalIrradiance =
-                DefaultResources::Environmental::DefaultEnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()
-                    ->GetHandle();
-            manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-                DefaultResources::Environmental::DefaultEnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()
-                    ->GetHandle();
-        }
+        manager.m_environmentalMapSettings.m_environmentalIrradiance =
+            environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->GetHandle();
+        manager.m_environmentalMapSettings.m_environmentalPrefiltered =
+            environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->GetHandle();
     }
     else
     {
-        if (cameraComponent->m_skybox)
-        {
-            cameraComponent->m_skybox->Texture()->Bind(8);
-        }
-        else
-        {
-            DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap->Texture()->Bind(8);
-        }
+        cameraSkybox->Texture()->Bind(8);
         DefaultResources::m_brdfLut->Texture()->Bind(11);
-        if (environmentalReady)
-        {
-            manager.m_environmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
-            manager.m_environmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()->Bind(10);
-        }
-        else
-        {
-            DefaultResources::Environmental::DefaultEnvironmentalMap->m_lightProbe->m_irradianceMap->Texture()->Bind(9);
-            DefaultResources::Environmental::DefaultEnvironmentalMap->m_reflectionProbe->m_preFilteredMap->Texture()
-                ->Bind(10);
-        }
+        environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
+        environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
     }
     manager.m_environmentalMapSettingsBuffer->SubData(
         0, sizeof(EnvironmentalMapSettingsBlock), &manager.m_environmentalMapSettings);
@@ -1804,75 +1760,74 @@ void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &mater
     auto &manager = GetInstance();
     const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     bool hasAlbedo = false;
-    auto search = material->m_textures.find(TextureType::Albedo);
-    if (search != material->m_textures.end() && search->second)
+
+    auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
+    if (albedoTexture && albedoTexture->Texture())
     {
         hasAlbedo = true;
         if (supportBindlessTexture)
         {
-            manager.m_materialSettings.m_albedoMap = search->second->Texture()->GetHandle();
+            manager.m_materialSettings.m_albedoMap = albedoTexture->Texture()->GetHandle();
         }
         else
         {
-            search->second->Texture()->Bind(3);
-
+            albedoTexture->Texture()->Bind(3);
             manager.m_materialSettings.m_albedoMap = 0;
         }
         manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
     }
-    search = material->m_textures.find(TextureType::Normal);
-    if (search != material->m_textures.end() && search->second)
+    auto normalTexture = material->m_normalTexture.Get<Texture2D>();
+    if (normalTexture && normalTexture->Texture())
     {
         if (supportBindlessTexture)
         {
-            manager.m_materialSettings.m_normalMap = search->second->Texture()->GetHandle();
+            manager.m_materialSettings.m_normalMap = normalTexture->Texture()->GetHandle();
         }
         else
         {
-            search->second->Texture()->Bind(4);
-
+            normalTexture->Texture()->Bind(4);
             manager.m_materialSettings.m_normalMap = 0;
         }
         manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
     }
-    search = material->m_textures.find(TextureType::Roughness);
-    if (search != material->m_textures.end() && search->second)
+    auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
+    if (roughnessTexture && roughnessTexture->Texture())
     {
         if (supportBindlessTexture)
         {
-            manager.m_materialSettings.m_roughnessMap = search->second->Texture()->GetHandle();
+            manager.m_materialSettings.m_roughnessMap = roughnessTexture->Texture()->GetHandle();
         }
         else
         {
-            search->second->Texture()->Bind(6);
+            roughnessTexture->Texture()->Bind(6);
             manager.m_materialSettings.m_roughnessMap = 0;
         }
         manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
     }
-    search = material->m_textures.find(TextureType::Metallic);
-    if (search != material->m_textures.end() && search->second)
+    auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
+    if (metallicTexture && metallicTexture->Texture())
     {
         if (supportBindlessTexture)
         {
-            manager.m_materialSettings.m_metallicMap = search->second->Texture()->GetHandle();
+            manager.m_materialSettings.m_metallicMap = metallicTexture->Texture()->GetHandle();
         }
         else
         {
-            search->second->Texture()->Bind(5);
+            metallicTexture->Texture()->Bind(5);
             manager.m_materialSettings.m_metallicMap = 0;
         }
         manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
     }
-    search = material->m_textures.find(TextureType::AO);
-    if (search != material->m_textures.end() && search->second)
+    auto aoTexture = material->m_aoTexture.Get<Texture2D>();
+    if (aoTexture && aoTexture->Texture())
     {
         if (supportBindlessTexture)
         {
-            manager.m_materialSettings.m_aoMap = search->second->Texture()->GetHandle();
+            manager.m_materialSettings.m_aoMap = aoTexture->Texture()->GetHandle();
         }
         else
         {
-            search->second->Texture()->Bind(7);
+            aoTexture->Texture()->Bind(7);
             manager.m_materialSettings.m_aoMap = 0;
         }
         manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
@@ -1938,11 +1893,30 @@ void RenderManager::ReleaseMaterialSettings(const std::shared_ptr<Material> &mat
 {
     if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
         return;
-    for (const auto &i : material->m_textures)
+    auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
+    if (albedoTexture && albedoTexture->Texture())
     {
-        if (!i.second || !i.second->Texture())
-            continue;
-        i.second->Texture()->MakeNonResident();
+        albedoTexture->Texture()->MakeNonResident();
+    }
+    auto normalTexture = material->m_normalTexture.Get<Texture2D>();
+    if (normalTexture && normalTexture->Texture())
+    {
+        normalTexture->Texture()->MakeNonResident();
+    }
+    auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
+    if (roughnessTexture && roughnessTexture->Texture())
+    {
+        roughnessTexture->Texture()->MakeNonResident();
+    }
+    auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
+    if (metallicTexture && metallicTexture->Texture())
+    {
+        metallicTexture->Texture()->MakeNonResident();
+    }
+    auto aoTexture = material->m_aoTexture.Get<Texture2D>();
+    if (aoTexture && aoTexture->Texture())
+    {
+        aoTexture->Texture()->MakeNonResident();
     }
 }
 
@@ -2025,7 +1999,7 @@ void RenderManager::DrawMeshInstanced(
 
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
-    auto &program = material->m_program;
+    auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
     if (program == nullptr)
         program = DefaultResources::GLPrograms::StandardInstancedProgram;
     program->Bind();
@@ -2078,7 +2052,7 @@ void RenderManager::DrawMesh(
         return;
     GetInstance().m_drawCall++;
     GetInstance().m_triangles += mesh->GetTriangleAmount();
-    auto &program = material->m_program;
+    auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
     if (program == nullptr)
         program = DefaultResources::GLPrograms::StandardProgram;
     program->Bind();
@@ -2117,8 +2091,6 @@ void RenderManager::DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh)
     GetInstance().m_triangles += mesh->GetTriangleAmount();
     mesh->Draw();
 }
-
-
 
 void RenderManager::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
@@ -2457,12 +2429,11 @@ void RenderManager::DrawMesh(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
+    GetInstance().m_forwardRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
+        renderCommand);
     GetInstance()
-        .m_forwardRenderInstances[cameraComponent].m_value[material]
-        .m_meshes[mesh->m_vao]
-        .push_back(renderCommand);
-    GetInstance()
-    .m_forwardRenderInstances[EditorManager::GetSceneCamera()].m_value[material]
+        .m_forwardRenderInstances[EditorManager::GetSceneCamera()]
+        .m_value[material]
         .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
 }
@@ -2484,12 +2455,11 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
+    GetInstance().m_forwardInstancedRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
+        renderCommand);
     GetInstance()
-    .m_forwardInstancedRenderInstances[cameraComponent].m_value[material]
-        .m_meshes[mesh->m_vao]
-        .push_back(renderCommand);
-    GetInstance()
-    .m_forwardInstancedRenderInstances[EditorManager::GetSceneCamera()].m_value[material]
+        .m_forwardInstancedRenderInstances[EditorManager::GetSceneCamera()]
+        .m_value[material]
         .m_meshes[mesh->m_vao]
         .push_back(renderCommand);
 }
