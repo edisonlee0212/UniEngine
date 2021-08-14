@@ -1,11 +1,12 @@
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
-#include <ISerializable.hpp>
 #include <MeshRenderer.hpp>
 #include <PhysicsManager.hpp>
 #include <PlayerController.hpp>
 #include <PostProcessing.hpp>
 #include <RenderManager.hpp>
+#include <AssetManager.hpp>
+#include <EntityManager.hpp>
 using namespace UniEngine;
 
 DataComponentRegistration<Transform> TransformRegistry("Transform");
@@ -42,3 +43,8 @@ AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial");
 AssetRegistration<Collider> ColliderReg("Collider");
 AssetRegistration<Prefab> PrefabReg("Prefab");
 AssetRegistration<Scene> SceneReg("Scene");
+
+SerializableRegistration<AssetRegistry> AssetRegistryReg("AssetRegistry");
+SerializableRegistration<EntityRef> EntityRefReg("EntityRef");
+SerializableRegistration<AssetRef> AssetRefReg("AssetRef");
+SerializableRegistration<PrivateComponentRef> PrivateComponentRefReg("PrivateComponentRef");

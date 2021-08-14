@@ -81,7 +81,11 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
 
+    Handle m_currentMaxHandle = Handle(1);
+    static Handle GenerateNewHandle();
   public:
+    static Handle GetMaxHandle();
+
     class UNIENGINE_API Physics
     {
       public:

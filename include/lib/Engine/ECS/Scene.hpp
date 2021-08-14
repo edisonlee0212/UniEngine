@@ -4,6 +4,8 @@
 #include <PrivateComponentStorage.hpp>
 #include <Utilities.hpp>
 #include <IAsset.hpp>
+#include <EntityMetadata.hpp>
+#include <IPrivateComponent.hpp>
 namespace UniEngine
 {
 

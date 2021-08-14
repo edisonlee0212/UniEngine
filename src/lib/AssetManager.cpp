@@ -12,9 +12,32 @@
 #include <Utilities.hpp>
 using namespace UniEngine;
 
+std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Handle &handle)
+{
+    auto &assetManager = GetInstance();
+    auto search = assetManager.m_assets.find(handle);
+    if (search != assetManager.m_assets.end())
+    {
+        if (!search->second.expired())
+        {
+            return search->second.lock();
+        }
+    }
+    auto& assetRecords = assetManager.m_assetRegistry->m_assetRecords;
+    auto search2 = assetRecords.find(handle);
+    if(search2 != assetRecords.end()){
+        assert(search2->second.m_typeName == typeName);
+        auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
+        retVal->m_path = search2->second.m_filePath;
+        retVal->Load();
+        return retVal;
+    }
+    return nullptr;
+}
+
 void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &handle)
 {
-    GetInstance().m_assets[typeName].erase(handle);
+    GetInstance().m_sharedAssets[typeName].erase(handle);
 }
 
 Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture)
@@ -26,6 +49,12 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture
     mmc->m_material->SetTexture(TextureType::Albedo, texture);
     mmc->m_mesh = DefaultResources::Primitives::Quad;
     return entity;
+}
+
+void AssetManager::RegisterAsset(std::shared_ptr<IAsset> resource)
+{
+    auto &assetManager = GetInstance();
+    assetManager.m_assets[resource->m_handle] = resource;
 }
 
 std::shared_ptr<Material> AssetManager::LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program)
@@ -211,6 +240,7 @@ void AssetManager::OnGui()
 }
 void AssetManager::Init()
 {
+    GetInstance().m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
     DefaultResources::Load();
 }
 void AssetManager::ScanAssetFolder()
@@ -224,7 +254,7 @@ void AssetRegistry::Serialize(YAML::Emitter &out)
     for (const auto &i : m_assetRecords)
     {
         out << YAML::Key << "Handle" << i.first;
-        out << YAML::Key << "FilePath" << i.second.m_filePath;
+        out << YAML::Key << "FilePath" << i.second.m_filePath.string();
         out << YAML::Key << "TypeName" << i.second.m_typeName;
     }
     out << YAML::EndMap;
@@ -262,4 +292,15 @@ void AssetManager::SetResourcePath(const std::filesystem::path &path)
 std::filesystem::path AssetManager::GetResourceFolderPath()
 {
     return GetInstance().m_resourceRootPath;
+}
+std::shared_ptr<IAsset> AssetManager::CreateAsset(
+    const std::string &typeName, const Handle &handle, const std::string &name)
+{
+    size_t hashCode;
+    auto retVal = std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
+    retVal->m_path.clear();
+    retVal->m_name = name;
+    RegisterAsset(retVal);
+    retVal->OnCreate();
+    return retVal;
 }

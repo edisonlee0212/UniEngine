@@ -22,47 +22,61 @@ class UNIENGINE_API ClassRegistry
         SerializationManager::RegisterSerializableType<T>(name);
         EditorManager::RegisterPrivateComponent<T>();
     }
+
     template <typename T = ISystem> static void RegisterSystem(const std::string &name)
     {
         SerializationManager::RegisterSerializableType<T>(name);
     }
 
+    template <typename T = ISerializable> static void RegisterSerializable(const std::string &name)
+    {
+        SerializationManager::RegisterSerializableType<T>(name);
+    }
 };
 
 template <typename T = IDataComponent> class UNIENGINE_API DataComponentRegistration
+{
+  public:
+    DataComponentRegistration(const std::string &name)
     {
-      public:
-        DataComponentRegistration(const std::string &name)
-        {
-            ClassRegistry::RegisterDataComponent<T>(name);
-        }
-    };
+        ClassRegistry::RegisterDataComponent<T>(name);
+    }
+};
 
-template <typename T = ISerializable> class UNIENGINE_API AssetRegistration
+template <typename T = IAsset> class UNIENGINE_API AssetRegistration
+{
+  public:
+    AssetRegistration(const std::string &name)
     {
-      public:
-        AssetRegistration(const std::string &name)
-        {
-            ClassRegistry::RegisterAsset<T>(name);
-        }
-    };
+        ClassRegistry::RegisterAsset<T>(name);
+    }
+};
 
-template <typename T = ISerializable> class UNIENGINE_API PrivateComponentRegistration
+template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRegistration
+{
+  public:
+    PrivateComponentRegistration(const std::string &name)
     {
-      public:
-        PrivateComponentRegistration(const std::string &name)
-        {
-            ClassRegistry::RegisterPrivateComponent<T>(name);
-        }
-    };
+        ClassRegistry::RegisterPrivateComponent<T>(name);
+    }
+};
 
-template <typename T = ISerializable> class UNIENGINE_API SystemRegistration
+template <typename T = ISystem> class UNIENGINE_API SystemRegistration
+{
+  public:
+    SystemRegistration(const std::string &name)
     {
-      public:
-        SystemRegistration(const std::string &name)
-        {
-            ClassRegistry::RegisterSystem<T>(name);
-        }
-    };
+        ClassRegistry::RegisterSystem<T>(name);
+    }
+};
+
+template <typename T = ISerializable> class UNIENGINE_API SerializableRegistration
+{
+  public:
+    SerializableRegistration(const std::string &name)
+    {
+        ClassRegistry::RegisterSerializable<T>(name);
+    }
+};
 
 } // namespace UniEngine

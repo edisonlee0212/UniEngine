@@ -1,9 +1,8 @@
 #pragma once
-#include "ISystem.hpp"
-#include <Entity.hpp>
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
-#include <Scene.hpp>
+#include <Debug.hpp>
+#include <IDataComponent.hpp>
 namespace YAML
 {
 class Node;
@@ -107,7 +106,6 @@ template <> struct convert<glm::mat4>
     }
 };
 } // namespace YAML
-
 #define EXPORT_PARAM(x, y) (x) << "{" << (y) << "}"
 #define IMPORT_PARAM(x, y, temp) (x) >> (temp) >> (y) >> (temp)
 namespace UniEngine

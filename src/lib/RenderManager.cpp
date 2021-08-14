@@ -633,9 +633,10 @@ void RenderManager::CollectRenderInstances(
             if (!smmc->IsEnabled() || smmc->m_material == nullptr || smmc->m_skinnedMesh == nullptr)
                 continue;
             GlobalTransform gt;
-            if (smmc->m_animator.HasValue() && !smmc->m_animator.Get().expired())
+            auto animator = smmc->m_animator.Get<Animator>();
+            if (animator)
             {
-                gt = smmc->m_animator.Get().lock()->GetOwner().GetDataComponent<GlobalTransform>();
+                gt = animator->GetOwner().GetDataComponent<GlobalTransform>();
             }
             else
             {

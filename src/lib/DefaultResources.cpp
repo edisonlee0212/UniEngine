@@ -87,6 +87,15 @@ std::shared_ptr<Material> DefaultResources::Materials::StandardInstancedMaterial
 
 std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultSkybox;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::DefaultEnvironmentalMap;
+
+Handle DefaultResources::GenerateNewHandle(){
+    return GetInstance().m_currentMaxHandle.m_value++;
+}
+
+Handle DefaultResources::GetMaxHandle(){
+    return GetInstance().m_currentMaxHandle;
+}
+
 void DefaultResources::LoadShaders()
 {
     int numberOfExtensions;
@@ -138,7 +147,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     auto standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard");
+    GLPrograms::StandardProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard");
     GLPrograms::StandardProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -148,7 +157,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Skinned");
+    GLPrograms::StandardSkinnedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard Skinned");
     GLPrograms::StandardSkinnedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode =
@@ -158,7 +167,7 @@ void DefaultResources::LoadShaders()
     standardVert->Compile(vertShaderCode);
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
-    GLPrograms::StandardInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced");
+    GLPrograms::StandardInstancedProgram = AssetManager::CreateAsset<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard Instanced");
     GLPrograms::StandardInstancedProgram->Link(standardVert, standardFrag);
 
     vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
@@ -169,7 +178,7 @@ void DefaultResources::LoadShaders()
     standardFrag = std::make_shared<OpenGLUtils::GLShader>(OpenGLUtils::ShaderType::Fragment);
     standardFrag->Compile(fragShaderCode);
     GLPrograms::StandardInstancedSkinnedProgram =
-        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(Handle(0), "Standard Instanced Skinned");
+        AssetManager::CreateAsset<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard Instanced Skinned");
     GLPrograms::StandardInstancedSkinnedProgram->Link(standardVert, standardFrag);
 #pragma endregion
 
@@ -262,7 +271,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
             ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
             : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Quad = AssetManager::CreateAsset<Mesh>(Handle(0), "Quad");
+        Primitives::Quad = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Quad");
         Primitives::Quad->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -270,7 +279,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                  ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                  : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Sphere = AssetManager::CreateAsset<Mesh>(Handle(0), "Sphere");
+        Primitives::Sphere = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Sphere");
         Primitives::Sphere->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -278,7 +287,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Cube = AssetManager::CreateAsset<Mesh>(Handle(0), "Cube");
+        Primitives::Cube = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cube");
         Primitives::Cube->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -286,7 +295,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Cone = AssetManager::CreateAsset<Mesh>(Handle(0), "Cone");
+        Primitives::Cone = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cone");
         Primitives::Cone->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -294,7 +303,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                    ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                    : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Cylinder = AssetManager::CreateAsset<Mesh>(Handle(0), "Cylinder");
+        Primitives::Cylinder = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cylinder");
         Primitives::Cylinder->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -302,7 +311,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Ring = AssetManager::CreateAsset<Mesh>(Handle(0), "Ring");
+        Primitives::Ring = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Ring");
         Primitives::Ring->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
@@ -310,7 +319,7 @@ void DefaultResources::LoadPrimitives()
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                                  ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
                                  : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
-        Primitives::Monkey = AssetManager::CreateAsset<Mesh>(Handle(0), "Monkey");
+        Primitives::Monkey = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Monkey");
         Primitives::Monkey->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
 
@@ -325,27 +334,27 @@ void DefaultResources::Load()
     LoadEditorManagerResources();
 
 #pragma region Physics
-    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>(Handle(0), "Default");
+    Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>(GenerateNewHandle(), "Default");
 #pragma endregion
 
 #pragma region Environmental
-    Materials::StandardMaterial = AssetManager::CreateAsset<Material>(Handle(0), "Standard");
+    Materials::StandardMaterial = AssetManager::CreateAsset<Material>(GenerateNewHandle(), "Standard");
     Materials::StandardMaterial->m_program = GLPrograms::StandardProgram;
 
-    Materials::StandardInstancedMaterial = AssetManager::CreateAsset<Material>(Handle(0), "Standard Instanced");
+    Materials::StandardInstancedMaterial = AssetManager::CreateAsset<Material>(GenerateNewHandle(), "Standard Instanced");
     Materials::StandardInstancedMaterial->m_program = GLPrograms::StandardInstancedProgram;
 
-    Environmental::DefaultSkybox = AssetManager::CreateAsset<Cubemap>(Handle(0), "Default");
+    Environmental::DefaultSkybox = AssetManager::CreateAsset<Cubemap>(GenerateNewHandle(), "Default");
     Environmental::DefaultSkybox->Load(
         AssetManager::GetResourceFolderPath() / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->m_name = "Default";
 
 
-    Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(Handle(0), "Missing");
+    Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(GenerateNewHandle(), "Missing");
     Textures::MissingTexture->Load(AssetManager::GetResourceFolderPath() / "Textures/texture-missing.png");
     Textures::MissingTexture->m_name = "Missing";
 
-    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>(Handle(0), "Default");
+    Environmental::DefaultEnvironmentalMap = AssetManager::CreateAsset<EnvironmentalMap>(GenerateNewHandle(), "Default");
     Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
 #pragma endregion
 }

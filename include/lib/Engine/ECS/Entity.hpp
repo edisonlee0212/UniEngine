@@ -1,5 +1,6 @@
 #pragma once
-#include <ISerializable.hpp>
+#include <IAsset.hpp>
+#include <IDataComponent.hpp>
 namespace UniEngine
 {
 #pragma region EntityManager
@@ -15,9 +16,7 @@ struct UNIENGINE_API DataComponentType final
     bool operator==(const DataComponentType &other) const;
     bool operator!=(const DataComponentType &other) const;
 };
-struct UNIENGINE_API IDataComponent
-{
-};
+
 
 struct UNIENGINE_API EntityArchetype final
 {
@@ -33,7 +32,6 @@ struct UNIENGINE_API EntityArchetype final
     [[nodiscard]] std::string GetName() const;
     void SetName(const std::string &name) const;
 };
-
 class IPrivateComponent;
 struct UNIENGINE_API Entity final
 {
@@ -84,67 +82,44 @@ struct UNIENGINE_API Entity final
 };
 #pragma region Storage
 
-class UNIENGINE_API IPrivateComponent : public ISerializable
-{
-    friend class EntityManager;
-    friend class EditorManager;
-    friend struct PrivateComponentElement;
-    friend class Scene;
-    friend class Prefab;
-    bool m_enabled = true;
-    Entity m_owner = Entity();
-    bool m_started = false;
-  public:
-    [[nodiscard]] Entity GetOwner() const;
-    void SetEnabled(const bool &value);
-    [[nodiscard]] bool IsEnabled() const;
-
-    virtual void OnGui(){};
-    virtual void FixedUpdate(){};
-    virtual void PreUpdate(){};
-    virtual void Update(){};
-    virtual void LateUpdate(){};
-
-    virtual void OnCreate(){};
-    virtual void Start(){};
-    virtual void OnEnable(){};
-    virtual void OnDisable(){};
-    virtual void OnEntityEnable(){};
-    virtual void OnEntityDisable(){};
-    virtual void OnDestroy(){};
-    virtual void Relink(const std::unordered_map<Handle, Handle> &map) {};
-    virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
-};
-
 class UNIENGINE_API EntityRef : public ISerializable
 {
     Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);
+    void Update();
   public:
-    void Relink(const std::unordered_map<Handle, Handle> &map) {
+    void Relink(const std::unordered_map<Handle, Handle> &map)
+    {
         auto search = map.find(m_entityHandle);
-        if(search != map.end()) m_entityHandle = search->second;
-        else m_entityHandle = Handle(0);
+        if (search != map.end())
+        {
+            m_entityHandle = search->second;
+            m_value = Entity();
+        }
+        else
+            m_entityHandle = Handle(0);
     };
-    [[nodiscard]] Entity Get() const{
+    [[nodiscard]] Entity Get()
+    {
+        Update();
         return m_value;
     }
-    void Update(const Handle& handle);
-    void Update(const Entity& target);
-    void Update();
-    void Reset();
+    [[nodiscard]] Handle GetEntityHandle() const {
+        return m_entityHandle;
+    }
+    void Set(const Entity &target);
+    void Clear();
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::BeginMap;
-        out << YAML::Key << "EntityRef" << YAML::Value << m_entityHandle;
+        out << YAML::Key << "EntityHandle" << YAML::Value << m_entityHandle;
         out << YAML::EndMap;
     }
     void Deserialize(const YAML::Node &in) override
     {
-        m_entityHandle = Handle(in["EntityRef"].as<uint64_t>());
+        m_entityHandle = Handle(in["EntityHandle"].as<uint64_t>());
     }
 };
-
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 
 struct UNIENGINE_API ComponentDataChunk
@@ -163,30 +138,6 @@ struct UNIENGINE_API DataComponentChunkArray
     std::vector<ComponentDataChunk> m_chunks;
 };
 
-struct PrivateComponentElement
-{
-    size_t m_typeId;
-    std::shared_ptr<IPrivateComponent> m_privateComponentData;
-    UNIENGINE_API PrivateComponentElement(
-        size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner);
-    UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
-};
-
-struct EntityMetadata : public ISerializable
-{
-    std::string m_name;
-    unsigned m_version = 1;
-    bool m_static = false;
-    bool m_enabled = true;
-    Entity m_parent = Entity();
-    std::vector<PrivateComponentElement> m_privateComponentElements;
-    std::vector<Entity> m_children;
-    size_t m_dataComponentStorageIndex = 0;
-    size_t m_chunkArrayIndex = 0;
-
-    void Serialize(YAML::Emitter &out) override;
-    void Deserialize(const YAML::Node &in) override;
-};
 
 struct UNIENGINE_API EntityArchetypeInfo
 {

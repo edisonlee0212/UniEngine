@@ -457,7 +457,10 @@ void Prefab::AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle)
 {
     auto smr = parent->GetPrivateComponent<SkinnedMeshRenderer>();
     if (smr)
+    {
         smr->m_animator.m_entityHandle = animatorEntityHandle;
+        smr->m_animator.m_privateComponentTypeName = "Animator";
+    }
     for (auto &i : parent->m_children)
     {
         AttachAnimator(i.get(), animatorEntityHandle);

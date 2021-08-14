@@ -7,6 +7,7 @@ struct UNIENGINE_API Handle
 {
     friend class IAsset;
     friend class EntityMetadata;
+    friend class DefaultResources;
     Handle();
     Handle(uint64_t value);
     Handle(const Handle &other);

@@ -5,6 +5,8 @@
 #include <Mesh.hpp>
 #include <SkinnedMesh.hpp>
 #include <Transform.hpp>
+#include <IPrivateComponent.hpp>
+
 
 namespace UniEngine
 {
@@ -92,6 +94,7 @@ class UNIENGINE_API Prefab : public IAsset
 
     void FromEntity(const Entity& entity);
 };
+
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {
     auto typeName = SerializationManager::GetSerializableTypeName<T>();

@@ -124,7 +124,7 @@ void Joint::Unlink()
         m_joint->release();
         m_joint = nullptr;
     }
-    m_linkedEntity.Reset();
+    m_linkedEntity.Clear();
 }
 bool Joint::Linked()
 {
@@ -133,7 +133,7 @@ bool Joint::Linked()
 bool Joint::SafetyCheck()
 {
     if(!m_linkedEntity.Get().IsValid()){
-        m_linkedEntity.Reset();
+        m_linkedEntity.Clear();
         return false;
     }
     if (!m_linkedEntity.Get().HasPrivateComponent<RigidBody>())
@@ -151,14 +151,11 @@ bool Joint::SafetyCheck()
 }
 void Joint::OnCreate()
 {
-    m_linkedEntity.Update();
     const auto owner = GetOwner();
     if (!owner.HasPrivateComponent<RigidBody>())
     {
         owner.GetOrSetPrivateComponent<RigidBody>();
     }
-
-
 }
 static const char *JointTypeNames[]{"Fixed", "Distance", "Spherical", "Revolute", "Prismatic", "D6"};
 void Joint::OnGui()
@@ -174,7 +171,7 @@ void Joint::OnGui()
     {
         if (storedEntity != m_linkedEntity.Get())
         {
-            m_linkedEntity.Update(storedEntity);
+            m_linkedEntity.Set(storedEntity);
             Link(storedEntity);
         }
     }
@@ -218,7 +215,7 @@ void Joint::Link(const Entity &targetEntity)
     {
         return;
     }
-    m_linkedEntity.Update(targetEntity);
+    m_linkedEntity.Set(targetEntity);
     if (SafetyCheck())
     {
         PxTransform localFrame1;

@@ -456,7 +456,7 @@ namespace physx
 
 
 	/**
-	\brief Update an array of vehicles by either applying an acceleration to the rigid body actor associated with 
+	\brief Set an array of vehicles by either applying an acceleration to the rigid body actor associated with
 	each vehicle or by an immediate update of the velocity of the actor.
 	
 	\note The update mode (acceleration or velocity change) can be selected with PxVehicleSetUpdateMode.
@@ -543,7 +543,7 @@ namespace physx
 
 #if PX_DEBUG_VEHICLE_ON
 	/**
-	\brief Update an single vehicle by either applying an acceleration to the rigid body actor associated with 
+	\brief Set an single vehicle by either applying an acceleration to the rigid body actor associated with
 	each vehicle or by an immediate update of the velocity of the actor. Also record telemetry data from the 
 	vehicle so that it may be visualized or queried.
 	

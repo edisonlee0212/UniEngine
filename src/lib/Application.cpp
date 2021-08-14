@@ -157,7 +157,7 @@ void Application::UpdateInternal()
     auto &application = GetInstance();
     if (!application.m_initialized)
         return;
-    ProfilerManager::StartEvent("Update");
+    ProfilerManager::StartEvent("Set");
     ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalUpdateFunctions)
         i();
@@ -168,7 +168,7 @@ void Application::UpdateInternal()
         EntityManager::GetInstance().m_scene->Update();
         ProfilerManager::EndEvent("Scene");
     }
-    ProfilerManager::EndEvent("Update");
+    ProfilerManager::EndEvent("Set");
 }
 
 bool Application::LateUpdateInternal()

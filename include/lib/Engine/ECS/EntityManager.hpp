@@ -1,7 +1,9 @@
 #pragma once
-#include "ISerializable.hpp"
-#include <Core/Debug.hpp>
+#include <ISerializable.hpp>
+#include <Debug.hpp>
 #include <Entity.hpp>
+#include <EntityMetadata.hpp>
+#include <IPrivateComponent.hpp>
 #include <ISingleton.hpp>
 #include <JobManager.hpp>
 #include <Scene.hpp>
@@ -38,6 +40,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend struct Entity;
     friend struct Application;
     friend struct AssetManager;
+    friend struct PrivateComponentRef;
     friend class Prefab;
     size_t m_archetypeChunkSize = ARCHETYPE_CHUNK_SIZE;
     EntityArchetype m_basicArchetype = EntityArchetype();
@@ -198,8 +201,11 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent> static bool HasDataComponent(const Entity &entity);
 
     template <typename T = IPrivateComponent> static std::weak_ptr<T> GetOrSetPrivateComponent(const Entity &entity);
+    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(const Entity &entity, const std::string& typeName);
+
     template <typename T = IPrivateComponent> static void RemovePrivateComponent(const Entity &entity);
     template <typename T = IPrivateComponent> static bool HasPrivateComponent(const Entity &entity);
+    static bool HasPrivateComponent(const Entity &entity, const std::string &typeName);
 #pragma endregion
 #pragma region EntityArchetype Methods
     static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
@@ -2597,6 +2603,7 @@ template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivate
     return GetInstance().m_entityPrivateComponentStorage->UnsafeGetOwnersList<T>();
 }
 
+
 template <typename T> void Entity::SetDataComponent(const T &value) const
 {
     EntityManager::SetDataComponent(*this, value);
@@ -2694,61 +2701,4 @@ void EntityQuery::ToEntityArray(
 }
 #pragma endregion
 
-template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRef : public ISerializable
-{
-    friend class Prefab;
-    std::optional<std::weak_ptr<T>> m_value;
-    Handle m_entityHandle = Handle(0);
-  public:
-    void Relink(const std::unordered_map<Handle, Handle> &map) {
-        auto search = map.find(m_entityHandle);
-        if(search != map.end()) m_entityHandle = search->second;
-        else m_entityHandle = Handle(0);
-    };
-    [[nodiscard]] bool HasValue() const
-    {
-        return m_value.has_value();
-    }
-    [[nodiscard]] std::weak_ptr<T> Get()
-    {
-        return m_value.value();
-    }
-    void Update(const std::shared_ptr<T> &target)
-    {
-        if(target) m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(target)->GetOwner().GetHandle();
-        else m_entityHandle = Handle(0);
-        m_value = target;
-    }
-    void Update()
-    {
-        if(m_entityHandle.GetValue() == 0){
-            m_value.reset();
-        }else
-        {
-            auto entity = EntityManager::GetEntity(m_entityHandle);
-            if (!entity.IsNull())
-            {
-                if (entity.HasPrivateComponent<T>())
-                {
-                    m_value = entity.GetOrSetPrivateComponent<T>();
-                }
-            }
-        }
-    }
-    void Update(const Handle &handle)
-    {
-        m_entityHandle = handle;
-        Update();
-    }
-    void Serialize(YAML::Emitter &out) override
-    {
-        out << YAML::BeginMap;
-        out << YAML::Key << "PrivateComponentRef" << YAML::Value << m_entityHandle;
-        out << YAML::EndMap;
-    }
-    void Deserialize(const YAML::Node &in) override
-    {
-        m_entityHandle = Handle(in["EntityRef"].as<uint64_t>());
-    }
-};
 } // namespace UniEngine

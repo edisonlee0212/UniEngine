@@ -1,6 +1,8 @@
 #include <Entity.hpp>
 #include <EntityManager.hpp>
 #include <ISerializable.hpp>
+#include <EntityMetadata.hpp>
+#include <IPrivateComponent.hpp>
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
@@ -140,31 +142,7 @@ Handle Entity::GetHandle() const
     return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).GetHandle();
 }
 
-Entity IPrivateComponent::GetOwner() const
-{
-    return m_owner;
-}
 
-void IPrivateComponent::SetEnabled(const bool &value)
-{
-    if (m_enabled != value)
-    {
-        if (value)
-        {
-            OnEnable();
-        }
-        else
-        {
-            OnDisable();
-        }
-        m_enabled = value;
-    }
-}
-
-bool IPrivateComponent::IsEnabled() const
-{
-    return m_enabled;
-}
 
 IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {
@@ -204,18 +182,7 @@ size_t EntityArchetype::GetIndex()
     return m_index;
 }
 
-PrivateComponentElement::PrivateComponentElement(size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner)
-{
-    m_typeId = id;
-    m_privateComponentData = data;
-    m_privateComponentData->m_owner = owner;
-    m_privateComponentData->OnCreate();
-}
 
-void PrivateComponentElement::ResetOwner(const Entity &newOwner) const
-{
-    m_privateComponentData->m_owner = newOwner;
-}
 
 bool EntityArchetypeInfo::HasType(const size_t &typeId)
 {
@@ -272,84 +239,28 @@ bool DataComponentStorage::HasType(const size_t &typeId)
     return false;
 }
 
-void EntityRef::Update(const Handle& handle)
-{
-    m_entityHandle = handle;
-    Update();
-}
-void EntityRef::Update(const Entity &target)
+
+void EntityRef::Set(const Entity &target)
 {
     if(target.IsNull()) m_entityHandle = Handle(0);
     else m_entityHandle = target.GetHandle();
     m_value = target;
 }
-void EntityRef::Reset()
+void EntityRef::Clear()
 {
     m_value = Entity();
-    m_entityHandle = Handle();
+    m_entityHandle = Handle(0);
 }
 void EntityRef::Update()
 {
-    if(m_entityHandle.GetValue() != 0) m_value = EntityManager::GetEntity(m_entityHandle);
-    else m_value = Entity();
-}
-
-void EntityMetadata::Deserialize(const YAML::Node &in)
-{
-    m_name = in["Name"].as<std::string>();
-    m_version = in["Version"].as<unsigned>();
-    m_static = in["Static"].as<bool>();
-    m_enabled = in["Enabled"].as<bool>();
-    m_handle.m_value = in["Handle"].as<uint64_t>();
-    Entity parent;
-    parent.m_index = in["Parent.Index"].as<unsigned>();
-    parent.m_version = in["Parent.Version"].as<unsigned>();
-    m_parent = parent;
-    if (in["Children"].IsDefined())
-    {
-        YAML::Binary childrenData = in["Children"].as<YAML::Binary>();
-        const unsigned char *data = childrenData.data();
-        std::size_t size = childrenData.size();
-        m_children.resize(size / sizeof(Entity));
-        std::memcpy(m_children.data(), data, size);
+    if(m_entityHandle.GetValue() == 0){
+        m_value = Entity();
+        return;
+    }else if(m_value.IsNull()){
+        m_value = EntityManager::GetEntity(m_entityHandle);
+        if(m_value.IsNull()) m_entityHandle = Handle(0);
     }
-    m_dataComponentStorageIndex = in["DataComponentStorageIndex"].as<size_t>();
-    m_chunkArrayIndex = in["ChunkArrayIndex"].as<size_t>();
-}
-
-void EntityMetadata::Serialize(YAML::Emitter &out)
-{
-    out << YAML::BeginMap;
-    {
-        out << YAML::Key << "Name" << YAML::Value << m_name;
-        out << YAML::Key << "Handle" << YAML::Value << m_handle.m_value;
-        out << YAML::Key << "Version" << YAML::Value << m_version;
-        out << YAML::Key << "Static" << YAML::Value << m_static;
-        out << YAML::Key << "Enabled" << YAML::Value << m_enabled;
-        out << YAML::Key << "Parent.Index" << YAML::Value << m_parent.m_index;
-        out << YAML::Key << "Parent.Version" << YAML::Value << m_parent.m_version;
-
-        if (!m_children.empty())
-        {
-            out << YAML::Key << "Children" << YAML::Value
-            << YAML::Binary(
-                (const unsigned char *)m_children.data(),
-                m_children.size() * sizeof(Entity));
-        }
-        out << YAML::Key << "DataComponentStorageIndex" << YAML::Value << m_dataComponentStorageIndex;
-        out << YAML::Key << "ChunkArrayIndex" << YAML::Value << m_chunkArrayIndex;
-#pragma region Private Components
-        out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
-        for (const auto &element : m_privateComponentElements)
-        {
-            out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << element.m_privateComponentData->GetTypeName();
-            out << YAML::Key << "Enabled" << YAML::Value << element.m_privateComponentData->IsEnabled();
-            element.m_privateComponentData->Serialize(out);
-            out << YAML::EndMap;
-        }
-        out << YAML::EndSeq;
-#pragma endregion
+    if(!m_value.IsValid()){
+        Clear();
     }
-    out << YAML::EndMap;
 }

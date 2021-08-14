@@ -24,7 +24,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     EntityArchetype m_basicEntityArchetype;
     bool m_enabled = false;
     std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
-    // TODO: Remove this.
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
     unsigned int m_configFlags = 0;

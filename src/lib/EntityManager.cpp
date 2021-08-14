@@ -1,9 +1,9 @@
+#include <AssetManager.hpp>
 #include <Core/Debug.hpp>
 #include <Entity.hpp>
 #include <EntityManager.hpp>
 #include <PhysicsManager.hpp>
 #include <Scene.hpp>
-#include <AssetManager.hpp>
 
 using namespace UniEngine;
 
@@ -1165,6 +1165,24 @@ EntityArchetype EntityManager::CreateEntityArchetypeHelper(const EntityArchetype
     }
     return retVal;
 }
+
+std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const Entity &entity, const std::string &typeName)
+{
+    assert(entity.IsValid());
+    auto &entityManager = GetInstance();
+    size_t i = 0;
+    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    for (auto &element : elements)
+    {
+        if (typeName == element.m_privateComponentData->GetTypeName())
+        {
+            return element.m_privateComponentData;
+        }
+        i++;
+    }
+    throw 0;
+}
+
 void EntityManager::RefreshAllEntityQueryInfos()
 {
     for (size_t i = 1; i < GetInstance().m_entityQueryInfos.size(); i++)
@@ -1175,7 +1193,7 @@ void EntityManager::RefreshAllEntityQueryInfos()
 
 void EntityManager::RefreshAllEntityArchetypeInfos()
 {
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     for (size_t i = 1; i < entityManager.m_entityArchetypeInfos.size(); i++)
     {
         RefreshEntityArchetypeInfo(i);
@@ -1190,6 +1208,18 @@ Entity EntityManager::GetEntity(const Handle &handle)
         return search->second;
     }
     return Entity();
+}
+bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string &typeName)
+{
+    assert(entity.IsValid());
+    for (auto &element : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
+    {
+        if (element.m_privateComponentData->m_typeName == typeName)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 size_t EntityQuery::GetEntityAmount() const

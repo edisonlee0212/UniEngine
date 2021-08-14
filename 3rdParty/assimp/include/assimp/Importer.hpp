@@ -334,7 +334,7 @@ public:
 
     // -------------------------------------------------------------------
     /** Supplies a custom progress handler to the importer. This
-     *  interface exposes an #Update() callback, which is called
+     *  interface exposes an #Set() callback, which is called
      *  more or less periodically (please don't sue us if it
      *  isn't as periodically as you'd like it to have ...).
      *  This can be used to implement progress bars and loading

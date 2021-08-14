@@ -24,10 +24,10 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
 
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
-    if (!m_animator.HasValue())
+    if (!m_animator.Get<Animator>())
         return;
     m_finalResults->m_value.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
-    auto animator = m_animator.Get().lock();
+    auto animator = m_animator.Get<Animator>();
     for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
         m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
@@ -38,7 +38,7 @@ void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animat
 {
     if (animator->m_animation.get() == m_skinnedMesh->m_animation.get())
     {
-        m_animator.Update(animator);
+        m_animator.Set(animator);
     }
     else
     {
@@ -96,7 +96,6 @@ void SkinnedMeshRenderer::Deserialize(const YAML::Node &in)
 }
 void SkinnedMeshRenderer::OnCreate()
 {
-    m_animator.Update();
     m_finalResults = std::make_shared<BoneMatrices>();
     SetEnabled(true);
 }
