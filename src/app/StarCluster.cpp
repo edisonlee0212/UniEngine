@@ -8,21 +8,21 @@
 using namespace UniEngine;
 using namespace Galaxy;
 
-DataComponentRegistration<StarPosition> StarPositionReg("StarPosition");
-DataComponentRegistration<SelectionStatus> SelectionStatusReg("SelectionStatus");
-DataComponentRegistration<StarInfo> StarInfoReg("StarInfo");
-DataComponentRegistration<SurfaceColor> SurfaceColorReg("SurfaceColor");
-DataComponentRegistration<DisplayColor> DisplayColorReg("DisplayColor");
-DataComponentRegistration<OriginalColor> OriginalColorReg("OriginalColor");
-DataComponentRegistration<StarOrbitOffset> StarOrbitOffsetReg("StarOrbitOffset");
-DataComponentRegistration<StarOrbitProportion> StarOrbitProportionReg("StarOrbitProportion");
-DataComponentRegistration<StarOrbit> StarOrbitReg("StarOrbit");
-DataComponentRegistration<StarClusterIndex> StarClusterIndexReg("StarClusterIndex");
 
-SystemRegistration<StarClusterSystem> StarClusterSystemReg("StarClusterSystem");
 int main()
 {
+    ClassRegistry::RegisterDataComponent<StarPosition>("StarPosition");
+    ClassRegistry::RegisterDataComponent<SelectionStatus>("SelectionStatus");
+    ClassRegistry::RegisterDataComponent<StarInfo>("StarInfo");
+    ClassRegistry::RegisterDataComponent<SurfaceColor>("SurfaceColor");
+    ClassRegistry::RegisterDataComponent<DisplayColor>("DisplayColor");
+    ClassRegistry::RegisterDataComponent<OriginalColor>("OriginalColor");
+    ClassRegistry::RegisterDataComponent<StarOrbitOffset>("StarOrbitOffset");
+    ClassRegistry::RegisterDataComponent<StarOrbitProportion>("StarOrbitProportion");
+    ClassRegistry::RegisterDataComponent<StarOrbit>("StarOrbit");
+    ClassRegistry::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
 
+    ClassRegistry::RegisterSystem<StarClusterSystem>("StarClusterSystem");
 #pragma region Application Preparations
     Application::Init();
 

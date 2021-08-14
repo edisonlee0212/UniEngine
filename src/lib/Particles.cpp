@@ -22,7 +22,7 @@ void Particles::RecalculateBoundingBox()
     }
     glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
     glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
-    auto meshBound = m_mesh->GetBound();
+    auto meshBound = m_mesh.Get<Mesh>()->GetBound();
     for (auto &i : m_matrices->m_value)
     {
         glm::vec3 center = i * glm::vec4(meshBound.Center(), 1.0f);
@@ -68,23 +68,23 @@ void Particles::OnGui()
 
     ImGui::Text("Material:##Particles");
     ImGui::SameLine();
-    EditorManager::DragAndDrop(m_material);
-    if (m_material)
+    //EditorManager::DragAndDrop(m_material);
+    if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##Particles"))
         {
-            m_material->OnGui();
+            m_material.Get<Material>()->OnGui();
             ImGui::TreePop();
         }
     }
     ImGui::Text("Mesh:##Particles");
     ImGui::SameLine();
-    EditorManager::DragAndDrop(m_mesh);
-    if (m_mesh)
+    //EditorManager::DragAndDrop(m_mesh);
+    if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##Particles"))
         {
-            m_mesh->OnGui();
+            m_mesh.Get<Mesh>()->OnGui();
             ImGui::TreePop();
         }
     }

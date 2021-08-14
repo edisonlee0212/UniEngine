@@ -19,8 +19,8 @@ class UNIENGINE_API Particles : public IPrivateComponent
     bool m_castShadow = true;
     bool m_receiveShadow = true;
     std::shared_ptr<ParticleMatrices> m_matrices;
-    std::shared_ptr<Mesh> m_mesh;
-    std::shared_ptr<Material> m_material;
+    AssetRef m_mesh;
+    AssetRef m_material;
     void RecalculateBoundingBox();
     void OnGui() override;
     void Serialize(YAML::Emitter &out) override;

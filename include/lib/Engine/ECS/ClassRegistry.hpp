@@ -34,7 +34,7 @@ class UNIENGINE_API ClassRegistry
     }
 };
 
-template <typename T = IDataComponent> class UNIENGINE_API DataComponentRegistration
+template <typename T> class UNIENGINE_API DataComponentRegistration
 {
   public:
     DataComponentRegistration(const std::string &name)
@@ -43,7 +43,7 @@ template <typename T = IDataComponent> class UNIENGINE_API DataComponentRegistra
     }
 };
 
-template <typename T = IAsset> class UNIENGINE_API AssetRegistration
+template <typename T> class UNIENGINE_API AssetRegistration
 {
   public:
     AssetRegistration(const std::string &name)
@@ -52,7 +52,7 @@ template <typename T = IAsset> class UNIENGINE_API AssetRegistration
     }
 };
 
-template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRegistration
+template <typename T> class UNIENGINE_API PrivateComponentRegistration
 {
   public:
     PrivateComponentRegistration(const std::string &name)
@@ -61,7 +61,7 @@ template <typename T = IPrivateComponent> class UNIENGINE_API PrivateComponentRe
     }
 };
 
-template <typename T = ISystem> class UNIENGINE_API SystemRegistration
+template <typename T> class UNIENGINE_API SystemRegistration
 {
   public:
     SystemRegistration(const std::string &name)
@@ -70,7 +70,7 @@ template <typename T = ISystem> class UNIENGINE_API SystemRegistration
     }
 };
 
-template <typename T = ISerializable> class UNIENGINE_API SerializableRegistration
+template <typename T> class UNIENGINE_API SerializableRegistration
 {
   public:
     SerializableRegistration(const std::string &name)

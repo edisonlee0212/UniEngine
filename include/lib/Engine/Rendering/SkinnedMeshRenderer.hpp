@@ -15,7 +15,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     friend class EditorManager;
     friend class Animator;
     friend class AnimationManager;
-    void RenderBound(glm::vec4 &color) const;
+    void RenderBound(glm::vec4 &color);
     void GetBoneMatrices();
     std::shared_ptr<BoneMatrices> m_finalResults;
 
@@ -27,8 +27,8 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     bool m_forwardRendering = false;
     bool m_castShadow = true;
     bool m_receiveShadow = true;
-    std::shared_ptr<SkinnedMesh> m_skinnedMesh;
-    std::shared_ptr<Material> m_material;
+    AssetRef m_skinnedMesh;
+    AssetRef m_material;
     void OnGui() override;
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;

@@ -45,7 +45,7 @@ bool AssetRef::Update()
         m_value.reset();
         return false;
     }
-    else if(!m_value.has_value() || m_value->expired())
+    else if(!m_value)
     {
         auto ptr = AssetManager::Get(m_assetTypeName, m_assetHandle);
         if(ptr){

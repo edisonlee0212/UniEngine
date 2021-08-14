@@ -5,10 +5,10 @@
 #include <RenderManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
-void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
+void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
 {
     const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
-    glm::vec3 size = m_skinnedMesh->m_bound.Size();
+    glm::vec3 size = m_skinnedMesh.Get<SkinnedMesh>()->m_bound.Size();
     if (size.x < 0.01f)
         size.x = 0.01f;
     if (size.z < 0.01f)
@@ -18,7 +18,7 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color) const
     RenderManager::DrawGizmoMesh(
         DefaultResources::Primitives::Cube,
         color,
-        transform * (glm::translate(m_skinnedMesh->m_bound.Center()) * glm::scale(size)),
+        transform * (glm::translate(m_skinnedMesh.Get<SkinnedMesh>()->m_bound.Center()) * glm::scale(size)),
         1);
 }
 
@@ -26,17 +26,17 @@ void SkinnedMeshRenderer::GetBoneMatrices()
 {
     if (!m_animator.Get<Animator>())
         return;
-    m_finalResults->m_value.resize(m_skinnedMesh->m_boneAnimatorIndices.size());
+    m_finalResults->m_value.resize(m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices.size());
     auto animator = m_animator.Get<Animator>();
-    for (int i = 0; i < m_skinnedMesh->m_boneAnimatorIndices.size(); i++)
+    for (int i = 0; i < m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices.size(); i++)
     {
-        m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh->m_boneAnimatorIndices[i]];
+        m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices[i]];
     }
 }
 
 void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animator)
 {
-    if (animator->m_animation.get() == m_skinnedMesh->m_animation.get())
+    if (animator->m_animation.Get<Animation>() == m_skinnedMesh.Get<SkinnedMesh>()->m_animation.Get<Animation>())
     {
         m_animator.Set(animator);
     }
@@ -54,16 +54,17 @@ void SkinnedMeshRenderer::OnGui()
     ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
     ImGui::Text("Material:");
     ImGui::SameLine();
-    EditorManager::DragAndDrop(m_material);
-    if (m_material)
+    //TODO: Add draganddrop here
+    //EditorManager::DragAndDrop(m_material);
+    if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##SkinnedMeshRenderer"))
         {
-            m_material->OnGui();
+            m_material.Get<Material>()->OnGui();
             ImGui::TreePop();
         }
     }
-    if (m_skinnedMesh)
+    if (m_skinnedMesh.Get<SkinnedMesh>())
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))
         {
@@ -75,7 +76,7 @@ void SkinnedMeshRenderer::OnGui()
                 ImGui::ColorEdit4("Color:##SkinnedMeshRenderer", (float *)(void *)&displayBoundColor);
                 RenderBound(displayBoundColor);
             }
-            m_skinnedMesh->OnGui();
+            m_skinnedMesh.Get<SkinnedMesh>()->OnGui();
             ImGui::TreePop();
         }
     }

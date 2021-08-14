@@ -29,7 +29,7 @@ void UniEngine::AnimationManager::PreUpdate()
                             animator->AutoPlay();
                             animator->Animate();
                         }
-                        else if (Application::IsPlaying() && animator->IsEnabled() && animator->m_animation)
+                        else if (Application::IsPlaying() && animator->IsEnabled() && animator->m_animation.Get<Animation>())
                         {
                             animator->Animate();
                         }
@@ -43,7 +43,7 @@ void UniEngine::AnimationManager::PreUpdate()
                             smmc->AutoPlay();
                             smmc->Animate();
                         }
-                        else if (Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation)
+                        else if (Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation.Get<Animation>())
                         {
                             smmc->Animate();
                         }

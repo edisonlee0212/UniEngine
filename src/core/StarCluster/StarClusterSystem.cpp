@@ -441,13 +441,14 @@ void StarClusterSystem::Start()
     GlobalTransform ltw;
     ltw.SetScale(glm::vec3(1.0f));
     auto imr = m_rendererFront.GetOrSetPrivateComponent<Particles>().lock();
-    imr->m_material = AssetManager::CreateAsset<Material>();
+    auto material = AssetManager::CreateAsset<Material>();
+    imr->m_material.Set<Material>(material);
     imr->m_castShadow = false;
     imr->m_receiveShadow = false;
-    imr->m_material->m_ambient = 0.0f;
-    imr->m_material->m_emission = 3.0f;
-    imr->m_mesh = DefaultResources::Primitives::Cube;
-    imr->m_material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    material->m_ambient = 0.0f;
+    material->m_emission = 3.0f;
+    imr->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
+    material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
     m_rendererFront.SetDataComponent(ltw);
 

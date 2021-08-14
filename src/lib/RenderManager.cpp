@@ -525,11 +525,13 @@ void RenderManager::CollectRenderInstances(
             if (!owner.IsEnabled())
                 continue;
             auto mmc = owner.GetOrSetPrivateComponent<MeshRenderer>().lock();
-            if (!mmc->IsEnabled() || mmc->m_material == nullptr || mmc->m_mesh == nullptr)
+            auto material = mmc->m_material.Get<Material>();
+            auto mesh = mmc->m_mesh.Get<Mesh>();
+            if (!mmc->IsEnabled() || material == nullptr || mesh == nullptr)
                 continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
-            auto meshBound = mmc->m_mesh->GetBound();
+            auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -549,21 +551,21 @@ void RenderManager::CollectRenderInstances(
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = mmc->m_mesh;
+            renderInstance.m_mesh = mesh;
             renderInstance.m_castShadow = mmc->m_castShadow;
             renderInstance.m_receiveShadow = mmc->m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (mmc->m_material->m_blendingMode != MaterialBlendingMode::Off)
+            if (material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
+                transparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
             else if (mmc->m_forwardRendering)
             {
-                forwardRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
+                forwardRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
             else
             {
-                deferredRenderInstances[mmc->m_material].m_meshes[mmc->m_mesh->m_vao].push_back(renderInstance);
+                deferredRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
             }
         }
     }
@@ -575,11 +577,13 @@ void RenderManager::CollectRenderInstances(
             if (!owner.IsEnabled())
                 continue;
             auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
-            if (!particles->IsEnabled() || particles->m_material == nullptr || particles->m_mesh == nullptr)
+            auto material = particles->m_material.Get<Material>();
+            auto mesh = particles->m_mesh.Get<Mesh>();
+            if (!particles->IsEnabled() || material == nullptr || mesh == nullptr)
                 continue;
             auto gt = owner.GetDataComponent<GlobalTransform>();
             auto ltw = gt.m_value;
-            auto meshBound = particles->m_mesh->GetBound();
+            auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -600,24 +604,24 @@ void RenderManager::CollectRenderInstances(
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = particles->m_mesh;
+            renderInstance.m_mesh = mesh;
             renderInstance.m_castShadow = particles->m_castShadow;
             renderInstance.m_receiveShadow = particles->m_receiveShadow;
             renderInstance.m_matrices = particles->m_matrices;
             renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (particles->m_material->m_blendingMode != MaterialBlendingMode::Off)
+            if (material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                instancedTransparentRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(
                     renderInstance);
             }
             else if (particles->m_forwardRendering)
             {
-                forwardInstancedRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                forwardInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(
                     renderInstance);
             }
             else
             {
-                deferredInstancedRenderInstances[particles->m_material].m_meshes[particles->m_mesh->m_vao].push_back(
+                deferredInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(
                     renderInstance);
             }
         }
@@ -630,7 +634,9 @@ void RenderManager::CollectRenderInstances(
             if (!owner.IsEnabled())
                 continue;
             auto smmc = owner.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
-            if (!smmc->IsEnabled() || smmc->m_material == nullptr || smmc->m_skinnedMesh == nullptr)
+            auto material = smmc->m_material.Get<Material>();
+            auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
+            if (!smmc->IsEnabled() || material == nullptr || skinnedMesh == nullptr)
                 continue;
             GlobalTransform gt;
             auto animator = smmc->m_animator.Get<Animator>();
@@ -643,7 +649,7 @@ void RenderManager::CollectRenderInstances(
                 gt = owner.GetDataComponent<GlobalTransform>();
             }
             auto ltw = gt.m_value;
-            auto meshBound = smmc->m_skinnedMesh->GetBound();
+            auto meshBound = skinnedMesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
             if (calculateBound)
@@ -663,24 +669,24 @@ void RenderManager::CollectRenderInstances(
             RenderCommand renderInstance;
             renderInstance.m_owner = owner;
             renderInstance.m_globalTransform = gt;
-            renderInstance.m_skinnedMesh = smmc->m_skinnedMesh;
+            renderInstance.m_skinnedMesh = skinnedMesh;
             renderInstance.m_castShadow = smmc->m_castShadow;
             renderInstance.m_receiveShadow = smmc->m_receiveShadow;
             renderInstance.m_meshType = RenderCommandMeshType::Skinned;
             renderInstance.m_boneMatrices = smmc->m_finalResults;
-            if (smmc->m_material->m_blendingMode != MaterialBlendingMode::Off)
+            if (material->m_blendingMode != MaterialBlendingMode::Off)
             {
-                transparentRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
                     renderInstance);
             }
             else if (smmc->m_forwardRendering)
             {
-                forwardRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                forwardRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
                     renderInstance);
             }
             else
             {
-                deferredRenderInstances[smmc->m_material].m_skinnedMeshes[smmc->m_skinnedMesh->m_vao].push_back(
+                deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(
                     renderInstance);
             }
         }

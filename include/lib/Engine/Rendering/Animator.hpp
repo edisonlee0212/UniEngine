@@ -24,7 +24,7 @@ class UNIENGINE_API Animator : public IPrivateComponent
     void ApplyOffsetMatrices();
     void DebugBoneRender(const glm::vec4 &color, const float &size) const;
     void ResetTransform(const int &index);
-    std::shared_ptr<Animation> m_animation;
+    AssetRef m_animation;
     bool m_autoPlay = true;
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;

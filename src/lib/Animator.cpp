@@ -5,18 +5,18 @@
 using namespace UniEngine;
 void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
-    m_animation = targetAnimation;
-    m_boneSize = m_animation->m_boneSize;
+    m_animation.Set<Animation>(targetAnimation);
+    m_boneSize = targetAnimation->m_boneSize;
     m_transformChain.resize(m_boneSize);
     m_boundEntities.resize(m_boneSize);
     m_names.resize(m_boneSize);
     m_bones.resize(m_boneSize);
-    BoneSetter(m_animation->m_rootBone);
+    BoneSetter(targetAnimation->m_rootBone);
     m_offsetMatrices.resize(m_boneSize);
     for (auto &i : m_bones)
         m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
 
-    m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+    m_currentActivatedAnimation = targetAnimation->m_animationNameAndLength.begin()->first;
 
 }
 
@@ -24,13 +24,16 @@ void Animator::OnGui()
 {
     ImGui::Text("Animation:");
     ImGui::SameLine();
-    Animation *previous = m_animation.get();
+    auto animation = m_animation.Get<Animation>();
+    /*Animation *previous = animation.get();
+
     EditorManager::DragAndDrop(m_animation);
-    if (previous != m_animation.get() && m_animation)
+    if (previous != animation.get() && animation)
     {
-        Setup(m_animation);
+        Setup(animation);
     }
-    if (m_animation)
+     */
+    if (animation)
     {
         static bool debugRenderBones = true;
         static float debugRenderBonesSize = 0.5f;
@@ -42,7 +45,7 @@ void Animator::OnGui()
             ImGui::ColorEdit4("Color", &debugRenderBonesColor.x);
             DebugBoneRender(debugRenderBonesColor, debugRenderBonesSize);
         }
-        m_animation->OnGui();
+        animation->OnGui();
         if (ImGui::TreeNode("RagDoll"))
         {
             for (int i = 0; i < m_boundEntities.size(); i++)
@@ -61,10 +64,10 @@ void Animator::OnGui()
         }
         if (m_boneSize != 0)
         {
-            if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
-                m_animation->m_animationNameAndLength.end())
+            if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+                animation->m_animationNameAndLength.end())
             {
-                m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+                m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
                 m_currentAnimationTime = 0.0f;
             }
             if (ImGui::BeginCombo(
@@ -72,7 +75,7 @@ void Animator::OnGui()
                     m_currentActivatedAnimation
                         .c_str())) // The second parameter is the label previewed before opening the combo.
             {
-                for (auto &i : m_animation->m_animationNameAndLength)
+                for (auto &i : animation->m_animationNameAndLength)
                 {
                     const bool selected =
                         m_currentActivatedAnimation ==
@@ -95,21 +98,25 @@ void Animator::OnGui()
                 "Animation time",
                 &m_currentAnimationTime,
                 0.0f,
-                m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+                animation->m_animationNameAndLength[m_currentActivatedAnimation]);
         }
     }
 }
 void Animator::AutoPlay()
 {
-    if (!m_animation)
+    auto animation = m_animation.Get<Animation>();
+    if (!animation)
         return;
     m_currentAnimationTime += Application::Time().DeltaTime() * 1000.0f;
-    if (m_currentAnimationTime > m_animation->m_animationNameAndLength[m_currentActivatedAnimation])
+    if (m_currentAnimationTime > animation->m_animationNameAndLength[m_currentActivatedAnimation])
         m_currentAnimationTime =
-            glm::mod(m_currentAnimationTime, m_animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+            glm::mod(m_currentAnimationTime, animation->m_animationNameAndLength[m_currentActivatedAnimation]);
 }
 void Animator::Animate()
 {
+    auto animation = m_animation.Get<Animation>();
+    if (!animation)
+        return;
     if (m_boneSize == 0)
     {
         for (int i = 0; i < m_transformChain.size(); i++)
@@ -120,13 +127,13 @@ void Animator::Animate()
     else
     {
         auto owner = GetOwner();
-        if (m_animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
-            m_animation->m_animationNameAndLength.end())
+        if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
+            animation->m_animationNameAndLength.end())
         {
-            m_currentActivatedAnimation = m_animation->m_animationNameAndLength.begin()->first;
+            m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
             m_currentAnimationTime = 0.0f;
         }
-        m_animation->Animate(
+        animation->Animate(
             m_currentActivatedAnimation,
             m_currentAnimationTime,
             owner.GetDataComponent<GlobalTransform>().m_value,

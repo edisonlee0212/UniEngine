@@ -4,10 +4,10 @@
 #include <MeshRenderer.hpp>
 #include <RenderManager.hpp>
 using namespace UniEngine;
-void MeshRenderer::RenderBound(glm::vec4 &color) const
+void MeshRenderer::RenderBound(glm::vec4 &color)
 {
     const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
-    glm::vec3 size = m_mesh->m_bound.Size();
+    glm::vec3 size = m_mesh.Get<Mesh>()->m_bound.Size();
     if (size.x < 0.01f)
         size.x = 0.01f;
     if (size.z < 0.01f)
@@ -17,7 +17,7 @@ void MeshRenderer::RenderBound(glm::vec4 &color) const
     RenderManager::DrawGizmoMesh(
         DefaultResources::Primitives::Cube,
         color,
-        transform * (glm::translate(m_mesh->m_bound.Center()) * glm::scale(size)),
+        transform * (glm::translate(m_mesh.Get<Mesh>()->m_bound.Center()) * glm::scale(size)),
         1);
 }
 
@@ -29,19 +29,19 @@ void MeshRenderer::OnGui()
     ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
     ImGui::Text("Material:");
     ImGui::SameLine();
-    EditorManager::DragAndDrop(m_material);
-    if (m_material)
+    //EditorManager::DragAndDrop(m_material);
+    if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##MeshRenderer"))
         {
-            m_material->OnGui();
+            m_material.Get<Material>()->OnGui();
             ImGui::TreePop();
         }
     }
     ImGui::Text("Mesh:");
     ImGui::SameLine();
-    EditorManager::DragAndDrop(m_mesh);
-    if (m_mesh)
+    //EditorManager::DragAndDrop(m_mesh);
+    if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))
         {
@@ -53,7 +53,7 @@ void MeshRenderer::OnGui()
                 ImGui::ColorEdit4("Color:##MeshRenderer", (float *)(void *)&displayBoundColor);
                 RenderBound(displayBoundColor);
             }
-            m_mesh->OnGui();
+            m_mesh.Get<Mesh>()->OnGui();
             ImGui::TreePop();
         }
     }

@@ -82,11 +82,12 @@ int main()
             transform.SetScale(glm::vec3(2.0f * scaleFactor));
             sphere.SetDataComponent(transform);
             auto meshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
-            meshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
-            meshRenderer->m_material = AssetManager::CreateAsset<Material>();
-            meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-            meshRenderer->m_material->m_roughness = static_cast<float>(i) / (amount - 1);
-            meshRenderer->m_material->m_metallic = static_cast<float>(j) / (amount - 1);
+            meshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
+            auto material = AssetManager::CreateAsset<Material>();
+            meshRenderer->m_material.Set<Material>(material);
+            material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            material->m_roughness = static_cast<float>(i) / (amount - 1);
+            material->m_metallic = static_cast<float>(j) / (amount - 1);
 
             auto rigidBody = sphere.GetOrSetPrivateComponent<RigidBody>().lock();
             rigidBody->SetEnabled(true);
@@ -189,18 +190,18 @@ int main()
             auto joint = link.GetOrSetPrivateComponent<Joint>().lock();
             joint->SetType(JointType::Spherical);
             joint->Link(lastLink);
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_ambient = 2.0f;
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_roughness = 0.0f;
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_metallic = 0.0f;
+            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_ambient = 2.0f;
+            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_roughness = 0.0f;
+            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_metallic = 0.0f;
             link.SetParent(anchor);
             lastLink = link;
         }
         auto joint = anchor.GetOrSetPrivateComponent<Joint>().lock();
         joint->SetType(JointType::Spherical);
         joint->Link(lastLink);
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_ambient = 3.0f;
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_roughness = 0.0f;
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material->m_metallic = 0.0f;
+        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_ambient = 3.0f;
+        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_roughness = 0.0f;
+        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_metallic = 0.0f;
     }
 #pragma endregion
 
@@ -268,9 +269,9 @@ Entity CreateCube(
 {
     auto cube = EntityManager::CreateEntity(name);
     auto groundMeshRenderer = cube.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    groundMeshRenderer->m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    groundMeshRenderer->m_material->m_albedoColor = color;
-    groundMeshRenderer->m_mesh = DefaultResources::Primitives::Cube;
+    groundMeshRenderer->m_material.Set<Material>(AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
+    groundMeshRenderer->m_material.Get<Material>()->m_albedoColor = color;
+    groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));
@@ -337,9 +338,9 @@ Entity CreateSphere(
 {
     auto sphere = EntityManager::CreateEntity(name);
     auto groundMeshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    groundMeshRenderer->m_material = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    groundMeshRenderer->m_material->m_albedoColor = color;
-    groundMeshRenderer->m_mesh = DefaultResources::Primitives::Sphere;
+    groundMeshRenderer->m_material.Set<Material>(AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
+    groundMeshRenderer->m_material.Get<Material>()->m_albedoColor = color;
+    groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
     // groundTransform.SetValue(glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30));

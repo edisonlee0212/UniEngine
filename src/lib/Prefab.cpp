@@ -19,8 +19,7 @@ void Prefab::OnCreate()
 Entity Prefab::ToEntity() const
 {
     std::unordered_map<Handle, Handle> entityMap;
-    const Entity entity =
-        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    const Entity entity = EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
     entityMap[m_entityHandle] = entity.GetHandle();
     for (auto &i : m_dataComponents)
     {
@@ -50,10 +49,12 @@ Entity Prefab::ToEntity() const
     return entity;
 }
 void Prefab::AttachChildren(
-    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName, std::unordered_map<Handle, Handle> &map) const
+    const std::shared_ptr<Prefab> &modelNode,
+    Entity parentEntity,
+    const std::string &parentName,
+    std::unordered_map<Handle, Handle> &map) const
 {
-    Entity entity =
-        EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    Entity entity = EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
     map[modelNode->m_entityHandle] = entity.GetHandle();
     entity.SetParent(parentEntity);
     for (auto &i : modelNode->m_dataComponents)
@@ -73,13 +74,15 @@ void Prefab::AttachChildrenPrivateComponent(
 {
     Entity entity;
     auto children = parentEntity.GetChildren();
-    for(auto& i : children)
+    for (auto &i : children)
     {
         auto a = i.GetHandle().GetValue();
         auto b = map.at(modelNode->m_entityHandle).GetValue();
-        if(a == b) entity = i;
+        if (a == b)
+            entity = i;
     }
-    if(entity.IsNull()) return;
+    if (entity.IsNull())
+        return;
     for (auto &i : modelNode->m_privateComponents)
     {
         size_t id;
@@ -453,7 +456,7 @@ void Prefab::Load(const std::filesystem::path &path)
     }
 }
 #ifdef USE_ASSIMP
-void Prefab::AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle)
+void Prefab::AttachAnimator(Prefab *parent, const Handle &animatorEntityHandle)
 {
     auto smr = parent->GetPrivateComponent<SkinnedMeshRenderer>();
     if (smr)
@@ -706,20 +709,20 @@ bool Prefab::ProcessNode(
         if (importerMesh->HasBones())
         {
             auto skinnedMeshRenderer = SerializationManager::ProduceSerializable<SkinnedMeshRenderer>();
-            skinnedMeshRenderer->m_material = material;
-            skinnedMeshRenderer->m_skinnedMesh = ReadSkinnedMesh(boneMaps, importerMesh);
-            if (!skinnedMeshRenderer->m_skinnedMesh)
+            skinnedMeshRenderer->m_material.Set<Material>(material);
+            skinnedMeshRenderer->m_skinnedMesh.Set<SkinnedMesh>(ReadSkinnedMesh(boneMaps, importerMesh));
+            if (!skinnedMeshRenderer->m_skinnedMesh.Get())
                 continue;
             addedMeshRenderer = true;
-            skinnedMeshRenderer->m_skinnedMesh->m_animation = animation;
+            skinnedMeshRenderer->m_skinnedMesh.Get<SkinnedMesh>()->m_animation.Set<Animation>(animation);
             childNode->m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(skinnedMeshRenderer));
         }
         else
         {
             auto meshRenderer = SerializationManager::ProduceSerializable<MeshRenderer>();
-            meshRenderer->m_material = material;
-            meshRenderer->m_mesh = ReadMesh(importerMesh);
-            if (!meshRenderer->m_mesh)
+            meshRenderer->m_material.Set<Material>(material);
+            meshRenderer->m_mesh.Set<Mesh>(ReadMesh(importerMesh));
+            if (!meshRenderer->m_mesh.Get())
                 continue;
             addedMeshRenderer = true;
             childNode->m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(meshRenderer));
@@ -995,25 +998,28 @@ void Prefab::ApplyBoneIndices(Prefab *node)
 {
     auto smr = node->GetPrivateComponent<SkinnedMeshRenderer>();
     if (smr)
-        smr->m_skinnedMesh->FetchIndices();
+        smr->m_skinnedMesh.Get<SkinnedMesh>()->FetchIndices();
     for (auto &i : node->m_children)
     {
         ApplyBoneIndices(i.get());
     }
 }
-void Prefab::FromEntity(const Entity& entity)
+void Prefab::FromEntity(const Entity &entity)
 {
     m_entityHandle = entity.GetHandle();
     m_name = entity.GetName();
-    EntityManager::UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data){
+    EntityManager::UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data) {
         DataComponentHolder holder;
-        holder.m_data = std::static_pointer_cast<IDataComponent>(SerializationManager::ProduceDataComponent(type.m_name, holder.m_id, holder.m_size));
+        holder.m_data = std::static_pointer_cast<IDataComponent>(
+            SerializationManager::ProduceDataComponent(type.m_name, holder.m_id, holder.m_size));
         memcpy(holder.m_data.get(), data, holder.m_size);
         m_dataComponents.push_back(std::move(holder));
     });
 
-    auto& elements = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex()).m_privateComponentElements;
-    for(auto& element : elements){
+    auto &elements =
+        EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex()).m_privateComponentElements;
+    for (auto &element : elements)
+    {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
@@ -1023,7 +1029,8 @@ void Prefab::FromEntity(const Entity& entity)
     }
 
     auto children = entity.GetChildren();
-    for(auto& i : children){
+    for (auto &i : children)
+    {
         m_children.push_back(AssetManager::CreateAsset<Prefab>(i.GetName()));
         m_children.back()->FromEntity(i);
     }

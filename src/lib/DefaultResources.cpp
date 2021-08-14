@@ -269,56 +269,56 @@ void DefaultResources::LoadPrimitives()
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/quad.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Quad = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Quad");
         Primitives::Quad->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/sphere.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                                 ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                                 : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Sphere = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Sphere");
         Primitives::Sphere->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cube.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cube = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cube");
         Primitives::Cube->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cone.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cone = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cone");
         Primitives::Cone->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/cylinder.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                                   ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                                   : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cylinder = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cylinder");
         Primitives::Cylinder->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/ring.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                               ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                               : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Ring = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Ring");
         Primitives::Ring->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }
     {
         auto model = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Primitives/monkey.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                                 ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh
-                                 : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh;
+            ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
+            : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Monkey = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Monkey");
         Primitives::Monkey->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
     }

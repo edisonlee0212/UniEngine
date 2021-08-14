@@ -89,32 +89,38 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
+        auto material = mmc->m_material.Get<Material>();
+        auto mesh = mmc->m_mesh.Get<Mesh>();
+        if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            mmc->m_mesh->Draw();
+            mesh->Draw();
         }
     }
     if (entity.HasPrivateComponent<Particles>())
     {
         auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
-        if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
+        auto material = immc->m_material.Get<Material>();
+        auto mesh = immc->m_mesh.Get<Mesh>();
+        if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            immc->m_mesh->DrawInstanced(immc->m_matrices->m_value);
+            mesh->DrawInstanced(immc->m_matrices->m_value);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
     {
         auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
-        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
+        auto material = smmc->m_material.Get<Material>();
+        auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
+        if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
-            smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
+            smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            smmc->m_skinnedMesh->Draw();
+            skinnedMesh->Draw();
         }
     }
 }
@@ -127,10 +133,11 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-        if (mmc->IsEnabled() && mmc->m_material != nullptr && mmc->m_mesh != nullptr)
+        auto material = mmc->m_material.Get<Material>();
+        auto mesh = mmc->m_mesh.Get<Mesh>();
+        if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *mesh = mmc->m_mesh.get();
             DefaultResources::m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
             mesh->Draw();
@@ -139,10 +146,11 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
     if (entity.HasPrivateComponent<Particles>())
     {
         auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
-        if (immc->IsEnabled() && immc->m_material != nullptr && immc->m_mesh != nullptr)
+        auto material = immc->m_material.Get<Material>();
+        auto mesh = immc->m_mesh.Get<Mesh>();
+        if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *mesh = immc->m_mesh.get();
             DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
             mesh->DrawInstanced(immc->m_matrices->m_value);
         }
@@ -150,11 +158,12 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
     {
         auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
-        if (smmc->IsEnabled() && smmc->m_material != nullptr && smmc->m_skinnedMesh != nullptr)
+        auto material = smmc->m_material.Get<Material>();
+        auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
+        if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
-            auto *skinnedMesh = smmc->m_skinnedMesh.get();
-            smmc->m_finalResults->UploadBones(smmc->m_skinnedMesh);
+            smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
             skinnedMesh->Draw();
@@ -1503,9 +1512,10 @@ void EditorManager::CameraWindowDragAndDrop()
             std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
             Entity entity = EntityManager::CreateEntity("Mesh");
             auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-            meshRenderer->m_mesh = payload_n;
-            meshRenderer->m_material = AssetManager::CreateAsset<Material>();
-            meshRenderer->m_material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            meshRenderer->m_mesh.Set<Mesh>(payload_n);
+            auto material = AssetManager::CreateAsset<Material>();
+            material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            meshRenderer->m_material.Set<Material>(material);
         }
 
         const std::string environmentalMapTypeHash = SerializationManager::GetSerializableTypeName<EnvironmentalMap>();

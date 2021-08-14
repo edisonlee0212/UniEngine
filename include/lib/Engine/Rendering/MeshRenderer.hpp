@@ -7,14 +7,13 @@ namespace UniEngine
 class UNIENGINE_API MeshRenderer : public IPrivateComponent
 {
     friend class EditorManager;
-    void RenderBound(glm::vec4 &color) const;
-
+    void RenderBound(glm::vec4 &color);
   public:
     bool m_forwardRendering = false;
     bool m_castShadow = true;
     bool m_receiveShadow = true;
-    std::shared_ptr<Mesh> m_mesh;
-    std::shared_ptr<Material> m_material;
+    AssetRef m_mesh;
+    AssetRef m_material;
     void OnGui() override;
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;

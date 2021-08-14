@@ -45,9 +45,9 @@ Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture
     const Entity entity = EntityManager::CreateEntity(archetype);
     entity.SetName(texture->m_name);
     auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    mmc->m_material = LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    mmc->m_material->SetTexture(TextureType::Albedo, texture);
-    mmc->m_mesh = DefaultResources::Primitives::Quad;
+    mmc->m_material.Set<Material>(LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
+    mmc->m_material.Get<Material>()->SetTexture(TextureType::Albedo, texture);
+    mmc->m_mesh.Set<Mesh>(DefaultResources::Primitives::Quad);
     return entity;
 }
 

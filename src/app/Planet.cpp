@@ -7,14 +7,15 @@
 #include <MeshRenderer.hpp>
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <SerializationManager.hpp>
+#include <ClassRegistry.hpp>
 using namespace UniEngine;
 using namespace Planet;
 
-PrivateComponentRegistration<PlanetTerrain> PlanetTerrainReg("PlanetTerrain");
-SystemRegistration<PlanetTerrainSystem> PlanetTerrainSystemReg("PlanetTerrainSystem");
 
 int main()
 {
+    ClassRegistry::RegisterPrivateComponent<PlanetTerrain>("PlanetTerrain");
+    ClassRegistry::RegisterSystem<PlanetTerrainSystem>("PlanetTerrainSystem");
 
     Application::Init();
 #pragma region Preparations
@@ -85,8 +86,8 @@ int main()
 
     Entity ple = EntityManager::CreateEntity("Point Light 1");
     auto plmmc = ple.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    plmmc->m_mesh = DefaultResources::Primitives::Sphere;
-    plmmc->m_material = sharedMat;
+    plmmc->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
+    plmmc->m_material.Set<Material>(sharedMat);
     auto plc = ple.GetOrSetPrivateComponent<PointLight>().lock();
     plc->m_constant = 1.0f;
     plc->m_linear = 0.09f;
@@ -107,8 +108,8 @@ int main()
     ple2.SetDataComponent(ltw);
     ple2.SetName("Point Light 2");
     auto plmmc2 = ple2.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    plmmc2->m_mesh = DefaultResources::Primitives::Sphere;
-    plmmc2->m_material = sharedMat;
+    plmmc2->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
+    plmmc2->m_material.Set<Material>(sharedMat);
 
 #pragma endregion
 
