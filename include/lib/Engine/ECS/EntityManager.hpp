@@ -1809,14 +1809,12 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
     auto &elements = GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
-        if (dynamic_cast<T *>(GetInstance()
-                                  .m_entityMetaDataCollection->at(entity.m_index)
-                                  .m_privateComponentElements[i]
-                                  .m_privateComponentData))
+        if (std::dynamic_pointer_cast<T>(elements[i].m_privateComponentData))
         {
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
             elements.erase(elements.begin() + i);
+            return;
         }
     }
 }
