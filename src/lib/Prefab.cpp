@@ -64,7 +64,7 @@ void Prefab::AttachChildren(
     std::unordered_map<Handle, Handle> &map) const
 {
     std::vector<DataComponentType> types;
-    for(auto& i : m_dataComponents)
+    for(auto& i : modelNode->m_dataComponents)
     {
         types.emplace_back(i.m_type);
     }
