@@ -12,7 +12,7 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
     m_boundEntities.resize(m_boneSize);
     m_names.resize(m_boneSize);
     m_bones.resize(m_boneSize);
-    BoneSetter(targetAnimation->m_rootBone);
+    if(targetAnimation->m_rootBone) BoneSetter(targetAnimation->m_rootBone);
     m_offsetMatrices.resize(m_boneSize);
     for (auto &i : m_bones)
         m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
