@@ -38,13 +38,13 @@ class UNIENGINE_API AssetRef : public ISerializable
   protected:
     void Serialize(YAML::Emitter &out) override
     {
-        out << YAML::Key << "AssetRef" << YAML::Value << m_assetHandle;
-        out << YAML::Key << "AssetTypeName" << YAML::Value << m_assetTypeName;
+        out << YAML::Key << "m_assetHandle" << YAML::Value << m_assetHandle;
+        out << YAML::Key << "m_assetTypeName" << YAML::Value << m_assetTypeName;
     }
     void Deserialize(const YAML::Node &in) override
     {
-        m_assetHandle = Handle(in["AssetRef"].as<uint64_t>());
-        m_assetTypeName = in["AssetTypeName"].as<std::string>();
+        m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
+        m_assetTypeName = in["m_assetTypeName"].as<std::string>();
     }
   public:
     AssetRef(){

@@ -296,10 +296,10 @@ void Mesh::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_version" << YAML::Value << m_version;
 
 
-    out << YAML::Key << "Vertices" << YAML::Value
+    out << YAML::Key << "m_vertices" << YAML::Value
     << YAML::Binary(
         (const unsigned char *)m_vertices.data(), m_vertices.size() * sizeof(Vertex));
-    out << YAML::Key << "Triangles" << YAML::Value
+    out << YAML::Key << "m_triangles" << YAML::Value
     << YAML::Binary(
         (const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
 }
@@ -310,17 +310,15 @@ void Mesh::Deserialize(const YAML::Node &in)
     m_offset = in["m_offset"].as<size_t>();
     m_version = in["m_version"].as<size_t>();
 
-    YAML::Binary vertexData = in["Vertices"].as<YAML::Binary>();
-    const unsigned char *data = vertexData.data();
-    std::size_t size = vertexData.size();
+    YAML::Binary vertexData = in["m_vertices"].as<YAML::Binary>();
     std::vector<Vertex> vertices;
-    vertices.resize(size / sizeof(Vertex));
-    std::memcpy(vertices.data(), data, size);
+    vertices.resize(vertexData.size() / sizeof(Vertex));
+    std::memcpy(vertices.data(), vertexData.data(), vertexData.size());
 
-    YAML::Binary triangleData = in["Triangles"].as<YAML::Binary>();
+    YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
     std::vector<glm::uvec3> triangles;
-    const unsigned char *data2 = triangleData.data();
-    size = triangleData.size();
-    triangles.resize(size / sizeof(glm::uvec3));
-    std::memcpy(triangles.data(), data2, size);
+    triangles.resize(triangleData.size() / sizeof(glm::uvec3));
+    std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
+
+    SetVertices(m_mask, vertices, triangles);
 }

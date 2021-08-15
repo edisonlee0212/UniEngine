@@ -312,7 +312,9 @@ void Camera::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_nearDistance" << YAML::Value << m_nearDistance;
     out << YAML::Key << "m_farDistance" << YAML::Value << m_farDistance;
     out << YAML::Key << "m_fov" << YAML::Value << m_fov;
+    m_skybox.Save("m_skybox", out);
 }
+
 
 void Camera::Deserialize(const YAML::Node &in)
 {
@@ -328,6 +330,8 @@ void Camera::Deserialize(const YAML::Node &in)
     m_farDistance = in["m_farDistance"].as<float>();
     m_fov = in["m_fov"].as<float>();
     ResizeResolution(resolutionX, resolutionY);
+
+    m_skybox.Load("m_skybox", in);
 }
 
 void Camera::OnDestroy()
@@ -369,7 +373,7 @@ void Camera::OnGui()
     }
     else
     {
-        EditorManager::DragAndDrop(m_skybox, "Skybox");
+        EditorManager::DragAndDrop<Cubemap>(m_skybox, "Skybox");
     }
 
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);

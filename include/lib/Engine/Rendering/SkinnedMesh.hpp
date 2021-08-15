@@ -41,6 +41,8 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     friend class AssetManager;
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
+
+    //Don't serialize.
     std::vector<std::shared_ptr<Bone>> m_bones;
     friend class Prefab;
   public:
@@ -51,6 +53,8 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     void OnCreate() override;
     AssetRef m_animation;
     void FetchIndices();
+
+    //Need serialize
     std::vector<unsigned> m_boneAnimatorIndices;
     static void GenerateMatrices();
     static void UploadBones(const std::vector<glm::mat4> &matrices);
@@ -70,5 +74,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     [[nodiscard]] std::vector<SkinnedVertex> &UnsafeGetSkinnedVertices();
     [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
 
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine

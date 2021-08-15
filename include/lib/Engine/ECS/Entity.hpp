@@ -87,6 +87,15 @@ class UNIENGINE_API EntityRef : public ISerializable
     Handle m_entityHandle = Handle(0);
     void Update();
 
+  protected:
+    void Serialize(YAML::Emitter &out) override
+    {
+        out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+    }
+    void Deserialize(const YAML::Node &in) override
+    {
+        m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+    }
   public:
     EntityRef()
     {
@@ -111,6 +120,7 @@ class UNIENGINE_API EntityRef : public ISerializable
 
     void Relink(const std::unordered_map<Handle, Handle> &map)
     {
+        if(m_entityHandle.GetValue() == 0) return;
         auto search = map.find(m_entityHandle);
         if (search != map.end())
         {
@@ -131,15 +141,14 @@ class UNIENGINE_API EntityRef : public ISerializable
     }
     void Set(const Entity &target);
     void Clear();
-    void Serialize(YAML::Emitter &out) override
-    {
-        out << YAML::BeginMap;
-        out << YAML::Key << "EntityHandle" << YAML::Value << m_entityHandle;
+
+    void Save(const std::string& name, YAML::Emitter &out){
+        out << YAML::Key << name << YAML::Value << YAML::BeginMap;
+        Serialize(out);
         out << YAML::EndMap;
     }
-    void Deserialize(const YAML::Node &in) override
-    {
-        m_entityHandle = Handle(in["EntityHandle"].as<uint64_t>());
+    void Load(const std::string& name, const YAML::Node &in){
+        Deserialize(in[name]);
     }
 };
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;

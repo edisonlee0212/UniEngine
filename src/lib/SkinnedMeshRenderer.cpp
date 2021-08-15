@@ -24,13 +24,14 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
 
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
-    if (!m_animator.Get<Animator>())
-        return;
-    m_finalResults->m_value.resize(m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices.size());
     auto animator = m_animator.Get<Animator>();
-    for (int i = 0; i < m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices.size(); i++)
+    auto skinnedMesh = m_skinnedMesh.Get<SkinnedMesh>();
+    if (!animator || !skinnedMesh)
+        return;
+    m_finalResults->m_value.resize(skinnedMesh->m_boneAnimatorIndices.size());
+    for (int i = 0; i < skinnedMesh->m_boneAnimatorIndices.size(); i++)
     {
-        m_finalResults->m_value[i] = animator->m_transformChain[m_skinnedMesh.Get<SkinnedMesh>()->m_boneAnimatorIndices[i]];
+        m_finalResults->m_value[i] = animator->m_transformChain[skinnedMesh->m_boneAnimatorIndices[i]];
     }
 }
 
@@ -82,16 +83,24 @@ void SkinnedMeshRenderer::OnGui()
 
 void SkinnedMeshRenderer::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "ForwardRendering" << m_forwardRendering;
-    out << YAML::Key << "CastShadow" << m_castShadow;
-    out << YAML::Key << "ReceiveShadow" << m_receiveShadow;
+    out << YAML::Key << "m_forwardRendering" << m_forwardRendering;
+    out << YAML::Key << "m_castShadow" << m_castShadow;
+    out << YAML::Key << "m_receiveShadow" << m_receiveShadow;
+
+    m_animator.Save("m_animator", out);
+    m_skinnedMesh.Save("m_skinnedMesh", out);
+    m_material.Save("m_material", out);
 }
 
 void SkinnedMeshRenderer::Deserialize(const YAML::Node &in)
 {
-    m_forwardRendering = in["ForwardRendering"].as<bool>();
-    m_castShadow = in["CastShadow"].as<bool>();
-    m_receiveShadow = in["ReceiveShadow"].as<bool>();
+    m_forwardRendering = in["m_forwardRendering"].as<bool>();
+    m_castShadow = in["m_castShadow"].as<bool>();
+    m_receiveShadow = in["m_receiveShadow"].as<bool>();
+
+    m_animator.Load("m_animator", in);
+    m_skinnedMesh.Load("m_skinnedMesh", in);
+    m_material.Load("m_material", in);
 }
 void SkinnedMeshRenderer::OnCreate()
 {

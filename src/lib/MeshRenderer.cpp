@@ -63,16 +63,22 @@ void MeshRenderer::OnCreate()
 
 void MeshRenderer::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "ForwardRendering" << m_forwardRendering;
-    out << YAML::Key << "CastShadow" << m_castShadow;
-    out << YAML::Key << "ReceiveShadow" << m_receiveShadow;
+    out << YAML::Key << "m_forwardRendering" << m_forwardRendering;
+    out << YAML::Key << "m_castShadow" << m_castShadow;
+    out << YAML::Key << "m_receiveShadow" << m_receiveShadow;
+
+    m_mesh.Save("m_mesh", out);
+    m_material.Save("m_material", out);
 }
 
 void MeshRenderer::Deserialize(const YAML::Node &in)
 {
-    m_forwardRendering = in["ForwardRendering"].as<bool>();
-    m_castShadow = in["CastShadow"].as<bool>();
-    m_receiveShadow = in["ReceiveShadow"].as<bool>();
+    m_forwardRendering = in["m_forwardRendering"].as<bool>();
+    m_castShadow = in["m_castShadow"].as<bool>();
+    m_receiveShadow = in["m_receiveShadow"].as<bool>();
+
+    m_mesh.Load("m_mesh", in);
+    m_material.Load("m_material", in);
 }
 void MeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {

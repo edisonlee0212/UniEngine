@@ -311,3 +311,46 @@ void SkinnedMesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) co
 
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
+void SkinnedMesh::Serialize(YAML::Emitter &out)
+{
+    m_animation.Save("m_animation", out);
+    out << YAML::Key << "m_boneAnimatorIndices" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_boneAnimatorIndices.data(), m_boneAnimatorIndices.size() * sizeof(unsigned));
+
+    out << YAML::Key << "m_mask" << YAML::Value << m_mask;
+    out << YAML::Key << "m_offset" << YAML::Value << m_offset;
+    out << YAML::Key << "m_version" << YAML::Value << m_version;
+
+    out << YAML::Key << "m_skinnedVertices" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_skinnedVertices.data(), m_skinnedVertices.size() * sizeof(SkinnedVertex));
+    out << YAML::Key << "m_triangles" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
+
+}
+void SkinnedMesh::Deserialize(const YAML::Node &in)
+{
+    m_animation.Load("m_boneAnimatorIndices", in);
+    YAML::Binary boneIndices = in["m_boneAnimatorIndices"].as<YAML::Binary>();
+    m_boneAnimatorIndices.resize(boneIndices.size() / sizeof(unsigned));
+    std::memcpy(m_boneAnimatorIndices.data(), boneIndices.data(), boneIndices.size());
+
+
+    m_mask = in["m_mask"].as<unsigned>();
+    m_offset = in["m_offset"].as<size_t>();
+    m_version = in["m_version"].as<size_t>();
+
+    YAML::Binary skinnedVertexData = in["m_skinnedVertices"].as<YAML::Binary>();
+    std::vector<SkinnedVertex> skinnedVertices;
+    skinnedVertices.resize(skinnedVertexData.size() / sizeof(SkinnedVertex));
+    std::memcpy(skinnedVertices.data(), skinnedVertexData.data(), skinnedVertexData.size());
+
+    YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
+    std::vector<glm::uvec3> triangles;
+    triangles.resize(triangleData.size() / sizeof(glm::uvec3));
+    std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
+
+    SetVertices(m_mask, skinnedVertices, triangles);
+}

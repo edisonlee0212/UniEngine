@@ -39,14 +39,16 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void RegisterAsset(std::shared_ptr<IAsset> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const Handle &handle, const std::string &name);
-    static std::shared_ptr<IAsset> CreateAsset(const std::string& typeName, const Handle &handle, const std::string &name);
+    static std::shared_ptr<IAsset> CreateAsset(
+        const std::string &typeName, const Handle &handle, const std::string &name);
     template <typename T> static void RegisterAssetType(const std::string &name);
+
   public:
     static void SetResourcePath(const std::filesystem::path &path);
     static std::filesystem::path GetAssetFolderPath();
     static std::filesystem::path GetResourceFolderPath();
     static void ScanAssetFolder();
-
+    template <typename T> static void Share(std::shared_ptr<T> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
 
@@ -55,7 +57,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
     template <typename T = IAsset> static std::shared_ptr<T> Import(const std::filesystem::path &path);
-    template <typename T = IAsset> static void Export(const std::filesystem::path &path, const std::shared_ptr<T> &target);
+    template <typename T = IAsset>
+    static void Export(const std::filesystem::path &path, const std::shared_ptr<T> &target);
     static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex, const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
@@ -70,7 +73,10 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 #pragma endregion
     static void Init();
 };
-
+template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
+{
+    GetInstance().m_sharedAssets[SerializationManager::GetSerializableTypeName<T>()][std::dynamic_pointer_cast<IAsset>(resource)->GetHandle()] = std::dynamic_pointer_cast<IAsset>(resource);
+}
 template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {
     auto &assetManager = GetInstance();

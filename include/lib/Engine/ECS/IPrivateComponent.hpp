@@ -57,6 +57,17 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     std::string m_privateComponentTypeName;
     bool Update();
 
+  protected:
+    void Serialize(YAML::Emitter &out) override
+    {
+        out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+        out << YAML::Key << "m_privateComponentTypeName" << YAML::Value << m_privateComponentTypeName;
+    }
+    void Deserialize(const YAML::Node &in) override
+    {
+        m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+        m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
+    }
   public:
     PrivateComponentRef()
     {
@@ -122,17 +133,15 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         return m_entityHandle;
     }
 
-    void Serialize(YAML::Emitter &out) override
-    {
-        out << YAML::BeginMap;
-        out << YAML::Key << "EntityHandle" << YAML::Value << m_entityHandle;
-        out << YAML::Key << "PrivateComponentTypeName" << YAML::Value << m_privateComponentTypeName;
+
+
+    void Save(const std::string& name, YAML::Emitter &out){
+        out << YAML::Key << name << YAML::Value << YAML::BeginMap;
+        Serialize(out);
         out << YAML::EndMap;
     }
-    void Deserialize(const YAML::Node &in) override
-    {
-        m_entityHandle = Handle(in["EntityHandle"].as<uint64_t>());
-        m_privateComponentTypeName = in["PrivateComponentTypeName"].as<std::string>();
+    void Load(const std::string& name, const YAML::Node &in){
+        Deserialize(in[name]);
     }
 };
 } // namespace UniEngine

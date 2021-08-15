@@ -146,6 +146,7 @@ void Prefab::Load(const std::filesystem::path &path)
         if (!bonesMap.empty() || scene->HasAnimations())
         {
             animation = AssetManager::CreateAsset<Animation>(path.filename().string());
+            //AssetManager::Share(animation);
         }
         std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
         if (!ProcessNode(
@@ -173,7 +174,6 @@ void Prefab::Load(const std::filesystem::path &path)
 
             auto animator = SerializationManager::ProduceSerializable<Animator>();
             animator->Setup(animation);
-            // animator->Animate();
             AttachAnimator(this, m_entityHandle);
             m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(animator));
         }
@@ -1015,7 +1015,10 @@ void Prefab::ApplyBoneIndices(Prefab *node)
 {
     auto smr = node->GetPrivateComponent<SkinnedMeshRenderer>();
     if (smr)
+    {
         smr->m_skinnedMesh.Get<SkinnedMesh>()->FetchIndices();
+        smr->m_skinnedMesh.Get<SkinnedMesh>()->m_bones.clear();
+    }
     for (auto &i : node->m_children)
     {
         ApplyBoneIndices(i.get());

@@ -6,13 +6,13 @@ void Bone::Animate(
     const float &animationTime,
     const glm::mat4 &parentTransform,
     const glm::mat4 &rootTransform,
-    std::vector<Entity> &boundEntities,
+    std::vector<EntityRef> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     glm::mat4 globalTransform = parentTransform;
-    if (boundEntities[m_index].IsValid())
+    if (boundEntities.size() > m_index && boundEntities[m_index].Get().IsValid())
     {
-        globalTransform = boundEntities[m_index].GetDataComponent<GlobalTransform>().m_value;
+        globalTransform = boundEntities[m_index].Get().GetDataComponent<GlobalTransform>().m_value;
     }
     else
     {
@@ -43,6 +43,60 @@ void Bone::OnGui()
             i->OnGui();
         }
         ImGui::TreePop();
+    }
+}
+void Bone::Serialize(YAML::Emitter &out) const
+{
+    out << YAML::Key << "m_name" << YAML::Value << m_name;
+    out << YAML::Key << "m_offsetMatrix" << YAML::Value << m_offsetMatrix.m_value;
+    out << YAML::Key << "m_index" << YAML::Value << m_index;
+    if (!m_animations.empty())
+    {
+        out << YAML::Key << "m_animations" << YAML::Value << YAML::BeginSeq;
+        for (const auto &i : m_animations)
+        {
+            out << YAML::Key << "Name" << YAML::Value << i.first;
+            out << YAML::Key << "BoneKeyFrames" << YAML::Value << YAML::BeginMap;
+            i.second.Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+    if (!m_children.empty())
+    {
+        out << YAML::Key << "m_children" << YAML::Value << YAML::BeginSeq;
+        for (const auto &i : m_children)
+        {
+            i->Serialize(out);
+        }
+        out << YAML::EndSeq;
+    }
+}
+void Bone::Deserialize(const YAML::Node &in)
+{
+    m_name = in["m_name"].as<std::string>();
+    m_offsetMatrix.m_value = in["m_offsetMatrix"].as<glm::mat4>();
+    m_index = in["m_index"].as<size_t>();
+    m_animations.clear();
+    m_children.clear();
+    auto inAnimations = in["m_animations"];
+    if (inAnimations)
+    {
+        for (const auto &i : inAnimations)
+        {
+            BoneKeyFrames keyFrames;
+            keyFrames.Deserialize(i["BoneKeyFrames"]);
+            m_animations.insert({i["Name"].as<std::string>(), std::move(keyFrames)});
+        }
+    }
+
+    auto inChildren = in["m_children"];
+    if (inChildren)
+    {
+        for(const auto& i : inChildren){
+            m_children.push_back(std::make_shared<Bone>());
+            m_children.back()->Deserialize(i);
+        }
     }
 }
 
@@ -130,6 +184,37 @@ glm::mat4 BoneKeyFrames::InterpolateScaling(const float &animationTime)
     const glm::vec3 finalScale = glm::mix(m_scales[p0Index].m_value, m_scales[p1Index].m_value, scaleFactor);
     return glm::scale(finalScale);
 }
+void BoneKeyFrames::Serialize(YAML::Emitter &out) const
+{
+    out << YAML::Key << "m_maxTimeStamp" << YAML::Value << m_maxTimeStamp;
+    out << YAML::Key << "m_positions" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_positions.data(), m_positions.size() * sizeof(BonePosition));
+
+    out << YAML::Key << "m_rotations" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_rotations.data(), m_rotations.size() * sizeof(BoneRotation));
+
+    out << YAML::Key << "m_scales" << YAML::Value
+    << YAML::Binary(
+        (const unsigned char *)m_scales.data(), m_scales.size() * sizeof(BoneScale));
+}
+void BoneKeyFrames::Deserialize(const YAML::Node &in)
+{
+    m_maxTimeStamp = in["m_maxTimeStamp"].as<float>();
+
+    YAML::Binary positions = in["m_positions"].as<YAML::Binary>();
+    m_positions.resize(positions.size() / sizeof(BonePosition));
+    std::memcpy(m_positions.data(), positions.data(), positions.size());
+
+    YAML::Binary rotations = in["m_rotations"].as<YAML::Binary>();
+    m_rotations.resize(rotations.size() / sizeof(BoneRotation));
+    std::memcpy(m_rotations.data(), rotations.data(), rotations.size());
+
+    YAML::Binary scale = in["m_scales"].as<YAML::Binary>();
+    m_scales.resize(scale.size() / sizeof(BoneScale));
+    std::memcpy(m_rotations.data(), scale.data(), scale.size());
+}
 
 std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
 {
@@ -148,7 +233,7 @@ void Animation::Animate(
     const std::string &name,
     const float &animationTime,
     const glm::mat4 &rootTransform,
-    std::vector<Entity> &boundEntities,
+    std::vector<EntityRef> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end() || !m_rootBone)
@@ -159,9 +244,32 @@ void Animation::Animate(
 }
 void Animation::Serialize(YAML::Emitter &out)
 {
-
+    out << YAML::Key << "m_animationNameAndLength" << YAML::Value << YAML::BeginSeq;
+    for (const auto &i : m_animationNameAndLength)
+    {
+        out << YAML::Key << "Name" << YAML::Value << i.first;
+        out << YAML::Key << "Length" << YAML::Value << i.second;
+    }
+    out << YAML::EndSeq;
+    if (m_rootBone)
+    {
+        out << YAML::Key << "m_rootBone" << YAML::Value << YAML::BeginMap;
+        m_rootBone->Serialize(out);
+        out << YAML::EndMap;
+    }
 }
 void Animation::Deserialize(const YAML::Node &in)
 {
+    auto inAnimationNameAndLength = in["m_animationNameAndLength"];
+    m_animationNameAndLength.clear();
+    for (const auto &i : inAnimationNameAndLength)
+    {
+        m_animationNameAndLength.insert({i["Name"].as<std::string>(), i["Length"].as<float>()});
+    }
 
+    if (in["m_rootBone"])
+    {
+        m_rootBone = std::make_shared<Bone>();
+        m_rootBone->Deserialize(in["m_rootBone"]);
+    }
 }

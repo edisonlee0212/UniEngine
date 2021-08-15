@@ -239,10 +239,8 @@ void Scene::Deserialize(const YAML::Node &in)
         if (inDataChunkArray["Entities"].IsDefined())
         {
             YAML::Binary entitiesData = inDataChunkArray["Entities"].as<YAML::Binary>();
-            const unsigned char *data = entitiesData.data();
-            std::size_t size = entitiesData.size();
-            dataComponentStorage.m_chunkArray.m_entities.resize(size / sizeof(Entity));
-            std::memcpy(dataComponentStorage.m_chunkArray.m_entities.data(), data, size);
+            dataComponentStorage.m_chunkArray.m_entities.resize(entitiesData.size() / sizeof(Entity));
+            std::memcpy(dataComponentStorage.m_chunkArray.m_entities.data(), entitiesData.data(), entitiesData.size());
         }
         auto inChunks = inDataChunkArray["Chunks"];
         for (const auto &chunk : inChunks)
@@ -252,10 +250,8 @@ void Scene::Deserialize(const YAML::Node &in)
             componentDataChunk.m_data =
                 static_cast<void *>(calloc(1, EntityManager::GetInstance().m_archetypeChunkSize));
             YAML::Binary chunkData = chunk["Data"].as<YAML::Binary>();
-            const unsigned char *data = chunkData.data();
-            std::size_t size = chunkData.size();
-            assert(size == ARCHETYPE_CHUNK_SIZE);
-            std::memcpy(componentDataChunk.m_data, data, size);
+            assert(chunkData.size() == ARCHETYPE_CHUNK_SIZE);
+            std::memcpy(componentDataChunk.m_data, chunkData.data(), chunkData.size());
         }
     }
 #pragma endregion
@@ -270,10 +266,8 @@ void Scene::Deserialize(const YAML::Node &in)
 #pragma endregion
 #pragma region Entities
     auto entitiesData = in["Entities"].as<YAML::Binary>();
-    const unsigned char *entitiesDataPtr = entitiesData.data();
-    std::size_t entitiesSize = entitiesData.size();
-    sceneDataStorage.m_entities.resize(entitiesSize / sizeof(Entity));
-    std::memcpy(sceneDataStorage.m_entities.data(), entitiesDataPtr, entitiesSize);
+    sceneDataStorage.m_entities.resize(entitiesData.size() / sizeof(Entity));
+    std::memcpy(sceneDataStorage.m_entities.data(), entitiesData.data(), entitiesData.size());
 #pragma endregion
     unsigned entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)

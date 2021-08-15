@@ -56,6 +56,9 @@ struct UNIENGINE_API BoneKeyFrames
     /* figures out which scaling keys to interpolate b/w and performs the interpolation
     and returns the scale matrix */
     glm::mat4 InterpolateScaling(const float &animationTime);
+
+    void Serialize(YAML::Emitter &out) const;
+    void Deserialize(const YAML::Node &in);
 };
 
 struct UNIENGINE_API Bone
@@ -72,11 +75,11 @@ struct UNIENGINE_API Bone
         const float &animationTime,
         const glm::mat4 &parentTransform,
         const glm::mat4 &rootTransform,
-        std::vector<Entity> &boundEntities,
+        std::vector<EntityRef> &boundEntities,
         std::vector<glm::mat4> &results);
     void OnGui();
 
-    void Serialize(YAML::Emitter &out);
+    void Serialize(YAML::Emitter &out) const;
     void Deserialize(const YAML::Node &in);
 };
 
@@ -93,7 +96,7 @@ class UNIENGINE_API Animation : public IAsset
         const std::string &name,
         const float &animationTime,
         const glm::mat4 &rootTransform,
-        std::vector<Entity> &boundEntities,
+        std::vector<EntityRef> &boundEntities,
         std::vector<glm::mat4> &results);
 
     void Serialize(YAML::Emitter &out) override;

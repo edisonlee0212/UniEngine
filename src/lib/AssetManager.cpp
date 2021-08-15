@@ -15,12 +15,21 @@ using namespace UniEngine;
 std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Handle &handle)
 {
     auto &assetManager = GetInstance();
-    auto search = assetManager.m_assets.find(handle);
-    if (search != assetManager.m_assets.end())
+    auto search0 = assetManager.m_sharedAssets[typeName].find(handle);
+    if (search0 != assetManager.m_sharedAssets[typeName].end())
     {
-        if (!search->second.expired())
+        if (!search0->second)
         {
-            return search->second.lock();
+            return search0->second;
+        }
+    }
+
+    auto search1 = assetManager.m_assets.find(handle);
+    if (search1 != assetManager.m_assets.end())
+    {
+        if (!search1->second.expired())
+        {
+            return search1->second.lock();
         }
     }
     auto& assetRecords = assetManager.m_assetRegistry->m_assetRecords;
@@ -304,3 +313,4 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     retVal->OnCreate();
     return retVal;
 }
+

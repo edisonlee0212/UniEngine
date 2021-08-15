@@ -15,15 +15,18 @@ class UNIENGINE_API Animator : public IPrivateComponent
     std::vector<glm::mat4> m_transformChain;
     std::vector<glm::mat4> m_offsetMatrices;
     std::vector<std::string> m_names;
-    std::vector<Entity> m_boundEntities;
-    AssetRef m_animation;
+    std::vector<EntityRef> m_boundEntities;
+    bool m_needAnimationSetup = true;
     size_t m_boneSize = 0;
+
+    void Setup();
   public:
+    AssetRef m_animation;
     // Create an animator which every bone is attached to an Entity.
     void Setup(
         std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
     void ApplyOffsetMatrices();
-    void DebugBoneRender(const glm::vec4 &color, const float &size) const;
+    void DebugBoneRender(const glm::vec4 &color, const float &size);
     void ResetTransform(const int &index);
     bool m_autoPlay = true;
     std::string m_currentActivatedAnimation;
@@ -33,12 +36,11 @@ class UNIENGINE_API Animator : public IPrivateComponent
     void OnGui() override;
     void Animate();
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
-
     std::shared_ptr<Animation> GetAnimation();
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 
-
+    void Relink(const std::unordered_map<Handle, Handle> &map) override;
 };
 } // namespace UniEngine
