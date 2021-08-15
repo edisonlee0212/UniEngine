@@ -36,6 +36,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class DefaultResources;
     friend class EditorManager;
     friend class IAsset;
+    friend class Scene;
     static void RegisterAsset(std::shared_ptr<IAsset> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const Handle &handle, const std::string &name);

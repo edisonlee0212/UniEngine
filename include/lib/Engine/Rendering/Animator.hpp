@@ -18,10 +18,10 @@ class UNIENGINE_API Animator : public IPrivateComponent
     std::vector<EntityRef> m_boundEntities;
     bool m_needAnimationSetup = true;
     size_t m_boneSize = 0;
-
+    AssetRef m_animation;
     void Setup();
   public:
-    AssetRef m_animation;
+
     // Create an animator which every bone is attached to an Entity.
     void Setup(
         std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
@@ -40,7 +40,7 @@ class UNIENGINE_API Animator : public IPrivateComponent
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
     void Relink(const std::unordered_map<Handle, Handle> &map) override;
 };
 } // namespace UniEngine

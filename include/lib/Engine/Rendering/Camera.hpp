@@ -90,6 +90,8 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     glm::vec3 m_clearColor = glm::vec3(0.0f);
     AssetRef m_skybox;
     void OnGui() override;
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
+
 };
 
 } // namespace UniEngine

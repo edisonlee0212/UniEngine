@@ -99,3 +99,7 @@ void Collider::SetShapeParam(const glm::vec3 &param)
         break;
     }
 }
+void Collider::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_physicsMaterial);
+}

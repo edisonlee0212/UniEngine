@@ -84,3 +84,8 @@ void MeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<MeshRenderer>(target);
 }
+void MeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_mesh);
+    list.push_back(m_material);
+}

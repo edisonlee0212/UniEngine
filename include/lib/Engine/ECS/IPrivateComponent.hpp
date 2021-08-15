@@ -35,7 +35,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void OnEntityDisable(){};
     virtual void OnDestroy(){};
 
-    virtual void CollectAssetRef(std::unordered_map<Handle, AssetRef> &map){};
+    virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Relink(const std::unordered_map<Handle, Handle> &map){};
     virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
 };
@@ -68,6 +68,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
         m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
     }
+
   public:
     PrivateComponentRef()
     {
@@ -133,14 +134,14 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         return m_entityHandle;
     }
 
-
-
-    void Save(const std::string& name, YAML::Emitter &out){
+    void Save(const std::string &name, YAML::Emitter &out)
+    {
         out << YAML::Key << name << YAML::Value << YAML::BeginMap;
         Serialize(out);
         out << YAML::EndMap;
     }
-    void Load(const std::string& name, const YAML::Node &in){
+    void Load(const std::string &name, const YAML::Node &in)
+    {
         Deserialize(in[name]);
     }
 };

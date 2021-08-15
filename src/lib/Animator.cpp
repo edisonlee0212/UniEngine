@@ -247,6 +247,12 @@ void Animator::Deserialize(const YAML::Node &in)
         i++;
     }
 }
+
+void Animator::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_animation);
+}
+
 void Animator::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_autoPlay" << YAML::Value << m_autoPlay;

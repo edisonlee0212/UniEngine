@@ -88,12 +88,45 @@ void Particles::OnGui()
 
 void Particles::Serialize(YAML::Emitter &out)
 {
+    out << YAML::Key << "m_forwardRendering" << m_forwardRendering;
+    out << YAML::Key << "m_castShadow" << m_castShadow;
+    out << YAML::Key << "m_receiveShadow" << m_receiveShadow;
+
+    m_mesh.Save("m_mesh", out);
+    m_material.Save("m_material", out);
+    out << YAML::Key << "m_matrices" << YAML::BeginMap;
+    m_matrices->Serialize(out);
+    out << YAML::EndMap;
 }
 
 void Particles::Deserialize(const YAML::Node &in)
 {
+    m_forwardRendering = in["m_forwardRendering"].as<bool>();
+    m_castShadow = in["m_castShadow"].as<bool>();
+    m_receiveShadow = in["m_receiveShadow"].as<bool>();
+
+    m_mesh.Load("m_mesh", in);
+    m_material.Load("m_material", in);
+
+    m_matrices->Deserialize(in["m_matrices"]);
 }
 void Particles::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<Particles>(target);
+}
+void Particles::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_mesh);
+    list.push_back(m_material);
+}
+void ParticleMatrices::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_value" << YAML::Value
+        << YAML::Binary((const unsigned char *)m_value.data(), m_value.size() * sizeof(glm::mat4));
+}
+void ParticleMatrices::Deserialize(const YAML::Node &in)
+{
+    YAML::Binary vertexData = in["m_value"].as<YAML::Binary>();
+    m_value.resize(vertexData.size() / sizeof(glm::mat4));
+    std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
 }

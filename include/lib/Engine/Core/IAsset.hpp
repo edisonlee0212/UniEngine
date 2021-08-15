@@ -18,11 +18,15 @@ class UNIENGINE_API IAsset : public ISerializable
   public:
     virtual void OnCreate();
     std::string m_name;
-
+    [[nodiscard]] std::filesystem::path GetPath(){
+        return m_path;
+    }
     void Save();
     void Load();
 
     virtual ~IAsset();
+
+    virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Save(const std::filesystem::path &path);
     virtual void Load(const std::filesystem::path &path);
     bool m_saved = false;
@@ -107,6 +111,7 @@ class UNIENGINE_API AssetRef : public ISerializable
     }
     void Load(const std::string& name, const YAML::Node &in){
         Deserialize(in[name]);
+        Update();
     }
 };
 } // namespace UniEngine

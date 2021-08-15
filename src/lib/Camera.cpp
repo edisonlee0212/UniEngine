@@ -409,6 +409,10 @@ void Camera::Start()
 {
     if(m_isMainCamera) RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
 }
+void Camera::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_skybox);
+}
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {

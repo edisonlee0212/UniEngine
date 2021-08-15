@@ -29,5 +29,6 @@ class UNIENGINE_API Collider : public IAsset
     void SetShapeType(const ShapeType& type);
     void SetShapeParam(const glm::vec3& param);
     void SetMaterial(std::shared_ptr<PhysicsMaterial>& material);
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
 };
 } // namespace UniEngine

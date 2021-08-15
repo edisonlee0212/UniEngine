@@ -115,6 +115,11 @@ void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map)
 {
     m_animator.Relink(map);
 }
+void SkinnedMeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_skinnedMesh);
+    list.push_back(m_material);
+}
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh>& skinnedMesh) const
 {
     skinnedMesh->UploadBones(m_value);

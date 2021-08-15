@@ -8,6 +8,8 @@ namespace UniEngine
 class UNIENGINE_API ParticleMatrices : ISerializable{
   public:
     std::vector<glm::mat4> m_value;
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 
 class UNIENGINE_API Particles : public IPrivateComponent
@@ -26,5 +28,7 @@ class UNIENGINE_API Particles : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
+
 };
 } // namespace UniEngine

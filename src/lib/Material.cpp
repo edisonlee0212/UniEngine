@@ -194,3 +194,12 @@ void Material::Deserialize(const YAML::Node &in)
     m_alphaDiscardEnabled = in["m_alphaDiscardEnabled"].as<bool>();
     m_alphaDiscardOffset = in["m_alphaDiscardOffset"].as<float>();
 }
+void Material::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_albedoTexture);
+    list.push_back(m_normalTexture);
+    list.push_back(m_metallicTexture);
+    list.push_back(m_roughnessTexture);
+    list.push_back(m_aoTexture);
+    list.push_back(m_program);
+}

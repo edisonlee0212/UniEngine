@@ -64,6 +64,9 @@ class UNIENGINE_API Material : public IAsset
     void RemoveTexture(TextureType type);
     void SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program);
 
+
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
+
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 

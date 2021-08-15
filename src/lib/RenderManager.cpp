@@ -1678,7 +1678,7 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
         glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
-    if (!cameraSkybox)
+    if (!cameraSkybox || !cameraSkybox->Texture())
         cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();
     manager.m_environmentalMapSettings.m_skyboxGamma = cameraSkybox->m_gamma;
 

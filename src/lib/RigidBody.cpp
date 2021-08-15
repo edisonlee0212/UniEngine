@@ -312,3 +312,7 @@ void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
     m_rigidActor = nullptr;
     m_currentRegistered = false;
 }
+void RigidBody::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    for(const auto& i : m_colliders) list.push_back(i);
+}

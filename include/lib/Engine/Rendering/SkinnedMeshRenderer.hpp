@@ -35,6 +35,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void Relink(const std::unordered_map<Handle, Handle> &map) override;
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
 };
 

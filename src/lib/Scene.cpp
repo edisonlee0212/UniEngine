@@ -60,18 +60,24 @@ Scene::~Scene()
 
 void Scene::PreUpdate()
 {
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-
+    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
+    {
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
         }
     }
 
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
-            if(!privateComponentElement.m_privateComponentData->m_started)
+    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
+    {
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
+            if (!privateComponentElement.m_privateComponentData->m_enabled)
+                continue;
+            if (!privateComponentElement.m_privateComponentData->m_started)
             {
                 privateComponentElement.m_privateComponentData->Start();
                 privateComponentElement.m_privateComponentData->m_started = true;
@@ -85,7 +91,7 @@ void Scene::PreUpdate()
         if (i.second->Enabled())
         {
             ProfilerManager::StartEvent(i.second->GetTypeName());
-            if(!i.second->m_started)
+            if (!i.second->m_started)
             {
                 i.second->Start();
                 i.second->m_started = true;
@@ -98,10 +104,14 @@ void Scene::PreUpdate()
 
 void Scene::Update()
 {
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
+    {
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
+            if (!privateComponentElement.m_privateComponentData->m_enabled)
+                continue;
             privateComponentElement.m_privateComponentData->Update();
         }
     }
@@ -120,10 +130,14 @@ void Scene::Update()
 void Scene::LateUpdate()
 {
 
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
+    {
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
+            if (!privateComponentElement.m_privateComponentData->m_enabled)
+                continue;
             privateComponentElement.m_privateComponentData->LateUpdate();
         }
     }
@@ -141,10 +155,14 @@ void Scene::LateUpdate()
 void Scene::FixedUpdate()
 {
 
-    for(auto &entityInfo : m_sceneDataStorage.m_entityInfos){
-        if(!entityInfo.m_enabled) continue;
-        for(auto& privateComponentElement : entityInfo.m_privateComponentElements){
-            if(!privateComponentElement.m_privateComponentData->m_enabled) continue;
+    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
+    {
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
+            if (!privateComponentElement.m_privateComponentData->m_enabled)
+                continue;
             privateComponentElement.m_privateComponentData->FixedUpdate();
         }
     }
@@ -171,12 +189,19 @@ void Scene::Serialize(YAML::Emitter &out)
 {
     out << YAML::BeginMap;
     out << YAML::Key << "Scene" << YAML::Value << m_name;
+
+    std::unordered_map<Handle, AssetRef> assetMap;
+    std::vector<AssetRef> list;
     auto &sceneDataStorage = m_sceneDataStorage;
 #pragma region EntityInfo
     out << YAML::Key << "EntityInfos" << YAML::Value << YAML::BeginSeq;
     for (int i = 1; i < sceneDataStorage.m_entityInfos.size(); i++)
     {
         sceneDataStorage.m_entityInfos[i].Serialize(out);
+        for (const auto &i : sceneDataStorage.m_entityInfos[i].m_privateComponentElements)
+        {
+            i.m_privateComponentData->CollectAssetRef(list);
+        }
     }
     out << YAML::EndSeq;
 #pragma endregion
@@ -204,6 +229,49 @@ void Scene::Serialize(YAML::Emitter &out)
                (const unsigned char *)sceneDataStorage.m_entities.data(),
                sceneDataStorage.m_entities.size() * sizeof(Entity));
 #pragma endregion
+
+#pragma region Assets
+    for (auto &i : list)
+    {
+        if (i.Get<IAsset>() && i.Get<IAsset>()->GetPath().empty())
+        {
+            assetMap[i.GetAssetHandle()] = i;
+        }
+    }
+    bool listCheck = true;
+    while (listCheck)
+    {
+        size_t currentSize = assetMap.size();
+        list.clear();
+        for (auto &i : assetMap)
+        {
+            i.second.Get<IAsset>()->CollectAssetRef(list);
+        }
+        for (auto &i : list)
+        {
+            if (i.Get<IAsset>() && i.Get<IAsset>()->GetPath().empty())
+            {
+                assetMap[i.GetAssetHandle()] = i;
+            }
+        }
+        if (assetMap.size() == currentSize)
+            listCheck = false;
+    }
+    if (!assetMap.empty())
+    {
+        out << YAML::Key << "LocalAssets" << YAML::Value << YAML::BeginSeq;
+        for (auto &i : assetMap)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "TypeName" << YAML::Value << i.second.Get<IAsset>()->GetTypeName();
+            out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
+            out << YAML::Key << "Name" << YAML::Value << i.second.Get<IAsset>()->m_name;
+            i.second.Get<IAsset>()->Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+#pragma endregion
     out << YAML::EndMap;
 }
 void Scene::Deserialize(const YAML::Node &in)
@@ -215,6 +283,19 @@ void Scene::Deserialize(const YAML::Node &in)
     UNIENGINE_LOG("Loading scene...");
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
+
+#pragma region Assets
+    std::vector<std::shared_ptr<IAsset>> localAssets;
+    auto inLocalAssets = in["LocalAssets"];
+    if (inLocalAssets)
+    {
+        for(const auto& i : inLocalAssets){
+            Handle handle = i["Handle"].as<uint64_t>();
+            localAssets.push_back(AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+        }
+    }
+
+#pragma endregion
 #pragma region DataComponentStorage
     auto inDataComponentStorages = in["DataComponentStorages"];
     for (const auto &inDataComponentStorage : inDataComponentStorages)
@@ -272,7 +353,7 @@ void Scene::Deserialize(const YAML::Node &in)
     unsigned entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
-        auto& entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
+        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
@@ -282,7 +363,7 @@ void Scene::Deserialize(const YAML::Node &in)
     entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
-        auto& entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
+        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
@@ -319,7 +400,6 @@ void Scene::Deserialize(const YAML::Node &in)
         m_indexedSystems.insert({hashCode, ptr});
         ptr->OnCreate();
         ptr->Deserialize(inSystem);
-
     }
 #pragma endregion
 }
