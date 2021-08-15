@@ -63,7 +63,13 @@ void Prefab::AttachChildren(
     const std::string &parentName,
     std::unordered_map<Handle, Handle> &map) const
 {
-    Entity entity = EntityManager::CreateEntity(EntityManager::GetInstance().m_basicArchetype, m_name);
+    std::vector<DataComponentType> types;
+    for(auto& i : m_dataComponents)
+    {
+        types.emplace_back(i.m_type);
+    }
+    auto archetype = EntityManager::CreateEntityArchetype("", types);
+    Entity entity = EntityManager::CreateEntity(archetype, m_name);
     auto& entityInfo = EntityManager::GetInstance().m_currentAttachedWorldEntityStorage->m_entityInfos.at(entity.GetIndex());
     entityInfo.m_static = m_static;
     map[modelNode->m_entityHandle] = entity.GetHandle();
