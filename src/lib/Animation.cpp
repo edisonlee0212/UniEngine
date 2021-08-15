@@ -136,10 +136,6 @@ std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
     return m_rootBone;
 }
 
-Animation::Animation()
-{
-}
-
 void Animation::OnGui() const
 {
     if (!m_rootBone)

@@ -86,9 +86,8 @@ class UNIENGINE_API Animation : public IAsset
   public:
     std::map<std::string, float> m_animationNameAndLength;
     std::shared_ptr<Bone> m_rootBone;
-    size_t m_boneSize;
+    size_t m_boneSize = 0;
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
-    Animation();
     void OnGui() const;
     void Animate(
         const std::string &name,

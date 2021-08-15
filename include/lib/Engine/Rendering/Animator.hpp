@@ -34,6 +34,8 @@ class UNIENGINE_API Animator : public IPrivateComponent
     void Animate();
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 
+    std::shared_ptr<Animation> GetAnimation();
+
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 

@@ -16,7 +16,7 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
     m_offsetMatrices.resize(m_boneSize);
     for (auto &i : m_bones)
         m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
-
+    if(!targetAnimation->m_animationNameAndLength.empty())
     m_currentActivatedAnimation = targetAnimation->m_animationNameAndLength.begin()->first;
 }
 
@@ -223,4 +223,8 @@ void Animator::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_currentActivatedAnimation" << YAML::Value << m_currentActivatedAnimation;
     out << YAML::Key << "m_currentAnimationTime" << YAML::Value << m_currentAnimationTime;
     m_animation.Save("m_animation", out);
+}
+std::shared_ptr<Animation> Animator::GetAnimation()
+{
+    return m_animation.Get<Animation>();
 }
