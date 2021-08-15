@@ -292,6 +292,7 @@ void Scene::Deserialize(const YAML::Node &in)
         for(const auto& i : inLocalAssets){
             Handle handle = i["Handle"].as<uint64_t>();
             localAssets.push_back(AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+            localAssets.back()->Deserialize(i);
         }
     }
 
