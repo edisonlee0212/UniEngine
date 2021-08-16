@@ -280,21 +280,27 @@ void EntityManager::GetAllEntities(std::vector<Entity> &target)
 void EntityManager::Detach()
 {
     auto &entityManager = GetInstance();
-    entityManager.m_scene = nullptr;
-    entityManager.m_currentAttachedWorldEntityStorage = nullptr;
-    entityManager.m_entities = nullptr;
-    entityManager.m_entityMetaDataCollection = nullptr;
-    entityManager.m_entityDataComponentStorage = nullptr;
-    entityManager.m_entityPrivateComponentStorage = nullptr;
-
-    for (auto &i : entityManager.m_entityArchetypeInfos)
-    {
-        i.m_dataComponentStorageIndex = 0;
+    /*
+    if(entityManager.m_scene && !entityManager.m_scene->m_saved){
+        ImGui::Begin("Entity Explorer");
+        ImGui::OpenPopup("Unsaved scene warning");
+        if (ImGui::BeginPopupModal("Unsaved scene warning", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Save previous scene?");
+            if (ImGui::Button("Yes", ImVec2(120, 0))) {
+                entityManager.m_scene->Save();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SetItemDefaultFocus();
+            ImGui::SameLine();
+            if (ImGui::Button("No", ImVec2(120, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::End();
     }
-    for (auto &i : entityManager.m_entityQueryInfos)
-    {
-        i.m_queriedStorage.clear();
-    }
+     */
 }
 
 void EntityManager::ForEachDescendant(
@@ -317,6 +323,8 @@ void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
 {
     if (scene == nullptr)
         return;
+    Detach();
+
     auto &entityManager = GetInstance();
     auto &targetStorage = scene->m_sceneDataStorage;
     entityManager.m_currentAttachedWorldEntityStorage = &targetStorage;
@@ -360,6 +368,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
     }
     auto &entityManager = GetInstance();
     assert(archetype.IsValid());
+    entityManager.m_scene->m_saved = false;
     Entity retVal;
     EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
     if (archetypeInfo.m_dataComponentStorageIndex == 0)
@@ -441,6 +450,7 @@ std::vector<Entity> EntityManager::CreateEntities(
     assert(archetype.IsValid());
     std::vector<Entity> retVal;
     auto &entityManager = GetInstance();
+    entityManager.m_scene->m_saved = false;
     EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
     if (archetypeInfo.m_dataComponentStorageIndex == 0)
     {
@@ -579,6 +589,7 @@ void EntityManager::DeleteEntity(const Entity &entity)
     {
         return;
     }
+    GetInstance().m_scene->m_saved = false;
     const size_t entityIndex = entity.m_index;
     auto children = GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
     for (const auto &child : children)
@@ -613,6 +624,7 @@ void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
         UNIENGINE_ERROR("Child already deleted!");
         return;
     }
+    GetInstance().m_scene->m_saved = false;
     if (name.length() != 0)
     {
         GetInstance().m_entityMetaDataCollection->at(index).m_name = name;
@@ -633,6 +645,7 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
         if (i == entity)
             return;
     }
+    entityManager.m_scene->m_saved = false;
     auto &childEntityInfo = entityManager.m_entityMetaDataCollection->at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
@@ -691,6 +704,7 @@ void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
     {
         UNIENGINE_ERROR("No child by the parent!");
     }
+    GetInstance().m_scene->m_saved = false;
     GetInstance().m_entityMetaDataCollection->at(childIndex).m_parent = Entity();
     const size_t childrenCount = GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children.size();
 
@@ -781,6 +795,7 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
+    entityManager.m_scene->m_saved = false;
 }
 
 void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data)
@@ -927,6 +942,7 @@ void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IP
         GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
         elements.emplace_back(id, ptr, entity);
     }
+    entityManager.m_scene->m_saved = false;
 }
 
 void EntityManager::ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func)
@@ -979,6 +995,7 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
             break;
         }
     }
+    entityManager.m_scene->m_saved = false;
     entityManager.m_entityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
 }
 
@@ -1005,6 +1022,7 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
     {
         SetEnable(i, value);
     }
+    GetInstance().m_scene->m_saved = false;
 }
 
 void EntityManager::SetStatic(const Entity &entity, const bool &value)
@@ -1013,14 +1031,17 @@ void EntityManager::SetStatic(const Entity &entity, const bool &value)
     ForEachDescendant(entity, [=](const Entity iterator) {
         GetInstance().m_entityMetaDataCollection->at(iterator.m_index).m_static = value;
     });
+    GetInstance().m_scene->m_saved = false;
 }
 
 void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
-    if (GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled != value)
+    auto& entityManager = GetInstance();
+    auto &entityMetadata = entityManager.m_entityMetaDataCollection->at(entity.m_index);
+    if (entityMetadata.m_enabled != value)
     {
-        for (auto &i : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
+        for (auto &i : entityMetadata.m_privateComponentElements)
         {
             if (value)
             {
@@ -1031,8 +1052,9 @@ void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
                 i.m_privateComponentData->OnEntityDisable();
             }
         }
+        entityMetadata.m_enabled = value;
+        entityManager.m_scene->m_saved = false;
     }
-    GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled = value;
 }
 
 EntityQuery EntityManager::CreateEntityQuery()

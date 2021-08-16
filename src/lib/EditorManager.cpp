@@ -1,6 +1,7 @@
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <Camera.hpp>
+#include <ClassRegistry.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
@@ -10,12 +11,11 @@
 #include <MeshRenderer.hpp>
 #include <Particles.hpp>
 #include <PhysicsManager.hpp>
+#include <PlayerController.hpp>
 #include <PostProcessing.hpp>
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <WindowManager.hpp>
-#include <PlayerController.hpp>
-#include <ClassRegistry.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
 {
@@ -363,7 +363,6 @@ void EditorManager::Init()
         ImGui::InputFloat("Length", &ray->m_length);
     });
 
-
     editorManager.m_selectedEntity = Entity();
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     editorManager.m_configFlags += EntityEditorSystem_EnableEntityInspector;
@@ -437,6 +436,10 @@ void EditorManager::PreUpdate()
             Application::GetInstance().m_playing = !Application::GetInstance().m_playing;
         }
         ImGui::Separator();
+        if (ImGui::BeginMenu("Project"))
+        {
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("File"))
         {
             ImGui::EndMenu();
@@ -562,7 +565,8 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        if(renderCommand.m_matrices.expired()) break;
+                        if (renderCommand.m_matrices.expired())
+                            break;
                         auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -616,7 +620,8 @@ void EditorManager::RenderToSceneCamera()
                     switch (renderCommand.m_meshType)
                     {
                     case RenderCommandMeshType::Default: {
-                        if(renderCommand.m_matrices.expired()) break;
+                        if (renderCommand.m_matrices.expired())
+                            break;
                         auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                         program->Bind();
                         program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -727,7 +732,12 @@ void EditorManager::OnGui()
             &editorManager.m_selectedHierarchyDisplayMode,
             HierarchyDisplayMode,
             IM_ARRAYSIZE(HierarchyDisplayMode));
-        if (ImGui::CollapsingHeader(EntityManager::GetCurrentScene()->m_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        std::string title = EntityManager::GetCurrentScene()->m_name;
+        if (!EntityManager::GetCurrentScene()->m_saved)
+        {
+            title += " *";
+        }
+        if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::BeginDragDropTarget())
             {
@@ -745,7 +755,8 @@ void EditorManager::OnGui()
             {
                 EntityManager::UnsafeForEachEntityStorage(
                     [&](int i, const std::string &name, const DataComponentStorage &storage) {
-                        if(i == 0) return;
+                        if (i == 0)
+                            return;
                         ImGui::Separator();
                         const std::string title = std::to_string(i) + ". " + name;
                         if (ImGui::TreeNode(title.c_str()))
@@ -1540,7 +1551,7 @@ void EditorManager::CameraWindowDragAndDrop()
         ImGui::EndDragDropTarget();
     }
 }
-bool EditorManager::DragAndDrop(EntityRef &entityRef, const std::string& name)
+bool EditorManager::DragAndDrop(EntityRef &entityRef, const std::string &name)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();

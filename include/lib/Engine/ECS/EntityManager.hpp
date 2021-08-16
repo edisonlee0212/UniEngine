@@ -543,6 +543,7 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
     system->OnCreate();
+    scene->m_saved = false;
     return system;
 }
 template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const float &rank)
@@ -557,6 +558,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const 
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
     system->OnCreate();
+    scene->m_saved = false;
     return system;
 }
 
@@ -1514,6 +1516,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
             return;
         }
     }
+    entityManager.m_scene->m_saved = false;
 #pragma endregion
 #pragma region If not exist, we first need to create a new archetype
     EntityArchetypeInfo newArchetypeInfo;
@@ -1583,6 +1586,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
                         "components!");
         return;
     }
+    entityManager.m_scene->m_saved = false;
 #pragma region Create new archetype
     EntityArchetypeInfo newArchetypeInfo;
     newArchetypeInfo.m_name = "New archetype";
@@ -1801,6 +1805,7 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
     entityManager.m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
     auto ptr = SerializationManager::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity);
+    entityManager.m_scene->m_saved = false;
     return std::move(ptr);
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
@@ -1814,6 +1819,7 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
             GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
             elements.erase(elements.begin() + i);
+            GetInstance().m_scene->m_saved = false;
             return;
         }
     }

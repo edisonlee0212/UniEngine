@@ -76,6 +76,7 @@ void IAsset::OnCreate()
 void IAsset::SetPath(const std::filesystem::path &path)
 {
     m_path = path;
+    m_saved = false;
     auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
     auto search = assetRecords.find(m_handle);
     if (search != assetRecords.end())
