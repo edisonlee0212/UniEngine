@@ -38,7 +38,7 @@ void Material::OnGui()
         }
         ImGui::EndPopup();
     }
-    EditorManager::DragAndDrop<OpenGLUtils::GLProgram>(m_program, "Program");
+    EditorManager::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program");
     ImGui::Separator();
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -77,11 +77,11 @@ void Material::OnGui()
     }
     if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
     {
-        EditorManager::DragAndDrop<Texture2D>(m_albedoTexture, "Albedo Tex");
-        EditorManager::DragAndDrop<Texture2D>(m_normalTexture, "Normal Tex");
-        EditorManager::DragAndDrop<Texture2D>(m_metallicTexture, "Metallic Tex");
-        EditorManager::DragAndDrop<Texture2D>(m_roughnessTexture, "Roughness Tex");
-        EditorManager::DragAndDrop<Texture2D>(m_aoTexture, "AO Tex");
+        EditorManager::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex");
+        EditorManager::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex");
+        EditorManager::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex");
+        EditorManager::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex");
+        EditorManager::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex");
         ImGui::TreePop();
     }
 }

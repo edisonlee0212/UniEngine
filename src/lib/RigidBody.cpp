@@ -79,7 +79,7 @@ void UniEngine::RigidBody::OnGui()
     if(ImGui::TreeNodeEx("Colliders")){
         int index = 0;
         for(auto& i : m_colliders){
-            EditorManager::DragAndDrop<Collider>(i, ("Collider " + std::to_string(index++)));
+            EditorManager::DragAndDropButton<Collider>(i, ("Collider " + std::to_string(index++)));
         }
         ImGui::TreePop();
     }

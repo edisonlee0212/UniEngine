@@ -373,7 +373,7 @@ void Camera::OnGui()
     }
     else
     {
-        EditorManager::DragAndDrop<Cubemap>(m_skybox, "Skybox");
+        EditorManager::DragAndDropButton<Cubemap>(m_skybox, "Skybox");
     }
 
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);

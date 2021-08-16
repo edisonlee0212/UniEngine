@@ -382,7 +382,7 @@ void RenderManager::OnGui()
         ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
         if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            EditorManager::DragAndDrop<EnvironmentalMap>(renderManager.m_environmentalMap, "Environmental Map");
+            EditorManager::DragAndDropButton<EnvironmentalMap>(renderManager.m_environmentalMap, "Environmental Map");
             ImGui::DragFloat(
                 "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
         }

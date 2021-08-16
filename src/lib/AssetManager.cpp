@@ -32,9 +32,10 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
             return search1->second.lock();
         }
     }
-    auto& assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
+    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
     auto search2 = assetRecords.find(handle);
-    if(search2 != assetRecords.end()){
+    if (search2 != assetRecords.end())
+    {
         assert(search2->second.m_typeName == typeName);
         auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
         retVal->m_path = search2->second.m_filePath;
@@ -214,7 +215,7 @@ void AssetManager::OnGui()
                                 IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
                                 std::shared_ptr<IAsset> payload_n =
                                     *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                                // Share(payload_n);
+                                Share(payload_n);
                             }
                             ImGui::EndDragDropTarget();
                         }
@@ -236,8 +237,36 @@ void AssetManager::OnGui()
 
                         for (auto &i : collection.second)
                         {
-                            EditorManager::Draggable(i.second, false);
+                            ImGui::Button(i.second->m_name.c_str());
+                            EditorManager::DraggableAsset(i.second);
+                            const std::string type = i.second->GetTypeName();
+                            const std::string tag = "##" + type + std::to_string(i.second->GetHandle());
+                            if (ImGui::BeginPopupContextItem(tag.c_str()))
+                            {
+                                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+                                {
+                                    static char newName[256];
+                                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                                    if (ImGui::Button(("Confirm" + tag).c_str()))
+                                        i.second->m_name = std::string(newName);
+                                    ImGui::EndMenu();
+                                }
+                                if (ImGui::Button(("Remove" + tag).c_str()))
+                                {
+                                    collection.second.erase(i.first);
+                                    break;
+                                }
+                                ImGui::EndPopup();
+                            }
                         }
+                    }
+                    if (ImGui::BeginPopupContextItem((collection.first + "##NewAsset").c_str()))
+                    {
+                        if (ImGui::Button("New..."))
+                        {
+                            Share(CreateAsset(collection.first, Handle(), ""));
+                        }
+                        ImGui::EndPopup();
                     }
                 }
                 ImGui::EndTabItem();
@@ -279,7 +308,8 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
         AssetRecord assetRecord;
         assetRecord.m_filePath = inAssetRecord["FilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
-        if(std::filesystem::exists(assetRecord.m_filePath)){
+        if (std::filesystem::exists(assetRecord.m_filePath))
+        {
             m_assetRecords.insert({assetHandle, assetRecord});
         }
     }
@@ -310,11 +340,11 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     const std::string &typeName, const Handle &handle, const std::string &name)
 {
     size_t hashCode;
-    auto retVal = std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
+    auto retVal =
+        std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
     retVal->m_path.clear();
     retVal->m_name = name;
     RegisterAsset(retVal);
     retVal->OnCreate();
     return retVal;
 }
-

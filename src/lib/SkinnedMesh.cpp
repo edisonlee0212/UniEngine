@@ -11,7 +11,7 @@ std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBuffe
 
 void SkinnedMesh::OnGui()
 {
-    EditorManager::DragAndDrop<Animation>(m_animation, "Animation");
+    EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
 
     ImGui::Text(("Vertices size: " + std::to_string(m_skinnedVertices.size())).c_str());
     ImGui::Text(("Triangle amount: " + std::to_string(m_triangles.size())).c_str());

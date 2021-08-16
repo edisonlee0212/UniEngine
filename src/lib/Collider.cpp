@@ -20,7 +20,7 @@ void Collider::OnGui()
         "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape))){
         statusChanged = true;
     }
-    EditorManager::DragAndDrop<PhysicsMaterial>(m_physicsMaterial, "Physics Mat");
+    EditorManager::DragAndDropButton<PhysicsMaterial>(m_physicsMaterial, "Physics Mat");
     auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
     if(mat)
     {

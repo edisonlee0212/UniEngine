@@ -912,20 +912,18 @@ void EditorManager::OnGui()
                             ImGui::Checkbox(
                                 data.m_privateComponentData->GetTypeName().c_str(),
                                 &data.m_privateComponentData->m_enabled);
-                            ImGui::PushID(i);
-                            if (ImGui::BeginPopupContextItem(
-                                    ("PrivateComponentDeletePopup" + std::to_string(i)).c_str()))
+                            DraggablePrivateComponent(data.m_privateComponentData);
+                            const std::string tag = "##" + data.m_privateComponentData->GetTypeName() + std::to_string(data.m_privateComponentData->GetHandle());
+                            if (ImGui::BeginPopupContextItem(tag.c_str()))
                             {
-                                if (ImGui::Button("Remove"))
+                                if (ImGui::Button(("Remove" + tag).c_str()))
                                 {
                                     skip = true;
-                                    EntityManager::RemovePrivateComponent(
-                                        editorManager.m_selectedEntity, data.m_typeId);
+                                    EntityManager::RemovePrivateComponent(editorManager.m_selectedEntity, data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
-                            ImGui::PopID();
-                            if (!skip)
+                            if(!skip)
                             {
                                 if (ImGui::TreeNodeEx(
                                         ("Component Settings##" + std::to_string(i)).c_str(),
@@ -934,9 +932,9 @@ void EditorManager::OnGui()
                                     data.m_privateComponentData->OnGui();
                                     ImGui::TreePop();
                                 }
-                                ImGui::Separator();
-                                i++;
                             }
+                            ImGui::Separator();
+                            i++;
                         });
                 }
             }
@@ -1058,7 +1056,7 @@ std::weak_ptr<Camera> EditorManager::GetSceneCamera()
     return GetInstance().m_sceneCamera;
 }
 
-bool EditorManager::DragAndDrop(Entity &entity)
+bool EditorManager::DragAndDropButton(Entity &entity)
 {
     bool statusChanged = false;
     // const std::string type = "Entity";
@@ -1496,31 +1494,35 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Scene>));
-            std::shared_ptr<Scene> payload_n = *(std::shared_ptr<Scene> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+            std::shared_ptr<Scene> payload_n =
+                std::dynamic_pointer_cast<Scene>(*(std::shared_ptr<IAsset> *)payload->Data);
             EntityManager::Attach(payload_n);
         }
         const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Prefab>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Prefab>));
-            std::shared_ptr<Prefab> payload_n = *(std::shared_ptr<Prefab> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+            std::shared_ptr<Prefab> payload_n =
+                std::dynamic_pointer_cast<Prefab>(*(std::shared_ptr<IAsset> *)payload->Data);
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             payload_n->ToEntity();
         }
         const std::string texture2DTypeHash = SerializationManager::GetSerializableTypeName<Texture2D>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Texture2D>));
-            std::shared_ptr<Texture2D> payload_n = *(std::shared_ptr<Texture2D> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+            std::shared_ptr<Texture2D> payload_n =
+                std::dynamic_pointer_cast<Texture2D>(*(std::shared_ptr<IAsset> *)payload->Data);
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, payload_n);
         }
         const std::string meshTypeHash = SerializationManager::GetSerializableTypeName<Mesh>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Mesh>));
-            std::shared_ptr<Mesh> payload_n = *(std::shared_ptr<Mesh> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+            std::shared_ptr<Mesh> payload_n =
+                std::dynamic_pointer_cast<Mesh>(*(std::shared_ptr<IAsset> *)payload->Data);
             Entity entity = EntityManager::CreateEntity("Mesh");
             auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
             meshRenderer->m_mesh.Set<Mesh>(payload_n);
@@ -1532,8 +1534,9 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string environmentalMapTypeHash = SerializationManager::GetSerializableTypeName<EnvironmentalMap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<EnvironmentalMap>));
-            std::shared_ptr<EnvironmentalMap> payload_n = *(std::shared_ptr<EnvironmentalMap> *)payload->Data;
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+            std::shared_ptr<EnvironmentalMap> payload_n =
+                std::dynamic_pointer_cast<EnvironmentalMap>(*(std::shared_ptr<IAsset> *)payload->Data);
             RenderManager::GetInstance().m_environmentalMap = payload_n;
         }
 
@@ -1542,8 +1545,9 @@ void EditorManager::CameraWindowDragAndDrop()
         {
             if (!RenderManager::GetMainCamera().expired())
             {
-                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<Cubemap>));
-                std::shared_ptr<Cubemap> payload_n = *(std::shared_ptr<Cubemap> *)payload->Data;
+                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
+                std::shared_ptr<Cubemap> payload_n =
+                    std::dynamic_pointer_cast<Cubemap>(*(std::shared_ptr<IAsset> *)payload->Data);
                 auto mainCamera = RenderManager::GetMainCamera().lock();
                 mainCamera->m_skybox = payload_n;
             }
@@ -1551,7 +1555,7 @@ void EditorManager::CameraWindowDragAndDrop()
         ImGui::EndDragDropTarget();
     }
 }
-bool EditorManager::DragAndDrop(EntityRef &entityRef, const std::string &name)
+bool EditorManager::DragAndDropButton(EntityRef &entityRef, const std::string &name)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();

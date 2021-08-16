@@ -167,7 +167,7 @@ void Joint::OnGui()
         SetType((JointType)type);
     }
     auto storedEntity = m_linkedEntity.Get();
-    if (EditorManager::DragAndDrop(m_linkedEntity, "Link"))
+    if (EditorManager::DragAndDropButton(m_linkedEntity, "Link"))
     {
         if (storedEntity != m_linkedEntity.Get())
         {

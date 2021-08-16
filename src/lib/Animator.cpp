@@ -38,7 +38,7 @@ void Animator::OnGui()
     auto animation = m_animation.Get<Animation>();
     Animation *previous = animation.get();
 
-    EditorManager::DragAndDrop<Animation>(m_animation, "Animation");
+    EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
     if (previous != animation.get() && animation)
     {
         Setup(animation);
@@ -62,7 +62,7 @@ void Animator::OnGui()
         {
             for (int i = 0; i < m_boundEntities.size(); i++)
             {
-                if (EditorManager::DragAndDrop(m_boundEntities[i], "Bone: " + m_names[i]))
+                if (EditorManager::DragAndDropButton(m_boundEntities[i], "Bone: " + m_names[i]))
                 {
                     if (m_boundEntities[i].Get().IsValid())
                     {

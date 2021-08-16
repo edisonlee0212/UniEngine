@@ -62,7 +62,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 };
 template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
 {
-    GetInstance().m_sharedAssets[SerializationManager::GetSerializableTypeName<T>()][std::dynamic_pointer_cast<IAsset>(resource)->GetHandle()] = std::dynamic_pointer_cast<IAsset>(resource);
+    auto ptr = std::dynamic_pointer_cast<IAsset>(resource);
+    GetInstance().m_sharedAssets[ptr->GetTypeName()][ptr->GetHandle()] = std::dynamic_pointer_cast<IAsset>(resource);
 }
 template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {

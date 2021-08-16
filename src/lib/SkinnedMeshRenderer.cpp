@@ -50,7 +50,7 @@ void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animat
 void SkinnedMeshRenderer::OnGui()
 {
     auto animator = m_animator.Get<Animator>();
-    EditorManager::DragAndDrop<Animator>(m_animator, "Animator");
+    EditorManager::DragAndDropButton<Animator>(m_animator, "Animator");
     if(animator != m_animator.Get<Animator>()){
         AttachAnimator(m_animator.Get<Animator>());
     }
@@ -59,7 +59,7 @@ void SkinnedMeshRenderer::OnGui()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
-    EditorManager::DragAndDrop<Material>(m_material, "Material");
+    EditorManager::DragAndDropButton<Material>(m_material, "Material");
     if (m_material.Get<Material>())
     {
         if (ImGui::TreeNode("Material##SkinnedMeshRenderer"))
@@ -68,7 +68,7 @@ void SkinnedMeshRenderer::OnGui()
             ImGui::TreePop();
         }
     }
-    EditorManager::DragAndDrop<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
+    EditorManager::DragAndDropButton<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
     if (m_skinnedMesh.Get<SkinnedMesh>())
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))
