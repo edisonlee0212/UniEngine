@@ -1,10 +1,9 @@
 #include <Core/Debug.hpp>
+#include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <Mesh.hpp>
 #include <SkinnedMesh.hpp>
-#include <EditorManager.hpp>
 using namespace UniEngine;
-
 
 std::unique_ptr<OpenGLUtils::GLVBO> SkinnedMesh::m_matricesBuffer;
 
@@ -76,22 +75,28 @@ void SkinnedMesh::Upload()
     m_vao->EnableAttributeArray(0);
     m_vao->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), 0);
     m_vao->EnableAttributeArray(1);
-    m_vao->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_normal)));
+    m_vao->SetAttributePointer(
+        1, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_normal)));
     m_vao->EnableAttributeArray(2);
-    m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_tangent)));
+    m_vao->SetAttributePointer(
+        2, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_tangent)));
     m_vao->EnableAttributeArray(3);
-    m_vao->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_color)));
+    m_vao->SetAttributePointer(
+        3, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_color)));
     m_vao->EnableAttributeArray(4);
-    m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_texCoords)));
+    m_vao->SetAttributePointer(
+        4, 2, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_texCoords)));
 
     m_vao->EnableAttributeArray(5);
     m_vao->SetAttributeIntPointer(5, 4, GL_INT, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_bondId)));
     m_vao->EnableAttributeArray(6);
-    m_vao->SetAttributePointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_weight)));
+    m_vao->SetAttributePointer(
+        6, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_weight)));
     m_vao->EnableAttributeArray(7);
     m_vao->SetAttributeIntPointer(7, 4, GL_INT, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_bondId2)));
     m_vao->EnableAttributeArray(8);
-    m_vao->SetAttributePointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_weight2)));
+    m_vao->SetAttributePointer(
+        8, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_weight2)));
 #pragma endregion
     m_vao->Ebo()->SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
     m_version++;
@@ -271,7 +276,7 @@ void SkinnedMesh::Draw() const
         GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, (GLvoid *)(sizeof(GLuint) * m_offset));
     OpenGLUtils::GLVAO::BindDefault();
 }
-void SkinnedMesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
+void SkinnedMesh::DrawInstanced(const std::vector<glm::mat4> &matrices) const
 {
     auto count = matrices.size();
     m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
@@ -289,7 +294,8 @@ void SkinnedMesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
     m_vao->SetAttributeDivisor(14, 1);
     m_vao->SetAttributeDivisor(15, 1);
 
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
+    glDrawElementsInstanced(
+        GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
 void SkinnedMesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) const
 {
@@ -309,48 +315,57 @@ void SkinnedMesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) co
     m_vao->SetAttributeDivisor(14, 1);
     m_vao->SetAttributeDivisor(15, 1);
 
-    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
+    glDrawElementsInstanced(
+        GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
 void SkinnedMesh::Serialize(YAML::Emitter &out)
 {
     m_animation.Save("m_animation", out);
-    out << YAML::Key << "m_boneAnimatorIndices" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_boneAnimatorIndices.data(), m_boneAnimatorIndices.size() * sizeof(unsigned));
-
+    if (!m_boneAnimatorIndices.empty())
+    {
+        out << YAML::Key << "m_boneAnimatorIndices" << YAML::Value
+            << YAML::Binary(
+                   (const unsigned char *)m_boneAnimatorIndices.data(),
+                   m_boneAnimatorIndices.size() * sizeof(unsigned));
+    }
     out << YAML::Key << "m_mask" << YAML::Value << m_mask;
     out << YAML::Key << "m_offset" << YAML::Value << m_offset;
     out << YAML::Key << "m_version" << YAML::Value << m_version;
 
-    out << YAML::Key << "m_skinnedVertices" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_skinnedVertices.data(), m_skinnedVertices.size() * sizeof(SkinnedVertex));
-    out << YAML::Key << "m_triangles" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
-
+    if (!m_skinnedVertices.empty() && !m_triangles.empty())
+    {
+        out << YAML::Key << "m_skinnedVertices" << YAML::Value
+            << YAML::Binary(
+                   (const unsigned char *)m_skinnedVertices.data(), m_skinnedVertices.size() * sizeof(SkinnedVertex));
+        out << YAML::Key << "m_triangles" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
+    }
 }
 void SkinnedMesh::Deserialize(const YAML::Node &in)
 {
     m_animation.Load("m_animation", in);
-    YAML::Binary boneIndices = in["m_boneAnimatorIndices"].as<YAML::Binary>();
-    m_boneAnimatorIndices.resize(boneIndices.size() / sizeof(unsigned));
-    std::memcpy(m_boneAnimatorIndices.data(), boneIndices.data(), boneIndices.size());
-
-
+    if(in["m_boneAnimatorIndices"])
+    {
+        YAML::Binary boneIndices = in["m_boneAnimatorIndices"].as<YAML::Binary>();
+        m_boneAnimatorIndices.resize(boneIndices.size() / sizeof(unsigned));
+        std::memcpy(m_boneAnimatorIndices.data(), boneIndices.data(), boneIndices.size());
+    }
     m_mask = in["m_mask"].as<unsigned>();
     m_offset = in["m_offset"].as<size_t>();
     m_version = in["m_version"].as<size_t>();
 
-    YAML::Binary skinnedVertexData = in["m_skinnedVertices"].as<YAML::Binary>();
-    std::vector<SkinnedVertex> skinnedVertices;
-    skinnedVertices.resize(skinnedVertexData.size() / sizeof(SkinnedVertex));
-    std::memcpy(skinnedVertices.data(), skinnedVertexData.data(), skinnedVertexData.size());
+    if(in["m_skinnedVertices"] && in["m_triangles"])
+    {
+        YAML::Binary skinnedVertexData = in["m_skinnedVertices"].as<YAML::Binary>();
+        std::vector<SkinnedVertex> skinnedVertices;
+        skinnedVertices.resize(skinnedVertexData.size() / sizeof(SkinnedVertex));
+        std::memcpy(skinnedVertices.data(), skinnedVertexData.data(), skinnedVertexData.size());
 
-    YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
-    std::vector<glm::uvec3> triangles;
-    triangles.resize(triangleData.size() / sizeof(glm::uvec3));
-    std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
+        YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
+        std::vector<glm::uvec3> triangles;
+        triangles.resize(triangleData.size() / sizeof(glm::uvec3));
+        std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
 
-    SetVertices(m_mask, skinnedVertices, triangles);
+        SetVertices(m_mask, skinnedVertices, triangles);
+    }
 }

@@ -1,8 +1,8 @@
 #pragma once
-#include <ISerializable.hpp>
-#include <ISingleton.hpp>
 #include <Debug.hpp>
 #include <IDataComponent.hpp>
+#include <ISerializable.hpp>
+#include <ISingleton.hpp>
 namespace YAML
 {
 class Node;
@@ -29,6 +29,7 @@ template <> struct convert<glm::vec2>
         return true;
     }
 };
+
 template <> struct convert<glm::vec3>
 {
     static Node encode(const glm::vec3 &rhs)
@@ -131,14 +132,17 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
         const size_t &typeId,
         const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func);
     static bool RegisterSerializableType(
-        const std::string &typeName, const size_t &typeId, const std::function<std::shared_ptr<ISerializable> (size_t &)> &func);
-  public:
+        const std::string &typeName,
+        const size_t &typeId,
+        const std::function<std::shared_ptr<ISerializable>(size_t &)> &func);
 
+  public:
     static std::shared_ptr<IDataComponent> ProduceDataComponent(
         const std::string &typeName, size_t &hashCode, size_t &size);
 
     static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode);
-    static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode, const Handle& handle);
+    static std::shared_ptr<ISerializable> ProduceSerializable(
+        const std::string &typeName, size_t &hashCode, const Handle &handle);
     template <typename T = ISerializable> static std::shared_ptr<T> ProduceSerializable();
     template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
@@ -173,7 +177,6 @@ template <typename T> bool SerializationManager::RegisterSerializableType(const 
     });
 }
 
-
 #pragma endregion
 
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec2 &v);
@@ -183,7 +186,7 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const glm::mat4 &v);
 
 template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializable()
 {
-    auto& serializationManager = GetInstance();
+    auto &serializationManager = GetInstance();
     const auto typeName = GetSerializableTypeName<T>();
     const auto it = serializationManager.m_serializableGenerators.find(typeName);
     if (it != serializationManager.m_serializableGenerators.end())
@@ -196,6 +199,5 @@ template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializab
     UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
 }
-
 
 } // namespace UniEngine

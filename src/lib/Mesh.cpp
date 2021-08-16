@@ -295,13 +295,13 @@ void Mesh::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_offset" << YAML::Value << m_offset;
     out << YAML::Key << "m_version" << YAML::Value << m_version;
 
-
-    out << YAML::Key << "m_vertices" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_vertices.data(), m_vertices.size() * sizeof(Vertex));
-    out << YAML::Key << "m_triangles" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
+    if(!m_vertices.empty() && !m_triangles.empty())
+    {
+        out << YAML::Key << "m_vertices" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_vertices.data(), m_vertices.size() * sizeof(Vertex));
+        out << YAML::Key << "m_triangles" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_triangles.data(), m_triangles.size() * sizeof(glm::uvec3));
+    }
 }
 
 void Mesh::Deserialize(const YAML::Node &in)
@@ -310,15 +310,18 @@ void Mesh::Deserialize(const YAML::Node &in)
     m_offset = in["m_offset"].as<size_t>();
     m_version = in["m_version"].as<size_t>();
 
-    YAML::Binary vertexData = in["m_vertices"].as<YAML::Binary>();
-    std::vector<Vertex> vertices;
-    vertices.resize(vertexData.size() / sizeof(Vertex));
-    std::memcpy(vertices.data(), vertexData.data(), vertexData.size());
+    if(in["m_vertices"] && in["m_triangles"])
+    {
+        YAML::Binary vertexData = in["m_vertices"].as<YAML::Binary>();
+        std::vector<Vertex> vertices;
+        vertices.resize(vertexData.size() / sizeof(Vertex));
+        std::memcpy(vertices.data(), vertexData.data(), vertexData.size());
 
-    YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
-    std::vector<glm::uvec3> triangles;
-    triangles.resize(triangleData.size() / sizeof(glm::uvec3));
-    std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
+        YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
+        std::vector<glm::uvec3> triangles;
+        triangles.resize(triangleData.size() / sizeof(glm::uvec3));
+        std::memcpy(triangles.data(), triangleData.data(), triangleData.size());
 
-    SetVertices(m_mask, vertices, triangles);
+        SetVertices(m_mask, vertices, triangles);
+    }
 }
