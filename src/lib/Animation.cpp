@@ -55,9 +55,13 @@ void Bone::Serialize(YAML::Emitter &out) const
         out << YAML::Key << "m_animations" << YAML::Value << YAML::BeginSeq;
         for (const auto &i : m_animations)
         {
-            out << YAML::Key << "Name" << YAML::Value << i.first;
-            out << YAML::Key << "BoneKeyFrames" << YAML::Value << YAML::BeginMap;
-            i.second.Serialize(out);
+            out << YAML::BeginMap;
+            {
+                out << YAML::Key << "Name" << YAML::Value << i.first;
+                out << YAML::Key << "BoneKeyFrames" << YAML::Value << YAML::BeginMap;
+                i.second.Serialize(out);
+                out << YAML::EndMap;
+            }
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
@@ -67,7 +71,9 @@ void Bone::Serialize(YAML::Emitter &out) const
         out << YAML::Key << "m_children" << YAML::Value << YAML::BeginSeq;
         for (const auto &i : m_children)
         {
+            out << YAML::BeginMap;
             i->Serialize(out);
+            out << YAML::EndMap;
         }
         out << YAML::EndSeq;
     }
@@ -211,9 +217,9 @@ void BoneKeyFrames::Deserialize(const YAML::Node &in)
     m_rotations.resize(rotations.size() / sizeof(BoneRotation));
     std::memcpy(m_rotations.data(), rotations.data(), rotations.size());
 
-    YAML::Binary scale = in["m_scales"].as<YAML::Binary>();
-    m_scales.resize(scale.size() / sizeof(BoneScale));
-    std::memcpy(m_rotations.data(), scale.data(), scale.size());
+    YAML::Binary scales = in["m_scales"].as<YAML::Binary>();
+    m_scales.resize(scales.size() / sizeof(BoneScale));
+    std::memcpy(m_scales.data(), scales.data(), scales.size());
 }
 
 std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
@@ -244,13 +250,20 @@ void Animation::Animate(
 }
 void Animation::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "m_animationNameAndLength" << YAML::Value << YAML::BeginSeq;
-    for (const auto &i : m_animationNameAndLength)
+    out << YAML::Key << "m_boneSize" << YAML::Value << m_boneSize;
+
+    if(!m_animationNameAndLength.empty())
     {
-        out << YAML::Key << "Name" << YAML::Value << i.first;
-        out << YAML::Key << "Length" << YAML::Value << i.second;
+        out << YAML::Key << "m_animationNameAndLength" << YAML::Value << YAML::BeginSeq;
+        for (const auto &i : m_animationNameAndLength)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "Name" << YAML::Value << i.first;
+            out << YAML::Key << "Length" << YAML::Value << i.second;
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
     }
-    out << YAML::EndSeq;
     if (m_rootBone)
     {
         out << YAML::Key << "m_rootBone" << YAML::Value << YAML::BeginMap;
@@ -260,13 +273,16 @@ void Animation::Serialize(YAML::Emitter &out)
 }
 void Animation::Deserialize(const YAML::Node &in)
 {
+    m_boneSize = in["m_boneSize"].as<size_t>();
     auto inAnimationNameAndLength = in["m_animationNameAndLength"];
     m_animationNameAndLength.clear();
-    for (const auto &i : inAnimationNameAndLength)
+    if(inAnimationNameAndLength)
     {
-        m_animationNameAndLength.insert({i["Name"].as<std::string>(), i["Length"].as<float>()});
+        for (const auto &i : inAnimationNameAndLength)
+        {
+            m_animationNameAndLength.insert({i["Name"].as<std::string>(), i["Length"].as<float>()});
+        }
     }
-
     if (in["m_rootBone"])
     {
         m_rootBone = std::make_shared<Bone>();

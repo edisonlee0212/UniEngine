@@ -49,6 +49,12 @@ void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animat
 
 void SkinnedMeshRenderer::OnGui()
 {
+    auto animator = m_animator.Get<Animator>();
+    EditorManager::DragAndDrop<Animator>(m_animator, "Animator");
+    if(animator != m_animator.Get<Animator>()){
+        AttachAnimator(m_animator.Get<Animator>());
+    }
+
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);

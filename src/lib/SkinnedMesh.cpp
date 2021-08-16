@@ -332,7 +332,7 @@ void SkinnedMesh::Serialize(YAML::Emitter &out)
 }
 void SkinnedMesh::Deserialize(const YAML::Node &in)
 {
-    m_animation.Load("m_boneAnimatorIndices", in);
+    m_animation.Load("m_animation", in);
     YAML::Binary boneIndices = in["m_boneAnimatorIndices"].as<YAML::Binary>();
     m_boneAnimatorIndices.resize(boneIndices.size() / sizeof(unsigned));
     std::memcpy(m_boneAnimatorIndices.data(), boneIndices.data(), boneIndices.size());

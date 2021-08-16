@@ -47,6 +47,7 @@ int main()
     }
 #pragma endregion
 #pragma region Load models and display
+
     auto sponza = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
     auto sponzaEntity = sponza->ToEntity();
     Transform sponzaTransform;
@@ -65,7 +66,9 @@ int main()
         titleEntity.GetChildren()[0].GetChildren()[0].GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>();
     titleMaterial->m_emission = 4;
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
+
 #ifdef USE_ASSIMP
+
     auto dancingStormTrooper = AssetManager::Import<Prefab>(
         AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
     auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
@@ -73,6 +76,7 @@ int main()
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
+
     auto capoeira = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
     auto capoeiraEntity = capoeira->ToEntity();
     //auto capoeiraEntity2 = capoeira->ToEntity();
@@ -80,7 +84,6 @@ int main()
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
     capoeiraEntity.SetDataComponent(capoeiraTransform);
-
     auto capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1]
                                      .GetChildren()[0]
                                      .GetOrSetPrivateComponent<SkinnedMeshRenderer>()
@@ -113,7 +116,6 @@ int main()
 #pragma endregion
 
 #pragma region Lighting
-
     auto dirLightEntity = EntityManager::CreateEntity("Directional Light");
     auto dirLight = dirLightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
     dirLight->m_diffuseBrightness = 3.0f;
