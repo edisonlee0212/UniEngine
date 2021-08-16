@@ -12,6 +12,7 @@
 #include <RenderManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 
 #pragma region Utilities
@@ -38,22 +39,12 @@ void Application::Init(bool fullScreen)
     AssetManager::Init();
 
     EntityManager::Init();
+    ProjectManager::Init();
     TransformManager::Init();
     RenderManager::Init();
     EditorManager::Init();
 
     application.m_initialized = true;
-#pragma region Main Camera
-    const auto mainCameraEntity = EntityManager::CreateEntity("Main Camera");
-    Transform cameraLtw;
-    cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
-    cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
-    mainCameraEntity.SetDataComponent(cameraLtw);
-    auto mainCameraComponent = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
-    RenderManager::SetMainCamera(mainCameraComponent);
-    mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
-#pragma endregion
-
     application.m_playing = false;
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
 }
@@ -197,6 +188,7 @@ bool Application::LateUpdateInternal()
     AssetManager::OnGui();
     RenderManager::OnGui();
     EditorManager::OnGui();
+    ProjectManager::OnGui();
     ProfilerManager::EndEvent("Internals");
     //Profile
     ProfilerManager::EndEvent("LateUpdate");

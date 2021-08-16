@@ -14,6 +14,7 @@ void IAsset::Load()
     if (m_path.empty())
         return;
     Load(m_path);
+    m_saved = true;
 }
 void IAsset::Save(const std::filesystem::path &path)
 {
@@ -21,7 +22,9 @@ void IAsset::Save(const std::filesystem::path &path)
     directory.remove_filename();
     std::filesystem::create_directories(directory);
     YAML::Emitter out;
+    out << YAML::BeginMap;
     Serialize(out);
+    out << YAML::EndMap;
     std::ofstream fout(path.string());
     fout << out.c_str();
     fout.flush();
@@ -45,10 +48,11 @@ bool AssetRef::Update()
         m_value.reset();
         return false;
     }
-    else if(!m_value)
+    else if (!m_value)
     {
         auto ptr = AssetManager::Get(m_assetTypeName, m_assetHandle);
-        if(ptr){
+        if (ptr)
+        {
             m_value = ptr;
             return true;
         }
@@ -67,4 +71,22 @@ void AssetRef::Clear()
 void IAsset::OnCreate()
 {
     m_name = "New " + m_typeName;
+}
+
+void IAsset::SetPath(const std::filesystem::path &path)
+{
+    m_path = path;
+    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
+    auto search = assetRecords.find(m_handle);
+    if (search != assetRecords.end())
+    {
+        search->second.m_filePath = m_path;
+    }
+    else if (!m_path.empty())
+    {
+        AssetRecord assetRecord;
+        assetRecord.m_typeName = m_typeName;
+        assetRecord.m_filePath = m_path;
+        assetRecords[m_handle] = assetRecord;
+    }
 }

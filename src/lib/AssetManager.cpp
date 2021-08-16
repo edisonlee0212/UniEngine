@@ -32,7 +32,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
             return search1->second.lock();
         }
     }
-    auto& assetRecords = assetManager.m_assetRegistry->m_assetRecords;
+    auto& assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
     auto search2 = assetRecords.find(handle);
     if(search2 != assetRecords.end()){
         assert(search2->second.m_typeName == typeName);
@@ -249,7 +249,7 @@ void AssetManager::OnGui()
 }
 void AssetManager::Init()
 {
-    GetInstance().m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
+    ProjectManager::GetInstance().m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
     DefaultResources::Load();
 }
 void AssetManager::ScanAssetFolder()
@@ -258,20 +258,20 @@ void AssetManager::ScanAssetFolder()
 
 void AssetRegistry::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "Version" << YAML::Value << m_version;
-    out << YAML::Key << "AssetRecords" << YAML::Value << YAML::BeginMap;
+    out << YAML::Key << "AssetRecords" << YAML::Value << YAML::BeginSeq;
     for (const auto &i : m_assetRecords)
     {
+        out << YAML::BeginMap;
         out << YAML::Key << "Handle" << i.first;
         out << YAML::Key << "FilePath" << i.second.m_filePath.string();
         out << YAML::Key << "TypeName" << i.second.m_typeName;
+        out << YAML::EndMap;
     }
-    out << YAML::EndMap;
+    out << YAML::EndSeq;
 }
 
 void AssetRegistry::Deserialize(const YAML::Node &in)
 {
-    m_version = in["Version"].as<size_t>();
     auto inAssetRecords = in["AssetRecords"];
     for (const auto &inAssetRecord : inAssetRecords)
     {
@@ -279,16 +279,20 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
         AssetRecord assetRecord;
         assetRecord.m_filePath = inAssetRecord["FilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
-        m_assetRecords.insert({assetHandle, assetRecord});
+        if(std::filesystem::exists(assetRecord.m_filePath)){
+            m_assetRecords.insert({assetHandle, assetRecord});
+        }
     }
 }
 
 std::filesystem::path AssetManager::GetAssetFolderPath()
 {
-    std::filesystem::path assetRootFolder = ProjectManager::GetInstance().m_projectPath / "Assets/";
+    auto directory = ProjectManager::GetInstance().m_projectPath;
+    directory.remove_filename();
+    std::filesystem::path assetRootFolder = directory / "Assets/";
     if (!std::filesystem::exists(assetRootFolder))
     {
-        std::filesystem::create_directory(assetRootFolder);
+        std::filesystem::create_directories(assetRootFolder);
     }
     return assetRootFolder;
 }

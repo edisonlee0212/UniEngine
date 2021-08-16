@@ -45,6 +45,7 @@ AssetRegistration<Prefab> PrefabReg("Prefab");
 AssetRegistration<Scene> SceneReg("Scene");
 
 SerializableRegistration<AssetRegistry> AssetRegistryReg("AssetRegistry");
+SerializableRegistration<Project> ProjectRegistryReg("Project");
 SerializableRegistration<EntityRef> EntityRefReg("EntityRef");
 SerializableRegistration<AssetRef> AssetRefReg("AssetRef");
 SerializableRegistration<PrivateComponentRef> PrivateComponentRefReg("PrivateComponentRef");

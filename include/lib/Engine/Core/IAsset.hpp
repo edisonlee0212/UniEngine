@@ -12,6 +12,7 @@ class UNIENGINE_API IAsset : public ISerializable
     friend class EditorManager;
     friend class AssetManager;
     friend class DefaultResources;
+
     std::shared_ptr<Texture2D> m_icon;
     std::filesystem::path m_path;
 
@@ -21,6 +22,8 @@ class UNIENGINE_API IAsset : public ISerializable
     [[nodiscard]] std::filesystem::path GetPath(){
         return m_path;
     }
+
+    void SetPath(const std::filesystem::path &path);
     void Save();
     void Load();
 

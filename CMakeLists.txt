@@ -264,6 +264,22 @@ if (${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPL
             examples-core
             )
 
+    add_executable(Project
+            src/app/Project.cpp
+            )
+    target_include_directories(Project
+            PRIVATE
+            ${UNIENGINE_INCLUDES_LOCAL}
+            )
+    target_precompile_headers(Project
+            PRIVATE
+            ${UNIENGINE_PCH_LOCAL}
+            )
+    target_link_libraries(Project
+            uniengine
+            examples-core
+            )
+
     file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif ()
 

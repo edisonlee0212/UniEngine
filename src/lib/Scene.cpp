@@ -187,7 +187,6 @@ void Scene::OnGui()
 }
 void Scene::Serialize(YAML::Emitter &out)
 {
-    out << YAML::BeginMap;
     out << YAML::Key << "Scene" << YAML::Value << m_name;
 
     std::unordered_map<Handle, AssetRef> assetMap;

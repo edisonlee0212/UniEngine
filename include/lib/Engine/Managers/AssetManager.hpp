@@ -7,24 +7,9 @@
 #include <OpenGLUtils.hpp>
 #include <Prefab.hpp>
 #include <ReflectionProbe.hpp>
+#include <ProjectManager.hpp>
 namespace UniEngine
 {
-struct UNIENGINE_API AssetRecord
-{
-    std::string m_name = "";
-    std::filesystem::path m_filePath = "";
-    std::string m_typeName = "";
-};
-
-class UNIENGINE_API AssetRegistry : public ISerializable
-{
-  public:
-    size_t m_version = 0;
-    std::unordered_map<Handle, AssetRecord> m_assetRecords;
-    void Serialize(YAML::Emitter &out) override;
-    void Deserialize(const YAML::Node &in) override;
-};
-
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
     std::filesystem::path m_resourceRootPath;
@@ -32,8 +17,9 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
-    std::shared_ptr<AssetRegistry> m_assetRegistry;
+
     friend class DefaultResources;
+    friend class ProjectManager;
     friend class EditorManager;
     friend class IAsset;
     friend class Scene;
@@ -89,7 +75,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesys
     AssetRecord assetRecord;
     assetRecord.m_typeName = ptr->GetTypeName();
     assetRecord.m_filePath = ptr->m_path;
-    assetManager.m_assetRegistry->m_assetRecords[ptr->GetHandle()] = assetRecord;
+    ProjectManager::GetInstance().m_assetRegistry->m_assetRecords[ptr->GetHandle()] = assetRecord;
     return std::static_pointer_cast<T>(ptr);
 }
 template <typename T> void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<T> &target)

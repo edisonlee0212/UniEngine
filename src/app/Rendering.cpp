@@ -20,6 +20,7 @@ int main()
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma endregion
 
+
 #pragma region Create 9 spheres in different PBR properties
     int amount = 4;
     auto collection = EntityManager::CreateEntity("Spheres");

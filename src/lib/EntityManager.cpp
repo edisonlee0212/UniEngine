@@ -107,6 +107,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
 void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
 {
     auto &entityManager = GetInstance();
+    if(!entityManager.m_entityDataComponentStorage) return;
     auto &archetypeInfo = entityManager.m_entityArchetypeInfos.at(index);
     int targetIndex = 0;
     for (const auto &i : *entityManager.m_entityDataComponentStorage)
@@ -1115,9 +1116,6 @@ template <typename T> const std::vector<Entity> EntityManager::GetPrivateCompone
 void EntityManager::Init()
 {
     auto &entityManager = GetInstance();
-    auto scene = AssetManager::CreateAsset<Scene>("New Scene");
-    Attach(scene);
-
     entityManager.m_entityArchetypeInfos.emplace_back();
     entityManager.m_entityQueryInfos.emplace_back();
 
