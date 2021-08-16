@@ -59,7 +59,6 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
     }
-    AssetManager::GetAssetFolderPath();
 }
 
 std::filesystem::path ProjectManager::GetProjectPath()
@@ -136,6 +135,8 @@ void ProjectManager::OnGui()
     {
         if (ImGui::BeginMenu("Project"))
         {
+            ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
+
             FileUtils::SaveFile("New...##ProjectManager", ".ueproj", [](const std::string &filePath) {
                 std::filesystem::path path = filePath;
                 path.replace_extension(".ueproj");
