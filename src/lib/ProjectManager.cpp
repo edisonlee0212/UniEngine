@@ -180,6 +180,6 @@ void ProjectManager::Init()
     auto &projectManager = GetInstance();
     std::filesystem::path resourceFolder = UNIENGINE_RESOURCE_FOLDER;
     std::filesystem::path path =
-        resourceFolder / "Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
+        resourceFolder / "Temp Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
     CreateOrLoadProject(path);
 }

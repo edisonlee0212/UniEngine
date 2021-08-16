@@ -1,6 +1,9 @@
 # Include Resource folder
 !Resources/
 
+# Exclude Temp projects folder
+Resources/Temp Projects/
+
 # Prerequisites
 *.d
 
