@@ -125,8 +125,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static bool DragAndDropButton(Entity &entity);
 
     template <typename T = IAsset> static void DraggableAsset(std::shared_ptr<T> &target);
-    template <typename T = IPrivateComponent>
-    static void DraggablePrivateComponent(std::shared_ptr<T> &target);
+    template <typename T = IPrivateComponent> static void DraggablePrivateComponent(std::shared_ptr<T> &target);
     static bool MainCameraWindowFocused();
     static bool SceneCameraWindowFocused();
 };
@@ -287,6 +286,20 @@ bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::st
                 std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data));
             target = payload_n;
             statusChanged = true;
+        }
+        ImGui::EndDragDropTarget();
+    }
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            Entity payload_n = *static_cast<Entity *>(payload->Data);
+            if (payload_n.HasPrivateComponent<T>())
+            {
+                target = payload_n.GetOrSetPrivateComponent<T>().lock();
+                statusChanged = true;
+            }
         }
         ImGui::EndDragDropTarget();
     }

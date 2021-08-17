@@ -56,26 +56,6 @@ void UniEngine::RigidBody::OnCreate()
 {
     UpdateBody();
     PxRigidBodyExt::updateMassAndInertia(*reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
-
-    SetShapeTransform(m_shapeTransform);
-    SetSolverIterations(m_minPositionIterations, m_minVelocityIterations);
-    SetAngularDamping(m_angularDamping);
-    SetLinearDamping(m_linearDamping);
-    SetEnableGravity(m_gravity);
-    if (m_kinematic)
-        SetKinematic(m_kinematic);
-    if (m_static)
-        SetStatic(m_static);
-
-    auto colliders = m_colliders;
-    m_colliders.clear();
-    for (auto i : colliders)
-    {
-        auto clonedCollider = AssetManager::CreateAsset<Collider>();
-        clonedCollider->SetShapeType(i.Get<Collider>()->m_shapeType);
-        clonedCollider->SetShapeParam(i.Get<Collider>()->m_shapeParam);
-        AttachCollider(clonedCollider);
-    }
 }
 
 void UniEngine::RigidBody::OnGui()
@@ -328,17 +308,29 @@ void RigidBody::Deserialize(const YAML::Node &in)
 {
     m_shapeTransform = in["m_shapeTransform"].as<glm::mat4>();
     m_drawBounds = in["m_drawBounds"].as<bool>();
-    m_static = in["m_static"].as<bool>();
+    auto isStatic = in["m_static"].as<bool>();
     m_density = in["m_density"].as<float>();
     m_massCenter = in["m_massCenter"].as<PxVec3>();
     m_linearVelocity = in["m_linearVelocity"].as<PxVec3>();
     m_angularVelocity = in["m_angularVelocity"].as<PxVec3>();
-    m_kinematic = in["m_kinematic"].as<bool>();
+    auto kinematic = in["m_kinematic"].as<bool>();
     m_linearDamping = in["m_linearDamping"].as<float>();
     m_angularDamping = in["m_angularDamping"].as<float>();
     m_minPositionIterations = in["m_minPositionIterations"].as<unsigned>();
     m_minVelocityIterations = in["m_minVelocityIterations"].as<unsigned>();
     m_gravity = in["m_gravity"].as<bool>();
+
+
+
+    SetShapeTransform(m_shapeTransform);
+    SetSolverIterations(m_minPositionIterations, m_minVelocityIterations);
+    SetAngularDamping(m_angularDamping);
+    SetLinearDamping(m_linearDamping);
+    SetEnableGravity(m_gravity);
+    if (kinematic)
+        SetKinematic(kinematic);
+    if (isStatic)
+        SetStatic(isStatic);
 
     auto inColliders = in["m_colliders"];
     if (inColliders)
@@ -346,7 +338,8 @@ void RigidBody::Deserialize(const YAML::Node &in)
         for(const auto& i : inColliders){
             AssetRef ref;
             ref.Deserialize(i);
-            m_colliders.push_back(ref);
+            auto collider = ref.Get<Collider>();
+            AttachCollider(collider);
         }
     }
 }

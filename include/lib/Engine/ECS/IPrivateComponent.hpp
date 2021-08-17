@@ -67,6 +67,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     {
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
         m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
+        Update();
     }
 
   public:

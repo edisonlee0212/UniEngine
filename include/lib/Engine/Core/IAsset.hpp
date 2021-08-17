@@ -52,6 +52,7 @@ class UNIENGINE_API AssetRef : public ISerializable
     {
       m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
       m_assetTypeName = in["m_assetTypeName"].as<std::string>();
+      Update();
     }
     AssetRef(){
         m_assetHandle = Handle(0);

@@ -95,6 +95,7 @@ class UNIENGINE_API EntityRef : public ISerializable
     void Deserialize(const YAML::Node &in) override
     {
       m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+      Update();
     }
     EntityRef()
     {

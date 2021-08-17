@@ -416,6 +416,10 @@ void Joint::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_localRotation1" << YAML::Value << m_localRotation1;
     out << YAML::Key << "m_localRotation2" << YAML::Value << m_localRotation2;
 
+    m_rigidBody1.Save("m_rigidBody1", out);
+    m_rigidBody2.Save("m_rigidBody2", out);
+
+
     switch (m_jointType)
     {
     case JointType::Fixed:
@@ -466,6 +470,10 @@ void Joint::Deserialize(const YAML::Node &in)
     m_localPosition2 = in["m_localPosition2"].as<glm::vec3>();
     m_localRotation1 = in["m_localRotation1"].as<glm::quat>();
     m_localRotation2 = in["m_localRotation2"].as<glm::quat>();
+
+    m_rigidBody1.Load("m_rigidBody1", in);
+    m_rigidBody2.Load("m_rigidBody2", in);
+
     switch (m_jointType)
     {
     case JointType::Fixed:
