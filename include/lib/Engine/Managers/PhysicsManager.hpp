@@ -105,6 +105,8 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const PxVec2 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const PxVec3 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const PxVec4 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const PxMat44 &v);
+
+class UNIENGINE_API PhysicsScene;
 class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 {
     PxPvdTransport *m_pvdTransport;
@@ -115,12 +117,16 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     PxDefaultCpuDispatcher *m_dispatcher;
     PxPvd *m_physVisDebugger;
 
+    std::vector<std::weak_ptr<PhysicsScene>> m_scenes;
+
     friend class RigidBody;
     friend class Joint;
     friend class Articulation;
+    friend class PhysicsScene;
     friend class PhysicsSystem;
     friend class PhysicsMaterial;
     friend class Collider;
+    static void UploadRigidBodyShapes(const std::shared_ptr<PhysicsScene>& scene, const std::vector<Entity> *rigidBodyEntities);
   public:
     static void UploadTransforms(const bool& updateAll, const bool& freeze = false);
 
@@ -130,13 +136,20 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     static void Destroy();
 };
 
+class UNIENGINE_API PhysicsScene{
+    PxScene *m_physicsScene = nullptr;
+    friend class PhysicsSystem;
+    friend class PhysicsManager;
+  public:
+    PhysicsScene();
+    ~PhysicsScene();
+};
 class UNIENGINE_API PhysicsSystem : public ISystem
 {
-    PxScene *m_physicsScene = nullptr;
-    void UploadRigidBodyShapes(const std::vector<Entity> *rigidBodyEntities) const;
+    std::shared_ptr<PhysicsScene> m_scene;
+
     void DownloadRigidBodyTransforms(const std::vector<Entity> *rigidBodyEntities) const;
   public:
-    void UploadRigidBodyShapes() const;
     void DownloadRigidBodyTransforms() const;
     void OnEnable();
     void OnCreate() override;

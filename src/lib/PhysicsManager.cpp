@@ -33,7 +33,8 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxMat44 &v)
     return out;
 }
 
-void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody)
+void PhysicsManager::UploadTransform(
+    const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody)
 {
     GlobalTransform ltw;
     ltw.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
@@ -52,7 +53,28 @@ void PhysicsManager::UploadTransform(const GlobalTransform &globalTransform, con
 
 void PhysicsManager::PreUpdate()
 {
+    auto physicsManager = GetInstance();
     const bool playing = Application::IsPlaying();
+
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    if (rigidBodyEntities)
+    {
+        for (int i = 0; i < physicsManager.m_scenes.size(); i++)
+        {
+            auto scene = physicsManager.m_scenes[i].lock();
+            if (scene)
+            {
+
+                UploadRigidBodyShapes(scene, rigidBodyEntities);
+            }
+            else
+            {
+                physicsManager.m_scenes.erase(physicsManager.m_scenes.begin() + i);
+                i--;
+            }
+        }
+    }
+
     UploadTransforms(!playing);
 }
 
@@ -109,31 +131,29 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
             auto globalTransform = entity.GetDataComponent<GlobalTransform>();
             globalTransform.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
             globalTransform.SetScale(glm::vec3(1.0f));
-            if (rigidBody->m_currentRegistered && rigidBody->m_kinematic)
+            if (rigidBody->m_currentRegistered)
             {
-                if (freeze)
+                if (rigidBody->m_kinematic)
                 {
-                    static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
+                    if (freeze || updateAll)
+                    {
+                        static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
                         ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                    }
+                    else
+                    {
+                        static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
+                            ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                    }
                 }
-                else
+                else if (updateAll)
                 {
-                    static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
-                        ->setKinematicTarget(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-                }
-                if (freeze)
-                {
-                    rigidBody->SetLinearVelocity(glm::vec3(0.0f));
-                    rigidBody->SetAngularVelocity(glm::vec3(0.0f));
-                }
-            }
-            else if (updateAll && !rigidBody->m_kinematic)
-            {
-                rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-                if (freeze)
-                {
-                    rigidBody->SetLinearVelocity(glm::vec3(0.0f));
-                    rigidBody->SetAngularVelocity(glm::vec3(0.0f));
+                    rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                    if (freeze)
+                    {
+                        rigidBody->SetLinearVelocity(glm::vec3(0.0f));
+                        rigidBody->SetAngularVelocity(glm::vec3(0.0f));
+                    }
                 }
             }
         }
@@ -142,15 +162,9 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
 
 void PhysicsSystem::OnCreate()
 {
-    auto physics = PhysicsManager::GetInstance().m_physics;
-    PxSceneDesc sceneDesc(physics->getTolerancesScale());
-    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-    sceneDesc.solverType = PxSolverType::eTGS;
-    sceneDesc.cpuDispatcher = PhysicsManager::GetInstance().m_dispatcher;
-    sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-    m_physicsScene = physics->createScene(sceneDesc);
-
-    PxPvdSceneClient *pvdClient = m_physicsScene->getScenePvdClient();
+    m_scene = std::make_shared<PhysicsScene>();
+    PhysicsManager::GetInstance().m_scenes.push_back(m_scene);
+    PxPvdSceneClient *pvdClient = m_scene->m_physicsScene->getScenePvdClient();
     if (pvdClient)
     {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
@@ -163,7 +177,6 @@ void PhysicsSystem::OnCreate()
 
 void PhysicsSystem::OnDestroy()
 {
-    PX_RELEASE(m_physicsScene);
 }
 
 void PhysicsSystem::FixedUpdate()
@@ -176,9 +189,8 @@ void PhysicsSystem::Simulate(float time) const
     const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (!rigidBodyEntities)
         return;
-    UploadRigidBodyShapes(rigidBodyEntities);
-    m_physicsScene->simulate(time);
-    m_physicsScene->fetchResults(true);
+    m_scene->m_physicsScene->simulate(time);
+    m_scene->m_physicsScene->fetchResults(true);
     DownloadRigidBodyTransforms(rigidBodyEntities);
     TransformManager::GetInstance().m_physicsSystemOverride = true;
 }
@@ -192,13 +204,9 @@ void PhysicsSystem::DownloadRigidBodyTransforms() const
     if (rigidBodyEntities)
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
-void PhysicsSystem::UploadRigidBodyShapes() const
-{
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-    if (rigidBodyEntities)
-        UploadRigidBodyShapes(rigidBodyEntities);
-}
-void PhysicsSystem::UploadRigidBodyShapes(const std::vector<Entity> *rigidBodyEntities) const
+
+void PhysicsManager::UploadRigidBodyShapes(
+    const std::shared_ptr<PhysicsScene> &scene, const std::vector<Entity> *rigidBodyEntities)
 {
 #pragma region Update shape
     for (auto entity : *rigidBodyEntities)
@@ -207,14 +215,14 @@ void PhysicsSystem::UploadRigidBodyShapes(const std::vector<Entity> *rigidBodyEn
         if (rigidBody->m_currentRegistered == false && entity.IsValid() && entity.IsEnabled() && rigidBody->IsEnabled())
         {
             rigidBody->m_currentRegistered = true;
-            m_physicsScene->addActor(*rigidBody->m_rigidActor);
+            scene->m_physicsScene->addActor(*rigidBody->m_rigidActor);
         }
         else if (
             rigidBody->m_currentRegistered == true &&
             (!entity.IsValid() || !entity.IsEnabled() || !rigidBody->IsEnabled()))
         {
             rigidBody->m_currentRegistered = false;
-            m_physicsScene->removeActor(*rigidBody->m_rigidActor);
+            scene->m_physicsScene->removeActor(*rigidBody->m_rigidActor);
         }
     }
 #pragma endregion
@@ -269,4 +277,20 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
     }
     for (const auto &i : futures)
         i.wait();
+}
+
+PhysicsScene::PhysicsScene()
+{
+    auto physics = PhysicsManager::GetInstance().m_physics;
+    PxSceneDesc sceneDesc(physics->getTolerancesScale());
+    sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+    sceneDesc.solverType = PxSolverType::eTGS;
+    sceneDesc.cpuDispatcher = PhysicsManager::GetInstance().m_dispatcher;
+    sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+    m_physicsScene = physics->createScene(sceneDesc);
+}
+
+PhysicsScene::~PhysicsScene()
+{
+    PX_RELEASE(m_physicsScene);
 }
