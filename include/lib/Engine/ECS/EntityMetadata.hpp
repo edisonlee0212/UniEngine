@@ -8,7 +8,6 @@ struct EntityMetadata : public ISerializable
 {
     std::string m_name;
     unsigned m_version = 1;
-    bool m_static = false;
     bool m_enabled = true;
     Entity m_parent = Entity();
     std::vector<PrivateComponentElement> m_privateComponentElements;

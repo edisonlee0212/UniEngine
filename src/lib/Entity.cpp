@@ -44,11 +44,6 @@ bool Entity::IsEnabled() const
     return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).m_enabled;
 }
 
-void Entity::SetStatic(const bool &value) const
-{
-    EntityManager::SetStatic(*this, value);
-}
-
 void Entity::SetEnabled(const bool &value) const
 {
     EntityManager::SetEnable(*this, value);
@@ -62,12 +57,6 @@ void Entity::SetEnabledSingle(const bool &value) const
 bool Entity::IsNull() const
 {
     return m_index == 0;
-}
-
-bool Entity::IsStatic() const
-{
-    assert(IsValid());
-    return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).m_static;
 }
 
 bool Entity::IsValid() const

@@ -8,7 +8,6 @@ void EntityMetadata::Deserialize(const YAML::Node &in)
 {
     m_name = in["Name"].as<std::string>();
     m_version = in["Version"].as<unsigned>();
-    m_static = in["Static"].as<bool>();
     m_enabled = in["Enabled"].as<bool>();
     m_handle.m_value = in["Handle"].as<uint64_t>();
     Entity parent;
@@ -34,7 +33,6 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
         out << YAML::Key << "Name" << YAML::Value << m_name;
         out << YAML::Key << "Handle" << YAML::Value << m_handle.m_value;
         out << YAML::Key << "Version" << YAML::Value << m_version;
-        out << YAML::Key << "Static" << YAML::Value << m_static;
         out << YAML::Key << "Enabled" << YAML::Value << m_enabled;
         out << YAML::Key << "Parent.Index" << YAML::Value << m_parent.m_index;
         out << YAML::Key << "Parent.Version" << YAML::Value << m_parent.m_version;

@@ -72,7 +72,6 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
     {
         entityManager.m_entityPrivateComponentStorage->DeleteEntity(actualEntity);
         entityInfo.m_version = actualEntity.m_version + 1;
-        entityInfo.m_static = false;
         entityInfo.m_enabled = true;
 
         entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.erase(entityInfo.m_handle);
@@ -1022,15 +1021,6 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
     {
         SetEnable(i, value);
     }
-    GetInstance().m_scene->m_saved = false;
-}
-
-void EntityManager::SetStatic(const Entity &entity, const bool &value)
-{
-    assert(entity.IsValid());
-    ForEachDescendant(entity, [=](const Entity iterator) {
-        GetInstance().m_entityMetaDataCollection->at(iterator.m_index).m_static = value;
-    });
     GetInstance().m_scene->m_saved = false;
 }
 

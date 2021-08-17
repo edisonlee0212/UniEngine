@@ -180,7 +180,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
     // entity.
     static void SetEnable(const Entity &entity, const bool &value);
-    static void SetStatic(const Entity &entity, const bool &value);
 
     static Entity GetRoot(const Entity &entity);
     static std::string GetEntityName(const Entity &entity);

@@ -385,7 +385,6 @@ void Galaxy::StarClusterSystem::PushStars(StarClusterPattern &pattern, const siz
     for (auto i = 0; i < amount; i++)
     {
         auto starEntity = stars[i];
-        starEntity.SetStatic(true);
         StarOrbitProportion proportion;
         proportion.m_value = glm::linearRand(0.0, 1.0);
         StarInfo starInfo;

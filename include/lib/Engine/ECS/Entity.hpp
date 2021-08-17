@@ -51,11 +51,9 @@ struct UNIENGINE_API Entity final
     bool operator!=(const Entity &other) const;
     size_t operator()(Entity const &key) const;
     [[nodiscard]] bool IsEnabled() const;
-    void SetStatic(const bool &value) const;
     void SetEnabled(const bool &value) const;
     void SetEnabledSingle(const bool &value) const;
     [[nodiscard]] bool IsNull() const;
-    [[nodiscard]] bool IsStatic() const;
     [[nodiscard]] bool IsValid() const;
 
     void SetParent(const Entity &parent, const bool &recalculateTransform = false) const;

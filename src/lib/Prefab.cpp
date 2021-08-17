@@ -5,7 +5,6 @@
 #include <Gui.hpp>
 #include <MeshRenderer.hpp>
 #include <Prefab.hpp>
-#include <ProjectManager.hpp>
 #include <RenderManager.hpp>
 #include <SerializationManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
@@ -26,8 +25,6 @@ Entity Prefab::ToEntity() const
     }
     auto archetype = EntityManager::CreateEntityArchetype("", types);
     const Entity entity = EntityManager::CreateEntity(archetype, m_name);
-    auto& entityInfo = EntityManager::GetInstance().m_currentAttachedWorldEntityStorage->m_entityInfos.at(entity.GetIndex());
-    entityInfo.m_static = m_static;
     entityMap[m_entityHandle] = entity.GetHandle();
     for (auto &i : m_dataComponents)
     {
@@ -70,8 +67,6 @@ void Prefab::AttachChildren(
     }
     auto archetype = EntityManager::CreateEntityArchetype("", types);
     Entity entity = EntityManager::CreateEntity(archetype, m_name);
-    auto& entityInfo = EntityManager::GetInstance().m_currentAttachedWorldEntityStorage->m_entityInfos.at(entity.GetIndex());
-    entityInfo.m_static = m_static;
     map[modelNode->m_entityHandle] = entity.GetHandle();
     entity.SetParent(parentEntity);
     for (auto &i : modelNode->m_dataComponents)
@@ -1029,7 +1024,6 @@ void Prefab::FromEntity(const Entity &entity)
     m_entityHandle = entity.GetHandle();
     m_name = entity.GetName();
     m_enabled = entity.IsEnabled();
-    m_static = entity.IsStatic();
     EntityManager::UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data) {
         DataComponentHolder holder;
         holder.m_type = type;

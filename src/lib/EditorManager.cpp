@@ -285,20 +285,6 @@ void EditorManager::Init()
     });
     RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
-        if (entity.IsStatic())
-        {
-            previousEntity = Entity();
-            auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
-            glm::vec3 er;
-            glm::vec3 t;
-            glm::vec3 s;
-            ltp->Decompose(t, er, s);
-            er = glm::degrees(er);
-            ImGui::InputFloat3("Position##Local", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-            ImGui::InputFloat3("Rotation##Local", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-            ImGui::InputFloat3("Scale##Local", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-            return;
-        }
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
         bool reload = previousEntity != entity;
@@ -832,14 +818,6 @@ void EditorManager::OnGui()
                 }
             }
             ImGui::SameLine();
-            bool isStatic = editorManager.m_selectedEntity.IsStatic();
-            if (ImGui::Checkbox("Static", &isStatic))
-            {
-                if (editorManager.m_selectedEntity.IsStatic() != isStatic)
-                {
-                    editorManager.m_selectedEntity.SetStatic(isStatic);
-                }
-            }
             bool deleted = DrawEntityMenu(editorManager.m_selectedEntity.IsEnabled(), editorManager.m_selectedEntity);
             ImGui::Separator();
             if (!deleted)
@@ -1253,7 +1231,7 @@ void EditorManager::SceneCameraWindow()
             }
 #pragma region Gizmos and Entity Selection
             bool mouseSelectEntity = true;
-            if (editorManager.m_selectedEntity.IsValid() && !editorManager.m_selectedEntity.IsStatic())
+            if (editorManager.m_selectedEntity.IsValid())
             {
                 ImGuizmo::SetOrthographic(false);
                 ImGuizmo::SetDrawlist();
