@@ -109,7 +109,13 @@ void AssetManager::OnGui()
                 FileUtils::OpenFile("Scene##Import", ".uescene", [&](const std::string &filePath) {
                     try
                     {
-                        auto asset = Import<Scene>(filePath);
+                        std::filesystem::path path = filePath;
+                        auto asset = AssetManager::CreateAsset<Scene>(path.filename().string());
+                        asset->SetPath(path);
+                        auto previousScene = EntityManager::GetCurrentScene();
+                        EntityManager::Attach(asset);
+                        asset->Load();
+                        EntityManager::Attach(previousScene);
                         resourceManager.m_sharedAssets["Scene"][asset->m_handle] =
                             std::static_pointer_cast<IAsset>(asset);
                         UNIENGINE_LOG("Loaded from " + filePath);
@@ -348,3 +354,4 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     retVal->OnCreate();
     return retVal;
 }
+

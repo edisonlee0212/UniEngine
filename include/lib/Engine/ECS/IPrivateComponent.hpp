@@ -89,6 +89,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         Set(other);
         return *this;
     }
+
     bool operator==(const PrivateComponentRef &rhs) const
     {
         return m_entityHandle == rhs.m_entityHandle;
@@ -127,6 +128,28 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
             m_entityHandle = Handle(0);
         m_value = target;
     }
+
+    template <typename T = IPrivateComponent> void Set(const Entity &target)
+    {
+        if (!target.IsValid())
+        {
+            UNIENGINE_WARNING("Entity invalid!");
+            return;
+        }
+        if (target.HasPrivateComponent<T>())
+        {
+            m_privateComponentTypeName = SerializationManager::GetSerializableTypeName<T>();
+            auto pc = target.GetOrSetPrivateComponent<T>().lock();
+            m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner().GetHandle();
+            m_value = pc;
+        }
+        else
+        {
+            UNIENGINE_WARNING("Entity doesn't contain " + SerializationManager::GetSerializableTypeName<T>() + "!");
+            return;
+        }
+    }
+
     void Clear();
 
     [[nodiscard]] Handle GetEntityHandle() const

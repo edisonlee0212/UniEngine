@@ -37,23 +37,22 @@ class UNIENGINE_API IAsset : public ISerializable
 class UNIENGINE_API AssetRef : public ISerializable
 {
     friend class Prefab;
+    friend class Project;
     std::shared_ptr<IAsset> m_value;
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName;
     bool Update();
-
-  protected:
+  public:
     void Serialize(YAML::Emitter &out) override
     {
-        out << YAML::Key << "m_assetHandle" << YAML::Value << m_assetHandle;
-        out << YAML::Key << "m_assetTypeName" << YAML::Value << m_assetTypeName;
+      out << YAML::Key << "m_assetHandle" << YAML::Value << m_assetHandle;
+      out << YAML::Key << "m_assetTypeName" << YAML::Value << m_assetTypeName;
     }
     void Deserialize(const YAML::Node &in) override
     {
-        m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
-        m_assetTypeName = in["m_assetTypeName"].as<std::string>();
+      m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
+      m_assetTypeName = in["m_assetTypeName"].as<std::string>();
     }
-  public:
     AssetRef(){
         m_assetHandle = Handle(0);
         m_assetTypeName = "";

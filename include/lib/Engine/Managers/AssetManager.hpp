@@ -6,10 +6,16 @@
 #include <LightProbe.hpp>
 #include <OpenGLUtils.hpp>
 #include <Prefab.hpp>
-#include <ReflectionProbe.hpp>
 #include <ProjectManager.hpp>
+#include <ReflectionProbe.hpp>
 namespace UniEngine
 {
+struct UNIENGINE_API AssetCreateHelper
+{
+    std::string m_typeName;
+    Handle m_handle;
+    std::string m_name;
+};
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
     std::filesystem::path m_resourceRootPath;
@@ -39,6 +45,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
 
+    template <typename T> static std::shared_ptr<T> Get(const Handle &handle);
+
     static std::shared_ptr<IAsset> Get(const std::string &typeName, const Handle &handle);
     template <typename T> static void RemoveFromShared(const Handle &handle);
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
@@ -64,6 +72,10 @@ template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
 {
     auto ptr = std::dynamic_pointer_cast<IAsset>(resource);
     GetInstance().m_sharedAssets[ptr->GetTypeName()][ptr->GetHandle()] = std::dynamic_pointer_cast<IAsset>(resource);
+}
+template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
+{
+    return std::dynamic_pointer_cast<T>(Get(SerializationManager::GetSerializableTypeName<T>(), handle));
 }
 template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {

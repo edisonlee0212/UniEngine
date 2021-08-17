@@ -26,7 +26,8 @@ void UniEngine::RigidBody::SetShapeTransform(const glm::mat4 &value)
 
 void UniEngine::RigidBody::OnDestroy()
 {
-    while(!m_colliders.empty()) DetachCollider(0);
+    while (!m_colliders.empty())
+        DetachCollider(0);
     if (m_rigidActor)
     {
         m_rigidActor->release();
@@ -43,7 +44,7 @@ void UniEngine::RigidBody::UpdateBody()
     else
         m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(PxTransform(localTm));
     m_currentRegistered = false;
-    if(!m_static && !m_kinematic)
+    if (!m_static && !m_kinematic)
     {
         PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
         rigidBody->setLinearDamping(m_linearDamping);
@@ -61,12 +62,15 @@ void UniEngine::RigidBody::OnCreate()
     SetAngularDamping(m_angularDamping);
     SetLinearDamping(m_linearDamping);
     SetEnableGravity(m_gravity);
-    if(m_kinematic) SetKinematic(m_kinematic);
-    if(m_static) SetStatic(m_static);
+    if (m_kinematic)
+        SetKinematic(m_kinematic);
+    if (m_static)
+        SetStatic(m_static);
 
     auto colliders = m_colliders;
     m_colliders.clear();
-    for(auto i : colliders){
+    for (auto i : colliders)
+    {
         auto clonedCollider = AssetManager::CreateAsset<Collider>();
         clonedCollider->SetShapeType(i.Get<Collider>()->m_shapeType);
         clonedCollider->SetShapeParam(i.Get<Collider>()->m_shapeParam);
@@ -76,9 +80,11 @@ void UniEngine::RigidBody::OnCreate()
 
 void UniEngine::RigidBody::OnGui()
 {
-    if(ImGui::TreeNodeEx("Colliders")){
+    if (ImGui::TreeNodeEx("Colliders"))
+    {
         int index = 0;
-        for(auto& i : m_colliders){
+        for (auto &i : m_colliders)
+        {
             EditorManager::DragAndDropButton<Collider>(i, ("Collider " + std::to_string(index++)));
         }
         ImGui::TreePop();
@@ -133,7 +139,8 @@ void UniEngine::RigidBody::OnGui()
     bool statusChanged = false;
     bool staticChanged = false;
     bool savedVal = m_static;
-    if(!m_kinematic){
+    if (!m_kinematic)
+    {
         ImGui::Checkbox("Static", &m_static);
         if (m_static != savedVal)
         {
@@ -160,7 +167,7 @@ void UniEngine::RigidBody::OnGui()
 
         auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
         ltw.SetScale(glm::vec3(1.0f));
-        for(auto& collider : m_colliders)
+        for (auto &collider : m_colliders)
         {
             switch (collider.Get<Collider>()->m_shapeType)
             {
@@ -169,7 +176,8 @@ void UniEngine::RigidBody::OnGui()
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Sphere,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam.x))),
+                        ltw.m_value *
+                            (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam.x))),
                         1);
                 break;
             case ShapeType::Box:
@@ -177,7 +185,8 @@ void UniEngine::RigidBody::OnGui()
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cube,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
+                        ltw.m_value *
+                            (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
                         1);
                 break;
             case ShapeType::Capsule:
@@ -185,7 +194,8 @@ void UniEngine::RigidBody::OnGui()
                     RenderManager::DrawGizmoMesh(
                         DefaultResources::Primitives::Cylinder,
                         displayBoundColor,
-                        ltw.m_value * (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
+                        ltw.m_value *
+                            (m_shapeTransform * glm::scale(glm::vec3(collider.Get<Collider>()->m_shapeParam))),
                         1);
                 break;
             }
@@ -271,16 +281,19 @@ void RigidBody::SetEnableGravity(bool value)
 }
 void RigidBody::AttachCollider(std::shared_ptr<Collider> &collider)
 {
-    if(collider->m_attached){
+    if (collider->m_attached)
+    {
         UNIENGINE_ERROR("Collider already attached to a RigidBody!");
         return;
     }
     m_colliders.emplace_back(collider);
-    if(m_rigidActor) m_rigidActor->attachShape(*collider->m_shape);
+    if (m_rigidActor)
+        m_rigidActor->attachShape(*collider->m_shape);
 }
 void RigidBody::DetachCollider(size_t index)
 {
-    if(m_rigidActor) m_rigidActor->detachShape(*m_colliders[index].Get<Collider>()->m_shape);
+    if (m_rigidActor)
+        m_rigidActor->detachShape(*m_colliders[index].Get<Collider>()->m_shape);
     m_colliders[index].Get<Collider>()->m_attached = false;
     m_colliders.erase(m_colliders.begin() + index);
 }
@@ -291,7 +304,6 @@ void RigidBody::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_static" << YAML::Value << m_static;
     out << YAML::Key << "m_density" << YAML::Value << m_density;
     out << YAML::Key << "m_massCenter" << YAML::Value << m_massCenter;
-    out << YAML::Key << "m_currentRegistered" << YAML::Value << m_currentRegistered;
     out << YAML::Key << "m_linearVelocity" << YAML::Value << m_linearVelocity;
     out << YAML::Key << "m_angularVelocity" << YAML::Value << m_angularVelocity;
     out << YAML::Key << "m_kinematic" << YAML::Value << m_kinematic;
@@ -300,10 +312,43 @@ void RigidBody::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_minPositionIterations" << YAML::Value << m_minPositionIterations;
     out << YAML::Key << "m_minVelocityIterations" << YAML::Value << m_minVelocityIterations;
     out << YAML::Key << "m_gravity" << YAML::Value << m_gravity;
+
+    if (!m_colliders.empty())
+    {
+        out << YAML::Key << "m_colliders" << YAML::Value << YAML::BeginSeq;
+        for(int i = 0; i < m_colliders.size(); i++){
+            out << YAML::BeginMap;
+            m_colliders[i].Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
 }
 void RigidBody::Deserialize(const YAML::Node &in)
 {
     m_shapeTransform = in["m_shapeTransform"].as<glm::mat4>();
+    m_drawBounds = in["m_drawBounds"].as<bool>();
+    m_static = in["m_static"].as<bool>();
+    m_density = in["m_density"].as<float>();
+    m_massCenter = in["m_massCenter"].as<PxVec3>();
+    m_linearVelocity = in["m_linearVelocity"].as<PxVec3>();
+    m_angularVelocity = in["m_angularVelocity"].as<PxVec3>();
+    m_kinematic = in["m_kinematic"].as<bool>();
+    m_linearDamping = in["m_linearDamping"].as<float>();
+    m_angularDamping = in["m_angularDamping"].as<float>();
+    m_minPositionIterations = in["m_minPositionIterations"].as<unsigned>();
+    m_minVelocityIterations = in["m_minVelocityIterations"].as<unsigned>();
+    m_gravity = in["m_gravity"].as<bool>();
+
+    auto inColliders = in["m_colliders"];
+    if (inColliders)
+    {
+        for(const auto& i : inColliders){
+            AssetRef ref;
+            ref.Deserialize(i);
+            m_colliders.push_back(ref);
+        }
+    }
 }
 void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
@@ -314,5 +359,6 @@ void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
 }
 void RigidBody::CollectAssetRef(std::vector<AssetRef> &list)
 {
-    for(const auto& i : m_colliders) list.push_back(i);
+    for (const auto &i : m_colliders)
+        list.push_back(i);
 }

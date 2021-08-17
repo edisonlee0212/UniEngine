@@ -25,7 +25,7 @@ class UNIENGINE_API Project : public ISerializable
 {
   public:
     std::filesystem::path m_assetRegistryPath;
-    std::filesystem::path m_startScenePath;
+    AssetRef m_startScene;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };

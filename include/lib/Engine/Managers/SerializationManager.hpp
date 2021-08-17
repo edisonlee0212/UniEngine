@@ -80,6 +80,32 @@ template <> struct convert<glm::vec4>
         return true;
     }
 };
+template <> struct convert<glm::quat>
+{
+    static Node encode(const glm::quat &rhs)
+    {
+        Node node;
+        node.push_back(rhs.x);
+        node.push_back(rhs.y);
+        node.push_back(rhs.z);
+        node.push_back(rhs.w);
+        return node;
+    }
+
+    static bool decode(const Node &node, glm::quat &rhs)
+    {
+        if (!node.IsSequence() || node.size() != 4)
+        {
+            return false;
+        }
+
+        rhs.x = node[0].as<float>();
+        rhs.y = node[1].as<float>();
+        rhs.z = node[2].as<float>();
+        rhs.w = node[3].as<float>();
+        return true;
+    }
+};
 template <> struct convert<glm::mat4>
 {
     static Node encode(const glm::mat4 &rhs)
@@ -182,6 +208,7 @@ template <typename T> bool SerializationManager::RegisterSerializableType(const 
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec2 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec3 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec4 &v);
+YAML::Emitter &operator<<(YAML::Emitter &out, const glm::quat &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const glm::mat4 &v);
 
 template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializable()

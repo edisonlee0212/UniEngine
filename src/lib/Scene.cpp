@@ -283,6 +283,10 @@ void Scene::Deserialize(const YAML::Node &in)
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
 
+    //Must attach current scene to entitymanager before loading!
+    //assert(EntityManager::GetCurrentScene().get() == this);
+
+
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
     auto inLocalAssets = in["LocalAssets"];
@@ -291,7 +295,10 @@ void Scene::Deserialize(const YAML::Node &in)
         for(const auto& i : inLocalAssets){
             Handle handle = i["Handle"].as<uint64_t>();
             localAssets.push_back(AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
-            localAssets.back()->Deserialize(i);
+        }
+        int index= 0;
+        for(const auto& i : inLocalAssets){
+            localAssets[index++]->Deserialize(i);
         }
     }
 
@@ -378,10 +385,26 @@ void Scene::Deserialize(const YAML::Node &in)
                     SerializationManager::ProduceSerializable(name, hashCode));
                 ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                 ptr->m_started = false;
-                entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
                 m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                ptr->OnCreate();
+                entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+            }
+        }
+        entityIndex++;
+    }
+    entityIndex = 1;
+    for (const auto &inEntityInfo : inEntityInfos)
+    {
+        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);;
+        auto inPrivateComponents = inEntityInfo["PrivateComponent"];
+        int componentIndex = 0;
+        if (inPrivateComponents)
+        {
+            for (const auto &inPrivateComponent : inPrivateComponents)
+            {
+                auto name = inPrivateComponent["TypeName"].as<std::string>();
+                auto ptr = entityInfo.m_privateComponentElements[componentIndex].m_privateComponentData;
                 ptr->Deserialize(inPrivateComponent);
+                componentIndex++;
             }
         }
         entityIndex++;

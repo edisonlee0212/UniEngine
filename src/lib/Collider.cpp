@@ -5,8 +5,7 @@
 using namespace UniEngine;
 void Collider::OnCreate()
 {
-    m_name = "New Collider";
-    m_physicsMaterial = DefaultResources::Physics::DefaultPhysicsMaterial;
+    if(!m_physicsMaterial.Get<PhysicsMaterial>()) m_physicsMaterial = DefaultResources::Physics::DefaultPhysicsMaterial;
     m_shape = PhysicsManager::GetInstance().m_physics->createShape(
         PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z),
         *m_physicsMaterial.Get<PhysicsMaterial>()->m_value);
@@ -74,9 +73,8 @@ void Collider::SetShapeType(const ShapeType& type)
         break;
     }
 }
-void Collider::SetMaterial(std::shared_ptr<PhysicsMaterial> &material)
+void Collider::SetMaterial(const std::shared_ptr<PhysicsMaterial> &material)
 {
-    if(m_physicsMaterial == material) return;
     m_physicsMaterial = material;
     PxMaterial* materials[1];
     materials[0] = material->m_value;
@@ -102,4 +100,26 @@ void Collider::SetShapeParam(const glm::vec3 &param)
 void Collider::CollectAssetRef(std::vector<AssetRef> &list)
 {
     list.push_back(m_physicsMaterial);
+}
+void Collider::Serialize(YAML::Emitter &out)
+{
+    m_physicsMaterial.Save("m_physicsMaterial", out);
+    out << YAML::Key << "m_shapeParam" << YAML::Value << m_shapeParam;
+    out << YAML::Key << "m_attached" << YAML::Value << m_attached;
+    out << YAML::Key << "m_shapeType" << YAML::Value << (unsigned)m_shapeType;
+}
+void Collider::Deserialize(const YAML::Node &in)
+{
+    m_physicsMaterial.Load("m_physicsMaterial", in);
+    m_shapeParam = in["m_shapeParam"].as<glm::vec3>();
+    m_attached = in["m_attached"].as<bool>();
+    m_shapeType = (ShapeType)in["m_shapeType"].as<unsigned>();
+
+    SetShapeParam(m_shapeParam);
+    SetShapeType(m_shapeType);
+    auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
+    if(!mat){
+        mat = DefaultResources::Physics::DefaultPhysicsMaterial;
+    }
+    SetMaterial(mat);
 }

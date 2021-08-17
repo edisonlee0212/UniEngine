@@ -158,50 +158,12 @@ int main()
         const auto freeSphere = CreateDynamicCube(
             0.01, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
         auto joint = freeSphere.GetOrSetPrivateComponent<Joint>().lock();
-        joint->SetType(JointType::Spherical);
+        joint->SetType(JointType::D6);
         joint->Link(lastLink);
-    }
-#pragma endregion
+        //joint->SetMotion(MotionAxis::TwistX, MotionType::Free);
+        joint->SetMotion(MotionAxis::SwingY, MotionType::Free);
+        joint->SetMotion(MotionAxis::SwingZ, MotionType::Free);
 
-#pragma region Heart shaped rings
-    if (false)
-    {
-        const auto height = 0;
-        const auto leftSphere = CreateSolidSphere(
-            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-2.7, height + 2, -10), glm::vec3(0, 0, 45), 1.7, "Block 1");
-        const auto rightSphere = CreateSolidSphere(
-            1.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(2.7, height + 2, -10), glm::vec3(0, 0, 45), 1.7, "Block 3");
-
-        float radius = 3.0f;
-        float factor = 1.5f;
-        const auto anchor = CreateDynamicSphere(
-            8.0, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0, height, -10), glm::vec3(0, 0, 45), 0.28, "Start");
-        auto lastLink = anchor;
-        int amount = 72;
-        for (int i = 1; i < amount; i++)
-        {
-            float mass = i == amount / 2 ? 1 : 1;
-            const auto position = glm::vec3(
-                glm::sin(glm::radians(i * 360.0f / amount)) * radius * factor,
-                -glm::cos(glm::radians(i * 360.0f / amount)) * radius + height + radius,
-                -10);
-            const auto link =
-                CreateDynamicSphere(mass, glm::vec3(1.0f, 1.0f, 1.0f), position, glm::vec3(0, 0, 45), 0.1f, "Link");
-            auto joint = link.GetOrSetPrivateComponent<Joint>().lock();
-            joint->SetType(JointType::Spherical);
-            joint->Link(lastLink);
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_ambient = 2.0f;
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_roughness = 0.0f;
-            link.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_metallic = 0.0f;
-            link.SetParent(anchor);
-            lastLink = link;
-        }
-        auto joint = anchor.GetOrSetPrivateComponent<Joint>().lock();
-        joint->SetType(JointType::Spherical);
-        joint->Link(lastLink);
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_ambient = 3.0f;
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_roughness = 0.0f;
-        anchor.GetOrSetPrivateComponent<MeshRenderer>().lock()->m_material.Get<Material>()->m_metallic = 0.0f;
     }
 #pragma endregion
 

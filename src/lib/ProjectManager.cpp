@@ -7,13 +7,13 @@ using namespace UniEngine;
 void Project::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_assetRegistryPath" << YAML::Value << m_assetRegistryPath.string();
-    out << YAML::Key << "m_startScenePath" << YAML::Value << m_startScenePath.string();
+    out << YAML::Key << "m_startScene" << YAML::Value << m_startScene.GetAssetHandle().GetValue();
 }
 
 void Project::Deserialize(const YAML::Node &in)
 {
     m_assetRegistryPath = in["m_assetRegistryPath"].as<std::string>();
-    m_startScenePath = in["m_startScenePath"].as<std::string>();
+    m_startScene.m_assetHandle = Handle(in["m_startScene"].as<uint64_t>());
 }
 
 void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
@@ -34,8 +34,18 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         YAML::Node in = YAML::Load(stringStream.str());
         projectManager.m_currentProject->Deserialize(in);
         LoadAssetRegistry();
-        auto scene = AssetManager::Import<Scene>(projectManager.m_currentProject->m_startScenePath);
-        EntityManager::Attach(scene);
+        if(true){
+            auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
+            auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
+            auto scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
+            scene->SetPath(sceneRecord.m_filePath);
+            EntityManager::Attach(scene);
+            scene->Load();
+        }else
+        {
+            //auto scene = AssetManager::Import<Scene>(projectManager.m_currentProject->m_startScenePath);
+            //EntityManager::Attach(scene);
+        }
         UNIENGINE_LOG("Found and loaded project");
     }
     else
@@ -43,9 +53,9 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         auto directory = projectManager.m_projectPath;
         directory.remove_filename();
         projectManager.m_currentProject->m_assetRegistryPath = directory / ".ueassetregistry";
-        projectManager.m_currentProject->m_startScenePath = directory / "New Scene.uescene";
         auto scene = AssetManager::CreateAsset<Scene>("New Scene");
-        scene->SetPath(projectManager.m_currentProject->m_startScenePath);
+        scene->SetPath(directory / "New Scene.uescene");
+        projectManager.m_currentProject->m_startScene = scene;
         EntityManager::Attach(scene);
 
         #pragma region Main Camera
@@ -78,7 +88,7 @@ void ProjectManager::SaveProject()
     {
         currentScene->Save();
     }
-    projectManager.m_currentProject->m_startScenePath = currentScene->GetPath();
+    projectManager.m_currentProject->m_startScene = currentScene;
     projectManager.m_projectPath.replace_filename(projectManager.m_currentProjectName).replace_extension(".ueproj");
     auto directory = projectManager.m_projectPath;
     directory.remove_filename();

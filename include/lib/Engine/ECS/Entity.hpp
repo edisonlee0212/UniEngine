@@ -87,16 +87,15 @@ class UNIENGINE_API EntityRef : public ISerializable
     Handle m_entityHandle = Handle(0);
     void Update();
 
-  protected:
+  public:
     void Serialize(YAML::Emitter &out) override
     {
-        out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+      out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
     }
     void Deserialize(const YAML::Node &in) override
     {
-        m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+      m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
     }
-  public:
     EntityRef()
     {
         m_entityHandle = Handle(0);

@@ -240,14 +240,12 @@ void Animator::Deserialize(const YAML::Node &in)
     auto inBoundEntities = in["m_boundEntities"];
     if(inBoundEntities)
     {
-        auto size = inBoundEntities.size();
-        for (int i = 0; i < size; i++)
-        {
+        for(const auto& i : inBoundEntities){
             EntityRef ref;
-            ref.Load(std::to_string(i), inBoundEntities);
+            ref.Deserialize(i);
             m_boundEntities.push_back(ref);
-            i++;
         }
+
     }
 }
 
@@ -265,14 +263,13 @@ void Animator::Serialize(YAML::Emitter &out)
 
     if(!m_boundEntities.empty())
     {
-        out << YAML::Key << "m_boundEntities" << YAML::Value << YAML::BeginMap;
-        int index = 0;
-        for (auto &i : m_boundEntities)
-        {
-            i.Save(std::to_string(index), out);
-            index++;
+        out << YAML::Key << "m_boundEntities" << YAML::Value << YAML::BeginSeq;
+        for(int i = 0; i < m_boundEntities.size(); i++){
+            out << YAML::BeginMap;
+            m_boundEntities[i].Serialize(out);
+            out << YAML::EndMap;
         }
-        out << YAML::EndMap;
+        out << YAML::EndSeq;
     }
 }
 std::shared_ptr<Animation> Animator::GetAnimation()

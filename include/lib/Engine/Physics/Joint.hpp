@@ -7,43 +7,50 @@ namespace UniEngine
 {
 enum class JointType
 {
-    Fixed,
+    Fixed = 0,
+    /*
     Distance,
     Spherical,
     Revolute,
     Prismatic,
-    D6
+     */
+    D6 = 1
 };
 enum class MotionAxis{
-    X,
-    Y,
-    Z,
-    TwistX,
-    SwingY,
-    SwingZ
+    X = 0,
+    Y = 1,
+    Z = 2,
+    TwistX = 3,
+    SwingY = 4,
+    SwingZ = 5
 };
 enum class MotionType{
-    Locked,
-    Limited,
-    Free
+    Locked = 0,
+    Limited = 1,
+    Free = 2
 };
 enum class DriveType{
-    X,
-    Y,
-    Z,
-    Swing,
-    Twist,
-    Slerp
+    X = 0,
+    Y = 1,
+    Z = 2,
+    Swing = 3,
+    Twist = 4,
+    Slerp = 5
 };
 class UNIENGINE_API Joint : public IPrivateComponent
 {
-    JointType m_jointType = JointType::Spherical;
+    JointType m_jointType = JointType::Fixed;
     friend class PhysicsManager;
     PxJoint *m_joint;
+    glm::vec3 m_localPosition1;
+    glm::vec3 m_localPosition2;
+    glm::quat m_localRotation1;
+    glm::quat m_localRotation2;
 
 #pragma region Fixed
     void FixedGui();
 #pragma endregion
+    /*
 #pragma region Distance
     float m_maxDistance = FLT_MIN;
     float m_minDistance = FLT_MAX;
@@ -66,17 +73,19 @@ class UNIENGINE_API Joint : public IPrivateComponent
 #pragma region Prismatic
     void PrismaticGui();
 #pragma endregion
+     */
 #pragma region D6
     PxD6Motion::Enum m_motionTypes[6] = { PxD6Motion::Enum::eLOCKED };
-    PxD6JointDrive m_drives[5] = { PxD6JointDrive() };
+    PxD6JointDrive m_drives[6] = { PxD6JointDrive() };
     void D6Gui();
 #pragma endregion
-
-    EntityRef m_linkedEntity;
     bool SafetyCheck();
     bool TypeCheck(const JointType &type);
 
   public:
+    PrivateComponentRef m_rigidBody1;
+    PrivateComponentRef m_rigidBody2;
+/*
 #pragma region Fixed
 #pragma endregion
 #pragma region Distance
@@ -87,6 +96,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
 #pragma endregion
 #pragma region Prismatic
 #pragma endregion
+ */
 #pragma region D6
     void SetMotion(const MotionAxis& axis, const MotionType& type);
     void SetDistanceLimit(const float& toleranceLength, const float& toleranceSpeed, const float& extent, const float& contactDist = -1.0f);
@@ -97,11 +107,17 @@ class UNIENGINE_API Joint : public IPrivateComponent
     bool Linked();
     void OnCreate() override;
     void Start() override;
-    void Link(const Entity &targetEntity);
+
+    void Link(bool resetLocalFrames);
+
+    void Link(const Entity& entity);
     void OnGui() override;
     void OnDestroy() override;
 
     void Relink(const std::unordered_map<Handle, Handle> &map) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine

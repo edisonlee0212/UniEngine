@@ -21,5 +21,8 @@ class UNIENGINE_API PhysicsMaterial : public IAsset
     void OnCreate() override;
     void OnGui();
     ~PhysicsMaterial();
+
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 } // namespace UniEngine

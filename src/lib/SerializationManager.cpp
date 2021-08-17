@@ -100,6 +100,13 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::vec4 &v)
     return out;
 }
 
+YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::quat &v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq << v.x << v.y << v.z << v.w << YAML::EndSeq;
+    return out;
+}
+
 YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::mat4 &v)
 {
     out << YAML::Flow;
