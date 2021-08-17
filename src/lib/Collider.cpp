@@ -118,7 +118,7 @@ void Collider::Deserialize(const YAML::Node &in)
 
     SetShapeType(m_shapeType);
     SetShapeParam(m_shapeParam);
-    
+
     auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
     if(!mat){
         mat = DefaultResources::Physics::DefaultPhysicsMaterial;

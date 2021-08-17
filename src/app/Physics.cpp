@@ -145,7 +145,7 @@ int main()
             1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.2f), "Anchor");
         anchor.GetOrSetPrivateComponent<RigidBody>().lock()->SetKinematic(true);
         auto lastLink = anchor;
-        for (int i = 1; i < 2; i++)
+        for (int i = 1; i < 10; i++)
         {
             const auto link = CreateDynamicSphere(
                 1.0, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(-10 - i, 0, 0), glm::vec3(0, 0, 45), 0.2f, "Link");
@@ -156,7 +156,7 @@ int main()
             link.SetParent(anchor);
             lastLink = link;
         }
-        /*
+
         const auto freeSphere = CreateDynamicCube(
             0.01, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
         auto joint = freeSphere.GetOrSetPrivateComponent<Joint>().lock();
@@ -165,7 +165,7 @@ int main()
         //joint->SetMotion(MotionAxis::TwistX, MotionType::Free);
         joint->SetMotion(MotionAxis::SwingY, MotionType::Free);
         joint->SetMotion(MotionAxis::SwingZ, MotionType::Free);
-        */
+
     }
 #pragma endregion
 
