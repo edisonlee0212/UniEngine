@@ -54,7 +54,6 @@ class UNIENGINE_API Scene : public IAsset
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 
-
 };
 
 template <typename T> void Scene::DestroySystem()

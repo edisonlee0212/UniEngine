@@ -296,7 +296,8 @@ void RigidBody::Serialize(YAML::Emitter &out)
     if (!m_colliders.empty())
     {
         out << YAML::Key << "m_colliders" << YAML::Value << YAML::BeginSeq;
-        for(int i = 0; i < m_colliders.size(); i++){
+        for (int i = 0; i < m_colliders.size(); i++)
+        {
             out << YAML::BeginMap;
             m_colliders[i].Serialize(out);
             out << YAML::EndMap;
@@ -320,8 +321,6 @@ void RigidBody::Deserialize(const YAML::Node &in)
     m_minVelocityIterations = in["m_minVelocityIterations"].as<unsigned>();
     m_gravity = in["m_gravity"].as<bool>();
 
-
-
     SetShapeTransform(m_shapeTransform);
     SetSolverIterations(m_minPositionIterations, m_minVelocityIterations);
     SetAngularDamping(m_angularDamping);
@@ -331,11 +330,16 @@ void RigidBody::Deserialize(const YAML::Node &in)
         SetKinematic(kinematic);
     if (isStatic)
         SetStatic(isStatic);
-
+    if (!kinematic && !isStatic)
+    {
+        SetLinearVelocity(glm::vec3(m_linearVelocity.x, m_linearVelocity.y, m_linearVelocity.z));
+        SetAngularVelocity(glm::vec3(m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z));
+    }
     auto inColliders = in["m_colliders"];
     if (inColliders)
     {
-        for(const auto& i : inColliders){
+        for (const auto &i : inColliders)
+        {
             AssetRef ref;
             ref.Deserialize(i);
             auto collider = ref.Get<Collider>();

@@ -122,7 +122,7 @@ void Application::PreUpdateInternal()
     {
         application.m_needFixedUpdate = true;
     }
-
+    PhysicsManager::PreUpdate();
     if (application.m_needFixedUpdate)
     {
         ProfilerManager::StartEvent("FixedUpdate");
@@ -140,8 +140,6 @@ void Application::PreUpdateInternal()
         ProfilerManager::EndEvent("FixedUpdate");
     }
     TransformManager::PreUpdate();
-
-    PhysicsManager::PreUpdate();
     ProfilerManager::EndEvent("PreUpdate");
 }
 

@@ -29,6 +29,7 @@ inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, co
 
 class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 {
+    friend class PhysicsSystem;
     friend class PrefabHolder;
     friend class PrivateComponentStorage;
     friend class TransformManager;
@@ -1874,7 +1875,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1887,7 +1889,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1900,7 +1903,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1913,7 +1917,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1926,7 +1931,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1939,7 +1945,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1952,7 +1959,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -1965,7 +1973,8 @@ void EntityManager::ForEach(
     bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto entityManager = GetInstance();
+    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }

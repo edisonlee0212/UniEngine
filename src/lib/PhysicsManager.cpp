@@ -253,6 +253,12 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
                                           rigidBodyEntity.SetDataComponent(globalTransform);
+                                          if(!rigidBody->m_static)
+                                          {
+                                              PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
+                                              rigidBody->m_linearVelocity = rb->getLinearVelocity();
+                                              rigidBody->m_angularVelocity = rb->getAngularVelocity();
+                                          }
                                       }
                                   }
                                   if (reminder > i)
@@ -270,6 +276,12 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
                                           rigidBodyEntity.SetDataComponent(globalTransform);
+                                          if(!rigidBody->m_static)
+                                          {
+                                              PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
+                                              rigidBody->m_linearVelocity = rb->getLinearVelocity();
+                                              rigidBody->m_angularVelocity = rb->getAngularVelocity();
+                                          }
                                       }
                                   }
                               })

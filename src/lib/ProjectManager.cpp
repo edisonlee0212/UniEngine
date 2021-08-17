@@ -34,18 +34,13 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         YAML::Node in = YAML::Load(stringStream.str());
         projectManager.m_currentProject->Deserialize(in);
         LoadAssetRegistry();
-        if(true){
-            auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
-            auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
-            auto scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
-            scene->SetPath(sceneRecord.m_filePath);
-            EntityManager::Attach(scene);
-            scene->Load();
-        }else
-        {
-            //auto scene = AssetManager::Import<Scene>(projectManager.m_currentProject->m_startScenePath);
-            //EntityManager::Attach(scene);
-        }
+        auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
+        auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
+        auto scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
+        scene->SetPath(sceneRecord.m_filePath);
+        EntityManager::Attach(scene);
+        scene->Load();
+        EntityManager::Attach(scene);
         UNIENGINE_LOG("Found and loaded project");
     }
     else
@@ -58,7 +53,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         projectManager.m_currentProject->m_startScene = scene;
         EntityManager::Attach(scene);
 
-        #pragma region Main Camera
+#pragma region Main Camera
         const auto mainCameraEntity = EntityManager::CreateEntity("Main Camera");
         Transform cameraLtw;
         cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
@@ -84,10 +79,8 @@ void ProjectManager::SaveProject()
 {
     auto &projectManager = GetInstance();
     auto currentScene = EntityManager::GetCurrentScene();
-    if (!currentScene->m_saved)
-    {
-        currentScene->Save();
-    }
+    currentScene->Save();
+
     projectManager.m_currentProject->m_startScene = currentScene;
     projectManager.m_projectPath.replace_filename(projectManager.m_currentProjectName).replace_extension(".ueproj");
     auto directory = projectManager.m_projectPath;
