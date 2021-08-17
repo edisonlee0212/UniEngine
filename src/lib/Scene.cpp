@@ -189,7 +189,7 @@ void Scene::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "Scene" << YAML::Value << m_name;
 
-    std::unordered_map<Handle, AssetRef> assetMap;
+    std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
     std::vector<AssetRef> list;
     auto &sceneDataStorage = m_sceneDataStorage;
 #pragma region EntityInfo
@@ -232,9 +232,10 @@ void Scene::Serialize(YAML::Emitter &out)
 #pragma region Assets
     for (auto &i : list)
     {
-        if (i.Get<IAsset>() && i.Get<IAsset>()->GetPath().empty())
+        auto asset = i.Get<IAsset>();
+        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
         {
-            assetMap[i.GetAssetHandle()] = i;
+            assetMap[asset->GetHandle()] = asset;
         }
     }
     bool listCheck = true;
@@ -244,13 +245,14 @@ void Scene::Serialize(YAML::Emitter &out)
         list.clear();
         for (auto &i : assetMap)
         {
-            i.second.Get<IAsset>()->CollectAssetRef(list);
+            i.second->CollectAssetRef(list);
         }
         for (auto &i : list)
         {
-            if (i.Get<IAsset>() && i.Get<IAsset>()->GetPath().empty())
+            auto asset = i.Get<IAsset>();
+            if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
             {
-                assetMap[i.GetAssetHandle()] = i;
+                assetMap[asset->GetHandle()] = asset;
             }
         }
         if (assetMap.size() == currentSize)
@@ -262,10 +264,10 @@ void Scene::Serialize(YAML::Emitter &out)
         for (auto &i : assetMap)
         {
             out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << i.second.Get<IAsset>()->GetTypeName();
+            out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
             out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-            out << YAML::Key << "Name" << YAML::Value << i.second.Get<IAsset>()->m_name;
-            i.second.Get<IAsset>()->Serialize(out);
+            out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
+            i.second->Serialize(out);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
