@@ -56,24 +56,7 @@ void PhysicsManager::PreUpdate()
     auto physicsManager = GetInstance();
     const bool playing = Application::IsPlaying();
 
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
-    if (rigidBodyEntities)
-    {
-        for (int i = 0; i < physicsManager.m_scenes.size(); i++)
-        {
-            auto scene = physicsManager.m_scenes[i].lock();
-            if (scene)
-            {
-
-                UploadRigidBodyShapes(scene, rigidBodyEntities);
-            }
-            else
-            {
-                physicsManager.m_scenes.erase(physicsManager.m_scenes.begin() + i);
-                i--;
-            }
-        }
-    }
+    UploadRigidBodyShapes();
 
     UploadTransforms(!playing);
 }
@@ -226,6 +209,28 @@ void PhysicsManager::UploadRigidBodyShapes(
         }
     }
 #pragma endregion
+}
+void PhysicsManager::UploadRigidBodyShapes()
+{
+    auto physicsManager = GetInstance();
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    if (rigidBodyEntities)
+    {
+        for (int i = 0; i < physicsManager.m_scenes.size(); i++)
+        {
+            auto scene = physicsManager.m_scenes[i].lock();
+            if (scene)
+            {
+
+                UploadRigidBodyShapes(scene, rigidBodyEntities);
+            }
+            else
+            {
+                physicsManager.m_scenes.erase(physicsManager.m_scenes.begin() + i);
+                i--;
+            }
+        }
+    }
 }
 void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigidBodyEntities) const
 {
