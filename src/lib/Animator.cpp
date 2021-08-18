@@ -293,6 +293,7 @@ void Animator::Deserialize(const YAML::Node &in)
         m_needAnimationSetup = true;
         m_currentActivatedAnimation = in["m_currentActivatedAnimation"].as<std::string>();
         m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
+        Animate();
     }
     auto inBoundEntities = in["m_boundEntities"];
     if (inBoundEntities)
@@ -323,7 +324,7 @@ void Animator::Deserialize(const YAML::Node &in)
             }
         }
     }
-    Animate();
+
 }
 
 std::shared_ptr<Animation> Animator::GetAnimation()
