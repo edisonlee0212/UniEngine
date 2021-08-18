@@ -2,6 +2,7 @@
 #include <AssetManager.hpp>
 #include <EntityManager.hpp>
 #include <RenderManager.hpp>
+#include <Application.hpp>
 using namespace UniEngine;
 
 void Project::Serialize(YAML::Emitter &out)
@@ -25,7 +26,8 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     projectManager.m_currentProjectName = path.stem().string();
     projectManager.m_currentProject = SerializationManager::ProduceSerializable<Project>();
     projectManager.m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
-
+    Application::Reset();
+    std::shared_ptr<Scene> scene;
     if (std::filesystem::exists(path))
     {
         std::ifstream stream(path.string());
@@ -36,7 +38,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         LoadAssetRegistry();
         auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
         auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
-        auto scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
+        scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
         scene->SetPath(sceneRecord.m_filePath);
         EntityManager::Attach(scene);
         scene->Load();
@@ -48,11 +50,11 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         auto directory = projectManager.m_projectPath;
         directory.remove_filename();
         projectManager.m_currentProject->m_assetRegistryPath = directory / ".ueassetregistry";
-        auto scene = AssetManager::CreateAsset<Scene>("New Scene");
+        Application::Reset();
+        scene = AssetManager::CreateAsset<Scene>("New Scene");
         scene->SetPath(directory / "New Scene.uescene");
         projectManager.m_currentProject->m_startScene = scene;
         EntityManager::Attach(scene);
-
 #pragma region Main Camera
         const auto mainCameraEntity = EntityManager::CreateEntity("Main Camera");
         Transform cameraLtw;
@@ -64,6 +66,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
     }
+    if(projectManager.m_newSceneCustomizer.has_value()) projectManager.m_newSceneCustomizer.value()();
 }
 
 std::filesystem::path ProjectManager::GetProjectPath()
@@ -186,4 +189,8 @@ void ProjectManager::Init()
     std::filesystem::path path =
         resourceFolder / "Temp Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
     CreateOrLoadProject(path);
+}
+void ProjectManager::SetScenePostLoadActions(const std::function<void()> &actions)
+{
+    GetInstance().m_newSceneCustomizer = actions;
 }

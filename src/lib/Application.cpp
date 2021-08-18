@@ -261,3 +261,23 @@ void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
 {
     GetInstance().m_externalFixedUpdateFunctions.push_back(func);
 }
+void Application::Reset()
+{
+    auto& application = GetInstance();
+    application.m_externalPreUpdateFunctions.clear();
+    application.m_externalUpdateFunctions.clear();
+    application.m_externalFixedUpdateFunctions.clear();
+    application.m_externalLateUpdateFunctions.clear();
+    application.m_playing = false;
+    application.m_needFixedUpdate = false;
+    application.m_time.Reset();
+}
+void ApplicationTime::Reset()
+{
+    m_lastFixedUpdateTime = 0;
+    m_lastUpdateTime = 0;
+    m_timeStep = 0.016;
+    m_frameStartTime = 0;
+    m_deltaTime = 0;
+    m_fixedUpdateTimeStamp = 0;
+}

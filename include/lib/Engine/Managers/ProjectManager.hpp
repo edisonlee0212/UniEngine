@@ -35,8 +35,10 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     friend class AssetManager;
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;
-
+    std::optional<std::function<void()>> m_newSceneCustomizer;
   public:
+    static void SetScenePostLoadActions(const std::function<void()> &actions);
+
     std::shared_ptr<AssetRegistry> m_assetRegistry;
     std::string m_currentProjectName = "New Project";
     static void Init();

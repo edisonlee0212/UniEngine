@@ -2,12 +2,11 @@
 //
 
 #include <Application.hpp>
+#include <PlayerController.hpp>
 #include <PostProcessing.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
-#include <PlayerController.hpp>
 using namespace UniEngine;
 using namespace Galaxy;
-
 
 int main()
 {
@@ -23,24 +22,25 @@ int main()
     ClassRegistry::RegisterDataComponent<StarClusterIndex>("StarClusterIndex");
 
     ClassRegistry::RegisterSystem<StarClusterSystem>("StarClusterSystem");
-#pragma region Application Preparations
-    Application::Init();
 
-    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
-    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
-#pragma endregion
+    ProjectManager::SetScenePostLoadActions([]() {
+        auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+        mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma region Star System
-    auto starClusterSystem = EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+        auto starClusterSystem =
+            EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
-    auto postProcessing =
-        RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
-    auto bloom = postProcessing->GetLayer<Bloom>().lock();
-    bloom->m_intensity = 0.1f;
-    bloom->m_diffusion = 8;
-    bloom->m_enabled = true;
+        auto postProcessing =
+            RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
+        auto bloom = postProcessing->GetLayer<Bloom>().lock();
+        bloom->m_intensity = 0.1f;
+        bloom->m_diffusion = 8;
+        bloom->m_enabled = true;
 
-    postProcessing->GetLayer<SSAO>().lock()->m_enabled = false;
-    RenderManager::GetMainCamera().lock()->m_useClearColor = true;
+        postProcessing->GetLayer<SSAO>().lock()->m_enabled = false;
+        RenderManager::GetMainCamera().lock()->m_useClearColor = true;
+    });
+    Application::Init();
 #pragma region EngineLoop
     Application::Run();
     Application::End();

@@ -211,8 +211,6 @@ void Bloom::OnGui(const std::shared_ptr<Camera> &cameraComponent)
         m_graph.Graph("Bezier##Bloom");
         if (ImGui::TreeNode("Debug##Bloom"))
         {
-            ImGui::Image((ImTextureID)m_flatColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-            ImGui::Image((ImTextureID)m_result->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
             ImGui::Image((ImTextureID)m_brightColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
             ImGui::TreePop();
         }
@@ -268,10 +266,12 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     DefaultResources::ScreenVAO->Bind();
 
     m_geometryProgram->Bind();
+
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
-    glDrawBuffers(2, enums);
     renderTarget.Bind();
+    glDrawBuffers(2, enums);
+
     cameraComponent->m_colorTexture->Texture()->Bind(0);
     cameraComponent->m_gBufferNormal->Bind(1);
     cameraComponent->m_gBufferDepth->Bind(2);
@@ -333,12 +333,8 @@ void SSAO::OnGui(const std::shared_ptr<Camera> &cameraComponent)
     }
     if (ImGui::TreeNode("Debug##SSAO"))
     {
-        ImGui::Text("Original Color");
-        ImGui::Image((ImTextureID)m_originalColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::Text("SSAO Proximity");
         ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::Text("Blur");
-        ImGui::Image((ImTextureID)m_blur->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::TreePop();
     }
 }

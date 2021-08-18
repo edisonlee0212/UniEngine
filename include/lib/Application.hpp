@@ -23,6 +23,7 @@ class UNIENGINE_API ApplicationTime
     void EndFixedUpdate();
 
   public:
+    void Reset();
     void SetTimeStep(const double &value);
     [[nodiscard]] double CurrentTime() const;
     [[nodiscard]] double TimeStep() const;
@@ -35,9 +36,9 @@ class UNIENGINE_API Application final : ISingleton<Application>
 {
     friend class EntityManager;
     friend class EditorManager;
-
+    friend class ProjectManager;
     bool m_initialized;
-    bool m_playing;
+    bool m_playing = false;
 
     std::vector<std::function<void()>> m_externalPreUpdateFunctions;
     std::vector<std::function<void()>> m_externalUpdateFunctions;
@@ -52,6 +53,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     bool m_needFixedUpdate = false;
 
   public:
+    static void Reset();
     static ApplicationTime &Time();
     static void SetPlaying(bool value);
     static bool IsPlaying();
