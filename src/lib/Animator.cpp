@@ -323,6 +323,7 @@ void Animator::Deserialize(const YAML::Node &in)
             }
         }
     }
+    Animate();
 }
 
 std::shared_ptr<Animation> Animator::GetAnimation()
