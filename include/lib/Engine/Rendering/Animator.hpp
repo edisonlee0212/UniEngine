@@ -11,14 +11,17 @@ class UNIENGINE_API Animator : public IPrivateComponent
     std::vector<std::shared_ptr<Bone>> m_bones;
     friend class SkinnedMeshRenderer;
     friend class AnimationManager;
-    void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
+
     std::vector<glm::mat4> m_transformChain;
     std::vector<glm::mat4> m_offsetMatrices;
     std::vector<std::string> m_names;
     std::vector<EntityRef> m_boundEntities;
+
+
+    AssetRef m_animation;
     bool m_needAnimationSetup = true;
     size_t m_boneSize = 0;
-    AssetRef m_animation;
+    void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
     void Setup();
   public:
 

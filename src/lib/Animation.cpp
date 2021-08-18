@@ -99,7 +99,8 @@ void Bone::Deserialize(const YAML::Node &in)
     auto inChildren = in["m_children"];
     if (inChildren)
     {
-        for(const auto& i : inChildren){
+        for (const auto &i : inChildren)
+        {
             m_children.push_back(std::make_shared<Bone>());
             m_children.back()->Deserialize(i);
         }
@@ -193,33 +194,43 @@ glm::mat4 BoneKeyFrames::InterpolateScaling(const float &animationTime)
 void BoneKeyFrames::Serialize(YAML::Emitter &out) const
 {
     out << YAML::Key << "m_maxTimeStamp" << YAML::Value << m_maxTimeStamp;
-    out << YAML::Key << "m_positions" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_positions.data(), m_positions.size() * sizeof(BonePosition));
-
-    out << YAML::Key << "m_rotations" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_rotations.data(), m_rotations.size() * sizeof(BoneRotation));
-
-    out << YAML::Key << "m_scales" << YAML::Value
-    << YAML::Binary(
-        (const unsigned char *)m_scales.data(), m_scales.size() * sizeof(BoneScale));
+    if (!m_positions.empty())
+    {
+        out << YAML::Key << "m_positions" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_positions.data(), m_positions.size() * sizeof(BonePosition));
+    }
+    if (!m_rotations.empty())
+    {
+        out << YAML::Key << "m_rotations" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_rotations.data(), m_rotations.size() * sizeof(BoneRotation));
+    }
+    if (!m_scales.empty())
+    {
+        out << YAML::Key << "m_scales" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_scales.data(), m_scales.size() * sizeof(BoneScale));
+    }
 }
 void BoneKeyFrames::Deserialize(const YAML::Node &in)
 {
     m_maxTimeStamp = in["m_maxTimeStamp"].as<float>();
-
-    YAML::Binary positions = in["m_positions"].as<YAML::Binary>();
-    m_positions.resize(positions.size() / sizeof(BonePosition));
-    std::memcpy(m_positions.data(), positions.data(), positions.size());
-
-    YAML::Binary rotations = in["m_rotations"].as<YAML::Binary>();
-    m_rotations.resize(rotations.size() / sizeof(BoneRotation));
-    std::memcpy(m_rotations.data(), rotations.data(), rotations.size());
-
-    YAML::Binary scales = in["m_scales"].as<YAML::Binary>();
-    m_scales.resize(scales.size() / sizeof(BoneScale));
-    std::memcpy(m_scales.data(), scales.data(), scales.size());
+    if (in["m_positions"])
+    {
+        YAML::Binary positions = in["m_positions"].as<YAML::Binary>();
+        m_positions.resize(positions.size() / sizeof(BonePosition));
+        std::memcpy(m_positions.data(), positions.data(), positions.size());
+    }
+    if (in["m_rotations"])
+    {
+        YAML::Binary rotations = in["m_rotations"].as<YAML::Binary>();
+        m_rotations.resize(rotations.size() / sizeof(BoneRotation));
+        std::memcpy(m_rotations.data(), rotations.data(), rotations.size());
+    }
+    if (in["m_scales"])
+    {
+        YAML::Binary scales = in["m_scales"].as<YAML::Binary>();
+        m_scales.resize(scales.size() / sizeof(BoneScale));
+        std::memcpy(m_scales.data(), scales.data(), scales.size());
+    }
 }
 
 std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
@@ -252,7 +263,7 @@ void Animation::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_boneSize" << YAML::Value << m_boneSize;
 
-    if(!m_animationNameAndLength.empty())
+    if (!m_animationNameAndLength.empty())
     {
         out << YAML::Key << "m_animationNameAndLength" << YAML::Value << YAML::BeginSeq;
         for (const auto &i : m_animationNameAndLength)
@@ -276,7 +287,7 @@ void Animation::Deserialize(const YAML::Node &in)
     m_boneSize = in["m_boneSize"].as<size_t>();
     auto inAnimationNameAndLength = in["m_animationNameAndLength"];
     m_animationNameAndLength.clear();
-    if(inAnimationNameAndLength)
+    if (inAnimationNameAndLength)
     {
         for (const auto &i : inAnimationNameAndLength)
         {

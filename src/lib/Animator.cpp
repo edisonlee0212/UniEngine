@@ -10,18 +10,19 @@ void Animator::Setup()
     if (!animation)
         return;
     m_boneSize = animation->m_boneSize;
-    m_transformChain.resize(m_boneSize);
-    m_boundEntities.resize(m_boneSize);
-    m_names.resize(m_boneSize);
-    m_bones.resize(m_boneSize);
-    if (animation->m_rootBone)
+    if (animation->m_rootBone && m_boneSize != 0)
+    {
+        m_transformChain.resize(m_boneSize);
+        m_boundEntities.resize(m_boneSize);
+        m_names.resize(m_boneSize);
+        m_bones.resize(m_boneSize);
         BoneSetter(animation->m_rootBone);
-    m_offsetMatrices.resize(m_boneSize);
-    for (auto &i : m_bones)
-        m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
-    if (!animation->m_animationNameAndLength.empty())
-        m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
-
+        m_offsetMatrices.resize(m_boneSize);
+        for (auto &i : m_bones)
+            m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
+        if (!animation->m_animationNameAndLength.empty())
+            m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
+    }
     m_needAnimationSetup = false;
 }
 
@@ -126,20 +127,20 @@ void Animator::AutoPlay()
 }
 void Animator::Animate()
 {
-    if (m_needAnimationSetup)
-        Setup();
-    auto animation = m_animation.Get<Animation>();
-    if (!animation)
-        return;
-    if (m_boneSize == 0)
+    if (m_boneSize == 0 && !m_transformChain.empty())
     {
         for (int i = 0; i < m_transformChain.size(); i++)
         {
             m_transformChain[i] = m_boundEntities[i].Get().GetDataComponent<GlobalTransform>().m_value;
         }
+        ApplyOffsetMatrices();
+        return;
     }
-    else
+    auto animation = m_animation.Get<Animation>();
+    if (animation)
     {
+        if (m_needAnimationSetup)
+            Setup();
         auto owner = GetOwner();
         if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
             animation->m_animationNameAndLength.end())
@@ -153,8 +154,8 @@ void Animator::Animate()
             owner.GetDataComponent<GlobalTransform>().m_value,
             m_boundEntities,
             m_transformChain);
+        ApplyOffsetMatrices();
     }
-    ApplyOffsetMatrices();
 }
 
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
@@ -173,6 +174,7 @@ void Animator::Setup(
     m_bones.clear();
     assert(boundEntities.size() == name.size() && boundEntities.size() == offsetMatrices.size());
     m_transformChain.resize(boundEntities.size());
+    m_boundEntities.resize(boundEntities.size());
     for (int i = 0; i < boundEntities.size(); i++)
     {
         m_boundEntities[i] = boundEntities[i];
@@ -229,25 +231,6 @@ void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<Animator>(target);
 }
-void Animator::Deserialize(const YAML::Node &in)
-{
-    m_autoPlay = in["m_autoPlay"].as<bool>();
-    m_animation.Load("m_animation", in);
-    m_needAnimationSetup = true;
-    m_currentActivatedAnimation = in["m_currentActivatedAnimation"].as<std::string>();
-    m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
-
-    auto inBoundEntities = in["m_boundEntities"];
-    if(inBoundEntities)
-    {
-        for(const auto& i : inBoundEntities){
-            EntityRef ref;
-            ref.Deserialize(i);
-            m_boundEntities.push_back(ref);
-        }
-
-    }
-}
 
 void Animator::CollectAssetRef(std::vector<AssetRef> &list)
 {
@@ -257,21 +240,91 @@ void Animator::CollectAssetRef(std::vector<AssetRef> &list)
 void Animator::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_autoPlay" << YAML::Value << m_autoPlay;
-    out << YAML::Key << "m_currentActivatedAnimation" << YAML::Value << m_currentActivatedAnimation;
-    out << YAML::Key << "m_currentAnimationTime" << YAML::Value << m_currentAnimationTime;
-    m_animation.Save("m_animation", out);
 
-    if(!m_boundEntities.empty())
+    if (m_animation.Get<Animation>())
+    {
+        m_animation.Save("m_animation", out);
+        out << YAML::Key << "m_currentActivatedAnimation" << YAML::Value << m_currentActivatedAnimation;
+        out << YAML::Key << "m_currentAnimationTime" << YAML::Value << m_currentAnimationTime;
+    }
+    if (!m_boundEntities.empty())
     {
         out << YAML::Key << "m_boundEntities" << YAML::Value << YAML::BeginSeq;
-        for(int i = 0; i < m_boundEntities.size(); i++){
+        for (int i = 0; i < m_boundEntities.size(); i++)
+        {
             out << YAML::BeginMap;
             m_boundEntities[i].Serialize(out);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
+
+        if (!m_transformChain.empty())
+        {
+            out << YAML::Key << "m_transformChain" << YAML::Value
+                << YAML::Binary(
+                       (const unsigned char *)m_transformChain.data(), m_transformChain.size() * sizeof(glm::mat4));
+        }
+        if (!m_offsetMatrices.empty())
+        {
+            out << YAML::Key << "m_offsetMatrices" << YAML::Value
+                << YAML::Binary(
+                       (const unsigned char *)m_offsetMatrices.data(), m_offsetMatrices.size() * sizeof(glm::mat4));
+        }
+        if (!m_names.empty())
+        {
+            out << YAML::Key << "m_names" << YAML::Value << YAML::BeginSeq;
+            for (int i = 0; i < m_names.size(); i++)
+            {
+                out << YAML::BeginMap;
+                out << YAML::Key << "Name" << YAML::Value << m_names[i];
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
+        }
     }
 }
+
+void Animator::Deserialize(const YAML::Node &in)
+{
+    m_autoPlay = in["m_autoPlay"].as<bool>();
+    m_animation.Load("m_animation", in);
+    if (m_animation.Get<Animation>())
+    {
+        m_needAnimationSetup = true;
+        m_currentActivatedAnimation = in["m_currentActivatedAnimation"].as<std::string>();
+        m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
+    }
+    auto inBoundEntities = in["m_boundEntities"];
+    if (inBoundEntities)
+    {
+        for (const auto &i : inBoundEntities)
+        {
+            EntityRef ref;
+            ref.Deserialize(i);
+            m_boundEntities.push_back(ref);
+        }
+        if (in["m_transformChain"])
+        {
+            YAML::Binary chains = in["m_transformChain"].as<YAML::Binary>();
+            m_transformChain.resize(chains.size() / sizeof(glm::mat4));
+            std::memcpy(m_transformChain.data(), chains.data(), chains.size());
+        }
+        if (in["m_offsetMatrices"])
+        {
+            YAML::Binary matrices = in["m_offsetMatrices"].as<YAML::Binary>();
+            m_offsetMatrices.resize(matrices.size() / sizeof(glm::mat4));
+            std::memcpy(m_offsetMatrices.data(), matrices.data(), matrices.size());
+        }
+        if (in["m_names"])
+        {
+            for (const auto &i : in["m_names"])
+            {
+                m_names.push_back(i["Name"].as<std::string>());
+            }
+        }
+    }
+}
+
 std::shared_ptr<Animation> Animator::GetAnimation()
 {
     return m_animation.Get<Animation>();

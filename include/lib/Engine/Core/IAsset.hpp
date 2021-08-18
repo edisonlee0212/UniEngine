@@ -113,8 +113,11 @@ class UNIENGINE_API AssetRef : public ISerializable
         out << YAML::EndMap;
     }
     void Load(const std::string& name, const YAML::Node &in){
-        Deserialize(in[name]);
-        Update();
+        if(in[name])
+        {
+            Deserialize(in[name]);
+            Update();
+        }
     }
 };
 } // namespace UniEngine
