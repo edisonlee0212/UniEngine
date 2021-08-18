@@ -47,6 +47,8 @@ void Application::Init(bool fullScreen)
     application.m_initialized = true;
     application.m_playing = false;
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
+
+    EntityManager::GetSystem<PhysicsSystem>()->Enable();
 }
 
 double ApplicationTime::TimeStep() const
