@@ -63,12 +63,18 @@ Here lists the features that already exists in the UniEngine.
  - Cross-platform support for Linux, Windows
  - Native high-level rendering API support (Please visit RenderManager for further details)
  - Exportable as shared library (For my own research purposes, I'm using the UniEngine as the underlying rendering framework for my other research projects. Those are private.)
- - I/O
-    - Asset import
+ - AssetManager, ProjectManager
+    - Asset import and management
        - Texture
        - 3D Model
        - 3D Animated Model
-    - Scene import/export (in development stage)
+    - Scene serialization
+       - Default/Local/Global asset serialization
+       - Entity/DataComponent/PrivateComponent/System serialization
+    - Prefabs
+       - Auto construct prefab from entity, instanciate entity from prefab
+       - Drag and drop
+    - AssetRegistry
  - Physics
     - Integrated PhysX for 3D physics (Incomplete and in development)
        - RigidBody with colliders
@@ -83,4 +89,4 @@ Here lists the features that will be introduced to UniEngine in future, though I
 - Documentation
 - Event System
 ## Plans
-- The next big update should be an asset system. This is postponed again and again because my school research don't need this feature (Considering most resources are imported with direct coding) However, the ability to load, index and store assets at a given location is necessary for content creation. 
+- Next should be Post-processing - Screen Space Reflection
