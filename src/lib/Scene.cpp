@@ -66,15 +66,6 @@ void Scene::PreUpdate()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-        }
-    }
-
-    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
-    {
-        if (!entityInfo.m_enabled)
-            continue;
-        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
-        {
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             if (!privateComponentElement.m_privateComponentData->m_started)
@@ -129,7 +120,6 @@ void Scene::Update()
 
 void Scene::LateUpdate()
 {
-
     for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
     {
         if (!entityInfo.m_enabled)
@@ -182,7 +172,7 @@ void Scene::OnGui()
 {
     for (auto &i : m_systems)
     {
-        i.second->OnGui();
+        if(i.second->m_started) i.second->OnGui();
     }
 }
 void Scene::Serialize(YAML::Emitter &out)

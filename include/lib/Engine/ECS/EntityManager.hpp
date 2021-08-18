@@ -544,6 +544,7 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
     scene->m_mappedSystems[system->m_handle] = system;
+    system->m_started = false;
     system->OnCreate();
     scene->m_saved = false;
     return ptr;
