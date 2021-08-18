@@ -6,6 +6,8 @@
 #include <SkinnedMesh.hpp>
 #include <Transform.hpp>
 #include <IPrivateComponent.hpp>
+#include <ISystem.hpp>
+
 
 
 namespace UniEngine
@@ -96,6 +98,7 @@ class UNIENGINE_API Prefab : public IAsset
 
     void FromEntity(const Entity& entity);
 };
+
 
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {

@@ -121,12 +121,18 @@ void Particles::CollectAssetRef(std::vector<AssetRef> &list)
 }
 void ParticleMatrices::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "m_value" << YAML::Value
-        << YAML::Binary((const unsigned char *)m_value.data(), m_value.size() * sizeof(glm::mat4));
+    if(!m_value.empty())
+    {
+        out << YAML::Key << "m_value" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_value.data(), m_value.size() * sizeof(glm::mat4));
+    }
 }
 void ParticleMatrices::Deserialize(const YAML::Node &in)
 {
-    YAML::Binary vertexData = in["m_value"].as<YAML::Binary>();
-    m_value.resize(vertexData.size() / sizeof(glm::mat4));
-    std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
+    if(in["m_value"])
+    {
+        YAML::Binary vertexData = in["m_value"].as<YAML::Binary>();
+        m_value.resize(vertexData.size() / sizeof(glm::mat4));
+        std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
+    }
 }

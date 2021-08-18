@@ -285,21 +285,23 @@ void Scene::Deserialize(const YAML::Node &in)
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
 
-    //Must attach current scene to entitymanager before loading!
-    //assert(EntityManager::GetCurrentScene().get() == this);
-
+    // Must attach current scene to entitymanager before loading!
+    // assert(EntityManager::GetCurrentScene().get() == this);
 
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
     auto inLocalAssets = in["LocalAssets"];
     if (inLocalAssets)
     {
-        for(const auto& i : inLocalAssets){
+        for (const auto &i : inLocalAssets)
+        {
             Handle handle = i["Handle"].as<uint64_t>();
-            localAssets.push_back(AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+            localAssets.push_back(
+                AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
         }
-        int index= 0;
-        for(const auto& i : inLocalAssets){
+        int index = 0;
+        for (const auto &i : inLocalAssets)
+        {
             localAssets[index++]->Deserialize(i);
         }
     }
@@ -393,10 +395,32 @@ void Scene::Deserialize(const YAML::Node &in)
         }
         entityIndex++;
     }
+
+#pragma region Systems
+    auto inSystems = in["Systems"];
+    std::vector<std::shared_ptr<ISystem>> systems;
+    for (const auto &inSystem : inSystems)
+    {
+        auto name = inSystem["TypeName"].as<std::string>();
+        size_t hashCode;
+        auto ptr = std::static_pointer_cast<ISystem>(SerializationManager::ProduceSerializable(name, hashCode));
+        ptr->m_handle = Handle(inSystem["Handle"].as<uint64_t>());
+        ptr->m_enabled = inSystem["Enabled"].as<bool>();
+        ptr->m_rank = inSystem["Rank"].as<float>();
+        ptr->m_started = false;
+        m_systems.insert({ptr->m_rank, ptr});
+        m_indexedSystems.insert({hashCode, ptr});
+        m_mappedSystems[ptr->m_handle] = ptr;
+        systems.push_back(ptr);
+        ptr->OnCreate();
+    }
+#pragma endregion
+
     entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
-        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);;
+        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
+        ;
         auto inPrivateComponents = inEntityInfo["PrivateComponent"];
         int componentIndex = 0;
         if (inPrivateComponents)
@@ -411,22 +435,14 @@ void Scene::Deserialize(const YAML::Node &in)
         }
         entityIndex++;
     }
-#pragma region Systems
-    auto inSystems = in["Systems"];
+
+    int systemIndex = 0;
     for (const auto &inSystem : inSystems)
     {
         auto name = inSystem["TypeName"].as<std::string>();
-        size_t hashCode;
-        auto ptr = std::static_pointer_cast<ISystem>(SerializationManager::ProduceSerializable(name, hashCode));
-        ptr->m_enabled = inSystem["Enabled"].as<bool>();
-        ptr->m_rank = inSystem["Rank"].as<float>();
-        ptr->m_started = false;
-        m_systems.insert({ptr->m_rank, ptr});
-        m_indexedSystems.insert({hashCode, ptr});
-        ptr->OnCreate();
-        ptr->Deserialize(inSystem);
+        systems[systemIndex]->Deserialize(inSystem);
+        systemIndex++;
     }
-#pragma endregion
 }
 void Scene::SerializeDataComponentStorage(const DataComponentStorage &storage, YAML::Emitter &out)
 {
@@ -473,7 +489,7 @@ void Scene::SerializeSystem(const std::shared_ptr<ISystem> &system, YAML::Emitte
         out << YAML::Key << "TypeName" << YAML::Value << system->GetTypeName();
         out << YAML::Key << "Enabled" << YAML::Value << system->m_enabled;
         out << YAML::Key << "Rank" << YAML::Value << system->m_rank;
-
+        out << YAML::Key << "Handle" << YAML::Value << system->GetHandle();
         system->Serialize(out);
     }
     out << YAML::EndMap;

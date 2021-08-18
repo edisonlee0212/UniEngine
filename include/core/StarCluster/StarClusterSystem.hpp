@@ -267,8 +267,8 @@ class StarClusterPattern
 
 class StarClusterSystem : public ISystem
 {
-    Entity m_rendererFront;
-    Entity m_rendererBack;
+    EntityRef m_rendererFront;
+    EntityRef m_rendererBack;
     EntityQuery m_starQuery;
     EntityArchetype m_starArchetype;
     std::vector<StarClusterPattern> m_starClusterPatterns;
@@ -307,5 +307,8 @@ class StarClusterSystem : public ISystem
     void ClearAllStars();
     void FixedUpdate() override;
     void OnEnable() override;
+
+    void Relink(const std::unordered_map<Handle, Handle> &map) override;
+
 };
 } // namespace Galaxy

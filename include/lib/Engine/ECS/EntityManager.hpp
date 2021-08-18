@@ -537,29 +537,21 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())
         return std::dynamic_pointer_cast<T>(search->second);
-    auto system = std::make_shared<T>();
-    system->m_typeName = SerializationManager::GetSerializableTypeName<T>();
+    auto ptr = SerializationManager::ProduceSerializable<T>();
+    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
+    system->m_handle = Handle();
     system->m_rank = rank;
     scene->m_systems.insert({rank, system});
     scene->m_indexedSystems[typeid(T).hash_code()] = system;
+    scene->m_mappedSystems[system->m_handle] = system;
     system->OnCreate();
     scene->m_saved = false;
-    return system;
+    return ptr;
 }
 template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const float &rank)
 {
     auto scene = GetCurrentScene();
-    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
-    if (search != scene->m_indexedSystems.end())
-        return std::dynamic_pointer_cast<T>(search->second);
-    auto system = std::make_shared<T>();
-    system->m_typeName = SerializationManager::GetSerializableTypeName<T>();
-    system->m_rank = rank;
-    scene->m_systems.insert({rank, system});
-    scene->m_indexedSystems[typeid(T).hash_code()] = system;
-    system->OnCreate();
-    scene->m_saved = false;
-    return system;
+    return GetOrCreateSystem<T>(scene, rank);
 }
 
 #pragma region Collectors

@@ -1,11 +1,9 @@
 #include <AssetManager.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
-#include <StarCluster/StarClusterSystem.hpp>
 #include <SerializationManager.hpp>
+#include <StarCluster/StarClusterSystem.hpp>
 using namespace Galaxy;
-
-
 
 void Galaxy::StarClusterPattern::OnGui()
 {
@@ -341,7 +339,8 @@ void Galaxy::StarClusterSystem::ApplyPosition()
 void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
 {
     bool check = reverse ? !m_useFront : m_useFront;
-    auto matrices = check ? m_rendererFront.GetOrSetPrivateComponent<Particles>().lock()->m_matrices : m_rendererBack.GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
+    auto matrices = check ? m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices
+                          : m_rendererBack.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
     auto &colors = check ? m_frontColors : m_backColors;
     const auto starAmount = m_starQuery.GetEntityAmount();
     matrices->m_value.resize(starAmount);
@@ -373,7 +372,8 @@ void Galaxy::StarClusterSystem::Update()
     RenderManager::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
-        m_useFront ? m_rendererFront.GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value : m_rendererBack.GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value,
+        m_useFront ? m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value
+                   : m_rendererBack.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value,
         glm::mat4(1.0f),
         1.0f);
 }
@@ -431,28 +431,30 @@ void Galaxy::StarClusterSystem::OnEnable()
 void StarClusterSystem::Start()
 {
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
-    m_rendererFront = EntityManager::CreateEntity("Renderer 1");
-    GlobalTransform ltw;
-    ltw.SetScale(glm::vec3(1.0f));
-    auto imr = m_rendererFront.GetOrSetPrivateComponent<Particles>().lock();
-    auto material = AssetManager::CreateAsset<Material>();
-    imr->m_material.Set<Material>(material);
-    imr->m_castShadow = false;
-    imr->m_receiveShadow = false;
-    material->m_ambient = 0.0f;
-    material->m_emission = 3.0f;
-    imr->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
-    material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    if (m_rendererFront.Get().IsNull() && m_rendererBack.Get().IsNull())
+    {
+        m_rendererFront = EntityManager::CreateEntity("Renderer 1");
+        GlobalTransform ltw;
+        ltw.SetScale(glm::vec3(1.0f));
+        auto imr = m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock();
+        auto material = AssetManager::CreateAsset<Material>();
+        imr->m_material.Set<Material>(material);
+        imr->m_castShadow = false;
+        imr->m_receiveShadow = false;
+        material->m_ambient = 0.0f;
+        material->m_emission = 3.0f;
+        imr->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
+        material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 
-    m_rendererFront.SetDataComponent(ltw);
+        m_rendererFront.Get().SetDataComponent(ltw);
 
-    m_rendererBack = EntityManager::CreateEntity("Renderer 2");
-    ltw.SetScale(glm::vec3(1.0f));
-    auto imr2 = m_rendererBack.GetOrSetPrivateComponent<Particles>().lock();
-    imr2->m_material = imr->m_material;
+        m_rendererBack = EntityManager::CreateEntity("Renderer 2");
+        ltw.SetScale(glm::vec3(1.0f));
+        auto imr2 = m_rendererBack.Get().GetOrSetPrivateComponent<Particles>().lock();
+        imr2->m_material = imr->m_material;
 
-    m_rendererBack.SetDataComponent(ltw);
-
+        m_rendererBack.Get().SetDataComponent(ltw);
+    }
     m_starClusterPatterns.resize(2);
     auto &starClusterPattern1 = m_starClusterPatterns[0];
     auto &starClusterPattern2 = m_starClusterPatterns[1];
@@ -477,17 +479,28 @@ void StarClusterSystem::Start()
     JobManager::ResizePrimaryWorkers(1);
     JobManager::ResizeSecondaryWorkers(16);
     m_firstTime = true;
-
 }
 void StarClusterSystem::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_speed" << YAML::Value << m_speed;
     out << YAML::Key << "m_size" << YAML::Value << m_size;
     out << YAML::Key << "m_galaxyTime" << YAML::Value << m_galaxyTime;
+
+    m_rendererFront.Save("m_rendererFront", out);
+    m_rendererBack.Save("m_rendererBack", out);
 }
 void StarClusterSystem::Deserialize(const YAML::Node &in)
 {
     m_speed = in["m_speed"].as<float>();
     m_size = in["m_size"].as<float>();
     m_galaxyTime = in["m_galaxyTime"].as<float>();
+
+    m_rendererFront.Load("m_rendererFront", in);
+    m_rendererBack.Load("m_rendererBack", in);
+}
+
+void StarClusterSystem::Relink(const std::unordered_map<Handle, Handle> &map)
+{
+    m_rendererBack.Relink(map);
+    m_rendererFront.Relink(map);
 }

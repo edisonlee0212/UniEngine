@@ -1,4 +1,5 @@
 #include <ISystem.hpp>
+#include <EntityManager.hpp>
 using namespace UniEngine;
 
 ISystem::ISystem()
@@ -32,4 +33,25 @@ bool ISystem::Enabled() const
 float ISystem::GetRank()
 {
     return m_rank;
+}
+
+bool SystemRef::Update()
+{
+    if (m_systemHandle.GetValue() == 0)
+    {
+        m_value.reset();
+        return false;
+    }
+    else if(!m_value.has_value() || m_value->expired())
+    {
+        auto currentScene = EntityManager::GetCurrentScene();
+        auto system = currentScene->m_mappedSystems.find(m_systemHandle);
+        if(system != currentScene->m_mappedSystems.end()){
+            m_value = system->second;
+            return true;
+        }
+        Clear();
+        return false;
+    }
+    return true;
 }

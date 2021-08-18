@@ -35,6 +35,7 @@ class UNIENGINE_API IHandle{
     friend class SerializationManager;
     friend class IAsset;
     friend class AssetRef;
+    friend class Scene;
     Handle m_handle;
   public:
     Handle GetHandle()
