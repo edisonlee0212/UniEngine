@@ -173,7 +173,7 @@ void Animator::Setup(
     m_bones.clear();
     assert(boundEntities.size() == name.size() && boundEntities.size() == offsetMatrices.size());
     m_transformChain.resize(boundEntities.size());
-    for (int i = 0; i < m_boneSize; i++)
+    for (int i = 0; i < boundEntities.size(); i++)
     {
         m_boundEntities[i] = boundEntities[i];
     }
