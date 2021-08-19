@@ -10,6 +10,7 @@
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
+
 void Prefab::OnCreate()
 {
     m_name = "New Prefab";
@@ -19,7 +20,7 @@ Entity Prefab::ToEntity() const
 {
     std::unordered_map<Handle, Handle> entityMap;
     std::vector<DataComponentType> types;
-    for(auto& i : m_dataComponents)
+    for (auto &i : m_dataComponents)
     {
         types.emplace_back(i.m_type);
     }
@@ -41,8 +42,8 @@ Entity Prefab::ToEntity() const
     {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(i->GetTypeName(), id));
-        ptr->Clone(i);
+            SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
+        ptr->Clone(i.m_data);
         ptr->Relink(entityMap);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
@@ -61,7 +62,7 @@ void Prefab::AttachChildren(
     std::unordered_map<Handle, Handle> &map) const
 {
     std::vector<DataComponentType> types;
-    for(auto& i : modelNode->m_dataComponents)
+    for (auto &i : modelNode->m_dataComponents)
     {
         types.emplace_back(i.m_type);
     }
@@ -99,8 +100,8 @@ void Prefab::AttachChildrenPrivateComponent(
     {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(i->GetTypeName(), id));
-        ptr->Clone(i);
+            SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
+        ptr->Clone(i.m_data);
         ptr->Relink(map);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
@@ -115,7 +116,15 @@ void Prefab::AttachChildrenPrivateComponent(
 #pragma region Model Loading
 void Prefab::Load(const std::filesystem::path &path)
 {
-    if (path.extension() == ".obj" || path.extension() == ".fbx")
+    if (path.extension() == ".ueprefab")
+    {
+        std::ifstream stream(path.string());
+        std::stringstream stringStream;
+        stringStream << stream.rdbuf();
+        YAML::Node in = YAML::Load(stringStream.str());
+        Deserialize(in);
+    }
+    else
     {
         unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
         bool optimize = false;
@@ -141,7 +150,6 @@ void Prefab::Load(const std::filesystem::path &path)
         if (!bonesMap.empty() || scene->HasAnimations())
         {
             animation = AssetManager::CreateAsset<Animation>(path.filename().string());
-            //AssetManager::Share(animation);
         }
         std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
         if (!ProcessNode(
@@ -170,7 +178,10 @@ void Prefab::Load(const std::filesystem::path &path)
             auto animator = SerializationManager::ProduceSerializable<Animator>();
             animator->Setup(animation);
             AttachAnimator(this, m_entityHandle);
-            m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(animator));
+            PrivateComponentHolder holder;
+            holder.m_enabled = true;
+            holder.m_data = std::static_pointer_cast<IPrivateComponent>(animator);
+            m_privateComponents.push_back(holder);
         }
         return;
 #else
@@ -700,7 +711,7 @@ bool Prefab::ProcessNode(
         aiMesh *importerMesh = importerScene->mMeshes[importerNode->mMeshes[i]];
         if (!importerMesh)
             continue;
-        auto childNode = SerializationManager::ProduceSerializable<Prefab>();
+        auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerMesh->mName.C_Str()));
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
         bool isSkinnedMesh = !importerMesh->HasBones();
         std::shared_ptr<Material> material;
@@ -728,7 +739,10 @@ bool Prefab::ProcessNode(
                 continue;
             addedMeshRenderer = true;
             skinnedMeshRenderer->m_skinnedMesh.Get<SkinnedMesh>()->m_animation.Set<Animation>(animation);
-            childNode->m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(skinnedMeshRenderer));
+            PrivateComponentHolder holder;
+            holder.m_enabled = true;
+            holder.m_data = std::static_pointer_cast<IPrivateComponent>(skinnedMeshRenderer);
+            childNode->m_privateComponents.push_back(holder);
         }
         else
         {
@@ -738,7 +752,10 @@ bool Prefab::ProcessNode(
             if (!meshRenderer->m_mesh.Get())
                 continue;
             addedMeshRenderer = true;
-            childNode->m_privateComponents.push_back(std::static_pointer_cast<IPrivateComponent>(meshRenderer));
+            PrivateComponentHolder holder;
+            holder.m_enabled = true;
+            holder.m_data = std::static_pointer_cast<IPrivateComponent>(meshRenderer);
+            childNode->m_privateComponents.push_back(holder);
         }
         auto transform = std::make_shared<Transform>();
         transform->m_value = mat4_cast(importerNode->mTransformation);
@@ -755,7 +772,7 @@ bool Prefab::ProcessNode(
 
     for (unsigned i = 0; i < importerNode->mNumChildren; i++)
     {
-        auto childNode = std::make_shared<Prefab>();
+        auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerNode->mChildren[i]->mName.C_Str()));
         auto childAssimpNode = std::make_shared<AssimpNode>(importerNode->mChildren[i]);
         childAssimpNode->m_parent = assimpNode;
         const bool childAdd = ProcessNode(
@@ -1029,8 +1046,8 @@ void Prefab::FromEntity(const Entity &entity)
         holder.m_type = type;
         size_t id;
         size_t size;
-        holder.m_data = std::static_pointer_cast<IDataComponent>(
-            SerializationManager::ProduceDataComponent(type.m_name, id, size));
+        holder.m_data =
+            std::static_pointer_cast<IDataComponent>(SerializationManager::ProduceDataComponent(type.m_name, id, size));
         memcpy(holder.m_data.get(), data, type.m_size);
         m_dataComponents.push_back(std::move(holder));
     });
@@ -1044,7 +1061,10 @@ void Prefab::FromEntity(const Entity &entity)
             SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
         ptr->Clone(element.m_privateComponentData);
         ptr->m_started = false;
-        m_privateComponents.push_back(ptr);
+        PrivateComponentHolder holder;
+        holder.m_enabled = element.m_privateComponentData->m_enabled;
+        holder.m_data = ptr;
+        m_privateComponents.push_back(holder);
     }
 
     auto children = entity.GetChildren();
@@ -1137,3 +1157,111 @@ void Prefab::ProcessNode(
 }
 #endif
 #pragma endregion
+void DataComponentHolder::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_type.m_name" << YAML::Value << m_type.m_name;
+    out << YAML::Key << "m_data" << YAML::Value << YAML::Binary((const unsigned char *)m_data.get(), m_type.m_size);
+}
+void DataComponentHolder::Deserialize(const YAML::Node &in)
+{
+    m_type.m_name = in["m_type.m_name"].as<std::string>();
+    m_data = SerializationManager::ProduceDataComponent(m_type.m_name, m_type.m_typeId, m_type.m_size);
+    if (in["m_data"])
+    {
+        YAML::Binary data = in["m_data"].as<YAML::Binary>();
+        std::memcpy(m_data.get(), data.data(), data.size());
+    }
+}
+void Prefab::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
+    out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle.GetValue();
+    if (!m_dataComponents.empty())
+    {
+        out << YAML::Key << "m_dataComponents" << YAML::BeginSeq;
+        for (auto &i : m_dataComponents)
+        {
+            out << YAML::BeginMap;
+            i.Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+
+    if (!m_privateComponents.empty())
+    {
+        out << YAML::Key << "m_privateComponents" << YAML::BeginSeq;
+        for (auto &i : m_privateComponents)
+        {
+            out << YAML::BeginMap;
+            i.Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+
+    if (!m_children.empty())
+    {
+        out << YAML::Key << "m_children" << YAML::BeginSeq;
+        for (auto &i : m_children)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "m_handle" << i->GetHandle().GetValue();
+            i->Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+}
+void Prefab::Deserialize(const YAML::Node &in)
+{
+    m_enabled = in["m_enabled"].as<bool>();
+    m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+    if (in["m_dataComponents"])
+    {
+        for (const auto &i : in["m_dataComponents"])
+        {
+            DataComponentHolder holder;
+            holder.Deserialize(i);
+            m_dataComponents.push_back(holder);
+        }
+    }
+    if (in["m_privateComponents"])
+    {
+        for (const auto &i : in["m_privateComponents"])
+        {
+            PrivateComponentHolder holder;
+            holder.Deserialize(i);
+            m_privateComponents.push_back(holder);
+        }
+    }
+
+    if (in["m_children"])
+    {
+        for (const auto &i : in["m_children"])
+        {
+            auto child = AssetManager::CreateAsset<Prefab>(Handle(i["m_handle"].as<uint64_t>()), "");
+            child->Deserialize(i);
+        }
+    }
+}
+void PrivateComponentHolder::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
+    out << YAML::Key << "m_typeName" << YAML::Value << m_data->GetTypeName();
+
+    out << YAML::Key << "m_data" << YAML::BeginMap;
+    out << YAML::Key << "m_handle" << m_data->GetHandle().GetValue();
+    m_data->Serialize(out);
+    out << YAML::EndMap;
+}
+void PrivateComponentHolder::Deserialize(const YAML::Node &in)
+{
+    m_enabled = in["m_enabled"].as<bool>();
+    auto typeName = in["m_typeName"].as<std::string>();
+    size_t hashCode;
+    auto inData = in["m_data"];
+    m_data = std::dynamic_pointer_cast<IPrivateComponent>(
+        SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+    m_data->Deserialize(inData);
+}

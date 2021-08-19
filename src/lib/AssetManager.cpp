@@ -213,6 +213,14 @@ void AssetManager::OnGui()
                 {
                     if (ImGui::CollapsingHeader(collection.first.c_str()))
                     {
+                        if (ImGui::BeginPopupContextItem((collection.first + "##NewAsset").c_str()))
+                        {
+                            if (ImGui::Button("New..."))
+                            {
+                                Share(CreateAsset(collection.first, Handle(), ""));
+                            }
+                            ImGui::EndPopup();
+                        }
                         if (ImGui::BeginDragDropTarget())
                         {
                             const std::string hash = collection.first;
@@ -249,31 +257,17 @@ void AssetManager::OnGui()
                             const std::string tag = "##" + type + std::to_string(i.second->GetHandle());
                             if (ImGui::BeginPopupContextItem(tag.c_str()))
                             {
-                                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-                                {
-                                    static char newName[256];
-                                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                                    if (ImGui::Button(("Confirm" + tag).c_str()))
-                                        i.second->m_name = std::string(newName);
-                                    ImGui::EndMenu();
-                                }
                                 if (ImGui::Button(("Remove" + tag).c_str()))
                                 {
                                     collection.second.erase(i.first);
+                                    ImGui::EndPopup();
                                     break;
                                 }
                                 ImGui::EndPopup();
                             }
                         }
                     }
-                    if (ImGui::BeginPopupContextItem((collection.first + "##NewAsset").c_str()))
-                    {
-                        if (ImGui::Button("New..."))
-                        {
-                            Share(CreateAsset(collection.first, Handle(), ""));
-                        }
-                        ImGui::EndPopup();
-                    }
+
                 }
                 ImGui::EndTabItem();
             }
@@ -354,4 +348,13 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     retVal->OnCreate();
     return retVal;
 }
+std::string AssetManager::GetExtension(const std::string &typeName)
+{
+    return GetInstance().m_defaultExtensions[typeName];
+}
 
+void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target){
+    auto actualPath = path;
+    actualPath.replace_extension(GetInstance().m_defaultExtensions[target->GetTypeName()]);
+    target->Save(actualPath);
+}

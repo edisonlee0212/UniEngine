@@ -218,6 +218,39 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
+
+            if (ImGui::BeginMenu("I/O"))
+            {
+                FileUtils::SaveFile(("Save " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::string &filePath) {
+                    std::filesystem::path path = filePath;
+                    try
+                    {
+                        AssetManager::Export(path, ptr);
+                        UNIENGINE_LOG("Saved to " + path.string());
+                    }
+                    catch (std::exception &e)
+                    {
+                        UNIENGINE_ERROR("Failed to save to " + path.string());
+                    }
+                });
+
+                FileUtils::OpenFile(("Load " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::string &filePath) {
+                    std::filesystem::path path = filePath;
+                    try
+                    {
+                        ptr->SetPath(filePath);
+                        ptr->Load();
+                        UNIENGINE_LOG("Loaded from " + path.string());
+                    }
+                    catch (std::exception &e)
+                    {
+                        UNIENGINE_ERROR("Failed to load from " + path.string());
+                    }
+                });
+
+                ImGui::EndMenu();
+            }
+
             if (removable)
             {
                 if (ImGui::Button(("Remove" + tag).c_str()))
@@ -335,6 +368,54 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
         else
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
         ImGui::EndDragDropSource();
+    }
+
+    if (ImGui::BeginPopupContextItem(tag.c_str()))
+    {
+        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+        {
+            static char newName[256];
+            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+            if (ImGui::Button(("Confirm" + tag).c_str()))
+                ptr->m_name = std::string(newName);
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("I/O"))
+        {
+            auto extension = AssetManager::GetExtension(type);
+            FileUtils::SaveFile(("Save " + type + tag).c_str(), extension, [&](const std::string &filePath) {
+                std::filesystem::path path = filePath;
+                path.replace_extension(extension);
+                try
+                {
+                    AssetManager::Export(path, ptr);
+                    UNIENGINE_LOG("Saved to " + path.string());
+                }
+                catch (std::exception &e)
+                {
+                    UNIENGINE_ERROR("Failed to save to " + path.string());
+                }
+            });
+
+            FileUtils::OpenFile(("Load " + type + tag).c_str(), extension, [&](const std::string &filePath) {
+                std::filesystem::path path = filePath;
+                path.replace_extension(extension);
+                try
+                {
+                    ptr->SetPath(filePath);
+                    ptr->Load();
+                    UNIENGINE_LOG("Loaded from " + path.string());
+                }
+                catch (std::exception &e)
+                {
+                    UNIENGINE_ERROR("Failed to load from " + path.string());
+                }
+            });
+
+            ImGui::EndMenu();
+        }
+        ImGui::EndPopup();
     }
     return;
 }

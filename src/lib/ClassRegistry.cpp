@@ -29,20 +29,20 @@ PrivateComponentRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("S
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
-AssetRegistration<Material> MaterialRegistry("Material");
-AssetRegistration<Mesh> MeshRegistry("Mesh");
-AssetRegistration<Texture2D> Texture2DReg("Texture2D");
-AssetRegistration<Cubemap> CubemapReg("Cubemap");
-AssetRegistration<LightProbe> LightProbeReg("LightProbe");
-AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe");
-AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram");
-AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap");
-AssetRegistration<Animation> AnimationReg("Animation");
-AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh");
-AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial");
-AssetRegistration<Collider> ColliderReg("Collider");
-AssetRegistration<Prefab> PrefabReg("Prefab");
-AssetRegistration<Scene> SceneReg("Scene");
+AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
+AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
+AssetRegistration<Texture2D> Texture2DReg("Texture2D", ".uetex2d");
+AssetRegistration<Cubemap> CubemapReg("Cubemap", ".uecubemap");
+AssetRegistration<LightProbe> LightProbeReg("LightProbe", ".uelightprobe");
+AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", ".uereflecprobe");
+AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", ".ueglprogram");
+AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", ".ueenvirmap");
+AssetRegistration<Animation> AnimationReg("Animation", ".ueanimation");
+AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", "uesmesh");
+AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial", "uephysmat");
+AssetRegistration<Collider> ColliderReg("Collider", "uecollider");
+AssetRegistration<Prefab> PrefabReg("Prefab", ".ueprefab");
+AssetRegistration<Scene> SceneReg("Scene", ".uescene");
 
 SerializableRegistration<AssetRegistry> AssetRegistryReg("AssetRegistry");
 SerializableRegistration<Project> ProjectRegistryReg("Project");

@@ -1,14 +1,12 @@
 #pragma once
 #include <Animator.hpp>
 #include <IAsset.hpp>
+#include <IPrivateComponent.hpp>
+#include <ISystem.hpp>
 #include <Material.hpp>
 #include <Mesh.hpp>
 #include <SkinnedMesh.hpp>
 #include <Transform.hpp>
-#include <IPrivateComponent.hpp>
-#include <ISystem.hpp>
-
-
 
 namespace UniEngine
 {
@@ -29,18 +27,30 @@ struct UNIENGINE_API AssimpNode
     void AttachChild(std::shared_ptr<Bone> &parent, size_t &index);
 };
 #endif
-struct DataComponentHolder
+struct UNIENGINE_API DataComponentHolder
 {
     DataComponentType m_type;
     std::shared_ptr<IDataComponent> m_data;
+
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
 };
+
+struct UNIENGINE_API PrivateComponentHolder
+{
+    bool m_enabled;
+    std::shared_ptr<IPrivateComponent> m_data;
+
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
+};
+
 class UNIENGINE_API Prefab : public IAsset
 {
     bool m_enabled = true;
-    bool m_static = false;
 
 #pragma region Model Loading
-    void AttachAnimator(Prefab *parent, const Handle& animatorEntityHandle);
+    void AttachAnimator(Prefab *parent, const Handle &animatorEntityHandle);
 
     std::shared_ptr<Texture2D> CollectTexture(
         const std::string &directory,
@@ -79,16 +89,21 @@ class UNIENGINE_API Prefab : public IAsset
         const tinyobj::attrib_t &attribute);
 #endif
     void AttachChildren(
-        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::string &parentName, std::unordered_map<Handle, Handle> &map) const;
+        const std::shared_ptr<Prefab> &modelNode,
+        Entity parentEntity,
+        const std::string &parentName,
+        std::unordered_map<Handle, Handle> &map) const;
 
     void AttachChildrenPrivateComponent(
-        const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::unordered_map<Handle, Handle> &map) const;
+        const std::shared_ptr<Prefab> &modelNode,
+        Entity parentEntity,
+        const std::unordered_map<Handle, Handle> &map) const;
 
 #pragma endregion
   public:
     Handle m_entityHandle = Handle();
     std::vector<DataComponentHolder> m_dataComponents;
-    std::vector<std::shared_ptr<IPrivateComponent>> m_privateComponents;
+    std::vector<PrivateComponentHolder> m_privateComponents;
     std::vector<std::shared_ptr<Prefab>> m_children;
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetPrivateComponent();
     void OnCreate() override;
@@ -96,18 +111,20 @@ class UNIENGINE_API Prefab : public IAsset
 
     [[nodiscard]] Entity ToEntity() const;
 
-    void FromEntity(const Entity& entity);
-};
+    void FromEntity(const Entity &entity);
 
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
+};
 
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {
     auto typeName = SerializationManager::GetSerializableTypeName<T>();
     for (auto &i : m_privateComponents)
     {
-        if (i->GetTypeName() == typeName)
+        if (i.m_data->GetTypeName() == typeName)
         {
-            return std::static_pointer_cast<T>(i);
+            return std::static_pointer_cast<T>(i.m_data);
         }
     }
     return nullptr;
