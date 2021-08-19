@@ -22,6 +22,7 @@ inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &ent
     bool deleted = false;
     if (ImGui::BeginPopupContextItem(std::to_string(entity.GetIndex()).c_str()))
     {
+        ImGui::Text(("Handle: " + std::to_string(entity.GetHandle().GetValue())).c_str());
         if (ImGui::Button("Delete"))
         {
             EntityManager::DeleteEntity(entity);

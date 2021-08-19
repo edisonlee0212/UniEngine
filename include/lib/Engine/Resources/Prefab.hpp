@@ -96,9 +96,9 @@ class UNIENGINE_API Prefab : public IAsset
 
     void AttachChildrenPrivateComponent(
         const std::shared_ptr<Prefab> &modelNode,
-        Entity parentEntity,
+        const Entity &parentEntity,
         const std::unordered_map<Handle, Handle> &map) const;
-
+    void RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const;
 #pragma endregion
   public:
     Handle m_entityHandle = Handle();
@@ -108,11 +108,11 @@ class UNIENGINE_API Prefab : public IAsset
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetPrivateComponent();
     void OnCreate() override;
     void Load(const std::filesystem::path &path) override;
-
+    void Save(const std::filesystem::path &path) override;
     [[nodiscard]] Entity ToEntity() const;
 
     void FromEntity(const Entity &entity);
-
+    void CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &map);
     void Serialize(YAML::Emitter &out);
     void Deserialize(const YAML::Node &in);
 };

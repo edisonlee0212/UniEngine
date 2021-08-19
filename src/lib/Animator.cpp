@@ -131,7 +131,11 @@ void Animator::Animate()
     {
         for (int i = 0; i < m_transformChain.size(); i++)
         {
-            m_transformChain[i] = m_boundEntities[i].Get().GetDataComponent<GlobalTransform>().m_value;
+            auto entity = m_boundEntities[i].Get();
+            if(!entity.IsNull())
+            {
+                m_transformChain[i] = entity.GetDataComponent<GlobalTransform>().m_value;
+            }
         }
         ApplyOffsetMatrices();
         return;
@@ -141,23 +145,30 @@ void Animator::Animate()
     {
         if (m_needAnimationSetup)
             Setup();
-        auto owner = GetOwner();
+
         if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
             animation->m_animationNameAndLength.end())
         {
             m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
             m_currentAnimationTime = 0.0f;
         }
-        animation->Animate(
-            m_currentActivatedAnimation,
-            m_currentAnimationTime,
-            owner.GetDataComponent<GlobalTransform>().m_value,
-            m_boundEntities,
-            m_transformChain);
-        ApplyOffsetMatrices();
+        auto owner = GetOwner();
+        if(!owner.IsNull())
+        {
+            animation->Animate(
+                m_currentActivatedAnimation,
+                m_currentAnimationTime,
+                owner.GetDataComponent<GlobalTransform>().m_value,
+                m_boundEntities,
+                m_transformChain);
+            ApplyOffsetMatrices();
+        }
     }
 }
-
+void Animator::Start()
+{
+    Animate();
+}
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
 {
     m_names[boneWalker->m_index] = boneWalker->m_name;
@@ -293,7 +304,7 @@ void Animator::Deserialize(const YAML::Node &in)
         m_needAnimationSetup = true;
         m_currentActivatedAnimation = in["m_currentActivatedAnimation"].as<std::string>();
         m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
-        Animate();
+        Setup();
     }
     auto inBoundEntities = in["m_boundEntities"];
     if (inBoundEntities)

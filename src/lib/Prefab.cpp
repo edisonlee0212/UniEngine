@@ -44,7 +44,6 @@ Entity Prefab::ToEntity() const
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         ptr->Clone(i.m_data);
-        ptr->Relink(entityMap);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     for (const auto &i : m_children)
@@ -52,6 +51,9 @@ Entity Prefab::ToEntity() const
         AttachChildrenPrivateComponent(i, entity, entityMap);
         index++;
     }
+
+    RelinkChildren(entity, entityMap);
+
     entity.SetEnabled(m_enabled);
     return entity;
 }
@@ -83,7 +85,7 @@ void Prefab::AttachChildren(
 }
 
 void Prefab::AttachChildrenPrivateComponent(
-    const std::shared_ptr<Prefab> &modelNode, Entity parentEntity, const std::unordered_map<Handle, Handle> &map) const
+    const std::shared_ptr<Prefab> &modelNode, const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity;
     auto children = parentEntity.GetChildren();
@@ -102,7 +104,6 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         ptr->Clone(i.m_data);
-        ptr->Relink(map);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     int index = 0;
@@ -122,6 +123,25 @@ void Prefab::Load(const std::filesystem::path &path)
         std::stringstream stringStream;
         stringStream << stream.rdbuf();
         YAML::Node in = YAML::Load(stringStream.str());
+        #pragma region Assets
+        std::vector<std::shared_ptr<IAsset>> localAssets;
+        auto inLocalAssets = in["LocalAssets"];
+        if (inLocalAssets)
+        {
+            for (const auto &i : inLocalAssets)
+            {
+                Handle handle = i["Handle"].as<uint64_t>();
+                localAssets.push_back(
+                    AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+            }
+            int index = 0;
+            for (const auto &i : inLocalAssets)
+            {
+                localAssets[index++]->Deserialize(i);
+            }
+        }
+
+#pragma endregion
         Deserialize(in);
     }
     else
@@ -1242,8 +1262,86 @@ void Prefab::Deserialize(const YAML::Node &in)
         {
             auto child = AssetManager::CreateAsset<Prefab>(Handle(i["m_handle"].as<uint64_t>()), "");
             child->Deserialize(i);
+            m_children.push_back(child);
         }
     }
+}
+void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &map)
+{
+    std::vector<AssetRef> list;
+    for(auto& i : m_privateComponents)
+    {
+        i.m_data->CollectAssetRef(list);
+    }
+    for (auto &i : list)
+    {
+        auto asset = i.Get<IAsset>();
+        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
+        {
+            map[asset->GetHandle()] = asset;
+        }
+    }
+    bool listCheck = true;
+    while (listCheck)
+    {
+        size_t currentSize = map.size();
+        list.clear();
+        for (auto &i : map)
+        {
+            i.second->CollectAssetRef(list);
+        }
+        for (auto &i : list)
+        {
+            auto asset = i.Get<IAsset>();
+            if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
+            {
+                map[asset->GetHandle()] = asset;
+            }
+        }
+        if (map.size() == currentSize)
+            listCheck = false;
+    }
+    for(auto& i : m_children) i->CollectAssets(map);
+}
+void Prefab::Save(const std::filesystem::path &path)
+{
+    auto directory = path;
+    directory.remove_filename();
+    std::filesystem::create_directories(directory);
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    Serialize(out);
+    std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
+    CollectAssets(assetMap);
+    if (!assetMap.empty())
+    {
+        out << YAML::Key << "LocalAssets" << YAML::Value << YAML::BeginSeq;
+        for (auto &i : assetMap)
+        {
+            out << YAML::BeginMap;
+            out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
+            out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
+            out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
+            i.second->Serialize(out);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+    out << YAML::EndMap;
+
+
+    std::ofstream fout(path.string());
+    fout << out.c_str();
+    fout.flush();
+}
+void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
+{
+    EntityManager::ForEachPrivateComponent(parentEntity, [&](PrivateComponentElement &data){
+        data.m_privateComponentData->Relink(map);
+    });
+    EntityManager::ForEachChild(parentEntity, [&](Entity child){
+        RelinkChildren(child, map);
+    });
 }
 void PrivateComponentHolder::Serialize(YAML::Emitter &out)
 {
