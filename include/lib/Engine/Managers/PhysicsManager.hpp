@@ -141,6 +141,7 @@ class UNIENGINE_API PhysicsScene{
     friend class PhysicsSystem;
     friend class PhysicsManager;
   public:
+    void Simulate(float time) const;
     PhysicsScene();
     ~PhysicsScene();
 };

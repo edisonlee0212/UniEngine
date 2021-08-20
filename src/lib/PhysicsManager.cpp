@@ -165,19 +165,24 @@ void PhysicsSystem::FixedUpdate()
     Simulate(Application::Time().TimeStep());
 }
 
+void PhysicsScene::Simulate(float time) const
+{
+    m_physicsScene->simulate(time);
+    m_physicsScene->fetchResults(true);
+}
+
 void PhysicsSystem::Simulate(float time) const
 {
     const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (!rigidBodyEntities)
         return;
-    m_scene->m_physicsScene->simulate(time);
-    m_scene->m_physicsScene->fetchResults(true);
+    m_scene->Simulate(time);
     DownloadRigidBodyTransforms(rigidBodyEntities);
     TransformManager::GetInstance().m_physicsSystemOverride = true;
 }
+
 void PhysicsSystem::OnEnable()
 {
-    PhysicsManager::UploadTransforms(true);
 }
 void PhysicsSystem::DownloadRigidBodyTransforms() const
 {

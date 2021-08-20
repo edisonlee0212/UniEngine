@@ -51,7 +51,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     bool IsStatic();
     void SetShapeTransform(const glm::mat4 &value);
     void OnDestroy() override;
-    void UpdateBody();
+    void RecreateBody();
     void OnCreate() override;
     void OnGui() override;
 

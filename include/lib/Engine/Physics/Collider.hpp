@@ -20,7 +20,7 @@ class UNIENGINE_API Collider : public IAsset
     ShapeType m_shapeType = ShapeType::Box;
     AssetRef m_physicsMaterial;
 
-    bool m_attached = false;
+    size_t m_attachCount = 0;
 
   public:
     void OnGui();

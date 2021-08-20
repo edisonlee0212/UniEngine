@@ -3,6 +3,7 @@
 #include <EntityManager.hpp>
 #include <RenderManager.hpp>
 #include <Application.hpp>
+#include <PhysicsManager.hpp>
 using namespace UniEngine;
 
 void Project::Serialize(YAML::Emitter &out)
@@ -65,6 +66,8 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         RenderManager::SetMainCamera(mainCameraComponent);
         mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
+
+        EntityManager::GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
     }
     if(projectManager.m_newSceneCustomizer.has_value()) projectManager.m_newSceneCustomizer.value()();
 }

@@ -201,10 +201,8 @@ Entity CreateSolidCube(
     auto cube = CreateCube(color, position, rotation, scale, name);
     auto rigidBody = cube.GetOrSetPrivateComponent<RigidBody>().lock();
     rigidBody->SetStatic(true);
-    rigidBody->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     rigidBody->SetEnabled(true);
-    rigidBody->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
 
     auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Box);
@@ -294,10 +292,8 @@ Entity CreateSolidSphere(
     auto sphere = CreateSphere(color, position, rotation, scale, name);
     auto rigidBody = sphere.GetOrSetPrivateComponent<RigidBody>().lock();
     rigidBody->SetStatic(true);
-    rigidBody->SetDensityAndMassCenter(1);
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     rigidBody->SetEnabled(true);
-    rigidBody->SetDensityAndMassCenter(mass / scale / scale / scale);
 
     auto collider = AssetManager::CreateAsset<Collider>();
     collider->SetShapeType(ShapeType::Sphere);

@@ -105,7 +105,7 @@ void Application::PreUpdateInternal()
     RenderManager::PreUpdate();
     InputManager::PreUpdate();
     OpenGLUtils::PreUpdate();
-    AnimationManager::PreUpdate();
+
     ProfilerManager::EndEvent("Internals");
     ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalPreUpdateFunctions)
@@ -117,7 +117,7 @@ void Application::PreUpdateInternal()
         EntityManager::GetInstance().m_scene->PreUpdate();
         ProfilerManager::EndEvent("Scene");
     }
-
+    AnimationManager::PreUpdate();
     application.m_needFixedUpdate = false;
     auto fixedDeltaTime = application.m_time.FixedDeltaTime();
     if (fixedDeltaTime >= application.m_time.m_timeStep)

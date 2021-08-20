@@ -59,22 +59,28 @@ Collider::~Collider()
 }
 void Collider::SetShapeType(const ShapeType& type)
 {
+    if(m_attachCount != 0){
+        UNIENGINE_ERROR("Unable to modify collider, attached to rigidbody!");
+    }
     m_shapeType = type;
     switch (m_shapeType)
     {
     case ShapeType::Sphere:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Box:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Capsule:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, true);
+        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     }
 }
 void Collider::SetMaterial(const std::shared_ptr<PhysicsMaterial> &material)
 {
+    if(m_attachCount != 0){
+        UNIENGINE_ERROR("Unable to modify collider, attached to rigidbody!");
+    }
     m_physicsMaterial = material;
     PxMaterial* materials[1];
     materials[0] = material->m_value;
@@ -82,6 +88,9 @@ void Collider::SetMaterial(const std::shared_ptr<PhysicsMaterial> &material)
 }
 void Collider::SetShapeParam(const glm::vec3 &param)
 {
+    if(m_attachCount != 0){
+        UNIENGINE_ERROR("Unable to modify collider, attached to rigidbody!");
+    }
     m_shapeParam = param;
     m_shapeParam = glm::max(glm::vec3(0.001f), m_shapeParam);
     switch (m_shapeType)
@@ -105,23 +114,20 @@ void Collider::Serialize(YAML::Emitter &out)
 {
     m_physicsMaterial.Save("m_physicsMaterial", out);
     out << YAML::Key << "m_shapeParam" << YAML::Value << m_shapeParam;
-    out << YAML::Key << "m_attached" << YAML::Value << m_attached;
+    out << YAML::Key << "m_attachCount" << YAML::Value << m_attachCount;
     out << YAML::Key << "m_shapeType" << YAML::Value << (unsigned)m_shapeType;
 }
 void Collider::Deserialize(const YAML::Node &in)
 {
     m_physicsMaterial.Load("m_physicsMaterial", in);
     m_shapeParam = in["m_shapeParam"].as<glm::vec3>();
-    m_attached = in["m_attached"].as<bool>();
     m_shapeType = (ShapeType)in["m_shapeType"].as<unsigned>();
-
-
     SetShapeType(m_shapeType);
     SetShapeParam(m_shapeParam);
-
     auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
     if(!mat){
         mat = DefaultResources::Physics::DefaultPhysicsMaterial;
     }
     SetMaterial(mat);
+    m_attachCount = in["m_attachCount"].as<size_t>();
 }

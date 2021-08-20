@@ -43,8 +43,8 @@ Entity Prefab::ToEntity() const
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        ptr->Clone(i.m_data);
         EntityManager::SetPrivateComponent(entity, ptr);
+        ptr->Clone(i.m_data);
     }
     for (const auto &i : m_children)
     {
@@ -103,8 +103,8 @@ void Prefab::AttachChildrenPrivateComponent(
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        ptr->Clone(i.m_data);
         EntityManager::SetPrivateComponent(entity, ptr);
+        ptr->Clone(i.m_data);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
@@ -1079,6 +1079,7 @@ void Prefab::FromEntity(const Entity &entity)
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
+        ptr->OnCreate();
         ptr->Clone(element.m_privateComponentData);
         ptr->m_started = false;
         PrivateComponentHolder holder;
@@ -1361,5 +1362,6 @@ void PrivateComponentHolder::Deserialize(const YAML::Node &in)
     auto inData = in["m_data"];
     m_data = std::dynamic_pointer_cast<IPrivateComponent>(
         SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+    m_data->OnCreate();
     m_data->Deserialize(inData);
 }

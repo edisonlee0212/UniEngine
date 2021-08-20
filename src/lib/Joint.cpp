@@ -141,11 +141,6 @@ bool Joint::SafetyCheck()
 }
 void Joint::OnCreate()
 {
-    const auto owner = GetOwner();
-    if (owner.HasPrivateComponent<RigidBody>())
-    {
-        m_rigidBody1.Set<RigidBody>(owner);
-    }
 }
 static const char *JointTypeNames[]{"Fixed", "D6"};
 void Joint::OnGui()

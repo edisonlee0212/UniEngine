@@ -333,7 +333,7 @@ void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
     entityManager.m_entityPrivateComponentStorage = &targetStorage.m_entityPrivateComponentStorage;
     entityManager.m_scene = scene;
 
-    GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+
 
     for (auto &i : entityManager.m_entityArchetypeInfos)
     {
