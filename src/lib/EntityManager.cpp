@@ -74,7 +74,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_enabled = true;
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.erase(entityInfo.m_handle);
+        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = Entity();
         entityInfo.m_handle = Handle(0);
 
         for (auto &i : entityInfo.m_privateComponentElements)
