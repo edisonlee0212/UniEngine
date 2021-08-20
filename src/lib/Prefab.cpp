@@ -43,8 +43,8 @@ Entity Prefab::ToEntity() const
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        EntityManager::SetPrivateComponent(entity, ptr);
         ptr->Clone(i.m_data);
+        EntityManager::SetPrivateComponent(entity, ptr);
     }
     for (const auto &i : m_children)
     {
@@ -103,8 +103,8 @@ void Prefab::AttachChildrenPrivateComponent(
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        EntityManager::SetPrivateComponent(entity, ptr);
         ptr->Clone(i.m_data);
+        EntityManager::SetPrivateComponent(entity, ptr);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
