@@ -1,8 +1,8 @@
+#include <Debug.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
-#include <Utilities.hpp>
-#include <Debug.hpp>
 #include <ImGuiFileBrowser.hpp>
+#include <Utilities.hpp>
 #include <WindowManager.hpp>
 using namespace UniEngine;
 Bound::Bound()
@@ -419,8 +419,6 @@ glm::vec3 Ray::GetEnd() const
     return m_start + m_direction * m_length;
 }
 
-
-
 std::string FileUtils::LoadFileAsString(const std::filesystem::path &path)
 {
     std::ifstream file;
@@ -447,38 +445,40 @@ std::string FileUtils::LoadFileAsString(const std::filesystem::path &path)
 void FileUtils::OpenFile(
     const std::string &dialogTitle,
     const std::string &filters,
-    const std::function<void(const std::string &filePath)> &func)
-    {
+    const std::function<void(const std::filesystem::path &path)> &func)
+{
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
     if (file_dialog.showFileDialog(
-        dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), filters))
+            dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), filters))
     {
         func(file_dialog.selected_path);
     }
-    }
+}
 
-    void FileUtils::SaveFile(
-        const std::string &dialogTitle,
-        const std::string &filters,
-        const std::function<void(const std::string &filePath)> &func)
-        {
+void FileUtils::SaveFile(
+    const std::string &dialogTitle,
+    const std::string &filters,
+    const std::function<void(const std::filesystem::path &path)> &func)
+{
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
     if (file_dialog.showFileDialog(
-        dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), filters))
+            dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), filters))
     {
-        func(file_dialog.selected_path);
+        std::filesystem::path path = file_dialog.selected_path;
+        path.replace_extension(filters);
+        func(path);
     }
-        }
+}
 
-        std::pair<bool, uint32_t> FileUtils::DirectoryTreeViewRecursive(
-            const std::filesystem::path &path, uint32_t *count, int *selection_mask)
-            {
+std::pair<bool, uint32_t> FileUtils::DirectoryTreeViewRecursive(
+    const std::filesystem::path &path, uint32_t *count, int *selection_mask)
+{
     const ImGuiTreeNodeFlags baseFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick |
-        ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
+                                         ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
 
     bool anyNodeClicked = false;
     uint32_t nodeClicked = 0;
@@ -534,4 +534,4 @@ void FileUtils::OpenFile(
     }
 
     return {anyNodeClicked, nodeClicked};
-            }
+}

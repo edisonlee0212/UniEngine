@@ -148,30 +148,26 @@ void ProjectManager::OnGui()
         {
             ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
 
-            FileUtils::SaveFile("New...##ProjectManager", ".ueproj", [](const std::string &filePath) {
-                std::filesystem::path path = filePath;
-                path.replace_extension(".ueproj");
+            FileUtils::SaveFile("New...##ProjectManager", ".ueproj", [](const std::filesystem::path &filePath) {
                 try
                 {
-                    CreateOrLoadProject(path);
-                    UNIENGINE_LOG("Saved to " + path.string());
+                    CreateOrLoadProject(filePath);
+                    UNIENGINE_LOG("Saved to " + filePath.string());
                 }
                 catch (std::exception &e)
                 {
-                    UNIENGINE_ERROR("Failed to save to " + path.string());
+                    UNIENGINE_ERROR("Failed to save to " + filePath.string());
                 }
             });
-            FileUtils::OpenFile("Open...##ProjectManager", ".ueproj", [&](const std::string &filePath) {
-                std::filesystem::path path = filePath;
-                path.replace_extension(".ueproj");
+            FileUtils::OpenFile("Open...##ProjectManager", ".ueproj", [&](const std::filesystem::path &filePath) {
                 try
                 {
-                    CreateOrLoadProject(path);
-                    UNIENGINE_LOG("Loaded from " + filePath);
+                    CreateOrLoadProject(filePath);
+                    UNIENGINE_LOG("Loaded from " + filePath.string());
                 }
                 catch (std::exception &e)
                 {
-                    UNIENGINE_ERROR("Failed to load from " + filePath);
+                    UNIENGINE_ERROR("Failed to load from " + filePath.string());
                 }
             });
             if (ImGui::Button("Save"))

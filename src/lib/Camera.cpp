@@ -29,16 +29,6 @@ void Plane::Normalize()
     m_d /= mag;
 }
 
-void Camera::StoreToJpg(const std::string &path, int resizeX, int resizeY) const
-{
-    m_colorTexture->StoreToPng(path, resizeX, resizeY);
-}
-
-void Camera::StoreToPng(const std::string &path, int resizeX, int resizeY, bool alphaChannel) const
-{
-    m_colorTexture->StoreToPng(path, resizeX, resizeY, alphaChannel);
-}
-
 void Camera::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view)
 {
     glm::mat4 comboMatrix = projection * glm::transpose(view);
@@ -387,9 +377,7 @@ void Camera::OnGui()
             ImVec2(0, 1),
             ImVec2(1, 0));
 
-        FileUtils::SaveFile("Save JPG", ".jpg", [this](const std::string &filePath) { StoreToJpg(filePath); });
-        FileUtils::SaveFile(
-            "Save PNG", ".png", [this](const std::string &filePath) { StoreToPng(filePath, -1, -1, true); });
+        FileUtils::SaveFile("Save Texture", ".png,.jpg", [this](const std::filesystem::path &filePath) { m_colorTexture->Save(filePath); });
         ImGui::TreePop();
     }
 }

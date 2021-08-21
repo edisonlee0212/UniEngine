@@ -2442,7 +2442,7 @@ void RenderManager::DrawMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
-    const std::shared_ptr<ParticleMatrices> &matrices,
+    const std::shared_ptr<PointCloud> &matrices,
     const std::shared_ptr<Camera> &cameraComponent,
     const bool &receiveShadow,
     const bool &castShadow)

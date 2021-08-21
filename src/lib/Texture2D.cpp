@@ -154,3 +154,11 @@ void Texture2D::Load(const std::filesystem::path &path)
     m_name = path.filename().string();
     m_gamma = actualGamma;
 }
+void Texture2D::Save(const std::filesystem::path &path)
+{
+    if(path.extension() == ".png"){
+        StoreToPng(path.string());
+    }else if(path.extension() == ".jpg"){
+        StoreToJpg(path.string());
+    }
+}

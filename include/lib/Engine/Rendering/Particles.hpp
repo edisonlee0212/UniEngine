@@ -5,11 +5,12 @@
 namespace UniEngine
 {
 
-class UNIENGINE_API ParticleMatrices : ISerializable{
+class UNIENGINE_API PointCloud : ISerializable{
   public:
     std::vector<glm::mat4> m_value;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+    void Load(const std::filesystem::path &path);
 };
 
 class UNIENGINE_API Particles : public IPrivateComponent
@@ -20,7 +21,7 @@ class UNIENGINE_API Particles : public IPrivateComponent
     bool m_forwardRendering = false;
     bool m_castShadow = true;
     bool m_receiveShadow = true;
-    std::shared_ptr<ParticleMatrices> m_matrices;
+    std::shared_ptr<PointCloud> m_matrices;
     AssetRef m_mesh;
     AssetRef m_material;
     void RecalculateBoundingBox();

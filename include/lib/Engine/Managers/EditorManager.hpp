@@ -221,30 +221,28 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
 
             if (ImGui::BeginMenu("I/O"))
             {
-                FileUtils::SaveFile(("Save " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::string &filePath) {
-                    std::filesystem::path path = filePath;
+                FileUtils::SaveFile(("Save " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::filesystem::path &filePath) {
                     try
                     {
-                        AssetManager::Export(path, ptr);
-                        UNIENGINE_LOG("Saved to " + path.string());
+                        AssetManager::Export(filePath, ptr);
+                        UNIENGINE_LOG("Saved to " + filePath.string());
                     }
                     catch (std::exception &e)
                     {
-                        UNIENGINE_ERROR("Failed to save to " + path.string());
+                        UNIENGINE_ERROR("Failed to save to " + filePath.string());
                     }
                 });
 
-                FileUtils::OpenFile(("Load " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::string &filePath) {
-                    std::filesystem::path path = filePath;
+                FileUtils::OpenFile(("Load " + type + tag).c_str(), AssetManager::GetExtension<T>(), [&](const std::filesystem::path &filePath) {
                     try
                     {
                         ptr->SetPath(filePath);
                         ptr->Load();
-                        UNIENGINE_LOG("Loaded from " + path.string());
+                        UNIENGINE_LOG("Loaded from " + filePath.string());
                     }
                     catch (std::exception &e)
                     {
-                        UNIENGINE_ERROR("Failed to load from " + path.string());
+                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
                     }
                 });
 
@@ -384,32 +382,28 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
         if (ImGui::BeginMenu("I/O"))
         {
             auto extension = AssetManager::GetExtension(type);
-            FileUtils::SaveFile(("Save " + type + tag).c_str(), extension, [&](const std::string &filePath) {
-                std::filesystem::path path = filePath;
-                path.replace_extension(extension);
+            FileUtils::SaveFile(("Save " + type + tag).c_str(), extension, [&](const std::filesystem::path &filePath) {
                 try
                 {
-                    AssetManager::Export(path, ptr);
-                    UNIENGINE_LOG("Saved to " + path.string());
+                    AssetManager::Export(filePath, ptr);
+                    UNIENGINE_LOG("Saved to " + filePath.string());
                 }
                 catch (std::exception &e)
                 {
-                    UNIENGINE_ERROR("Failed to save to " + path.string());
+                    UNIENGINE_ERROR("Failed to save to " + filePath.string());
                 }
             });
 
-            FileUtils::OpenFile(("Load " + type + tag).c_str(), extension, [&](const std::string &filePath) {
-                std::filesystem::path path = filePath;
-                path.replace_extension(extension);
+            FileUtils::OpenFile(("Load " + type + tag).c_str(), extension, [&](const std::filesystem::path &filePath) {
                 try
                 {
                     ptr->SetPath(filePath);
                     ptr->Load();
-                    UNIENGINE_LOG("Loaded from " + path.string());
+                    UNIENGINE_LOG("Loaded from " + filePath.string());
                 }
                 catch (std::exception &e)
                 {
-                    UNIENGINE_ERROR("Failed to load from " + path.string());
+                    UNIENGINE_ERROR("Failed to load from " + filePath.string());
                 }
             });
 

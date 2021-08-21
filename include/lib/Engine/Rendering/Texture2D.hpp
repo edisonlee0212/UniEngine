@@ -36,7 +36,7 @@ class UNIENGINE_API Texture2D : public IAsset
         unsigned compressionLevel = 8) const;
     void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1, unsigned quality = 100) const;
     [[nodiscard]] std::shared_ptr<OpenGLUtils::GLTexture2D> Texture() const;
-
+    void Save(const std::filesystem::path &path) override;
     void Load(const std::filesystem::path & path) override;
 };
 } // namespace UniEngine

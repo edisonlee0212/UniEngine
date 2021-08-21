@@ -27,7 +27,7 @@ class UNIENGINE_API IAsset : public ISerializable
     void Save();
     void Load();
 
-    virtual ~IAsset();
+    ~IAsset() override;
 
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Save(const std::filesystem::path &path);

@@ -7,7 +7,7 @@ using namespace UniEngine;
 
 void Particles::OnCreate()
 {
-    m_matrices = std::make_shared<ParticleMatrices>();
+    m_matrices = std::make_shared<PointCloud>();
     m_boundingBox = Bound();
     SetEnabled(true);
 }
@@ -84,6 +84,18 @@ void Particles::OnGui()
             ImGui::TreePop();
         }
     }
+
+    FileUtils::OpenFile(("Load PointCloud##Particles"), ".ply", [&](const std::filesystem::path &filePath) {
+        try
+        {
+            m_matrices->Load(filePath);
+            UNIENGINE_LOG("Loaded from " + filePath.string());
+        }
+        catch (std::exception &e)
+        {
+            UNIENGINE_ERROR("Failed to load from " + filePath.string());
+        }
+    });
 }
 
 void Particles::Serialize(YAML::Emitter &out)
@@ -119,7 +131,7 @@ void Particles::CollectAssetRef(std::vector<AssetRef> &list)
     list.push_back(m_mesh);
     list.push_back(m_material);
 }
-void ParticleMatrices::Serialize(YAML::Emitter &out)
+void PointCloud::Serialize(YAML::Emitter &out)
 {
     if(!m_value.empty())
     {
@@ -127,7 +139,7 @@ void ParticleMatrices::Serialize(YAML::Emitter &out)
             << YAML::Binary((const unsigned char *)m_value.data(), m_value.size() * sizeof(glm::mat4));
     }
 }
-void ParticleMatrices::Deserialize(const YAML::Node &in)
+void PointCloud::Deserialize(const YAML::Node &in)
 {
     if(in["m_value"])
     {
@@ -135,4 +147,8 @@ void ParticleMatrices::Deserialize(const YAML::Node &in)
         m_value.resize(vertexData.size() / sizeof(glm::mat4));
         std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
     }
+}
+void PointCloud::Load(const std::filesystem::path &path)
+{
+
 }

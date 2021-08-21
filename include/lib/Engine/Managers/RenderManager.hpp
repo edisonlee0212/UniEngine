@@ -82,7 +82,7 @@ struct RenderCommand
     std::weak_ptr<SkinnedMesh> m_skinnedMesh;
     bool m_castShadow = true;
     bool m_receiveShadow = true;
-    std::weak_ptr<ParticleMatrices> m_matrices;
+    std::weak_ptr<PointCloud> m_matrices;
     std::weak_ptr<BoneMatrices> m_boneMatrices; // We require the skinned mesh renderer to provide bones.
     GlobalTransform m_globalTransform;
 };
@@ -347,7 +347,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const std::shared_ptr<Mesh> &mesh,
         const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
-        const std::shared_ptr<ParticleMatrices> &matrices,
+        const std::shared_ptr<PointCloud> &matrices,
         const std::shared_ptr<Camera> &cameraComponent,
         const bool &receiveShadow = true,
         const bool &castShadow = true);

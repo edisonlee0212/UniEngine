@@ -11,11 +11,11 @@ class UNIENGINE_API FileUtils
         static void OpenFile(
             const std::string &dialogTitle,
             const std::string &filters,
-            const std::function<void(const std::string &filePath)> &func);
+            const std::function<void(const std::filesystem::path &path)> &func);
         static void SaveFile(
             const std::string &dialogTitle,
             const std::string &filters,
-            const std::function<void(const std::string &filePath)> &func);
+            const std::function<void(const std::filesystem::path &path)> &func);
         static std::pair<bool, uint32_t> DirectoryTreeViewRecursive(
             const std::filesystem::path &path, uint32_t *count, int *selection_mask);
     };

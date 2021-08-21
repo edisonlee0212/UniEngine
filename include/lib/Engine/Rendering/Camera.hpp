@@ -56,8 +56,6 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     float m_nearDistance = 0.1f;
     float m_farDistance = 500.0f;
     float m_fov = 120;
-    void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1) const;
-    void StoreToPng(const std::string &path, int resizeX = -1, int resizeY = -1, bool alphaChannel = false) const;
 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
     static void CalculateFrustumPoints(
