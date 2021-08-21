@@ -85,7 +85,9 @@ void Prefab::AttachChildren(
 }
 
 void Prefab::AttachChildrenPrivateComponent(
-    const std::shared_ptr<Prefab> &modelNode, const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
+    const std::shared_ptr<Prefab> &modelNode,
+    const Entity &parentEntity,
+    const std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity;
     auto children = parentEntity.GetChildren();
@@ -123,7 +125,7 @@ void Prefab::Load(const std::filesystem::path &path)
         std::stringstream stringStream;
         stringStream << stream.rdbuf();
         YAML::Node in = YAML::Load(stringStream.str());
-        #pragma region Assets
+#pragma region Assets
         std::vector<std::shared_ptr<IAsset>> localAssets;
         auto inLocalAssets = in["LocalAssets"];
         if (inLocalAssets)
@@ -146,357 +148,7 @@ void Prefab::Load(const std::filesystem::path &path)
     }
     else
     {
-        unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
-        bool optimize = false;
-#ifdef USE_ASSIMP
-
-        // read file via ASSIMP
-        Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path.string(), flags);
-        // check for errors
-        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-        {
-            UNIENGINE_LOG("Assimp: " + std::string(importer.GetErrorString()));
-            return;
-        }
-        // retrieve the directory path of the filepath
-        auto temp = path;
-        const std::string directory = temp.remove_filename().string();
-        std::map<std::string, std::shared_ptr<Texture2D>> texture2DsLoaded;
-        m_name = path.filename().string();
-        std::map<unsigned, std::shared_ptr<Material>> loadedMaterials;
-        std::map<std::string, std::shared_ptr<Bone>> bonesMap;
-        std::shared_ptr<Animation> animation;
-        if (!bonesMap.empty() || scene->HasAnimations())
-        {
-            animation = AssetManager::CreateAsset<Animation>(path.filename().string());
-        }
-        std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
-        if (!ProcessNode(
-                directory,
-                this,
-                loadedMaterials,
-                texture2DsLoaded,
-                bonesMap,
-                scene->mRootNode,
-                rootAssimpNode,
-                scene,
-                animation))
-        {
-            UNIENGINE_ERROR("Model is empty!");
-            return;
-        }
-        if (!bonesMap.empty() || scene->HasAnimations())
-        {
-            rootAssimpNode->NecessaryWalker(bonesMap);
-            size_t index = 0;
-            rootAssimpNode->AttachToAnimator(animation, index);
-            animation->m_boneSize = index + 1;
-            ReadAnimations(scene, animation, bonesMap);
-            ApplyBoneIndices(this);
-
-            auto animator = SerializationManager::ProduceSerializable<Animator>();
-            animator->Setup(animation);
-            AttachAnimator(this, m_entityHandle);
-            PrivateComponentHolder holder;
-            holder.m_enabled = true;
-            holder.m_data = std::static_pointer_cast<IPrivateComponent>(animator);
-            m_privateComponents.push_back(holder);
-        }
-        return;
-#else
-        stbi_hdr_to_ldr_gamma(gamma);
-        stbi_ldr_to_hdr_gamma(gamma);
-        tinyobj::ObjReaderConfig reader_config;
-        reader_config.mtl_search_path = ""; // Path to material files
-        reader_config.triangulate = true;
-        tinyobj::ObjReader reader;
-
-        if (!reader.ParseFromFile(path, reader_config))
-        {
-            if (!reader.Error().empty())
-            {
-                std::cerr << "TinyObjReader: " << reader.Error();
-            }
-            exit(1);
-        }
-
-        if (!reader.Warning().empty())
-        {
-            std::cout << "TinyObjReader: " << reader.Warning();
-        }
-
-        auto retVal = CreateResource<Model>();
-        retVal->m_typeName = path.substr(path.find_last_of("/\\") + 1);
-        auto &attribute = reader.GetAttrib();
-        auto &shapes = reader.GetShapes();
-        auto &materials = reader.GetMaterials();
-        const std::string directory = path.substr(0, path.find_last_of('/'));
-        std::map<std::string, std::shared_ptr<Texture2D>> loadedTextures;
-        if (!optimize)
-        {
-            std::map<int, std::shared_ptr<Material>> loadedMaterials;
-            for (const auto &i : shapes)
-            {
-                std::map<int, std::vector<Vertex>> meshMaterials;
-                meshMaterials[-1] = std::vector<Vertex>();
-                ProcessNode(directory, meshMaterials, i, attribute);
-                for (auto &i : meshMaterials)
-                {
-                    std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
-                    const auto materialId = i.first;
-                    auto &vertices = i.second;
-                    if (vertices.empty())
-                        continue;
-                    const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
-                                      (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
-#pragma region Material
-                    std::shared_ptr<Material> material;
-                    if (materialId != -1)
-                    {
-                        auto search = loadedMaterials.find(materialId);
-                        if (search != loadedMaterials.end())
-                        {
-                            material = search->second;
-                        }
-                        else
-                        {
-                            material = CreateResource<Material>();
-                            auto &importedMaterial = materials[materialId];
-                            material->m_metallic = importedMaterial.metallic == 0 ? 0.0f : importedMaterial.metallic;
-                            material->m_roughness = importedMaterial.roughness == 0 ? 1.0f : importedMaterial.roughness;
-                            material->m_albedoColor = glm::vec3(
-                                importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
-#pragma region Textures
-                            if (!importedMaterial.diffuse_texname.empty())
-                            {
-                                const auto albedo =
-                                    CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
-                                if (albedo)
-                                {
-                                    material->SetTexture(TextureType::Albedo, albedo);
-                                }
-                            }
-                            if (!importedMaterial.bump_texname.empty())
-                            {
-                                const auto normal =
-                                    CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, gamma);
-                                if (normal)
-                                {
-                                    material->SetTexture(TextureType::Normal, normal);
-                                }
-                            }
-                            if (!importedMaterial.normal_texname.empty())
-                            {
-                                const auto normal =
-                                    CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, gamma);
-                                if (normal)
-                                {
-                                    material->SetTexture(TextureType::Normal, normal);
-                                }
-                            }
-                            if (!importedMaterial.roughness_texname.empty())
-                            {
-                                const auto roughness = CollectTexture(
-                                    directory, importedMaterial.roughness_texname, loadedTextures, gamma);
-                                if (roughness)
-                                {
-                                    material->SetTexture(TextureType::Roughness, roughness);
-                                }
-                            }
-                            if (!importedMaterial.specular_highlight_texname.empty())
-                            {
-                                const auto roughness = CollectTexture(
-                                    directory, importedMaterial.specular_highlight_texname, loadedTextures, gamma);
-                                if (roughness)
-                                {
-                                    material->SetTexture(TextureType::Roughness, roughness);
-                                }
-                            }
-                            if (!importedMaterial.metallic_texname.empty())
-                            {
-                                const auto metallic =
-                                    CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, gamma);
-                                if (metallic)
-                                {
-                                    material->SetTexture(TextureType::Metallic, metallic);
-                                }
-                            }
-                            if (!importedMaterial.reflection_texname.empty())
-                            {
-                                const auto metallic = CollectTexture(
-                                    directory, importedMaterial.reflection_texname, loadedTextures, gamma);
-                                if (metallic)
-                                {
-                                    material->SetTexture(TextureType::Metallic, metallic);
-                                }
-                            }
-
-                            if (!importedMaterial.ambient_texname.empty())
-                            {
-                                const auto ao =
-                                    CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, gamma);
-                                if (ao)
-                                {
-                                    material->SetTexture(TextureType::AO, ao);
-                                }
-                            }
-#pragma endregion
-                            loadedMaterials[materialId] = material;
-                        }
-                    }
-                    else
-                    {
-                        material = DefaultResources::Materials::StandardMaterial;
-                    }
-#pragma endregion
-#pragma region Mesh
-                    auto mesh = CreateResource<Mesh>();
-                    auto indices = std::vector<unsigned>();
-                    assert(vertices.size() % 3 == 0);
-                    for (unsigned i = 0; i < vertices.size(); i++)
-                    {
-                        indices.push_back(i);
-                    }
-                    mesh->SetVertices(mask, vertices, indices);
-#pragma endregion
-                    childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
-                                                          glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
-                                                          glm::scale(glm::vec3(1.0f));
-                    childNode->m_mesh = mesh;
-                    childNode->m_value = material;
-                    retVal->RootNode()->m_children.push_back(std::move(childNode));
-                }
-            }
-        }
-        else
-        {
-            std::map<int, std::vector<Vertex>> meshMaterials;
-            meshMaterials[-1] = std::vector<Vertex>();
-            for (const auto &i : shapes)
-            {
-                ProcessNode(directory, meshMaterials, i, attribute);
-            }
-
-            for (auto &i : meshMaterials)
-            {
-                std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
-                const auto materialId = i.first;
-                auto &vertices = i.second;
-                if (vertices.empty())
-                    continue;
-                const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
-                                  (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
-#pragma region Material
-                auto material = std::make_shared<Material>();
-                if (materialId != -1)
-                {
-                    auto &importedMaterial = materials[materialId];
-                    material->m_metallic = importedMaterial.metallic;
-                    material->m_roughness = importedMaterial.roughness;
-                    material->m_albedoColor = glm::vec3(
-                        importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
-                    if (!importedMaterial.diffuse_texname.empty())
-                    {
-                        const auto albedo =
-                            CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
-                        if (albedo)
-                        {
-                            material->SetTexture(TextureType::Albedo, albedo);
-                        }
-                    }
-                    if (!importedMaterial.bump_texname.empty())
-                    {
-                        const auto normal =
-                            CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, gamma);
-                        if (normal)
-                        {
-                            material->SetTexture(TextureType::Normal, normal);
-                        }
-                    }
-                    if (!importedMaterial.normal_texname.empty())
-                    {
-                        const auto normal =
-                            CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, gamma);
-                        if (normal)
-                        {
-                            material->SetTexture(TextureType::Normal, normal);
-                        }
-                    }
-                    if (!importedMaterial.roughness_texname.empty())
-                    {
-                        const auto roughness =
-                            CollectTexture(directory, importedMaterial.roughness_texname, loadedTextures, gamma);
-                        if (roughness)
-                        {
-                            material->SetTexture(TextureType::Roughness, roughness);
-                        }
-                    }
-                    if (!importedMaterial.specular_highlight_texname.empty())
-                    {
-                        const auto roughness = CollectTexture(
-                            directory, importedMaterial.specular_highlight_texname, loadedTextures, gamma);
-                        if (roughness)
-                        {
-                            material->SetTexture(TextureType::Roughness, roughness);
-                        }
-                    }
-                    if (!importedMaterial.metallic_texname.empty())
-                    {
-                        const auto metallic =
-                            CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, gamma);
-                        if (metallic)
-                        {
-                            material->SetTexture(TextureType::Metallic, metallic);
-                        }
-                    }
-                    if (!importedMaterial.reflection_texname.empty())
-                    {
-                        const auto metallic =
-                            CollectTexture(directory, importedMaterial.reflection_texname, loadedTextures, gamma);
-                        if (metallic)
-                        {
-                            material->SetTexture(TextureType::Metallic, metallic);
-                        }
-                    }
-
-                    if (!importedMaterial.ambient_texname.empty())
-                    {
-                        const auto ao =
-                            CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, gamma);
-                        if (ao)
-                        {
-                            material->SetTexture(TextureType::AO, ao);
-                        }
-                    }
-                }
-                else
-                {
-                    material = DefaultResources::Materials::StandardMaterial;
-                }
-#pragma endregion
-#pragma region Mesh
-                auto mesh = std::make_shared<Mesh>();
-                auto indices = std::vector<unsigned>();
-                assert(vertices.size() % 3 == 0);
-                for (unsigned i = 0; i < vertices.size(); i++)
-                {
-                    indices.push_back(i);
-                }
-                mesh->SetVertices(mask, vertices, indices);
-#pragma endregion
-                childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
-                                                      glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
-                                                      glm::scale(glm::vec3(1.0f));
-                childNode->m_mesh = mesh;
-                childNode->m_value = material;
-                retVal->RootNode()->m_children.push_back(std::move(childNode));
-            }
-        }
-        if (addResource)
-            Share(retVal);
-        return retVal;
-#endif
+        LoadModel(path);
     }
 }
 #ifdef USE_ASSIMP
@@ -1270,7 +922,7 @@ void Prefab::Deserialize(const YAML::Node &in)
 void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &map)
 {
     std::vector<AssetRef> list;
-    for(auto& i : m_privateComponents)
+    for (auto &i : m_privateComponents)
     {
         i.m_data->CollectAssetRef(list);
     }
@@ -1302,7 +954,8 @@ void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &
         if (map.size() == currentSize)
             listCheck = false;
     }
-    for(auto& i : m_children) i->CollectAssets(map);
+    for (auto &i : m_children)
+        i->CollectAssets(map);
 }
 void Prefab::Save(const std::filesystem::path &path)
 {
@@ -1330,19 +983,368 @@ void Prefab::Save(const std::filesystem::path &path)
     }
     out << YAML::EndMap;
 
-
     std::ofstream fout(path.string());
     fout << out.c_str();
     fout.flush();
 }
 void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
 {
-    EntityManager::ForEachPrivateComponent(parentEntity, [&](PrivateComponentElement &data){
-        data.m_privateComponentData->Relink(map);
-    });
-    EntityManager::ForEachChild(parentEntity, [&](Entity child){
-        RelinkChildren(child, map);
-    });
+    EntityManager::ForEachPrivateComponent(
+        parentEntity, [&](PrivateComponentElement &data) { data.m_privateComponentData->Relink(map); });
+    EntityManager::ForEachChild(parentEntity, [&](Entity child) { RelinkChildren(child, map); });
+}
+void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)
+{
+#ifdef USE_ASSIMP
+    if(optimize)
+    {
+        flags = flags | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
+    }
+    // read file via ASSIMP
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(path.string(), flags);
+    // check for errors
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+    {
+        UNIENGINE_LOG("Assimp: " + std::string(importer.GetErrorString()));
+        return;
+    }
+    // retrieve the directory path of the filepath
+    auto temp = path;
+    const std::string directory = temp.remove_filename().string();
+    std::map<std::string, std::shared_ptr<Texture2D>> texture2DsLoaded;
+    m_name = path.filename().string();
+    std::map<unsigned, std::shared_ptr<Material>> loadedMaterials;
+    std::map<std::string, std::shared_ptr<Bone>> bonesMap;
+    std::shared_ptr<Animation> animation;
+    if (!bonesMap.empty() || scene->HasAnimations())
+    {
+        animation = AssetManager::CreateAsset<Animation>(path.filename().string());
+    }
+    std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
+    if (!ProcessNode(
+            directory,
+            this,
+            loadedMaterials,
+            texture2DsLoaded,
+            bonesMap,
+            scene->mRootNode,
+            rootAssimpNode,
+            scene,
+            animation))
+    {
+        UNIENGINE_ERROR("Model is empty!");
+        return;
+    }
+    if (!bonesMap.empty() || scene->HasAnimations())
+    {
+        rootAssimpNode->NecessaryWalker(bonesMap);
+        size_t index = 0;
+        rootAssimpNode->AttachToAnimator(animation, index);
+        animation->m_boneSize = index + 1;
+        ReadAnimations(scene, animation, bonesMap);
+        ApplyBoneIndices(this);
+
+        auto animator = SerializationManager::ProduceSerializable<Animator>();
+        animator->Setup(animation);
+        AttachAnimator(this, m_entityHandle);
+        PrivateComponentHolder holder;
+        holder.m_enabled = true;
+        holder.m_data = std::static_pointer_cast<IPrivateComponent>(animator);
+        m_privateComponents.push_back(holder);
+    }
+    return;
+#else
+    stbi_hdr_to_ldr_gamma(gamma);
+    stbi_ldr_to_hdr_gamma(gamma);
+    tinyobj::ObjReaderConfig reader_config;
+    reader_config.mtl_search_path = ""; // Path to material files
+    reader_config.triangulate = true;
+    tinyobj::ObjReader reader;
+
+    if (!reader.ParseFromFile(path, reader_config))
+    {
+        if (!reader.Error().empty())
+        {
+            std::cerr << "TinyObjReader: " << reader.Error();
+        }
+        exit(1);
+    }
+
+    if (!reader.Warning().empty())
+    {
+        std::cout << "TinyObjReader: " << reader.Warning();
+    }
+
+    auto retVal = CreateResource<Model>();
+    retVal->m_typeName = path.substr(path.find_last_of("/\\") + 1);
+    auto &attribute = reader.GetAttrib();
+    auto &shapes = reader.GetShapes();
+    auto &materials = reader.GetMaterials();
+    const std::string directory = path.substr(0, path.find_last_of('/'));
+    std::map<std::string, std::shared_ptr<Texture2D>> loadedTextures;
+    if (!optimize)
+    {
+        std::map<int, std::shared_ptr<Material>> loadedMaterials;
+        for (const auto &i : shapes)
+        {
+            std::map<int, std::vector<Vertex>> meshMaterials;
+            meshMaterials[-1] = std::vector<Vertex>();
+            ProcessNode(directory, meshMaterials, i, attribute);
+            for (auto &i : meshMaterials)
+            {
+                std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
+                const auto materialId = i.first;
+                auto &vertices = i.second;
+                if (vertices.empty())
+                    continue;
+                const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
+                                  (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
+#pragma region Material
+                std::shared_ptr<Material> material;
+                if (materialId != -1)
+                {
+                    auto search = loadedMaterials.find(materialId);
+                    if (search != loadedMaterials.end())
+                    {
+                        material = search->second;
+                    }
+                    else
+                    {
+                        material = CreateResource<Material>();
+                        auto &importedMaterial = materials[materialId];
+                        material->m_metallic = importedMaterial.metallic == 0 ? 0.0f : importedMaterial.metallic;
+                        material->m_roughness = importedMaterial.roughness == 0 ? 1.0f : importedMaterial.roughness;
+                        material->m_albedoColor = glm::vec3(
+                            importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
+#pragma region Textures
+                        if (!importedMaterial.diffuse_texname.empty())
+                        {
+                            const auto albedo =
+                                CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
+                            if (albedo)
+                            {
+                                material->SetTexture(TextureType::Albedo, albedo);
+                            }
+                        }
+                        if (!importedMaterial.bump_texname.empty())
+                        {
+                            const auto normal =
+                                CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, gamma);
+                            if (normal)
+                            {
+                                material->SetTexture(TextureType::Normal, normal);
+                            }
+                        }
+                        if (!importedMaterial.normal_texname.empty())
+                        {
+                            const auto normal =
+                                CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, gamma);
+                            if (normal)
+                            {
+                                material->SetTexture(TextureType::Normal, normal);
+                            }
+                        }
+                        if (!importedMaterial.roughness_texname.empty())
+                        {
+                            const auto roughness =
+                                CollectTexture(directory, importedMaterial.roughness_texname, loadedTextures, gamma);
+                            if (roughness)
+                            {
+                                material->SetTexture(TextureType::Roughness, roughness);
+                            }
+                        }
+                        if (!importedMaterial.specular_highlight_texname.empty())
+                        {
+                            const auto roughness = CollectTexture(
+                                directory, importedMaterial.specular_highlight_texname, loadedTextures, gamma);
+                            if (roughness)
+                            {
+                                material->SetTexture(TextureType::Roughness, roughness);
+                            }
+                        }
+                        if (!importedMaterial.metallic_texname.empty())
+                        {
+                            const auto metallic =
+                                CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, gamma);
+                            if (metallic)
+                            {
+                                material->SetTexture(TextureType::Metallic, metallic);
+                            }
+                        }
+                        if (!importedMaterial.reflection_texname.empty())
+                        {
+                            const auto metallic =
+                                CollectTexture(directory, importedMaterial.reflection_texname, loadedTextures, gamma);
+                            if (metallic)
+                            {
+                                material->SetTexture(TextureType::Metallic, metallic);
+                            }
+                        }
+
+                        if (!importedMaterial.ambient_texname.empty())
+                        {
+                            const auto ao =
+                                CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, gamma);
+                            if (ao)
+                            {
+                                material->SetTexture(TextureType::AO, ao);
+                            }
+                        }
+#pragma endregion
+                        loadedMaterials[materialId] = material;
+                    }
+                }
+                else
+                {
+                    material = DefaultResources::Materials::StandardMaterial;
+                }
+#pragma endregion
+#pragma region Mesh
+                auto mesh = CreateResource<Mesh>();
+                auto indices = std::vector<unsigned>();
+                assert(vertices.size() % 3 == 0);
+                for (unsigned i = 0; i < vertices.size(); i++)
+                {
+                    indices.push_back(i);
+                }
+                mesh->SetVertices(mask, vertices, indices);
+#pragma endregion
+                childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
+                                                      glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
+                                                      glm::scale(glm::vec3(1.0f));
+                childNode->m_mesh = mesh;
+                childNode->m_value = material;
+                retVal->RootNode()->m_children.push_back(std::move(childNode));
+            }
+        }
+    }
+    else
+    {
+        std::map<int, std::vector<Vertex>> meshMaterials;
+        meshMaterials[-1] = std::vector<Vertex>();
+        for (const auto &i : shapes)
+        {
+            ProcessNode(directory, meshMaterials, i, attribute);
+        }
+
+        for (auto &i : meshMaterials)
+        {
+            std::unique_ptr<ModelNode> childNode = std::make_unique<ModelNode>();
+            const auto materialId = i.first;
+            auto &vertices = i.second;
+            if (vertices.empty())
+                continue;
+            const auto mask = (unsigned)VertexAttribute::Normal | (unsigned)VertexAttribute::TexCoord |
+                              (unsigned)VertexAttribute::Position | (unsigned)VertexAttribute::Color;
+#pragma region Material
+            auto material = std::make_shared<Material>();
+            if (materialId != -1)
+            {
+                auto &importedMaterial = materials[materialId];
+                material->m_metallic = importedMaterial.metallic;
+                material->m_roughness = importedMaterial.roughness;
+                material->m_albedoColor =
+                    glm::vec3(importedMaterial.diffuse[0], importedMaterial.diffuse[1], importedMaterial.diffuse[2]);
+                if (!importedMaterial.diffuse_texname.empty())
+                {
+                    const auto albedo =
+                        CollectTexture(directory, importedMaterial.diffuse_texname, loadedTextures, gamma);
+                    if (albedo)
+                    {
+                        material->SetTexture(TextureType::Albedo, albedo);
+                    }
+                }
+                if (!importedMaterial.bump_texname.empty())
+                {
+                    const auto normal = CollectTexture(directory, importedMaterial.bump_texname, loadedTextures, gamma);
+                    if (normal)
+                    {
+                        material->SetTexture(TextureType::Normal, normal);
+                    }
+                }
+                if (!importedMaterial.normal_texname.empty())
+                {
+                    const auto normal =
+                        CollectTexture(directory, importedMaterial.normal_texname, loadedTextures, gamma);
+                    if (normal)
+                    {
+                        material->SetTexture(TextureType::Normal, normal);
+                    }
+                }
+                if (!importedMaterial.roughness_texname.empty())
+                {
+                    const auto roughness =
+                        CollectTexture(directory, importedMaterial.roughness_texname, loadedTextures, gamma);
+                    if (roughness)
+                    {
+                        material->SetTexture(TextureType::Roughness, roughness);
+                    }
+                }
+                if (!importedMaterial.specular_highlight_texname.empty())
+                {
+                    const auto roughness =
+                        CollectTexture(directory, importedMaterial.specular_highlight_texname, loadedTextures, gamma);
+                    if (roughness)
+                    {
+                        material->SetTexture(TextureType::Roughness, roughness);
+                    }
+                }
+                if (!importedMaterial.metallic_texname.empty())
+                {
+                    const auto metallic =
+                        CollectTexture(directory, importedMaterial.metallic_texname, loadedTextures, gamma);
+                    if (metallic)
+                    {
+                        material->SetTexture(TextureType::Metallic, metallic);
+                    }
+                }
+                if (!importedMaterial.reflection_texname.empty())
+                {
+                    const auto metallic =
+                        CollectTexture(directory, importedMaterial.reflection_texname, loadedTextures, gamma);
+                    if (metallic)
+                    {
+                        material->SetTexture(TextureType::Metallic, metallic);
+                    }
+                }
+
+                if (!importedMaterial.ambient_texname.empty())
+                {
+                    const auto ao = CollectTexture(directory, importedMaterial.ambient_texname, loadedTextures, gamma);
+                    if (ao)
+                    {
+                        material->SetTexture(TextureType::AO, ao);
+                    }
+                }
+            }
+            else
+            {
+                material = DefaultResources::Materials::StandardMaterial;
+            }
+#pragma endregion
+#pragma region Mesh
+            auto mesh = std::make_shared<Mesh>();
+            auto indices = std::vector<unsigned>();
+            assert(vertices.size() % 3 == 0);
+            for (unsigned i = 0; i < vertices.size(); i++)
+            {
+                indices.push_back(i);
+            }
+            mesh->SetVertices(mask, vertices, indices);
+#pragma endregion
+            childNode->m_localTransform.m_value = glm::translate(glm::vec3(0.0f)) *
+                                                  glm::mat4_cast(glm::quat(glm::vec3(0.0f))) *
+                                                  glm::scale(glm::vec3(1.0f));
+            childNode->m_mesh = mesh;
+            childNode->m_value = material;
+            retVal->RootNode()->m_children.push_back(std::move(childNode));
+        }
+    }
+    if (addResource)
+        Share(retVal);
+    return retVal;
+#endif
 }
 void PrivateComponentHolder::Serialize(YAML::Emitter &out)
 {

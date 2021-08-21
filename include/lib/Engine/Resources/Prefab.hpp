@@ -111,6 +111,8 @@ class UNIENGINE_API Prefab : public IAsset
     void Save(const std::filesystem::path &path) override;
     [[nodiscard]] Entity ToEntity() const;
 
+    void LoadModel(const std::filesystem::path &path, bool optimize = false, unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
+
     void FromEntity(const Entity &entity);
     void CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &map);
     void Serialize(YAML::Emitter &out);

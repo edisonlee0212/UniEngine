@@ -53,7 +53,8 @@ int main()
 #pragma region Load models and display
 
         auto sponza =
-            AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx");
+            AssetManager::CreateAsset<Prefab>();
+        sponza->LoadModel(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx", true);
         auto sponzaEntity = sponza->ToEntity();
         Transform sponzaTransform;
         sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));

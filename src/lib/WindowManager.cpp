@@ -3,7 +3,7 @@
 #include <ProfilerManager.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>
-
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 
 void WindowManager::ResizeCallback(GLFWwindow *window, int width, int height)
@@ -72,6 +72,7 @@ void WindowManager::Init(std::string name, bool fullScreen)
     if (fullScreen)
         glfwMaximizeWindow(GetInstance().m_window);
     glfwSetFramebufferSizeCallback(GetInstance().m_window, ResizeCallback);
+    glfwSetWindowFocusCallback(GetInstance().m_window, WindowFocusCallback);
     if (GetInstance().m_window == NULL)
     {
         UNIENGINE_ERROR("Failed to create GLFW window");
@@ -117,4 +118,11 @@ void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
     program->SetFloat2("center", glm::vec2(0));
     program->SetFloat2("size", glm::vec2(1.0));
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+void WindowManager::WindowFocusCallback(GLFWwindow* window, int focused)
+{
+    if (focused)
+    {
+        ProjectManager::ScanProjectFolder();
+    }
 }

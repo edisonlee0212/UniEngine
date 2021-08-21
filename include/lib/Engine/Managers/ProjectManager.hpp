@@ -45,7 +45,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void OnGui();
     static void CreateOrLoadProject(const std::filesystem::path &path);
     static void SaveProject();
-    static void RefreshAssetRegistry();
+    static void ScanProjectFolder();
     static void SaveAssetRegistry();
     static void LoadAssetRegistry();
     static std::filesystem::path GetProjectPath();

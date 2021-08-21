@@ -134,9 +134,11 @@ void ProjectManager::LoadAssetRegistry()
     YAML::Node in = YAML::Load(stringStream.str());
     projectManager.m_assetRegistry->Deserialize(in);
 }
-void ProjectManager::RefreshAssetRegistry()
+void ProjectManager::ScanProjectFolder()
 {
+
 }
+
 void ProjectManager::OnGui()
 {
     auto &projectManager = GetInstance();
@@ -178,7 +180,7 @@ void ProjectManager::OnGui()
             }
             if (ImGui::Button("Refresh Assets"))
             {
-                RefreshAssetRegistry();
+                ScanProjectFolder();
             }
             ImGui::EndMenu();
         }

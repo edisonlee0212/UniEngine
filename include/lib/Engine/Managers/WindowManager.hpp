@@ -15,7 +15,7 @@ class UNIENGINE_API WindowManager : public ISingleton<WindowManager>
     static void DrawTexture(OpenGLUtils::GLTexture2D *texture);
     static void ResizeCallback(GLFWwindow *, int, int);
     static void SetMonitorCallback(GLFWmonitor *monitor, int event);
-
+    static void WindowFocusCallback(GLFWwindow* window, int focused);
   private:
     std::vector<GLFWmonitor *> m_monitors;
     GLFWmonitor *m_primaryMonitor = nullptr;
