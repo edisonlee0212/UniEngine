@@ -116,7 +116,8 @@ int main()
 #pragma region Create ground
         auto ground = EntityManager::CreateEntity("Ground");
         auto groundMeshRenderer = ground.GetOrSetPrivateComponent<MeshRenderer>().lock();
-        groundMeshRenderer->m_material.Set<Material>(DefaultResources::Materials::StandardMaterial);
+        auto groundMat = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+        groundMeshRenderer->m_material.Set<Material>(groundMat);
         groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
         Transform groundTransform;
         groundTransform.SetValue(glm::vec3(0, -16, -90), glm::vec3(0), glm::vec3(160, 1, 220));

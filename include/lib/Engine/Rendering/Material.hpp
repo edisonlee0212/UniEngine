@@ -57,7 +57,7 @@ class UNIENGINE_API Material : public IAsset
     bool m_alphaDiscardEnabled = true;
     float m_alphaDiscardOffset = 0.1f;
     void OnCreate() override;
-    void OnGui();
+    void OnInspect() override;
     void SetMaterialProperty(const std::string &name, const float &value);
     void SetMaterialProperty(const std::string &name, const glm::mat4 &value);
     void SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture);

@@ -144,33 +144,35 @@ void AssetManager::OnGui()
                     }
                 });
 
-                FileUtils::OpenFile("Texture2D##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        auto asset = Import<Texture2D>(filePath);
-                        resourceManager.m_sharedAssets["Texture2D"][asset->m_handle] =
-                            std::static_pointer_cast<IAsset>(asset);
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
+                FileUtils::OpenFile(
+                    "Texture2D##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
+                        try
+                        {
+                            auto asset = Import<Texture2D>(filePath);
+                            resourceManager.m_sharedAssets["Texture2D"][asset->m_handle] =
+                                std::static_pointer_cast<IAsset>(asset);
+                            UNIENGINE_LOG("Loaded from " + filePath.string());
+                        }
+                        catch (std::exception &e)
+                        {
+                            UNIENGINE_ERROR("Failed to load from " + filePath.string());
+                        }
+                    });
 
-                FileUtils::OpenFile("Cubemap##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        auto asset = Import<Cubemap>(filePath);
-                        resourceManager.m_sharedAssets["Cubemap"][asset->m_handle] =
-                            std::static_pointer_cast<IAsset>(asset);
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
+                FileUtils::OpenFile(
+                    "Cubemap##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
+                        try
+                        {
+                            auto asset = Import<Cubemap>(filePath);
+                            resourceManager.m_sharedAssets["Cubemap"][asset->m_handle] =
+                                std::static_pointer_cast<IAsset>(asset);
+                            UNIENGINE_LOG("Loaded from " + filePath.string());
+                        }
+                        catch (std::exception &e)
+                        {
+                            UNIENGINE_ERROR("Failed to load from " + filePath.string());
+                        }
+                    });
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Export..."))
@@ -254,7 +256,8 @@ void AssetManager::OnGui()
                             const std::string tag = "##" + type + std::to_string(i.second->GetHandle());
                             if (ImGui::BeginPopupContextItem(tag.c_str()))
                             {
-                                if (ImGui::Button(("Remove" + tag).c_str()))
+                                if (ImGui::Button(("Remove" + tag).c_str()) &&
+                                    i.first >= DefaultResources::GetMaxHandle())
                                 {
                                     collection.second.erase(i.first);
                                     ImGui::EndPopup();
@@ -264,7 +267,6 @@ void AssetManager::OnGui()
                             }
                         }
                     }
-
                 }
                 ImGui::EndTabItem();
             }
@@ -340,9 +342,12 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     auto retVal =
         std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
     retVal->m_path.clear();
-    retVal->m_name = name;
     RegisterAsset(retVal);
     retVal->OnCreate();
+    if(!name.empty()) retVal->m_name = name;
+    else{
+        retVal->m_name = "New " + typeName;
+    }
     return retVal;
 }
 std::string AssetManager::GetExtension(const std::string &typeName)
@@ -350,7 +355,8 @@ std::string AssetManager::GetExtension(const std::string &typeName)
     return GetInstance().m_defaultExtensions[typeName];
 }
 
-void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target){
+void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target)
+{
     auto actualPath = path;
     actualPath.replace_extension(GetInstance().m_defaultExtensions[target->GetTypeName()]);
     target->Save(actualPath);

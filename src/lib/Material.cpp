@@ -23,7 +23,7 @@ void Material::OnCreate()
     m_name = "New material";
 }
 
-void Material::OnGui()
+void Material::OnInspect()
 {
     ImGui::Text("Name: %s", m_name.c_str());
     if (ImGui::BeginPopupContextItem(m_name.c_str()))

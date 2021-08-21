@@ -5,7 +5,7 @@ using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLVBO> Mesh::m_matricesBuffer;
 
-void Mesh::OnGui()
+void Mesh::OnInspect()
 {
     ImGui::Text(("Name: " + m_name).c_str());
     ImGui::Text(("Vertices size: " + std::to_string(m_vertices.size())).c_str());

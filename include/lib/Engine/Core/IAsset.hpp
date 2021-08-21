@@ -15,7 +15,6 @@ class UNIENGINE_API IAsset : public ISerializable
 
     std::shared_ptr<Texture2D> m_icon;
     std::filesystem::path m_path;
-
   public:
     virtual void OnCreate();
     std::string m_name;
@@ -28,7 +27,7 @@ class UNIENGINE_API IAsset : public ISerializable
     void Load();
 
     ~IAsset() override;
-
+    virtual void OnInspect() {};
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Save(const std::filesystem::path &path);
     virtual void Load(const std::filesystem::path &path);

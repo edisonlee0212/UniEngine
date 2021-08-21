@@ -28,14 +28,6 @@ void MeshRenderer::OnGui()
         ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
     EditorManager::DragAndDropButton<Material>(m_material, "Material");
-    if (m_material.Get<Material>())
-    {
-        if (ImGui::TreeNode("Material##MeshRenderer"))
-        {
-            m_material.Get<Material>()->OnGui();
-            ImGui::TreePop();
-        }
-    }
     EditorManager::DragAndDropButton<Mesh>(m_mesh, "Mesh");
     if (m_mesh.Get<Mesh>())
     {
@@ -49,7 +41,6 @@ void MeshRenderer::OnGui()
                 ImGui::ColorEdit4("Color:##MeshRenderer", (float *)(void *)&displayBoundColor);
                 RenderBound(displayBoundColor);
             }
-            m_mesh.Get<Mesh>()->OnGui();
             ImGui::TreePop();
         }
     }

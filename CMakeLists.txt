@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 
 project(
         UniEngine
-        VERSION 0.1
+        VERSION 1.0
         DESCRIPTION "An rendering Engine"
 )
 include(GenerateExportHeader)
@@ -62,6 +62,7 @@ target_link_libraries(uniengine
         )
 
 set(UNIENGINE_INCLUDES_LOCAL
+        ${3RD_PARTY_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Core
@@ -74,16 +75,8 @@ set(UNIENGINE_INCLUDES_LOCAL
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Resources
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Utilities
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/External
-        ${3RD_PARTY_DIR}
-        ${GLFW_DIR}/include
-        ${ASSIMP_DIR}/include
-        ${STB_DIR}
-        ${IMGUI_DIR}
-        ${GLAD_DIR}
-        ${TINYOBJLOADER_DIR}
+
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${TINYOBJLOADER_DIR}
-        ${PHYSX_DIR}/include
         )
 
 target_include_directories(uniengine

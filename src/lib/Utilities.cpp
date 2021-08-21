@@ -469,7 +469,6 @@ void FileUtils::SaveFile(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), filters))
     {
         std::filesystem::path path = file_dialog.selected_path;
-        path.replace_extension(filters);
         func(path);
     }
 }

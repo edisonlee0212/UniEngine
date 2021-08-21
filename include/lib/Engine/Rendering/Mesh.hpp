@@ -57,7 +57,7 @@ class UNIENGINE_API Mesh : public IAsset
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
     void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
 
-    void OnGui();
+    void OnInspect() override;
     [[nodiscard]] glm::vec3 GetCenter() const;
     [[nodiscard]] Bound GetBound() const;
     void OnCreate() override;

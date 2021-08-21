@@ -96,7 +96,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     float m_velocity = 20.0f;
     float m_sensitivity = 0.1f;
     bool m_lockCamera;
-
+    std::weak_ptr<IAsset> m_inspectingAsset;
     std::shared_ptr<Camera> m_sceneCamera;
     glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
     glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
@@ -194,6 +194,10 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
     const std::string type = SerializationManager::GetSerializableTypeName<T>();
     if (ptr)
     {
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
+            GetInstance().m_inspectingAsset = ptr;
+        }
         const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
@@ -352,6 +356,10 @@ template <typename T> void EditorManager::DraggablePrivateComponent(std::shared_
 template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+    {
+        GetInstance().m_inspectingAsset = ptr;
+    }
     const auto type = ptr->GetTypeName();
     const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))

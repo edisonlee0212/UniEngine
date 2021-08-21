@@ -892,17 +892,19 @@ void EditorManager::OnGui()
                                 data.m_privateComponentData->GetTypeName().c_str(),
                                 &data.m_privateComponentData->m_enabled);
                             DraggablePrivateComponent(data.m_privateComponentData);
-                            const std::string tag = "##" + data.m_privateComponentData->GetTypeName() + std::to_string(data.m_privateComponentData->GetHandle());
+                            const std::string tag = "##" + data.m_privateComponentData->GetTypeName() +
+                                                    std::to_string(data.m_privateComponentData->GetHandle());
                             if (ImGui::BeginPopupContextItem(tag.c_str()))
                             {
                                 if (ImGui::Button(("Remove" + tag).c_str()))
                                 {
                                     skip = true;
-                                    EntityManager::RemovePrivateComponent(editorManager.m_selectedEntity, data.m_typeId);
+                                    EntityManager::RemovePrivateComponent(
+                                        editorManager.m_selectedEntity, data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
-                            if(!skip)
+                            if (!skip)
                             {
                                 if (ImGui::TreeNodeEx(
                                         ("Component Settings##" + std::to_string(i)).c_str(),
@@ -983,6 +985,16 @@ void EditorManager::OnGui()
         }
         ImGui::End();
     }
+#pragma endregion
+
+#pragma region Asset Inspection
+    ImGui::Begin("Asset Inspector");
+    if(!editorManager.m_inspectingAsset.expired()){
+        editorManager.m_inspectingAsset.lock()->OnInspect();
+    }else{
+        ImGui::Text("None");
+    }
+    ImGui::End();
 #pragma endregion
 }
 void EditorManager::LateUpdate()

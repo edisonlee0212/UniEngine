@@ -9,7 +9,7 @@ std::unique_ptr<OpenGLUtils::GLVBO> SkinnedMesh::m_matricesBuffer;
 
 std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 
-void SkinnedMesh::OnGui()
+void SkinnedMesh::OnInspect()
 {
     EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
 
