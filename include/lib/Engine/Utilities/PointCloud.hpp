@@ -12,6 +12,7 @@ class UNIENGINE_API PointCloud : public IPrivateComponent
     float m_pointSize = 1.0f;
     void OnCreate() override;
     void Load(const std::filesystem::path &path);
+    void Save(const std::filesystem::path &path);
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
     void OnGui() override;
     void Compress(float resolution);
