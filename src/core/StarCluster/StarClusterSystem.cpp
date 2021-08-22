@@ -198,55 +198,50 @@ void Galaxy::StarClusterPattern::Apply(const bool &forceUpdateAllStars, const bo
         });
 }
 
-void Galaxy::StarClusterSystem::OnGui()
+void Galaxy::StarClusterSystem::OnInspect()
 {
-    if (ImGui::Begin("Star Cluster System"))
+    ImGui::InputFloat("Time", &m_galaxyTime);
+    static int amount = 10000;
+    ImGui::DragInt("Amount", &amount, 1, 1, 100000);
+    if (amount < 1)
+        amount = 1;
+    if (ImGui::CollapsingHeader("Star clusters", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::InputFloat("Time", &m_galaxyTime);
-        static int amount = 10000;
-        ImGui::DragInt("Amount", &amount, 1, 1, 100000);
-        if (amount < 1)
-            amount = 1;
-        if (ImGui::CollapsingHeader("Star clusters", ImGuiTreeNodeFlags_DefaultOpen))
+        int i = 0;
+        for (auto &pattern : m_starClusterPatterns)
         {
-            int i = 0;
-            for (auto &pattern : m_starClusterPatterns)
+            i++;
+            if (ImGui::TreeNodeEx((std::to_string(i) + ": " + pattern.m_name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
             {
-                i++;
-                if (ImGui::TreeNodeEx(
-                        (std::to_string(i) + ": " + pattern.m_name).c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))
-                    {
-                        pattern.OnGui();
-                        ImGui::TreePop();
-                    }
-                    if (ImGui::Button(("Add " + std::to_string(amount) + " stars").c_str()))
-                    {
-                        PushStars(pattern, amount);
-                    }
+                    pattern.OnGui();
                     ImGui::TreePop();
                 }
+                if (ImGui::Button(("Add " + std::to_string(amount) + " stars").c_str()))
+                {
+                    PushStars(pattern, amount);
+                }
+                ImGui::TreePop();
             }
         }
-        if (ImGui::CollapsingHeader("Star removal", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            if (ImGui::Button(("Remove " + std::to_string(amount) + " stars").c_str()))
-                RandomlyRemoveStars(amount);
-            if (ImGui::Button("Remove all stars"))
-                ClearAllStars();
-        }
-        if (ImGui::CollapsingHeader("Run time control", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::DragFloat("Speed", &m_speed, 1.0f, 0.0f, 40000.0f);
-            ImGui::DragFloat("Star Size", &m_size, 0.01f, 0.01f, 10.0f);
-        }
-        ImGui::Text("Status:");
-        ImGui::InputFloat("Apply time", &m_applyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
-        ImGui::InputFloat("Copy time", &m_copyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
-        ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
     }
-    ImGui::End();
+    if (ImGui::CollapsingHeader("Star removal", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (ImGui::Button(("Remove " + std::to_string(amount) + " stars").c_str()))
+            RandomlyRemoveStars(amount);
+        if (ImGui::Button("Remove all stars"))
+            ClearAllStars();
+    }
+    if (ImGui::CollapsingHeader("Run time control", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::DragFloat("Speed", &m_speed, 1.0f, 0.0f, 40000.0f);
+        ImGui::DragFloat("Star Size", &m_size, 0.01f, 0.01f, 10.0f);
+    }
+    ImGui::Text("Status:");
+    ImGui::InputFloat("Apply time", &m_applyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputFloat("Copy time", &m_copyPositionTimer, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
 }
 
 void Galaxy::StarClusterSystem::CalculateStarPositionAsync()

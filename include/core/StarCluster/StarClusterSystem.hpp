@@ -293,7 +293,7 @@ class StarClusterSystem : public ISystem
   public:
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    void OnGui() override;
+    void OnInspect() override;
 
     void CalculateStarPositionAsync();
     void CalculateStarPositionSync();

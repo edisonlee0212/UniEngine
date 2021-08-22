@@ -9,21 +9,11 @@
 #include <InputManager.hpp>
 #include <JobManager.hpp>
 #include <PhysicsManager.hpp>
+#include <ProjectManager.hpp>
 #include <RenderManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
-#include <ProjectManager.hpp>
 using namespace UniEngine;
-
-#pragma region Utilities
-
-void Application::SetTimeStep(float value)
-{
-    auto &application = GetInstance();
-    application.m_time.m_timeStep = value;
-}
-
-#pragma endregion
 
 void Application::Init(bool fullScreen)
 {
@@ -50,7 +40,17 @@ void Application::Init(bool fullScreen)
 
     EntityManager::GetSystem<PhysicsSystem>()->Enable();
 }
-
+void ApplicationTime::OnGui()
+{
+    if (ImGui::CollapsingHeader("Time Settings"))
+    {
+        float timeStep = m_timeStep;
+        if (ImGui::DragFloat("Time step", &timeStep, 0.001f, 0.001f, 1.0f))
+        {
+            m_timeStep = timeStep;
+        }
+    }
+}
 double ApplicationTime::TimeStep() const
 {
     return m_timeStep;
@@ -133,7 +133,8 @@ void Application::PreUpdateInternal()
         for (const auto &i : application.m_externalFixedUpdateFunctions)
             i();
         ProfilerManager::EndEvent("Externals");
-        if (application.m_playing){
+        if (application.m_playing)
+        {
             ProfilerManager::StartEvent("Scene");
             EntityManager::GetInstance().m_scene->FixedUpdate();
             ProfilerManager::EndEvent("Scene");
@@ -183,21 +184,22 @@ bool Application::LateUpdateInternal()
     ProfilerManager::StartEvent("Internals");
     EntityManager::GetInstance().m_scene->OnGui();
 
-    //Post-processing happens here
+    // Post-processing happens here
     RenderManager::LateUpdate();
-    //Manager settings
+    // Manager settings
+    OnGui();
     InputManager::OnGui();
     AssetManager::OnGui();
     RenderManager::OnGui();
     EditorManager::OnGui();
     ProjectManager::OnGui();
     ProfilerManager::EndEvent("Internals");
-    //Profile
+    // Profile
     ProfilerManager::EndEvent("LateUpdate");
     ProfilerManager::LateUpdate();
     ProfilerManager::OnGui();
 
-    //ImGui drawing
+    // ImGui drawing
     EditorManager::LateUpdate();
     // Swap Window's framebuffer
     WindowManager::LateUpdate();
@@ -263,7 +265,7 @@ void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
 }
 void Application::Reset()
 {
-    auto& application = GetInstance();
+    auto &application = GetInstance();
     application.m_externalPreUpdateFunctions.clear();
     application.m_externalUpdateFunctions.clear();
     application.m_externalFixedUpdateFunctions.clear();
@@ -271,6 +273,28 @@ void Application::Reset()
     application.m_playing = false;
     application.m_needFixedUpdate = false;
     application.m_time.Reset();
+}
+void Application::OnGui()
+{
+    auto &application = GetInstance();
+
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("App Settings", &application.m_enableSettingsMenu);
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+    if (!application.m_enableSettingsMenu)
+        return;
+    if (ImGui::Begin("Application Settings"))
+    {
+        application.m_time.OnGui();
+    }
+    ImGui::End();
 }
 void ApplicationTime::Reset()
 {

@@ -440,10 +440,6 @@ void EditorManager::PreUpdate()
             ImGui::Checkbox("Console", &editorManager.m_enableConsole);
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Window"))
-        {
-            ImGui::EndMenu();
-        }
         if (ImGui::BeginMenu("Help"))
         {
             ImGui::EndMenu();
@@ -993,6 +989,25 @@ void EditorManager::OnGui()
         editorManager.m_inspectingAsset.lock()->OnInspect();
     }else{
         ImGui::Text("None");
+    }
+    ImGui::End();
+#pragma endregion
+#pragma region System Inspection
+    ImGui::Begin("System Inspector");
+    for(auto& i : EntityManager::GetCurrentScene().get()->m_systems){
+        if(ImGui::CollapsingHeader(i.second->GetTypeName().c_str())){
+            bool enabled = i.second->Enabled();
+            if(ImGui::Checkbox("Enabled", &enabled)){
+                if(i.second->Enabled() != enabled){
+                    if(enabled){
+                        i.second->Enable();
+                    }else{
+                        i.second->Disable();
+                    }
+                }
+            }
+            i.second->OnInspect();
+        }
     }
     ImGui::End();
 #pragma endregion

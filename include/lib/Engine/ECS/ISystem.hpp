@@ -32,7 +32,7 @@ class UNIENGINE_API ISystem : public ISerializable
     virtual void FixedUpdate(){};
     virtual void LateUpdate(){};
     // Will only exec when editor is enabled, and no matter application is running or not.
-    virtual void OnGui(){};
+    virtual void OnInspect(){};
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Relink(const std::unordered_map<Handle, Handle> &map){};
 };

@@ -29,6 +29,7 @@ class UNIENGINE_API Scene : public IAsset
 {
     friend class Application;
     friend class EntityManager;
+    friend class EditorManager;
     friend class SerializationManager;
     friend class SystemRef;
     SceneDataStorage m_sceneDataStorage;

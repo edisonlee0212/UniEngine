@@ -24,6 +24,7 @@ class UNIENGINE_API ApplicationTime
 
   public:
     void Reset();
+    void OnGui();
     void SetTimeStep(const double &value);
     [[nodiscard]] double CurrentTime() const;
     [[nodiscard]] double TimeStep() const;
@@ -51,7 +52,8 @@ class UNIENGINE_API Application final : ISingleton<Application>
     ApplicationTime m_time;
     friend class Scene;
     bool m_needFixedUpdate = false;
-
+    static void OnGui();
+    bool m_enableSettingsMenu = false;
   public:
     static void Reset();
     static ApplicationTime &Time();
@@ -59,7 +61,6 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static bool IsPlaying();
     // You are only allowed to create entity after this.
     static bool IsInitialized();
-    static void SetTimeStep(float value);
     static void Init(bool fullScreen = false);
     static void End();
     static void Run();

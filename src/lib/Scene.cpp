@@ -172,7 +172,8 @@ void Scene::OnGui()
 {
     for (auto &i : m_systems)
     {
-        if(i.second->m_started) i.second->OnGui();
+        if(i.second->m_started)
+            i.second->OnInspect();
     }
 }
 void Scene::Serialize(YAML::Emitter &out)
