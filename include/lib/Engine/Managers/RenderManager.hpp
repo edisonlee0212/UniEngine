@@ -160,10 +160,10 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void PrepareBrdfLut();
     static void DeferredPrepassInternal(const std::shared_ptr<Mesh> &mesh);
     static void DeferredPrepassInstancedInternal(
-        const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices);
+        const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices);
     static void DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh> &skinnedMesh);
     static void DeferredPrepassInstancedInternal(
-        const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::vector<glm::mat4> &matrices);
+        const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::shared_ptr<ParticleMatrices> &matrices);
 
     static void DrawMesh(
         const std::shared_ptr<Mesh> &mesh,
@@ -178,7 +178,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const glm::mat4 &model,
         const std::vector<glm::mat4> &matrices,
         const bool &receiveShadow);
-    static void DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices);
+    static void DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices);
     static void DrawMeshInstancedInternal(
         const std::shared_ptr<SkinnedMesh> &mesh, const std::vector<glm::mat4> &matrices);
     static void DrawGizmoMesh(

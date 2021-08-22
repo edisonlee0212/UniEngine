@@ -49,7 +49,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     void Draw() const;
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
     void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
-
+    void DrawInstanced(const std::shared_ptr<ParticleMatrices>& matrices) const;
     void OnCreate() override;
     AssetRef m_animation;
     void FetchIndices();

@@ -69,7 +69,6 @@ void Particles::OnGui()
 
     EditorManager::DragAndDropButton<Material>(m_material, "Material");
     EditorManager::DragAndDropButton<Mesh>(m_mesh, "Mesh");
-
 }
 
 void Particles::Serialize(YAML::Emitter &out)
@@ -121,4 +120,18 @@ void ParticleMatrices::Deserialize(const YAML::Node &in)
         m_value.resize(vertexData.size() / sizeof(glm::mat4));
         std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
     }
+    Update();
+}
+void ParticleMatrices::Update()
+{
+    if(m_value.empty()){
+        m_bufferReady = false;
+        return;
+    }
+    m_buffer->SetData((GLsizei)m_value.size() * sizeof(glm::mat4), m_value.data(), GL_DYNAMIC_DRAW);
+    m_bufferReady = true;
+}
+ParticleMatrices::ParticleMatrices()
+{
+    m_buffer = std::make_shared<OpenGLUtils::GLVBO>();
 }

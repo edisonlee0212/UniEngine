@@ -348,6 +348,7 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
             colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
         },
         false);
+    matrices->Update();
 }
 
 void Galaxy::StarClusterSystem::OnCreate()

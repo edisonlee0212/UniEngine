@@ -108,7 +108,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
                 "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
-            mesh->DrawInstanced(immc->m_matrices->m_value);
+            mesh->DrawInstanced(immc->m_matrices);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -153,7 +153,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
-            mesh->DrawInstanced(immc->m_matrices->m_value);
+            mesh->DrawInstanced(immc->m_matrices);
         }
     }
     if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
@@ -557,7 +557,7 @@ void EditorManager::RenderToSceneCamera()
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
-                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
+                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock());
                         break;
                     }
                     }
@@ -612,7 +612,7 @@ void EditorManager::RenderToSceneCamera()
                             "EntityIndex", renderCommand.m_owner.GetIndex());
                         DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                             "model", renderCommand.m_globalTransform.m_value);
-                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
+                        renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock());
                         break;
                     }
                     }
@@ -732,6 +732,7 @@ void EditorManager::OnGui()
                     if (!parent.IsNull())
                         EntityManager::RemoveChild(payload_n, parent);
                 }
+                ImGui::EndDragDropTarget();
                 ImGui::EndDragDropTarget();
             }
             if (editorManager.m_selectedHierarchyDisplayMode == 0)

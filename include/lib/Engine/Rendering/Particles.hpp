@@ -6,11 +6,16 @@ namespace UniEngine
 {
 
 class UNIENGINE_API ParticleMatrices : ISerializable{
+    std::shared_ptr<OpenGLUtils::GLVBO> m_buffer;
+    bool m_bufferReady = false;
+    friend class Mesh;
+    friend class SkinnedMesh;
   public:
+    ParticleMatrices();
     std::vector<glm::mat4> m_value;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
+    void Update();
 };
 
 class UNIENGINE_API Particles : public IPrivateComponent

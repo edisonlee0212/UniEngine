@@ -5,9 +5,9 @@ namespace UniEngine
 {
 class UNIENGINE_API PointCloud : public IPrivateComponent
 {
-    std::vector<glm::vec3> m_finalOutput;
     Bound m_boundingBox;
   public:
+    std::vector<glm::vec3> m_compressed;
     std::vector<glm::vec3> m_points;
     float m_pointSize = 1.0f;
     void OnCreate() override;
@@ -15,7 +15,8 @@ class UNIENGINE_API PointCloud : public IPrivateComponent
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
     void OnGui() override;
     void Compress(float resolution);
-    void ApplyToParticles();
+    void ApplyCompressed();
+    void ApplyOriginal();
     void RecalculateBoundingBox();
 
     void Serialize(YAML::Emitter &out) override;

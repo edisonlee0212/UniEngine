@@ -3,6 +3,7 @@
 #include <Gui.hpp>
 #include <Mesh.hpp>
 #include <SkinnedMesh.hpp>
+#include <Particles.hpp>
 using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLVBO> SkinnedMesh::m_matricesBuffer;
@@ -318,6 +319,14 @@ void SkinnedMesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) co
     glDrawElementsInstanced(
         GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
+
+void SkinnedMesh::DrawInstanced(const std::shared_ptr<ParticleMatrices> &matrices) const
+{
+    if(!matrices->m_bufferReady) return;
+
+}
+
+
 void SkinnedMesh::Serialize(YAML::Emitter &out)
 {
     m_animation.Save("m_animation", out);

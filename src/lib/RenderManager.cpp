@@ -121,7 +121,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                DeferredPrepassInstancedInternal(mesh, renderCommand.m_matrices.lock()->m_value);
+                DeferredPrepassInstancedInternal(mesh, renderCommand.m_matrices.lock());
                 break;
             }
             }
@@ -208,7 +208,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 material->m_program.Get<OpenGLUtils::GLProgram>()->SetFloat4x4(
                     "model", renderCommand.m_globalTransform.m_value);
-                DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock()->m_value);
+                DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock());
                 break;
             }
             }
@@ -1128,7 +1128,7 @@ void RenderManager::ShadowMapPrePass(
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    mesh->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
+                    mesh->DrawInstanced(renderCommand.m_matrices.lock());
                     break;
                 }
                 }
@@ -1181,7 +1181,7 @@ void RenderManager::ShadowMapPrePass(
                     program->Bind();
                     program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
-                    mesh->DrawInstanced(renderCommand.m_matrices.lock()->m_value);
+                    mesh->DrawInstanced(renderCommand.m_matrices.lock());
                     break;
                 }
                 }
@@ -1958,12 +1958,12 @@ void RenderManager::DeferredPrepassInternal(const std::shared_ptr<Mesh> &mesh)
 }
 
 void RenderManager::DeferredPrepassInstancedInternal(
-    const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices)
+    const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices)
 {
-    if (mesh == nullptr || matrices.empty())
+    if (mesh == nullptr || matrices->m_value.empty())
         return;
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices->m_value.size();
     mesh->DrawInstanced(matrices);
 }
 
@@ -1977,12 +1977,12 @@ void RenderManager::DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh> &
 }
 
 void RenderManager::DeferredPrepassInstancedInternal(
-    const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::vector<glm::mat4> &matrices)
+    const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::shared_ptr<ParticleMatrices> &matrices)
 {
-    if (skinnedMesh == nullptr || matrices.empty())
+    if (skinnedMesh == nullptr || matrices->m_value.empty())
         return;
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += skinnedMesh->GetTriangleAmount() * matrices.size();
+    GetInstance().m_triangles += skinnedMesh->GetTriangleAmount() * matrices->m_value.size();
     auto &program = DefaultResources::m_gBufferInstancedPrepass;
     skinnedMesh->DrawInstanced(matrices);
 }
@@ -2023,12 +2023,12 @@ void RenderManager::DrawMeshInstanced(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::vector<glm::mat4> &matrices)
+void RenderManager::DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices)
 {
-    if (mesh == nullptr || matrices.empty())
+    if (mesh == nullptr || matrices->m_value.empty())
         return;
     GetInstance().m_drawCall++;
-    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices.size();
+    GetInstance().m_triangles += mesh->GetTriangleAmount() * matrices->m_value.size();
     mesh->DrawInstanced(matrices);
 }
 

@@ -138,7 +138,7 @@ void PointCloud::Load(const std::filesystem::path &path)
             const size_t numVerticesBytes = vertices->buffer.size_bytes();
             m_points.resize(vertices->count);
             std::memcpy(m_points.data(), vertices->buffer.get(), numVerticesBytes);
-            m_finalOutput = m_points;
+            m_compressed = m_points;
             RecalculateBoundingBox();
         }
     }
@@ -157,8 +157,8 @@ void PointCloud::Clone(const std::shared_ptr<IPrivateComponent> &target)
 }
 void PointCloud::OnGui()
 {
-    ImGui::Text(("Point amount: " + std::to_string(m_points.size())).c_str());
-    ImGui::Text(("Final amount: " + std::to_string(m_finalOutput.size())).c_str());
+    ImGui::Text(("Original amount: " + std::to_string(m_points.size())).c_str());
+    ImGui::Text(("Compressed amount: " + std::to_string(m_compressed.size())).c_str());
     ImGui::DragFloat("Point size", &m_pointSize, 0.01f, 0.01f, 100.0f);
     static float compressScale = 50.0f;
     ImGui::DragFloat("Compress scale", &compressScale, 0.001f, 0.0001f, 10.0f);
@@ -166,10 +166,17 @@ void PointCloud::OnGui()
     {
         Compress(compressScale);
     }
-    if (ImGui::Button("Apply to particles"))
+
+    if (ImGui::Button("Apply compressed"))
     {
-        ApplyToParticles();
+        ApplyCompressed();
     }
+
+    if (ImGui::Button("Apply original"))
+    {
+        ApplyOriginal();
+    }
+
     FileUtils::OpenFile(("Load PointCloud##Particles"), ".ply", [&](const std::filesystem::path &filePath) {
         try
         {
@@ -182,15 +189,17 @@ void PointCloud::OnGui()
         }
     });
 }
-void PointCloud::ApplyToParticles()
+void PointCloud::ApplyCompressed()
 {
     const auto owner = GetOwner();
-    auto &matrices = owner.GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value;
-    matrices.resize(m_finalOutput.size());
+    auto particleMatrices = owner.GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
+    auto &matrices = particleMatrices->m_value;
+    matrices.resize(m_compressed.size());
     for (int i = 0; i < matrices.size(); i++)
     {
-        matrices[i] = glm::translate(m_finalOutput[i]) * glm::scale(glm::vec3(m_pointSize));
+        matrices[i] = glm::translate(m_compressed[i]) * glm::scale(glm::vec3(m_pointSize));
     }
+    particleMatrices->Update();
 }
 void PointCloud::Compress(float resolution)
 {
@@ -208,46 +217,60 @@ void PointCloud::Compress(float resolution)
                  (m_boundingBox.m_min.z < 0 ? resolution : 0);
 
     float xMax = m_boundingBox.m_max.x - std::fmod(m_boundingBox.m_max.x, resolution) +
-                 (m_boundingBox.m_min.x > 0 ? resolution : 0);
+                 (m_boundingBox.m_max.x > 0 ? resolution : 0);
     float yMax = m_boundingBox.m_max.y - std::fmod(m_boundingBox.m_max.y, resolution) +
-                 (m_boundingBox.m_min.x > 0 ? resolution : 0);
+                 (m_boundingBox.m_max.y > 0 ? resolution : 0);
     float zMax = m_boundingBox.m_max.z - std::fmod(m_boundingBox.m_max.z, resolution) +
-                 (m_boundingBox.m_min.x > 0 ? resolution : 0);
+                 (m_boundingBox.m_max.z > 0 ? resolution : 0);
 
-    UNIENGINE_LOG("X, Y, Z MIN: [" + std::to_string(xMin) + ", " + std::to_string(yMin) + ", " + std::to_string(zMin) + "]");
-    UNIENGINE_LOG("X, Y, Z MAX: [" + std::to_string(xMax) + ", " + std::to_string(yMax) + ", " + std::to_string(zMax) + "]");
+    UNIENGINE_LOG(
+        "X, Y, Z MIN: [" + std::to_string(xMin) + ", " + std::to_string(yMin) + ", " + std::to_string(zMin) + "]");
+    UNIENGINE_LOG(
+        "X, Y, Z MAX: [" + std::to_string(xMax) + ", " + std::to_string(yMax) + ", " + std::to_string(zMax) + "]");
+
     std::vector<int> voxels;
     int rangeX = ((xMax - xMin) / resolution);
     int rangeY = ((yMax - yMin) / resolution);
     int rangeZ = ((zMax - zMin) / resolution);
-    int voxelSize = rangeX * rangeY * rangeZ;
+    int voxelSize = (rangeX + 1) * (rangeY + 1) * (rangeZ + 1);
 
-    if(voxelSize > m_points.size()){
+    if (voxelSize > 1000000000)
+    {
         UNIENGINE_ERROR("Resolution too small: " + std::to_string(voxelSize));
         return;
-    }else{
+    }
+    else
+    {
         UNIENGINE_LOG("Voxel size: " + std::to_string(voxelSize));
     }
 
     voxels.resize(voxelSize);
     memset(voxels.data(), 0, voxelSize * sizeof(int));
 
-    for (const auto& i : m_points)
+    for (const auto &i : m_points)
     {
-        int posX = (i.x - m_boundingBox.m_min.x) / resolution;
-        int posY = (i.y - m_boundingBox.m_min.y) / resolution;
-        int posZ = (i.z - m_boundingBox.m_min.z) / resolution;
-        auto index = posX * rangeY * rangeZ + posY * rangeZ + posZ;
-        if(index >= voxelSize) continue;
+        int posX = ((i.x - m_boundingBox.m_min.x) / resolution);
+        int posY = ((i.y - m_boundingBox.m_min.y) / resolution);
+        int posZ = ((i.z - m_boundingBox.m_min.z) / resolution);
+        auto index = posX * (rangeY + 1) * (rangeZ + 1) + posY * (rangeZ + 1) + posZ;
+        if (index >= voxelSize)
+        {
+            UNIENGINE_ERROR("Out of range!");
+            continue;
+        }
         voxels[index]++;
     }
-    m_finalOutput.clear();
-    for(int i = 0; i < voxels.size(); i++){
-        if(voxels[i] != 0){
-            int posX = i / (rangeY * rangeZ);
-            int posY = i / (rangeZ) % rangeX;
-            int posZ = i % (rangeX * rangeY);
-            m_finalOutput.push_back(glm::vec3(posX, posY, posZ) * resolution + m_boundingBox.m_min);
+    m_compressed.clear();
+
+    for(int x = 0; x <= rangeX; x++){
+        for(int y = 0; y <= rangeY; y++){
+            for(int z = 0; z <= rangeZ; z++){
+                auto index = x * (rangeY + 1) * (rangeZ + 1) + y * (rangeZ + 1) + z;
+                if (voxels[index] != 0)
+                {
+                    m_compressed.push_back(glm::vec3(x, y, z) * resolution + m_boundingBox.m_min);
+                }
+            }
         }
     }
 }
@@ -276,12 +299,12 @@ void PointCloud::Serialize(YAML::Emitter &out)
     if (!m_points.empty())
     {
         out << YAML::Key << "m_points" << YAML::Value
-        << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::vec3));
+            << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::vec3));
     }
-    if (!m_finalOutput.empty())
+    if (!m_compressed.empty())
     {
         out << YAML::Key << "m_finalOutput" << YAML::Value
-        << YAML::Binary((const unsigned char *)m_finalOutput.data(), m_finalOutput.size() * sizeof(glm::vec3));
+            << YAML::Binary((const unsigned char *)m_compressed.data(), m_compressed.size() * sizeof(glm::vec3));
     }
 }
 void PointCloud::Deserialize(const YAML::Node &in)
@@ -289,14 +312,26 @@ void PointCloud::Deserialize(const YAML::Node &in)
     m_pointSize = in["m_pointSize"].as<float>();
     if (in["m_points"])
     {
-        YAML::Binary vertexData = in["m_points"].as<YAML::Binary>();
+        auto vertexData = in["m_points"].as<YAML::Binary>();
         m_points.resize(vertexData.size() / sizeof(glm::vec3));
         std::memcpy(m_points.data(), vertexData.data(), vertexData.size());
     }
     if (in["m_finalOutput"])
     {
-        YAML::Binary vertexData = in["m_finalOutput"].as<YAML::Binary>();
-        m_finalOutput.resize(vertexData.size() / sizeof(glm::vec3));
-        std::memcpy(m_finalOutput.data(), vertexData.data(), vertexData.size());
+        auto vertexData = in["m_finalOutput"].as<YAML::Binary>();
+        m_compressed.resize(vertexData.size() / sizeof(glm::vec3));
+        std::memcpy(m_compressed.data(), vertexData.data(), vertexData.size());
     }
+}
+void PointCloud::ApplyOriginal()
+{
+    const auto owner = GetOwner();
+    auto particleMatrices = owner.GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
+    auto &matrices = particleMatrices->m_value;
+    matrices.resize(m_points.size());
+    for (int i = 0; i < matrices.size(); i++)
+    {
+        matrices[i] = glm::translate(m_points[i]) * glm::scale(glm::vec3(m_pointSize));
+    }
+    particleMatrices->Update();
 }

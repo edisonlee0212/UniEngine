@@ -1,6 +1,7 @@
 #include <Core/Debug.hpp>
 #include <Gui.hpp>
 #include <Mesh.hpp>
+#include <Particles.hpp>
 using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLVBO> Mesh::m_matricesBuffer;
@@ -267,6 +268,28 @@ void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 
     glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
+
+void Mesh::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const
+{
+    if(!particleMatrices->m_bufferReady) return;
+    auto count = particleMatrices->m_value.size();
+    particleMatrices->m_buffer->Bind();
+    m_vao->Bind();
+    m_vao->EnableAttributeArray(12);
+    m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+    m_vao->EnableAttributeArray(13);
+    m_vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(sizeof(glm::vec4)));
+    m_vao->EnableAttributeArray(14);
+    m_vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(2 * sizeof(glm::vec4)));
+    m_vao->EnableAttributeArray(15);
+    m_vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(3 * sizeof(glm::vec4)));
+    m_vao->SetAttributeDivisor(12, 1);
+    m_vao->SetAttributeDivisor(13, 1);
+    m_vao->SetAttributeDivisor(14, 1);
+    m_vao->SetAttributeDivisor(15, 1);
+    glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangles.size() * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+}
+
 void Mesh::DrawInstanced(const std::vector<GlobalTransform> &matrices) const
 {
     auto count = matrices.size();

@@ -33,7 +33,7 @@ enum class MeshStoreType{
 class UNIENGINE_API MeshStorage{
     std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
 };
-
+class ParticleMatrices;
 class UNIENGINE_API Mesh : public IAsset
 {
     static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
@@ -55,6 +55,7 @@ class UNIENGINE_API Mesh : public IAsset
   public:
     void Draw() const;
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
+    void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
     void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
 
     void OnInspect() override;
