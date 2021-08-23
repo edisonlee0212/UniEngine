@@ -733,7 +733,6 @@ void EditorManager::OnGui()
                         EntityManager::RemoveChild(payload_n, parent);
                 }
                 ImGui::EndDragDropTarget();
-                ImGui::EndDragDropTarget();
             }
             if (editorManager.m_selectedHierarchyDisplayMode == 0)
             {
@@ -840,7 +839,6 @@ void EditorManager::OnGui()
                         [&skip, &i, &editorManager](DataComponentType type, void *data) {
                             if (skip)
                                 return;
-
                             std::string info = type.m_name;
                             info += " Size: " + std::to_string(type.m_size);
                             ImGui::Text(info.c_str());
