@@ -1116,8 +1116,7 @@ void OpenGLUtils::GLShader::OnInspect()
     default:
         break;
     }
-
-    ImGui::Text(m_code.c_str());
+    ImGui::InputTextMultiline("Code", &m_code, ImVec2(0, 0), ImGuiInputTextFlags_AllowTabInput);
 }
 
 void OpenGLUtils::GLProgram::Bind()
