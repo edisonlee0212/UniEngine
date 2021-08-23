@@ -177,7 +177,7 @@ void PointCloud::OnGui()
         ApplyOriginal();
     }
 
-    FileUtils::OpenFile(("Load PLY file##Particles"), ".ply", [&](const std::filesystem::path &filePath) {
+    FileUtils::OpenFile(("Load PLY file##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
         try
         {
             Load(filePath);
@@ -188,7 +188,7 @@ void PointCloud::OnGui()
             UNIENGINE_ERROR("Failed to load from " + filePath.string());
         }
     });
-    FileUtils::SaveFile(("Save Compressed to PLY##Particles"), ".ply", [&](const std::filesystem::path &filePath) {
+    FileUtils::SaveFile(("Save Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
         try
         {
             Save(filePath);

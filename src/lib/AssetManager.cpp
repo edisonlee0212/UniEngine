@@ -106,7 +106,7 @@ void AssetManager::OnGui()
         {
             if (ImGui::BeginMenu("Import..."))
             {
-                FileUtils::OpenFile("Scene##Import", ".uescene", [&](const std::filesystem::path &filePath) {
+                FileUtils::OpenFile("Scene##Import", "Scene", {".uescene"}, [&](const std::filesystem::path &filePath) {
                     try
                     {
                         auto asset = AssetManager::CreateAsset<Scene>(filePath.filename().string());
@@ -126,11 +126,11 @@ void AssetManager::OnGui()
                 });
 
 #ifdef USE_ASSIMP
-                std::string modelFormat = ".obj,.gltf,.glb,.blend,.ply,.fbx,.dae";
+                std::vector<std::string> modelFormat = {".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"};
 #else
                 std::string modelFormat = ".obj";
 #endif
-                FileUtils::OpenFile("Model##Import", modelFormat, [&](const std::filesystem::path &filePath) {
+                FileUtils::OpenFile("Model##Import", "Model", modelFormat, [&](const std::filesystem::path &filePath) {
                     try
                     {
                         auto asset = Import<Prefab>(filePath);
@@ -145,7 +145,10 @@ void AssetManager::OnGui()
                 });
 
                 FileUtils::OpenFile(
-                    "Texture2D##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
+                    "Texture2D##Import",
+                    "Texture2D",
+                    {".png", ".jpg", ".jpeg", ".tga", ".hdr"},
+                    [&](const std::filesystem::path &filePath) {
                         try
                         {
                             auto asset = Import<Texture2D>(filePath);
@@ -160,7 +163,10 @@ void AssetManager::OnGui()
                     });
 
                 FileUtils::OpenFile(
-                    "Cubemap##Import", ".png,.jpg,.jpeg,.tga,.hdr", [&](const std::filesystem::path &filePath) {
+                    "Cubemap##Import",
+                    "Cubemap",
+                    {".png", ".jpg", ".jpeg", ".tga", ".hdr"},
+                    [&](const std::filesystem::path &filePath) {
                         try
                         {
                             auto asset = Import<Cubemap>(filePath);
@@ -177,7 +183,7 @@ void AssetManager::OnGui()
             }
             if (ImGui::BeginMenu("Export..."))
             {
-                FileUtils::SaveFile("Scene##Export", ".uescene", [](const std::filesystem::path &filePath) {
+                FileUtils::SaveFile("Scene##Export", "Scene", {".uescene"}, [](const std::filesystem::path &filePath) {
                     try
                     {
                         Export(filePath, EntityManager::GetCurrentScene());
@@ -344,8 +350,10 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     retVal->m_path.clear();
     RegisterAsset(retVal);
     retVal->OnCreate();
-    if(!name.empty()) retVal->m_name = name;
-    else{
+    if (!name.empty())
+        retVal->m_name = name;
+    else
+    {
         retVal->m_name = "New " + typeName;
     }
     return retVal;

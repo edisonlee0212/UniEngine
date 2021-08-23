@@ -15,7 +15,6 @@ using namespace UniEngine;
 CameraInfoBlock Camera::m_cameraInfoBlock;
 std::unique_ptr<OpenGLUtils::GLUBO> Camera::m_cameraUniformBufferBlock;
 
-
 Plane::Plane() : m_a(0), m_b(0), m_c(0), m_d(0)
 {
 }
@@ -123,8 +122,7 @@ glm::quat Camera::ProcessMouseMovement(float yawAngle, float pitchAngle, bool co
     return glm::quatLookAt(front, up);
 }
 
-void Camera::ReverseAngle(
-    const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch)
+void Camera::ReverseAngle(const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch)
 {
     const auto angle = glm::degrees(glm::eulerAngles(rotation));
     pitchAngle = angle.x;
@@ -254,7 +252,8 @@ void Camera::OnCreate()
 
     m_gBuffer = std::make_unique<RenderTarget>(m_resolutionX, m_resolutionY);
 
-    m_gBufferDepth = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_DEPTH_COMPONENT32F, m_resolutionX, m_resolutionY, false);
+    m_gBufferDepth =
+        std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_DEPTH_COMPONENT32F, m_resolutionX, m_resolutionY, false);
     m_gBufferDepth->SetData(0, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     m_gBufferDepth->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_gBufferDepth->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -304,7 +303,6 @@ void Camera::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_fov" << YAML::Value << m_fov;
     m_skybox.Save("m_skybox", out);
 }
-
 
 void Camera::Deserialize(const YAML::Node &in)
 {
@@ -377,7 +375,10 @@ void Camera::OnGui()
             ImVec2(0, 1),
             ImVec2(1, 0));
 
-        FileUtils::SaveFile("Save Texture", ".png,.jpg", [this](const std::filesystem::path &filePath) { m_colorTexture->Save(filePath); });
+        FileUtils::SaveFile(
+            "Save Texture", "Texture2D", {".png", ".jpg"}, [this](const std::filesystem::path &filePath) {
+                m_colorTexture->Save(filePath);
+            });
         ImGui::TreePop();
     }
 }
@@ -395,7 +396,8 @@ void Camera::Clone(const std::shared_ptr<IPrivateComponent> &target)
 }
 void Camera::Start()
 {
-    if(m_isMainCamera) RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
+    if (m_isMainCamera)
+        RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
 }
 void Camera::CollectAssetRef(std::vector<AssetRef> &list)
 {

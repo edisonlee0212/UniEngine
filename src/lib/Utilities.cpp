@@ -444,9 +444,56 @@ std::string FileUtils::LoadFileAsString(const std::filesystem::path &path)
 
 void FileUtils::OpenFile(
     const std::string &dialogTitle,
-    const std::string &filters,
+    const std::string &fileType,
+    const std::vector<std::string> &extensions,
     const std::function<void(const std::filesystem::path &path)> &func)
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    if(ImGui::Button(dialogTitle.c_str()))
+    {
+        OPENFILENAMEA ofn;
+        CHAR szFile[260] = {0};
+        ZeroMemory(&ofn, sizeof(OPENFILENAME));
+        ofn.lStructSize = sizeof(OPENFILENAME);
+        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+        std::string filters = fileType;
+        for (int i = 0; i < extensions.size(); i++)
+        {
+            filters += "*" + extensions[i];
+            if (i < extensions.size() - 1)
+                filters += ",";
+        }
+        filters += ")\0";
+        for (int i = 0; i < extensions.size(); i++)
+        {
+            filters += "*" + extensions[i];
+            if (i < extensions.size() - 1)
+                filters += ";";
+        }
+        filters += "\0";
+        ofn.lpstrFilter = filters.c_str();
+        ofn.nFilterIndex = 1;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+        if (GetOpenFileNameA(&ofn) == TRUE)
+        {
+            std::string retVal = ofn.lpstrFile;
+            const std::string search = "\\";
+            size_t pos = retVal.find(search);
+            // Repeat till end is reached
+            while (pos != std::string::npos)
+            {
+                // Replace this occurrence of Sub String
+                retVal.replace(pos, 1, "/");
+                // Get the next occurrence from the current position
+                pos = retVal.find(search, pos + 1);
+            }
+            std::filesystem::path path = retVal;
+            func(path);
+        }
+    }
+#else
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
@@ -455,13 +502,51 @@ void FileUtils::OpenFile(
     {
         func(file_dialog.selected_path);
     }
+#endif
 }
 
 void FileUtils::SaveFile(
     const std::string &dialogTitle,
-    const std::string &filters,
+    const std::string &fileType,
+    const std::string &extension,
     const std::function<void(const std::filesystem::path &path)> &func)
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+    if(ImGui::Button(dialogTitle.c_str()))
+    {
+        OPENFILENAMEA ofn;
+        CHAR szFile[260] = {0};
+        ZeroMemory(&ofn, sizeof(OPENFILENAME));
+        ofn.lStructSize = sizeof(OPENFILENAME);
+        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+        std::string filter = fileType + " (*" + extension + ")\0*" + extension + "\0";
+        ofn.lpstrFilter = filter.c_str();
+        ofn.nFilterIndex = 1;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+        // Sets the default extension by extracting it from the filter
+        ofn.lpstrDefExt = strchr(filter.c_str(), '\0') + 1;
+
+        if (GetSaveFileNameA(&ofn) == TRUE)
+        {
+            std::string retVal = ofn.lpstrFile;
+            const std::string search = "\\";
+            size_t pos = retVal.find(search);
+            // Repeat till end is reached
+            while (pos != std::string::npos)
+            {
+                // Replace this occurrence of Sub String
+                retVal.replace(pos, 1, "/");
+                // Get the next occurrence from the current position
+                pos = retVal.find(search, pos + 1);
+            }
+            std::filesystem::path path = retVal;
+            func(path);
+        }
+    }
+#else
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
@@ -471,6 +556,7 @@ void FileUtils::SaveFile(
         std::filesystem::path path = file_dialog.selected_path;
         func(path);
     }
+#endif
 }
 
 std::pair<bool, uint32_t> FileUtils::DirectoryTreeViewRecursive(

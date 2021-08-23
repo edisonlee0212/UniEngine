@@ -148,7 +148,7 @@ void ProjectManager::OnGui()
         {
             ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
 
-            FileUtils::SaveFile("New...##ProjectManager", ".ueproj", [](const std::filesystem::path &filePath) {
+            FileUtils::SaveFile("New...##ProjectManager", "Project", {".ueproj"}, [](const std::filesystem::path &filePath) {
                 try
                 {
                     CreateOrLoadProject(filePath);
@@ -159,7 +159,7 @@ void ProjectManager::OnGui()
                     UNIENGINE_ERROR("Failed to save to " + filePath.string());
                 }
             });
-            FileUtils::OpenFile("Open...##ProjectManager", ".ueproj", [&](const std::filesystem::path &filePath) {
+            FileUtils::OpenFile("Open...##ProjectManager", "Project", {".ueproj"}, [&](const std::filesystem::path &filePath) {
                 try
                 {
                     CreateOrLoadProject(filePath);
