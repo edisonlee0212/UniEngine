@@ -986,23 +986,33 @@ void EditorManager::OnGui()
 
 #pragma region Asset Inspection
     ImGui::Begin("Asset Inspector");
-    if(!editorManager.m_inspectingAsset.expired()){
+    if (!editorManager.m_inspectingAsset.expired())
+    {
         editorManager.m_inspectingAsset.lock()->OnInspect();
-    }else{
+    }
+    else
+    {
         ImGui::Text("None");
     }
     ImGui::End();
 #pragma endregion
 #pragma region System Inspection
     ImGui::Begin("System Inspector");
-    for(auto& i : EntityManager::GetCurrentScene().get()->m_systems){
-        if(ImGui::CollapsingHeader(i.second->GetTypeName().c_str())){
+    for (auto &i : EntityManager::GetCurrentScene().get()->m_systems)
+    {
+        if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
+        {
             bool enabled = i.second->Enabled();
-            if(ImGui::Checkbox("Enabled", &enabled)){
-                if(i.second->Enabled() != enabled){
-                    if(enabled){
+            if (ImGui::Checkbox("Enabled", &enabled))
+            {
+                if (i.second->Enabled() != enabled)
+                {
+                    if (enabled)
+                    {
                         i.second->Enable();
-                    }else{
+                    }
+                    else
+                    {
                         i.second->Disable();
                     }
                 }
@@ -1603,8 +1613,12 @@ bool EditorManager::DragAndDropButton(EntityRef &entityRef, const std::string &n
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Entity));
-            entityRef = *static_cast<Entity *>(payload->Data);
-            statusChanged = true;
+            auto payload_n = *static_cast<Entity *>(payload->Data);
+            if (entity != payload_n)
+            {
+                entityRef = payload_n;
+                statusChanged = true;
+            }
         }
         ImGui::EndDragDropTarget();
     }

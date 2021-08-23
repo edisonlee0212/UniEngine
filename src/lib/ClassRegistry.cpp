@@ -39,6 +39,8 @@ AssetRegistration<Cubemap> CubemapReg("Cubemap", ".uecubemap");
 AssetRegistration<LightProbe> LightProbeReg("LightProbe", ".uelightprobe");
 AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", ".uereflecprobe");
 AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", ".ueglprogram");
+AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", ".ueglshader");
+
 AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", ".ueenvirmap");
 AssetRegistration<Animation> AnimationReg("Animation", ".ueanimation");
 AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", "uesmesh");

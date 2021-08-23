@@ -440,45 +440,55 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     enum class UNIENGINE_API ShaderType
     {
         Vertex,
+        Tessellation,
         Geometry,
-        Fragment
+        Fragment,
+        Compute
     };
 
-    class UNIENGINE_API GLShader : public GLObject
+    class UNIENGINE_API GLShader : public GLObject, public IAsset
     {
         std::string m_code;
-        bool m_hasCode = false;
         ShaderType m_type;
-        bool m_attachable;
-
+        bool m_compiled;
       public:
-        std::string GetCode() const;
-        bool HasCode() const;
-        GLShader(ShaderType type);
-        GLShader(ShaderType type, const std::string &code, bool store = false);
+        [[nodiscard]] std::string GetCode() const;
+        void OnCreate() override;
         ~GLShader() override;
-        ShaderType Type() const;
-        bool Attachable() const;
-        void Compile(const std::string &code, bool store = false);
+        [[nodiscard]] ShaderType Type() const;
+        [[nodiscard]] bool Compiled() const;
+        void Compile();
+        void Set(ShaderType type, const std::string &code);
         void Attach(GLuint programID);
         void Detach(GLuint programID) const;
+
+        void OnInspect() override;
+        void Serialize(YAML::Emitter &out) override;
+        void Deserialize(const YAML::Node &in) override;
     };
 
     class UNIENGINE_API GLProgram : public GLObject, public IAsset
     {
         friend class OpenGLUtils;
         friend class AssetManager;
-        std::vector<std::shared_ptr<GLShader>> m_shaders;
+
+        AssetRef m_vertexShader;
+        AssetRef m_tessellationShader;
+        AssetRef m_geometryShader;
+        AssetRef m_fragmentShader;
+        AssetRef m_computeShader;
+
         static GLuint m_boundProgram;
+        bool m_linked = false;
       public:
         GLProgram();
         void OnCreate() override;
         ~GLProgram() override;
         std::shared_ptr<GLShader> GetShader(ShaderType type);
         bool HasShader(ShaderType type);
-        void Bind() const;
+        void Bind();
         static void BindDefault();
-        void Link() const;
+        void Link();
         void Link(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2);
         void Link(
             const std::shared_ptr<GLShader> &shader1,
@@ -486,18 +496,23 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
             const std::shared_ptr<GLShader> &shader3);
         void Attach(const std::shared_ptr<GLShader> &shader);
         void Detach(ShaderType type);
-        void SetBool(const std::string &name, bool value) const;
-        void SetInt(const std::string &name, int value) const;
-        void SetFloat(const std::string &name, float value) const;
-        void SetFloat2(const std::string &name, const glm::vec2 &value) const;
-        void SetFloat2(const std::string &name, float x, float y) const;
-        void SetFloat3(const std::string &name, const glm::vec3 &value) const;
-        void SetFloat3(const std::string &name, float x, float y, float z) const;
-        void SetFloat4(const std::string &name, const glm::vec4 &value) const;
-        void SetFloat4(const std::string &name, float x, float y, float z, float w) const;
-        void SetFloat2x2(const std::string &name, const glm::mat2 &mat) const;
-        void SetFloat3x3(const std::string &name, const glm::mat3 &mat) const;
-        void SetFloat4x4(const std::string &name, const glm::mat4 &mat) const;
+        void SetBool(const std::string &name, bool value);
+        void SetInt(const std::string &name, int value);
+        void SetFloat(const std::string &name, float value);
+        void SetFloat2(const std::string &name, const glm::vec2 &value);
+        void SetFloat2(const std::string &name, float x, float y);
+        void SetFloat3(const std::string &name, const glm::vec3 &value);
+        void SetFloat3(const std::string &name, float x, float y, float z);
+        void SetFloat4(const std::string &name, const glm::vec4 &value);
+        void SetFloat4(const std::string &name, float x, float y, float z, float w);
+        void SetFloat2x2(const std::string &name, const glm::mat2 &mat);
+        void SetFloat3x3(const std::string &name, const glm::mat3 &mat);
+        void SetFloat4x4(const std::string &name, const glm::mat4 &mat);
+
+        void OnInspect() override;
+        void CollectAssetRef(std::vector<AssetRef> &list) override;
+        void Serialize(YAML::Emitter &out) override;
+        void Deserialize(const YAML::Node &in) override;
     };
 #pragma endregion
 };

@@ -9,7 +9,9 @@ using namespace UniEngine;
 int main()
 {
     ProjectManager::SetScenePostLoadActions([&]() {
-
+        Application::RegisterLateUpdateFunction([](){
+            ImGui::ShowDemoWindow();
+        });
     });
 
     Application::Init();

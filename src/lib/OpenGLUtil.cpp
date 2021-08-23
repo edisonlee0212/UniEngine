@@ -1,6 +1,6 @@
 ﻿#include <Core/Debug.hpp>
 #include <Core/OpenGLUtils.hpp>
-
+#include <EditorManager.hpp>
 using namespace UniEngine;
 
 void APIENTRY glDebugOutput(
@@ -23,7 +23,6 @@ void OpenGLUtils::Init()
     }
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &GLTexture::m_maxAllowedTexture);
     GLTexture::m_currentBoundTextures.resize(GLTexture::m_maxAllowedTexture);
-
 
     // enable OpenGL debug context if context allows for debug context
 
@@ -77,7 +76,8 @@ OpenGLUtils::GLBuffer::GLBuffer(GLenum target)
 void OpenGLUtils::GLBuffer::Bind() const
 {
     const auto search = m_boundBuffers.find(m_target);
-    if(search != m_boundBuffers.end() && search->second == m_id){
+    if (search != m_boundBuffers.end() && search->second == m_id)
+    {
         return;
     }
     m_boundBuffers[m_target] = m_id;
@@ -178,14 +178,16 @@ OpenGLUtils::GLVAO::~GLVAO()
 
 void OpenGLUtils::GLVAO::Bind() const
 {
-    if(m_boundVAO == m_id) return;
+    if (m_boundVAO == m_id)
+        return;
     m_boundVAO = m_id;
     glBindVertexArray(m_id);
 }
 
 void OpenGLUtils::GLVAO::BindDefault()
 {
-    if(m_boundVAO == 0) return;
+    if (m_boundVAO == 0)
+        return;
     m_boundVAO = 0;
     glBindVertexArray(0);
 }
@@ -251,7 +253,6 @@ void OpenGLUtils::GLVAO::SetAttributeDivisor(const GLuint &index, const GLuint &
     Bind();
     glVertexAttribDivisor(index, divisor);
 }
-
 
 OpenGLUtils::TextureBinding::TextureBinding()
 {
@@ -749,14 +750,16 @@ void OpenGLUtils::GLTextureCubeMapArray::SubData(
 
 void OpenGLUtils::GLRenderBuffer::Bind()
 {
-    if(m_boundRenderBuffer == m_id) return;
+    if (m_boundRenderBuffer == m_id)
+        return;
     m_boundRenderBuffer = m_id;
     glBindRenderbuffer(GL_RENDERBUFFER, m_id);
 }
 
 void OpenGLUtils::GLRenderBuffer::BindDefault()
 {
-    if(m_boundRenderBuffer == 0) return;
+    if (m_boundRenderBuffer == 0)
+        return;
     m_boundRenderBuffer = 0;
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
@@ -790,7 +793,8 @@ void OpenGLUtils::GLFrameBuffer::Disable(const GLenum &cap)
 
 void OpenGLUtils::GLFrameBuffer::Bind() const
 {
-    if(m_boundFrameBuffer == m_id) return;
+    if (m_boundFrameBuffer == m_id)
+        return;
     m_boundFrameBuffer = m_id;
     glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 }
@@ -835,7 +839,8 @@ void OpenGLUtils::GLFrameBuffer::DrawBuffers(const GLsizei &n, const GLenum *buf
 
 void OpenGLUtils::GLFrameBuffer::BindDefault()
 {
-    if(m_boundFrameBuffer == 0) return;
+    if (m_boundFrameBuffer == 0)
+        return;
     m_boundFrameBuffer = 0;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -972,63 +977,10 @@ std::string OpenGLUtils::GLShader::GetCode() const
     return m_code;
 }
 
-bool OpenGLUtils::GLShader::HasCode() const
-{
-    return m_hasCode;
-}
-
-OpenGLUtils::GLShader::GLShader(ShaderType type) : m_type(type)
-{
-    m_id = 0;
-    m_code = "";
-    m_hasCode = false;
-    m_attachable = false;
-    switch (m_type)
-    {
-    case ShaderType::Vertex:
-        m_id = glCreateShader(GL_VERTEX_SHADER);
-        break;
-    case ShaderType::Geometry:
-        m_id = glCreateShader(GL_GEOMETRY_SHADER);
-        break;
-    case ShaderType::Fragment:
-        m_id = glCreateShader(GL_FRAGMENT_SHADER);
-        break;
-    default:
-        break;
-    }
-}
-
-OpenGLUtils::GLShader::GLShader(ShaderType type, const std::string &code, bool store) : m_type(type)
-{
-
-    if (store)
-    {
-        m_code = code;
-        m_hasCode = true;
-    }
-    m_id = 0;
-    m_attachable = false;
-    switch (m_type)
-    {
-    case ShaderType::Vertex:
-        m_id = glCreateShader(GL_VERTEX_SHADER);
-        break;
-    case ShaderType::Geometry:
-        m_id = glCreateShader(GL_GEOMETRY_SHADER);
-        break;
-    case ShaderType::Fragment:
-        m_id = glCreateShader(GL_FRAGMENT_SHADER);
-        break;
-    default:
-        break;
-    }
-    Compile(code);
-}
-
 OpenGLUtils::GLShader::~GLShader()
 {
-    glDeleteShader(m_id);
+    if (m_id != 0)
+        glDeleteShader(m_id);
 }
 
 OpenGLUtils::ShaderType OpenGLUtils::GLShader::Type() const
@@ -1036,19 +988,35 @@ OpenGLUtils::ShaderType OpenGLUtils::GLShader::Type() const
     return m_type;
 }
 
-bool OpenGLUtils::GLShader::Attachable() const
+bool OpenGLUtils::GLShader::Compiled() const
 {
-    return m_attachable;
+    return m_compiled;
 }
 
-void OpenGLUtils::GLShader::Compile(const std::string &code, bool store)
+void OpenGLUtils::GLShader::Attach(GLuint programID)
 {
-    if (store)
+    glAttachShader(programID, m_id);
+}
+
+void OpenGLUtils::GLShader::Detach(GLuint programID) const
+{
+    glDetachShader(programID, m_id);
+}
+void OpenGLUtils::GLShader::OnCreate()
+{
+    m_id = 0;
+    m_compiled = false;
+}
+void OpenGLUtils::GLShader::Compile()
+{
+    if (m_compiled)
+        return;
+    if (m_code.empty())
     {
-        m_code = code;
-        m_hasCode = true;
+        UNIENGINE_ERROR("Shader is empty!");
+        return;
     }
-    const char *ptr = code.c_str();
+    const char *ptr = m_code.c_str();
     glShaderSource(m_id, 1, &ptr, nullptr);
     glCompileShader(m_id);
     GLint success;
@@ -1069,6 +1037,12 @@ void OpenGLUtils::GLShader::Compile(const std::string &code, bool store)
         case ShaderType::Fragment:
             type = "Fragment";
             break;
+        case ShaderType::Tessellation:
+            type = "Tessellation";
+            break;
+        case ShaderType::Compute:
+            type = "Compute";
+            break;
         default:
             break;
         }
@@ -1076,38 +1050,90 @@ void OpenGLUtils::GLShader::Compile(const std::string &code, bool store)
             "ERROR::SHADER_COMPILATION_ERROR of type: " + type + "\n" + infoLog +
             "\n -- --------------------------------------------------- -- ");
     }
-    m_attachable = true;
+    else
+        m_compiled = true;
 }
-
-void OpenGLUtils::GLShader::Attach(GLuint programID)
+void OpenGLUtils::GLShader::Set(ShaderType type, const std::string &code)
 {
-    if (!m_attachable)
+    m_type = type;
+    m_code = code;
+    if (m_id != 0)
+        glDeleteShader(m_id);
+    switch (m_type)
     {
-        if (m_hasCode)
-            Compile(m_code);
-        else
-        {
-            UNIENGINE_LOG("No code!");
-        }
+    case ShaderType::Vertex:
+        m_id = glCreateShader(GL_VERTEX_SHADER);
+        break;
+    case ShaderType::Compute:
+        m_id = glCreateShader(GL_COMPUTE_SHADER);
+        break;
+    case ShaderType::Tessellation:
+        m_id = glCreateShader(GL_TESS_CONTROL_SHADER);
+        break;
+    case ShaderType::Geometry:
+        m_id = glCreateShader(GL_GEOMETRY_SHADER);
+        break;
+    case ShaderType::Fragment:
+        m_id = glCreateShader(GL_FRAGMENT_SHADER);
+        break;
+    default:
+        break;
     }
-    glAttachShader(programID, m_id);
+    m_compiled = false;
+}
+void OpenGLUtils::GLShader::Serialize(YAML::Emitter &out)
+{
+    if (m_code.empty())
+        out << YAML::Key << "m_code" << m_code;
+    out << YAML::Key << "m_type" << (unsigned)m_type;
+}
+void OpenGLUtils::GLShader::Deserialize(const YAML::Node &in)
+{
+    if (in["m_code"])
+        m_code = in["m_code"].as<std::string>();
+    m_type = (ShaderType)in["m_type"].as<unsigned>();
+    m_compiled = false;
+}
+void OpenGLUtils::GLShader::OnInspect()
+{
+    switch (m_type)
+    {
+    case ShaderType::Vertex:
+        ImGui::Text("Type: Vertex");
+        break;
+    case ShaderType::Compute:
+        ImGui::Text("Type: Compute");
+        break;
+    case ShaderType::Tessellation:
+        ImGui::Text("Type: Tessellation");
+        break;
+    case ShaderType::Geometry:
+        ImGui::Text("Type: Geometry");
+        break;
+    case ShaderType::Fragment:
+        ImGui::Text("Type: Fragment");
+        break;
+    default:
+        break;
+    }
+
+    ImGui::Text(m_code.c_str());
 }
 
-void OpenGLUtils::GLShader::Detach(GLuint programID) const
+void OpenGLUtils::GLProgram::Bind()
 {
-    glDetachShader(programID, m_id);
-}
-
-void OpenGLUtils::GLProgram::Bind() const
-{
-    if(m_boundProgram == m_id) return;
+    if (m_boundProgram == m_id)
+        return;
     m_boundProgram = m_id;
+    if (!m_linked)
+        Link();
     glUseProgram(m_id);
 }
 
 void OpenGLUtils::GLProgram::BindDefault()
 {
-    if(m_boundProgram == 0) return;
+    if (m_boundProgram == 0)
+        return;
     m_boundProgram = 0;
     glUseProgram(0);
 }
@@ -1115,7 +1141,6 @@ void OpenGLUtils::GLProgram::BindDefault()
 void OpenGLUtils::GLProgram::OnCreate()
 {
     m_name = "New Program";
-
 }
 
 OpenGLUtils::GLProgram::~GLProgram()
@@ -1126,26 +1151,82 @@ OpenGLUtils::GLProgram::~GLProgram()
 
 std::shared_ptr<OpenGLUtils::GLShader> OpenGLUtils::GLProgram::GetShader(ShaderType type)
 {
-    for (const auto &i : m_shaders)
+    switch (type)
     {
-        if (i->Type() == type)
-            return i;
+    case ShaderType::Vertex:
+        return m_vertexShader.Get<OpenGLUtils::GLShader>();
+    case ShaderType::Tessellation:
+        return m_tessellationShader.Get<OpenGLUtils::GLShader>();
+    case ShaderType::Geometry:
+        return m_geometryShader.Get<OpenGLUtils::GLShader>();
+    case ShaderType::Fragment:
+        return m_fragmentShader.Get<OpenGLUtils::GLShader>();
+    case ShaderType::Compute:
+        return m_computeShader.Get<OpenGLUtils::GLShader>();
     }
     return nullptr;
 }
 
 bool OpenGLUtils::GLProgram::HasShader(ShaderType type)
 {
-    for (const auto &i : m_shaders)
+    switch (type)
     {
-        if (i->Type() == type)
-            return true;
+    case ShaderType::Vertex:
+        return m_vertexShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+    case ShaderType::Tessellation:
+        return m_tessellationShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+    case ShaderType::Geometry:
+        return m_geometryShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+    case ShaderType::Fragment:
+        return m_fragmentShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+    case ShaderType::Compute:
+        return m_computeShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
     }
     return false;
 }
 
-void OpenGLUtils::GLProgram::Link() const
+void OpenGLUtils::GLProgram::Link()
 {
+    if (m_linked)
+        return;
+    if (!m_vertexShader.Get<OpenGLUtils::GLShader>())
+    {
+        UNIENGINE_ERROR("Missing vertex shader!");
+        return;
+    }
+
+    if (!m_fragmentShader.Get<OpenGLUtils::GLShader>())
+    {
+        UNIENGINE_ERROR("Missing fragment shader!");
+        return;
+    }
+    auto vertexShader = GetShader(ShaderType::Vertex);
+    auto tessellationShader = GetShader(ShaderType::Tessellation);
+    auto geometryShader = GetShader(ShaderType::Geometry);
+    auto fragmentShader = GetShader(ShaderType::Fragment);
+    auto computeShader = GetShader(ShaderType::Compute);
+
+    if (vertexShader)
+    {
+        vertexShader->Compile();
+    }
+    if (tessellationShader)
+    {
+        tessellationShader->Compile();
+    }
+    if (geometryShader)
+    {
+        geometryShader->Compile();
+    }
+    if (fragmentShader)
+    {
+        fragmentShader->Compile();
+    }
+    if (computeShader)
+    {
+        computeShader->Compile();
+    }
+
     glLinkProgram(m_id);
     GLint status = 0;
     glGetProgramiv(m_id, GL_LINK_STATUS, &status);
@@ -1158,6 +1239,8 @@ void OpenGLUtils::GLProgram::Link() const
             "ERROR::PROGRAM_LINKING_ERROR of type: " + type + "\n" + infoLog +
             "\n -- --------------------------------------------------- -- ");
     }
+    else
+        m_linked = true;
 }
 
 void OpenGLUtils::GLProgram::Link(const std::shared_ptr<GLShader> &shader1, const std::shared_ptr<GLShader> &shader2)
@@ -1180,83 +1263,117 @@ void OpenGLUtils::GLProgram::Link(
 
 void OpenGLUtils::GLProgram::Attach(const std::shared_ptr<GLShader> &shader)
 {
+    if (!shader)
+        return;
     const auto type = shader->Type();
     if (HasShader(type))
         Detach(type);
-    m_shaders.push_back(shader);
+    switch (type)
+    {
+    case ShaderType::Vertex:
+        m_vertexShader = shader;
+        break;
+    case ShaderType::Tessellation:
+        m_tessellationShader = shader;
+        break;
+    case ShaderType::Geometry:
+        m_geometryShader = shader;
+        break;
+    case ShaderType::Fragment:
+        m_fragmentShader = shader;
+        break;
+    case ShaderType::Compute:
+        m_computeShader = shader;
+        break;
+    }
     shader->Attach(m_id);
 }
 
 void OpenGLUtils::GLProgram::Detach(ShaderType type)
 {
-    for (int index = 0; index < m_shaders.size(); index++)
+    if (!HasShader(type))
+        return;
+    switch (type)
     {
-        auto &i = m_shaders[index];
-        if (i->Type() == type)
-        {
-            i->Detach(m_id);
-            m_shaders.erase(m_shaders.begin() + index);
-            break;
-        }
+    case ShaderType::Vertex:
+        m_vertexShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_vertexShader.Clear();
+        break;
+    case ShaderType::Tessellation:
+        m_tessellationShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_tessellationShader.Clear();
+        break;
+    case ShaderType::Geometry:
+        m_geometryShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_geometryShader.Clear();
+        break;
+    case ShaderType::Fragment:
+        m_fragmentShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_fragmentShader.Clear();
+        break;
+    case ShaderType::Compute:
+        m_computeShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_computeShader.Clear();
+        break;
     }
 }
 
-void OpenGLUtils::GLProgram::SetBool(const std::string &name, bool value) const
+void OpenGLUtils::GLProgram::SetBool(const std::string &name, bool value)
 {
     Bind();
     glUniform1i(glGetUniformLocation(m_id, name.c_str()), static_cast<int>(value));
 }
-void OpenGLUtils::GLProgram::SetInt(const std::string &name, int value) const
+void OpenGLUtils::GLProgram::SetInt(const std::string &name, int value)
 {
     Bind();
     glUniform1i(glGetUniformLocation(m_id, name.c_str()), value);
 }
-void OpenGLUtils::GLProgram::SetFloat(const std::string &name, float value) const
+void OpenGLUtils::GLProgram::SetFloat(const std::string &name, float value)
 {
     Bind();
     glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
 }
-void OpenGLUtils::GLProgram::SetFloat2(const std::string &name, const glm::vec2 &value) const
+void OpenGLUtils::GLProgram::SetFloat2(const std::string &name, const glm::vec2 &value)
 {
     Bind();
     glUniform2fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
 }
-void OpenGLUtils::GLProgram::SetFloat2(const std::string &name, float x, float y) const
+void OpenGLUtils::GLProgram::SetFloat2(const std::string &name, float x, float y)
 {
     Bind();
     glUniform2f(glGetUniformLocation(m_id, name.c_str()), x, y);
 }
-void OpenGLUtils::GLProgram::SetFloat3(const std::string &name, const glm::vec3 &value) const
+void OpenGLUtils::GLProgram::SetFloat3(const std::string &name, const glm::vec3 &value)
 {
     Bind();
     glUniform3fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
 }
-void OpenGLUtils::GLProgram::SetFloat3(const std::string &name, float x, float y, float z) const
+void OpenGLUtils::GLProgram::SetFloat3(const std::string &name, float x, float y, float z)
 {
     Bind();
     glUniform3f(glGetUniformLocation(m_id, name.c_str()), x, y, z);
 }
-void OpenGLUtils::GLProgram::SetFloat4(const std::string &name, const glm::vec4 &value) const
+void OpenGLUtils::GLProgram::SetFloat4(const std::string &name, const glm::vec4 &value)
 {
     Bind();
     glUniform4fv(glGetUniformLocation(m_id, name.c_str()), 1, &value[0]);
 }
-void OpenGLUtils::GLProgram::SetFloat4(const std::string &name, float x, float y, float z, float w) const
+void OpenGLUtils::GLProgram::SetFloat4(const std::string &name, float x, float y, float z, float w)
 {
     Bind();
     glUniform4f(glGetUniformLocation(m_id, name.c_str()), x, y, z, w);
 }
-void OpenGLUtils::GLProgram::SetFloat2x2(const std::string &name, const glm::mat2 &mat) const
+void OpenGLUtils::GLProgram::SetFloat2x2(const std::string &name, const glm::mat2 &mat)
 {
     Bind();
     glUniformMatrix2fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-void OpenGLUtils::GLProgram::SetFloat3x3(const std::string &name, const glm::mat3 &mat) const
+void OpenGLUtils::GLProgram::SetFloat3x3(const std::string &name, const glm::mat3 &mat)
 {
     Bind();
     glUniformMatrix3fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
-void OpenGLUtils::GLProgram::SetFloat4x4(const std::string &name, const glm::mat4 &mat) const
+void OpenGLUtils::GLProgram::SetFloat4x4(const std::string &name, const glm::mat4 &mat)
 {
     Bind();
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
@@ -1265,6 +1382,99 @@ void OpenGLUtils::GLProgram::SetFloat4x4(const std::string &name, const glm::mat
 OpenGLUtils::GLProgram::GLProgram()
 {
     m_id = glCreateProgram();
+}
+void OpenGLUtils::GLProgram::OnInspect()
+{
+    auto vertexShader = GetShader(ShaderType::Vertex);
+    auto fragmentShader = GetShader(ShaderType::Fragment);
+    auto geometryShader = GetShader(ShaderType::Geometry);
+    auto tessellationShader = GetShader(ShaderType::Tessellation);
+    auto computeShader = GetShader(ShaderType::Compute);
+
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_vertexShader, "Vertex"))
+    {
+        if (vertexShader)
+            vertexShader->Detach(m_id);
+        vertexShader = m_vertexShader.Get<OpenGLUtils::GLShader>();
+        if (vertexShader)
+            vertexShader->Attach(m_id);
+        m_linked = false;
+    }
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_tessellationShader, "Tessellation"))
+    {
+        if (tessellationShader)
+            tessellationShader->Detach(m_id);
+        tessellationShader = m_tessellationShader.Get<OpenGLUtils::GLShader>();
+        if (tessellationShader)
+            tessellationShader->Attach(m_id);
+        m_linked = false;
+    }
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_geometryShader, "Geometry"))
+    {
+        if (geometryShader)
+            geometryShader->Detach(m_id);
+        geometryShader = m_geometryShader.Get<OpenGLUtils::GLShader>();
+        if (geometryShader)
+            geometryShader->Attach(m_id);
+        m_linked = false;
+    }
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_fragmentShader, "Fragment"))
+    {
+        if (fragmentShader)
+            fragmentShader->Detach(m_id);
+        fragmentShader = m_fragmentShader.Get<OpenGLUtils::GLShader>();
+        if (fragmentShader)
+            fragmentShader->Attach(m_id);
+        m_linked = false;
+    }
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_computeShader, "Compute"))
+    {
+        if (computeShader)
+            computeShader->Detach(m_id);
+        computeShader = m_computeShader.Get<OpenGLUtils::GLShader>();
+        if (computeShader)
+            computeShader->Attach(m_id);
+        m_linked = false;
+    }
+    ImGui::Text((std::string("Linked: ") + (m_linked ? "True" : "False")).c_str());
+    if (ImGui::Button("Link"))
+        Link();
+}
+
+void OpenGLUtils::GLProgram::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_vertexShader);
+    list.push_back(m_tessellationShader);
+    list.push_back(m_geometryShader);
+    list.push_back(m_fragmentShader);
+    list.push_back(m_computeShader);
+}
+void OpenGLUtils::GLProgram::Serialize(YAML::Emitter &out)
+{
+    m_vertexShader.Save("m_vertexShader", out);
+    m_tessellationShader.Save("m_tessellationShader", out);
+    m_geometryShader.Save("m_geometryShader", out);
+    m_fragmentShader.Save("m_fragmentShader", out);
+    m_computeShader.Save("m_computeShader", out);
+}
+void OpenGLUtils::GLProgram::Deserialize(const YAML::Node &in)
+{
+    AssetRef vertexShader;
+    AssetRef tessellationShader;
+    AssetRef geometryShader;
+    AssetRef fragmentShader;
+    AssetRef computeShader;
+    vertexShader.Load("m_vertexShader", in);
+    tessellationShader.Load("m_tessellationShader", in);
+    geometryShader.Load("m_geometryShader", in);
+    fragmentShader.Load("m_fragmentShader", in);
+    computeShader.Load("m_computeShader", in);
+    Attach(vertexShader.Get<OpenGLUtils::GLShader>());
+    Attach(tessellationShader.Get<OpenGLUtils::GLShader>());
+    Attach(geometryShader.Get<OpenGLUtils::GLShader>());
+    Attach(fragmentShader.Get<OpenGLUtils::GLShader>());
+    Attach(computeShader.Get<OpenGLUtils::GLShader>());
+    m_linked = false;
 }
 
 #pragma region OpenGL Debugging

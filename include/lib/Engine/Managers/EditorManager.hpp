@@ -272,8 +272,11 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
             std::shared_ptr<T> payload_n =
                 std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IAsset> *>(payload->Data));
-            target = payload_n;
-            statusChanged = true;
+            if(!ptr || payload_n.get() != ptr.get())
+            {
+                target = payload_n;
+                statusChanged = true;
+            }
         }
         ImGui::EndDragDropTarget();
     }
@@ -319,8 +322,11 @@ bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::st
             IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IPrivateComponent>));
             std::shared_ptr<T> payload_n =
                 std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data));
-            target = payload_n;
-            statusChanged = true;
+            if(!ptr || payload_n.get() != ptr.get())
+            {
+                target = payload_n;
+                statusChanged = true;
+            }
         }
         ImGui::EndDragDropTarget();
     }
@@ -330,10 +336,14 @@ bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::st
         {
             IM_ASSERT(payload->DataSize == sizeof(Entity));
             Entity payload_n = *static_cast<Entity *>(payload->Data);
-            if (payload_n.HasPrivateComponent<T>())
+            if (payload_n.IsValid() && payload_n.HasPrivateComponent<T>())
             {
-                target = payload_n.GetOrSetPrivateComponent<T>().lock();
-                statusChanged = true;
+                std::shared_ptr<T> received = payload_n.GetOrSetPrivateComponent<T>().lock();
+                if(!ptr || received.get() != ptr.get())
+                {
+                    target = received;
+                    statusChanged = true;
+                }
             }
         }
         ImGui::EndDragDropTarget();
