@@ -23,6 +23,7 @@ void IAsset::Save(const std::filesystem::path &path)
     std::filesystem::create_directories(directory);
     YAML::Emitter out;
     out << YAML::BeginMap;
+    out << YAML::Key << "m_name" << YAML::Value << m_name;
     Serialize(out);
     out << YAML::EndMap;
     std::ofstream fout(path.string());
@@ -35,6 +36,7 @@ void IAsset::Load(const std::filesystem::path &path)
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
+    m_name = in["m_name"].as<std::string>();
     Deserialize(in);
 }
 IAsset::~IAsset()
@@ -75,6 +77,10 @@ void IAsset::OnCreate()
 
 void IAsset::SetPath(const std::filesystem::path &path)
 {
+    if(path.empty()){
+        UNIENGINE_ERROR("Path must not be empty!");
+        return;
+    }
     m_path = path;
     m_saved = false;
     auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;

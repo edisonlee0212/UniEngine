@@ -327,29 +327,20 @@ void PointCloud::Serialize(YAML::Emitter &out)
         out << YAML::Key << "m_points" << YAML::Value
             << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::vec3));
     }
-    if (!m_compressed.empty())
-    {
-        out << YAML::Key << "m_finalOutput" << YAML::Value
-            << YAML::Binary((const unsigned char *)m_compressed.data(), m_compressed.size() * sizeof(glm::vec3));
-    }
+
 }
 void PointCloud::Deserialize(const YAML::Node &in)
 {
     m_pointSize = in["m_pointSize"].as<float>();
-    if(in["m_scale"]) m_scale = in["m_scale"].as<float>();
-    if(in["m_compressFactor"]) m_compressFactor = in["m_compressFactor"].as<float>();
+    m_scale = in["m_scale"].as<float>();
+    m_compressFactor = in["m_compressFactor"].as<float>();
     if (in["m_points"])
     {
         auto vertexData = in["m_points"].as<YAML::Binary>();
         m_points.resize(vertexData.size() / sizeof(glm::vec3));
         std::memcpy(m_points.data(), vertexData.data(), vertexData.size());
     }
-    if (in["m_finalOutput"])
-    {
-        auto vertexData = in["m_finalOutput"].as<YAML::Binary>();
-        m_compressed.resize(vertexData.size() / sizeof(glm::vec3));
-        std::memcpy(m_compressed.data(), vertexData.data(), vertexData.size());
-    }
+    Compress();
 }
 void PointCloud::ApplyOriginal()
 {

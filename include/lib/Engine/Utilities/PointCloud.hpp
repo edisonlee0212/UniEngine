@@ -18,7 +18,6 @@ class UNIENGINE_API PointCloud : public IPrivateComponent
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
     void OnGui() override;
     void Compress();
-    void Recenter();
     void ApplyCompressed();
     void ApplyOriginal();
     void RecalculateBoundingBox();

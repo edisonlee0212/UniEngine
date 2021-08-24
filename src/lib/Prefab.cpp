@@ -850,6 +850,7 @@ bool DataComponentHolder::Deserialize(const YAML::Node &in)
 }
 void Prefab::Serialize(YAML::Emitter &out)
 {
+    out << YAML::Key << "m_name" << YAML::Value << m_name;
     out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
     out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle.GetValue();
     if (!m_dataComponents.empty())
@@ -891,6 +892,7 @@ void Prefab::Serialize(YAML::Emitter &out)
 }
 void Prefab::Deserialize(const YAML::Node &in)
 {
+    m_name = in["m_name"].as<std::string>();
     m_enabled = in["m_enabled"].as<bool>();
     m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
     if (in["m_dataComponents"])
@@ -1366,16 +1368,17 @@ void PrivateComponentHolder::Deserialize(const YAML::Node &in)
     m_enabled = in["m_enabled"].as<bool>();
     auto typeName = in["m_typeName"].as<std::string>();
     auto inData = in["m_data"];
-    if(SerializationManager::HasSerializableType(typeName))
+    if (SerializationManager::HasSerializableType(typeName))
     {
         size_t hashCode;
         m_data = std::dynamic_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
-    }else{
+    }
+    else
+    {
         size_t hashCode;
-        m_data = std::dynamic_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable("UnknownPrivateComponent", hashCode, Handle(inData["m_handle"].as<uint64_t>())));
-
+        m_data = std::dynamic_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(
+            "UnknownPrivateComponent", hashCode, Handle(inData["m_handle"].as<uint64_t>())));
     }
     m_data->OnCreate();
     m_data->Deserialize(inData);
