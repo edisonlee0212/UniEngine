@@ -134,13 +134,23 @@ void PointCloud::Load(const std::filesystem::path &path)
                       << " total indicies (tristrip) " << std::endl;
 
         // Example One: converting to your own application types
-        {
-            const size_t numVerticesBytes = vertices->buffer.size_bytes();
+        const size_t numVerticesBytes = vertices->buffer.size_bytes();
+        if(vertices->t == tinyply::Type::FLOAT32){
             m_points.resize(vertices->count);
             std::memcpy(m_points.data(), vertices->buffer.get(), numVerticesBytes);
-            m_compressed = m_points;
-            RecalculateBoundingBox();
+        }else if(vertices->t == tinyply::Type::FLOAT64){
+            std::vector<glm::dvec3> points;
+            points.resize(vertices->count);
+            m_points.resize(vertices->count);
+            std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+            for(int i = 0; i < vertices->count; i++){
+                m_points[i].x = points[i].x;
+                m_points[i].y = points[i].y;
+                m_points[i].z = points[i].z;
+            }
         }
+        m_compressed = m_points;
+        RecalculateBoundingBox();
     }
     catch (const std::exception &e)
     {
@@ -160,11 +170,11 @@ void PointCloud::OnGui()
     ImGui::Text(("Original amount: " + std::to_string(m_points.size())).c_str());
     ImGui::Text(("Compressed amount: " + std::to_string(m_compressed.size())).c_str());
     ImGui::DragFloat("Point size", &m_pointSize, 0.01f, 0.01f, 100.0f);
-    static float compressScale = 50.0f;
-    ImGui::DragFloat("Compress scale", &compressScale, 0.001f, 0.0001f, 10.0f);
+    ImGui::DragFloat("Compress factor", &m_compressFactor, 0.001f, 0.0001f, 10.0f);
+    ImGui::DragFloat("Compress scale", &m_scale, 0.001f, 0.0001f, 10.0f);
     if (ImGui::Button("Compress"))
     {
-        Compress(compressScale);
+        Compress();
     }
 
     if (ImGui::Button("Apply compressed"))
@@ -212,27 +222,27 @@ void PointCloud::ApplyCompressed()
     }
     particleMatrices->Update();
 }
-void PointCloud::Compress(float resolution)
+void PointCloud::Compress()
 {
     RecalculateBoundingBox();
-    if (resolution == 0)
+    if (m_compressFactor == 0)
     {
         UNIENGINE_ERROR("Resolution invalid!");
         return;
     }
-    float xMin = m_boundingBox.m_min.x - std::fmod(m_boundingBox.m_min.x, resolution) -
-                 (m_boundingBox.m_min.x < 0 ? resolution : 0);
-    float yMin = m_boundingBox.m_min.y - std::fmod(m_boundingBox.m_min.y, resolution) -
-                 (m_boundingBox.m_min.y < 0 ? resolution : 0);
-    float zMin = m_boundingBox.m_min.z - std::fmod(m_boundingBox.m_min.z, resolution) -
-                 (m_boundingBox.m_min.z < 0 ? resolution : 0);
+    float xMin = m_boundingBox.m_min.x - std::fmod(m_boundingBox.m_min.x, m_compressFactor) -
+        (m_boundingBox.m_min.x < 0 ? m_compressFactor : 0);
+    float yMin = m_boundingBox.m_min.y - std::fmod(m_boundingBox.m_min.y, m_compressFactor) -
+        (m_boundingBox.m_min.y < 0 ? m_compressFactor : 0);
+    float zMin = m_boundingBox.m_min.z - std::fmod(m_boundingBox.m_min.z, m_compressFactor) -
+        (m_boundingBox.m_min.z < 0 ? m_compressFactor : 0);
 
-    float xMax = m_boundingBox.m_max.x - std::fmod(m_boundingBox.m_max.x, resolution) +
-                 (m_boundingBox.m_max.x > 0 ? resolution : 0);
-    float yMax = m_boundingBox.m_max.y - std::fmod(m_boundingBox.m_max.y, resolution) +
-                 (m_boundingBox.m_max.y > 0 ? resolution : 0);
-    float zMax = m_boundingBox.m_max.z - std::fmod(m_boundingBox.m_max.z, resolution) +
-                 (m_boundingBox.m_max.z > 0 ? resolution : 0);
+    float xMax = m_boundingBox.m_max.x - std::fmod(m_boundingBox.m_max.x, m_compressFactor) +
+        (m_boundingBox.m_max.x > 0 ? m_compressFactor : 0);
+    float yMax = m_boundingBox.m_max.y - std::fmod(m_boundingBox.m_max.y, m_compressFactor) +
+        (m_boundingBox.m_max.y > 0 ? m_compressFactor : 0);
+    float zMax = m_boundingBox.m_max.z - std::fmod(m_boundingBox.m_max.z, m_compressFactor) +
+        (m_boundingBox.m_max.z > 0 ? m_compressFactor : 0);
 
     UNIENGINE_LOG(
         "X, Y, Z MIN: [" + std::to_string(xMin) + ", " + std::to_string(yMin) + ", " + std::to_string(zMin) + "]");
@@ -240,9 +250,9 @@ void PointCloud::Compress(float resolution)
         "X, Y, Z MAX: [" + std::to_string(xMax) + ", " + std::to_string(yMax) + ", " + std::to_string(zMax) + "]");
 
     std::vector<int> voxels;
-    int rangeX = ((xMax - xMin) / resolution);
-    int rangeY = ((yMax - yMin) / resolution);
-    int rangeZ = ((zMax - zMin) / resolution);
+    int rangeX = ((xMax - xMin) / m_compressFactor);
+    int rangeY = ((yMax - yMin) / m_compressFactor);
+    int rangeZ = ((zMax - zMin) / m_compressFactor);
     int voxelSize = (rangeX + 1) * (rangeY + 1) * (rangeZ + 1);
 
     if (voxelSize > 1000000000)
@@ -260,9 +270,9 @@ void PointCloud::Compress(float resolution)
 
     for (const auto &i : m_points)
     {
-        int posX = ((i.x - m_boundingBox.m_min.x) / resolution);
-        int posY = ((i.y - m_boundingBox.m_min.y) / resolution);
-        int posZ = ((i.z - m_boundingBox.m_min.z) / resolution);
+        int posX = ((i.x - m_boundingBox.m_min.x) / m_compressFactor);
+        int posY = ((i.y - m_boundingBox.m_min.y) / m_compressFactor);
+        int posZ = ((i.z - m_boundingBox.m_min.z) / m_compressFactor);
         auto index = posX * (rangeY + 1) * (rangeZ + 1) + posY * (rangeZ + 1) + posZ;
         if (index >= voxelSize)
         {
@@ -282,7 +292,7 @@ void PointCloud::Compress(float resolution)
                 auto index = x * (rangeY + 1) * (rangeZ + 1) + y * (rangeZ + 1) + z;
                 if (voxels[index] != 0)
                 {
-                    m_compressed.push_back(glm::vec3(x, y, z) * resolution + m_boundingBox.m_min);
+                    m_compressed.push_back((glm::vec3(x, y, z) * m_compressFactor) * m_scale);
                 }
             }
         }
@@ -310,6 +320,8 @@ void PointCloud::RecalculateBoundingBox()
 void PointCloud::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_pointSize" << m_pointSize;
+    out << YAML::Key << "m_compressFactor" << m_compressFactor;
+    out << YAML::Key << "m_scale" << m_scale;
     if (!m_points.empty())
     {
         out << YAML::Key << "m_points" << YAML::Value
@@ -324,6 +336,8 @@ void PointCloud::Serialize(YAML::Emitter &out)
 void PointCloud::Deserialize(const YAML::Node &in)
 {
     m_pointSize = in["m_pointSize"].as<float>();
+    if(in["m_scale"]) m_scale = in["m_scale"].as<float>();
+    if(in["m_compressFactor"]) m_compressFactor = in["m_compressFactor"].as<float>();
     if (in["m_points"])
     {
         auto vertexData = in["m_points"].as<YAML::Binary>();
@@ -393,3 +407,4 @@ void PointCloud::Save(const std::filesystem::path &path)
     // Write a binary file
     cube_file.write(outstream_binary, true);
 }
+
