@@ -115,10 +115,24 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::mat4 &v)
 }
 size_t SerializationManager::GetDataComponentTypeId(const std::string &typeName)
 {
-    return GetInstance().m_dataComponentIds[typeName];
+    auto& serializationManager = GetInstance();
+    if(serializationManager.HasComponentDataType(typeName)){
+        return serializationManager.m_dataComponentIds[typeName];
+    }else return 0;
 }
 
 size_t SerializationManager::GetSerializableTypeId(const std::string &typeName)
 {
-    return GetInstance().m_serializableIds[typeName];
+    auto& serializationManager = GetInstance();
+    if(serializationManager.HasSerializableType(typeName)){
+        return serializationManager.m_serializableIds[typeName];
+    }else return 0;
+}
+bool SerializationManager::HasSerializableType(const std::string &typeName)
+{
+    return GetInstance().m_serializableIds.find(typeName) != GetInstance().m_serializableIds.end();
+}
+bool SerializationManager::HasComponentDataType(const std::string &typeName)
+{
+    return GetInstance().m_dataComponentIds.find(typeName) != GetInstance().m_dataComponentIds.end();
 }

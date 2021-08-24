@@ -371,12 +371,22 @@ void Scene::Deserialize(const YAML::Node &in)
             {
                 auto name = inPrivateComponent["TypeName"].as<std::string>();
                 size_t hashCode;
-                auto ptr = std::static_pointer_cast<IPrivateComponent>(
-                    SerializationManager::ProduceSerializable(name, hashCode));
-                ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
-                ptr->m_started = false;
-                m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                if(SerializationManager::HasSerializableType(name)){
+                    auto ptr = std::static_pointer_cast<IPrivateComponent>(
+                        SerializationManager::ProduceSerializable(name, hashCode));
+                    ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
+                    ptr->m_started = false;
+                    m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
+                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                }else{
+                    auto ptr = std::static_pointer_cast<IPrivateComponent>(
+                        SerializationManager::ProduceSerializable("UnknownPrivateComponent", hashCode));
+                    ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
+                    ptr->m_started = false;
+                    m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
+                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                }
+
             }
         }
         entityIndex++;

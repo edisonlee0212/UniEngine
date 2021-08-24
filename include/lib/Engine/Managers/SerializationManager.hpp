@@ -173,7 +173,8 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
     static std::string GetSerializableTypeName(const size_t &typeId);
-
+    static bool HasSerializableType(const std::string& typeName);
+    static bool HasComponentDataType(const std::string& typeName);
     static size_t GetSerializableTypeId(const std::string &typeName);
     static size_t GetDataComponentTypeId(const std::string &typeName);
 };

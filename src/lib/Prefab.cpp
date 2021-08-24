@@ -835,15 +835,18 @@ void DataComponentHolder::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_type.m_name" << YAML::Value << m_type.m_name;
     out << YAML::Key << "m_data" << YAML::Value << YAML::Binary((const unsigned char *)m_data.get(), m_type.m_size);
 }
-void DataComponentHolder::Deserialize(const YAML::Node &in)
+bool DataComponentHolder::Deserialize(const YAML::Node &in)
 {
     m_type.m_name = in["m_type.m_name"].as<std::string>();
+    if (!SerializationManager::HasComponentDataType(m_type.m_name))
+        return false;
     m_data = SerializationManager::ProduceDataComponent(m_type.m_name, m_type.m_typeId, m_type.m_size);
     if (in["m_data"])
     {
         YAML::Binary data = in["m_data"].as<YAML::Binary>();
         std::memcpy(m_data.get(), data.data(), data.size());
     }
+    return true;
 }
 void Prefab::Serialize(YAML::Emitter &out)
 {
@@ -895,8 +898,10 @@ void Prefab::Deserialize(const YAML::Node &in)
         for (const auto &i : in["m_dataComponents"])
         {
             DataComponentHolder holder;
-            holder.Deserialize(i);
-            m_dataComponents.push_back(holder);
+            if (holder.Deserialize(i))
+            {
+                m_dataComponents.push_back(holder);
+            }
         }
     }
     if (in["m_privateComponents"])
@@ -996,7 +1001,7 @@ void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map
 void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)
 {
 #ifdef USE_ASSIMP
-    if(optimize)
+    if (optimize)
     {
         flags = flags | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
     }
@@ -1360,10 +1365,18 @@ void PrivateComponentHolder::Deserialize(const YAML::Node &in)
 {
     m_enabled = in["m_enabled"].as<bool>();
     auto typeName = in["m_typeName"].as<std::string>();
-    size_t hashCode;
     auto inData = in["m_data"];
-    m_data = std::dynamic_pointer_cast<IPrivateComponent>(
-        SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+    if(SerializationManager::HasSerializableType(typeName))
+    {
+        size_t hashCode;
+        m_data = std::dynamic_pointer_cast<IPrivateComponent>(
+            SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+    }else{
+        size_t hashCode;
+        m_data = std::dynamic_pointer_cast<IPrivateComponent>(
+            SerializationManager::ProduceSerializable("UnknownPrivateComponent", hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+
+    }
     m_data->OnCreate();
     m_data->Deserialize(inData);
 }

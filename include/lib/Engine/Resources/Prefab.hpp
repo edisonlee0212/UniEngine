@@ -33,7 +33,7 @@ struct UNIENGINE_API DataComponentHolder
     std::shared_ptr<IDataComponent> m_data;
 
     void Serialize(YAML::Emitter &out);
-    void Deserialize(const YAML::Node &in);
+    bool Deserialize(const YAML::Node &in);
 };
 
 struct UNIENGINE_API PrivateComponentHolder

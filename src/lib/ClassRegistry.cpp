@@ -8,6 +8,7 @@
 #include <AssetManager.hpp>
 #include <EntityManager.hpp>
 #include <PointCloud.hpp>
+#include <UnknownPrivateComponent.hpp>
 using namespace UniEngine;
 
 DataComponentRegistration<Transform> TransformRegistry("Transform");
@@ -28,7 +29,7 @@ PrivateComponentRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 PrivateComponentRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 PrivateComponentRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
 PrivateComponentRegistration<PointCloud> PointCloudRegistry("PointCloud");
-
+PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentRegistry("UnknownPrivateComponent");
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 

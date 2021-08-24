@@ -458,22 +458,38 @@ void FileUtils::OpenFile(
         ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
         ofn.lpstrFile = szFile;
         ofn.nMaxFile = sizeof(szFile);
-        std::string filters = fileType;
+        std::string filters = fileType + " (";
         for (int i = 0; i < extensions.size(); i++)
         {
             filters += "*" + extensions[i];
             if (i < extensions.size() - 1)
-                filters += ",";
+                filters += ", ";
         }
-        filters += ")\0";
+        filters += ") ";
+        std::string filters2;
         for (int i = 0; i < extensions.size(); i++)
         {
-            filters += "*" + extensions[i];
+            filters2 += "*" + extensions[i];
             if (i < extensions.size() - 1)
-                filters += ";";
+                filters2 += ";";
         }
-        filters += "\0";
-        ofn.lpstrFilter = filters.c_str();
+        char actualFilter[256];
+        int index = 0;
+        for(auto& i : filters){
+            actualFilter[index] = i;
+            index++;
+        }
+        actualFilter[index] = 0;
+        index++;
+        for(auto& i : filters2){
+            actualFilter[index] = i;
+            index++;
+        }
+        actualFilter[index] = 0;
+        index++;
+        actualFilter[index] = 0;
+        index++;
+        ofn.lpstrFilter = actualFilter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
         if (GetOpenFileNameA(&ofn) == TRUE)
@@ -521,8 +537,25 @@ void FileUtils::SaveFile(
         ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
         ofn.lpstrFile = szFile;
         ofn.nMaxFile = sizeof(szFile);
-        std::string filter = fileType + " (*" + extension + ")\0*" + extension + "\0";
-        ofn.lpstrFilter = filter.c_str();
+        std::string filter = fileType + " (*" + extension + ")";
+        std::string filter2 = "*" + extension;
+        char actualFilter[256];
+        int index = 0;
+        for(auto& i : filter){
+            actualFilter[index] = i;
+            index++;
+        }
+        actualFilter[index] = 0;
+        index++;
+        for(auto& i : filter2){
+            actualFilter[index] = i;
+            index++;
+        }
+        actualFilter[index] = 0;
+        index++;
+        actualFilter[index] = 0;
+        index++;
+        ofn.lpstrFilter = actualFilter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
