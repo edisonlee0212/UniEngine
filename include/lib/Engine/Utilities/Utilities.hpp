@@ -17,7 +17,7 @@ class UNIENGINE_API FileUtils
     static void SaveFile(
         const std::string &dialogTitle,
         const std::string &fileType,
-        const std::string &extension,
+        const std::vector<std::string> &extensions,
         const std::function<void(const std::filesystem::path &path)> &func);
     static std::pair<bool, uint32_t> DirectoryTreeViewRecursive(
         const std::filesystem::path &path, uint32_t *count, int *selection_mask);
