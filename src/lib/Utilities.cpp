@@ -140,7 +140,10 @@ bool Bezier2D::DrawGraph(const std::string &label)
         ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
         ImGui::ItemSize(bb);
         if (!ImGui::ItemAdd(bb, NULL))
+        {
+            ImGui::TreePop();
             return changed;
+        }
 
         const ImGuiID id = Window->GetID(label.c_str());
         hovered |= 0 != ImGui::ItemHoverable(ImRect(bb.Min, bb.Min + ImVec2(avail, dim)), id);
