@@ -29,7 +29,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     unsigned int m_configFlags = 0;
 
     Entity m_selectedEntity;
-    bool m_enableConsole = true;
+
     glm::vec3 m_previouslyStoredPosition;
     glm::vec3 m_previouslyStoredRotation;
     glm::vec3 m_previouslyStoredScale;
@@ -37,9 +37,6 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     bool m_localRotationSelected = false;
     bool m_localScaleSelected = false;
 
-    bool m_enableConsoleLogs = true;
-    bool m_enableConsoleErrors = true;
-    bool m_enableConsoleWarnings = false;
     bool m_sceneCameraWindowFocused = false;
     bool m_mainCameraWindowFocused = false;
 #pragma region Transfer

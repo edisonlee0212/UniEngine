@@ -21,6 +21,12 @@ class ConsoleManager : public ISingleton<ConsoleManager>
     std::vector<ConsoleMessage> m_consoleMessages;
     std::mutex m_consoleMessageMutex;
 
+    bool m_enableConsole = true;
+    bool m_enableConsoleLogs = false;
+    bool m_enableConsoleErrors = true;
+    bool m_enableConsoleWarnings = false;
+
+
   public:
     /**
      * Push log to the console
@@ -42,6 +48,8 @@ class ConsoleManager : public ISingleton<ConsoleManager>
      * @return The list of message stored.
      */
     UNIENGINE_API static std::vector<ConsoleMessage> &GetConsoleMessages();
+
+    static void OnGui();
 };
 
 } // namespace UniEngine

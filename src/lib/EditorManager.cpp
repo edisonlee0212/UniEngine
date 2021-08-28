@@ -437,7 +437,6 @@ void EditorManager::PreUpdate()
         }
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Console", &editorManager.m_enableConsole);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help"))
@@ -932,55 +931,6 @@ void EditorManager::OnGui()
     MainCameraWindow();
     SceneCameraWindow();
 
-#pragma region Logs and errors
-    if (editorManager.m_enableConsole)
-    {
-        ImGui::Begin("Console");
-        ImGui::Checkbox("Log", &editorManager.m_enableConsoleLogs);
-        ImGui::SameLine();
-        ImGui::Checkbox("Warning", &editorManager.m_enableConsoleWarnings);
-        ImGui::SameLine();
-        ImGui::Checkbox("Error", &editorManager.m_enableConsoleErrors);
-        int i = 0;
-        for (auto msg = ConsoleManager::GetConsoleMessages().rbegin(); msg != ConsoleManager::GetConsoleMessages().rend(); ++msg)
-        {
-            if (i > 999)
-                break;
-            i++;
-            switch (msg->m_type)
-            {
-            case ConsoleMessageType::Log:
-                if (editorManager.m_enableConsoleLogs)
-                {
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
-                    ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1, 1, 1, 1), msg->m_value.c_str());
-                    ImGui::Separator();
-                }
-                break;
-            case ConsoleMessageType::Warning:
-                if (editorManager.m_enableConsoleWarnings)
-                {
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
-                    ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1, 1, 0, 1), msg->m_value.c_str());
-                    ImGui::Separator();
-                }
-                break;
-            case ConsoleMessageType::Error:
-                if (editorManager.m_enableConsoleErrors)
-                {
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), "%.2f: ", msg->m_time);
-                    ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1, 0, 0, 1), msg->m_value.c_str());
-                    ImGui::Separator();
-                }
-                break;
-            }
-        }
-        ImGui::End();
-    }
-#pragma endregion
 
 #pragma region Asset Inspection
     ImGui::Begin("Asset Inspector");

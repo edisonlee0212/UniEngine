@@ -1,7 +1,7 @@
 #include <AnimationManager.hpp>
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <Core/OpenGLUtils.hpp>
+#include <OpenGLUtils.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <EntityManager.hpp>
@@ -192,6 +192,7 @@ bool Application::LateUpdateInternal()
     AssetManager::OnGui();
     RenderManager::OnGui();
     EditorManager::OnGui();
+    ConsoleManager::OnGui();
     ProjectManager::OnGui();
     ProfilerManager::EndEvent("Internals");
     // Profile
