@@ -1,4 +1,4 @@
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <RenderTarget.hpp>
 using namespace UniEngine;
 RenderTarget::RenderTarget()

@@ -942,7 +942,7 @@ void EditorManager::OnGui()
         ImGui::SameLine();
         ImGui::Checkbox("Error", &editorManager.m_enableConsoleErrors);
         int i = 0;
-        for (auto msg = Debug::GetConsoleMessages().rbegin(); msg != Debug::GetConsoleMessages().rend(); ++msg)
+        for (auto msg = ConsoleManager::GetConsoleMessages().rbegin(); msg != ConsoleManager::GetConsoleMessages().rend(); ++msg)
         {
             if (i > 999)
                 break;

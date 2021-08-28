@@ -1,6 +1,6 @@
 #pragma once
 #include <uniengine_export.h>
-
+#include <ISingleton.hpp>
 namespace UniEngine
 {
 
@@ -16,19 +16,31 @@ struct ConsoleMessage
     std::string m_value;
     double m_time = 0;
 };
-class Debug
+class ConsoleManager : public ISingleton<ConsoleManager>
 {
     std::vector<ConsoleMessage> m_consoleMessages;
     std::mutex m_consoleMessageMutex;
 
-  protected:
-    Debug() = default;
-
   public:
-    UNIENGINE_API static Debug &GetInstance();
+    /**
+     * Push log to the console
+     * @param msg The message to print.
+     */
     UNIENGINE_API static void Log(const std::string &msg);
+    /**
+     * Push error to the console
+     * @param msg The message to print.
+     */
     UNIENGINE_API static void Error(const std::string &msg);
+    /**
+     * Push warning to the console
+     * @param msg The message to print.
+     */
     UNIENGINE_API static void Warning(const std::string &msg);
+    /**
+     * Retrieve current stored messages.
+     * @return The list of message stored.
+     */
     UNIENGINE_API static std::vector<ConsoleMessage> &GetConsoleMessages();
 };
 
@@ -40,7 +52,7 @@ class Debug
  */
 #define UNIENGINE_LOG(msg)                                                                                             \
     {                                                                                                                  \
-        UniEngine::Debug::Log(msg);                                                                                    \
+        UniEngine::ConsoleManager::Log(msg);                                                                                    \
         std::cout << "(UniEngine)Log: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;       \
     }
 
@@ -50,7 +62,7 @@ class Debug
  */
 #define UNIENGINE_ERROR(msg)                                                                                           \
     {                                                                                                                  \
-        UniEngine::Debug::Error(msg);                                                                                  \
+        UniEngine::ConsoleManager::Error(msg);                                                                                  \
         std::cerr << "(UniEngine)Error: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;     \
     }
 /**
@@ -59,6 +71,6 @@ class Debug
  */
 #define UNIENGINE_WARNING(msg)                                                                                         \
     {                                                                                                                  \
-        UniEngine::Debug::Warning(msg);                                                                                \
+        UniEngine::ConsoleManager::Warning(msg);                                                                                \
         std::cout << "(UniEngine)Warning: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;   \
     }

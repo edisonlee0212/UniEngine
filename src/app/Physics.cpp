@@ -8,6 +8,7 @@
 #include <RigidBody.hpp>
 using namespace UniEngine;
 
+#pragma region Helpers
 Entity CreateDynamicCube(
     const float &mass,
     const glm::vec3 color,
@@ -53,6 +54,7 @@ Entity CreateSphere(
     const glm::vec3 &rotation,
     const float &scale,
     const std::string &name);
+#pragma endregion
 
 int main()
 {

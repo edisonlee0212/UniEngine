@@ -1,5 +1,5 @@
 #pragma once
-#include <Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <IDataComponent.hpp>
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>

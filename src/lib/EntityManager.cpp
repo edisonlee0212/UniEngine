@@ -1,5 +1,5 @@
 #include <AssetManager.hpp>
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <Entity.hpp>
 #include <EntityManager.hpp>
 #include <PhysicsManager.hpp>

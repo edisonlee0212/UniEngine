@@ -1,6 +1,6 @@
+#include <ConsoleManager.hpp>
 #include <ISerializable.hpp>
 #include <SerializationManager.hpp>
-#include <Debug.hpp>
 using namespace UniEngine;
 
 std::string SerializationManager::GetSerializableTypeName(const size_t &typeId)

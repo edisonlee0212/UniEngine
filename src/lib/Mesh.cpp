@@ -1,4 +1,4 @@
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <Gui.hpp>
 #include <Mesh.hpp>
 #include <Particles.hpp>

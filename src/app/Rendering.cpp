@@ -8,7 +8,6 @@ using namespace UniEngine;
 
 int main()
 {
-
     double time = 0;
     const float sinTime = glm::sin(time / 5.0f);
     const float cosTime = glm::cos(time / 5.0f);
@@ -179,9 +178,6 @@ int main()
         spotLight->m_diffuse = glm::vec3(1, 0.7, 0.7);
         spotLight->m_diffuseBrightness = 40;
 #pragma endregion
-
-
-
         Transform dirLightTransform;
         dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, time * 10, 0.0f)));
         dirLightEntity.SetDataComponent(dirLightTransform);
@@ -218,12 +214,10 @@ int main()
             pointLightRightEntity.SetDataComponent(pointLightRightTransform);
         });
     });
-
     Application::Init();
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
     Application::Run();
-
     Application::End();
 #pragma endregion
     return 0;

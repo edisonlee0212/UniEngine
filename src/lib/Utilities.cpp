@@ -1,4 +1,4 @@
-#include <Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>

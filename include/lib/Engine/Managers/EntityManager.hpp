@@ -1,9 +1,9 @@
 #pragma once
-#include <ISerializable.hpp>
-#include <Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <Entity.hpp>
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>
+#include <ISerializable.hpp>
 #include <ISingleton.hpp>
 #include <JobManager.hpp>
 #include <Scene.hpp>

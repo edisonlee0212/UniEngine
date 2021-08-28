@@ -1,5 +1,5 @@
-﻿#include <Core/Debug.hpp>
-#include <Core/OpenGLUtils.hpp>
+﻿#include <ConsoleManager.hpp>
+#include <OpenGLUtils.hpp>
 #include <EditorManager.hpp>
 using namespace UniEngine;
 

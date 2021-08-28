@@ -2092,7 +2092,7 @@ void RenderManager::DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh)
     mesh->Draw();
 }
 
-void RenderManager::DrawGizmoMeshInstanced(
+void RenderManager::DrawGizmoMeshInstanced(bool depthTest,
     const std::shared_ptr<Mesh> &mesh,
     const glm::vec4 &color,
     const glm::mat4 &model,
@@ -2103,7 +2103,8 @@ void RenderManager::DrawGizmoMeshInstanced(
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glDisable(GL_DEPTH_TEST);
+    if(!depthTest)glDisable(GL_DEPTH_TEST);
+    else glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2117,7 +2118,7 @@ void RenderManager::DrawGizmoMeshInstanced(
     mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DrawGizmoMeshInstancedColored(
+void RenderManager::DrawGizmoMeshInstancedColored(bool depthTest,
     const std::shared_ptr<Mesh> &mesh,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
@@ -2128,7 +2129,8 @@ void RenderManager::DrawGizmoMeshInstancedColored(
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glDisable(GL_DEPTH_TEST);
+    if(!depthTest)glDisable(GL_DEPTH_TEST);
+    else glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2149,15 +2151,18 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawGizmoMesh(
+void RenderManager::DrawGizmoMesh(bool depthTest,
     const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix)
 {
     if (mesh == nullptr)
         return;
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    if(!depthTest)glDisable(GL_DEPTH_TEST);
+    else glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
 
     DefaultResources::GizmoProgram->Bind();
     DefaultResources::GizmoProgram->SetFloat4("surfaceColor", color);
@@ -2189,7 +2194,7 @@ void RenderManager::DrawGizmoMeshInstanced(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
-            DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+            DrawGizmoMeshInstanced(true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
 }
@@ -2212,7 +2217,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
-            DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
+            DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
         }
     }
 }
@@ -2229,7 +2234,7 @@ void RenderManager::DrawGizmoMesh(
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent->Bind();
-    DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
@@ -2245,7 +2250,7 @@ void RenderManager::DrawGizmoMeshInstanced(
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent->Bind();
-    DrawGizmoMeshInstanced(mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    DrawGizmoMeshInstanced(true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
@@ -2261,7 +2266,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
     cameraComponent->Bind();
-    DrawGizmoMeshInstancedColored(mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
+    DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoRay(
@@ -2564,7 +2569,7 @@ void RenderManager::DrawGizmoMesh(
                 EditorManager::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
-            DrawGizmoMesh(mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+            DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
         }
     }
 }

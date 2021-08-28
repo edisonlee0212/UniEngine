@@ -1,14 +1,8 @@
 #include <Application.hpp>
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 using namespace UniEngine;
 
-Debug &Debug::GetInstance()
-{
-    static Debug instance;
-    return instance;
-}
-
-void Debug::Log(const std::string &msg)
+void ConsoleManager::Log(const std::string &msg)
 {
     auto &instance = GetInstance();
     std::lock_guard lock(instance.m_consoleMessageMutex);
@@ -19,7 +13,7 @@ void Debug::Log(const std::string &msg)
     instance.m_consoleMessages.push_back(cm);
 }
 
-void Debug::Error(const std::string &msg)
+void ConsoleManager::Error(const std::string &msg)
 {
     auto &instance = GetInstance();
     std::lock_guard lock(instance.m_consoleMessageMutex);
@@ -30,7 +24,7 @@ void Debug::Error(const std::string &msg)
     instance.m_consoleMessages.push_back(cm);
 }
 
-void Debug::Warning(const std::string &msg)
+void ConsoleManager::Warning(const std::string &msg)
 {
     auto &instance = GetInstance();
     std::lock_guard lock(instance.m_consoleMessageMutex);
@@ -41,7 +35,7 @@ void Debug::Warning(const std::string &msg)
     instance.m_consoleMessages.push_back(cm);
 }
 
-std::vector<ConsoleMessage> &Debug::GetConsoleMessages()
+std::vector<ConsoleMessage> &ConsoleManager::GetConsoleMessages()
 {
     return GetInstance().m_consoleMessages;
 }

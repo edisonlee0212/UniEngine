@@ -1,9 +1,9 @@
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <DefaultResources.hpp>
 #include <ProfilerManager.hpp>
+#include <ProjectManager.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>
-#include <ProjectManager.hpp>
 using namespace UniEngine;
 
 void WindowManager::ResizeCallback(GLFWwindow *window, int width, int height)

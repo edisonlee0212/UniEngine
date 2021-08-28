@@ -3,12 +3,22 @@
 #include <xhash>
 namespace UniEngine
 {
+/**
+ * The "GUID" for all instances in UniEngine that requires a unique identifier for hashing/serialization.
+ */
 struct UNIENGINE_API Handle
 {
     friend class IAsset;
     friend class EntityMetadata;
     friend class DefaultResources;
+
+    /**
+     * Default constructor, will allocate a random number to the handle. UniEngine will not handle the collision since possibility is extremely small and negligible.
+     */
     Handle();
+    /**
+     * Constructor that takes a value for the handle.
+     */
     Handle(uint64_t value);
     Handle(const Handle &other);
 

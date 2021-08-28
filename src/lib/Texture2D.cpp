@@ -1,5 +1,5 @@
+#include <ConsoleManager.hpp>
 #include <Texture2D.hpp>
-#include <Debug.hpp>
 using namespace UniEngine;
 
 void Texture2D::OnCreate()

@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Debug.hpp>
+#include <ConsoleManager.hpp>
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
 namespace UniEngine
