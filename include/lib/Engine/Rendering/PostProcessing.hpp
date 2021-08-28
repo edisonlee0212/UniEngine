@@ -63,7 +63,7 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     float m_threshold = 1.0f;
     float m_clamp = 0.0f;
     int m_diffusion = 8;
-    BezierCubic2D m_graph;
+    Bezier2D m_graph;
     void Init() override;
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
@@ -84,7 +84,7 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     float m_intensity = 0.1f;
     int m_diffusion = 8;
     float m_blurScale = 1.0f;
-    BezierCubic2D m_graph;
+    Bezier2D m_graph;
     float m_kernelRadius = 1.0f;
     float m_kernelBias = 0.01f;
     float m_scale = 1.0f;

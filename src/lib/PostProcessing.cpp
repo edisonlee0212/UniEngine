@@ -110,7 +110,7 @@ void PostProcessing::Clone(const std::shared_ptr<IPrivateComponent> &target)
 void Bloom::Init()
 {
     m_name = "Bloom";
-    m_graph = BezierCubic2D();
+    m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
     m_brightColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
@@ -208,7 +208,7 @@ void Bloom::OnGui(const std::shared_ptr<Camera> &cameraComponent)
         ImGui::DragInt("Diffusion##Bloom", &m_diffusion, 1.0f, 1, 64);
         ImGui::DragFloat("Threshold##Bloom", &m_threshold, 0.01f, 0.0f, 5.0f);
         ImGui::DragFloat("Clamp##Bloom", &m_clamp, 0.01f, 0.0f, 5.0f);
-        m_graph.Graph("Bezier##Bloom");
+        m_graph.DrawGraph("Bezier##Bloom");
         if (ImGui::TreeNode("Debug##Bloom"))
         {
             ImGui::Image((ImTextureID)m_brightColor->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
@@ -221,7 +221,7 @@ void Bloom::OnGui(const std::shared_ptr<Camera> &cameraComponent)
 void SSAO::Init()
 {
     m_name = "SSAO";
-    m_graph = BezierCubic2D();
+    m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
     m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
@@ -328,7 +328,7 @@ void SSAO::OnGui(const std::shared_ptr<Camera> &cameraComponent)
         ImGui::DragFloat("Blur Scale##SSAO", &m_blurScale, 0.001f, 0.01f, 1.0f);
         ImGui::DragFloat("Intensity##SSAO", &m_intensity, 0.001f, 0.001f, 1.0f);
         ImGui::DragInt("Diffusion##SSAO", &m_diffusion, 1.0f, 1, 64);
-        m_graph.Graph("Bezier##SSAO");
+        m_graph.DrawGraph("Bezier##SSAO");
         ImGui::TreePop();
     }
     if (ImGui::TreeNode("Debug##SSAO"))

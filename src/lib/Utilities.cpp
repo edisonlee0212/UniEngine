@@ -64,21 +64,21 @@ void Bound::PopulateCorners(std::vector<glm::vec3> &corners) const
     corners[6] = glm::vec3(m_max.x, m_max.y, m_min.z);
     corners[7] = m_max;
 }
-BezierCubic2D::BezierCubic2D()
+Bezier2D::Bezier2D()
 {
     m_controlPoints[0] = glm::vec2(0);
     m_controlPoints[1] = glm::vec2(0.5f, 0.0f);
     m_controlPoints[2] = glm::vec2(0.5f, 1.0f);
     m_controlPoints[3] = glm::vec2(1, 1);
 }
-glm::vec2 BezierCubic2D::GetPoint(const float &t) const
+glm::vec2 Bezier2D::GetPoint(const float &t) const
 {
     float t1 = 1.0f - t;
 
     return t1 * t1 * t1 * m_controlPoints[0] + 3.0f * t1 * t1 * t * m_controlPoints[1] +
            3.0f * t1 * t * t * m_controlPoints[2] + t * t * t * m_controlPoints[3];
 }
-bool BezierCubic2D::Graph(const std::string &label)
+bool Bezier2D::DrawGraph(const std::string &label)
 {
 
     // visuals

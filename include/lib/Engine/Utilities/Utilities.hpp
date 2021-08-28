@@ -46,13 +46,13 @@ struct UNIENGINE_API Ray : IDataComponent
     [[nodiscard]] bool Intersect(const glm::mat4 &transform, const Bound &bound) const;
     [[nodiscard]] glm::vec3 GetEnd() const;
 };
-struct UNIENGINE_API BezierCubic2D : IDataComponent
+struct UNIENGINE_API Bezier2D
 {
     bool m_fixed = true;
     glm::vec2 m_controlPoints[4];
-    BezierCubic2D();
+    Bezier2D();
     [[nodiscard]] glm::vec2 GetPoint(const float &t) const;
-    bool Graph(const std::string &label);
+    bool DrawGraph(const std::string &label);
 };
 
 } // namespace UniEngine
