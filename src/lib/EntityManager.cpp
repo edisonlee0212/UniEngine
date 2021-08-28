@@ -33,13 +33,11 @@ void EntityManager::ForEachPrivateComponent(
     const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func)
 {
     assert(entity.IsValid());
-    EntityMetadata &info = GetInstance().m_entityMetaDataCollection->at(entity.m_index);
-    if (GetInstance().m_entities->at(entity.m_index) == entity)
+    auto &entityManager = GetInstance();
+    auto elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    for (auto &component : elements)
     {
-        for (auto &component : info.m_privateComponentElements)
-        {
-            func(component);
-        }
+        func(component);
     }
 }
 
