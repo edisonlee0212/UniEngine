@@ -33,6 +33,7 @@ PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentReg
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
+AssetRegistration<IAsset> IAssetRegistry("IAsset", ".ueasset");
 AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
 AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
 AssetRegistration<Texture2D> Texture2DReg("Texture2D", ".png");
