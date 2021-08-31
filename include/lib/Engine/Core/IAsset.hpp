@@ -132,12 +132,16 @@ class UNIENGINE_API AssetRef : public ISerializable
     {
         if (target)
         {
-            m_assetTypeName = SerializationManager::GetSerializableTypeName<T>();
-            m_assetHandle = std::dynamic_pointer_cast<IAsset>(target)->GetHandle();
+            auto asset = std::dynamic_pointer_cast<IAsset>(target);
+            m_assetTypeName = asset->GetTypeName();
+            m_assetHandle = asset->GetHandle();
+            m_value = asset;
         }
         else
+        {
             m_assetHandle = Handle(0);
-        m_value = std::dynamic_pointer_cast<IAsset>(target);
+            m_value.reset();
+        }
     }
     void Clear();
     [[nodiscard]] Handle GetAssetHandle() const

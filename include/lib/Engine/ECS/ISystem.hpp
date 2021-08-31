@@ -110,12 +110,16 @@ class UNIENGINE_API SystemRef : public ISerializable
     {
         if (target)
         {
-            m_systemTypeName = SerializationManager::GetSerializableTypeName<T>();
-            m_systemHandle = std::dynamic_pointer_cast<ISystem>(target)->GetHandle();
+            auto system = std::dynamic_pointer_cast<ISystem>(target);
+            m_systemTypeName = system->GetTypeName();
+            m_systemHandle = system->GetHandle();
+            m_value = system;
         }
         else
+        {
             m_systemHandle = Handle(0);
-        m_value = target;
+            m_value.reset();
+        }
     }
 
     void Clear()

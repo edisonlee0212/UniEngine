@@ -121,12 +121,16 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     {
         if (target)
         {
-            m_privateComponentTypeName = SerializationManager::GetSerializableTypeName<T>();
-            m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(target)->GetOwner().GetHandle();
+            auto privateComponent = std::dynamic_pointer_cast<IPrivateComponent>(target);
+            m_privateComponentTypeName = privateComponent->GetTypeName();
+            m_entityHandle = privateComponent->GetOwner().GetHandle();
+            m_value = privateComponent;
         }
         else
+        {
             m_entityHandle = Handle(0);
-        m_value = target;
+            m_value.reset();
+        }
     }
 
     template <typename T = IPrivateComponent> void Set(const Entity &target)
@@ -138,8 +142,8 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         }
         if (target.HasPrivateComponent<T>())
         {
-            m_privateComponentTypeName = SerializationManager::GetSerializableTypeName<T>();
             auto pc = target.GetOrSetPrivateComponent<T>().lock();
+            m_privateComponentTypeName = pc->GetTypeName();
             m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner().GetHandle();
             m_value = pc;
         }
