@@ -14,7 +14,7 @@ void TransformManager::PreUpdate()
     CalculateTransformGraphs();
 }
 
-void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)
+void TransformManager::CalculateTransformGraph(const GlobalTransform &pltw, Entity parent)
 {
     auto &transformManager = GetInstance();
     EntityMetadata &entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(parent.GetIndex());
@@ -37,7 +37,7 @@ void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity
             *reinterpret_cast<GlobalTransform *>(
                 EntityManager::GetDataComponentPointer(entity, typeid(GlobalTransform).hash_code())) = ltw;
         }
-        CalculateLtwRecursive(ltw, entity);
+        CalculateTransformGraph(ltw, entity);
     }
 }
 void TransformManager::CalculateTransformGraphs()
@@ -62,9 +62,13 @@ void TransformManager::CalculateTransformGraphs()
             else
                 globalTransform.m_value = transform.m_value;
             transformStatus.m_value = false;
-            CalculateLtwRecursive(globalTransform, entity);
+            CalculateTransformGraph(globalTransform, entity);
         },
         false);
     transformManager.m_physicsSystemOverride = false;
     ProfilerManager::EndEvent("TransformManager");
+}
+void TransformManager::CalculateTransformGraphForDescendents(const Entity& entity)
+{
+    CalculateTransformGraph(entity.GetDataComponent<GlobalTransform>(), entity);
 }
