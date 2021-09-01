@@ -187,6 +187,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform);
     static Entity GetParent(const Entity &entity);
     static std::vector<Entity> GetChildren(const Entity &entity);
+    static Entity GetChild(const Entity &entity, int index);
     static size_t GetChildrenAmount(const Entity &entity);
     static void ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func);
     static void RemoveChild(const Entity &entity, const Entity &parent);

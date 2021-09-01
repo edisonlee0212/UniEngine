@@ -100,7 +100,10 @@ std::vector<Entity> Entity::GetChildren() const
 {
     return std::move(EntityManager::GetChildren(*this));
 }
-
+Entity Entity::GetChild(int index) const
+{
+    return std::move(EntityManager::GetChild(*this, index));
+}
 void Entity::ForEachChild(const std::function<void(Entity)> &func) const
 {
     EntityManager::ForEachChild(*this, func);
@@ -108,7 +111,7 @@ void Entity::ForEachChild(const std::function<void(Entity)> &func) const
 
 void Entity::RemoveChild(const Entity &child) const
 {
-    EntityManager::RemoveChild(*this, child);
+    EntityManager::RemoveChild(child, *this);
 }
 std::vector<Entity> Entity::GetDescendants() const
 {

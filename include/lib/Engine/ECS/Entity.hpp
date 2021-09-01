@@ -59,6 +59,7 @@ struct UNIENGINE_API Entity final
     void SetParent(const Entity &parent, const bool &recalculateTransform = false) const;
     [[nodiscard]] Entity GetParent() const;
     [[nodiscard]] std::vector<Entity> GetChildren() const;
+    [[nodiscard]] Entity GetChild(int index) const;
     [[nodiscard]] size_t GetChildrenAmount() const;
     [[nodiscard]] Entity GetRoot() const;
     void ForEachChild(const std::function<void(Entity child)> &func) const;

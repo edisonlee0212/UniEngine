@@ -674,6 +674,15 @@ std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
     return GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
 }
 
+Entity EntityManager::GetChild(const Entity &entity, int index)
+{
+    assert(entity.IsValid());
+    const size_t entityIndex = entity.m_index;
+    auto& children = GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
+    if(children.size() > index) return children[index];
+    return Entity();
+}
+
 size_t EntityManager::GetChildrenAmount(const Entity &entity)
 {
     assert(entity.IsValid());
@@ -1229,6 +1238,7 @@ bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string 
     }
     return false;
 }
+
 
 size_t EntityQuery::GetEntityAmount() const
 {
