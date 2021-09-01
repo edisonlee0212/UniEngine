@@ -11,31 +11,7 @@ void TransformManager::Init()
 
 void TransformManager::PreUpdate()
 {
-    ProfilerManager::StartEvent("TransformManager");
-    auto &transformManager = GetInstance();
-    EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
-        JobManager::PrimaryWorkers(),
-        transformManager.m_transformQuery,
-        [&](int i,
-            Entity entity,
-            Transform &transform,
-            GlobalTransform &globalTransform,
-            GlobalTransformUpdateFlag &transformStatus) {
-            EntityMetadata &entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex());
-            if (!entityInfo.m_parent.IsNull())
-                return;
-            if (transformStatus.m_value)
-            {
-                transform.m_value = globalTransform.m_value;
-            }
-            else
-                globalTransform.m_value = transform.m_value;
-            transformStatus.m_value = false;
-            CalculateLtwRecursive(globalTransform, entity);
-        },
-        false);
-    transformManager.m_physicsSystemOverride = false;
-    ProfilerManager::EndEvent("TransformManager");
+    CalculateTransformGraphs();
 }
 
 void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent)
@@ -63,4 +39,32 @@ void TransformManager::CalculateLtwRecursive(const GlobalTransform &pltw, Entity
         }
         CalculateLtwRecursive(ltw, entity);
     }
+}
+void TransformManager::CalculateTransformGraphs()
+{
+    ProfilerManager::StartEvent("TransformManager");
+    auto &transformManager = GetInstance();
+    EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
+        JobManager::PrimaryWorkers(),
+        transformManager.m_transformQuery,
+        [&](int i,
+            Entity entity,
+            Transform &transform,
+            GlobalTransform &globalTransform,
+            GlobalTransformUpdateFlag &transformStatus) {
+            EntityMetadata &entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex());
+            if (!entityInfo.m_parent.IsNull())
+                return;
+            if (transformStatus.m_value)
+            {
+                transform.m_value = globalTransform.m_value;
+            }
+            else
+                globalTransform.m_value = transform.m_value;
+            transformStatus.m_value = false;
+            CalculateLtwRecursive(globalTransform, entity);
+        },
+        false);
+    transformManager.m_physicsSystemOverride = false;
+    ProfilerManager::EndEvent("TransformManager");
 }

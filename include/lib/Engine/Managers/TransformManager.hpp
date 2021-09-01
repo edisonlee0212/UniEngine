@@ -10,6 +10,8 @@ class UNIENGINE_API TransformManager : public ISingleton<TransformManager>
     static void CalculateLtwRecursive(const GlobalTransform &pltw, Entity parent);
     bool m_physicsSystemOverride = false;
   public:
+    static void CalculateTransformGraphs();
+
     static void Init();
     static void PreUpdate();
 };
