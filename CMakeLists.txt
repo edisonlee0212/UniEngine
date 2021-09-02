@@ -86,11 +86,15 @@ target_include_directories(uniengine
 
 set(UNIENGINE_RESOURCE_DIR_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/Resources/)
 set(UNIENGINE_RESOURCE_DEF UNIENGINE_RESOURCE_FOLDER=\"${UNIENGINE_RESOURCE_DIR_LOCAL}\")
+set(UNIENGINE_INTERNALS_DIR_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/Internals/)
+set(UNIENGINE_INTERNALS_DEF UNIENGINE_INTERNALS_FOLDER=\"${UNIENGINE_INTERNALS_DIR_LOCAL}\")
+
 set(UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/Resources/TestingProject/)
 set(UNIENGINE_DEFAULT_PROJECT_DEF UNIENGINE_DEFAULT_PROJECT_FOLDER=\"${UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL}\")
 target_compile_definitions(uniengine
         PRIVATE
         ${UNIENGINE_RESOURCE_DEF}
+        ${UNIENGINE_INTERNALS_DEF}
         ${UNIENGINE_DEFAULT_PROJECT_DEF}
         GLAD_GLAPI_EXPORT
         GLAD_GLAPI_EXPORT_BUILD
@@ -163,6 +167,8 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     # Activate all clang warnings except those that don't really affect much
     #target_compile_options(uniengine PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-newline-eof -Wno-padded -Wno-exit-time-destructors -Wno-global-constructors -Wno-constant-conversion)
 endif ()
+
+
 
 # ------------------------------------------------------------------
 # Example program
@@ -275,6 +281,14 @@ if (${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPL
 
     file(COPY src/app/imgui.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif ()
+
+# ------------------------------------------------------------------
+# Copy Internal resources
+# ------------------------------------------------------------------
+add_custom_command(TARGET uniengine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Internals
+        ${CMAKE_BINARY_DIR})
 
 # ------------------------------------------------------------------
 # Copy DLLs
