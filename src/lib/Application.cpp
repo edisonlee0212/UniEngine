@@ -25,7 +25,6 @@ void Application::Init(bool fullScreen)
     OpenGLUtils::Init();
     PhysicsManager::Init();
 
-    AssetManager::SetResourcePath(UNIENGINE_RESOURCE_FOLDER);
     AssetManager::Init();
 
     EntityManager::Init();

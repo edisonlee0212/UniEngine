@@ -332,15 +332,6 @@ std::filesystem::path AssetManager::GetAssetFolderPath()
     return assetRootFolder;
 }
 
-void AssetManager::SetResourcePath(const std::filesystem::path &path)
-{
-    GetInstance().m_resourceRootPath = path;
-}
-
-std::filesystem::path AssetManager::GetResourceFolderPath()
-{
-    return GetInstance().m_resourceRootPath;
-}
 std::shared_ptr<IAsset> AssetManager::CreateAsset(
     const std::string &typeName, const Handle &handle, const std::string &name)
 {

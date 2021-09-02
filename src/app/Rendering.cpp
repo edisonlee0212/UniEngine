@@ -8,6 +8,11 @@ using namespace UniEngine;
 
 int main()
 {
+    /*
+     * Please change this to the root folder.
+     */
+    const std::filesystem::path resourceFolderPath("../Resources");
+
     double time = 0;
     const float sinTime = glm::sin(time / 5.0f);
     const float cosTime = glm::cos(time / 5.0f);
@@ -53,13 +58,13 @@ int main()
 
         auto sponza =
             AssetManager::CreateAsset<Prefab>();
-        sponza->LoadModel(AssetManager::GetResourceFolderPath() / "Models/Sponza_FBX/Sponza.fbx", true);
+        sponza->LoadModel(resourceFolderPath / "Models/Sponza_FBX/Sponza.fbx", true);
         auto sponzaEntity = sponza->ToEntity();
         Transform sponzaTransform;
         sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
         sponzaEntity.SetDataComponent(sponzaTransform);
 
-        auto title = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/UniEngine.obj");
+        auto title = AssetManager::Import<Prefab>(resourceFolderPath / "Models/UniEngine.obj");
         auto titleEntity = title->ToEntity();
         titleEntity.SetName("Title");
         Transform titleTransform;
@@ -77,14 +82,14 @@ int main()
 #ifdef USE_ASSIMP
 
         auto dancingStormTrooper = AssetManager::Import<Prefab>(
-            AssetManager::GetResourceFolderPath() / "Models/dancing-stormtrooper/silly_dancing.fbx");
+            resourceFolderPath / "Models/dancing-stormtrooper/silly_dancing.fbx");
         auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
         dancingStormTrooperEntity.SetName("StormTrooper");
         Transform dancingStormTrooperTransform;
         dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
         dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
 
-        auto capoeira = AssetManager::Import<Prefab>(AssetManager::GetResourceFolderPath() / "Models/Capoeira.fbx");
+        auto capoeira = AssetManager::Import<Prefab>(resourceFolderPath / "Models/Capoeira.fbx");
         auto capoeiraEntity = capoeira->ToEntity();
         // auto capoeiraEntity2 = capoeira->ToEntity();
         capoeiraEntity.SetName("Capoeira");

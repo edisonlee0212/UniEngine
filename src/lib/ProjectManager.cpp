@@ -186,9 +186,7 @@ void ProjectManager::OnGui()
 void ProjectManager::Init()
 {
     auto &projectManager = GetInstance();
-    std::filesystem::path resourceFolder = UNIENGINE_RESOURCE_FOLDER;
-    std::filesystem::path path =
-        resourceFolder / "Temp Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
+    std::filesystem::path path = std::filesystem::path("./temp") / "Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
     CreateOrLoadProject(path);
 }
 void ProjectManager::SetScenePostLoadActions(const std::function<void()> &actions)
