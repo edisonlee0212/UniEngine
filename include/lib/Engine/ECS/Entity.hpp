@@ -195,23 +195,23 @@ struct UNIENGINE_API EntityQuery final
     template <typename T = IDataComponent, typename... Ts> void SetAllFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetAnyFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetNoneFilters(T arg, Ts... args);
-    template <typename T1 = IDataComponent> void ToComponentDataArray(std::vector<T1> &container);
+    template <typename T1 = IDataComponent> void ToComponentDataArray(std::vector<T1> &container, bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc);
+    void ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     void ToComponentDataArray(
-        std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc);
+        std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(const T1 &filter, std::vector<T2> &container);
-    void ToEntityArray(std::vector<Entity> &container) const;
-    template <typename T1 = IDataComponent> void ToEntityArray(const T1 &filter, std::vector<Entity> &container);
+    void ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable = true);
+    void ToEntityArray(std::vector<Entity> &container, bool checkEnable = true) const;
+    template <typename T1 = IDataComponent> void ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable = true);
     template <typename T1 = IDataComponent>
     void ToEntityArray(
-        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc);
+        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     void ToEntityArray(
-        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc);
-    [[nodiscard]] size_t GetEntityAmount() const;
+        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable = true);
+    [[nodiscard]] size_t GetEntityAmount(bool checkEnable = true) const;
 };
 struct UNIENGINE_API DataComponentStorage
 {

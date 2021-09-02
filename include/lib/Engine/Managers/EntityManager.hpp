@@ -75,8 +75,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     static void EraseDuplicates(std::vector<DataComponentType> &types);
     template <typename T = IDataComponent>
-    static void GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container);
-    static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container);
+    static void GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable);
+    static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable);
     static size_t SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2);
     static void SetEnableSingle(const Entity &entity, const bool &value);
     static void SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data);
@@ -220,31 +220,31 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent, typename... Ts>
     static void SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args);
     template <typename T = IDataComponent>
-    static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container);
+    static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(
-        const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc);
+        const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void GetComponentDataArray(
         const EntityQuery &entityQuery,
         std::vector<T1> &container,
-        const std::function<bool(const T2 &, const T3 &)> &filterFunc);
+        const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    static void GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container);
-    static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container);
+    static void GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable);
+    static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable);
     template <typename T1 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &)> &filterFunc);
+        const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc);
+        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable);
     template <typename T1 = IDataComponent>
-    static void GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container);
-    static size_t GetEntityAmount(EntityQuery entityQuery);
+    static void GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable);
+    static size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable);
 #pragma endregion
   public:
     static Entity GetEntity(const Handle &handle);
@@ -1432,7 +1432,7 @@ void EntityManager::ForEachStorage(
 #pragma endregion
 #pragma region Others
 template <typename T>
-void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container)
+void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable)
 {
     auto targetType = Typeof<T>();
     for (const auto &type : storage.m_dataComponentTypes)
@@ -1443,25 +1443,76 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
             size_t amount = storage.m_entityAliveCount;
             if (amount == 0)
                 return;
-            container.resize(container.size() + amount);
-            const auto capacity = storage.m_chunkCapacity;
-            const auto chunkAmount = amount / capacity;
-            const auto remainAmount = amount % capacity;
-            for (size_t i = 0; i < chunkAmount; i++)
+            if(checkEnable){
+                auto& workers = JobManager::PrimaryWorkers();
+                const auto capacity = storage.m_chunkCapacity;
+                const auto &chunkArray = storage.m_chunkArray;
+                const auto &entities = &chunkArray.m_entities;
+                std::vector<std::shared_future<void>> results;
+                const auto threadSize = workers.Size();
+                const auto threadLoad = amount / threadSize;
+                const auto loadReminder = amount % threadSize;
+                std::vector<std::vector<T>> tempStorage;
+                tempStorage.resize(threadSize);
+                for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
+                {
+                    results.push_back(
+                        workers
+                            .Push([=, &chunkArray, &entities, &tempStorage](int id) {
+                                for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                {
+                                    const auto chunkIndex = i / capacity;
+                                    const auto remainder = i % capacity;
+                                    auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                                    T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
+                                    const auto entity = entities->at(i);
+                                    if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                        continue;
+                                    tempStorage[threadIndex].push_back(*address1);
+                                }
+                                if (threadIndex < loadReminder)
+                                {
+                                    const int i = threadIndex + threadSize * threadLoad;
+                                    const auto chunkIndex = i / capacity;
+                                    const auto remainder = i % capacity;
+                                    auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
+                                    T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
+                                    const auto entity = entities->at(i);
+                                    if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                        return;
+                                    tempStorage[threadIndex].push_back(*address1);
+                                }
+                            })
+                            .share());
+                }
+                for (const auto &i : results)
+                    i.wait();
+                for(auto& i : tempStorage){
+                    container.insert(container.end(), i.begin(), i.end());
+                }
+            }else
             {
-                memcpy(
-                    &container.at(container.size() - remainAmount - capacity * (chunkAmount - i)),
-                    reinterpret_cast<void *>(
-                        static_cast<char *>(storage.m_chunkArray.m_chunks[i].m_data) + capacity * targetType.m_offset),
-                    capacity * targetType.m_size);
+                container.resize(container.size() + amount);
+                const auto capacity = storage.m_chunkCapacity;
+                const auto chunkAmount = amount / capacity;
+                const auto remainAmount = amount % capacity;
+                for (size_t i = 0; i < chunkAmount; i++)
+                {
+                    memcpy(
+                        &container.at(container.size() - remainAmount - capacity * (chunkAmount - i)),
+                        reinterpret_cast<void *>(
+                            static_cast<char *>(storage.m_chunkArray.m_chunks[i].m_data) +
+                            capacity * targetType.m_offset),
+                        capacity * targetType.m_size);
+                }
+                if (remainAmount > 0)
+                    memcpy(
+                        &container.at(container.size() - remainAmount),
+                        reinterpret_cast<void *>(
+                            static_cast<char *>(storage.m_chunkArray.m_chunks[chunkAmount].m_data) +
+                            capacity * targetType.m_offset),
+                        remainAmount * targetType.m_size);
             }
-            if (remainAmount > 0)
-                memcpy(
-                    &container.at(container.size() - remainAmount),
-                    reinterpret_cast<void *>(
-                        static_cast<char *>(storage.m_chunkArray.m_chunks[chunkAmount].m_data) +
-                        capacity * targetType.m_offset),
-                    remainAmount * targetType.m_size);
         }
     }
 }
@@ -2200,24 +2251,24 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 #pragma endregion
 template <typename T>
-void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container)
+void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
-        GetDataComponentArrayStorage(*i, container);
+        GetDataComponentArrayStorage(*i, container, checkEnable);
     }
 }
 
 template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(
-    const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc)
+    const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T2> componentDataList;
     std::vector<T1> targetDataList;
-    GetComponentDataArray(entityQuery, componentDataList);
-    GetComponentDataArray(entityQuery, targetDataList);
+    GetComponentDataArray(entityQuery, componentDataList, checkEnable);
+    GetComponentDataArray(entityQuery, targetDataList, checkEnable);
     if (targetDataList.size() != componentDataList.size())
         return;
     std::vector<std::shared_future<void>> futures;
@@ -2270,15 +2321,15 @@ template <typename T1, typename T2, typename T3>
 void EntityManager::GetComponentDataArray(
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
-    const std::function<bool(const T2 &, const T3 &)> &filterFunc)
+    const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T3> componentDataList2;
     std::vector<T2> componentDataList1;
     std::vector<T1> targetDataList;
-    GetComponentDataArray(entityQuery, componentDataList2);
-    GetComponentDataArray(entityQuery, componentDataList1);
-    GetComponentDataArray(entityQuery, targetDataList);
+    GetComponentDataArray(entityQuery, componentDataList2, checkEnable);
+    GetComponentDataArray(entityQuery, componentDataList1, checkEnable);
+    GetComponentDataArray(entityQuery, targetDataList, checkEnable);
     if (targetDataList.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size())
         return;
     std::vector<std::shared_future<void>> futures;
@@ -2334,13 +2385,13 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1, typename T2>
-void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container)
+void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T1> componentDataList;
     std::vector<T2> targetDataList;
-    GetComponentDataArray(entityQuery, componentDataList);
-    GetComponentDataArray(entityQuery, targetDataList);
+    GetComponentDataArray(entityQuery, componentDataList, checkEnable);
+    GetComponentDataArray(entityQuery, targetDataList, checkEnable);
     if (targetDataList.size() != componentDataList.size())
         return;
     std::vector<std::shared_future<void>> futures;
@@ -2392,13 +2443,13 @@ template <typename T1>
 void EntityManager::GetEntityArray(
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
-    const std::function<bool(const Entity &, const T1 &)> &filterFunc)
+    const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
-    GetEntityArray(entityQuery, allEntities);
-    GetComponentDataArray(entityQuery, componentDataList);
+    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetComponentDataArray(entityQuery, componentDataList, checkEnable);
     if (allEntities.size() != componentDataList.size())
         return;
     std::vector<std::shared_future<void>> futures;
@@ -2450,15 +2501,15 @@ template <typename T1, typename T2>
 void EntityManager::GetEntityArray(
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
-    const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc)
+    const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList1;
     std::vector<T2> componentDataList2;
-    GetEntityArray(entityQuery, allEntities);
-    GetComponentDataArray(entityQuery, componentDataList1);
-    GetComponentDataArray(entityQuery, componentDataList2);
+    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetComponentDataArray(entityQuery, componentDataList1, checkEnable);
+    GetComponentDataArray(entityQuery, componentDataList2, checkEnable);
     if (allEntities.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size())
         return;
     std::vector<std::shared_future<void>> futures;
@@ -2512,13 +2563,13 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T1>
-void EntityManager::GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container)
+void EntityManager::GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
-    GetEntityArray(entityQuery, allEntities);
-    GetComponentDataArray(entityQuery, componentDataList);
+    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetComponentDataArray(entityQuery, componentDataList, checkEnable);
     std::vector<std::shared_future<void>> futures;
     size_t size = allEntities.size();
     std::vector<std::vector<Entity>> collectedEntityLists;
@@ -2665,45 +2716,45 @@ template <typename T, typename... Ts> void EntityQuery::SetNoneFilters(T arg, Ts
     EntityManager::SetEntityQueryNoneFilters(*this, arg, args...);
 }
 
-template <typename T1> void EntityQuery::ToComponentDataArray(std::vector<T1> &container)
+template <typename T1> void EntityQuery::ToComponentDataArray(std::vector<T1> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray<T1>(*this, container);
+    EntityManager::GetComponentDataArray<T1>(*this, container, checkEnable);
 }
 
 template <typename T1, typename T2>
-void EntityQuery::ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc)
+void EntityQuery::ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, container, filterFunc);
+    EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2, typename T3>
 void EntityQuery::ToComponentDataArray(
-    std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc)
+    std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, container, filterFunc);
+    EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
 }
 
-template <typename T1, typename T2> void EntityQuery::ToComponentDataArray(const T1 &filter, std::vector<T2> &container)
+template <typename T1, typename T2> void EntityQuery::ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, filter, container);
+    EntityManager::GetComponentDataArray(*this, filter, container, checkEnable);
 }
-template <typename T1> void EntityQuery::ToEntityArray(const T1 &filter, std::vector<Entity> &container)
+template <typename T1> void EntityQuery::ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
-    EntityManager::GetEntityArray(*this, filter, container);
+    EntityManager::GetEntityArray(*this, filter, container, checkEnable);
 }
 
 template <typename T1>
 void EntityQuery::ToEntityArray(
-    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc)
+    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
+    EntityManager::GetEntityArray<T1>(*this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2>
 void EntityQuery::ToEntityArray(
-    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc)
+    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(*this, container, filterFunc);
+    EntityManager::GetEntityArray<T1>(*this, container, filterFunc, checkEnable);
 }
 #pragma endregion
 

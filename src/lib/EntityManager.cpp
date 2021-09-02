@@ -227,14 +227,61 @@ void EntityManager::EraseDuplicates(std::vector<DataComponentType> &types)
     }
 }
 
-void EntityManager::GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container)
+void EntityManager::GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable)
 {
     const size_t amount = storage.m_entityAliveCount;
     if (amount == 0)
         return;
-    container.resize(container.size() + amount);
-    const size_t capacity = storage.m_chunkCapacity;
-    memcpy(&container.at(container.size() - amount), storage.m_chunkArray.m_entities.data(), amount * sizeof(Entity));
+    if(checkEnable){
+        auto& workers = JobManager::PrimaryWorkers();
+        const auto capacity = storage.m_chunkCapacity;
+        const auto &chunkArray = storage.m_chunkArray;
+        const auto &entities = &chunkArray.m_entities;
+        std::vector<std::shared_future<void>> results;
+        const auto threadSize = workers.Size();
+        const auto threadLoad = amount / threadSize;
+        const auto loadReminder = amount % threadSize;
+        std::vector<std::vector<Entity>> tempStorage;
+        tempStorage.resize(threadSize);
+        for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
+        {
+            results.push_back(
+                workers
+                    .Push([=, &chunkArray, &entities, &tempStorage](int id) {
+                        for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                        {
+                            const auto chunkIndex = i / capacity;
+                            const auto remainder = i % capacity;
+                            const auto entity = entities->at(i);
+                            if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                continue;
+                            tempStorage[threadIndex].push_back(entity);
+                        }
+                        if (threadIndex < loadReminder)
+                        {
+                            const int i = threadIndex + threadSize * threadLoad;
+                            const auto chunkIndex = i / capacity;
+                            const auto remainder = i % capacity;
+                            const auto entity = entities->at(i);
+                            if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                return;
+                            tempStorage[threadIndex].push_back(entity);
+                        }
+                    })
+                    .share());
+        }
+        for (const auto &i : results)
+            i.wait();
+        for(auto& i : tempStorage){
+            container.insert(container.end(), i.begin(), i.end());
+        }
+    }else
+    {
+        container.resize(container.size() + amount);
+        const size_t capacity = storage.m_chunkCapacity;
+        memcpy(
+            &container.at(container.size() - amount), storage.m_chunkArray.m_entities.data(), amount * sizeof(Entity));
+    }
 }
 
 size_t EntityManager::SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2)
@@ -1086,27 +1133,37 @@ std::string EntityManager::GetEntityArchetypeName(const EntityArchetype &entityA
     return GetInstance().m_entityArchetypeInfos[entityArchetype.m_index].m_name;
 }
 
-void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container)
+void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
-        GetEntityStorage(*i, container);
+        GetEntityStorage(*i, container, checkEnable);
     }
 }
 
-void EntityQuery::ToEntityArray(std::vector<Entity> &container) const
+void EntityQuery::ToEntityArray(std::vector<Entity> &container, bool checkEnable) const
 {
-    EntityManager::GetEntityArray(*this, container);
+    EntityManager::GetEntityArray(*this, container, checkEnable);
 }
 
-size_t EntityManager::GetEntityAmount(EntityQuery entityQuery)
+size_t EntityManager::GetEntityAmount(EntityQuery entityQuery, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     size_t retVal = 0;
-    for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    if(checkEnable){
+        for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+        {
+            for(int index = 0; index < i->m_entityAliveCount; index++){
+                if(i->m_chunkArray.m_entities[index].IsEnabled()) retVal++;
+            }
+        }
+    }else
     {
-        retVal += i->m_entityAliveCount;
+        for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+        {
+            retVal += i->m_entityAliveCount;
+        }
     }
     return retVal;
 }
@@ -1240,8 +1297,8 @@ bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string 
 }
 
 
-size_t EntityQuery::GetEntityAmount() const
+size_t EntityQuery::GetEntityAmount(bool checkEnabled) const
 {
-    return EntityManager::GetEntityAmount(*this);
+    return EntityManager::GetEntityAmount(*this, checkEnabled);
 }
 #pragma endregion
