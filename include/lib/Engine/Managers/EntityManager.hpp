@@ -657,7 +657,7 @@ void EntityManager::ForEachStorage(
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(static_cast<int>(i), entity, address1[remainder]);
                     }
                 })
@@ -728,7 +728,7 @@ void EntityManager::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                     }
                 })
@@ -808,7 +808,7 @@ void EntityManager::ForEachStorage(
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
                     }
@@ -904,7 +904,7 @@ void EntityManager::ForEachStorage(
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i),
                             entity,
@@ -1014,7 +1014,7 @@ void EntityManager::ForEachStorage(
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i),
                             entity,
@@ -1135,7 +1135,7 @@ void EntityManager::ForEachStorage(
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i),
                             entity,
@@ -1267,7 +1267,7 @@ void EntityManager::ForEachStorage(
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i),
                             entity,
@@ -1410,7 +1410,7 @@ void EntityManager::ForEachStorage(
                         T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                         const auto entity = entities->at(i);
                         if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                            continue;
+                            return;
                         func(
                             static_cast<int>(i),
                             entity,
