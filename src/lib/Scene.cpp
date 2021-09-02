@@ -60,20 +60,22 @@ Scene::~Scene()
 
 void Scene::PreUpdate()
 {
-    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
-    {
-        if (!entityInfo.m_enabled)
-            continue;
-        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
-        {
+    auto entities = m_sceneDataStorage.m_entities;
+    for(const auto& entity : entities){
+        if(entity.m_version == 0) continue;
+        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        if(!entityInfo.m_enabled) continue;
+        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             if (!privateComponentElement.m_privateComponentData->m_started)
             {
                 privateComponentElement.m_privateComponentData->Start();
+                if(entityInfo.m_version != entityInfo.m_version) break;
                 privateComponentElement.m_privateComponentData->m_started = true;
             }
             privateComponentElement.m_privateComponentData->PreUpdate();
+            if(entityInfo.m_version != entityInfo.m_version) break;
         }
     }
 
@@ -95,15 +97,16 @@ void Scene::PreUpdate()
 
 void Scene::Update()
 {
-    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
-    {
-        if (!entityInfo.m_enabled)
-            continue;
-        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
-        {
+    auto entities = m_sceneDataStorage.m_entities;
+    for(const auto& entity : entities){
+        if(entity.m_version == 0) continue;
+        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        if(!entityInfo.m_enabled) continue;
+        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->Update();
+            if(entityInfo.m_version != entityInfo.m_version) break;
         }
     }
 
@@ -120,15 +123,16 @@ void Scene::Update()
 
 void Scene::LateUpdate()
 {
-    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
-    {
-        if (!entityInfo.m_enabled)
-            continue;
-        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
-        {
+    auto entities = m_sceneDataStorage.m_entities;
+    for(const auto& entity : entities){
+        if(entity.m_version == 0) continue;
+        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        if(!entityInfo.m_enabled) continue;
+        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->LateUpdate();
+            if(entityInfo.m_version != entityInfo.m_version) break;
         }
     }
 
@@ -144,16 +148,16 @@ void Scene::LateUpdate()
 }
 void Scene::FixedUpdate()
 {
-
-    for (auto &entityInfo : m_sceneDataStorage.m_entityInfos)
-    {
-        if (!entityInfo.m_enabled)
-            continue;
-        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
-        {
+    auto entities = m_sceneDataStorage.m_entities;
+    for(const auto& entity : entities){
+        if(entity.m_version == 0) continue;
+        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        if(!entityInfo.m_enabled) continue;
+        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->FixedUpdate();
+            if(entityInfo.m_version != entityInfo.m_version) break;
         }
     }
 
