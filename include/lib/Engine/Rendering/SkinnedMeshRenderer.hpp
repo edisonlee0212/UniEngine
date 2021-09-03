@@ -20,10 +20,11 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     friend class Prefab;
     void RenderBound(glm::vec4 &color);
     void GetBoneMatrices();
-    std::shared_ptr<BoneMatrices> m_finalResults;
+
     friend class RenderManager;
     PrivateComponentRef m_animator;
   public:
+    std::shared_ptr<BoneMatrices> m_finalResults;
     void AttachAnimator(const std::shared_ptr<Animator> &animator);
     bool m_forwardRendering = false;
     bool m_castShadow = true;
