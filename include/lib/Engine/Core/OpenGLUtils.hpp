@@ -8,13 +8,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
     friend class DefaultResources;
     friend class RenderManager;
-    bool m_enableBindlessTexture = false;
-
   public:
-    static bool SupportBindlessTexture()
-    {
-        return GetInstance().m_enableBindlessTexture;
-    }
     static void Init();
     static void PreUpdate();
 #pragma region Sub classes
@@ -165,23 +159,13 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     {
         friend class OpenGLUtils;
         static GLint m_maxAllowedTexture;
-        static std::list<GLTexture *> m_currentlyResidentTexture;
         static std::vector<std::pair<GLenum, GLuint>> m_currentBoundTextures;
 
       protected:
-        bool m_resident = false;
-        GLuint64 m_handle = 0;
         GLenum m_type;
         GLenum m_format;
-        void MakeResidentInternal();
-        void MakeNonResidentInternal();
-
       public:
         static GLint GetMaxAllowedTexture();
-        GLuint64 GetHandle();
-        [[nodiscard]] bool IsResident() const;
-        void MakeResident();
-        void MakeNonResident();
         void Clear(const GLint &level) const;
         void SetInt(const GLenum &paramName, const GLint &param);
         void SetFloat(const GLenum &paramName, const GLfloat &param);

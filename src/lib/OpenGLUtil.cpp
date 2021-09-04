@@ -40,7 +40,6 @@ void OpenGLUtils::Init()
 }
 
 GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
-std::list<OpenGLUtils::GLTexture *> OpenGLUtils::GLTexture::m_currentlyResidentTexture;
 std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
 std::map<GLenum, GLuint> OpenGLUtils::GLBuffer::m_boundBuffers;
 GLuint OpenGLUtils::GLVAO::m_boundVAO = 0;
@@ -269,74 +268,9 @@ OpenGLUtils::TextureBinding::TextureBinding()
     m_2dMSArray = 0;
 }
 
-void OpenGLUtils::GLTexture::MakeResidentInternal()
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    Bind(0);
-    m_handle = glGetTextureHandleARB(m_id);
-    glMakeTextureHandleResidentARB(m_handle);
-    m_resident = true;
-}
-
-void OpenGLUtils::GLTexture::MakeNonResidentInternal()
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    Bind(0);
-    if (m_resident)
-    {
-        glMakeTextureHandleNonResidentARB(m_handle);
-        m_resident = false;
-    }
-}
-
 GLint OpenGLUtils::GLTexture::GetMaxAllowedTexture()
 {
     return m_maxAllowedTexture;
-}
-
-GLuint64 OpenGLUtils::GLTexture::GetHandle()
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    Bind(0);
-    if (!m_resident)
-        MakeResident();
-    return m_handle;
-}
-
-bool OpenGLUtils::GLTexture::IsResident() const
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    return m_resident;
-}
-
-void OpenGLUtils::GLTexture::MakeResident()
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    if (!m_resident)
-    {
-        if (m_currentlyResidentTexture.size() > 1024)
-        {
-            auto *textureToRelease = m_currentlyResidentTexture.front();
-            textureToRelease->MakeNonResidentInternal();
-            m_currentlyResidentTexture.pop_front();
-        }
-        MakeResidentInternal();
-        m_currentlyResidentTexture.push_back(this);
-    }
-}
-
-void OpenGLUtils::GLTexture::MakeNonResident()
-{
-    assert(GetInstance().m_enableBindlessTexture);
-    for (auto i = m_currentlyResidentTexture.begin(); i != m_currentlyResidentTexture.end(); ++i)
-    {
-        if (*i == this)
-        {
-            m_currentlyResidentTexture.erase(i);
-            break;
-        }
-    }
-    MakeNonResidentInternal();
 }
 
 void OpenGLUtils::GLTexture::Clear(const GLint &level) const
@@ -347,41 +281,20 @@ void OpenGLUtils::GLTexture::Clear(const GLint &level) const
 
 void OpenGLUtils::GLTexture::SetInt(const GLenum &paramName, const GLint &param)
 {
-    if (GetInstance().m_enableBindlessTexture && m_resident)
-    {
-        MakeNonResident();
-        m_resident = true;
-    }
     Bind(0);
     glTextureParameteri(m_id, paramName, param);
-    if (m_resident)
-        MakeResident();
 }
 
 void OpenGLUtils::GLTexture::SetFloat(const GLenum &paramName, const GLfloat &param)
 {
-    if (GetInstance().m_enableBindlessTexture && m_resident)
-    {
-        MakeNonResident();
-        m_resident = true;
-    }
     Bind(0);
     glTextureParameterf(m_id, paramName, param);
-    if (m_resident)
-        MakeResident();
 }
 
 void OpenGLUtils::GLTexture::SetFloat4(const GLenum &paramName, const GLfloat *params)
 {
-    if (GetInstance().m_enableBindlessTexture && m_resident)
-    {
-        MakeNonResident();
-        m_resident = true;
-    }
     Bind(0);
     glTextureParameterfv(m_id, paramName, params);
-    if (m_resident)
-        MakeResident();
 }
 
 void OpenGLUtils::GLTexture::GenerateMipMap() const

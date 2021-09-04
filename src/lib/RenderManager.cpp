@@ -146,16 +146,14 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     cameraComponent->m_gBufferNormal->Bind(13);
     cameraComponent->m_gBufferAlbedoEmission->Bind(14);
     cameraComponent->m_gBufferMetallicRoughnessAmbient->Bind(15);
-    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
-    {
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
-        DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
-    }
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
+
     DefaultResources::m_gBufferLightingPass->SetInt("gDepth", 12);
     DefaultResources::m_gBufferLightingPass->SetInt("gNormal", 13);
     DefaultResources::m_gBufferLightingPass->SetInt("gAlbedoEmission", 14);
@@ -223,10 +221,9 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
         GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
     DefaultResources::SkyboxProgram->Bind();
     DefaultResources::SkyboxVAO->Bind();
-    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
-    {
-        DefaultResources::SkyboxProgram->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
-    }
+
+    DefaultResources::SkyboxProgram->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS); // set depth function back to default
 #pragma endregion
@@ -1660,20 +1657,15 @@ void RenderManager::ApplyShadowMapSettings()
 {
     auto &renderManager = GetInstance();
 #pragma region Shadow map binding and default texture binding.
-    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
-    if (!supportBindlessTexture)
-    {
-        renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
-        renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
-        renderManager.m_spotLightShadowMap->DepthMap()->Bind(2);
-    }
+    renderManager.m_directionalLightShadowMap->DepthMapArray()->Bind(0);
+    renderManager.m_pointLightShadowMap->DepthMapArray()->Bind(1);
+    renderManager.m_spotLightShadowMap->DepthMap()->Bind(2);
 #pragma endregion
 }
 
 void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
     auto &manager = GetInstance();
-    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     manager.m_environmentalMapSettings.m_backgroundColor =
         glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
@@ -1689,22 +1681,11 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     }
     manager.m_environmentalMapSettings.m_environmentalLightingGamma = environmentalMap->m_gamma;
 
-    if (supportBindlessTexture)
-    {
-        manager.m_environmentalMapSettings.m_skybox = cameraSkybox->Texture()->GetHandle();
-        manager.m_environmentalMapSettings.m_environmentalBrdfLut = DefaultResources::m_brdfLut->Texture()->GetHandle();
-        manager.m_environmentalMapSettings.m_environmentalIrradiance =
-            environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->GetHandle();
-        manager.m_environmentalMapSettings.m_environmentalPrefiltered =
-            environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->GetHandle();
-    }
-    else
-    {
-        cameraSkybox->Texture()->Bind(8);
-        DefaultResources::m_brdfLut->Texture()->Bind(11);
-        environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
-        environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
-    }
+    cameraSkybox->Texture()->Bind(8);
+    DefaultResources::m_brdfLut->Texture()->Bind(11);
+    environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
+    environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
+
     manager.m_environmentalMapSettingsBuffer->SubData(
         0, sizeof(EnvironmentalMapSettingsBlock), &manager.m_environmentalMapSettings);
 }
@@ -1758,78 +1739,52 @@ void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &mate
 void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &material)
 {
     auto &manager = GetInstance();
-    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     bool hasAlbedo = false;
 
     auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
     if (albedoTexture && albedoTexture->Texture())
     {
         hasAlbedo = true;
-        if (supportBindlessTexture)
-        {
-            manager.m_materialSettings.m_albedoMap = albedoTexture->Texture()->GetHandle();
-        }
-        else
-        {
-            albedoTexture->Texture()->Bind(3);
-            manager.m_materialSettings.m_albedoMap = 0;
-        }
+
+        albedoTexture->Texture()->Bind(3);
+        manager.m_materialSettings.m_albedoMap = 0;
+
         manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
     }
     auto normalTexture = material->m_normalTexture.Get<Texture2D>();
     if (normalTexture && normalTexture->Texture())
     {
-        if (supportBindlessTexture)
-        {
-            manager.m_materialSettings.m_normalMap = normalTexture->Texture()->GetHandle();
-        }
-        else
-        {
-            normalTexture->Texture()->Bind(4);
-            manager.m_materialSettings.m_normalMap = 0;
-        }
+
+        normalTexture->Texture()->Bind(4);
+        manager.m_materialSettings.m_normalMap = 0;
+
         manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
     }
     auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
     if (roughnessTexture && roughnessTexture->Texture())
     {
-        if (supportBindlessTexture)
-        {
-            manager.m_materialSettings.m_roughnessMap = roughnessTexture->Texture()->GetHandle();
-        }
-        else
-        {
-            roughnessTexture->Texture()->Bind(6);
-            manager.m_materialSettings.m_roughnessMap = 0;
-        }
+
+        roughnessTexture->Texture()->Bind(6);
+        manager.m_materialSettings.m_roughnessMap = 0;
+
         manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
     }
     auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
     if (metallicTexture && metallicTexture->Texture())
     {
-        if (supportBindlessTexture)
-        {
-            manager.m_materialSettings.m_metallicMap = metallicTexture->Texture()->GetHandle();
-        }
-        else
-        {
-            metallicTexture->Texture()->Bind(5);
-            manager.m_materialSettings.m_metallicMap = 0;
-        }
+
+        metallicTexture->Texture()->Bind(5);
+        manager.m_materialSettings.m_metallicMap = 0;
+
         manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
     }
     auto aoTexture = material->m_aoTexture.Get<Texture2D>();
     if (aoTexture && aoTexture->Texture())
     {
-        if (supportBindlessTexture)
-        {
-            manager.m_materialSettings.m_aoMap = aoTexture->Texture()->GetHandle();
-        }
-        else
-        {
-            aoTexture->Texture()->Bind(7);
-            manager.m_materialSettings.m_aoMap = 0;
-        }
+
+        aoTexture->Texture()->Bind(7);
+        manager.m_materialSettings.m_aoMap = 0;
+
         manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
     }
 
@@ -1844,19 +1799,10 @@ void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &mater
     manager.m_materialSettings.m_roughnessVal = material->m_roughness;
     manager.m_materialSettings.m_aoVal = material->m_ambient;
     manager.m_materialSettings.m_emissionVal = material->m_emission;
-    if (supportBindlessTexture)
-    {
-        manager.m_materialSettings.m_directionalShadowMap =
-            manager.m_directionalLightShadowMap->DepthMapArray()->GetHandle();
-        manager.m_materialSettings.m_pointShadowMap = manager.m_pointLightShadowMap->DepthMapArray()->GetHandle();
-        manager.m_materialSettings.m_spotShadowMap = manager.m_spotLightShadowMap->DepthMap()->GetHandle();
-    }
-    else
-    {
-        manager.m_materialSettings.m_directionalShadowMap = 0;
-        manager.m_materialSettings.m_pointShadowMap = 0;
-        manager.m_materialSettings.m_spotShadowMap = 0;
-    }
+
+    manager.m_materialSettings.m_directionalShadowMap = 0;
+    manager.m_materialSettings.m_pointShadowMap = 0;
+    manager.m_materialSettings.m_spotShadowMap = 0;
 
     manager.m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }
@@ -1864,60 +1810,29 @@ void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &mater
 void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program)
 {
     auto &manager = GetInstance();
-    const bool supportBindlessTexture = OpenGLUtils::GetInstance().m_enableBindlessTexture;
     program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
     program->SetInt("UE_NORMAL_MAP_LEGACY", 3);
     program->SetInt("UE_METALLIC_MAP_LEGACY", 3);
     program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 3);
     program->SetInt("UE_AO_MAP_LEGACY", 3);
-    if (!supportBindlessTexture)
-    {
-        program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
-        program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
-        program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
+    program->SetInt("UE_DIRECTIONAL_LIGHT_SM_LEGACY", 0);
+    program->SetInt("UE_POINT_LIGHT_SM_LEGACY", 1);
+    program->SetInt("UE_SPOT_LIGHT_SM_LEGACY", 2);
 
-        program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
-        program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
-        program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
-        program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
-        program->SetInt("UE_AO_MAP_LEGACY", 7);
+    program->SetInt("UE_ALBEDO_MAP_LEGACY", 3);
+    program->SetInt("UE_NORMAL_MAP_LEGACY", 4);
+    program->SetInt("UE_ROUGHNESS_MAP_LEGACY", 6);
+    program->SetInt("UE_METALLIC_MAP_LEGACY", 5);
+    program->SetInt("UE_AO_MAP_LEGACY", 7);
 
-        program->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
-        program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
-        program->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
-        program->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
-    }
+    program->SetInt("UE_ENVIRONMENTAL_MAP_LEGACY", 8);
+    program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE_LEGACY", 9);
+    program->SetInt("UE_ENVIRONMENTAL_PREFILERED_LEGACY", 10);
+    program->SetInt("UE_ENVIRONMENTAL_BRDFLUT_LEGACY", 11);
 }
 
 void RenderManager::ReleaseMaterialSettings(const std::shared_ptr<Material> &material)
 {
-    if (!OpenGLUtils::GetInstance().m_enableBindlessTexture)
-        return;
-    auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
-    if (albedoTexture && albedoTexture->Texture())
-    {
-        albedoTexture->Texture()->MakeNonResident();
-    }
-    auto normalTexture = material->m_normalTexture.Get<Texture2D>();
-    if (normalTexture && normalTexture->Texture())
-    {
-        normalTexture->Texture()->MakeNonResident();
-    }
-    auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
-    if (roughnessTexture && roughnessTexture->Texture())
-    {
-        roughnessTexture->Texture()->MakeNonResident();
-    }
-    auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
-    if (metallicTexture && metallicTexture->Texture())
-    {
-        metallicTexture->Texture()->MakeNonResident();
-    }
-    auto aoTexture = material->m_aoTexture.Get<Texture2D>();
-    if (aoTexture && aoTexture->Texture())
-    {
-        aoTexture->Texture()->MakeNonResident();
-    }
 }
 
 void RenderManager::PrepareBrdfLut()
@@ -2023,7 +1938,8 @@ void RenderManager::DrawMeshInstanced(
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawMeshInstancedInternal(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices)
+void RenderManager::DrawMeshInstancedInternal(
+    const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<ParticleMatrices> &matrices)
 {
     if (mesh == nullptr || matrices->m_value.empty())
         return;
@@ -2092,7 +2008,8 @@ void RenderManager::DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh)
     mesh->Draw();
 }
 
-void RenderManager::DrawGizmoMeshInstanced(bool depthTest,
+void RenderManager::DrawGizmoMeshInstanced(
+    bool depthTest,
     const std::shared_ptr<Mesh> &mesh,
     const glm::vec4 &color,
     const glm::mat4 &model,
@@ -2103,8 +2020,10 @@ void RenderManager::DrawGizmoMeshInstanced(bool depthTest,
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    if(!depthTest)glDisable(GL_DEPTH_TEST);
-    else glEnable(GL_DEPTH_TEST);
+    if (!depthTest)
+        glDisable(GL_DEPTH_TEST);
+    else
+        glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2118,7 +2037,8 @@ void RenderManager::DrawGizmoMeshInstanced(bool depthTest,
     mesh->DrawInstanced(matrices);
 }
 
-void RenderManager::DrawGizmoMeshInstancedColored(bool depthTest,
+void RenderManager::DrawGizmoMeshInstancedColored(
+    bool depthTest,
     const std::shared_ptr<Mesh> &mesh,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
@@ -2129,8 +2049,10 @@ void RenderManager::DrawGizmoMeshInstancedColored(bool depthTest,
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    if(!depthTest)glDisable(GL_DEPTH_TEST);
-    else glEnable(GL_DEPTH_TEST);
+    if (!depthTest)
+        glDisable(GL_DEPTH_TEST);
+    else
+        glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2151,15 +2073,21 @@ void RenderManager::DrawGizmoMeshInstancedColored(bool depthTest,
     OpenGLUtils::GLVAO::BindDefault();
 }
 
-void RenderManager::DrawGizmoMesh(bool depthTest,
-    const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const glm::mat4 &scaleMatrix)
+void RenderManager::DrawGizmoMesh(
+    bool depthTest,
+    const std::shared_ptr<Mesh> &mesh,
+    const glm::vec4 &color,
+    const glm::mat4 &model,
+    const glm::mat4 &scaleMatrix)
 {
     if (mesh == nullptr)
         return;
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    if(!depthTest)glDisable(GL_DEPTH_TEST);
-    else glEnable(GL_DEPTH_TEST);
+    if (!depthTest)
+        glDisable(GL_DEPTH_TEST);
+    else
+        glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
