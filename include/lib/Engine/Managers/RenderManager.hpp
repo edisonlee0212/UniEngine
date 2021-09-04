@@ -261,8 +261,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void RenderManager::DispatchRenderCommands(
         const RenderCommands &renderCommands,
         const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
-        const bool &setMaterial,
-        const bool &bindProgram);
+        const bool &setMaterial);
     static void Init();
   private:
 #pragma region Class members

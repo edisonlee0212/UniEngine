@@ -18,8 +18,7 @@ using namespace UniEngine;
 void RenderManager::DispatchRenderCommands(
     const RenderCommands &renderCommands,
     const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
-    const bool &setMaterial,
-    const bool &bindProgram)
+    const bool &setMaterial)
 {
     auto &renderManager = GetInstance();
     for (const auto &renderCollection : renderCommands.m_value)
@@ -33,10 +32,6 @@ void RenderManager::DispatchRenderCommands(
             MaterialPropertySetter(mat, true);
             GetInstance().m_materialSettings = MaterialSettingsBlock();
             ApplyMaterialSettings(mat);
-        }
-        if (bindProgram)
-        {
-            material.lock()->m_program.Get<OpenGLUtils::GLProgram>()->Bind();
         }
         for (const auto &renderCommands : renderCollection.second.m_meshes)
         {
@@ -56,7 +51,6 @@ void RenderManager::DispatchRenderCommands(
                 func(mat, renderCommand);
             }
         }
-
         if (setMaterial)
             ReleaseMaterialSettings(mat);
     }
@@ -103,8 +97,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             }
             }
         },
-        true,
-        false);
+        true);
     DispatchRenderCommands(
         renderManager.m_deferredInstancedRenderInstances[cameraComponent],
         [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
@@ -126,8 +119,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             }
             }
         },
-        true,
-        false);
+        true);
     glDisable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_BLEND);
@@ -170,12 +162,13 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             {
             case RenderCommandMeshType::Default: {
                 auto mesh = renderCommand.m_mesh.lock();
-
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                ApplyProgramSettings(material->m_program.Get<OpenGLUtils::GLProgram>(), material);
-                material->m_program.Get<OpenGLUtils::GLProgram>()->SetFloat4x4(
+                auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                program->Bind();
+                ApplyProgramSettings(program, material);
+                program->SetFloat4x4(
                     "model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInternal(mesh);
                 break;
@@ -186,12 +179,14 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                program->Bind();
+                ApplyProgramSettings(program, material);
                 DrawMeshInternal(skinnedMesh);
                 break;
             }
             }
         },
-        true,
         true);
     DispatchRenderCommands(
         renderManager.m_forwardInstancedRenderInstances[cameraComponent],
@@ -205,15 +200,16 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
-                ApplyProgramSettings(material->m_program.Get<OpenGLUtils::GLProgram>(), material);
-                material->m_program.Get<OpenGLUtils::GLProgram>()->SetFloat4x4(
+                auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                program->Bind();
+                ApplyProgramSettings(program, material);
+                program->SetFloat4x4(
                     "model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock());
                 break;
             }
             }
         },
-        true,
         true);
 #pragma endregion
 #pragma region Transparent
@@ -1109,7 +1105,6 @@ void RenderManager::ShadowMapPrePass(
                 }
                 }
             },
-            false,
             false);
     }
     for (auto &i : renderManager.m_deferredInstancedRenderInstances)
@@ -1132,7 +1127,6 @@ void RenderManager::ShadowMapPrePass(
                 }
                 }
             },
-            false,
             false);
     }
     for (auto &i : renderManager.m_forwardRenderInstances)
@@ -1162,7 +1156,6 @@ void RenderManager::ShadowMapPrePass(
                 }
                 }
             },
-            false,
             false);
     }
     for (auto &i : renderManager.m_forwardInstancedRenderInstances)
@@ -1185,7 +1178,6 @@ void RenderManager::ShadowMapPrePass(
                 }
                 }
             },
-            false,
             false);
     }
 }
@@ -1831,7 +1823,7 @@ void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLPr
         program->SetInt("UE_AO_MAP", 3);
     }
 
-    program->SetInt("UE_ENVIRONMENTAL", 8);
+    program->SetInt("UE_ENVIRONMENTAL_MAP", 8);
     program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE", 9);
     program->SetInt("UE_ENVIRONMENTAL_PREFILERED", 10);
     program->SetInt("UE_ENVIRONMENTAL_BRDFLUT", 11);

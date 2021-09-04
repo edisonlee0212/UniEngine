@@ -536,7 +536,6 @@ void EditorManager::RenderToSceneCamera()
                     }
                     }
                 },
-                false,
                 false);
         }
         for (auto &i : renderManager.m_deferredInstancedRenderInstances)
@@ -561,7 +560,6 @@ void EditorManager::RenderToSceneCamera()
                     }
                     }
                 },
-                false,
                 false);
         }
         for (auto &i : renderManager.m_forwardRenderInstances)
@@ -591,7 +589,6 @@ void EditorManager::RenderToSceneCamera()
                     }
                     }
                 },
-                false,
                 false);
         }
         for (auto &i : renderManager.m_forwardInstancedRenderInstances)
@@ -616,7 +613,6 @@ void EditorManager::RenderToSceneCamera()
                     }
                     }
                 },
-                false,
                 false);
         }
 #pragma endregion
