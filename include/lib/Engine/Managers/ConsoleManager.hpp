@@ -49,7 +49,7 @@ class ConsoleManager : public ISingleton<ConsoleManager>
      */
     UNIENGINE_API static std::vector<ConsoleMessage> &GetConsoleMessages();
 
-    static void OnGui();
+    static void OnInspect();
 };
 
 } // namespace UniEngine

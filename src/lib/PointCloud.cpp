@@ -165,7 +165,7 @@ void PointCloud::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<PointCloud>(target);
 }
-void PointCloud::OnGui()
+void PointCloud::OnInspect()
 {
     ImGui::Text(("Original amount: " + std::to_string(m_points.size())).c_str());
     ImGui::Text(("Compressed amount: " + std::to_string(m_compressed.size())).c_str());

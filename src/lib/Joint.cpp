@@ -143,7 +143,7 @@ void Joint::OnCreate()
 {
 }
 static const char *JointTypeNames[]{"Fixed", "D6"};
-void Joint::OnGui()
+void Joint::OnInspect()
 {
     static int type = 0;
     type = (int)m_jointType;

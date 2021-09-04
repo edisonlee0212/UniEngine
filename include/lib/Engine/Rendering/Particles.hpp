@@ -30,7 +30,7 @@ class UNIENGINE_API Particles : public IPrivateComponent
     AssetRef m_mesh;
     AssetRef m_material;
     void RecalculateBoundingBox();
-    void OnGui() override;
+    void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;

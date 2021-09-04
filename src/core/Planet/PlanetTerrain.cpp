@@ -79,7 +79,7 @@ void Planet::PlanetTerrain::Init(std::shared_ptr<Material> surfaceMaterial)
     m_initialized = true;
 }
 
-void Planet::PlanetTerrain::OnGui()
+void Planet::PlanetTerrain::OnInspect()
 {
     //EditorManager::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
 }

@@ -42,7 +42,7 @@ void Particles::RecalculateBoundingBox()
     m_boundingBox.m_min = minBound;
 }
 
-void Particles::OnGui()
+void Particles::OnInspect()
 {
     ImGui::Checkbox("Forward Rendering##Particles", &m_forwardRendering);
     if (!m_forwardRendering)

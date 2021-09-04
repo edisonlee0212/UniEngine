@@ -14,7 +14,7 @@ class UNIENGINE_API PostProcessingLayer
     virtual void Init() = 0;
     virtual void ResizeResolution(int x, int y) = 0;
     virtual void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const = 0;
-    virtual void OnGui(const std::shared_ptr<Camera> &cameraComponent) = 0;
+    virtual void OnInspect(const std::shared_ptr<Camera> &cameraComponent) = 0;
 };
 
 class UNIENGINE_API PostProcessing final : public IPrivateComponent, public RenderTarget
@@ -28,7 +28,7 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
     void OnCreate() override;
     void Process();
     void ResizeResolution(int x, int y);
-    void OnGui() override;
+    void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
@@ -67,7 +67,7 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     void Init() override;
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
-    void OnGui(const std::shared_ptr<Camera> &cameraComponent) override;
+    void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
 };
 class UNIENGINE_API SSAO : public PostProcessingLayer
 {
@@ -93,7 +93,7 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     void Init() override;
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
-    void OnGui(const std::shared_ptr<Camera> &cameraComponent) override;
+    void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
 };
 #pragma endregion
 

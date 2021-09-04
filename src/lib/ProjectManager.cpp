@@ -139,7 +139,7 @@ void ProjectManager::ScanProjectFolder()
 
 }
 
-void ProjectManager::OnGui()
+void ProjectManager::OnInspect()
 {
     auto &projectManager = GetInstance();
     if (ImGui::BeginMainMenuBar())

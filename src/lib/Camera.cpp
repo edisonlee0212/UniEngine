@@ -330,7 +330,7 @@ void Camera::OnDestroy()
     }
 }
 
-void Camera::OnGui()
+void Camera::OnInspect()
 {
     ImGui::Checkbox("Allow auto resize", &m_allowAutoResize);
     if (!m_allowAutoResize)

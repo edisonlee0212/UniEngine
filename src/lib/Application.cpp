@@ -39,7 +39,7 @@ void Application::Init(bool fullScreen)
 
     EntityManager::GetSystem<PhysicsSystem>()->Enable();
 }
-void ApplicationTime::OnGui()
+void ApplicationTime::OnInspect()
 {
     if (ImGui::CollapsingHeader("Time Settings"))
     {
@@ -186,18 +186,18 @@ bool Application::LateUpdateInternal()
     // Post-processing happens here
     RenderManager::LateUpdate();
     // Manager settings
-    OnGui();
-    InputManager::OnGui();
-    AssetManager::OnGui();
-    RenderManager::OnGui();
-    EditorManager::OnGui();
-    ConsoleManager::OnGui();
-    ProjectManager::OnGui();
+    OnInspect();
+    InputManager::OnInspect();
+    AssetManager::OnInspect();
+    RenderManager::OnInspect();
+    EditorManager::OnInspect();
+    ConsoleManager::OnInspect();
+    ProjectManager::OnInspect();
     ProfilerManager::EndEvent("Internals");
     // Profile
     ProfilerManager::EndEvent("LateUpdate");
     ProfilerManager::LateUpdate();
-    ProfilerManager::OnGui();
+    ProfilerManager::OnInspect();
 
     // ImGui drawing
     EditorManager::LateUpdate();
@@ -274,7 +274,7 @@ void Application::Reset()
     application.m_needFixedUpdate = false;
     application.m_time.Reset();
 }
-void Application::OnGui()
+void Application::OnInspect()
 {
     auto &application = GetInstance();
 
@@ -292,7 +292,7 @@ void Application::OnGui()
         return;
     if (ImGui::Begin("Application Settings"))
     {
-        application.m_time.OnGui();
+        application.m_time.OnInspect();
     }
     ImGui::End();
 }

@@ -64,7 +64,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
         const std::shared_ptr<OpenGLUtils::GLShader> &geometry,
         const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
 #pragma endregion
-    static void OnGui();
+    static void OnInspect();
 #pragma region ToEntity
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
 #pragma endregion

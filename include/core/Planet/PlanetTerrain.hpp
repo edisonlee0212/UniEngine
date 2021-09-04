@@ -39,7 +39,7 @@ class PlanetTerrain : public IPrivateComponent
     std::shared_ptr<Material> m_surfaceMaterial;
     std::vector<std::shared_ptr<TerrainConstructionStageBase>> m_terrainConstructionStages;
     void Init(std::shared_ptr<Material> surfaceMaterial);
-    void OnGui() override;
+    void OnInspect() override;
 
     void Start() override;
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;

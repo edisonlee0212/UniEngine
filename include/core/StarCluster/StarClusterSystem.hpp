@@ -129,7 +129,7 @@ class StarClusterPattern
   public:
     std::string m_name = "Cluster Pattern";
     StarClusterIndex m_starClusterIndex;
-    void OnGui();
+    void OnInspect();
     double m_ySpread = 0.05;
     double m_xzSpread = 0.015;
 

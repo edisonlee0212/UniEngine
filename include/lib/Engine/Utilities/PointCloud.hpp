@@ -16,7 +16,7 @@ class UNIENGINE_API PointCloud : public IPrivateComponent
     void Load(const std::filesystem::path &path);
     void Save(const std::filesystem::path &path);
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
-    void OnGui() override;
+    void OnInspect() override;
     void Compress();
     void ApplyCompressed();
     void ApplyOriginal();

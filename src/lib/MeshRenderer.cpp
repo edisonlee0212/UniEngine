@@ -21,7 +21,7 @@ void MeshRenderer::RenderBound(glm::vec4 &color)
         1);
 }
 
-void MeshRenderer::OnGui()
+void MeshRenderer::OnInspect()
 {
     ImGui::Checkbox("Forward Rendering##MeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)

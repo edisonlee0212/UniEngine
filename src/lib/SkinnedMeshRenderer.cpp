@@ -47,7 +47,7 @@ void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animat
     }
 }
 
-void SkinnedMeshRenderer::OnGui()
+void SkinnedMeshRenderer::OnInspect()
 {
     auto animator = m_animator.Get<Animator>();
     EditorManager::DragAndDropButton<Animator>(m_animator, "Animator");

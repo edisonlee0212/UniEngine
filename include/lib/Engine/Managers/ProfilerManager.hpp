@@ -13,7 +13,7 @@ class UNIENGINE_API IProfiler
     virtual void LateUpdate() = 0;
     virtual void StartEvent(const std::string &name) = 0;
     virtual void EndEvent(const std::string &name) = 0;
-    virtual void OnGui() = 0;
+    virtual void OnInspect() = 0;
 };
 struct CPUUsageEvent
 {
@@ -23,7 +23,7 @@ struct CPUUsageEvent
     std::vector<CPUUsageEvent> m_children;
     CPUUsageEvent *m_parent;
     CPUUsageEvent(CPUUsageEvent *parent, const std::string &name);
-    void OnGui(const float &parentTotalTime) const;
+    void OnInspect(const float &parentTotalTime) const;
 };
 
 class UNIENGINE_API CPUTimeProfiler : public IProfiler
@@ -37,7 +37,7 @@ class UNIENGINE_API CPUTimeProfiler : public IProfiler
     void StartEvent(const std::string &name) override;
     void EndEvent(const std::string &name) override;
     void LateUpdate() override;
-    void OnGui() override;
+    void OnInspect() override;
 };
 class UNIENGINE_API ProfilerManager : public ISingleton<ProfilerManager>
 {
@@ -51,7 +51,7 @@ class UNIENGINE_API ProfilerManager : public ISingleton<ProfilerManager>
     static void LateUpdate();
     static void StartEvent(const std::string &name);
     static void EndEvent(const std::string &name);
-    static void OnGui();
+    static void OnInspect();
 };
 template <class T> std::shared_ptr<T> UniEngine::ProfilerManager::GetProfiler()
 {

@@ -32,7 +32,7 @@ void Bone::Animate(
     }
 }
 
-void Bone::OnGui()
+void Bone::OnInspect()
 {
     if (ImGui::TreeNode((m_name + "##" + std::to_string(m_index)).c_str()))
     {
@@ -40,7 +40,7 @@ void Bone::OnGui()
         ImGui::SameLine();
         for (auto &i : m_children)
         {
-            i->OnGui();
+            i->OnInspect();
         }
         ImGui::TreePop();
     }
@@ -243,7 +243,7 @@ void Animation::OnGui() const
     if (!m_rootBone)
         return;
     ImGui::Text(("Bone size: " + std::to_string(m_boneSize)).c_str());
-    m_rootBone->OnGui();
+    m_rootBone->OnInspect();
 }
 
 void Animation::Animate(

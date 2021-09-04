@@ -25,7 +25,7 @@ class UNIENGINE_API DirectionalLight : public IPrivateComponent
     float m_normalOffset = 0.001f;
     float m_lightSize = 0.01f;
     void OnCreate() override;
-    void OnGui() override;
+    void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
@@ -52,7 +52,7 @@ class UNIENGINE_API PointLight : public IPrivateComponent
     glm::vec3 m_diffuse = glm::vec3(1.0f);
     float m_diffuseBrightness = 0.8f;
     float m_lightSize = 0.1f;
-    void OnGui() override;
+    void OnInspect() override;
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
@@ -83,7 +83,7 @@ class UNIENGINE_API SpotLight : public IPrivateComponent
     glm::vec3 m_diffuse = glm::vec3(1.0f);
     float m_diffuseBrightness = 0.8f;
     float m_lightSize = 0.1f;
-    void OnGui() override;
+    void OnInspect() override;
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;

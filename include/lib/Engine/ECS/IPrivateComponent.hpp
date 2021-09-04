@@ -21,7 +21,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
 
-    virtual void OnGui(){};
+    virtual void OnInspect(){};
     virtual void FixedUpdate(){};
     virtual void PreUpdate(){};
     virtual void Update(){};

@@ -22,16 +22,6 @@ struct UNIENGINE_API LightSettingsBlock
 
 struct MaterialSettingsBlock
 {
-    GLuint64 m_directionalShadowMap = 0;
-    GLuint64 m_pointShadowMap = 0;
-    GLuint64 m_spotShadowMap = 0;
-
-    GLuint64 m_albedoMap = 0;
-    GLuint64 m_normalMap = 0;
-    GLuint64 m_metallicMap = 0;
-    GLuint64 m_roughnessMap = 0;
-    GLuint64 m_aoMap = 0;
-
     int m_albedoEnabled = 0;
     int m_normalEnabled = 0;
     int m_metallicEnabled = 0;
@@ -50,10 +40,6 @@ struct MaterialSettingsBlock
 };
 struct EnvironmentalMapSettingsBlock
 {
-    GLuint64 m_skybox = 0;
-    GLuint64 m_environmentalIrradiance = 0;
-    GLuint64 m_environmentalPrefiltered = 0;
-    GLuint64 m_environmentalBrdfLut = 0;
     glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     float m_skyboxGamma = 1.0f;
     float m_environmentalLightingGamma = 1.0f;
@@ -267,7 +253,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     */
 #pragma endregion
 
-    static void OnGui();
+    static void OnInspect();
     static void PreUpdate();
     static void LateUpdate();
     static size_t Triangles();
@@ -342,7 +328,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent);
     static void MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending = false);
     static void ApplyMaterialSettings(const std::shared_ptr<Material> &material);
-    static void ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
+    static void ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program, const std::shared_ptr<Material> &material);
     static void ReleaseMaterialSettings(const std::shared_ptr<Material> &material);
     static void ShadowMapPrePass(
         const int &enabledSize,

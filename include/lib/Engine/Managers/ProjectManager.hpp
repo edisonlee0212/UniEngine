@@ -42,7 +42,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::shared_ptr<AssetRegistry> m_assetRegistry;
     std::string m_currentProjectName = "New Project";
     static void Init();
-    static void OnGui();
+    static void OnInspect();
     static void CreateOrLoadProject(const std::filesystem::path &path);
     static void SaveProject();
     static void ScanProjectFolder();

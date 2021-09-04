@@ -683,7 +683,7 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
         ImGui::TreePop();
     }
 }
-void EditorManager::OnGui()
+void EditorManager::OnInspect()
 {
     auto &editorManager = GetInstance();
     if (editorManager.m_leftMouseButtonHold &&
@@ -904,7 +904,7 @@ void EditorManager::OnGui()
                                         ("Component Settings##" + std::to_string(i)).c_str(),
                                         ImGuiTreeNodeFlags_DefaultOpen))
                                 {
-                                    data.m_privateComponentData->OnGui();
+                                    data.m_privateComponentData->OnInspect();
                                     ImGui::TreePop();
                                 }
                             }

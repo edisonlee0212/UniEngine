@@ -4,7 +4,7 @@
 
 #include "UnknownPrivateComponent.hpp"
 
-void UniEngine::UnknownPrivateComponent::OnGui()
+void UniEngine::UnknownPrivateComponent::OnInspect()
 {
 }
 void UniEngine::UnknownPrivateComponent::Clone(const std::shared_ptr<IPrivateComponent> &target)

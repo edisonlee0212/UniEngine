@@ -77,7 +77,7 @@ void UniEngine::RigidBody::OnCreate()
     RecreateBody();
 }
 
-void UniEngine::RigidBody::OnGui()
+void UniEngine::RigidBody::OnInspect()
 {
     if (ImGui::TreeNodeEx("Colliders"))
     {

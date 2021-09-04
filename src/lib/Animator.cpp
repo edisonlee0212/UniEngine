@@ -32,7 +32,7 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
     m_needAnimationSetup = true;
 }
 
-void Animator::OnGui()
+void Animator::OnInspect()
 {
     ImGui::Text("Animation:");
     ImGui::SameLine();

@@ -81,7 +81,7 @@ void PostProcessing::ResizeResolution(int x, int y)
     }
 }
 
-void PostProcessing::OnGui()
+void PostProcessing::OnInspect()
 {
     auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
     for (auto &layer : m_layers)
@@ -90,7 +90,7 @@ void PostProcessing::OnGui()
         {
             ImGui::Checkbox(layer.second->m_name.c_str(), &layer.second->m_enabled);
             if (layer.second->m_enabled)
-                layer.second->OnGui(cameraComponent);
+                layer.second->OnInspect(cameraComponent);
         }
     }
 }
@@ -200,7 +200,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Bloom::OnGui(const std::shared_ptr<Camera> &cameraComponent)
+void Bloom::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
@@ -318,7 +318,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void SSAO::OnGui(const std::shared_ptr<Camera> &cameraComponent)
+void SSAO::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
 {
     if (ImGui::TreeNode("SSAO Settings"))
     {

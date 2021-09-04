@@ -2,7 +2,7 @@
 #include <Lights.hpp>
 using namespace UniEngine;
 
-void SpotLight::OnGui()
+void SpotLight::OnInspect()
 {
     ImGui::Checkbox("Cast Shadow", &m_castShadow);
     ImGui::ColorEdit3("Color", &m_diffuse[0]);
@@ -65,7 +65,7 @@ float SpotLight::GetFarPlane() const
         / (2 * m_quadratic);
 }
 
-void PointLight::OnGui()
+void PointLight::OnInspect()
 {
     ImGui::Checkbox("Cast Shadow", &m_castShadow);
     ImGui::ColorEdit3("Color", &m_diffuse[0]);
@@ -114,7 +114,7 @@ void DirectionalLight::OnCreate()
     SetEnabled(true);
 }
 
-void DirectionalLight::OnGui()
+void DirectionalLight::OnInspect()
 {
     ImGui::Checkbox("Cast Shadow", &m_castShadow);
     ImGui::ColorEdit3("Color", &m_diffuse[0]);

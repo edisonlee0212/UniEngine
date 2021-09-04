@@ -5,7 +5,7 @@
 #include <StarCluster/StarClusterSystem.hpp>
 using namespace Galaxy;
 
-void Galaxy::StarClusterPattern::OnGui()
+void Galaxy::StarClusterPattern::OnInspect()
 {
     static bool autoApply = true;
     ImGui::Checkbox("Auto apply", &autoApply);
@@ -215,7 +215,7 @@ void Galaxy::StarClusterSystem::OnInspect()
             {
                 if (ImGui::TreeNodeEx("Properties", ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    pattern.OnGui();
+                    pattern.OnInspect();
                     ImGui::TreePop();
                 }
                 if (ImGui::Button(("Add " + std::to_string(amount) + " stars").c_str()))

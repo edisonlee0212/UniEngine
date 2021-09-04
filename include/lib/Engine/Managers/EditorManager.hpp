@@ -101,7 +101,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 5, 20);
     static void HighLightEntity(const Entity &entity, const glm::vec4 &color);
     static void LateUpdate();
-    static void OnGui();
+    static void OnInspect();
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
         const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func);

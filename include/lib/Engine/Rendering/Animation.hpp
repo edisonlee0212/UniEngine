@@ -77,7 +77,7 @@ struct UNIENGINE_API Bone
         const glm::mat4 &rootTransform,
         std::vector<EntityRef> &boundEntities,
         std::vector<glm::mat4> &results);
-    void OnGui();
+    void OnInspect();
 
     void Serialize(YAML::Emitter &out) const;
     void Deserialize(const YAML::Node &in);

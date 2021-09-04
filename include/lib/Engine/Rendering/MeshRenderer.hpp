@@ -14,7 +14,7 @@ class UNIENGINE_API MeshRenderer : public IPrivateComponent
     bool m_receiveShadow = true;
     AssetRef m_mesh;
     AssetRef m_material;
-    void OnGui() override;
+    void OnInspect() override;
     void OnCreate() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;

@@ -111,7 +111,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void Link(bool resetLocalFrames);
 
     void Link(const Entity& entity);
-    void OnGui() override;
+    void OnInspect() override;
     void OnDestroy() override;
 
     void Relink(const std::unordered_map<Handle, Handle> &map) override;

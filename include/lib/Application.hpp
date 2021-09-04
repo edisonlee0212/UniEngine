@@ -24,7 +24,7 @@ class UNIENGINE_API ApplicationTime
 
   public:
     void Reset();
-    void OnGui();
+    void OnInspect();
     void SetTimeStep(const double &value);
     [[nodiscard]] double CurrentTime() const;
     [[nodiscard]] double TimeStep() const;
@@ -52,7 +52,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     ApplicationTime m_time;
     friend class Scene;
     bool m_needFixedUpdate = false;
-    static void OnGui();
+    static void OnInspect();
     bool m_enableSettingsMenu = false;
   public:
     static void Reset();

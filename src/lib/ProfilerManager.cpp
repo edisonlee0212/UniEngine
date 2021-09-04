@@ -8,7 +8,7 @@ UniEngine::CPUUsageEvent::CPUUsageEvent(CPUUsageEvent *parent, const std::string
     m_timeStart = Application::Time().CurrentTime();
 }
 
-void UniEngine::CPUUsageEvent::OnGui(const float &parentTotalTime) const
+void UniEngine::CPUUsageEvent::OnInspect(const float &parentTotalTime) const
 {
     const float time = m_timeEnd - m_timeStart;
     if (ImGui::TreeNode((m_name).c_str()))
@@ -16,7 +16,7 @@ void UniEngine::CPUUsageEvent::OnGui(const float &parentTotalTime) const
         ImGui::SameLine();
         ImGui::Text(": %.4f ms (%.3f%%)", time, time / parentTotalTime * 100.0f);
         for (auto &i : m_children)
-            i.OnGui(parentTotalTime);
+            i.OnInspect(parentTotalTime);
         ImGui::TreePop();
     }
 }
@@ -52,11 +52,11 @@ void UniEngine::CPUTimeProfiler::LateUpdate()
     m_currentEventPointer->m_timeEnd = Application::Time().CurrentTime();
 }
 
-void UniEngine::CPUTimeProfiler::OnGui()
+void UniEngine::CPUTimeProfiler::OnInspect()
 {
     auto time = m_rootEvent.m_timeEnd - m_rootEvent.m_timeStart;
     if(time < 0.0f) ImGui::Text("No frame recorded!");
-    else m_rootEvent.OnGui(m_rootEvent.m_timeEnd - m_rootEvent.m_timeStart);
+    else m_rootEvent.OnInspect(m_rootEvent.m_timeEnd - m_rootEvent.m_timeStart);
 }
 
 void UniEngine::ProfilerManager::PreUpdate()
@@ -69,7 +69,7 @@ void UniEngine::ProfilerManager::PreUpdate()
         i.second->PreUpdate();
 }
 
-void UniEngine::ProfilerManager::OnGui()
+void UniEngine::ProfilerManager::OnInspect()
 {
     auto &profilerManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
@@ -95,7 +95,7 @@ void UniEngine::ProfilerManager::OnGui()
             {
                 if (ImGui::CollapsingHeader(i.second->m_name.c_str()))
                 {
-                    i.second->OnGui();
+                    i.second->OnInspect();
                 }
             }
         }

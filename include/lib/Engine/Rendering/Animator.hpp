@@ -36,7 +36,7 @@ class UNIENGINE_API Animator : public IPrivateComponent
     float m_currentAnimationTime;
     void AutoPlay();
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
-    void OnGui() override;
+    void OnInspect() override;
     void Animate();
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
     std::shared_ptr<Animation> GetAnimation();

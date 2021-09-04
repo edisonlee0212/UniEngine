@@ -82,7 +82,7 @@ bool InputManager::GetMousePosition(glm::vec2 &pos)
     return GetInstance().m_mousePositionValid;
 }
 
-void InputManager::OnGui()
+void InputManager::OnInspect()
 {
     if (ImGui::BeginMainMenuBar())
     {

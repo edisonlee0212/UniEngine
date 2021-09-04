@@ -40,7 +40,7 @@ std::vector<ConsoleMessage> &ConsoleManager::GetConsoleMessages()
     return GetInstance().m_consoleMessages;
 }
 
-void ConsoleManager::OnGui()
+void ConsoleManager::OnInspect()
 {
     auto& consoleManager = GetInstance();
 

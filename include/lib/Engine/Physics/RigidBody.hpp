@@ -53,7 +53,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     void OnDestroy() override;
     void RecreateBody();
     void OnCreate() override;
-    void OnGui() override;
+    void OnInspect() override;
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;

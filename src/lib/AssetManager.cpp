@@ -97,7 +97,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> AssetManager::LoadProgram(
     return retVal;
 }
 
-void AssetManager::OnGui()
+void AssetManager::OnInspect()
 {
     auto &resourceManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
