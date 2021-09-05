@@ -36,7 +36,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     friend class SSAO;
     friend class GreyScale;
     std::shared_ptr<Texture2D> m_colorTexture;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_depthStencilTexture;
+    std::shared_ptr<Texture2D> m_depthStencilTexture;
 
     //Deferred shading GBuffer
     std::unique_ptr<RenderTarget> m_gBuffer;
@@ -69,6 +69,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     static void ReverseAngle(
         const glm::quat &rotation, float &pitchAngle, float &yawAngle, const bool &constrainPitch = true);
     [[nodiscard]] std::shared_ptr<Texture2D> GetTexture() const;
+    [[nodiscard]] std::shared_ptr<Texture2D> GetDepthStencil() const;
     [[nodiscard]] glm::mat4 GetProjection() const;
     static glm::vec3 Project(GlobalTransform &ltw, glm::vec3 position);
 
@@ -90,6 +91,11 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     void OnInspect() override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
 
+
+    [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferDepth();
+    [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferNormal();
+    [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferAlbedo();
+    [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferMetallicRoughnessEmissionAmbient();
 };
 
 } // namespace UniEngine

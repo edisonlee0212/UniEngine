@@ -141,6 +141,23 @@ std::shared_ptr<Texture2D> Camera::GetTexture() const
     return m_colorTexture;
 }
 
+std::unique_ptr<OpenGLUtils::GLTexture2D> &Camera::UnsafeGetGBufferDepth()
+{
+    return m_gBufferDepth;
+}
+std::unique_ptr<OpenGLUtils::GLTexture2D> &Camera::UnsafeGetGBufferNormal()
+{
+    return m_gBufferNormal;
+}
+std::unique_ptr<OpenGLUtils::GLTexture2D> &Camera::UnsafeGetGBufferAlbedo()
+{
+    return m_gBufferAlbedo;
+}
+std::unique_ptr<OpenGLUtils::GLTexture2D> &Camera::UnsafeGetGBufferMetallicRoughnessEmissionAmbient()
+{
+    return m_gBufferMetallicRoughnessEmissionAmbient;
+}
+
 glm::mat4 Camera::GetProjection() const
 {
     return glm::perspective(glm::radians(m_fov * 0.5f), GetResolutionRatio(), m_nearDistance, m_farDistance);
@@ -222,7 +239,7 @@ void Camera::ResizeResolution(int x, int y)
         0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
 
     m_colorTexture->m_texture->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
-    m_depthStencilTexture->ReSize(
+    m_depthStencilTexture->m_texture->ReSize(
         0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, m_resolutionX, m_resolutionY);
 }
 
@@ -242,14 +259,15 @@ void Camera::OnCreate()
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     AttachTexture(m_colorTexture->m_texture.get(), GL_COLOR_ATTACHMENT0);
 
-    m_depthStencilTexture =
-        std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
-    m_depthStencilTexture->SetData(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
-    m_depthStencilTexture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_depthStencilTexture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_depthStencilTexture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_depthStencilTexture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    AttachTexture(m_depthStencilTexture.get(), GL_DEPTH_STENCIL_ATTACHMENT);
+    m_depthStencilTexture = AssetManager::CreateAsset<Texture2D>();
+    m_depthStencilTexture->m_texture =
+        std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
+    m_depthStencilTexture->m_texture->SetData(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    AttachTexture(m_depthStencilTexture->m_texture.get(), GL_DEPTH_STENCIL_ATTACHMENT);
 
     m_gBuffer = std::make_unique<RenderTarget>(m_resolutionX, m_resolutionY);
 
@@ -372,7 +390,6 @@ void Camera::OnInspect()
         m_colorTexture->Save(filePath);
     });
 
-
     if (ImGui::TreeNode("Debug"))
     {
         static float debugSacle = 0.25f;
@@ -423,6 +440,10 @@ void Camera::Start()
 void Camera::CollectAssetRef(std::vector<AssetRef> &list)
 {
     list.push_back(m_skybox);
+}
+std::shared_ptr<Texture2D> Camera::GetDepthStencil() const
+{
+    return m_depthStencilTexture;
 }
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
