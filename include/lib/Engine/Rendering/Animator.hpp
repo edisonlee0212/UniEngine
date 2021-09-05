@@ -23,24 +23,26 @@ class UNIENGINE_API Animator : public IPrivateComponent
     size_t m_boneSize = 0;
     void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
     void Setup();
-  public:
 
+    bool m_animatedCurrentFrame = false;
+  public:
+    bool m_needAnimate = true;
     // Create an animator which every bone is attached to an Entity.
     void Setup(
         std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
     void ApplyOffsetMatrices();
     void DebugBoneRender(const glm::vec4 &color, const float &size);
     void ResetTransform(const int &index);
-    bool m_autoPlay = true;
+    bool m_autoPlay = false;
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
     void AutoPlay();
+    bool AnimatedCurrentFrame();
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
     void OnInspect() override;
     void Animate();
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
     std::shared_ptr<Animation> GetAnimation();
-    void Start() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;

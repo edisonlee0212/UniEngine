@@ -40,4 +40,5 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
 };
 
+
 } // namespace UniEngine

@@ -7,21 +7,22 @@ using namespace UniEngine;
 void Animator::Setup()
 {
     auto animation = m_animation.Get<Animation>();
-    if (!animation)
-        return;
-    m_boneSize = animation->m_boneSize;
-    if (animation->m_rootBone && m_boneSize != 0)
+    if (animation)
     {
-        m_transformChain.resize(m_boneSize);
-        m_boundEntities.resize(m_boneSize);
-        m_names.resize(m_boneSize);
-        m_bones.resize(m_boneSize);
-        BoneSetter(animation->m_rootBone);
-        m_offsetMatrices.resize(m_boneSize);
-        for (auto &i : m_bones)
-            m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
-        if (!animation->m_animationNameAndLength.empty())
-            m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
+        m_boneSize = animation->m_boneSize;
+        if (animation->m_rootBone && m_boneSize != 0)
+        {
+            m_transformChain.resize(m_boneSize);
+            m_boundEntities.resize(m_boneSize);
+            m_names.resize(m_boneSize);
+            m_bones.resize(m_boneSize);
+            BoneSetter(animation->m_rootBone);
+            m_offsetMatrices.resize(m_boneSize);
+            for (auto &i : m_bones)
+                m_offsetMatrices[i->m_index] = i->m_offsetMatrix.m_value;
+            if (!animation->m_animationNameAndLength.empty())
+                m_currentActivatedAnimation = animation->m_animationNameAndLength.begin()->first;
+        }
     }
     m_needAnimationSetup = false;
 }
@@ -95,6 +96,7 @@ void Animator::OnInspect()
                     {
                         m_currentActivatedAnimation = i.first;
                         m_currentAnimationTime = 0.0f;
+                        m_needAnimate = true;
                     }
                     if (selected)
                     {
@@ -105,26 +107,36 @@ void Animator::OnInspect()
                 ImGui::EndCombo();
             }
             ImGui::Checkbox("AutoPlay", &m_autoPlay);
-            ImGui::SliderFloat(
+            if(ImGui::SliderFloat(
                 "Animation time",
                 &m_currentAnimationTime,
                 0.0f,
-                animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+                animation->m_animationNameAndLength[m_currentActivatedAnimation])){
+                m_needAnimate = true;
+            }
         }
     }
 }
 void Animator::AutoPlay()
 {
-    if (m_needAnimationSetup)
-        Setup();
     auto animation = m_animation.Get<Animation>();
     if (!animation)
         return;
+    if (m_needAnimationSetup)
+        Setup();
     m_currentAnimationTime += Application::Time().DeltaTime() * 1000.0f;
     if (m_currentAnimationTime > animation->m_animationNameAndLength[m_currentActivatedAnimation])
         m_currentAnimationTime =
             glm::mod(m_currentAnimationTime, animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+    m_needAnimate = true;
+    Animate();
 }
+
+bool Animator::AnimatedCurrentFrame()
+{
+    return m_animatedCurrentFrame;
+}
+
 void Animator::Animate()
 {
     if (m_boneSize == 0 && !m_transformChain.empty())
@@ -140,6 +152,7 @@ void Animator::Animate()
         ApplyOffsetMatrices();
         return;
     }
+    if(!m_needAnimate) return;
     auto animation = m_animation.Get<Animation>();
     if (animation)
     {
@@ -164,11 +177,10 @@ void Animator::Animate()
             ApplyOffsetMatrices();
         }
     }
+    m_needAnimate = false;
+    m_animatedCurrentFrame = true;
 }
-void Animator::Start()
-{
-    Animate();
-}
+
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
 {
     m_names[boneWalker->m_index] = boneWalker->m_name;
@@ -241,6 +253,7 @@ void Animator::ResetTransform(const int &index)
 void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<Animator>(target);
+    m_needAnimate = true;
 }
 
 void Animator::CollectAssetRef(std::vector<AssetRef> &list)
@@ -335,7 +348,7 @@ void Animator::Deserialize(const YAML::Node &in)
             }
         }
     }
-
+    m_needAnimate = true;
 }
 
 std::shared_ptr<Animation> Animator::GetAnimation()

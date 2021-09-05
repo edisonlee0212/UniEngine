@@ -18,38 +18,29 @@ void UniEngine::AnimationManager::PreUpdate()
     auto loadReminder = owners->size() % threadSize;
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
-        results.push_back(
-            workers
-                .Push([=](int id) {
-                    for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                    {
-                        auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
-                        if (animator->m_autoPlay)
-                        {
-                            animator->AutoPlay();
-                            animator->Animate();
-                        }
-                        else if (Application::IsPlaying() && animator->IsEnabled() && animator->m_animation.Get<Animation>())
-                        {
-                            animator->Animate();
-                        }
-                    }
-                    if (threadIndex < loadReminder)
-                    {
-                        const int i = threadIndex + threadSize * threadLoad;
-                        auto smmc = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
-                        if (smmc->m_autoPlay)
-                        {
-                            smmc->AutoPlay();
-                            smmc->Animate();
-                        }
-                        else if (Application::IsPlaying() && smmc->IsEnabled() && smmc->m_animation.Get<Animation>())
-                        {
-                            smmc->Animate();
-                        }
-                    }
-                })
-                .share());
+        results.push_back(workers
+                              .Push([=](int id) {
+                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                  {
+                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      animator->Animate();
+                                      if (!Application::IsPlaying() && animator->m_autoPlay)
+                                      {
+                                          animator->AutoPlay();
+                                      }
+                                  }
+                                  if (threadIndex < loadReminder)
+                                  {
+                                      const int i = threadIndex + threadSize * threadLoad;
+                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      animator->Animate();
+                                      if (!Application::IsPlaying() && animator->m_autoPlay)
+                                      {
+                                          animator->AutoPlay();
+                                      }
+                                  }
+                              })
+                              .share());
     }
     for (const auto &i : results)
         i.wait();
@@ -78,6 +69,48 @@ void UniEngine::AnimationManager::PreUpdate()
                                       const int i = threadIndex + threadSize * threadLoad;
                                       auto smmc = owners->at(i).GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
                                       smmc->GetBoneMatrices();
+                                  }
+                              })
+                              .share());
+    }
+    for (const auto &i : results)
+        i.wait();
+    ProfilerManager::EndEvent("AnimationManager");
+}
+void UniEngine::AnimationManager::LateUpdate()
+{
+    ProfilerManager::StartEvent("AnimationManager");
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
+    if (!owners)
+    {
+        ProfilerManager::EndEvent("AnimationManager");
+        return;
+    }
+    auto &workers = JobManager::PrimaryWorkers();
+    std::vector<std::shared_future<void>> results;
+    auto threadSize = workers.Size();
+    auto threadLoad = owners->size() / threadSize;
+    auto loadReminder = owners->size() % threadSize;
+    for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
+    {
+        results.push_back(workers
+                              .Push([=](int id) {
+                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                  {
+                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      if (animator->m_animatedCurrentFrame)
+                                      {
+                                          animator->m_animatedCurrentFrame = false;
+                                      }
+                                  }
+                                  if (threadIndex < loadReminder)
+                                  {
+                                      const int i = threadIndex + threadSize * threadLoad;
+                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      if (animator->m_animatedCurrentFrame)
+                                      {
+                                          animator->m_animatedCurrentFrame = false;
+                                      }
                                   }
                               })
                               .share());

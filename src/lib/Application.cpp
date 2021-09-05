@@ -116,7 +116,6 @@ void Application::PreUpdateInternal()
         EntityManager::GetInstance().m_scene->PreUpdate();
         ProfilerManager::EndEvent("Scene");
     }
-    AnimationManager::PreUpdate();
     application.m_needFixedUpdate = false;
     auto fixedDeltaTime = application.m_time.FixedDeltaTime();
     if (fixedDeltaTime >= application.m_time.m_timeStep)
@@ -142,6 +141,7 @@ void Application::PreUpdateInternal()
         ProfilerManager::EndEvent("FixedUpdate");
     }
     TransformManager::PreUpdate();
+    AnimationManager::PreUpdate();
     ProfilerManager::EndEvent("PreUpdate");
 }
 
@@ -185,6 +185,7 @@ bool Application::LateUpdateInternal()
 
     // Post-processing happens here
     RenderManager::LateUpdate();
+    AnimationManager::LateUpdate();
     // Manager settings
     OnInspect();
     InputManager::OnInspect();
