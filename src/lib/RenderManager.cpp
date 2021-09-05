@@ -136,8 +136,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     DefaultResources::m_gBufferLightingPass->Bind();
     cameraComponent->m_gBufferDepth->Bind(12);
     cameraComponent->m_gBufferNormal->Bind(13);
-    cameraComponent->m_gBufferAlbedoEmission->Bind(14);
-    cameraComponent->m_gBufferMetallicRoughnessAmbient->Bind(15);
+    cameraComponent->m_gBufferAlbedo->Bind(14);
+    cameraComponent->m_gBufferMetallicRoughnessEmissionAmbient->Bind(15);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM", 0);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM", 1);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM", 2);
@@ -148,8 +148,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
 
     DefaultResources::m_gBufferLightingPass->SetInt("gDepth", 12);
     DefaultResources::m_gBufferLightingPass->SetInt("gNormal", 13);
-    DefaultResources::m_gBufferLightingPass->SetInt("gAlbedoEmission", 14);
-    DefaultResources::m_gBufferLightingPass->SetInt("gMetallicRoughnessAmbient", 15);
+    DefaultResources::m_gBufferLightingPass->SetInt("gAlbedo", 14);
+    DefaultResources::m_gBufferLightingPass->SetInt("gMetallicRoughnessEmissionAmbient", 15);
     DefaultResources::ScreenVAO->Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
 #pragma endregion

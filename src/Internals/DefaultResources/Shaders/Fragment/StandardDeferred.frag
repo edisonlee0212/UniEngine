@@ -1,6 +1,6 @@
 layout (location = 0) out vec4 gNormal;
-layout (location = 1) out vec4 gAlbedoEmission;
-layout (location = 2) out vec3 gMetallicRoughnessAmbient;
+layout (location = 1) out vec3 gAlbedo;
+layout (location = 2) out vec4 gMetallicRoughnessEmissionAmbient;
 
 in VS_OUT {
     vec3 FragPos;
@@ -37,6 +37,6 @@ void main()
 
     // also store the per-fragment normals into the gbuffer
     gNormal.rgb = normalize((gl_FrontFacing ? 1.0 : -1.0) * normal);
-    gAlbedoEmission = vec4(albedo.rgb, emission);
-    gMetallicRoughnessAmbient = vec3(metallic, roughness, ao);
+    gAlbedo = vec3(albedo);
+    gMetallicRoughnessEmissionAmbient = vec4(metallic, roughness, emission, ao);
 }

@@ -6,19 +6,22 @@ in VS_OUT {
 
 uniform sampler2D gDepth;
 uniform sampler2D gNormal;
-uniform sampler2D gAlbedoEmission;
-uniform sampler2D gMetallicRoughnessAmbient;
+uniform sampler2D gAlbedo;
+uniform sampler2D gMetallicRoughnessEmissionAmbient;
 
 void main()
 {
-	vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
-	float ndcDepth = texture(gDepth, fs_in.TexCoords).r;
+	vec3 normal = 		texture(gNormal, fs_in.TexCoords).rgb;
+	float ndcDepth = 	texture(gDepth, fs_in.TexCoords).r;
 	float depth = UE_LINEARIZE_DEPTH(ndcDepth);
-	float metallic = texture(gMetallicRoughnessAmbient, fs_in.TexCoords).r;
-	float roughness = texture(gMetallicRoughnessAmbient, fs_in.TexCoords).g;
-	float ao = texture(gMetallicRoughnessAmbient, fs_in.TexCoords).b;
-	vec3 albedo = texture(gAlbedoEmission, fs_in.TexCoords).rgb;
-	float emission = texture(gAlbedoEmission, fs_in.TexCoords).a;
+
+	float metallic = 	texture(gMetallicRoughnessEmissionAmbient, fs_in.TexCoords).r;
+	float roughness = 	texture(gMetallicRoughnessEmissionAmbient, fs_in.TexCoords).g;
+	float emission = 	texture(gMetallicRoughnessEmissionAmbient, fs_in.TexCoords).b;
+	float ao = 			texture(gMetallicRoughnessEmissionAmbient, fs_in.TexCoords).a;
+
+	vec3 albedo = 		texture(gAlbedo, fs_in.TexCoords).rgb;
+
 	vec3 fragPos = UE_DEPTH_TO_WORLD_POS(fs_in.TexCoords, ndcDepth);
 	vec3 viewDir = normalize(UE_CAMERA_POSITION - fragPos);
 	bool receiveShadow = true;
@@ -28,6 +31,6 @@ void main()
 	vec3 ambient = UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(albedo, normal, viewDir, metallic, roughness, F0);
 	vec3 color = result + emission * normalize(albedo.xyz) + ambient * ao * UE_AMBIENT_LIGHT;
 	color = pow(color, vec3(1.0 / UE_GAMMA));
-	int width = textureSize(gAlbedoEmission, 0).x;
+	int width = textureSize(gAlbedo, 0).x;
 	FragColor = vec4(color, 1.0);
 }

@@ -217,8 +217,9 @@ void Camera::ResizeResolution(int x, int y)
     m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
     m_gBufferDepth->ReSize(0, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBufferNormal->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
-    m_gBufferAlbedoEmission->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
-    m_gBufferMetallicRoughnessAmbient->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBufferAlbedo->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBufferMetallicRoughnessEmissionAmbient->ReSize(
+        0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
 
     m_colorTexture->m_texture->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_depthStencilTexture->ReSize(
@@ -269,23 +270,22 @@ void Camera::OnCreate()
     m_gBufferNormal->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_gBuffer->AttachTexture(m_gBufferNormal.get(), GL_COLOR_ATTACHMENT0);
 
-    m_gBufferAlbedoEmission =
-        std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
-    m_gBufferAlbedoEmission->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
-    m_gBufferAlbedoEmission->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_gBufferAlbedoEmission->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_gBufferAlbedoEmission->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_gBufferAlbedoEmission->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_gBuffer->AttachTexture(m_gBufferAlbedoEmission.get(), GL_COLOR_ATTACHMENT1);
+    m_gBufferAlbedo = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, m_resolutionX, m_resolutionY, false);
+    m_gBufferAlbedo->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_gBufferAlbedo->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_gBufferAlbedo->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_gBufferAlbedo->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_gBufferAlbedo->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_gBuffer->AttachTexture(m_gBufferAlbedo.get(), GL_COLOR_ATTACHMENT1);
 
-    m_gBufferMetallicRoughnessAmbient =
-        std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, m_resolutionX, m_resolutionY, false);
-    m_gBufferMetallicRoughnessAmbient->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
-    m_gBufferMetallicRoughnessAmbient->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_gBufferMetallicRoughnessAmbient->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_gBufferMetallicRoughnessAmbient->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    m_gBufferMetallicRoughnessAmbient->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    m_gBuffer->AttachTexture(m_gBufferMetallicRoughnessAmbient.get(), GL_COLOR_ATTACHMENT2);
+    m_gBufferMetallicRoughnessEmissionAmbient =
+        std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_gBuffer->AttachTexture(m_gBufferMetallicRoughnessEmissionAmbient.get(), GL_COLOR_ATTACHMENT2);
 
     SetEnabled(true);
 }
@@ -367,53 +367,39 @@ void Camera::OnInspect()
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);
     ImGui::DragFloat("Far", &m_farDistance, m_farDistance / 10.0f, m_nearDistance);
     ImGui::DragFloat("FOV", &m_fov, 1.0f, 1, 359);
-    if (ImGui::TreeNode("Content"))
-    {
-        ImGui::Image(
-            (ImTextureID)m_colorTexture->Texture()->Id(),
-            ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
-            ImVec2(0, 1),
-            ImVec2(1, 0));
 
-        FileUtils::SaveFile(
-            "Save Texture", "Texture2D", {".png", ".jpg"}, [this](const std::filesystem::path &filePath) {
-                m_colorTexture->Save(filePath);
-            });
-        ImGui::TreePop();
-    }
+    FileUtils::SaveFile("Screenshot", "Texture2D", {".png", ".jpg"}, [this](const std::filesystem::path &filePath) {
+        m_colorTexture->Save(filePath);
+    });
+
 
     if (ImGui::TreeNode("Debug"))
     {
-        if (ImGui::TreeNode("Debug"))
-        {
-            
-            ImGui::Image(
-                (ImTextureID)m_gBufferDepth->Id(),
-                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-            ImGui::Image(
-                (ImTextureID)m_gBufferNormal->Id(),
-                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-            ImGui::Image(
-                (ImTextureID)m_gBufferAlbedoEmission->Id(),
-                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-            ImGui::Image(
-                (ImTextureID)m_gBufferMetallicRoughnessAmbient->Id(),
-                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-            ImGui::TreePop();
-        }
+        static float debugSacle = 0.25f;
+        ImGui::DragFloat("Scale", &debugSacle, 0.01f, 0.1f, 1.0f);
+        debugSacle = glm::clamp(debugSacle, 0.1f, 1.0f);
         ImGui::Image(
-            (ImTextureID)m_depthStencilTexture->Id(),
-            ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+            (ImTextureID)m_colorTexture->Texture()->Id(),
+            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
             ImVec2(0, 1),
             ImVec2(1, 0));
+        ImGui::Image(
+            (ImTextureID)m_gBufferNormal->Id(),
+            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+        ImGui::Image(
+            (ImTextureID)m_gBufferAlbedo->Id(),
+            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+        ImGui::Image(
+            (ImTextureID)m_gBufferMetallicRoughnessEmissionAmbient->Id(),
+            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+        ImGui::TreePop();
+
         ImGui::TreePop();
     }
 }
