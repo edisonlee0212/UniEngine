@@ -150,6 +150,8 @@ void Animator::Animate()
             }
         }
         ApplyOffsetMatrices();
+        m_needAnimate = false;
+        m_animatedCurrentFrame = true;
         return;
     }
     if(!m_needAnimate) return;
