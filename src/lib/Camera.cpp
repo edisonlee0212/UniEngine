@@ -416,8 +416,6 @@ void Camera::OnInspect()
             ImVec2(0, 1),
             ImVec2(1, 0));
         ImGui::TreePop();
-
-        ImGui::TreePop();
     }
 }
 
