@@ -22,8 +22,9 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void GetBoneMatrices();
 
     friend class RenderManager;
-
+    bool m_applyGlobalTransform = false;
   public:
+    bool NeedApplyGlobalTransform();
     PrivateComponentRef m_animator;
     std::shared_ptr<BoneMatrices> m_finalResults;
     bool m_forwardRendering = false;

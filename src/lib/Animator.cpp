@@ -173,7 +173,7 @@ void Animator::Animate()
             animation->Animate(
                 m_currentActivatedAnimation,
                 m_currentAnimationTime,
-                owner.GetDataComponent<GlobalTransform>().m_value,
+                glm::mat4(1.0f),
                 m_boundEntities,
                 m_transformChain);
             ApplyOffsetMatrices();

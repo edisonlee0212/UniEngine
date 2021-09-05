@@ -7,7 +7,7 @@ layout (location = 7) in ivec4 inBoneIds2;
 layout (location = 8) in vec4 inWeights2;
 
 
-
+uniform mat4 model;
 void main()
 {
 	mat4 boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
@@ -32,5 +32,5 @@ void main()
 	if(inBoneIds2[3] != -1){
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
-	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * inInstanceMatrix * boneTransform * vec4(inPos, 1.0);
+	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * model * boneTransform * inInstanceMatrix * vec4(inPos, 1.0);
 }

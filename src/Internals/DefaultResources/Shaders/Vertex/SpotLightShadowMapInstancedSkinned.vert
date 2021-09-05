@@ -6,6 +6,9 @@ layout (location = 8) in vec4 inWeights2;
 layout (location = 12) in mat4 aInstanceMatrix;
 
 uniform int index;
+
+uniform mat4 model;
+
 void main()
 {
     mat4 boneTransform = UE_ANIM_BONES[inBoneIds[0]] * inWeights[0];
@@ -30,5 +33,5 @@ void main()
 	if(inBoneIds2[3] != -1){
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
-    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * boneTransform * aInstanceMatrix * vec4(aPos, 1.0);
+    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * model * boneTransform * aInstanceMatrix * vec4(aPos, 1.0);
 }

@@ -92,6 +92,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DeferredPrepassInternal(skinnedMesh);
                 break;
             }
@@ -181,6 +182,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 program->Bind();
                 ApplyProgramSettings(program, material);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInternal(skinnedMesh);
                 break;
             }
@@ -634,11 +636,11 @@ void RenderManager::CollectRenderInstances(
                 continue;
             GlobalTransform gt;
             auto animator = smmc->m_animator.Get<Animator>();
-            if (animator)
+            if (!animator)
             {
-                gt = animator->GetOwner().GetDataComponent<GlobalTransform>();
+                continue;
             }
-            else
+            if(smmc->m_applyGlobalTransform)
             {
                 gt = owner.GetDataComponent<GlobalTransform>();
             }
@@ -1099,6 +1101,7 @@ void RenderManager::ShadowMapPrePass(
                     auto &program = skinnedProgram;
                     program->Bind();
                     renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
+                    program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
                     skinnedMesh->Draw();
                     break;
@@ -1154,6 +1157,7 @@ void RenderManager::ShadowMapPrePass(
                     auto &program = skinnedProgram;
                     program->Bind();
                     renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
+                    program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                     program->SetInt("index", enabledSize);
                     skinnedMesh->Draw();
                     break;

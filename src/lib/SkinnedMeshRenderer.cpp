@@ -25,6 +25,11 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
     auto animator = m_animator.Get<Animator>();
+    if(animator->m_boneSize == 0){
+        m_applyGlobalTransform = false;
+    }else{
+        m_applyGlobalTransform = true;
+    }
     auto skinnedMesh = m_skinnedMesh.Get<SkinnedMesh>();
     if (!animator || !skinnedMesh || !animator->m_animatedCurrentFrame)
         return;
@@ -99,6 +104,10 @@ void SkinnedMeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)
 {
     list.push_back(m_skinnedMesh);
     list.push_back(m_material);
+}
+bool SkinnedMeshRenderer::NeedApplyGlobalTransform()
+{
+    return m_applyGlobalTransform;
 }
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh>& skinnedMesh) const
 {
