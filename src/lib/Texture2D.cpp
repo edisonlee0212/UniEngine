@@ -97,7 +97,7 @@ void Texture2D::StoreToJpg(const std::string &path, int resizeX, int resizeY, un
     }
 }
 
-std::shared_ptr<OpenGLUtils::GLTexture2D> Texture2D::Texture() const
+std::shared_ptr<OpenGLUtils::GLTexture2D>& Texture2D::UnsafeGetGLTexture()
 {
     return m_texture;
 }

@@ -190,7 +190,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_flatColor->Bind(0);
     m_brightColor->Bind(1);
@@ -272,7 +272,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     renderTarget.Bind();
     glDrawBuffers(2, enums);
 
-    cameraComponent->m_colorTexture->Texture()->Bind(0);
+    cameraComponent->m_colorTexture->UnsafeGetGLTexture()->Bind(0);
     cameraComponent->m_gBufferNormal->Bind(1);
     cameraComponent->m_gBufferDepth->Bind(2);
     m_geometryProgram->SetInt("color", 0);
@@ -308,7 +308,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_combineProgram->Bind();
-    renderTarget.AttachTexture(cameraComponent->m_colorTexture->Texture().get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_originalColor->Bind(0);
     m_ssaoPosition->Bind(1);

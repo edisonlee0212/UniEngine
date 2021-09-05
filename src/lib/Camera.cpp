@@ -396,7 +396,7 @@ void Camera::OnInspect()
         ImGui::DragFloat("Scale", &debugSacle, 0.01f, 0.1f, 1.0f);
         debugSacle = glm::clamp(debugSacle, 0.1f, 1.0f);
         ImGui::Image(
-            (ImTextureID)m_colorTexture->Texture()->Id(),
+            (ImTextureID)m_colorTexture->UnsafeGetGLTexture()->Id(),
             ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
             ImVec2(0, 1),
             ImVec2(1, 0));

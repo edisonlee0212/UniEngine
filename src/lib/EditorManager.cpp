@@ -1122,7 +1122,7 @@ void EditorManager::SceneCameraWindow()
                 {
                     // Because I use the texture from OpenGL, I need to invert the V from the UV.
                     ImGui::Image(
-                        (ImTextureID)editorManager.m_sceneCamera->GetTexture()->Texture()->Id(),
+                        (ImTextureID)editorManager.m_sceneCamera->GetTexture()->UnsafeGetGLTexture()->Id(),
                         viewPortSize,
                         ImVec2(0, 1),
                         ImVec2(1, 0));
@@ -1371,7 +1371,7 @@ void EditorManager::MainCameraWindow()
                 auto entity = mainCamera->GetOwner();
                 if (entity.IsEnabled() && mainCamera->IsEnabled())
                 {
-                    auto id = mainCamera->GetTexture()->Texture()->Id();
+                    auto id = mainCamera->GetTexture()->UnsafeGetGLTexture()->Id();
                     ImGui::Image((ImTextureID)id, viewPortSize, ImVec2(0, 1), ImVec2(1, 0));
                     CameraWindowDragAndDrop();
                     cameraActive = true;

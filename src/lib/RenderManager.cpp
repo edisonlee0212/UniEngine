@@ -1686,7 +1686,7 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     manager.m_environmentalMapSettings.m_environmentalLightingGamma = environmentalMap->m_gamma;
 
     cameraSkybox->Texture()->Bind(8);
-    DefaultResources::m_brdfLut->Texture()->Bind(11);
+    DefaultResources::m_brdfLut->UnsafeGetGLTexture()->Bind(11);
     environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
     environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
 
@@ -1746,40 +1746,40 @@ void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &mater
     bool hasAlbedo = false;
 
     auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
-    if (albedoTexture && albedoTexture->Texture())
+    if (albedoTexture && albedoTexture->UnsafeGetGLTexture())
     {
         hasAlbedo = true;
-        albedoTexture->Texture()->Bind(3);
+        albedoTexture->UnsafeGetGLTexture()->Bind(3);
         manager.m_materialSettings.m_albedoEnabled = static_cast<int>(true);
     }
     auto normalTexture = material->m_normalTexture.Get<Texture2D>();
-    if (normalTexture && normalTexture->Texture())
+    if (normalTexture && normalTexture->UnsafeGetGLTexture())
     {
-        normalTexture->Texture()->Bind(4);
+        normalTexture->UnsafeGetGLTexture()->Bind(4);
         manager.m_materialSettings.m_normalEnabled = static_cast<int>(true);
     }
     auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
-    if (metallicTexture && metallicTexture->Texture())
+    if (metallicTexture && metallicTexture->UnsafeGetGLTexture())
     {
-        metallicTexture->Texture()->Bind(5);
+        metallicTexture->UnsafeGetGLTexture()->Bind(5);
         manager.m_materialSettings.m_metallicEnabled = static_cast<int>(true);
     }
     auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
-    if (roughnessTexture && roughnessTexture->Texture())
+    if (roughnessTexture && roughnessTexture->UnsafeGetGLTexture())
     {
-        roughnessTexture->Texture()->Bind(6);
+        roughnessTexture->UnsafeGetGLTexture()->Bind(6);
         manager.m_materialSettings.m_roughnessEnabled = static_cast<int>(true);
     }
     auto aoTexture = material->m_aoTexture.Get<Texture2D>();
-    if (aoTexture && aoTexture->Texture())
+    if (aoTexture && aoTexture->UnsafeGetGLTexture())
     {
-        aoTexture->Texture()->Bind(7);
+        aoTexture->UnsafeGetGLTexture()->Bind(7);
         manager.m_materialSettings.m_aoEnabled = static_cast<int>(true);
     }
 
     if (!hasAlbedo)
     {
-        DefaultResources::Textures::MissingTexture->Texture()->Bind(3);
+        DefaultResources::Textures::MissingTexture->UnsafeGetGLTexture()->Bind(3);
     }
     manager.m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
     manager.m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
@@ -1801,7 +1801,7 @@ void RenderManager::ApplyProgramSettings(
     program->SetInt("UE_SPOT_LIGHT_SM", 2);
     program->SetInt("UE_ALBEDO_MAP", 3);
     auto normalTexture = material->m_normalTexture.Get<Texture2D>();
-    if (normalTexture && normalTexture->Texture())
+    if (normalTexture && normalTexture->UnsafeGetGLTexture())
     {
         program->SetInt("UE_NORMAL_MAP", 4);
     }
@@ -1810,7 +1810,7 @@ void RenderManager::ApplyProgramSettings(
         program->SetInt("UE_NORMAL_MAP", 3);
     }
     auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
-    if (metallicTexture && metallicTexture->Texture())
+    if (metallicTexture && metallicTexture->UnsafeGetGLTexture())
     {
         program->SetInt("UE_METALLIC_MAP", 5);
     }
@@ -1819,7 +1819,7 @@ void RenderManager::ApplyProgramSettings(
         program->SetInt("UE_METALLIC_MAP", 3);
     }
     auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
-    if (roughnessTexture && roughnessTexture->Texture())
+    if (roughnessTexture && roughnessTexture->UnsafeGetGLTexture())
     {
         program->SetInt("UE_ROUGHNESS_MAP", 6);
     }
@@ -1828,7 +1828,7 @@ void RenderManager::ApplyProgramSettings(
         program->SetInt("UE_ROUGHNESS_MAP", 3);
     }
     auto aoTexture = material->m_aoTexture.Get<Texture2D>();
-    if (aoTexture && aoTexture->Texture())
+    if (aoTexture && aoTexture->UnsafeGetGLTexture())
     {
         program->SetInt("UE_AO_MAP", 7);
     }

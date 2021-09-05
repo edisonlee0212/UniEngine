@@ -201,7 +201,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
             ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
             if (ptr->m_icon)
                 ImGui::Image(
-                    reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
+                    reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
                     ImVec2(30, 30),
                     ImVec2(0, 1),
                     ImVec2(1, 0));
@@ -382,7 +382,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
         ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
         if (ptr->m_icon)
             ImGui::Image(
-                reinterpret_cast<ImTextureID>(ptr->m_icon->Texture()->Id()),
+                reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
                 ImVec2(30, 30),
                 ImVec2(0, 1),
                 ImVec2(1, 0));
