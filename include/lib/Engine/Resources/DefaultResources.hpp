@@ -101,6 +101,12 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedSkinnedProgram;
     };
 
+    class UNIENGINE_API GLShaders
+    {
+      public:
+        static std::shared_ptr<OpenGLUtils::GLShader> TexturePassThrough;
+    };
+
     class UNIENGINE_API ShaderIncludes
     {
       public:

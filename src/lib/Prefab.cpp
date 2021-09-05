@@ -385,7 +385,7 @@ bool Prefab::ProcessNode(
             continue;
         auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerMesh->mName.C_Str()));
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
-        bool isSkinnedMesh = !importerMesh->HasBones();
+        bool isSkinnedMesh = importerMesh->HasBones();
         std::shared_ptr<Material> material;
         if (search == loadedMaterials.end())
         {

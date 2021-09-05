@@ -168,8 +168,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 program->Bind();
                 ApplyProgramSettings(program, material);
-                program->SetFloat4x4(
-                    "model", renderCommand.m_globalTransform.m_value);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInternal(mesh);
                 break;
             }
@@ -203,8 +202,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 program->Bind();
                 ApplyProgramSettings(program, material);
-                program->SetFloat4x4(
-                    "model", renderCommand.m_globalTransform.m_value);
+                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DrawMeshInstancedInternal(mesh, renderCommand.m_matrices.lock());
                 break;
             }
@@ -1083,6 +1081,8 @@ void RenderManager::ShadowMapPrePass(
         DispatchRenderCommands(
             i.second,
             [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                if (!renderCommand.m_castShadow)
+                    return;
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1112,6 +1112,8 @@ void RenderManager::ShadowMapPrePass(
         DispatchRenderCommands(
             i.second,
             [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                if (!renderCommand.m_castShadow)
+                    return;
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1134,6 +1136,8 @@ void RenderManager::ShadowMapPrePass(
         DispatchRenderCommands(
             i.second,
             [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                if (!renderCommand.m_castShadow)
+                    return;
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1163,6 +1167,8 @@ void RenderManager::ShadowMapPrePass(
         DispatchRenderCommands(
             i.second,
             [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
+                if (!renderCommand.m_castShadow)
+                    return;
                 switch (renderCommand.m_meshType)
                 {
                 case RenderCommandMeshType::Default: {
@@ -1782,7 +1788,8 @@ void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &mater
     manager.m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &manager.m_materialSettings);
 }
 
-void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLProgram> &program, const std::shared_ptr<Material> &material)
+void RenderManager::ApplyProgramSettings(
+    const std::shared_ptr<OpenGLUtils::GLProgram> &program, const std::shared_ptr<Material> &material)
 {
     auto &manager = GetInstance();
     program->SetInt("UE_DIRECTIONAL_LIGHT_SM", 0);
@@ -1793,28 +1800,36 @@ void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLPr
     if (normalTexture && normalTexture->Texture())
     {
         program->SetInt("UE_NORMAL_MAP", 4);
-    }else{
+    }
+    else
+    {
         program->SetInt("UE_NORMAL_MAP", 3);
     }
     auto metallicTexture = material->m_metallicTexture.Get<Texture2D>();
     if (metallicTexture && metallicTexture->Texture())
     {
         program->SetInt("UE_METALLIC_MAP", 5);
-    }else{
+    }
+    else
+    {
         program->SetInt("UE_METALLIC_MAP", 3);
     }
     auto roughnessTexture = material->m_roughnessTexture.Get<Texture2D>();
     if (roughnessTexture && roughnessTexture->Texture())
     {
         program->SetInt("UE_ROUGHNESS_MAP", 6);
-    }else{
+    }
+    else
+    {
         program->SetInt("UE_ROUGHNESS_MAP", 3);
     }
     auto aoTexture = material->m_aoTexture.Get<Texture2D>();
     if (aoTexture && aoTexture->Texture())
     {
         program->SetInt("UE_AO_MAP", 7);
-    }else{
+    }
+    else
+    {
         program->SetInt("UE_AO_MAP", 3);
     }
 
