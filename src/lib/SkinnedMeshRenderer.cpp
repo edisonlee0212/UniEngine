@@ -35,26 +35,9 @@ void SkinnedMeshRenderer::GetBoneMatrices()
     }
 }
 
-void SkinnedMeshRenderer::AttachAnimator(const std::shared_ptr<Animator> &animator)
-{
-    if (animator->m_animation.Get<Animation>() == m_skinnedMesh.Get<SkinnedMesh>()->m_animation.Get<Animation>())
-    {
-        m_animator.Set(animator);
-    }
-    else
-    {
-        UNIENGINE_ERROR("Animator doesn't share same animation!");
-    }
-}
-
 void SkinnedMeshRenderer::OnInspect()
 {
-    auto animator = m_animator.Get<Animator>();
     EditorManager::DragAndDropButton<Animator>(m_animator, "Animator");
-    if(animator != m_animator.Get<Animator>()){
-        AttachAnimator(m_animator.Get<Animator>());
-    }
-
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);

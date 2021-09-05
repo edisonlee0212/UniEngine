@@ -12,8 +12,6 @@ std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBuffe
 
 void SkinnedMesh::OnInspect()
 {
-    EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
-
     ImGui::Text(("Vertices size: " + std::to_string(m_skinnedVertices.size())).c_str());
     ImGui::Text(("Triangle amount: " + std::to_string(m_triangles.size())).c_str());
 }
@@ -329,7 +327,6 @@ void SkinnedMesh::DrawInstanced(const std::shared_ptr<ParticleMatrices> &matrice
 
 void SkinnedMesh::Serialize(YAML::Emitter &out)
 {
-    m_animation.Save("m_animation", out);
     if (!m_boneAnimatorIndices.empty())
     {
         out << YAML::Key << "m_boneAnimatorIndices" << YAML::Value
@@ -352,7 +349,6 @@ void SkinnedMesh::Serialize(YAML::Emitter &out)
 }
 void SkinnedMesh::Deserialize(const YAML::Node &in)
 {
-    m_animation.Load("m_animation", in);
     if(in["m_boneAnimatorIndices"])
     {
         YAML::Binary boneIndices = in["m_boneAnimatorIndices"].as<YAML::Binary>();

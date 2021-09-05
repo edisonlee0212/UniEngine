@@ -410,7 +410,6 @@ bool Prefab::ProcessNode(
             if (!skinnedMeshRenderer->m_skinnedMesh.Get())
                 continue;
             addedMeshRenderer = true;
-            skinnedMeshRenderer->m_skinnedMesh.Get<SkinnedMesh>()->m_animation.Set<Animation>(animation);
             PrivateComponentHolder holder;
             holder.m_enabled = true;
             holder.m_data = std::static_pointer_cast<IPrivateComponent>(skinnedMeshRenderer);
