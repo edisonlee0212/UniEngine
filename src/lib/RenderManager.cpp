@@ -1788,12 +1788,7 @@ void RenderManager::ApplyProgramSettings(const std::shared_ptr<OpenGLUtils::GLPr
     program->SetInt("UE_DIRECTIONAL_LIGHT_SM", 0);
     program->SetInt("UE_POINT_LIGHT_SM", 1);
     program->SetInt("UE_SPOT_LIGHT_SM", 2);
-
-    auto albedoTexture = material->m_albedoTexture.Get<Texture2D>();
-    if (albedoTexture && albedoTexture->Texture())
-    {
-        program->SetInt("UE_ALBEDO_MAP", 3);
-    }
+    program->SetInt("UE_ALBEDO_MAP", 3);
     auto normalTexture = material->m_normalTexture.Get<Texture2D>();
     if (normalTexture && normalTexture->Texture())
     {

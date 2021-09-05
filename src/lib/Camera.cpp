@@ -381,6 +381,41 @@ void Camera::OnInspect()
             });
         ImGui::TreePop();
     }
+
+    if (ImGui::TreeNode("Debug"))
+    {
+        if (ImGui::TreeNode("Debug"))
+        {
+            
+            ImGui::Image(
+                (ImTextureID)m_gBufferDepth->Id(),
+                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferNormal->Id(),
+                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferAlbedoEmission->Id(),
+                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferMetallicRoughnessAmbient->Id(),
+                ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::TreePop();
+        }
+        ImGui::Image(
+            (ImTextureID)m_depthStencilTexture->Id(),
+            ImVec2(m_resolutionX / 5.0f, m_resolutionY / 5.0f),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+        ImGui::TreePop();
+    }
 }
 
 void Camera::Clone(const std::shared_ptr<IPrivateComponent> &target)
