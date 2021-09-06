@@ -79,7 +79,7 @@ void Animator::OnInspect()
                 }
                 ImGui::EndCombo();
             }
-            ImGui::Checkbox("AutoPlay", &m_autoPlay);
+            if(!Application::IsPlaying()) ImGui::Checkbox("AutoPlay", &m_autoPlay);
             if (ImGui::SliderFloat(
                     "Animation time",
                     &m_currentAnimationTime,
