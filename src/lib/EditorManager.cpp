@@ -118,9 +118,11 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
+            GlobalTransform ltw;
+            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
-                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model", ltw.m_value);
             skinnedMesh->Draw();
         }
     }
@@ -163,7 +165,8 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
-            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            GlobalTransform ltw;
+            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
@@ -528,6 +531,7 @@ void EditorManager::RenderToSceneCamera()
                     case RenderCommandMeshType::Skinned: {
                         auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                         renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
                         DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());
@@ -581,6 +585,7 @@ void EditorManager::RenderToSceneCamera()
                     case RenderCommandMeshType::Skinned: {
                         auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                         program->Bind();
+                        program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                         renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
                         DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                             "EntityIndex", renderCommand.m_owner.GetIndex());

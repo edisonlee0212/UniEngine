@@ -640,7 +640,7 @@ void RenderManager::CollectRenderInstances(
             {
                 continue;
             }
-            if(smmc->m_applyGlobalTransform)
+            if(!smmc->m_ragDoll)
             {
                 gt = owner.GetDataComponent<GlobalTransform>();
             }

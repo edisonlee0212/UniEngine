@@ -13,7 +13,6 @@ void Animator::Setup()
         if (animation->m_rootBone && m_boneSize != 0)
         {
             m_transformChain.resize(m_boneSize);
-            m_boundEntities.resize(m_boneSize);
             m_names.resize(m_boneSize);
             m_bones.resize(m_boneSize);
             BoneSetter(animation->m_rootBone);
@@ -35,45 +34,19 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 
 void Animator::OnInspect()
 {
-    ImGui::Text("Animation:");
-    ImGui::SameLine();
+
     auto animation = m_animation.Get<Animation>();
     Animation *previous = animation.get();
-
     EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
     if (previous != animation.get() && animation)
     {
         Setup(animation);
         animation = m_animation.Get<Animation>();
     }
-
     if (animation)
     {
-        static bool debugRenderBones = true;
-        static float debugRenderBonesSize = 0.5f;
-        static glm::vec4 debugRenderBonesColor = glm::vec4(1, 1, 0, 0.5);
-        ImGui::Checkbox("Display bones", &debugRenderBones);
-        if (debugRenderBones)
-        {
-            ImGui::DragFloat("Size", &debugRenderBonesSize, 0.01f, 0.01f, 3.0f);
-            ImGui::ColorEdit4("Color", &debugRenderBonesColor.x);
-            DebugBoneRender(debugRenderBonesColor, debugRenderBonesSize);
-        }
+
         animation->OnGui();
-        if (ImGui::TreeNode("RagDoll"))
-        {
-            for (int i = 0; i < m_boundEntities.size(); i++)
-            {
-                if (EditorManager::DragAndDropButton(m_boundEntities[i], "Bone: " + m_names[i]))
-                {
-                    if (m_boundEntities[i].Get().IsValid())
-                    {
-                        ResetTransform(i);
-                    }
-                }
-            }
-            ImGui::TreePop();
-        }
         if (m_boneSize != 0)
         {
             if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
@@ -107,11 +80,12 @@ void Animator::OnInspect()
                 ImGui::EndCombo();
             }
             ImGui::Checkbox("AutoPlay", &m_autoPlay);
-            if(ImGui::SliderFloat(
-                "Animation time",
-                &m_currentAnimationTime,
-                0.0f,
-                animation->m_animationNameAndLength[m_currentActivatedAnimation])){
+            if (ImGui::SliderFloat(
+                    "Animation time",
+                    &m_currentAnimationTime,
+                    0.0f,
+                    animation->m_animationNameAndLength[m_currentActivatedAnimation]))
+            {
                 m_needAnimate = true;
             }
         }
@@ -139,22 +113,8 @@ bool Animator::AnimatedCurrentFrame()
 
 void Animator::Animate()
 {
-    if (m_boneSize == 0 && !m_transformChain.empty())
-    {
-        for (int i = 0; i < m_transformChain.size(); i++)
-        {
-            auto entity = m_boundEntities[i].Get();
-            if(!entity.IsNull())
-            {
-                m_transformChain[i] = entity.GetDataComponent<GlobalTransform>().m_value;
-            }
-        }
-        ApplyOffsetMatrices();
-        m_needAnimate = false;
-        m_animatedCurrentFrame = true;
+    if (!m_needAnimate)
         return;
-    }
-    if(!m_needAnimate) return;
     auto animation = m_animation.Get<Animation>();
     if (animation)
     {
@@ -168,14 +128,9 @@ void Animator::Animate()
             m_currentAnimationTime = 0.0f;
         }
         auto owner = GetOwner();
-        if(!owner.IsNull())
+        if (!owner.IsNull())
         {
-            animation->Animate(
-                m_currentActivatedAnimation,
-                m_currentAnimationTime,
-                glm::mat4(1.0f),
-                m_boundEntities,
-                m_transformChain);
+            animation->Animate(m_currentActivatedAnimation, m_currentAnimationTime, glm::mat4(1.0f), m_transformChain);
             ApplyOffsetMatrices();
         }
     }
@@ -193,17 +148,11 @@ void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
     }
 }
 
-void Animator::Setup(
-    std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices)
+void Animator::Setup(std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices)
 {
     m_bones.clear();
-    assert(boundEntities.size() == name.size() && boundEntities.size() == offsetMatrices.size());
-    m_transformChain.resize(boundEntities.size());
-    m_boundEntities.resize(boundEntities.size());
-    for (int i = 0; i < boundEntities.size(); i++)
-    {
-        m_boundEntities[i] = boundEntities[i];
-    }
+    m_boneSize = 0;
+    m_transformChain.resize(offsetMatrices.size());
     m_names = name;
     m_offsetMatrices = offsetMatrices;
 }
@@ -216,41 +165,11 @@ void Animator::ApplyOffsetMatrices()
     }
 }
 
-void Animator::DebugBoneRender(const glm::vec4 &color, const float &size)
+glm::mat4 Animator::GetReverseTransform(const int &index, const Entity& entity)
 {
     if (m_needAnimationSetup)
         Setup();
-    const auto selfScale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
-
-    std::vector<glm::mat4> debugRenderingMatrices = m_transformChain;
-    for (int index = 0; index < m_transformChain.size(); index++)
-    {
-        debugRenderingMatrices[index] =
-            m_transformChain[index] * glm::inverse(m_offsetMatrices[index]) * glm::inverse(glm::scale(selfScale));
-    }
-    RenderManager::DrawGizmoMeshInstanced(
-        DefaultResources::Primitives::Sphere, color, debugRenderingMatrices, Transform().m_value, size);
-}
-
-void Animator::ResetTransform(const int &index)
-{
-    if (m_needAnimationSetup)
-        Setup();
-    GlobalTransform globalTransform;
-    auto entity = m_boundEntities[index].Get();
-    globalTransform.m_value = m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
-    auto parent = m_boundEntities[index].Get().GetParent();
-    Transform localTransform;
-    if (parent.IsValid())
-    {
-        const auto parentGlobalTransform = parent.GetDataComponent<GlobalTransform>();
-        localTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-    }
-    else
-    {
-        localTransform.m_value = globalTransform.m_value;
-    }
-    entity.SetDataComponent(localTransform);
+    return m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
 }
 void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
@@ -273,40 +192,28 @@ void Animator::Serialize(YAML::Emitter &out)
         out << YAML::Key << "m_currentActivatedAnimation" << YAML::Value << m_currentActivatedAnimation;
         out << YAML::Key << "m_currentAnimationTime" << YAML::Value << m_currentAnimationTime;
     }
-    if (!m_boundEntities.empty())
+    if (!m_transformChain.empty())
     {
-        out << YAML::Key << "m_boundEntities" << YAML::Value << YAML::BeginSeq;
-        for (int i = 0; i < m_boundEntities.size(); i++)
+        out << YAML::Key << "m_transformChain" << YAML::Value
+            << YAML::Binary(
+                   (const unsigned char *)m_transformChain.data(), m_transformChain.size() * sizeof(glm::mat4));
+    }
+    if (!m_offsetMatrices.empty())
+    {
+        out << YAML::Key << "m_offsetMatrices" << YAML::Value
+            << YAML::Binary(
+                   (const unsigned char *)m_offsetMatrices.data(), m_offsetMatrices.size() * sizeof(glm::mat4));
+    }
+    if (!m_names.empty())
+    {
+        out << YAML::Key << "m_names" << YAML::Value << YAML::BeginSeq;
+        for (int i = 0; i < m_names.size(); i++)
         {
             out << YAML::BeginMap;
-            m_boundEntities[i].Serialize(out);
+            out << YAML::Key << "Name" << YAML::Value << m_names[i];
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
-
-        if (!m_transformChain.empty())
-        {
-            out << YAML::Key << "m_transformChain" << YAML::Value
-                << YAML::Binary(
-                       (const unsigned char *)m_transformChain.data(), m_transformChain.size() * sizeof(glm::mat4));
-        }
-        if (!m_offsetMatrices.empty())
-        {
-            out << YAML::Key << "m_offsetMatrices" << YAML::Value
-                << YAML::Binary(
-                       (const unsigned char *)m_offsetMatrices.data(), m_offsetMatrices.size() * sizeof(glm::mat4));
-        }
-        if (!m_names.empty())
-        {
-            out << YAML::Key << "m_names" << YAML::Value << YAML::BeginSeq;
-            for (int i = 0; i < m_names.size(); i++)
-            {
-                out << YAML::BeginMap;
-                out << YAML::Key << "Name" << YAML::Value << m_names[i];
-                out << YAML::EndMap;
-            }
-            out << YAML::EndSeq;
-        }
     }
 }
 
@@ -321,46 +228,31 @@ void Animator::Deserialize(const YAML::Node &in)
         m_currentAnimationTime = in["m_currentAnimationTime"].as<float>();
         Setup();
     }
-    auto inBoundEntities = in["m_boundEntities"];
-    if (inBoundEntities)
+    if (in["m_transformChain"])
     {
-        for (const auto &i : inBoundEntities)
+        YAML::Binary chains = in["m_transformChain"].as<YAML::Binary>();
+        m_transformChain.resize(chains.size() / sizeof(glm::mat4));
+        std::memcpy(m_transformChain.data(), chains.data(), chains.size());
+    }
+    if (in["m_offsetMatrices"])
+    {
+        YAML::Binary matrices = in["m_offsetMatrices"].as<YAML::Binary>();
+        m_offsetMatrices.resize(matrices.size() / sizeof(glm::mat4));
+        std::memcpy(m_offsetMatrices.data(), matrices.data(), matrices.size());
+    }
+    if (in["m_names"])
+    {
+        for (const auto &i : in["m_names"])
         {
-            EntityRef ref;
-            ref.Deserialize(i);
-            m_boundEntities.push_back(ref);
-        }
-        if (in["m_transformChain"])
-        {
-            YAML::Binary chains = in["m_transformChain"].as<YAML::Binary>();
-            m_transformChain.resize(chains.size() / sizeof(glm::mat4));
-            std::memcpy(m_transformChain.data(), chains.data(), chains.size());
-        }
-        if (in["m_offsetMatrices"])
-        {
-            YAML::Binary matrices = in["m_offsetMatrices"].as<YAML::Binary>();
-            m_offsetMatrices.resize(matrices.size() / sizeof(glm::mat4));
-            std::memcpy(m_offsetMatrices.data(), matrices.data(), matrices.size());
-        }
-        if (in["m_names"])
-        {
-            for (const auto &i : in["m_names"])
-            {
-                m_names.push_back(i["Name"].as<std::string>());
-            }
+            m_names.push_back(i["Name"].as<std::string>());
         }
     }
+
     m_needAnimate = true;
+    m_animatedCurrentFrame = false;
 }
 
 std::shared_ptr<Animation> Animator::GetAnimation()
 {
     return m_animation.Get<Animation>();
-}
-void Animator::Relink(const std::unordered_map<Handle, Handle> &map)
-{
-    for (auto &i : m_boundEntities)
-    {
-        i.Relink(map);
-    }
 }

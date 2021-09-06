@@ -15,24 +15,24 @@ class UNIENGINE_API Animator : public IPrivateComponent
     std::vector<glm::mat4> m_transformChain;
     std::vector<glm::mat4> m_offsetMatrices;
     std::vector<std::string> m_names;
-    std::vector<EntityRef> m_boundEntities;
-
 
     AssetRef m_animation;
     bool m_needAnimationSetup = true;
     size_t m_boneSize = 0;
     void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
     void Setup();
-
     bool m_animatedCurrentFrame = false;
   public:
     bool m_needAnimate = true;
-    // Create an animator which every bone is attached to an Entity.
-    void Setup(
-        std::vector<Entity> &boundEntities, std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
+    /**
+     * Only set offset matrices, so the animator can be used as ragDoll.
+     * @param name Name of the bones
+     * @param offsetMatrices The collection of offset matrices.
+     */
+    void Setup(std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
     void ApplyOffsetMatrices();
-    void DebugBoneRender(const glm::vec4 &color, const float &size);
-    void ResetTransform(const int &index);
+
+    glm::mat4 GetReverseTransform(const int &index, const Entity& entity);
     bool m_autoPlay = false;
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
@@ -46,6 +46,5 @@ class UNIENGINE_API Animator : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
-    void Relink(const std::unordered_map<Handle, Handle> &map) override;
 };
 } // namespace UniEngine

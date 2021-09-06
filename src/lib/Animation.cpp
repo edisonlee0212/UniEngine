@@ -6,29 +6,23 @@ void Bone::Animate(
     const float &animationTime,
     const glm::mat4 &parentTransform,
     const glm::mat4 &rootTransform,
-    std::vector<EntityRef> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     glm::mat4 globalTransform = parentTransform;
-    if (boundEntities.size() > m_index && boundEntities[m_index].Get().IsValid())
+
+    const auto search = m_animations.find(name);
+    if (search != m_animations.end())
     {
-        globalTransform = boundEntities[m_index].Get().GetDataComponent<GlobalTransform>().m_value;
+        const auto translation = m_animations[name].InterpolatePosition(animationTime);
+        const auto rotation = m_animations[name].InterpolateRotation(animationTime);
+        const auto scale = m_animations[name].InterpolateScaling(animationTime);
+        globalTransform *= translation * rotation * scale;
     }
-    else
-    {
-        const auto search = m_animations.find(name);
-        if (search != m_animations.end())
-        {
-            const auto translation = m_animations[name].InterpolatePosition(animationTime);
-            const auto rotation = m_animations[name].InterpolateRotation(animationTime);
-            const auto scale = m_animations[name].InterpolateScaling(animationTime);
-            globalTransform *= translation * rotation * scale;
-        }
-    }
+
     results[m_index] = globalTransform;
     for (auto &i : m_children)
     {
-        i->Animate(name, animationTime, globalTransform, rootTransform, boundEntities, results);
+        i->Animate(name, animationTime, globalTransform, rootTransform, results);
     }
 }
 
@@ -250,14 +244,13 @@ void Animation::Animate(
     const std::string &name,
     const float &animationTime,
     const glm::mat4 &rootTransform,
-    std::vector<EntityRef> &boundEntities,
     std::vector<glm::mat4> &results)
 {
     if (m_animationNameAndLength.find(name) == m_animationNameAndLength.end() || !m_rootBone)
     {
         return;
     }
-    m_rootBone->Animate(name, animationTime, rootTransform, rootTransform, boundEntities, results);
+    m_rootBone->Animate(name, animationTime, rootTransform, rootTransform, results);
 }
 void Animation::Serialize(YAML::Emitter &out)
 {

@@ -22,9 +22,18 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void GetBoneMatrices();
 
     friend class RenderManager;
-    bool m_applyGlobalTransform = false;
+
+    bool m_ragDoll = false;
+
+    std::vector<glm::mat4> m_ragDollTransformChain;
+    std::vector<EntityRef> m_boundEntities;
+
+    void DebugBoneRender(const glm::vec4 &color, const float &size);
+
   public:
-    bool NeedApplyGlobalTransform();
+    bool m_ragDollFreeze = false;
+    bool RagDoll() const;
+    void SetRagDoll(bool value);
     PrivateComponentRef m_animator;
     std::shared_ptr<BoneMatrices> m_finalResults;
     bool m_forwardRendering = false;
@@ -39,6 +48,10 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void Relink(const std::unordered_map<Handle, Handle> &map) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
     void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
+
+    size_t GetRagDollBoneSize() const;
+    void SetRagDollBoundEntity(int index, const Entity& entity, bool resetTransform = true);
+    void SetRagDollBoundEntities(const std::vector<Entity>& entities, bool resetTransform = true);
 };
 
 

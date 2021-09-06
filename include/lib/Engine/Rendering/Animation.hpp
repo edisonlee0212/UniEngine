@@ -75,7 +75,6 @@ struct UNIENGINE_API Bone
         const float &animationTime,
         const glm::mat4 &parentTransform,
         const glm::mat4 &rootTransform,
-        std::vector<EntityRef> &boundEntities,
         std::vector<glm::mat4> &results);
     void OnInspect();
 
@@ -96,7 +95,6 @@ class UNIENGINE_API Animation : public IAsset
         const std::string &name,
         const float &animationTime,
         const glm::mat4 &rootTransform,
-        std::vector<EntityRef> &boundEntities,
         std::vector<glm::mat4> &results);
 
     void Serialize(YAML::Emitter &out) override;
