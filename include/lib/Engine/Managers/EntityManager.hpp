@@ -93,7 +93,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent> static T GetDataComponent(const size_t &index);
     template <typename T = IDataComponent> static bool HasDataComponent(const size_t &index);
     template <typename T = IDataComponent> static void SetDataComponent(const size_t &index, const T &value);
-    static void RemovePrivateComponent(const Entity &entity, size_t typeId);
+
 #pragma endregion
 #pragma region ForEach
     template <typename T1 = IDataComponent>
@@ -247,6 +247,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable);
 #pragma endregion
   public:
+    static void RemovePrivateComponent(const Entity &entity, size_t typeId);
+
     static Entity GetEntity(const Handle &handle);
 
     static EntityArchetype GetDefaultEntityArchetype();
