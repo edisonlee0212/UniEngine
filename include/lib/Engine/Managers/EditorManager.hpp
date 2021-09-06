@@ -114,7 +114,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void SetSelectedEntity(const Entity &entity, bool openMenu = true);
     static std::weak_ptr<Camera> GetSceneCamera();
 
-    bool DragAndDropButton(AssetRef &target, const std::string &name,
+    static bool DragAndDropButton(AssetRef &target, const std::string &name,
                            const std::vector<std::string> &acceptableTypeNames, bool removable = true);
     template <typename T = IAsset>
     static bool DragAndDropButton(AssetRef &target, const std::string &name, bool removable = true);
