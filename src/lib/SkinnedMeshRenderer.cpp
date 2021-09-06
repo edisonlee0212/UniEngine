@@ -34,7 +34,8 @@ void SkinnedMeshRenderer::GetBoneMatrices()
     {
         if (m_ragDollFreeze)
             return;
-        for (int i = 0; i < m_ragDollTransformChain.size(); i++)
+        m_finalResults->m_value.resize(skinnedMesh->m_boneAnimatorIndices.size());
+        for (int i = 0; i < m_boundEntities.size(); i++)
         {
             auto entity = m_boundEntities[i].Get();
             if (!entity.IsNull())
