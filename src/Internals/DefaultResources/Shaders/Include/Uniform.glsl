@@ -169,6 +169,7 @@ float UE_LINEARIZE_DEPTH(float ndcDepth)
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth){
 	vec4 viewPos = vec4(UE_DEPTH_TO_VIEW_POS(texCoords, ndcDepth), 1.0);
 	vec4 worldPos = UE_CAMERA_INVERSE_VIEW * viewPos;
+	worldPos = worldPos / worldPos.w;
 	return worldPos.xyz;
 }
 
