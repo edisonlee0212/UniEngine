@@ -37,7 +37,7 @@ void main()
     vec3 viewDir = normalize(UE_CAMERA_POSITION - fs_in.FragPos);
     float dist = distance(fs_in.FragPos, UE_CAMERA_POSITION);
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo.rgb, UE_PBR_METALLIC);
+    F0 = mix(F0, albedo.rgb, metallic);
     vec3 result = UE_FUNC_CALCULATE_LIGHTS(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW, albedo.rgb, 1.0, dist, normal, viewDir, fs_in.FragPos, metallic, roughness, F0);
     vec3 ambient = UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(albedo.rgb, normal, viewDir, metallic, roughness, F0);
     vec3 color = result + emission * normalize(albedo.xyz) + ambient * ao * UE_AMBIENT_LIGHT;

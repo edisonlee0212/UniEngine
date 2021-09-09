@@ -453,6 +453,8 @@ void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm:
         glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
     m_position = glm::vec4(position, 0);
     m_view = glm::lookAt(position, position + front, up);
+    m_inverseProjection = glm::inverse(m_projection);
+    m_inverseView = glm::inverse(m_view);
     m_reservedParameters = glm::vec4(
         camera->m_nearDistance,
         camera->m_farDistance,

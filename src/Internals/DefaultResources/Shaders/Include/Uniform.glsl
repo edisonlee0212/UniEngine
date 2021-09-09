@@ -46,6 +46,17 @@ struct SpotLight {
 	int viewPortYSize;
 };
 
+//Camera
+layout (std140, binding = 0) uniform UE_CAMERA
+{
+	mat4 UE_CAMERA_PROJECTION;
+	mat4 UE_CAMERA_VIEW;
+	mat4 UE_CAMERA_INVERSE_PROJECTION;
+	mat4 UE_CAMERA_INVERSE_VIEW;
+	vec4 UE_CAMERA_RESERVED;
+	vec3 UE_CAMERA_POSITION;
+};
+
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
 {
 	int UE_DIRECTIONAL_LIGHT_BLOCK_AMOUNT;
@@ -86,12 +97,56 @@ layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
 	vec4 UE_GAUSS_KERNEL[MAX_KERNEL_AMOUNT];
 };
 
+layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
+{
+	bool UE_ALBEDO_MAP_ENABLED;
+	bool UE_NORMAL_MAP_ENABLED;
+	bool UE_METALLIC_MAP_ENABLED;
+	bool UE_ROUGHNESS_MAP_ENABLED;
+	bool UE_AO_MAP_ENABLED;
+	bool UE_APLHA_DISCARD_ENABLED;
+	bool UE_RECEIVE_SHADOW;
+	bool UE_ENABLE_SHADOW;
+
+	vec4 UE_PBR_ALBEDO;
+	float UE_PBR_METALLIC;
+	float UE_PBR_ROUGHNESS;
+	float UE_PBR_AO;
+	float UE_PBR_EMISSION;
+	float UE_APLHA_DISCARD_OFFSET;
+};
+
+layout (std140, binding = 7) uniform UE_ENVIRONMENTAL_BLOCK
+{
+	vec4 UE_ENVIRONMENTAL_BACKGROUND_COLOR;
+	float UE_ENVIRONMENTAL_MAP_GAMMA;
+	float UE_ENVIRONMENTAL_LIGHTING_GAMMA;
+	float UE_ENVIRONMENTAL_PADDING1;
+	float UE_ENVIRONMENTAL_PADDING2;
+};
+
+uniform sampler2DArray UE_DIRECTIONAL_LIGHT_SM;
+uniform sampler2DArray UE_POINT_LIGHT_SM;
+uniform sampler2D UE_SPOT_LIGHT_SM;
+
+uniform sampler2D UE_ALBEDO_MAP;
+uniform sampler2D UE_NORMAL_MAP;
+uniform sampler2D UE_METALLIC_MAP;
+uniform sampler2D UE_ROUGHNESS_MAP;
+uniform sampler2D UE_AO_MAP;
+
+uniform samplerCube UE_ENVIRONMENTAL_MAP;
+uniform samplerCube UE_ENVIRONMENTAL_IRRADIANCE;
+uniform samplerCube UE_ENVIRONMENTAL_PREFILERED;
+uniform sampler2D UE_ENVIRONMENTAL_BRDFLUT;
+
+
 layout (std140, binding = 8) buffer UE_ANIM_BONES_BLOCK
 {
 	mat4 UE_ANIM_BONES[];
 };
 
-vec3 UE_FUNC_CALCULATE_LIGHTS(bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
+vec3 UE_FUNC_CALCULATE_LIGHTS(in bool calculateShadow, vec3 albedo, float specular, float dist, vec3 normal, vec3 viewDir, vec3 fragPos, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_DIRECTIONAL_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 viewDir, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_POINT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
 vec3 UE_FUNC_SPOT_LIGHT(vec3 albedo, float specular, int i, vec3 normal, vec3 fragPos, vec3 viewDir, float metallic, float roughness, vec3 F0);
@@ -99,7 +154,6 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal);
 float UE_LINEARIZE_DEPTH(float ndcDepth);
-
 vec3 UE_DEPTH_TO_CLIP_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth);
@@ -114,13 +168,13 @@ float UE_LINEARIZE_DEPTH(float ndcDepth)
 
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth){
 	vec4 viewPos = vec4(UE_DEPTH_TO_VIEW_POS(texCoords, ndcDepth), 1.0);
-	vec4 worldPos = inverse(UE_CAMERA_VIEW) * viewPos;
+	vec4 worldPos = UE_CAMERA_INVERSE_VIEW * viewPos;
 	return worldPos.xyz;
 }
 
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth){
 	vec4 clipPos = vec4(UE_DEPTH_TO_CLIP_POS(texCoords, ndcDepth), 1.0);
-	vec4 viewPos = inverse(UE_CAMERA_PROJECTION) * clipPos;
+	vec4 viewPos = UE_CAMERA_INVERSE_PROJECTION * clipPos;
 	viewPos = viewPos / viewPos.w;
 	return viewPos.xyz;
 }

@@ -18,6 +18,8 @@ struct UNIENGINE_API CameraInfoBlock
 {
     glm::mat4 m_projection;
     glm::mat4 m_view;
+    glm::mat4 m_inverseProjection;
+    glm::mat4 m_inverseView;
     glm::vec4 m_reservedParameters;
     glm::vec4 m_position;
     void UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation);
@@ -34,7 +36,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     friend class PostProcessing;
     friend class Bloom;
     friend class SSAO;
-    friend class GreyScale;
+    friend class SSR;
     std::shared_ptr<Texture2D> m_colorTexture;
     std::shared_ptr<Texture2D> m_depthStencilTexture;
 

@@ -22,22 +22,22 @@ float Bezier(float dt){
 void main()
 {
 	vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
-	vec3 result = texture(image, fs_in.TexCoords).rgb * Bezier(0) * intensity;
+	vec4 result = texture(image, fs_in.TexCoords) * Bezier(0) * intensity;
 	if(horizontal)
 	{
 		for(int i = 1; i < diffusion + 1; ++i)
 		{
-			result += texture(image, fs_in.TexCoords + sampleScale * vec2(tex_offset.x * i, 0.0)).rgb * Bezier(float(i) / diffusion) * intensity;
-			result += texture(image, fs_in.TexCoords - sampleScale * vec2(tex_offset.x * i, 0.0)).rgb * Bezier(float(i) / diffusion) * intensity;
+			result += texture(image, fs_in.TexCoords + sampleScale * vec2(tex_offset.x * i, 0.0)) * Bezier(float(i) / diffusion) * intensity;
+			result += texture(image, fs_in.TexCoords - sampleScale * vec2(tex_offset.x * i, 0.0)) * Bezier(float(i) / diffusion) * intensity;
 		}
 	}
 	else
 	{
 		for(int i = 1; i < diffusion + 1; ++i)
 		{
-			result += texture(image, fs_in.TexCoords + sampleScale * vec2(0.0, tex_offset.y * i)).rgb * Bezier(float(i) / diffusion) * intensity;
-			result += texture(image, fs_in.TexCoords - sampleScale * vec2(0.0, tex_offset.y * i)).rgb * Bezier(float(i) / diffusion) * intensity;
+			result += texture(image, fs_in.TexCoords + sampleScale * vec2(0.0, tex_offset.y * i)) * Bezier(float(i) / diffusion) * intensity;
+			result += texture(image, fs_in.TexCoords - sampleScale * vec2(0.0, tex_offset.y * i)) * Bezier(float(i) / diffusion) * intensity;
 		}
 	}
-	FragColor = vec4(result, 1.0);
+	FragColor = result;
 }

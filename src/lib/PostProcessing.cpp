@@ -14,6 +14,10 @@ std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_geometryProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_blurProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> SSAO::m_combineProgram;
 
+std::shared_ptr<OpenGLUtils::GLProgram> SSR::m_reflectProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> SSR::m_blurProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> SSR::m_combineProgram;
+
 void PostProcessing::PushLayer(const std::shared_ptr<PostProcessingLayer> &layer)
 {
     if (!layer)
@@ -39,6 +43,7 @@ void PostProcessing::OnCreate()
 {
     PushLayer(std::make_shared<Bloom>());
     PushLayer(std::make_shared<SSAO>());
+    PushLayer(std::make_shared<SSR>());
     ResizeResolution(1, 1);
     SetEnabled(true);
 }
@@ -61,7 +66,10 @@ void PostProcessing::Process()
     {
         m_layers["Bloom"]->Process(cameraComponent, *this);
     }
-
+    if (m_layers["SSR"] && m_layers["SSR"]->m_enabled)
+    {
+        m_layers["SSR"]->Process(cameraComponent, *this);
+    }
     if (m_layers["GreyScale"] && m_layers["GreyScale"]->m_enabled)
     {
         m_layers["GreyScale"]->Process(cameraComponent, *this);
@@ -220,10 +228,12 @@ void Bloom::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
 
 void SSAO::Init()
 {
-    m_name = "SSAO";
     m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+
+    m_name = "SSAO";
+
     m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
     m_originalColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
     m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -335,6 +345,84 @@ void SSAO::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
     {
         ImGui::Text("SSAO Proximity");
         ImGui::Image((ImTextureID)m_ssaoPosition->Id(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::TreePop();
+    }
+}
+
+void SSR::Init()
+{
+    m_name = "SSR";
+
+    m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_originalColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_originalColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_originalColor->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_originalColor->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_originalColor->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_reflectedColorMetallic = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, 1, 1, false);
+    m_reflectedColorMetallic->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
+    m_reflectedColorMetallic->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_reflectedColorMetallic->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_reflectedColorMetallic->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_reflectedColorMetallic->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
+    m_blur->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_blur->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_blur->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_blur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    m_blur->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    m_enabled = true;
+}
+void SSR::ResizeResolution(int x, int y)
+{
+    m_originalColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_reflectedColorMetallic->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, x, y);
+    m_blur->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+}
+void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    DefaultResources::ScreenVAO->Bind();
+
+    m_reflectProgram->Bind();
+
+    renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(m_reflectedColorMetallic.get(), GL_COLOR_ATTACHMENT1);
+    renderTarget.Bind();
+    glDrawBuffers(2, enums);
+
+    cameraComponent->m_colorTexture->UnsafeGetGLTexture()->Bind(0);
+    cameraComponent->m_gBufferMetallicRoughnessEmissionAmbient->Bind(1);
+    cameraComponent->m_gBufferNormal->Bind(2);
+    cameraComponent->m_gBufferDepth->Bind(3);
+
+    m_reflectProgram->SetInt("colorTexture", 0);
+    m_reflectProgram->SetInt("gBufferMetallicRoughnessEmissionAmbient", 1);
+    m_reflectProgram->SetInt("gBufferNormal", 2);
+    m_reflectProgram->SetInt("gBufferDepth", 3);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+void SSR::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
+{
+    if (ImGui::TreeNode("SSR Settings"))
+    {
+
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Debug##SSR"))
+    {
+        static float debugSacle = 0.25f;
+        ImGui::DragFloat("Scale", &debugSacle, 0.01f, 0.1f, 1.0f);
+        debugSacle = glm::clamp(debugSacle, 0.1f, 1.0f);
+        ImGui::Image((ImTextureID)m_reflectedColorMetallic->Id(), ImVec2(cameraComponent->m_resolutionX * debugSacle, cameraComponent->m_resolutionY * debugSacle), ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)m_blur->Id(), ImVec2(cameraComponent->m_resolutionX * debugSacle, cameraComponent->m_resolutionY * debugSacle), ImVec2(0, 1), ImVec2(1, 0));
         ImGui::TreePop();
     }
 }

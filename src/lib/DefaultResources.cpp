@@ -109,9 +109,6 @@ void DefaultResources::LoadShaders()
 #pragma region Shader Includes
     std::string add;
 
-    add += FileUtils::LoadFileAsString(
-        std::filesystem::path("./DefaultResources") / "Shaders/Include/Uniform_LEGACY.glsl");
-
     add += "\n#define MAX_BONES_AMOUNT " + std::to_string(ShaderIncludes::MaxBonesAmount) +
            "\n#define MAX_TEXTURES_AMOUNT " + std::to_string(ShaderIncludes::MaxMaterialsAmount) +
            "\n#define DIRECTIONAL_LIGHTS_AMOUNT " + std::to_string(ShaderIncludes::MaxDirectionalLightAmount) +
@@ -230,6 +227,33 @@ void DefaultResources::LoadShaders()
         standardFrag = AssetManager::CreateAsset<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
         standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
         SSAO::m_combineProgram->Link(GLShaders::TexturePassThrough, standardFrag);
+
+
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileUtils::LoadFileAsString(
+                             std::filesystem::path("../src/Internals/DefaultResources") / "Shaders/Fragment/SSRReflect.frag");
+
+        SSR::m_reflectProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        standardFrag = AssetManager::CreateAsset<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
+        standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+        SSR::m_reflectProgram->Link(GLShaders::TexturePassThrough, standardFrag);
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileUtils::LoadFileAsString(
+                             std::filesystem::path("../src/Internals/DefaultResources") / "Shaders/Fragment/BlurFilter.frag");
+
+        SSR::m_blurProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        standardFrag = AssetManager::CreateAsset<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
+        standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+        SSR::m_blurProgram->Link(GLShaders::TexturePassThrough, standardFrag);
+
+        fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+                         FileUtils::LoadFileAsString(
+                             std::filesystem::path("../src/Internals/DefaultResources") / "Shaders/Fragment/SSRCombine.frag");
+
+        SSR::m_combineProgram = std::make_shared<OpenGLUtils::GLProgram>();
+        standardFrag = AssetManager::CreateAsset<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
+        standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+        SSR::m_combineProgram->Link(GLShaders::TexturePassThrough, standardFrag);
     }
 #pragma endregion
 #pragma endregion

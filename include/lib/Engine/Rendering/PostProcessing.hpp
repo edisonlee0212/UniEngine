@@ -95,6 +95,26 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
     void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
 };
+
+class UNIENGINE_API SSR : public PostProcessingLayer
+{
+    friend class DefaultResources;
+
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_originalColor;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_reflectedColorMetallic;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_blur;
+
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_reflectProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_blurProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
+
+  public:
+
+    void Init() override;
+    void ResizeResolution(int x, int y) override;
+    void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
+    void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
+};
 #pragma endregion
 
 } // namespace UniEngine

@@ -2,6 +2,8 @@
 #include <OpenGLUtils.hpp>
 #include <ISingleton.hpp>
 #include <Scene.hpp>
+#include <PostProcessing.hpp>
+
 
 namespace UniEngine
 {
@@ -30,6 +32,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class PostProcessing;
     friend class SSAO;
     friend class Bloom;
+    friend class SSR;
     friend class WindowManager;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 
@@ -146,4 +149,5 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
 
     static void Load();
 };
+
 } // namespace UniEngine
