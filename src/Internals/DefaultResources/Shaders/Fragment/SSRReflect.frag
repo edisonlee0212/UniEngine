@@ -11,11 +11,13 @@ uniform sampler2D gBufferDepth;
 uniform sampler2D gBufferNormal;
 
 
-const float step = 0.1;
-const float minRayStep = 0.1;
-const float maxSteps = 30;
-const int numBinarySearchSteps = 15;
-const float reflectionSpecularFalloffExponent = 3.0;
+uniform float step;
+uniform float minRayStep;
+uniform int maxSteps;
+
+
+uniform int numBinarySearchSteps;
+uniform float reflectionSpecularFalloffExponent;
 
 
 #define Scale vec3(.8, .8, .8)
@@ -28,11 +30,6 @@ vec3 hash(vec3 a);
 
 void main()
 {
-    float maxDistance = 50;
-    float resolution  = 0.2;
-    int   steps       = 15;
-    float thickness   = 0.5;
-
     vec2 texSize  = textureSize(colorTexture, 0).xy;
     vec2 texCoord = fs_in.TexCoords;
 
@@ -61,9 +58,11 @@ void main()
     float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
     float reflectionMultiplier = pow(metallic, reflectionSpecularFalloffExponent) * screenEdgefactor * -reflected.z;
     // Get color
-    vec3 SSR = texture(colorTexture, coords.xy).rgb;// * clamp(reflectionMultiplier, 0.0, 0.9) * F;
+    vec3 SSR = texture(colorTexture, coords.xy).rgb;
     if(coords.w == 0.0) colorVisibility = vec4(0, 0, 0, 0);
-    else colorVisibility = vec4(SSR, 1);
+    else colorVisibility = vec4(SSR, clamp(reflectionMultiplier, 0.0, 0.9));
+
+    originalColor = albedo;
 }
 
 vec3 BinarySearch(inout vec3 dir, inout vec3 hitCoord, inout float dDepth)

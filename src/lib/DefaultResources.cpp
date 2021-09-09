@@ -212,7 +212,7 @@ void DefaultResources::LoadShaders()
 
         fragShaderCode = std::string("#version 460 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
                          FileUtils::LoadFileAsString(
-                             std::filesystem::path("./DefaultResources") / "Shaders/Fragment/BlurFilter.frag");
+                             std::filesystem::path("../src/Internals/DefaultResources") / "Shaders/Fragment/SSRBlur.frag");
 
         SSAO::m_blurProgram = std::make_shared<OpenGLUtils::GLProgram>();
         standardFrag = AssetManager::CreateAsset<OpenGLUtils::GLShader>(GenerateNewHandle(), "");

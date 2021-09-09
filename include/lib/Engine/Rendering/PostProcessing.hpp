@@ -101,7 +101,7 @@ class UNIENGINE_API SSR : public PostProcessingLayer
     friend class DefaultResources;
 
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_originalColor;
-    std::unique_ptr<OpenGLUtils::GLTexture2D> m_reflectedColorMetallic;
+    std::unique_ptr<OpenGLUtils::GLTexture2D> m_reflectedColorVisibility;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_blur;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_reflectProgram;
@@ -109,6 +109,15 @@ class UNIENGINE_API SSR : public PostProcessingLayer
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
+    int m_diffusion = 1;
+    int m_jump = 1;
+    float m_step = 0.1;
+    float m_minRayStep = 0.1;
+    int m_maxSteps = 60;
+    int m_numBinarySearchSteps = 15;
+    float m_reflectionSpecularFalloffExponent = 3.0;
+
+    Bezier2D m_graph;
 
     void Init() override;
     void ResizeResolution(int x, int y) override;
