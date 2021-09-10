@@ -59,11 +59,13 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
-    float m_intensity = 0.1f;
+    float m_intensity = 1.0f;
+    int m_diffusion = 8;
+    int m_sampleStep = 1;
+    Bezier2D m_graph;
+
     float m_threshold = 1.0f;
     float m_clamp = 0.0f;
-    int m_diffusion = 8;
-    Bezier2D m_graph;
     void Init() override;
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
@@ -81,14 +83,15 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
-    float m_intensity = 0.1f;
+    float m_intensity = 1.0f;
     int m_diffusion = 8;
-    float m_blurScale = 1.0f;
+    int m_sampleStep = 1;
     Bezier2D m_graph;
+
     float m_kernelRadius = 1.0f;
     float m_kernelBias = 0.01f;
     float m_scale = 1.0f;
-    int m_sampleSize = 4;
+    int m_sampleSize = 16;
 
     void Init() override;
     void ResizeResolution(int x, int y) override;
@@ -109,15 +112,16 @@ class UNIENGINE_API SSR : public PostProcessingLayer
     static std::shared_ptr<OpenGLUtils::GLProgram> m_combineProgram;
 
   public:
+    float m_intensity = 1.0f;
     int m_diffusion = 1;
-    int m_jump = 1;
-    float m_step = 0.1;
-    float m_minRayStep = 0.1;
-    int m_maxSteps = 60;
-    int m_numBinarySearchSteps = 15;
-    float m_reflectionSpecularFalloffExponent = 3.0;
-
+    int m_sampleStep = 1;
     Bezier2D m_graph;
+
+    float m_step = 0.5;
+    float m_minRayStep = 0.1;
+    int m_maxSteps = 16;
+    int m_numBinarySearchSteps = 8;
+    float m_reflectionSpecularFalloffExponent = 3.0;
 
     void Init() override;
     void ResizeResolution(int x, int y) override;

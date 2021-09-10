@@ -121,6 +121,7 @@ void Bloom::Init()
     m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+
     m_brightColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
     m_brightColor->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
     m_brightColor->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -179,7 +180,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     m_brightColor->Bind(0);
     m_filterProgram->SetInt("image", 0);
     m_filterProgram->SetBool("horizontal", false);
-    m_filterProgram->SetFloat("sampleScale", 1.0f);
+    m_filterProgram->SetInt("sampleStep", m_sampleStep);
     m_filterProgram->SetFloat4(
         "bezier",
         m_graph.m_controlPoints[1][0],
@@ -211,10 +212,13 @@ void Bloom::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
 {
     if (ImGui::TreeNode("Bloom Settings"))
     {
-        ImGui::DragFloat("Intensity##Bloom", &m_intensity, 0.001f, 0.001f, 1.0f);
-        ImGui::DragInt("Diffusion##Bloom", &m_diffusion, 1.0f, 1, 64);
         ImGui::DragFloat("Threshold##Bloom", &m_threshold, 0.01f, 0.0f, 5.0f);
         ImGui::DragFloat("Clamp##Bloom", &m_clamp, 0.01f, 0.0f, 5.0f);
+
+        ImGui::Text("Blur settings:");
+        ImGui::DragInt("Blur Step##Bloom", &m_sampleStep, 1, 1, 64);
+        ImGui::DragFloat("Intensity##Bloom", &m_intensity, 0.001f, 0.001f, 1.0f);
+        ImGui::DragInt("Diffusion##Bloom", &m_diffusion, 1.0f, 1, 64);
         m_graph.DrawGraph("Bezier##Bloom");
         if (ImGui::TreeNode("Debug##Bloom"))
         {
@@ -230,7 +234,7 @@ void SSAO::Init()
     m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
     m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
-
+    m_graph.m_fixed = false;
     m_name = "SSAO";
 
     m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
@@ -298,7 +302,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     m_ssaoPosition->Bind(0);
     m_blurProgram->SetInt("image", 0);
-    m_blurProgram->SetFloat("sampleScale", m_blurScale);
+    m_blurProgram->SetInt("sampleStep", m_sampleStep);
     m_blurProgram->SetBool("horizontal", false);
     m_blurProgram->SetFloat4(
         "bezier",
@@ -333,7 +337,8 @@ void SSAO::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
         ImGui::DragFloat("Radius##SSAO", &m_kernelRadius, 0.01f, 0.1f, 5.0f);
         ImGui::DragFloat("Bias##SSAO", &m_kernelBias, 0.001f, 0.0f, 1.0f);
         ImGui::DragInt("Sample Size##SSAO", &m_sampleSize, 1, 1, 64);
-        ImGui::DragFloat("Blur Scale##SSAO", &m_blurScale, 0.001f, 0.01f, 1.0f);
+        ImGui::Text("Blur settings:");
+        ImGui::DragInt("Blur Step##SSAO", &m_sampleStep, 1, 1, 64);
         ImGui::DragFloat("Intensity##SSAO", &m_intensity, 0.001f, 0.001f, 1.0f);
         ImGui::DragInt("Diffusion##SSAO", &m_diffusion, 1.0f, 1, 64);
         m_graph.DrawGraph("Bezier##SSAO");
@@ -349,6 +354,10 @@ void SSAO::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
 
 void SSR::Init()
 {
+    m_graph = Bezier2D();
+    m_graph.m_controlPoints[1] = glm::vec2(1, 0);
+    m_graph.m_controlPoints[2] = glm::vec2(0.9, 1.0);
+    m_graph.m_fixed = false;
     m_name = "SSR";
 
     m_originalColor = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
@@ -365,8 +374,8 @@ void SSR::Init()
     m_reflectedColorVisibility->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_reflectedColorVisibility->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, 1, 1, false);
-    m_blur->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_blur = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, 1, 1, false);
+    m_blur->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
     m_blur->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     m_blur->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_blur->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -377,7 +386,7 @@ void SSR::ResizeResolution(int x, int y)
 {
     m_originalColor->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
     m_reflectedColorVisibility->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, x, y);
-    m_blur->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, x, y);
+    m_blur->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, x, y);
 }
 void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
@@ -414,12 +423,13 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    /*
+
     m_blurProgram->Bind();
     renderTarget.AttachTexture(m_blur.get(), GL_COLOR_ATTACHMENT0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    m_reflectedColorMetallic->Bind(0);
+    m_reflectedColorVisibility->Bind(0);
     m_blurProgram->SetInt("image", 0);
+    m_blurProgram->SetInt("sampleStep", m_sampleStep);
     m_blurProgram->SetBool("horizontal", false);
     m_blurProgram->SetFloat4(
         "bezier",
@@ -428,13 +438,14 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
         m_graph.m_controlPoints[2][0],
         m_graph.m_controlPoints[2][1]);
     m_blurProgram->SetInt("diffusion", m_diffusion);
+    m_blurProgram->SetFloat("intensity", m_intensity);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    renderTarget.AttachTexture(m_reflectedColorMetallic.get(), GL_COLOR_ATTACHMENT0);
+    renderTarget.AttachTexture(m_reflectedColorVisibility.get(), GL_COLOR_ATTACHMENT0);
     m_blur->Bind(0);
     m_blurProgram->SetBool("horizontal", true);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    */
+
 
     m_combineProgram->Bind();
     renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
@@ -443,8 +454,6 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
     m_reflectedColorVisibility->Bind(1);
     m_combineProgram->SetInt("originalColor", 0);
     m_combineProgram->SetInt("reflectedColorVisibility", 1);
-    m_combineProgram->SetInt("diffusion", m_diffusion);
-    m_combineProgram->SetInt("jump", m_jump);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 void SSR::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
@@ -457,8 +466,10 @@ void SSR::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
         ImGui::DragFloat("Falloff##SSR", &m_reflectionSpecularFalloffExponent, 0.1f, 0.001f, 10.0f);
         ImGui::DragInt("Binary search step##SSR", &m_numBinarySearchSteps, 1.0f, 1, 64);
 
-        ImGui::DragInt("Diffusion##SSR", &m_diffusion, 1.0f, 1, 4);
-        ImGui::DragInt("Offset##SSR", &m_jump, 1.0f, 1, 64);
+        ImGui::Text("Blur settings:");
+        ImGui::DragInt("Blur Step##SSR", &m_sampleStep, 1, 1, 64);
+        ImGui::DragFloat("Intensity##SSR", &m_intensity, 0.001f, 0.001f, 1.0f);
+        ImGui::DragInt("Diffusion##SSR", &m_diffusion, 1.0f, 1, 64);
         m_graph.DrawGraph("Bezier##SSR");
 
         ImGui::TreePop();

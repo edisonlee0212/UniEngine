@@ -58,10 +58,7 @@ void main()
     float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
     float reflectionMultiplier = pow(metallic, reflectionSpecularFalloffExponent) * screenEdgefactor * -reflected.z;
     // Get color
-    vec3 SSR = texture(colorTexture, coords.xy).rgb;
-    if(coords.w == 0.0) colorVisibility = vec4(0, 0, 0, 0);
-    else colorVisibility = vec4(SSR, clamp(reflectionMultiplier, 0.0, 0.9));
-
+    colorVisibility = clamp(vec4(texture(colorTexture, coords.xy).rgb, reflectionMultiplier), vec4(0, 0, 0, 0), vec4(1, 1, 1, 1));
     originalColor = albedo;
 }
 
