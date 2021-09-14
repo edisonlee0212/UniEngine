@@ -119,10 +119,10 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
-            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            if (!smmc->RagDoll())
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
-            DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
-                "model", ltw.m_value);
+            DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
             skinnedMesh->Draw();
         }
     }
@@ -166,7 +166,8 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
-            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            if (!smmc->RagDoll())
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
@@ -234,8 +235,9 @@ void EditorManager::Init()
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
+#ifdef NDEBUG
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
     ImGui::StyleColorsDark();
     ImGuiStyle &style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -932,7 +934,6 @@ void EditorManager::OnInspect()
     MainCameraWindow();
     SceneCameraWindow();
 
-
 #pragma region Asset Inspection
     ImGui::Begin("Asset Inspector");
     if (!editorManager.m_inspectingAsset.expired())
@@ -1582,26 +1583,33 @@ bool EditorManager::DragAndDropButton(
     const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
-    if (ptr) {
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+    if (ptr)
+    {
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
             EditorManager::GetInstance().m_inspectingAsset = ptr;
         }
         const std::string tag = "##" + ptr->GetTypeName() + (ptr ? std::to_string(ptr->GetHandle()) : "");
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
             ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
-        if (ImGui::BeginPopupContextItem(tag.c_str())) {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str())) {
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-            if (removable) {
-                if (ImGui::Button(("Remove" + tag).c_str())) {
+            if (removable)
+            {
+                if (ImGui::Button(("Remove" + tag).c_str()))
+                {
                     target.Clear();
                     statusChanged = true;
                 }
@@ -1609,12 +1617,16 @@ bool EditorManager::DragAndDropButton(
             ImGui::EndPopup();
         }
     }
-    for(const auto& typeName : acceptableTypeNames) {
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str())) {
+    for (const auto &typeName : acceptableTypeNames)
+    {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
+            {
                 IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
                 std::shared_ptr<IAsset> payload_n = *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                if (!ptr || payload_n.get() != ptr.get()) {
+                if (!ptr || payload_n.get() != ptr.get())
+                {
                     target = payload_n;
                     statusChanged = true;
                 }
