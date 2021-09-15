@@ -8,9 +8,14 @@ using namespace UniEngine;
 
 int main()
 {
+    std::vector<glm::vec2> points;
     ProjectManager::SetScenePostLoadActions([&]() {
-        Application::RegisterLateUpdateFunction([](){
+        Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();
+
+            ImGui::Begin("Test");
+            CurveEditor("Test", points, ImVec2(600, 200), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
+            ImGui::End();
         });
     });
 
