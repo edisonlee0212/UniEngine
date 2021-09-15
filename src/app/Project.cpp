@@ -14,7 +14,7 @@ int main()
             ImGui::ShowDemoWindow();
 
             ImGui::Begin("Test");
-            CurveEditor("Test", points, ImVec2(600, 200), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
+            CurveEditor("Test", points, ImVec2(-1, -1), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID); //
             ImGui::End();
         });
     });

@@ -678,7 +678,7 @@ static ImGuiID last_node_id;
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-static const float NODE_SLOT_RADIUS = 4.0f;
+static const float HANDLE_RADIUS = 4;
 
 int UniEngine::CurveEditor(
     const std::string &label, std::vector<glm::vec2> &values, const ImVec2 &editor_size, unsigned int flags)
@@ -700,14 +700,15 @@ int UniEngine::CurveEditor(
     ImGuiContext &g = *GImGui;
     const ImGuiStyle &style = g.Style;
     ImVec2 size = editor_size;
-    size.x = size.x < 0 ? ImGui::CalcItemWidth() + (style.FramePadding.x * 2) : size.x;
-    size.y = size.y < 0 ? HEIGHT : size.y;
+
+    size.x = size.x < 0 ? ImGui::GetContentRegionAvailWidth() : size.x;
+    size.y = size.y < 0 ? size.x / 2.0f : size.y;
 
     ImGuiWindow *parent_window = ImGui::GetCurrentWindow();
     ImGuiID id = parent_window->GetID(label.c_str());
     if (!ImGui::BeginChildFrame(id, size, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
     {
-        ImGui::EndChild();
+        ImGui::EndChildFrame();
         return -1;
     }
 
@@ -716,7 +717,7 @@ int UniEngine::CurveEditor(
     ImGuiWindow *window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
     {
-        ImGui::EndChild();
+        ImGui::EndChildFrame();
         return -1;
     }
 
@@ -733,13 +734,13 @@ int UniEngine::CurveEditor(
     }
     if (!noTangent && values.size() < 6)
     {
-        values.push_back({-0.2f, 0.0f});
+        values.push_back({-0.1f, 0.0f});
         values.push_back({0, 0.0f});
-        values.push_back({0.2f, 0.0f});
+        values.push_back({0.1f, 0.0f});
 
-        values.push_back({-0.2f, 0.0f});
+        values.push_back({-0.1f, 0.0f});
         values.push_back({1, 0.0f});
-        values.push_back({0.2f, 0.0f});
+        values.push_back({0.1f, 0.0f});
     }
     int points_count = 0;
     if (noTangent)
@@ -774,8 +775,6 @@ int UniEngine::CurveEditor(
     window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_Y, from_y);
     window->StateStorage.SetFloat((ImGuiID)StorageValues::WIDTH, width);
     window->StateStorage.SetFloat((ImGuiID)StorageValues::HEIGHT, height);
-
-    ImVec2 beg_pos = ImGui::GetCursorScreenPos();
 
     const ImRect inner_bb = window->InnerRect;
     const ImRect frame_bb(inner_bb.Min - style.FramePadding, inner_bb.Max + style.FramePadding);
@@ -850,13 +849,13 @@ int UniEngine::CurveEditor(
         window->StateStorage.SetFloat((ImGuiID)StorageValues::WIDTH, width);
         window->StateStorage.SetFloat((ImGuiID)StorageValues::HEIGHT, height);
     }
-    if (ImGui::IsMouseReleased(1))
+    if (ImGui::IsMouseReleased(2))
     {
         window->StateStorage.SetBool((ImGuiID)StorageValues::IS_PANNING, false);
     }
     if (window->StateStorage.GetBool((ImGuiID)StorageValues::IS_PANNING, false))
     {
-        ImVec2 drag_offset = ImGui::GetMouseDragDelta(1);
+        ImVec2 drag_offset = ImGui::GetMouseDragDelta(2);
         from_x = start_pan.x;
         from_y = start_pan.y;
         from_x -= drag_offset.x * width / (inner_bb.Max.x - inner_bb.Min.x);
@@ -864,7 +863,7 @@ int UniEngine::CurveEditor(
         window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_X, from_x);
         window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_Y, from_y);
     }
-    else if (ImGui::IsMouseDragging(1) && ImGui::IsItemHovered())
+    else if (ImGui::IsMouseDragging(2) && ImGui::IsItemHovered())
     {
         window->StateStorage.SetBool((ImGuiID)StorageValues::IS_PANNING, true);
         start_pan.x = from_x;
@@ -898,31 +897,32 @@ int UniEngine::CurveEditor(
             tangent = points[2];
             p = points[3];
         }
-
+        int *selected_point = 0;
         auto handlePoint = [&](ImVec2 &p, int idx) -> bool {
-            static const float SIZE = 3;
+            float SIZE = size.x / 100.0f;
 
             ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
             ImVec2 pos = transform(p);
 
             ImGui::SetCursorScreenPos(pos - ImVec2(SIZE, SIZE));
             ImGui::PushID(idx);
-            ImGui::InvisibleButton("", ImVec2(2 * NODE_SLOT_RADIUS, 2 * NODE_SLOT_RADIUS));
+            ImGui::InvisibleButton("", ImVec2(2 * HANDLE_RADIUS, 2 * HANDLE_RADIUS));
 
-            ImU32 col = ImGui::IsItemActive() || ImGui::IsItemHovered() ? ImGui::GetColorU32(ImGuiCol_PlotLinesHovered)
-                                                                        : ImGui::GetColorU32(ImGuiCol_PlotLines);
+            bool is_selected = selected_point && *selected_point == point_idx + idx;
+            float thickness = is_selected ? 2.0f : 1.0f;
+            ImU32 col = ImGui::IsItemActive() || ImGui::IsItemHovered() ? ImGui::GetColorU32(ImGuiCol_PlotLinesHovered) : ImGui::GetColorU32(ImGuiCol_PlotLines);
 
-            window->DrawList->AddLine(pos + ImVec2(-SIZE, 0), pos + ImVec2(0, SIZE), col);
-            window->DrawList->AddLine(pos + ImVec2(SIZE, 0), pos + ImVec2(0, SIZE), col);
-            window->DrawList->AddLine(pos + ImVec2(SIZE, 0), pos + ImVec2(0, -SIZE), col);
-            window->DrawList->AddLine(pos + ImVec2(-SIZE, 0), pos + ImVec2(0, -SIZE), col);
+            window->DrawList->AddLine(pos + ImVec2(-SIZE, 0), pos + ImVec2(0, SIZE), col, thickness);
+            window->DrawList->AddLine(pos + ImVec2(SIZE, 0), pos + ImVec2(0, SIZE), col, thickness);
+            window->DrawList->AddLine(pos + ImVec2(SIZE, 0), pos + ImVec2(0, -SIZE), col, thickness);
+            window->DrawList->AddLine(pos + ImVec2(-SIZE, 0), pos + ImVec2(0, -SIZE), col, thickness);
 
-            if (ImGui::IsItemHovered())
-                hovered_idx = point_idx + idx;
+            if (ImGui::IsItemHovered()) hovered_idx = point_idx + idx;
 
             bool changed = false;
             if (ImGui::IsItemActive() && ImGui::IsMouseClicked(0))
             {
+                if (selected_point) *selected_point = point_idx + idx;
                 window->StateStorage.SetFloat((ImGuiID)StorageValues::POINT_START_X, pos.x);
                 window->StateStorage.SetFloat((ImGuiID)StorageValues::POINT_START_Y, pos.y);
             }
@@ -931,7 +931,7 @@ int UniEngine::CurveEditor(
             {
                 char tmp[64];
                 ImFormatString(tmp, sizeof(tmp), "%0.2f, %0.2f", p.x, p.y);
-                window->DrawList->AddText({pos.x, pos.y - ImGui::GetTextLineHeight()}, 0xff000000, tmp);
+                window->DrawList->AddText({ pos.x, pos.y - ImGui::GetTextLineHeight() }, 0xff000000, tmp);
             }
 
             if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
@@ -951,26 +951,26 @@ int UniEngine::CurveEditor(
         };
 
         auto handleTangent = [&](ImVec2 &t, const ImVec2 &p, int idx) -> bool {
-            static const float SIZE = 2;
-            static const float LENGTH = 18;
+            static const float factor = 0.1f;
+            float SIZE = size.x / 200.0f;
 
-            auto normalized = [](const ImVec2 &v) -> ImVec2 {
-                float len = 1.0f / sqrtf(v.x * v.x + v.y * v.y);
+            auto normalized = [](const ImVec2& v) -> ImVec2
+            {
+                float len = 1.0f / sqrtf(v.x *v.x + v.y * v.y);
                 return ImVec2(v.x * len, v.y * len);
             };
 
             ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
             ImVec2 pos = transform(p);
-            ImVec2 tang = pos + normalized(ImVec2(t.x, -t.y)) * LENGTH;
+            ImVec2 tang = pos + ImVec2(t.x, -t.y) * size.x;
 
             ImGui::SetCursorScreenPos(tang - ImVec2(SIZE, SIZE));
             ImGui::PushID(-idx);
-            ImGui::InvisibleButton("", ImVec2(2 * NODE_SLOT_RADIUS, 2 * NODE_SLOT_RADIUS));
+            ImGui::InvisibleButton("", ImVec2(2 * HANDLE_RADIUS, 2 * HANDLE_RADIUS));
 
             window->DrawList->AddLine(pos, tang, ImGui::GetColorU32(ImGuiCol_PlotLines));
 
-            ImU32 col = ImGui::IsItemHovered() ? ImGui::GetColorU32(ImGuiCol_PlotLinesHovered)
-                                               : ImGui::GetColorU32(ImGuiCol_PlotLines);
+            ImU32 col = ImGui::IsItemHovered() ?ImGui:: GetColorU32(ImGuiCol_PlotLinesHovered) : ImGui::GetColorU32(ImGuiCol_PlotLines);
 
             window->DrawList->AddLine(tang + ImVec2(-SIZE, SIZE), tang + ImVec2(SIZE, SIZE), col);
             window->DrawList->AddLine(tang + ImVec2(SIZE, SIZE), tang + ImVec2(SIZE, -SIZE), col);
@@ -981,9 +981,8 @@ int UniEngine::CurveEditor(
             if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
             {
                 tang = ImGui::GetIO().MousePos - pos;
-                tang = normalized(tang);
+                tang = tang / size.x;
                 tang.y *= -1;
-
                 t = tang;
                 changed = true;
             }
@@ -1006,23 +1005,19 @@ int UniEngine::CurveEditor(
                 20);
             if (handleTangent(tangent_last, p_prev, 0))
             {
-                points[1] = ImClamp(tangent_last, ImVec2(0, -1), ImVec2(1, 1));
+                auto diff = p - p_prev;
+                points[1] = ImClamp(tangent_last, ImVec2(0, -1), ImVec2(diff.x, 1));
                 changed_idx = point_idx;
             }
             if (handleTangent(tangent, p, 1))
             {
-                points[2] = ImClamp(tangent, ImVec2(-1, -1), ImVec2(0, 1));
+                auto diff = p - p_prev;
+                points[2] = ImClamp(tangent, ImVec2(-diff.x, -1), ImVec2(0, 1));
                 changed_idx = point_idx + 1;
             }
-            if (handlePoint(p, 1))
+            if (point_idx < points_count - 2 && handlePoint(p, 1))
             {
-                if (p.x <= p_prev.x)
-                    p.x = p_prev.x + 0.001f;
-                if (point_idx < points_count - 2 && p.x >= points[6].x)
-                {
-                    p.x = points[6].x - 0.001f;
-                }
-                points[3] = p;
+                points[3] = ImClamp(p, ImVec2(p_prev.x + tangent_last.x + 0.001f, -1), ImVec2(points[6].x + points[5].x - 0.001f, 1));
                 changed_idx = point_idx + 1;
             }
         }
@@ -1041,16 +1036,6 @@ int UniEngine::CurveEditor(
                 changed_idx = point_idx + 1;
             }
         }
-        if (point_idx == 0)
-        {
-            if (handlePoint(p_prev, 0))
-            {
-                if (p.x <= p_prev.x)
-                    p_prev.x = p.x - 0.001f;
-                points[0] = p_prev;
-                changed_idx = point_idx;
-            }
-        }
         ImGui::PopID();
     }
 
@@ -1065,9 +1050,9 @@ int UniEngine::CurveEditor(
         if (!noTangent)
         {
             values.resize(values.size() + 3);
-            values[points_count * 3 + 0] = glm::vec2(-0.2f, 0);
+            values[points_count * 3 + 0] = glm::vec2(-0.1f, 0);
             values[points_count * 3 + 1] = glm::vec2(new_p.x, new_p.y);
-            values[points_count * 3 + 2] = glm::vec2(0.2f, 0);
+            values[points_count * 3 + 2] = glm::vec2(0.1f, 0);
             auto compare = [](const void *a, const void *b) -> int {
                 float fa = (((const ImVec2 *)a) + 1)->x;
                 float fb = (((const ImVec2 *)b) + 1)->x;
@@ -1091,7 +1076,7 @@ int UniEngine::CurveEditor(
     }
     if (hovered_idx >= 0 && ImGui::IsMouseDoubleClicked(0) && allowResize && points_count > 2)
     {
-        if (allowRemoveSides || (hovered_idx > 0 && hovered_idx < values.size() - 1))
+        if (allowRemoveSides || (hovered_idx > 0 && hovered_idx < points_count - 1))
         {
             ImVec2 *points = (ImVec2 *)values.data();
             if (!noTangent)
