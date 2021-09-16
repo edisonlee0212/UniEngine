@@ -1224,3 +1224,73 @@ float Curve::GetValue(float x)
         return m_values[m_values.size() - 1].y;
     }
 }
+Curve::Curve(bool tangent)
+{
+    m_tangent = tangent;
+    Clear();
+}
+Curve::Curve(float start, float end, bool tangent)
+{
+    start = glm::clamp(start, -1.0f, 1.0f);
+    end = glm::clamp(end, -1.0f, 1.0f);
+    m_tangent = tangent;
+    if (!m_tangent)
+    {
+        m_values.clear();
+        m_values.push_back({0, start});
+        m_values.push_back({1, end});
+    }
+    else
+    {
+        m_values.clear();
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({0, start});
+        m_values.push_back({0.1f, 0.0f});
+
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({1, end});
+        m_values.push_back({0.1f, 0.0f});
+    }
+}
+void Curve::SetStart(float value)
+{
+    if (!m_tangent)
+    {
+        m_values.front().y = glm::clamp(value, -1.0f, 1.0f);
+    }
+    else
+    {
+        m_values[1].y = glm::clamp(value, -1.0f, 1.0f);
+    }
+}
+void Curve::SetEnd(float value)
+{
+    if (!m_tangent)
+    {
+        m_values.back().y = glm::clamp(value, -1.0f, 1.0f);
+    }
+    else
+    {
+        m_values[m_values.size() - 2].y = glm::clamp(value, -1.0f, 1.0f);
+    }
+}
+void Curve::Clear()
+{
+    if (!m_tangent)
+    {
+        m_values.clear();
+        m_values.push_back({0, 0.0f});
+        m_values.push_back({1, 0.0f});
+    }
+    else
+    {
+        m_values.clear();
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({0, 0.0f});
+        m_values.push_back({0.1f, 0.0f});
+
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({1, 0.0f});
+        m_values.push_back({0.1f, 0.0f});
+    }
+}
