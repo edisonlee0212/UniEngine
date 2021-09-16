@@ -711,6 +711,7 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         if (!ImGui::BeginChildFrame(id, size, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             ImGui::EndChildFrame();
+            ImGui::TreePop();
             return -1;
         }
 
