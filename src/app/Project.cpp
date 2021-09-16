@@ -14,7 +14,7 @@ int main()
             ImGui::ShowDemoWindow();
 
             ImGui::Begin("Test");
-            curve.CurveEditor("Test", ImVec2(-1, -1), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID); //
+            curve.CurveEditor("Test"); //
             ImGui::End();
         });
     });

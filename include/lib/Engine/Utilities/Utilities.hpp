@@ -69,7 +69,7 @@ class UNIENGINE_API Curve{
     void SetTangent(bool value);
     [[nodiscard]] bool IsTangent();
     int CurveEditor(const std::string& label,
-                                  const ImVec2 &editor_size, unsigned flags);
+                                  const ImVec2 &editor_size = ImVec2(-1, -1), unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     float GetValue(float x);
 };
 
