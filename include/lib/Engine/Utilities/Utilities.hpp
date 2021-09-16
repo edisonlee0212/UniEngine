@@ -55,14 +55,23 @@ struct UNIENGINE_API Bezier2D
     bool DrawGraph(const std::string &label);
 };
 enum class UNIENGINE_API CurveEditorFlags {
-    NO_TANGENTS = 1 << 0,
     SHOW_GRID = 1 << 1,
     RESET = 1 << 2,
     ALLOW_RESIZE = 1 << 3,
     ALLOW_REMOVE_SIDES = 1 << 4
 };
 
-int UNIENGINE_API CurveEditor(const std::string& label, std::vector<glm::vec2>& values,
-                const ImVec2 &editor_size, unsigned flags);
+class UNIENGINE_API Curve{
+    bool m_tangent;
+    std::vector<glm::vec2> m_values;
+  public:
+    [[nodiscard]] std::vector<glm::vec2>& UnsafeGetValues();
+    void SetTangent(bool value);
+    [[nodiscard]] bool IsTangent();
+    int CurveEditor(const std::string& label,
+                                  const ImVec2 &editor_size, unsigned flags);
+    float GetValue(float x);
+};
+
 } // namespace UniEngine
 

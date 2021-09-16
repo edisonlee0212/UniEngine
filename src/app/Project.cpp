@@ -8,13 +8,13 @@ using namespace UniEngine;
 
 int main()
 {
-    std::vector<glm::vec2> points;
+    Curve curve;
     ProjectManager::SetScenePostLoadActions([&]() {
         Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();
 
             ImGui::Begin("Test");
-            CurveEditor("Test", points, ImVec2(-1, -1), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID); //
+            curve.CurveEditor("Test", ImVec2(-1, -1), (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID); //
             ImGui::End();
         });
     });

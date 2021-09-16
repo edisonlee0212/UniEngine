@@ -673,15 +673,11 @@ void FileUtils::SaveFile(
 #endif
 }
 
-static ImVec2 node_pos;
-static ImGuiID last_node_id;
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-static const float HANDLE_RADIUS = 4;
 
-int UniEngine::CurveEditor(
-    const std::string &label, std::vector<glm::vec2> &values, const ImVec2 &editor_size, unsigned int flags)
+int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
 {
     enum class StorageValues : ImGuiID
     {
@@ -694,9 +690,30 @@ int UniEngine::CurveEditor(
         POINT_START_Y
     };
 
-    if(ImGui::TreeNodeEx(label.c_str()))
+    if (ImGui::TreeNodeEx(label.c_str()))
     {
+        bool noTangent = !m_tangent;
+        auto &values = m_values;
+        if (noTangent && values.size() == 0)
+        {
+            values.clear();
+            values.push_back({0, 0.0f});
+            values.push_back({1, 0.0f});
+        }
+        if (!noTangent && values.size() < 6)
+        {
+            values.clear();
+            values.push_back({-0.1f, 0.0f});
+            values.push_back({0, 0.0f});
+            values.push_back({0.1f, 0.0f});
 
+            values.push_back({-0.1f, 0.0f});
+            values.push_back({1, 0.0f});
+            values.push_back({0.1f, 0.0f});
+        }
+        static float target = 0.5f;
+        ImGui::SliderFloat("Probe", &target, 0.0f, 1.0f);
+        ImGui::Text(std::to_string(GetValue(target)).c_str());
         const float HEIGHT = 100;
         static ImVec2 start_pan;
 
@@ -728,26 +745,10 @@ int UniEngine::CurveEditor(
         ImVec2 points_min(FLT_MAX, FLT_MAX);
         ImVec2 points_max(-FLT_MAX, -FLT_MAX);
 
-        bool noTangent = (unsigned)flags & (unsigned)CurveEditorFlags::NO_TANGENTS;
+
 
         bool allowRemoveSides = (unsigned)flags & (unsigned)CurveEditorFlags::ALLOW_REMOVE_SIDES;
-        if (noTangent && values.size() == 0)
-        {
-            values.clear();
-            values.push_back({0, 0.0f});
-            values.push_back({1, 0.0f});
-        }
-        if (!noTangent && values.size() < 6)
-        {
-            values.clear();
-            values.push_back({-0.1f, 0.0f});
-            values.push_back({0, 0.0f});
-            values.push_back({0.1f, 0.0f});
 
-            values.push_back({-0.1f, 0.0f});
-            values.push_back({1, 0.0f});
-            values.push_back({0.1f, 0.0f});
-        }
 
         int points_count = 0;
         if (noTangent)
@@ -881,7 +882,7 @@ int UniEngine::CurveEditor(
         for (int point_idx = points_count - 2; point_idx >= 0; --point_idx)
         {
             ImVec2 *points;
-            if ((unsigned)flags & (unsigned)CurveEditorFlags::NO_TANGENTS)
+            if (noTangent)
             {
                 points = ((ImVec2 *)values.data()) + point_idx;
             }
@@ -913,7 +914,7 @@ int UniEngine::CurveEditor(
 
                 ImGui::SetCursorScreenPos(pos - ImVec2(SIZE, SIZE));
                 ImGui::PushID(idx);
-                ImGui::InvisibleButton("", ImVec2(2 * HANDLE_RADIUS, 2 * HANDLE_RADIUS));
+                ImGui::InvisibleButton("", ImVec2(SIZE * 2, SIZE * 2));
 
                 bool is_selected = selected_point && *selected_point == point_idx + idx;
                 float thickness = is_selected ? 2.0f : 1.0f;
@@ -962,8 +963,7 @@ int UniEngine::CurveEditor(
             };
 
             auto handleTangent = [&](ImVec2 &t, const ImVec2 &p, int idx) -> bool {
-                static const float factor = 0.1f;
-                float SIZE = size.x / 200.0f;
+                float SIZE = size.x / 100.0f;
 
                 auto normalized = [](const ImVec2 &v) -> ImVec2 {
                     float len = 1.0f / sqrtf(v.x * v.x + v.y * v.y);
@@ -976,7 +976,7 @@ int UniEngine::CurveEditor(
 
                 ImGui::SetCursorScreenPos(tang - ImVec2(SIZE, SIZE));
                 ImGui::PushID(-idx);
-                ImGui::InvisibleButton("", ImVec2(2 * HANDLE_RADIUS, 2 * HANDLE_RADIUS));
+                ImGui::InvisibleButton("", ImVec2(SIZE * 2, SIZE * 2));
 
                 window->DrawList->AddLine(pos, tang, ImGui::GetColorU32(ImGuiCol_PlotLines));
 
@@ -1016,13 +1016,13 @@ int UniEngine::CurveEditor(
                     20);
                 if (handleTangent(tangent_last, p_prev, 0))
                 {
-                    auto diff = p - p_prev;
+                    auto diff = p - p_prev + tangent;
                     points[1] = ImClamp(tangent_last, ImVec2(0, -1), ImVec2(diff.x, 1));
                     changed_idx = point_idx;
                 }
                 if (handleTangent(tangent, p, 1))
                 {
-                    auto diff = p - p_prev;
+                    auto diff = p - p_prev - tangent_last;
                     points[2] = ImClamp(tangent, ImVec2(-diff.x, -1), ImVec2(0, 1));
                     changed_idx = point_idx + 1;
                 }
@@ -1030,8 +1030,8 @@ int UniEngine::CurveEditor(
                 {
                     points[3] = ImClamp(
                         p,
-                        ImVec2(p_prev.x + tangent_last.x + 0.001f, -1),
-                        ImVec2(points[6].x + points[5].x - 0.001f, 1));
+                        ImVec2(p_prev.x + tangent_last.x - tangent.x + 0.001f, -1),
+                        ImVec2(points[6].x + points[5].x - points[4].x - 0.001f, 1));
                     changed_idx = point_idx + 1;
                 }
             }
@@ -1064,22 +1064,49 @@ int UniEngine::CurveEditor(
             ImVec2 new_p = invTransform(mp);
             if (!noTangent)
             {
-                values.resize(values.size() + 3);
-                values[points_count * 3 + 0] = glm::vec2(-0.1f, 0);
-                values[points_count * 3 + 1] = glm::vec2(new_p.x, new_p.y);
-                values[points_count * 3 + 2] = glm::vec2(0.1f, 0);
-                auto compare = [](const void *a, const void *b) -> int {
-                    float fa = (((const ImVec2 *)a) + 1)->x;
-                    float fb = (((const ImVec2 *)b) + 1)->x;
-                    return fa < fb ? -1 : (fa > fb) ? 1 : 0;
-                };
-                qsort(values.data(), points_count + 1, sizeof(ImVec2) * 3, compare);
-                for(int i = 0; i < points_count + 1; i++){
-                    if(i > 0){
-                        values[i * 3].x = glm::clamp(values[i * 3].x, values[i * 3 - 2].x - values[i * 3 + 1].x, 0.0f);
+                bool suitable = false;
+                for (int i = 0; i < points_count - 1; i++)
+                {
+                    auto& prev = values[i * 3 + 1];
+                    auto& lastT = values[i * 3 + 2];
+                    auto& nextT = values[i * 3 + 3];
+                    auto& next = values[i * 3 + 4];
+
+                    if(new_p.x - 0.001 > prev.x + lastT.x && new_p.x + 0.001 < next.x + nextT.x) {
+                        suitable = true;
+                        break;
                     }
-                    if(i < points_count){
-                        values[i * 3 + 2].x = glm::clamp(values[i * 3 + 2].x, 0.0f, values[i * 3 + 4].x - values[i * 3 + 1].x);
+                }
+                if(suitable)
+                {
+                    values.resize(values.size() + 3);
+                    values[points_count * 3 + 0] = glm::vec2(-0.1f, 0);
+                    values[points_count * 3 + 1] = glm::vec2(new_p.x, new_p.y);
+                    values[points_count * 3 + 2] = glm::vec2(0.1f, 0);
+                    auto compare = [](const void *a, const void *b) -> int {
+                        float fa = (((const ImVec2 *)a) + 1)->x;
+                        float fb = (((const ImVec2 *)b) + 1)->x;
+                        return fa < fb ? -1 : (fa > fb) ? 1 : 0;
+                    };
+                    qsort(values.data(), points_count + 1, sizeof(ImVec2) * 3, compare);
+                    for (int i = 0; i < points_count + 1; i++)
+                    {
+                        if (values[i * 3 + 1].x != new_p.x)
+                            continue;
+                        if (i > 0)
+                        {
+                            values[i * 3].x = glm::clamp(
+                                values[i * 3].x,
+                                (values[i * 3 - 2].x + values[i * 3 - 1].x) - values[i * 3 + 1].x,
+                                0.0f);
+                        }
+                        if (i < points_count)
+                        {
+                            values[i * 3 + 2].x = glm::clamp(
+                                values[i * 3 + 2].x,
+                                0.0f,
+                                (values[i * 3 + 4].x + values[i * 3 + 3].x) - values[i * 3 + 1].x);
+                        }
                     }
                 }
             }
@@ -1095,7 +1122,6 @@ int UniEngine::CurveEditor(
                 };
 
                 qsort(values.data(), points_count + 1, sizeof(ImVec2), compare);
-
             }
         }
         if (hovered_idx >= 0 && ImGui::IsMouseDoubleClicked(0) && allowResize && points_count > 2)
@@ -1139,4 +1165,62 @@ int UniEngine::CurveEditor(
         return changed_idx;
     }
     return -1;
+}
+std::vector<glm::vec2> &Curve::UnsafeGetValues()
+{
+    return m_values;
+}
+void Curve::SetTangent(bool value)
+{
+    m_tangent = value;
+    if (!m_tangent)
+    {
+        m_values.clear();
+        m_values.push_back({0, 0.0f});
+        m_values.push_back({1, 0.0f});
+    }
+    else
+    {
+        m_values.clear();
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({0, 0.0f});
+        m_values.push_back({0.1f, 0.0f});
+
+        m_values.push_back({-0.1f, 0.0f});
+        m_values.push_back({1, 0.0f});
+        m_values.push_back({0.1f, 0.0f});
+    }
+}
+bool Curve::IsTangent()
+{
+    return m_tangent;
+}
+float Curve::GetValue(float x)
+{
+    if (m_tangent)
+    {
+       int pointSize = m_values.size() / 3;
+       for(int i = 0; i < pointSize - 1; i++){
+           auto& prev = m_values[i * 3 + 1];
+           auto& next = m_values[i * 3 + 4];
+           if(x >= prev.x && x < next.x){
+               float t = (x - prev.x) / (next.x - prev.x);
+               float t1 = 1.0 - t;
+               return t1 * t1 * t1 * m_values[i * 3 + 1].y + 3.0f * t1 * t1 * t * m_values[i * 3 + 2].y +
+                      3.0f * t1 * t * t * m_values[i * 3 + 3].y + t * t * t * m_values[i * 3 + 4].y;
+           }
+       }
+       return m_values[m_values.size() - 2].y;
+    }
+    else
+    {
+        for(int i = 0; i < m_values.size() - 1; i++){
+            auto& prev = m_values[i];
+            auto& next = m_values[i + 1];
+            if(x >= prev.x && x < next.x){
+                return prev.y + (next.y - prev.y) * (x - prev.x) / (next.x - prev.x);
+            }
+        }
+        return m_values[m_values.size() - 1].y;
+    }
 }
