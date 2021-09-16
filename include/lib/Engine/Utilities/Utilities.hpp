@@ -54,29 +54,35 @@ struct UNIENGINE_API Bezier2D
     [[nodiscard]] glm::vec2 GetPoint(const float &t) const;
     bool DrawGraph(const std::string &label);
 };
-enum class UNIENGINE_API CurveEditorFlags {
+enum class UNIENGINE_API CurveEditorFlags
+{
     SHOW_GRID = 1 << 1,
     RESET = 1 << 2,
     ALLOW_RESIZE = 1 << 3,
     ALLOW_REMOVE_SIDES = 1 << 4
 };
 
-class UNIENGINE_API Curve{
+class UNIENGINE_API Curve
+{
     bool m_tangent;
     std::vector<glm::vec2> m_values;
+    glm::vec2 m_min;
+    glm::vec2 m_max;
+
   public:
-    Curve(bool tangent = true);
-    Curve(float start, float end, bool tangent = true);
+    Curve(const glm::vec2 &min = {0, -1}, const glm::vec2 &max = {1, 1}, bool tangent = true);
+    Curve(float start, float end, const glm::vec2 &min = {0, -1}, const glm::vec2 &max = {1, 1}, bool tangent = true);
     void Clear();
-    [[nodiscard]] std::vector<glm::vec2>& UnsafeGetValues();
+    [[nodiscard]] std::vector<glm::vec2> &UnsafeGetValues();
     void SetTangent(bool value);
     void SetStart(float value);
     void SetEnd(float value);
     [[nodiscard]] bool IsTangent();
-    int CurveEditor(const std::string& label,
-                                  const ImVec2 &editor_size = ImVec2(-1, -1), unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
+    int CurveEditor(
+        const std::string &label,
+        const ImVec2 &editor_size = ImVec2(-1, -1),
+        unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     float GetValue(float x);
 };
 
 } // namespace UniEngine
-

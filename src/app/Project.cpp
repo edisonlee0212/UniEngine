@@ -8,7 +8,7 @@ using namespace UniEngine;
 
 int main()
 {
-    Curve curve;
+    Curve curve = Curve({0, 0}, {1, 1});
     ProjectManager::SetScenePostLoadActions([&]() {
         Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();

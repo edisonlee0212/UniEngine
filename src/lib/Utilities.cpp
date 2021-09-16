@@ -676,7 +676,6 @@ void FileUtils::SaveFile(
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-
 int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
 {
     enum class StorageValues : ImGuiID
@@ -694,29 +693,12 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
     {
         bool noTangent = !m_tangent;
         auto &values = m_values;
-        if (noTangent && values.size() == 0)
+        if (noTangent && values.size() == 0 || !noTangent && values.size() < 6)
         {
-            values.clear();
-            values.push_back({0, 0.0f});
-            values.push_back({1, 0.0f});
+            Clear();
         }
-        if (!noTangent && values.size() < 6)
-        {
-            values.clear();
-            values.push_back({-0.1f, 0.0f});
-            values.push_back({0, 0.0f});
-            values.push_back({0.1f, 0.0f});
-
-            values.push_back({-0.1f, 0.0f});
-            values.push_back({1, 0.0f});
-            values.push_back({0.1f, 0.0f});
-        }
-        static float target = 0.5f;
-        ImGui::SliderFloat("Probe", &target, 0.0f, 1.0f);
-        ImGui::Text(std::to_string(GetValue(target)).c_str());
-        const float HEIGHT = 100;
+        if(ImGui::Button("Clear")) Clear();
         static ImVec2 start_pan;
-
         ImGuiContext &g = *GImGui;
         const ImGuiStyle &style = g.Style;
         ImVec2 size = editor_size;
@@ -745,10 +727,7 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         ImVec2 points_min(FLT_MAX, FLT_MAX);
         ImVec2 points_max(-FLT_MAX, -FLT_MAX);
 
-
-
         bool allowRemoveSides = (unsigned)flags & (unsigned)CurveEditorFlags::ALLOW_REMOVE_SIDES;
-
 
         int points_count = 0;
         if (noTangent)
@@ -775,10 +754,10 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         }
         points_max.y = ImMax(points_max.y, points_min.y + 0.0001f);
 
-        float from_x = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_X, 0);
-        float from_y = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_Y, -1);
-        float width = window->StateStorage.GetFloat((ImGuiID)StorageValues::WIDTH, 1);
-        float height = window->StateStorage.GetFloat((ImGuiID)StorageValues::HEIGHT, 2);
+        float from_x = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_X, m_min.x);
+        float from_y = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_Y, m_min.y);
+        float width = window->StateStorage.GetFloat((ImGuiID)StorageValues::WIDTH, m_max.x - m_min.x);
+        float height = window->StateStorage.GetFloat((ImGuiID)StorageValues::HEIGHT, m_max.y - m_min.y);
         window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_X, from_x);
         window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_Y, from_y);
         window->StateStorage.SetFloat((ImGuiID)StorageValues::WIDTH, width);
@@ -1067,17 +1046,18 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
                 bool suitable = false;
                 for (int i = 0; i < points_count - 1; i++)
                 {
-                    auto& prev = values[i * 3 + 1];
-                    auto& lastT = values[i * 3 + 2];
-                    auto& nextT = values[i * 3 + 3];
-                    auto& next = values[i * 3 + 4];
+                    auto &prev = values[i * 3 + 1];
+                    auto &lastT = values[i * 3 + 2];
+                    auto &nextT = values[i * 3 + 3];
+                    auto &next = values[i * 3 + 4];
 
-                    if(new_p.x - 0.001 > prev.x + lastT.x && new_p.x + 0.001 < next.x + nextT.x) {
+                    if (new_p.x - 0.001 > prev.x + lastT.x && new_p.x + 0.001 < next.x + nextT.x)
+                    {
                         suitable = true;
                         break;
                     }
                 }
-                if(suitable)
+                if (suitable)
                 {
                     values.resize(values.size() + 3);
                     values[points_count * 3 + 0] = glm::vec2(-0.1f, 0);
@@ -1153,13 +1133,13 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         ImGui::EndChildFrame();
         if (noTangent)
         {
-            ImGui::SliderFloat("L", &values.front().y, -1.0f, 1.0f);
-            ImGui::SliderFloat("R", &values.back().y, -1.0f, 1.0f);
+            ImGui::SliderFloat("L", &values.front().y, m_min.y, m_max.y);
+            ImGui::SliderFloat("R", &values.back().y, m_min.y, m_max.y);
         }
         else
         {
-            ImGui::SliderFloat("L", &values[1].y, -1.0f, 1.0f);
-            ImGui::SliderFloat("R", &values[values.size() - 2].y, -1.0f, 1.0f);
+            ImGui::SliderFloat("L", &values[1].y, m_min.y, m_max.y);
+            ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y);
         }
         ImGui::TreePop();
         return changed_idx;
@@ -1173,23 +1153,7 @@ std::vector<glm::vec2> &Curve::UnsafeGetValues()
 void Curve::SetTangent(bool value)
 {
     m_tangent = value;
-    if (!m_tangent)
-    {
-        m_values.clear();
-        m_values.push_back({0, 0.0f});
-        m_values.push_back({1, 0.0f});
-    }
-    else
-    {
-        m_values.clear();
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({0, 0.0f});
-        m_values.push_back({0.1f, 0.0f});
-
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({1, 0.0f});
-        m_values.push_back({0.1f, 0.0f});
-    }
+    Clear();
 }
 bool Curve::IsTangent()
 {
@@ -1199,79 +1163,87 @@ float Curve::GetValue(float x)
 {
     if (m_tangent)
     {
-       int pointSize = m_values.size() / 3;
-       for(int i = 0; i < pointSize - 1; i++){
-           auto& prev = m_values[i * 3 + 1];
-           auto& next = m_values[i * 3 + 4];
-           if(x >= prev.x && x < next.x){
-               float t = (x - prev.x) / (next.x - prev.x);
-               float t1 = 1.0 - t;
-               return t1 * t1 * t1 * m_values[i * 3 + 1].y + 3.0f * t1 * t1 * t * m_values[i * 3 + 2].y +
-                      3.0f * t1 * t * t * m_values[i * 3 + 3].y + t * t * t * m_values[i * 3 + 4].y;
-           }
-       }
-       return m_values[m_values.size() - 2].y;
+        int pointSize = m_values.size() / 3;
+        for (int i = 0; i < pointSize - 1; i++)
+        {
+            auto &prev = m_values[i * 3 + 1];
+            auto &next = m_values[i * 3 + 4];
+            if (x >= prev.x && x < next.x)
+            {
+                float t = (x - prev.x) / (next.x - prev.x);
+                float t1 = 1.0 - t;
+                return t1 * t1 * t1 * prev.y + 3.0f * t1 * t1 * t * (prev.y + m_values[i * 3 + 2].y) +
+                       3.0f * t1 * t * t * (prev.y + m_values[i * 3 + 3].y) + t * t * t * next.y;
+            }
+        }
+        return m_values[m_values.size() - 2].y;
     }
     else
     {
-        for(int i = 0; i < m_values.size() - 1; i++){
-            auto& prev = m_values[i];
-            auto& next = m_values[i + 1];
-            if(x >= prev.x && x < next.x){
+        for (int i = 0; i < m_values.size() - 1; i++)
+        {
+            auto &prev = m_values[i];
+            auto &next = m_values[i + 1];
+            if (x >= prev.x && x < next.x)
+            {
                 return prev.y + (next.y - prev.y) * (x - prev.x) / (next.x - prev.x);
             }
         }
         return m_values[m_values.size() - 1].y;
     }
 }
-Curve::Curve(bool tangent)
+Curve::Curve(const glm::vec2 &min, const glm::vec2 &max, bool tangent)
 {
     m_tangent = tangent;
+    m_min = min;
+    m_max = max;
     Clear();
 }
-Curve::Curve(float start, float end, bool tangent)
+Curve::Curve(float start, float end, const glm::vec2 &min, const glm::vec2 &max, bool tangent)
 {
-    start = glm::clamp(start, -1.0f, 1.0f);
-    end = glm::clamp(end, -1.0f, 1.0f);
+    m_min = min;
+    m_max = max;
+    start = glm::clamp(start, m_min.y, m_max.y);
+    end = glm::clamp(end, m_min.y, m_max.y);
     m_tangent = tangent;
     if (!m_tangent)
     {
         m_values.clear();
-        m_values.push_back({0, start});
-        m_values.push_back({1, end});
+        m_values.push_back({m_min.x, start});
+        m_values.push_back({m_max.x, end});
     }
     else
     {
         m_values.clear();
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({0, start});
-        m_values.push_back({0.1f, 0.0f});
+        m_values.push_back({-(m_max.y - m_min.y) / 10.0f, 0.0f});
+        m_values.push_back({m_min.x, start});
+        m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
 
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({1, end});
-        m_values.push_back({0.1f, 0.0f});
+        m_values.push_back({-(m_max.y - m_min.y) / 10.0f, 0.0f});
+        m_values.push_back({m_max.x, end});
+        m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
     }
 }
 void Curve::SetStart(float value)
 {
     if (!m_tangent)
     {
-        m_values.front().y = glm::clamp(value, -1.0f, 1.0f);
+        m_values.front().y = glm::clamp(value, m_min.y, m_max.y);
     }
     else
     {
-        m_values[1].y = glm::clamp(value, -1.0f, 1.0f);
+        m_values[1].y = glm::clamp(value, m_min.y, m_max.y);
     }
 }
 void Curve::SetEnd(float value)
 {
     if (!m_tangent)
     {
-        m_values.back().y = glm::clamp(value, -1.0f, 1.0f);
+        m_values.back().y = glm::clamp(value, m_min.y, m_max.y);
     }
     else
     {
-        m_values[m_values.size() - 2].y = glm::clamp(value, -1.0f, 1.0f);
+        m_values[m_values.size() - 2].y = glm::clamp(value, m_min.y, m_max.y);
     }
 }
 void Curve::Clear()
@@ -1279,18 +1251,18 @@ void Curve::Clear()
     if (!m_tangent)
     {
         m_values.clear();
-        m_values.push_back({0, 0.0f});
-        m_values.push_back({1, 0.0f});
+        m_values.push_back({m_min.x, (m_min.y + m_max.y) / 2.0f});
+        m_values.push_back({m_max.x, (m_min.y + m_max.y) / 2.0f});
     }
     else
     {
         m_values.clear();
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({0, 0.0f});
-        m_values.push_back({0.1f, 0.0f});
+        m_values.push_back({-(m_max.y - m_min.y) / 10.0f, 0.0f});
+        m_values.push_back({m_min.x, (m_min.y + m_max.y) / 2.0f});
+        m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
 
-        m_values.push_back({-0.1f, 0.0f});
-        m_values.push_back({1, 0.0f});
-        m_values.push_back({0.1f, 0.0f});
+        m_values.push_back({-(m_max.y - m_min.y) / 10.0f, 0.0f});
+        m_values.push_back({m_max.x, (m_min.y + m_max.y) / 2.0f});
+        m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
     }
 }
