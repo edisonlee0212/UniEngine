@@ -1266,3 +1266,32 @@ void Curve::Clear()
         m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
     }
 }
+void Curve::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_tangent" << m_tangent;
+    out << YAML::Key << "m_min" << m_min;
+    out << YAML::Key << "m_max" << m_max;
+
+    if(!m_values.empty())
+    {
+        out << YAML::Key << "m_values" << YAML::BeginSeq;
+        for (auto &i : m_values)
+        {
+            out << i;
+        }
+        out << YAML::EndSeq;
+    }
+}
+void Curve::Deserialize(const YAML::Node &in)
+{
+    m_tangent = in["m_tangent"].as<bool>();
+    m_min = in["m_min"].as<glm::vec2>();
+    m_max = in["m_max"].as<glm::vec2>();
+    m_values.clear();
+    if(in["m_values"]){
+        for(const auto& i : in["m_values"]){
+            m_values.push_back(i.as<glm::vec2>());
+        }
+    }
+
+}

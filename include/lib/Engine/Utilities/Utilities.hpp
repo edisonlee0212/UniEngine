@@ -62,7 +62,7 @@ enum class UNIENGINE_API CurveEditorFlags
     ALLOW_REMOVE_SIDES = 1 << 4
 };
 
-class UNIENGINE_API Curve
+class UNIENGINE_API Curve : public ISerializable
 {
     bool m_tangent;
     std::vector<glm::vec2> m_values;
@@ -83,6 +83,9 @@ class UNIENGINE_API Curve
         const ImVec2 &editor_size = ImVec2(-1, -1),
         unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     float GetValue(float x);
+
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
 };
 
 } // namespace UniEngine
