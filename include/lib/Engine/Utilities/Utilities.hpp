@@ -65,11 +65,16 @@ class UNIENGINE_API Curve{
     bool m_tangent;
     std::vector<glm::vec2> m_values;
   public:
+    Curve(bool tangent = true);
+    Curve(float start, float end, bool tangent = true);
+    void Clear();
     [[nodiscard]] std::vector<glm::vec2>& UnsafeGetValues();
     void SetTangent(bool value);
+    void SetStart(float value);
+    void SetEnd(float value);
     [[nodiscard]] bool IsTangent();
     int CurveEditor(const std::string& label,
-                                  const ImVec2 &editor_size, unsigned flags);
+                                  const ImVec2 &editor_size = ImVec2(-1, -1), unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     float GetValue(float x);
 };
 
