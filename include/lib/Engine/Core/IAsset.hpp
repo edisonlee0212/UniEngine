@@ -9,23 +9,19 @@ class Texture2D;
 class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
-    friend class EditorManager;
-    friend class AssetManager;
     friend class DefaultResources;
-
-    std::shared_ptr<Texture2D> m_icon;
     std::filesystem::path m_path;
 
     /**
-     * The function that handles serialization. May be invoked by Save() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
+     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */
-    virtual void Save(const std::filesystem::path &path);
+    virtual void SaveInternal(const std::filesystem::path &path);
     /**
      * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
-    virtual void Load(const std::filesystem::path &path);
+    virtual void LoadInternal(const std::filesystem::path &path);
     /**
      * Whether the asset is saved or not.
      */
@@ -51,13 +47,25 @@ class UNIENGINE_API IAsset : public ISerializable
      */
     void SetPath(const std::filesystem::path &path);
     /**
-     * Save the asset to its file path, nothing happens if the path if empty.
+     * SaveInternal the asset to its file path, nothing happens if the path if empty.
      */
     void Save();
     /**
      * Load the asset from its file path, nothing happens if the path if empty.
      */
     void Load();
+
+    /**
+     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
+     * @param path The file path for saving the asset, may or may not be the local stored path.
+     */
+    void SetPathAndSave(const std::filesystem::path &path);
+    /**
+     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
+     * @param path The file path for loading the asset, may or may not be the local stored path.
+     */
+    void SetPathAndLoad(const std::filesystem::path &path);
+
     /**
      * The destructor, should be overwritten if explict handling is required when the lifecycle of the asset ends.
      */

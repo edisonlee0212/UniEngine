@@ -387,7 +387,7 @@ void Camera::OnInspect()
     ImGui::DragFloat("FOV", &m_fov, 1.0f, 1, 359);
 
     FileUtils::SaveFile("Screenshot", "Texture2D", {".png", ".jpg"}, [this](const std::filesystem::path &filePath) {
-        m_colorTexture->Save(filePath);
+        m_colorTexture->SetPathAndSave(filePath);
     });
 
     if (ImGui::TreeNode("Debug"))

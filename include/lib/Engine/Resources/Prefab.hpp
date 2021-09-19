@@ -100,6 +100,11 @@ class UNIENGINE_API Prefab : public IAsset
         const std::unordered_map<Handle, Handle> &map) const;
     void RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const;
 #pragma endregion
+
+  protected:
+    void LoadInternal(const std::filesystem::path &path) override;
+    void SaveInternal(const std::filesystem::path &path) override;
+
   public:
     Handle m_entityHandle = Handle();
     std::vector<DataComponentHolder> m_dataComponents;
@@ -107,8 +112,7 @@ class UNIENGINE_API Prefab : public IAsset
     std::vector<std::shared_ptr<Prefab>> m_children;
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetPrivateComponent();
     void OnCreate() override;
-    void Load(const std::filesystem::path &path) override;
-    void Save(const std::filesystem::path &path) override;
+
     [[nodiscard]] Entity ToEntity() const;
 
     void LoadModel(const std::filesystem::path &path, bool optimize = false, unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);

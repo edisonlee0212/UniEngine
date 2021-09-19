@@ -114,8 +114,11 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static void SetSelectedEntity(const Entity &entity, bool openMenu = true);
     static std::weak_ptr<Camera> GetSceneCamera();
 
-    static bool DragAndDropButton(AssetRef &target, const std::string &name,
-                           const std::vector<std::string> &acceptableTypeNames, bool removable = true);
+    static bool DragAndDropButton(
+        AssetRef &target,
+        const std::string &name,
+        const std::vector<std::string> &acceptableTypeNames,
+        bool removable = true);
     template <typename T = IAsset>
     static bool DragAndDropButton(AssetRef &target, const std::string &name, bool removable = true);
     template <typename T = IPrivateComponent>
@@ -201,14 +204,15 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
-            if (ptr->m_icon)
+            /*if (ptr->m_icon)
                 ImGui::Image(
                     reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
                     ImVec2(30, 30),
                     ImVec2(0, 1),
                     ImVec2(1, 0));
             else
-                ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+             */
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
         if (ImGui::BeginPopupContextItem(tag.c_str()))
@@ -231,7 +235,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     [&](const std::filesystem::path &filePath) {
                         try
                         {
-                            AssetManager::Export(filePath, ptr);
+                            ptr->SetPathAndSave(filePath);
                             UNIENGINE_LOG("Saved to " + filePath.string());
                         }
                         catch (std::exception &e)
@@ -247,8 +251,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     [&](const std::filesystem::path &filePath) {
                         try
                         {
-                            ptr->SetPath(filePath);
-                            ptr->Load();
+                            ptr->SetPathAndLoad(filePath);
                             UNIENGINE_LOG("Loaded from " + filePath.string());
                         }
                         catch (std::exception &e)
@@ -382,14 +385,15 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
         ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
-        if (ptr->m_icon)
+        /*if (ptr->m_icon)
             ImGui::Image(
                 reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
                 ImVec2(30, 30),
                 ImVec2(0, 1),
                 ImVec2(1, 0));
         else
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+         */
+        ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
         ImGui::EndDragDropSource();
     }
 
@@ -406,12 +410,12 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
 
         if (ImGui::BeginMenu("I/O"))
         {
-            auto extension = AssetManager::GetExtension(type);
+            auto &extensions = AssetManager::GetInstance().m_defaultExtensions[type];
             FileUtils::SaveFile(
-                ("Save " + type + tag).c_str(), type, {extension}, [&](const std::filesystem::path &filePath) {
+                ("Save " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
                     try
                     {
-                        AssetManager::Export(filePath, ptr);
+                        ptr->SetPathAndSave(filePath);
                         UNIENGINE_LOG("Saved to " + filePath.string());
                     }
                     catch (std::exception &e)
@@ -421,11 +425,10 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 });
 
             FileUtils::OpenFile(
-                ("Load " + type + tag).c_str(), type, {extension}, [&](const std::filesystem::path &filePath) {
+                ("Load " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
                     try
                     {
-                        ptr->SetPath(filePath);
-                        ptr->Load();
+                        ptr->SetPathAndLoad(filePath);
                         UNIENGINE_LOG("Loaded from " + filePath.string());
                     }
                     catch (std::exception &e)

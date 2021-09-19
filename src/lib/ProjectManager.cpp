@@ -40,9 +40,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
         auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
         scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
-        scene->SetPath(sceneRecord.m_relativeFilePath);
-        EntityManager::Attach(scene);
-        scene->Load();
+        scene->SetPathAndLoad(sceneRecord.m_relativeFilePath);
         EntityManager::Attach(scene);
         UNIENGINE_LOG("Found and loaded project");
     }
@@ -221,7 +219,7 @@ void ProjectManager::OnInspect()
                         UNIENGINE_ERROR("Failed to load from " + filePath.string());
                     }
                 });
-            if (ImGui::Button("Save"))
+            if (ImGui::Button("SaveInternal"))
             {
                 SaveProject();
             }

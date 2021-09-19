@@ -38,7 +38,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
     {
         assert(search2->second.m_typeName == typeName);
         auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
-        retVal->m_path = search2->second.m_relativeFilePath;
+        retVal->SetPath(search2->second.m_relativeFilePath);
         retVal->Load();
         return retVal;
     }
@@ -102,102 +102,6 @@ void AssetManager::OnInspect()
     auto &resourceManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::BeginMenu("Import..."))
-            {
-                FileUtils::OpenFile("Scene##Import", "Scene", {".uescene"}, [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        auto asset = AssetManager::CreateAsset<Scene>(filePath.filename().string());
-                        asset->SetPath(filePath);
-                        auto previousScene = EntityManager::GetCurrentScene();
-                        EntityManager::Attach(asset);
-                        asset->Load();
-                        EntityManager::Attach(previousScene);
-                        resourceManager.m_sharedAssets["Scene"][asset->m_handle] =
-                            std::static_pointer_cast<IAsset>(asset);
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
-
-#ifdef USE_ASSIMP
-                std::vector<std::string> modelFormat = {".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"};
-#else
-                std::string modelFormat = ".obj";
-#endif
-                FileUtils::OpenFile("Model##Import", "Model", modelFormat, [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        auto asset = Import<Prefab>(filePath);
-                        resourceManager.m_sharedAssets["Prefab"][asset->m_handle] =
-                            std::static_pointer_cast<IAsset>(asset);
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
-
-                FileUtils::OpenFile(
-                    "Texture2D##Import",
-                    "Texture2D",
-                    {".png", ".jpg", ".jpeg", ".tga", ".hdr"},
-                    [&](const std::filesystem::path &filePath) {
-                        try
-                        {
-                            auto asset = Import<Texture2D>(filePath);
-                            resourceManager.m_sharedAssets["Texture2D"][asset->m_handle] =
-                                std::static_pointer_cast<IAsset>(asset);
-                            UNIENGINE_LOG("Loaded from " + filePath.string());
-                        }
-                        catch (std::exception &e)
-                        {
-                            UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                        }
-                    });
-
-                FileUtils::OpenFile(
-                    "Cubemap##Import",
-                    "Cubemap",
-                    {".png", ".jpg", ".jpeg", ".tga", ".hdr"},
-                    [&](const std::filesystem::path &filePath) {
-                        try
-                        {
-                            auto asset = Import<Cubemap>(filePath);
-                            resourceManager.m_sharedAssets["Cubemap"][asset->m_handle] =
-                                std::static_pointer_cast<IAsset>(asset);
-                            UNIENGINE_LOG("Loaded from " + filePath.string());
-                        }
-                        catch (std::exception &e)
-                        {
-                            UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                        }
-                    });
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Export..."))
-            {
-                FileUtils::SaveFile("Scene##Export", "Scene", {".uescene"}, [](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        Export(filePath, EntityManager::GetCurrentScene());
-                        UNIENGINE_LOG("Saved to " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to save to " + filePath.string());
-                    }
-                });
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenu();
-        }
         if (ImGui::BeginMenu("View"))
         {
             ImGui::Checkbox("Asset Manager", &resourceManager.m_enableAssetMenu);
@@ -285,6 +189,11 @@ void AssetManager::Init()
 {
     ProjectManager::GetInstance().m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
     DefaultResources::Load();
+
+    RegisterExternalAssetTypeExtensions<Prefab>({".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
+    RegisterExternalAssetTypeExtensions<Texture2D>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
+    RegisterExternalAssetTypeExtensions<Cubemap>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
+
 }
 void AssetManager::ScanAssetFolder()
 {
@@ -344,7 +253,6 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     size_t hashCode;
     auto retVal =
         std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
-    retVal->m_path.clear();
     RegisterAsset(retVal);
     retVal->OnCreate();
     if (!name.empty())
@@ -355,15 +263,8 @@ std::shared_ptr<IAsset> AssetManager::CreateAsset(
     }
     return retVal;
 }
-std::string AssetManager::GetExtension(const std::string &typeName)
+std::vector<std::string> AssetManager::GetExtension(const std::string &typeName)
 {
     return GetInstance().m_defaultExtensions[typeName];
 }
 
-
-void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target)
-{
-    auto actualPath = path;
-    actualPath.replace_extension(GetInstance().m_defaultExtensions[target->GetTypeName()]);
-    target->Save(actualPath);
-}

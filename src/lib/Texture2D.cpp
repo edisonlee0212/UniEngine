@@ -102,7 +102,7 @@ std::shared_ptr<OpenGLUtils::GLTexture2D>& Texture2D::UnsafeGetGLTexture()
     return m_texture;
 }
 
-void Texture2D::Load(const std::filesystem::path &path)
+void Texture2D::LoadInternal(const std::filesystem::path &path)
 {
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrComponents;
@@ -154,7 +154,7 @@ void Texture2D::Load(const std::filesystem::path &path)
     m_name = path.filename().string();
     m_gamma = actualGamma;
 }
-void Texture2D::Save(const std::filesystem::path &path)
+void Texture2D::SaveInternal(const std::filesystem::path &path)
 {
     if(path.extension() == ".png"){
         StoreToPng(path.string());

@@ -39,6 +39,10 @@ class UNIENGINE_API Scene : public IAsset
     Bound m_worldBound;
     void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
     void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
+
+  protected:
+    void LoadInternal(const std::filesystem::path &path) override;
+
   public:
     void Purge();
     void OnCreate() override;

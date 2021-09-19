@@ -13,7 +13,7 @@ std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 {
     return m_texture;
 }
-void Cubemap::Load(const std::filesystem::path &path)
+void Cubemap::LoadInternal(const std::filesystem::path &path)
 {
     auto &manager = AssetManager::GetInstance();
     stbi_set_flip_vertically_on_load(true);
