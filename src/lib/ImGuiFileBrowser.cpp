@@ -423,7 +423,7 @@ bool ImGuiFileBrowser::renderFileListRegion()
 
 bool ImGuiFileBrowser::renderInputTextAndExtRegion()
 {
-    std::string label = (dialog_mode == DialogMode::SAVE) ? "Save As:" : "Open:";
+    std::string label = (dialog_mode == DialogMode::SAVE) ? "SaveInternal As:" : "Open:";
     ImGuiStyle &style = ImGui::GetStyle();
 
     ImVec2 pw_pos = ImGui::GetWindowPos();
@@ -571,7 +571,7 @@ bool ImGuiFileBrowser::renderButtonsAndCheckboxRegion()
             if (ImGui::Button("Open", ImVec2(button_width, 0)))
                 show_error |= !(onDirClick(selected_idx));
         }
-        else if (ImGui::Button("Save", ImVec2(button_width, 0)) && strlen(input_fn) > 0)
+        else if (ImGui::Button("SaveInternal", ImVec2(button_width, 0)) && strlen(input_fn) > 0)
         {
             selected_fn = std::string(input_fn);
             validate_file = true;

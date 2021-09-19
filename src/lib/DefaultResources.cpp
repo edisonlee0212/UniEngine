@@ -263,7 +263,8 @@ void DefaultResources::LoadPrimitives()
 #pragma region Models &Primitives
 
     {
-        auto model = AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("quad");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -272,8 +273,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Quad);
     }
     {
-        auto model =
-            AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/sphere.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("sphere");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/sphere.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -282,7 +283,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Sphere);
     }
     {
-        auto model = AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/cube.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("cube");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cube.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -291,7 +293,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Cube);
     }
     {
-        auto model = AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/cone.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("cone");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cone.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -300,8 +303,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Cone);
     }
     {
-        auto model =
-            AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("cylinder");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -310,7 +313,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Cylinder);
     }
     {
-        auto model = AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/ring.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("ring");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/ring.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -319,8 +323,8 @@ void DefaultResources::LoadPrimitives()
         AssetManager::Share(Primitives::Ring);
     }
     {
-        auto model =
-            AssetManager::Import<Prefab>(std::filesystem::path("./DefaultResources") / "Primitives/monkey.obj");
+        auto model = AssetManager::CreateAsset<Prefab>("monkey");
+        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/monkey.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -346,12 +350,12 @@ void DefaultResources::Load()
 
 #pragma region Environmental
     Environmental::DefaultSkybox = AssetManager::CreateAsset<Cubemap>(GenerateNewHandle(), "Default");
-    Environmental::DefaultSkybox->Load(
+    Environmental::DefaultSkybox->LoadInternal(
         std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->m_name = "Default";
 
     Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(GenerateNewHandle(), "Missing");
-    Textures::MissingTexture->Load(std::filesystem::path("./DefaultResources") / "Textures/texture-missing.png");
+    Textures::MissingTexture->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/texture-missing.png");
     Textures::MissingTexture->m_name = "Missing";
 
     Environmental::DefaultEnvironmentalMap =

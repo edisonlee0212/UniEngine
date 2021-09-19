@@ -117,7 +117,7 @@ void Prefab::AttachChildrenPrivateComponent(
     entity.SetEnabled(m_enabled);
 }
 #pragma region Model Loading
-void Prefab::Load(const std::filesystem::path &path)
+void Prefab::LoadInternal(const std::filesystem::path &path)
 {
     if (path.extension() == ".ueprefab")
     {
@@ -307,7 +307,8 @@ std::shared_ptr<Texture2D> Prefab::CollectTexture(
     {
         return search->second;
     }
-    auto texture2D = AssetManager::Import<Texture2D>(directory + "/" + path);
+    auto texture2D = AssetManager::CreateAsset<Texture2D>();
+    texture2D->SetPathAndLoad(directory + "/" + path);
     loadedTextures[fileName] = texture2D;
     return texture2D;
 }
@@ -963,7 +964,7 @@ void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &
     for (auto &i : m_children)
         i->CollectAssets(map);
 }
-void Prefab::Save(const std::filesystem::path &path)
+void Prefab::SaveInternal(const std::filesystem::path &path)
 {
     auto directory = path;
     directory.remove_filename();

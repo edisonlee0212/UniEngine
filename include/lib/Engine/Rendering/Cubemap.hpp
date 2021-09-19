@@ -13,6 +13,6 @@ class UNIENGINE_API Cubemap : public IAsset
     void OnCreate() override;
     std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Texture();
 
-    void Load(const std::filesystem::path & path) override;
+    void LoadInternal(const std::filesystem::path & path) override;
 };
 } // namespace UniEngine

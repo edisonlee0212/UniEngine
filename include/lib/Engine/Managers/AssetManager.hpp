@@ -23,8 +23,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
 
-    std::unordered_map<std::string, std::string> m_defaultExtensions;
-
+    std::unordered_map<std::string, std::vector<std::string>> m_defaultExtensions;
+    std::unordered_map<std::string, std::string> m_typeNames;
     friend class DefaultResources;
     friend class ProjectManager;
     friend class EditorManager;
@@ -39,6 +39,9 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterAssetType(const std::string &name, const std::string &extension);
 
   public:
+    template <typename T> static void RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);
+
+    template <typename T> static std::shared_ptr<T> Import(const std::filesystem::path& path);
     static std::filesystem::path GetAssetFolderPath();
     static void ScanAssetFolder();
     template <typename T> static void Share(std::shared_ptr<T> resource);
@@ -51,11 +54,6 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RemoveFromShared(const Handle &handle);
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
-    template <typename T = IAsset> static std::shared_ptr<T> Import(const std::filesystem::path &path);
-    template <typename T = IAsset>
-    static void Export(const std::filesystem::path &path, const std::shared_ptr<T> &target);
-
-    static void Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target);
     static std::shared_ptr<Material> LoadMaterial(const std::shared_ptr<OpenGLUtils::GLProgram> &program);
     static std::shared_ptr<OpenGLUtils::GLProgram> LoadProgram(
         const std::shared_ptr<OpenGLUtils::GLShader> &vertex, const std::shared_ptr<OpenGLUtils::GLShader> &fragment);
@@ -69,10 +67,17 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     static Entity ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture);
 #pragma endregion
     static void Init();
-    template <typename T = IAsset> static std::string GetExtension();
-    static std::string GetExtension(const std::string &typeName);
+    template <typename T = IAsset> static std::vector<std::string> GetExtension();
+    static std::vector<std::string> GetExtension(const std::string &typeName);
 };
-template <typename T> std::string AssetManager::GetExtension()
+template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path& path)
+{
+    auto asset = CreateAsset<T>(path.filename().string());
+    std::dynamic_pointer_cast<IAsset>(asset)->SetPathAndLoad(path);
+    return asset;
+}
+
+template <typename T> std::vector<std::string> AssetManager::GetExtension()
 {
     return GetInstance().m_defaultExtensions[SerializationManager::GetSerializableTypeName<T>()];
 }
@@ -86,33 +91,25 @@ template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
 {
     return std::dynamic_pointer_cast<T>(Get(SerializationManager::GetSerializableTypeName<T>(), handle));
 }
-template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
-{
-    auto &assetManager = GetInstance();
-    auto ptr = std::static_pointer_cast<IAsset>(CreateAsset<T>(path.filename().string()));
-    ptr->m_path = path;
-    ptr->Load();
-    const auto typeName = ptr->m_typeName;
-    assert(!typeName.empty());
-    AssetRecord assetRecord;
-    assetRecord.m_typeName = ptr->GetTypeName();
-    assetRecord.m_filePath = ptr->m_path;
-    ProjectManager::GetInstance().m_assetRegistry->m_assetRecords[ptr->GetHandle()] = assetRecord;
-    return std::static_pointer_cast<T>(ptr);
-}
-template <typename T> void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<T> &target)
-{
-    auto ptr = std::static_pointer_cast<IAsset>(target);
-    auto actualPath = path;
-    actualPath.replace_extension(GetInstance().m_defaultExtensions[ptr->GetTypeName()]);
-    ptr->Save(actualPath);
-}
+
 template <typename T> void AssetManager::RegisterAssetType(const std::string &name, const std::string &extension)
 {
     auto &resourceManager = GetInstance();
     SerializationManager::RegisterSerializableType<T>(name);
     resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
-    resourceManager.m_defaultExtensions[name] = extension;
+    resourceManager.m_defaultExtensions[name].insert(resourceManager.m_defaultExtensions[name].begin(), extension);
+    resourceManager.m_typeNames[extension] = name;
+}
+
+template <typename T> void AssetManager::RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions)
+{
+    auto &resourceManager = GetInstance();
+    auto name = SerializationManager::GetSerializableTypeName<T>();
+    resourceManager.m_defaultExtensions[name].insert(resourceManager.m_defaultExtensions[name].begin(), extensions.begin(), extensions.end());
+    for(const auto& extension : extensions)
+    {
+        resourceManager.m_typeNames[extension] = name;
+    }
 }
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)

@@ -6,17 +6,17 @@ void IAsset::Save()
 {
     if (m_path.empty())
         return;
-    Save(m_path);
+    SaveInternal(m_path);
     m_saved = true;
 }
 void IAsset::Load()
 {
     if (m_path.empty())
         return;
-    Load(m_path);
+    LoadInternal(m_path);
     m_saved = true;
 }
-void IAsset::Save(const std::filesystem::path &path)
+void IAsset::SaveInternal(const std::filesystem::path &path)
 {
     auto directory = path;
     directory.remove_filename();
@@ -30,7 +30,7 @@ void IAsset::Save(const std::filesystem::path &path)
     fout << out.c_str();
     fout.flush();
 }
-void IAsset::Load(const std::filesystem::path &path)
+void IAsset::LoadInternal(const std::filesystem::path &path)
 {
     std::ifstream stream(path.string());
     std::stringstream stringStream;
@@ -77,23 +77,32 @@ void IAsset::OnCreate()
 
 void IAsset::SetPath(const std::filesystem::path &path)
 {
+    m_path = path;
     if(path.empty()){
-        UNIENGINE_ERROR("Path must not be empty!");
         return;
     }
-    m_path = path;
     m_saved = false;
     auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
     auto search = assetRecords.find(m_handle);
     if (search != assetRecords.end())
     {
-        search->second.m_filePath = m_path;
+        search->second.m_relativeFilePath = m_path;
     }
     else if (!m_path.empty())
     {
-        AssetRecord assetRecord;
+        FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
-        assetRecord.m_filePath = m_path;
+        assetRecord.m_relativeFilePath = m_path;
         assetRecords[m_handle] = assetRecord;
     }
+}
+void IAsset::SetPathAndSave(const std::filesystem::path &path)
+{
+    SetPath(path);
+    Save();
+}
+void IAsset::SetPathAndLoad(const std::filesystem::path &path)
+{
+    SetPath(path);
+    Load();
 }

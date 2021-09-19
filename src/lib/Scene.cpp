@@ -420,7 +420,6 @@ void Scene::Deserialize(const YAML::Node &in)
     for (const auto &inEntityInfo : inEntityInfos)
     {
         auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
-        ;
         auto inPrivateComponents = inEntityInfo["PrivateComponent"];
         int componentIndex = 0;
         if (inPrivateComponents)
@@ -499,4 +498,16 @@ void Scene::OnCreate()
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
+}
+void Scene::LoadInternal(const std::filesystem::path &path)
+{
+    auto previousScene = EntityManager::GetCurrentScene();
+    EntityManager::Attach(std::shared_ptr<Scene>(this, [](Scene*){}));
+    std::ifstream stream(path.string());
+    std::stringstream stringStream;
+    stringStream << stream.rdbuf();
+    YAML::Node in = YAML::Load(stringStream.str());
+    m_name = in["m_name"].as<std::string>();
+    Deserialize(in);
+    EntityManager::Attach(previousScene);
 }
