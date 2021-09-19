@@ -18,6 +18,7 @@ void IAsset::Load()
 }
 void IAsset::Save(const std::filesystem::path &path)
 {
+    SetPath(path);
     auto directory = path;
     directory.remove_filename();
     std::filesystem::create_directories(directory);
@@ -32,6 +33,7 @@ void IAsset::Save(const std::filesystem::path &path)
 }
 void IAsset::Load(const std::filesystem::path &path)
 {
+    SetPath(path);
     std::ifstream stream(path.string());
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
@@ -91,7 +93,7 @@ void IAsset::SetPath(const std::filesystem::path &path)
     }
     else if (!m_path.empty())
     {
-        AssetRecord assetRecord;
+        FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
         assetRecord.m_filePath = m_path;
         assetRecords[m_handle] = assetRecord;

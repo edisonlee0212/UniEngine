@@ -24,7 +24,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
 
     std::unordered_map<std::string, std::string> m_defaultExtensions;
-
+    std::unordered_map<std::string, std::string> m_typeNames;
     friend class DefaultResources;
     friend class ProjectManager;
     friend class EditorManager;
@@ -39,6 +39,8 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterAssetType(const std::string &name, const std::string &extension);
 
   public:
+    template <typename T> static void RegisterExternalAssetType(const std::string &name, const std::string &extension);
+
     static std::filesystem::path GetAssetFolderPath();
     static void ScanAssetFolder();
     template <typename T> static void Share(std::shared_ptr<T> resource);
@@ -94,7 +96,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesys
     ptr->Load();
     const auto typeName = ptr->m_typeName;
     assert(!typeName.empty());
-    AssetRecord assetRecord;
+    FileRecord assetRecord;
     assetRecord.m_typeName = ptr->GetTypeName();
     assetRecord.m_filePath = ptr->m_path;
     ProjectManager::GetInstance().m_assetRegistry->m_assetRecords[ptr->GetHandle()] = assetRecord;
@@ -113,6 +115,14 @@ template <typename T> void AssetManager::RegisterAssetType(const std::string &na
     SerializationManager::RegisterSerializableType<T>(name);
     resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
     resourceManager.m_defaultExtensions[name] = extension;
+    resourceManager.m_typeNames[extension] = name;
+}
+
+template <typename T> void AssetManager::RegisterExternalAssetType(const std::string &name, const std::string &extension)
+{
+    auto &resourceManager = GetInstance();
+    SerializationManager::RegisterSerializableType<T>(name);
+    resourceManager.m_typeNames[extension] = name;
 }
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)

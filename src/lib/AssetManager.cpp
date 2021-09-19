@@ -307,16 +307,22 @@ void AssetRegistry::Serialize(YAML::Emitter &out)
 void AssetRegistry::Deserialize(const YAML::Node &in)
 {
     auto inAssetRecords = in["AssetRecords"];
+    m_assetRecords.clear();
+    m_fileMap.clear();
     for (const auto &inAssetRecord : inAssetRecords)
     {
         Handle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
-        AssetRecord assetRecord;
+        FileRecord assetRecord;
         assetRecord.m_filePath = inAssetRecord["FilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
         if (std::filesystem::exists(assetRecord.m_filePath))
         {
             m_assetRecords.insert({assetHandle, assetRecord});
         }
+    }
+    for (const auto &i : m_assetRecords)
+    {
+        m_fileMap[i.second.m_filePath.string()] = i.first;
     }
 }
 
@@ -353,6 +359,7 @@ std::string AssetManager::GetExtension(const std::string &typeName)
 {
     return GetInstance().m_defaultExtensions[typeName];
 }
+
 
 void AssetManager::Export(const std::filesystem::path &path, const std::shared_ptr<IAsset> &target)
 {

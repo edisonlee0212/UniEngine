@@ -15,6 +15,20 @@ class UNIENGINE_API IAsset : public ISerializable
 
     std::shared_ptr<Texture2D> m_icon;
     std::filesystem::path m_path;
+
+    /**
+     * The function that handles serialization. May be invoked by Save() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
+     * @param path The file path for saving the asset, may or may not be the local stored path.
+     */
+    virtual void Save(const std::filesystem::path &path);
+    /**
+     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
+     * @param path The file path for loading the asset, may or may not be the local stored path.
+     */
+    virtual void Load(const std::filesystem::path &path);
+    /**
+     * Whether the asset is saved or not.
+     */
   public:
     /**
      * Function will be invoked right after asset creation.
@@ -57,19 +71,7 @@ class UNIENGINE_API IAsset : public ISerializable
      * @param list The list for collecting the AssetRef of all members. You should push all the AssetRef of the class members to ensure correct behaviour.
      */
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
-    /**
-     * The function that handles serialization. May be invoked by Save() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
-     * @param path The file path for saving the asset, may or may not be the local stored path.
-     */
-    virtual void Save(const std::filesystem::path &path);
-    /**
-     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
-     * @param path The file path for loading the asset, may or may not be the local stored path.
-     */
-    virtual void Load(const std::filesystem::path &path);
-    /**
-     * Whether the asset is saved or not.
-     */
+
     bool m_saved = false;
 };
 class UNIENGINE_API AssetRef : public ISerializable
