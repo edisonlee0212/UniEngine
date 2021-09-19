@@ -8,7 +8,7 @@ namespace UniEngine
 struct UNIENGINE_API FileRecord
 {
     std::string m_name = "";
-    std::filesystem::path m_filePath = "";
+    std::filesystem::path m_relativeFilePath = "";
     std::string m_typeName = "";
     void Serialize(YAML::Emitter &out) const;
     void Deserialize(const YAML::Node &in);
@@ -57,7 +57,11 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void ScanFolderHelper(const std::filesystem::path& folderPath, std::shared_ptr<Folder>& folder);
     static void FolderMetadataUpdater(const std::filesystem::path& folderPath, std::shared_ptr<Folder>& folder);
     std::shared_ptr<Folder> m_currentFocusedFolder;
+
+
   public:
+    static bool IsInProjectFolder(const std::filesystem::path &target);
+    static std::filesystem::path GetRelativePath(const std::filesystem::path &target);
     static void SetScenePostLoadActions(const std::function<void()> &actions);
 
     std::shared_ptr<AssetRegistry> m_assetRegistry;

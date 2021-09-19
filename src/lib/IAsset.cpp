@@ -89,13 +89,13 @@ void IAsset::SetPath(const std::filesystem::path &path)
     auto search = assetRecords.find(m_handle);
     if (search != assetRecords.end())
     {
-        search->second.m_filePath = m_path;
+        search->second.m_relativeFilePath = m_path;
     }
     else if (!m_path.empty())
     {
         FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
-        assetRecord.m_filePath = m_path;
+        assetRecord.m_relativeFilePath = m_path;
         assetRecords[m_handle] = assetRecord;
     }
 }

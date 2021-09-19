@@ -38,7 +38,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
     {
         assert(search2->second.m_typeName == typeName);
         auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
-        retVal->m_path = search2->second.m_filePath;
+        retVal->m_path = search2->second.m_relativeFilePath;
         retVal->Load();
         return retVal;
     }
@@ -297,7 +297,7 @@ void AssetRegistry::Serialize(YAML::Emitter &out)
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Handle" << i.first;
-        out << YAML::Key << "FilePath" << i.second.m_filePath.string();
+        out << YAML::Key << "FilePath" << i.second.m_relativeFilePath.string();
         out << YAML::Key << "TypeName" << i.second.m_typeName;
         out << YAML::EndMap;
     }
@@ -313,16 +313,16 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
     {
         Handle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
         FileRecord assetRecord;
-        assetRecord.m_filePath = inAssetRecord["FilePath"].as<std::string>();
+        assetRecord.m_relativeFilePath = inAssetRecord["FilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
-        if (std::filesystem::exists(assetRecord.m_filePath))
+        if (std::filesystem::exists(assetRecord.m_relativeFilePath))
         {
             m_assetRecords.insert({assetHandle, assetRecord});
         }
     }
     for (const auto &i : m_assetRecords)
     {
-        m_fileMap[i.second.m_filePath.string()] = i.first;
+        m_fileMap[i.second.m_relativeFilePath.string()] = i.first;
     }
 }
 

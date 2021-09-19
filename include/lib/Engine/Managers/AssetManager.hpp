@@ -98,7 +98,7 @@ template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesys
     assert(!typeName.empty());
     FileRecord assetRecord;
     assetRecord.m_typeName = ptr->GetTypeName();
-    assetRecord.m_filePath = ptr->m_path;
+    assetRecord.m_relativeFilePath = ptr->m_path;
     ProjectManager::GetInstance().m_assetRegistry->m_assetRecords[ptr->GetHandle()] = assetRecord;
     return std::static_pointer_cast<T>(ptr);
 }
