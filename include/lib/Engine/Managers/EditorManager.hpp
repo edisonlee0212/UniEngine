@@ -225,7 +225,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-            /*
+
             if (ImGui::BeginMenu("I/O"))
             {
                 FileUtils::SaveFile(
@@ -235,7 +235,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     [&](const std::filesystem::path &filePath) {
                         try
                         {
-                            ptr->SetPathAndSave(filePath);
+                            ptr->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
                             UNIENGINE_LOG("Saved to " + filePath.string());
                         }
                         catch (std::exception &e)
@@ -251,7 +251,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     [&](const std::filesystem::path &filePath) {
                         try
                         {
-                            ptr->SetPathAndLoad(filePath);
+                            ptr->SetPathAndLoad(ProjectManager::GetRelativePath(filePath));
                             UNIENGINE_LOG("Loaded from " + filePath.string());
                         }
                         catch (std::exception &e)
@@ -262,7 +262,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
 
                 ImGui::EndMenu();
             }
-            */
+
 
             if (removable)
             {
@@ -408,7 +408,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 ptr->m_name = std::string(newName);
             ImGui::EndMenu();
         }
-        /*
+
         if (ImGui::BeginMenu("I/O"))
         {
             auto &extensions = AssetManager::GetInstance().m_defaultExtensions[type];
@@ -416,7 +416,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 ("Save " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
                     try
                     {
-                        ptr->SetPathAndSave(filePath);
+                        ptr->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
                         UNIENGINE_LOG("Saved to " + filePath.string());
                     }
                     catch (std::exception &e)
@@ -429,7 +429,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 ("Load " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
                     try
                     {
-                        ptr->SetPathAndLoad(filePath);
+                        ptr->SetPathAndLoad(ProjectManager::GetRelativePath(filePath));
                         UNIENGINE_LOG("Loaded from " + filePath.string());
                     }
                     catch (std::exception &e)
@@ -440,7 +440,6 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
 
             ImGui::EndMenu();
         }
-         */
         ImGui::EndPopup();
     }
     return;

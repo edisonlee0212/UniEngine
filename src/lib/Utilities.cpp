@@ -4,6 +4,7 @@
 #include <ImGuiFileBrowser.hpp>
 #include <Utilities.hpp>
 #include <WindowManager.hpp>
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 Bound::Bound()
 {
@@ -511,7 +512,10 @@ void FileUtils::OpenFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            func(path);
+            if(ProjectManager::IsInProjectFolder(path)) func(path);
+            else{
+                UNIENGINE_ERROR("Not in project folder!!");
+            }
         }
     }
 #else
@@ -657,7 +661,10 @@ void FileUtils::SaveFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            func(path);
+            if(ProjectManager::IsInProjectFolder(path)) func(path);
+            else{
+                UNIENGINE_ERROR("Not in project folder!!");
+            }
         }
     }
 #else

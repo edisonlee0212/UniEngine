@@ -378,8 +378,9 @@ void ProjectManager::FolderMetadataUpdater(const std::filesystem::path &folderPa
 bool ProjectManager::IsInProjectFolder(const std::filesystem::path &target)
 {
     auto &projectManager = GetInstance();
-    auto it = std::search(target.begin(), target.end(), projectManager.m_projectPath.begin(), projectManager.m_projectPath.end());
-    return it != projectManager.m_projectPath.end();
+    auto projectFolderPath = std::filesystem::absolute(projectManager.m_projectPath.parent_path());
+    auto it = std::search(target.begin(), target.end(), projectFolderPath.begin(), projectFolderPath.end());
+    return it != target.end();
 }
 std::filesystem::path ProjectManager::GetRelativePath(const std::filesystem::path &target){
     auto &projectManager = GetInstance();

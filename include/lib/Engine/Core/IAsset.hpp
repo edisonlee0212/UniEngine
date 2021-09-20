@@ -121,8 +121,6 @@ class UNIENGINE_API AssetRef : public ISerializable
         Set(other);
         return *this;
     }
-    AssetRef &operator=(const AssetRef &other) noexcept;
-    AssetRef &operator=(AssetRef &&other) noexcept;
     bool operator==(const AssetRef &rhs) const
     {
         return m_assetHandle == rhs.m_assetHandle;
