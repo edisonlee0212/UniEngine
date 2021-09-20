@@ -161,6 +161,9 @@ bool Texture2D::SaveInternal(const std::filesystem::path &path)
         StoreToPng(path.string());
     }else if(path.extension() == ".jpg"){
         StoreToJpg(path.string());
+    }else{
+        UNIENGINE_ERROR("Not implemented!");
+        return false;
     }
     return true;
 }

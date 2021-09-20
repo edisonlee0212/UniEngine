@@ -1,13 +1,13 @@
 m_fileRecords:
-  - Handle: 156046440453676684
-    m_name: .ueassetregistry
-    m_relativeFilePath: .ueassetregistry
-    m_typeName: Binary
-  - Handle: 2344244408140877964
+  - Handle: 4340627033590584555
     m_name: New Scene
     m_relativeFilePath: New Scene.uescene
     m_typeName: Scene
-  - Handle: 10288474303268382088
+  - Handle: 1893418744721542406
+    m_name: .ueassetregistry
+    m_relativeFilePath: .ueassetregistry
+    m_typeName: Binary
+  - Handle: 39727518789524682
     m_name: Physics
     m_relativeFilePath: Physics.ueproj
     m_typeName: Binary

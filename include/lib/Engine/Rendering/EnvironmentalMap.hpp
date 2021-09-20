@@ -18,13 +18,12 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
     bool m_ready = false;
 
   protected:
-    bool LoadInternal(const std::filesystem::path & path) override;
   public:
     float m_gamma = 1.0f;
     [[nodiscard]] bool IsReady() const;
     void OnCreate() override;
-    void Construct(const std::shared_ptr<Cubemap> &targetCubemap);
-
+    void ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap);
+    void OnInspect() override;
 };
 
 } // namespace UniEngine

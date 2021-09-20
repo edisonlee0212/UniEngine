@@ -1,53 +1,53 @@
 m_fileRecords:
-  - Handle: 9681628259963515604
-    m_name: retrotv0319_Main_BaseColor
-    m_relativeFilePath: Models\TV\retrotv0319_Main_BaseColor.png
-    m_typeName: Cubemap
-  - Handle: 6829517356890291857
+  - Handle: 6876008941672881114
     m_name: retrotv
     m_relativeFilePath: Models\TV\retrotv.mtl
     m_typeName: Binary
-  - Handle: 8573875286612915313
-    m_name: retrotv0319_Main_NormalGL
-    m_relativeFilePath: Models\TV\retrotv0319_Main_NormalGL.png
-    m_typeName: Cubemap
-  - Handle: 1732388770783078450
+  - Handle: 2380874468823660221
     m_name: retrotv
     m_relativeFilePath: Models\TV\retrotv.obj
     m_typeName: Prefab
-  - Handle: 5215978196854269073
-    m_name: retrotv0319_Main_AO
-    m_relativeFilePath: Models\TV\retrotv0319_Main_AO.png
-    m_typeName: Cubemap
-  - Handle: 10690796905257813895
-    m_name: retrotv0319_Main_Roughness
-    m_relativeFilePath: Models\TV\retrotv0319_Main_Roughness.png
-    m_typeName: Cubemap
-  - Handle: 1887425138845920569
+  - Handle: 17305311915518598095
     m_name: retrotv0319_Main_Metallic
     m_relativeFilePath: Models\TV\retrotv0319_Main_Metallic.png
-    m_typeName: Cubemap
-  - Handle: 7657094435317909105
+    m_typeName: Texture2D
+  - Handle: 2440188149675597436
+    m_name: retrotv0319_Main_AO
+    m_relativeFilePath: Models\TV\retrotv0319_Main_AO.png
+    m_typeName: Texture2D
+  - Handle: 9307882787888942354
+    m_name: retrotv0319_Main_BaseColor
+    m_relativeFilePath: Models\TV\retrotv0319_Main_BaseColor.png
+    m_typeName: Texture2D
+  - Handle: 11041131803622138782
     m_name: retrotv0319_Screen_AO
     m_relativeFilePath: Models\TV\retrotv0319_Screen_AO.png
-    m_typeName: Cubemap
-  - Handle: 4243394968014333961
+    m_typeName: Texture2D
+  - Handle: 15901020003784004267
+    m_name: retrotv0319_Main_NormalGL
+    m_relativeFilePath: Models\TV\retrotv0319_Main_NormalGL.png
+    m_typeName: Texture2D
+  - Handle: 15906235150366053907
+    m_name: retrotv0319_Main_Roughness
+    m_relativeFilePath: Models\TV\retrotv0319_Main_Roughness.png
+    m_typeName: Texture2D
+  - Handle: 5840472969708432586
     m_name: retrotv0319_Screen_BaseColor
     m_relativeFilePath: Models\TV\retrotv0319_Screen_BaseColor.png
-    m_typeName: Cubemap
-  - Handle: 245274517749180261
+    m_typeName: Texture2D
+  - Handle: 13616077956443741723
     m_name: retrotv0319_Screen_BaseColor_noise
     m_relativeFilePath: Models\TV\retrotv0319_Screen_BaseColor_noise.png
-    m_typeName: Cubemap
-  - Handle: 17055180091548119975
+    m_typeName: Texture2D
+  - Handle: 3879523012310268701
     m_name: retrotv0319_Screen_Metallic
     m_relativeFilePath: Models\TV\retrotv0319_Screen_Metallic.png
-    m_typeName: Cubemap
-  - Handle: 9828938836988082140
+    m_typeName: Texture2D
+  - Handle: 2955947612796226646
     m_name: retrotv0319_Screen_NormalGL
     m_relativeFilePath: Models\TV\retrotv0319_Screen_NormalGL.png
-    m_typeName: Cubemap
-  - Handle: 12720493832187513784
+    m_typeName: Texture2D
+  - Handle: 5795817264579527865
     m_name: retrotv0319_Screen_Roughness
     m_relativeFilePath: Models\TV\retrotv0319_Screen_Roughness.png
-    m_typeName: Cubemap
+    m_typeName: Texture2D

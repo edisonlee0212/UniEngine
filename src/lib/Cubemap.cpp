@@ -2,6 +2,7 @@
 #include <Cubemap.hpp>
 #include <RenderTarget.hpp>
 #include <RenderManager.hpp>
+#include <EditorManager.hpp>
 using namespace UniEngine;
 
 void Cubemap::OnCreate()
@@ -13,43 +14,18 @@ std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 {
     return m_texture;
 }
-bool Cubemap::LoadInternal(const std::filesystem::path &path)
+
+void Cubemap::OnInspect()
 {
-    auto &manager = AssetManager::GetInstance();
-    stbi_set_flip_vertically_on_load(true);
-    auto texture2D = AssetManager::CreateAsset<Texture2D>();
-    int width, height, nrComponents;
-    float actualGamma = 0.0f;
-
-    if (path.extension() == ".hdr")
-    {
-        actualGamma = 2.2f;
+    static AssetRef targetTexture;
+    if(EditorManager::DragAndDropButton<Texture2D>(targetTexture, "Convert from equirectangular texture")){
+        auto tex = targetTexture.Get<Texture2D>();
+        if(tex) ConvertFromEquirectangularTexture(tex);
+        targetTexture.Clear();
     }
-    else
-    {
-        actualGamma = 1.0f;
-    }
-
-    stbi_hdr_to_ldr_gamma(actualGamma);
-    stbi_ldr_to_hdr_gamma(actualGamma);
-    float *data = stbi_loadf(path.string().c_str(), &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        texture2D->m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(1, GL_RGB32F, width, height, true);
-        texture2D->m_texture->SetData(0, GL_RGB, GL_FLOAT, data);
-        texture2D->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        texture2D->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        texture2D->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        texture2D->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        stbi_image_free(data);
-    }
-    else
-    {
-        UNIENGINE_LOG("Texture failed to load at path: " + path.string());
-        stbi_image_free(data);
-        return false;
-    }
-
+}
+void Cubemap::ConvertFromEquirectangularTexture(const std::shared_ptr<Texture2D> &targetTexture)
+{
 #pragma region Conversion
     // pbr: setup framebuffer
     // ----------------------
@@ -85,7 +61,7 @@ bool Cubemap::LoadInternal(const std::filesystem::path &path)
     DefaultResources::m_2DToCubemapProgram->Bind();
     DefaultResources::m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
     DefaultResources::m_2DToCubemapProgram->SetFloat4x4("projection", captureProjection);
-    texture2D->m_texture->Bind(0);
+    targetTexture->UnsafeGetGLTexture()->Bind(0);
     renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
     for (unsigned int i = 0; i < 6; ++i)
     {
@@ -97,7 +73,4 @@ bool Cubemap::LoadInternal(const std::filesystem::path &path)
     OpenGLUtils::GLFrameBuffer::BindDefault();
     m_texture->GenerateMipMap();
 #pragma endregion
-    m_name = path.filename().string();
-    m_gamma = actualGamma;
-    return true;
 }

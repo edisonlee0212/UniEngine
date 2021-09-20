@@ -192,8 +192,6 @@ void AssetManager::Init()
 
     RegisterExternalAssetTypeExtensions<Prefab>({".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
     RegisterExternalAssetTypeExtensions<Texture2D>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
-    RegisterExternalAssetTypeExtensions<Cubemap>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
-
 }
 
 void AssetRegistry::Serialize(YAML::Emitter &out)
