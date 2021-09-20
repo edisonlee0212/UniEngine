@@ -12,13 +12,6 @@ int main()
     ProjectManager::SetScenePostLoadActions([&]() {
         Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();
-<<<<<<< Updated upstream
-
-            ImGui::Begin("Test");
-            curve.CurveEditor("Test"); //
-            ImGui::End();
-=======
->>>>>>> Stashed changes
         });
     });
     ApplicationConfigs applicationConfigs;

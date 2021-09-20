@@ -1599,14 +1599,9 @@ bool EditorManager::DragAndDropButton(
             EditorManager::GetInstance().m_inspectingAsset = ptr;
         }
         const std::string tag = "##" + ptr->GetTypeName() + (ptr ? std::to_string(ptr->GetHandle()) : "");
-<<<<<<< Updated upstream
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
-=======
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
->>>>>>> Stashed changes
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
@@ -1627,15 +1622,6 @@ bool EditorManager::DragAndDropButton(
             ImGui::EndPopup();
         }
     }
-<<<<<<< Updated upstream
-    for(const auto& typeName : acceptableTypeNames) {
-        if (ImGui::BeginDragDropTarget()) {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str())) {
-                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-                std::shared_ptr<IAsset> payload_n = *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                if (!ptr || payload_n.get() != ptr.get()) {
-                    target = payload_n;
-=======
     for (const auto &typeName : acceptableTypeNames)
     {
         if (ImGui::BeginDragDropTarget())
@@ -1648,7 +1634,6 @@ bool EditorManager::DragAndDropButton(
                 {
                     target.m_assetHandle = payload_n;
                     target.Update();
->>>>>>> Stashed changes
                     statusChanged = true;
                 }
             }
