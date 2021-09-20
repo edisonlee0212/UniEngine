@@ -225,7 +225,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-
+            /*
             if (ImGui::BeginMenu("I/O"))
             {
                 FileUtils::SaveFile(
@@ -262,6 +262,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
 
                 ImGui::EndMenu();
             }
+            */
 
             if (removable)
             {
@@ -407,7 +408,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 ptr->m_name = std::string(newName);
             ImGui::EndMenu();
         }
-
+        /*
         if (ImGui::BeginMenu("I/O"))
         {
             auto &extensions = AssetManager::GetInstance().m_defaultExtensions[type];
@@ -439,6 +440,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
 
             ImGui::EndMenu();
         }
+         */
         ImGui::EndPopup();
     }
     return;

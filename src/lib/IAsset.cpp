@@ -94,6 +94,22 @@ void AssetRef::Clear()
     m_value.reset();
     m_assetHandle = Handle(0);
 }
+void AssetRef::Set(const AssetRef &target)
+{
+    m_value.reset();
+    m_assetHandle = target.m_assetHandle;
+    m_assetTypeName = target.m_assetTypeName;
+}
+AssetRef &AssetRef::operator=(AssetRef &&other) noexcept
+{
+    Set(other);
+    return *this;
+}
+AssetRef &AssetRef::operator=(const AssetRef &other) noexcept
+{
+    Set(other);
+    return *this;
+}
 
 void IAsset::OnCreate()
 {
