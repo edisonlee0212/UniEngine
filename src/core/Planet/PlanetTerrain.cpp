@@ -12,6 +12,8 @@ void Planet::PlanetTerrain::Serialize(YAML::Emitter &out)
     out << YAML::Key << "Index" << YAML::Value << m_info.m_index;
     out << YAML::Key << "Resolution" << YAML::Value << m_info.m_resolution;
     out << YAML::EndMap;
+
+    m_surfaceMaterial.Save("m_surfaceMaterial", out);
 }
 
 void Planet::PlanetTerrain::Deserialize(const YAML::Node &out)
@@ -23,11 +25,13 @@ void Planet::PlanetTerrain::Deserialize(const YAML::Node &out)
     planetInfo.m_radius = info["Radius"].as<double>();
     planetInfo.m_index = info["Index"].as<unsigned>();
     planetInfo.m_resolution = info["Resolution"].as<unsigned>();
+    SetPlanetInfo(planetInfo);
+
+    m_surfaceMaterial.Load("m_surfaceMaterial", out);
 }
-void Planet::PlanetTerrain::Init(std::shared_ptr<Material> surfaceMaterial)
+void Planet::PlanetTerrain::Init()
 {
     if(m_initialized) return;
-    m_surfaceMaterial = std::move(surfaceMaterial);
     m_sharedVertices = std::vector<Vertex>();
     size_t resolution = m_info.m_resolution;
     m_sharedVertices.resize(resolution * resolution);
@@ -81,7 +85,7 @@ void Planet::PlanetTerrain::Init(std::shared_ptr<Material> surfaceMaterial)
 
 void Planet::PlanetTerrain::OnInspect()
 {
-    //EditorManager::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
+    EditorManager::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
 }
 void Planet::PlanetTerrain::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
@@ -90,11 +94,15 @@ void Planet::PlanetTerrain::Clone(const std::shared_ptr<IPrivateComponent> &targ
 }
 void Planet::PlanetTerrain::Start()
 {
-    Init(PlanetTerrainSystem::m_defaultSurfaceMaterial);
+    Init();
 }
 void Planet::PlanetTerrain::SetPlanetInfo(const PlanetInfo &planetInfo)
 {
     m_info = planetInfo;
     m_initialized = false;
-    Init(PlanetTerrainSystem::m_defaultSurfaceMaterial);
+    Init();
+}
+void Planet::PlanetTerrain::CollectAssetRef(std::vector<AssetRef> &list)
+{
+    list.push_back(m_surfaceMaterial);
 }

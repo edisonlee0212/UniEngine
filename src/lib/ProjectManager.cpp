@@ -48,10 +48,10 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     {
         auto directory = projectManager.m_projectPath;
         directory.remove_filename();
-        projectManager.m_currentProject->m_assetRegistryPath = directory / ".ueassetregistry";
+        projectManager.m_currentProject->m_assetRegistryPath = ".ueassetregistry";
         Application::Reset();
         scene = AssetManager::CreateAsset<Scene>("New Scene");
-        scene->SetPath(directory / "New Scene.uescene");
+        scene->SetPath("New Scene.uescene");
         projectManager.m_currentProject->m_startScene = scene;
         EntityManager::Attach(scene);
 #pragma region Main Camera
@@ -79,9 +79,9 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
 std::filesystem::path ProjectManager::GetProjectPath()
 {
     auto &path = GetInstance().m_projectPath;
-    if (!std::filesystem::exists(path))
+    if (!std::filesystem::exists(path.parent_path()))
     {
-        std::filesystem::create_directories(path);
+        std::filesystem::create_directories(path.parent_path());
     }
     return path;
 }
@@ -110,7 +110,7 @@ void ProjectManager::SaveProject()
 void ProjectManager::SaveAssetRegistry()
 {
     auto &projectManager = GetInstance();
-    auto &path = projectManager.m_currentProject->m_assetRegistryPath;
+    auto path = GetProjectPath().parent_path() / projectManager.m_currentProject->m_assetRegistryPath;
     auto directory = projectManager.m_projectPath.parent_path();
     if (!std::filesystem::exists(directory))
     {
@@ -128,7 +128,7 @@ void ProjectManager::SaveAssetRegistry()
 void ProjectManager::LoadAssetRegistry()
 {
     auto &projectManager = GetInstance();
-    auto path = projectManager.m_currentProject->m_assetRegistryPath;
+    auto path = GetProjectPath().parent_path() / projectManager.m_currentProject->m_assetRegistryPath;
     projectManager.m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
     std::ifstream stream(path.string());
     std::stringstream stringStream;
@@ -219,7 +219,7 @@ void ProjectManager::OnInspect()
                         UNIENGINE_ERROR("Failed to load from " + filePath.string());
                     }
                 });
-            if (ImGui::Button("SaveInternal"))
+            if (ImGui::Button("Save"))
             {
                 SaveProject();
             }
@@ -271,12 +271,17 @@ void ProjectManager::OnInspect()
     }
     ImGui::End();
 }
-void ProjectManager::Init()
+void ProjectManager::Init(const std::filesystem::path& projectPath)
 {
     auto &projectManager = GetInstance();
-    std::filesystem::path path =
-        std::filesystem::path(".\\temp") / "Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
-    CreateOrLoadProject(path);
+    if(projectPath.empty())
+    {
+        std::filesystem::path path =
+            std::filesystem::path(".\\temp") / "Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
+        CreateOrLoadProject(path);
+    }else{
+        CreateOrLoadProject(projectPath);
+    }
 }
 void ProjectManager::SetScenePostLoadActions(const std::function<void()> &actions)
 {
@@ -332,7 +337,7 @@ void ProjectManager::FolderMetadataUpdater(const std::filesystem::path &folderPa
                 Handle fileHandle = Handle();
                 FileRecord assetRecord;
                 assetRecord.m_name = entry.path().stem().string();
-                assetRecord.m_relativeFilePath = entry.path();
+                assetRecord.m_relativeFilePath = GetRelativePath(entry.path());
                 auto typeSearch = AssetManager::GetInstance().m_typeNames.find(entry.path().extension().string());
                 bool isAsset = false;
                 if (typeSearch != AssetManager::GetInstance().m_typeNames.end())
@@ -373,12 +378,13 @@ void ProjectManager::FolderMetadataUpdater(const std::filesystem::path &folderPa
 bool ProjectManager::IsInProjectFolder(const std::filesystem::path &target)
 {
     auto &projectManager = GetInstance();
-    auto it = std::search(target.begin(), target.end(), projectManager.m_projectPath.begin(), projectManager.m_projectPath.end());
-    return it != projectManager.m_projectPath.end();
+    auto projectFolderPath = std::filesystem::absolute(projectManager.m_projectPath.parent_path());
+    auto it = std::search(target.begin(), target.end(), projectFolderPath.begin(), projectFolderPath.end());
+    return it != target.end();
 }
 std::filesystem::path ProjectManager::GetRelativePath(const std::filesystem::path &target){
     auto &projectManager = GetInstance();
-    return std::filesystem::relative(target, projectManager.m_projectPath);
+    return std::filesystem::relative(target, projectManager.m_projectPath.parent_path());
 }
 void FolderMetadata::Save(const std::filesystem::path &path)
 {
@@ -426,12 +432,12 @@ void FolderMetadata::Load(const std::filesystem::path &path)
 void FileRecord::Serialize(YAML::Emitter &out) const
 {
     out << YAML::Key << "m_name" << YAML::Value << m_name;
-    out << YAML::Key << "m_filePath" << YAML::Value << m_relativeFilePath.string();
+    out << YAML::Key << "m_relativeFilePath" << YAML::Value << m_relativeFilePath.string();
     out << YAML::Key << "m_typeName" << YAML::Value << m_typeName;
 }
 void FileRecord::Deserialize(const YAML::Node &in)
 {
     m_name = in["m_name"].as<std::string>();
-    m_relativeFilePath = in["m_filePath"].as<std::string>();
+    m_relativeFilePath = in["m_relativeFilePath"].as<std::string>();
     m_typeName = in["m_typeName"].as<std::string>();
 }

@@ -41,7 +41,7 @@ class UNIENGINE_API Scene : public IAsset
     void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
 
   protected:
-    void LoadInternal(const std::filesystem::path &path) override;
+    bool LoadInternal(const std::filesystem::path &path) override;
 
   public:
     void Purge();

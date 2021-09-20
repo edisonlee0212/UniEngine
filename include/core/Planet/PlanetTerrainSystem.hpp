@@ -7,13 +7,10 @@ namespace Planet
 class PlanetTerrainSystem : public ISystem
 {
     friend class PlanetTerrain;
-    static std::shared_ptr<Material> m_defaultSurfaceMaterial;
-
   public:
     void OnCreate() override;
     void Update() override;
     void FixedUpdate() override;
-    static std::shared_ptr<Material> GetDefaultSurfaceMaterial();
     void CheckLod(
         std::mutex &mutex,
         std::shared_ptr<TerrainChunk> &chunk,

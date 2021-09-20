@@ -42,8 +42,6 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);
 
     template <typename T> static std::shared_ptr<T> Import(const std::filesystem::path& path);
-    static std::filesystem::path GetAssetFolderPath();
-    static void ScanAssetFolder();
     template <typename T> static void Share(std::shared_ptr<T> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");

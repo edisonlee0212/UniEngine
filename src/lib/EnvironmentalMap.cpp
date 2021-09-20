@@ -1,5 +1,6 @@
 #include <AssetManager.hpp>
-
+#include "EditorManager.hpp"
+#include "Cubemap.hpp"
 #include <EnvironmentalMap.hpp>
 using namespace UniEngine;
 
@@ -13,7 +14,7 @@ void EnvironmentalMap::OnCreate()
     m_name = "New environmental map";
 }
 
-void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
+void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
     m_targetCubemap = targetCubemap;
     m_gamma = targetCubemap->m_gamma;
@@ -24,10 +25,14 @@ void EnvironmentalMap::Construct(const std::shared_ptr<Cubemap> &targetCubemap)
     m_reflectionProbe.Get<ReflectionProbe>()->ConstructFromCubemap(targetCubemap);
     m_ready = true;
 }
-void EnvironmentalMap::LoadInternal(const std::filesystem::path &path)
+
+void EnvironmentalMap::OnInspect()
 {
-    auto cubemap = AssetManager::CreateAsset<Cubemap>();
-    cubemap->SetPathAndLoad(path);
-    Construct(cubemap);
-    m_name = path.filename().string();
+    static AssetRef targetTexture;
+    if(EditorManager::DragAndDropButton<Cubemap>(targetTexture, "Convert from cubemap")){
+        auto tex = targetTexture.Get<Cubemap>();
+        if(tex)
+            ConstructFromCubemap(tex);
+        targetTexture.Clear();
+    }
 }

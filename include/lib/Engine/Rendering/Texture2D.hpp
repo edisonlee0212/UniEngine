@@ -24,6 +24,11 @@ class UNIENGINE_API Texture2D : public IAsset
     friend class ReflectionProbe;
     friend class EnvironmentalMap;
     friend class Cubemap;
+
+  protected:
+    bool SaveInternal(const std::filesystem::path &path) override;
+    bool LoadInternal(const std::filesystem::path & path) override;
+
   public:
     float m_gamma = 1.0f;
     void OnCreate() override;
@@ -36,7 +41,6 @@ class UNIENGINE_API Texture2D : public IAsset
         unsigned compressionLevel = 8) const;
     void StoreToJpg(const std::string &path, int resizeX = -1, int resizeY = -1, unsigned quality = 100) const;
     [[nodiscard]] std::shared_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGLTexture();
-    void SaveInternal(const std::filesystem::path &path) override;
-    void LoadInternal(const std::filesystem::path & path) override;
+
 };
 } // namespace UniEngine

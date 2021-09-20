@@ -10,18 +10,18 @@ class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
     friend class DefaultResources;
-    std::filesystem::path m_path;
+    std::filesystem::path m_projectRelativePath;
 
     /**
      * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */
-    virtual void SaveInternal(const std::filesystem::path &path);
+    virtual bool SaveInternal(const std::filesystem::path &path);
     /**
      * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
-    virtual void LoadInternal(const std::filesystem::path &path);
+    virtual bool LoadInternal(const std::filesystem::path &path);
     /**
      * Whether the asset is saved or not.
      */
@@ -35,11 +35,11 @@ class UNIENGINE_API IAsset : public ISerializable
      */
     std::string m_name;
     /**
-     * Get the file path of the asset.
+     * Get the file path of the asset (relative to project).
      * @return The file path of the asset, may be empty.
      */
     [[nodiscard]] std::filesystem::path GetPath(){
-        return m_path;
+        return m_projectRelativePath;
     }
     /**
      * Reset the path of the asset, resetting path will make changes to the asset registry of the project.
@@ -49,22 +49,22 @@ class UNIENGINE_API IAsset : public ISerializable
     /**
      * SaveInternal the asset to its file path, nothing happens if the path if empty.
      */
-    void Save();
+    bool Save();
     /**
      * Load the asset from its file path, nothing happens if the path if empty.
      */
-    void Load();
+    bool Load();
 
     /**
      * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */
-    void SetPathAndSave(const std::filesystem::path &path);
+    bool SetPathAndSave(const std::filesystem::path &path);
     /**
      * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
-    void SetPathAndLoad(const std::filesystem::path &path);
+    bool SetPathAndLoad(const std::filesystem::path &path);
 
     /**
      * The destructor, should be overwritten if explict handling is required when the lifecycle of the asset ends.
@@ -153,6 +153,7 @@ class UNIENGINE_API AssetRef : public ISerializable
             m_value.reset();
         }
     }
+    void Set(const AssetRef & target);
     void Clear();
     [[nodiscard]] Handle GetAssetHandle() const
     {

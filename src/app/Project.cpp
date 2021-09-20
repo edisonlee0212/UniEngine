@@ -31,8 +31,8 @@ int main()
             ImGui::End();
         });
     });
-
-    Application::Init();
+    ApplicationConfigs applicationConfigs;
+    Application::Init(applicationConfigs);
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
     Application::Run();

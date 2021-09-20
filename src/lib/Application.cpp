@@ -15,11 +15,11 @@
 #include <WindowManager.hpp>
 using namespace UniEngine;
 
-void Application::Init(bool fullScreen)
+void Application::Init(const ApplicationConfigs& applicationConfigs)
 {
     auto &application = GetInstance();
     application.m_initialized = false;
-    WindowManager::Init("UniEngine", fullScreen);
+    WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
@@ -28,7 +28,7 @@ void Application::Init(bool fullScreen)
     AssetManager::Init();
 
     EntityManager::Init();
-    ProjectManager::Init();
+    ProjectManager::Init(applicationConfigs.m_projectPath);
     TransformManager::Init();
     RenderManager::Init();
     EditorManager::Init();
@@ -36,8 +36,6 @@ void Application::Init(bool fullScreen)
     application.m_initialized = true;
     application.m_playing = false;
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-
-    EntityManager::GetSystem<PhysicsSystem>()->Enable();
 }
 void ApplicationTime::OnInspect()
 {

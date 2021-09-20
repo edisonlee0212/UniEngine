@@ -264,7 +264,7 @@ void DefaultResources::LoadPrimitives()
 
     {
         auto model = AssetManager::CreateAsset<Prefab>("quad");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -274,7 +274,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("sphere");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/sphere.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/sphere.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -284,7 +284,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("cube");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cube.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cube.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -294,7 +294,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("cone");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cone.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cone.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -304,7 +304,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("cylinder");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -314,7 +314,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("ring");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/ring.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/ring.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -324,7 +324,7 @@ void DefaultResources::LoadPrimitives()
     }
     {
         auto model = AssetManager::CreateAsset<Prefab>("monkey");
-        model->SetPathAndLoad(std::filesystem::path("./DefaultResources") / "Primitives/monkey.obj");
+        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/monkey.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
                         ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
                         : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
@@ -350,8 +350,9 @@ void DefaultResources::Load()
 
 #pragma region Environmental
     Environmental::DefaultSkybox = AssetManager::CreateAsset<Cubemap>(GenerateNewHandle(), "Default");
-    Environmental::DefaultSkybox->LoadInternal(
-        std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
+    auto defaultSkyboxEquiTex = AssetManager::CreateAsset<Texture2D>();
+    defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
+    Environmental::DefaultSkybox->ConvertFromEquirectangularTexture(defaultSkyboxEquiTex);
     Environmental::DefaultSkybox->m_name = "Default";
 
     Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(GenerateNewHandle(), "Missing");
@@ -360,7 +361,7 @@ void DefaultResources::Load()
 
     Environmental::DefaultEnvironmentalMap =
         AssetManager::CreateAsset<EnvironmentalMap>(GenerateNewHandle(), "Default");
-    Environmental::DefaultEnvironmentalMap->Construct(Environmental::DefaultSkybox);
+    Environmental::DefaultEnvironmentalMap->ConstructFromCubemap(Environmental::DefaultSkybox);
 #pragma endregion
 }
 

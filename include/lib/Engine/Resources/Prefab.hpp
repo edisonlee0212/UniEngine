@@ -48,7 +48,7 @@ struct UNIENGINE_API PrivateComponentHolder
 class UNIENGINE_API Prefab : public IAsset
 {
     bool m_enabled = true;
-
+    friend class DefaultResources;
 #pragma region Model Loading
     void AttachAnimator(Prefab *parent, const Handle &animatorEntityHandle);
 
@@ -102,9 +102,9 @@ class UNIENGINE_API Prefab : public IAsset
 #pragma endregion
 
   protected:
-    void LoadInternal(const std::filesystem::path &path) override;
-    void SaveInternal(const std::filesystem::path &path) override;
-
+    bool LoadInternal(const std::filesystem::path &path) override;
+    bool SaveInternal(const std::filesystem::path &path) override;
+    void LoadModelInternal(const std::filesystem::path &path, bool optimize = false, unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
   public:
     Handle m_entityHandle = Handle();
     std::vector<DataComponentHolder> m_dataComponents;

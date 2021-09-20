@@ -3,11 +3,8 @@
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <glm/gtc/noise.hpp>
 
-std::shared_ptr<Material> Planet::PlanetTerrainSystem::m_defaultSurfaceMaterial;
-
 void Planet::PlanetTerrainSystem::OnCreate()
 {
-    m_defaultSurfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
 }
 
 void Planet::PlanetTerrainSystem::Update()
@@ -42,9 +39,13 @@ void Planet::PlanetTerrainSystem::Update()
             glm::mat4 matrix = glm::scale(
                 glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
                 glm::vec3(1.0f));
-            for (auto j = 0; j < planetChunks.size(); j++)
+            auto material = planetTerrain->m_surfaceMaterial.Get<Material>();
+            if(material)
             {
-                RenderChunk(planetChunks[j], m_defaultSurfaceMaterial, matrix, mainCamera, true);
+                for (auto j = 0; j < planetChunks.size(); j++)
+                {
+                    RenderChunk(planetChunks[j], material, matrix, mainCamera, true);
+                }
             }
         }
     }
@@ -52,11 +53,6 @@ void Planet::PlanetTerrainSystem::Update()
 
 void Planet::PlanetTerrainSystem::FixedUpdate()
 {
-}
-
-std::shared_ptr<Material> Planet::PlanetTerrainSystem::GetDefaultSurfaceMaterial()
-{
-    return m_defaultSurfaceMaterial;
 }
 
 void Planet::PlanetTerrainSystem::CheckLod(
@@ -112,3 +108,4 @@ void Planet::PlanetTerrainSystem::RenderChunk(
         RenderChunk(chunk->m_c3, material, matrix, camera, receiveShadow);
     }
 }
+
