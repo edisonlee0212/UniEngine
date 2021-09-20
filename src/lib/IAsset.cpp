@@ -2,43 +2,68 @@
 #include <DefaultResources.hpp>
 #include <IAsset.hpp>
 using namespace UniEngine;
-void IAsset::Save()
+bool IAsset::Save()
 {
-    if (m_path.empty())
-        return;
-    SaveInternal(m_path);
-    m_saved = true;
+    if (m_projectRelativePath.empty())
+        return false;
+    if(SaveInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath)) {
+        m_saved = true;
+        return true;
+    }
+    return false;
 }
-void IAsset::Load()
+bool IAsset::Load()
 {
-    if (m_path.empty())
-        return;
-    LoadInternal(m_path);
-    m_saved = true;
+    if (m_projectRelativePath.empty())
+        return false;
+    if(LoadInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath)) {
+        m_saved = true;
+        return true;
+    }
+    return false;
 }
-void IAsset::SaveInternal(const std::filesystem::path &path)
+bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
-    auto directory = path;
-    directory.remove_filename();
-    std::filesystem::create_directories(directory);
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-    out << YAML::Key << "m_name" << YAML::Value << m_name;
-    Serialize(out);
-    out << YAML::EndMap;
-    std::ofstream fout(path.string());
-    fout << out.c_str();
-    fout.flush();
+    try
+    {
+        auto directory = path;
+        directory.remove_filename();
+        std::filesystem::create_directories(directory);
+        YAML::Emitter out;
+        out << YAML::BeginMap;
+        out << YAML::Key << "m_name" << YAML::Value << m_name;
+        Serialize(out);
+        out << YAML::EndMap;
+        std::ofstream fout(path.string());
+        fout << out.c_str();
+        fout.flush();
+    }catch (std::exception e){
+        UNIENGINE_ERROR("Failed to save!");
+        return false;
+    }
+    return true;
 }
-void IAsset::LoadInternal(const std::filesystem::path &path)
+bool IAsset::LoadInternal(const std::filesystem::path &path)
 {
-    std::ifstream stream(path.string());
-    std::stringstream stringStream;
-    stringStream << stream.rdbuf();
-    YAML::Node in = YAML::Load(stringStream.str());
-    m_name = in["m_name"].as<std::string>();
-    Deserialize(in);
+    if(!std::filesystem::exists(path)){
+        UNIENGINE_ERROR("Not exist!");
+        return false;
+    }
+    try
+    {
+        std::ifstream stream(path.string());
+        std::stringstream stringStream;
+        stringStream << stream.rdbuf();
+        YAML::Node in = YAML::Load(stringStream.str());
+        m_name = in["m_name"].as<std::string>();
+        Deserialize(in);
+    }catch (std::exception e){
+        UNIENGINE_ERROR("Failed to load!");
+        return false;
+    }
+    return true;
 }
+
 IAsset::~IAsset()
 {
 }
@@ -77,7 +102,8 @@ void IAsset::OnCreate()
 
 void IAsset::SetPath(const std::filesystem::path &path)
 {
-    m_path = path;
+    assert(path.is_relative());
+    m_projectRelativePath = path;
     if(path.empty()){
         return;
     }
@@ -86,23 +112,23 @@ void IAsset::SetPath(const std::filesystem::path &path)
     auto search = assetRecords.find(m_handle);
     if (search != assetRecords.end())
     {
-        search->second.m_relativeFilePath = m_path;
+        search->second.m_relativeFilePath = m_projectRelativePath;
     }
-    else if (!m_path.empty())
+    else if (!m_projectRelativePath.empty())
     {
         FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
-        assetRecord.m_relativeFilePath = m_path;
+        assetRecord.m_relativeFilePath = m_projectRelativePath;
         assetRecords[m_handle] = assetRecord;
     }
 }
-void IAsset::SetPathAndSave(const std::filesystem::path &path)
+bool IAsset::SetPathAndSave(const std::filesystem::path &path)
 {
     SetPath(path);
-    Save();
+    return Save();
 }
-void IAsset::SetPathAndLoad(const std::filesystem::path &path)
+bool IAsset::SetPathAndLoad(const std::filesystem::path &path)
 {
     SetPath(path);
-    Load();
+    return Load();
 }

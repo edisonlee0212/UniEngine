@@ -13,7 +13,7 @@ std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 {
     return m_texture;
 }
-void Cubemap::LoadInternal(const std::filesystem::path &path)
+bool Cubemap::LoadInternal(const std::filesystem::path &path)
 {
     auto &manager = AssetManager::GetInstance();
     stbi_set_flip_vertically_on_load(true);
@@ -47,7 +47,7 @@ void Cubemap::LoadInternal(const std::filesystem::path &path)
     {
         UNIENGINE_LOG("Texture failed to load at path: " + path.string());
         stbi_image_free(data);
-        return;
+        return false;
     }
 
 #pragma region Conversion
@@ -99,4 +99,5 @@ void Cubemap::LoadInternal(const std::filesystem::path &path)
 #pragma endregion
     m_name = path.filename().string();
     m_gamma = actualGamma;
+    return true;
 }

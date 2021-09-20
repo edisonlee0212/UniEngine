@@ -195,9 +195,6 @@ void AssetManager::Init()
     RegisterExternalAssetTypeExtensions<Cubemap>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
 
 }
-void AssetManager::ScanAssetFolder()
-{
-}
 
 void AssetRegistry::Serialize(YAML::Emitter &out)
 {
@@ -206,7 +203,7 @@ void AssetRegistry::Serialize(YAML::Emitter &out)
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Handle" << i.first;
-        out << YAML::Key << "FilePath" << i.second.m_relativeFilePath.string();
+        out << YAML::Key << "RelativeFilePath" << i.second.m_relativeFilePath.string();
         out << YAML::Key << "TypeName" << i.second.m_typeName;
         out << YAML::EndMap;
     }
@@ -222,9 +219,9 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
     {
         Handle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
         FileRecord assetRecord;
-        assetRecord.m_relativeFilePath = inAssetRecord["FilePath"].as<std::string>();
+        assetRecord.m_relativeFilePath = inAssetRecord["RelativeFilePath"].as<std::string>();
         assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
-        if (std::filesystem::exists(assetRecord.m_relativeFilePath))
+        if (std::filesystem::exists(ProjectManager::GetProjectPath().parent_path() / assetRecord.m_relativeFilePath))
         {
             m_assetRecords.insert({assetHandle, assetRecord});
         }
@@ -233,18 +230,6 @@ void AssetRegistry::Deserialize(const YAML::Node &in)
     {
         m_fileMap[i.second.m_relativeFilePath.string()] = i.first;
     }
-}
-
-std::filesystem::path AssetManager::GetAssetFolderPath()
-{
-    auto directory = ProjectManager::GetInstance().m_projectPath;
-    directory.remove_filename();
-    std::filesystem::path assetRootFolder = directory / "Assets/";
-    if (!std::filesystem::exists(assetRootFolder))
-    {
-        std::filesystem::create_directories(assetRootFolder);
-    }
-    return assetRootFolder;
 }
 
 std::shared_ptr<IAsset> AssetManager::CreateAsset(

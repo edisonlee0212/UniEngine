@@ -35,10 +35,10 @@ class PlanetTerrain : public IPrivateComponent
     void SetPlanetInfo(const PlanetInfo &planetInfo);
     void Deserialize(const YAML::Node &in) override;
     void Serialize(YAML::Emitter &out) override;
-    PlanetTerrain() = default;
-    std::shared_ptr<Material> m_surfaceMaterial;
+    void CollectAssetRef(std::vector<AssetRef> &list) override;
+    AssetRef m_surfaceMaterial;
     std::vector<std::shared_ptr<TerrainConstructionStageBase>> m_terrainConstructionStages;
-    void Init(std::shared_ptr<Material> surfaceMaterial);
+    void Init();
     void OnInspect() override;
 
     void Start() override;

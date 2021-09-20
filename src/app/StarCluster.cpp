@@ -7,7 +7,7 @@
 #include <StarCluster/StarClusterSystem.hpp>
 using namespace UniEngine;
 using namespace Galaxy;
-
+void LoadScene();
 int main()
 {
     ClassRegistry::RegisterDataComponent<StarPosition>("StarPosition");
@@ -23,27 +23,32 @@ int main()
 
     ClassRegistry::RegisterSystem<StarClusterSystem>("StarClusterSystem");
 
-    ProjectManager::SetScenePostLoadActions([]() {
-        auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
-        mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
-#pragma region Star System
-        auto starClusterSystem =
-            EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
-#pragma endregion
-        auto postProcessing =
-            RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
-        auto bloom = postProcessing->GetLayer<Bloom>().lock();
-        bloom->m_intensity = 0.1f;
-        bloom->m_diffusion = 8;
-        bloom->m_enabled = true;
-
-        postProcessing->GetLayer<SSAO>().lock()->m_enabled = false;
-        RenderManager::GetMainCamera().lock()->m_useClearColor = true;
-    });
-    Application::Init();
+    const std::filesystem::path resourceFolderPath("../Resources");
+    ApplicationConfigs applicationConfigs;
+    applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Star Cluster/Star Cluster.ueproj";
+    Application::Init(applicationConfigs);
+    //LoadScene();
 #pragma region EngineLoop
     Application::Run();
     Application::End();
 #pragma endregion
     return 0;
+}
+
+void LoadScene(){
+    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
+#pragma region Star System
+    auto starClusterSystem =
+        EntityManager::GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+#pragma endregion
+    auto postProcessing =
+        RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
+    auto bloom = postProcessing->GetLayer<Bloom>().lock();
+    bloom->m_intensity = 0.1f;
+    bloom->m_diffusion = 8;
+    bloom->m_enabled = true;
+
+    postProcessing->GetLayer<SSAO>().lock()->m_enabled = false;
+    RenderManager::GetMainCamera().lock()->m_useClearColor = true;
 }

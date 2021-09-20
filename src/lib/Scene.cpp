@@ -499,7 +499,7 @@ void Scene::OnCreate()
     m_sceneDataStorage.m_entityInfos.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
 }
-void Scene::LoadInternal(const std::filesystem::path &path)
+bool Scene::LoadInternal(const std::filesystem::path &path)
 {
     auto previousScene = EntityManager::GetCurrentScene();
     EntityManager::Attach(std::shared_ptr<Scene>(this, [](Scene*){}));
@@ -510,4 +510,6 @@ void Scene::LoadInternal(const std::filesystem::path &path)
     m_name = in["m_name"].as<std::string>();
     Deserialize(in);
     EntityManager::Attach(previousScene);
+
+    return true;
 }

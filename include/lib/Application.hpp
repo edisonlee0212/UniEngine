@@ -33,6 +33,11 @@ class UNIENGINE_API ApplicationTime
     [[nodiscard]] double LastFrameTime() const;
 };
 
+struct UNIENGINE_API ApplicationConfigs{
+    std::filesystem::path m_projectPath;
+    bool m_fullScreen = false;
+};
+
 class UNIENGINE_API Application final : ISingleton<Application>
 {
     friend class EntityManager;
@@ -61,7 +66,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static bool IsPlaying();
     // You are only allowed to create entity after this.
     static bool IsInitialized();
-    static void Init(bool fullScreen = false);
+    static void Init(const ApplicationConfigs& applicationConfigs);
     static void End();
     static void Run();
     static void RegisterPreUpdateFunction(const std::function<void()> &func);

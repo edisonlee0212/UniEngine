@@ -1,0 +1,13 @@
+m_fileRecords:
+  - Handle: 12933562790098935585
+    m_name: .ueassetregistry
+    m_relativeFilePath: .ueassetregistry
+    m_typeName: Binary
+  - Handle: 8444787891402503061
+    m_name: New Scene
+    m_relativeFilePath: New Scene.uescene
+    m_typeName: Scene
+  - Handle: 14577432801531861892
+    m_name: Planet
+    m_relativeFilePath: Planet.ueproj
+    m_typeName: Binary

@@ -117,7 +117,7 @@ void Prefab::AttachChildrenPrivateComponent(
     entity.SetEnabled(m_enabled);
 }
 #pragma region Model Loading
-void Prefab::LoadInternal(const std::filesystem::path &path)
+bool Prefab::LoadInternal(const std::filesystem::path &path)
 {
     if (path.extension() == ".ueprefab")
     {
@@ -148,8 +148,9 @@ void Prefab::LoadInternal(const std::filesystem::path &path)
     }
     else
     {
-        LoadModel(path);
+        LoadModelInternal(path);
     }
+    return true;
 }
 #ifdef USE_ASSIMP
 void Prefab::AttachAnimator(Prefab *parent, const Handle &animatorEntityHandle)
@@ -308,7 +309,7 @@ std::shared_ptr<Texture2D> Prefab::CollectTexture(
         return search->second;
     }
     auto texture2D = AssetManager::CreateAsset<Texture2D>();
-    texture2D->SetPathAndLoad(directory + "/" + path);
+    texture2D->SetPathAndLoad(ProjectManager::GetRelativePath(directory + "/" + path));
     loadedTextures[fileName] = texture2D;
     return texture2D;
 }
@@ -964,35 +965,39 @@ void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &
     for (auto &i : m_children)
         i->CollectAssets(map);
 }
-void Prefab::SaveInternal(const std::filesystem::path &path)
+bool Prefab::SaveInternal(const std::filesystem::path &path)
 {
-    auto directory = path;
-    directory.remove_filename();
-    std::filesystem::create_directories(directory);
-    YAML::Emitter out;
-    out << YAML::BeginMap;
-    Serialize(out);
-    std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
-    CollectAssets(assetMap);
-    if (!assetMap.empty())
+    if (path.extension() == ".ueprefab")
     {
-        out << YAML::Key << "LocalAssets" << YAML::Value << YAML::BeginSeq;
-        for (auto &i : assetMap)
+        auto directory = path;
+        directory.remove_filename();
+        std::filesystem::create_directories(directory);
+        YAML::Emitter out;
+        out << YAML::BeginMap;
+        Serialize(out);
+        std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
+        CollectAssets(assetMap);
+        if (!assetMap.empty())
         {
-            out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
-            out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-            out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
-            i.second->Serialize(out);
-            out << YAML::EndMap;
+            out << YAML::Key << "LocalAssets" << YAML::Value << YAML::BeginSeq;
+            for (auto &i : assetMap)
+            {
+                out << YAML::BeginMap;
+                out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
+                out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
+                out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
+                i.second->Serialize(out);
+                out << YAML::EndMap;
+            }
+            out << YAML::EndSeq;
         }
-        out << YAML::EndSeq;
-    }
-    out << YAML::EndMap;
+        out << YAML::EndMap;
 
-    std::ofstream fout(path.string());
-    fout << out.c_str();
-    fout.flush();
+        std::ofstream fout(path.string());
+        fout << out.c_str();
+        fout.flush();
+    }
+    return true;
 }
 void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
 {
@@ -1001,6 +1006,10 @@ void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map
     EntityManager::ForEachChild(parentEntity, [&](Entity child) { RelinkChildren(child, map); });
 }
 void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)
+{
+    LoadModelInternal(ProjectManager::GetProjectPath().parent_path() / path, optimize, flags);
+}
+void Prefab::LoadModelInternal(const std::filesystem::path &path, bool optimize, unsigned int flags)
 {
 #ifdef USE_ASSIMP
     if (optimize)

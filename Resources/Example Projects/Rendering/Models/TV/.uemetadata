@@ -1,0 +1,53 @@
+m_fileRecords:
+  - Handle: 9681628259963515604
+    m_name: retrotv0319_Main_BaseColor
+    m_relativeFilePath: Models\TV\retrotv0319_Main_BaseColor.png
+    m_typeName: Cubemap
+  - Handle: 6829517356890291857
+    m_name: retrotv
+    m_relativeFilePath: Models\TV\retrotv.mtl
+    m_typeName: Binary
+  - Handle: 8573875286612915313
+    m_name: retrotv0319_Main_NormalGL
+    m_relativeFilePath: Models\TV\retrotv0319_Main_NormalGL.png
+    m_typeName: Cubemap
+  - Handle: 1732388770783078450
+    m_name: retrotv
+    m_relativeFilePath: Models\TV\retrotv.obj
+    m_typeName: Prefab
+  - Handle: 5215978196854269073
+    m_name: retrotv0319_Main_AO
+    m_relativeFilePath: Models\TV\retrotv0319_Main_AO.png
+    m_typeName: Cubemap
+  - Handle: 10690796905257813895
+    m_name: retrotv0319_Main_Roughness
+    m_relativeFilePath: Models\TV\retrotv0319_Main_Roughness.png
+    m_typeName: Cubemap
+  - Handle: 1887425138845920569
+    m_name: retrotv0319_Main_Metallic
+    m_relativeFilePath: Models\TV\retrotv0319_Main_Metallic.png
+    m_typeName: Cubemap
+  - Handle: 7657094435317909105
+    m_name: retrotv0319_Screen_AO
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_AO.png
+    m_typeName: Cubemap
+  - Handle: 4243394968014333961
+    m_name: retrotv0319_Screen_BaseColor
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_BaseColor.png
+    m_typeName: Cubemap
+  - Handle: 245274517749180261
+    m_name: retrotv0319_Screen_BaseColor_noise
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_BaseColor_noise.png
+    m_typeName: Cubemap
+  - Handle: 17055180091548119975
+    m_name: retrotv0319_Screen_Metallic
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_Metallic.png
+    m_typeName: Cubemap
+  - Handle: 9828938836988082140
+    m_name: retrotv0319_Screen_NormalGL
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_NormalGL.png
+    m_typeName: Cubemap
+  - Handle: 12720493832187513784
+    m_name: retrotv0319_Screen_Roughness
+    m_relativeFilePath: Models\TV\retrotv0319_Screen_Roughness.png
+    m_typeName: Cubemap
