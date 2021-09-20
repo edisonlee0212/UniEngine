@@ -167,3 +167,16 @@ bool Texture2D::SaveInternal(const std::filesystem::path &path)
     }
     return true;
 }
+void Texture2D::OnInspect()
+{
+    if(m_texture && m_texture->Id() != 0){
+        static float debugSacle = 0.25f;
+        ImGui::DragFloat("Scale", &debugSacle, 0.01f, 0.1f, 1.0f);
+        debugSacle = glm::clamp(debugSacle, 0.1f, 1.0f);
+        ImGui::Image(
+            (ImTextureID)m_texture->Id(),
+            ImVec2(m_texture->GetSize().x * debugSacle, m_texture->GetSize().y * debugSacle),
+            ImVec2(0, 1),
+            ImVec2(1, 0));
+    }
+}

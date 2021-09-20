@@ -200,6 +200,8 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         friend class Texture2D;
 
       public:
+        [[nodiscard]] glm::ivec2 GetSize() const;
+
         GLTexture2D(
             const GLsizei &levels,
             const GLenum &internalFormat,

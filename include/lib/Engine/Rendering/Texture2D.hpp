@@ -30,6 +30,7 @@ class UNIENGINE_API Texture2D : public IAsset
     bool LoadInternal(const std::filesystem::path & path) override;
 
   public:
+    void OnInspect() override;
     float m_gamma = 1.0f;
     void OnCreate() override;
     [[nodiscard]] glm::vec2 GetResolution() const;
