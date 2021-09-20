@@ -44,6 +44,40 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
     }
     return nullptr;
 }
+std::shared_ptr<IAsset> AssetManager::Get(const Handle &handle)
+{
+    auto &assetManager = GetInstance();
+    for (auto &i : assetManager.m_sharedAssets)
+    {
+        auto search0 = i.second.find(handle);
+        if (search0 != i.second.end())
+        {
+            if (!search0->second)
+            {
+                return search0->second;
+            }
+        }
+    }
+
+    auto search1 = assetManager.m_assets.find(handle);
+    if (search1 != assetManager.m_assets.end())
+    {
+        if (!search1->second.expired())
+        {
+            return search1->second.lock();
+        }
+    }
+    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
+    auto search2 = assetRecords.find(handle);
+    if (search2 != assetRecords.end())
+    {
+        auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
+        retVal->SetPath(search2->second.m_relativeFilePath);
+        retVal->Load();
+        return retVal;
+    }
+    return nullptr;
+}
 
 void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &handle)
 {
@@ -135,10 +169,12 @@ void AssetManager::OnInspect()
                             const std::string hash = collection.first;
                             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(hash.c_str()))
                             {
-                                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-                                std::shared_ptr<IAsset> payload_n =
-                                    *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
-                                Share(payload_n);
+                                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                                Handle payload_n = *static_cast<Handle *>(payload->Data);
+                                AssetRef assetRef;
+                                assetRef.m_assetHandle = payload_n;
+                                assetRef.Update();
+                                Share(assetRef.m_value);
                             }
                             ImGui::EndDragDropTarget();
                         }
@@ -250,4 +286,3 @@ std::vector<std::string> AssetManager::GetExtension(const std::string &typeName)
 {
     return GetInstance().m_defaultExtensions[typeName];
 }
-

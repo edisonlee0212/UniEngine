@@ -1460,38 +1460,46 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<Scene> payload_n =
-                std::dynamic_pointer_cast<Scene>(*(std::shared_ptr<IAsset> *)payload->Data);
-            EntityManager::Attach(payload_n);
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *(Handle *)payload->Data;
+            AssetRef assetRef;
+            assetRef.m_assetHandle = payload_n;
+            assetRef.Update();
+            EntityManager::Attach(std::dynamic_pointer_cast<Scene>(assetRef.m_value));
         }
         const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Prefab>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<Prefab> payload_n =
-                std::dynamic_pointer_cast<Prefab>(*(std::shared_ptr<IAsset> *)payload->Data);
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *(Handle *)payload->Data;
+            AssetRef assetRef;
+            assetRef.m_assetHandle = payload_n;
+            assetRef.Update();
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            payload_n->ToEntity();
+            std::dynamic_pointer_cast<Prefab>(assetRef.m_value)->ToEntity();
         }
         const std::string texture2DTypeHash = SerializationManager::GetSerializableTypeName<Texture2D>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<Texture2D> payload_n =
-                std::dynamic_pointer_cast<Texture2D>(*(std::shared_ptr<IAsset> *)payload->Data);
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *(Handle *)payload->Data;
+            AssetRef assetRef;
+            assetRef.m_assetHandle = payload_n;
+            assetRef.Update();
             EntityArchetype archetype = EntityManager::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            AssetManager::ToEntity(archetype, payload_n);
+            AssetManager::ToEntity(archetype, std::dynamic_pointer_cast<Texture2D>(assetRef.m_value));
         }
         const std::string meshTypeHash = SerializationManager::GetSerializableTypeName<Mesh>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<Mesh> payload_n =
-                std::dynamic_pointer_cast<Mesh>(*(std::shared_ptr<IAsset> *)payload->Data);
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *(Handle *)payload->Data;
+            AssetRef assetRef;
+            assetRef.m_assetHandle = payload_n;
+            assetRef.Update();
             Entity entity = EntityManager::CreateEntity("Mesh");
             auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-            meshRenderer->m_mesh.Set<Mesh>(payload_n);
+            meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(assetRef.m_value));
             auto material = AssetManager::CreateAsset<Material>();
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material.Set<Material>(material);
@@ -1500,10 +1508,12 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string environmentalMapTypeHash = SerializationManager::GetSerializableTypeName<EnvironmentalMap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<EnvironmentalMap> payload_n =
-                std::dynamic_pointer_cast<EnvironmentalMap>(*(std::shared_ptr<IAsset> *)payload->Data);
-            RenderManager::GetInstance().m_environmentalMap = payload_n;
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *(Handle *)payload->Data;
+            AssetRef assetRef;
+            assetRef.m_assetHandle = payload_n;
+            assetRef.Update();
+            RenderManager::GetInstance().m_environmentalMap = std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
         }
 
         const std::string cubeMapTypeHash = SerializationManager::GetSerializableTypeName<Cubemap>();
@@ -1511,11 +1521,13 @@ void EditorManager::CameraWindowDragAndDrop()
         {
             if (!RenderManager::GetMainCamera().expired())
             {
-                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-                std::shared_ptr<Cubemap> payload_n =
-                    std::dynamic_pointer_cast<Cubemap>(*(std::shared_ptr<IAsset> *)payload->Data);
+                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                Handle payload_n = *(Handle *)payload->Data;
+                AssetRef assetRef;
+                assetRef.m_assetHandle = payload_n;
+                assetRef.Update();
                 auto mainCamera = RenderManager::GetMainCamera().lock();
-                mainCamera->m_skybox = payload_n;
+                mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(assetRef.m_value);
             }
         }
         ImGui::EndDragDropTarget();
@@ -1587,8 +1599,14 @@ bool EditorManager::DragAndDropButton(
             EditorManager::GetInstance().m_inspectingAsset = ptr;
         }
         const std::string tag = "##" + ptr->GetTypeName() + (ptr ? std::to_string(ptr->GetHandle()) : "");
+<<<<<<< Updated upstream
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
             ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
+=======
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
+>>>>>>> Stashed changes
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
@@ -1609,6 +1627,7 @@ bool EditorManager::DragAndDropButton(
             ImGui::EndPopup();
         }
     }
+<<<<<<< Updated upstream
     for(const auto& typeName : acceptableTypeNames) {
         if (ImGui::BeginDragDropTarget()) {
             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str())) {
@@ -1616,6 +1635,20 @@ bool EditorManager::DragAndDropButton(
                 std::shared_ptr<IAsset> payload_n = *static_cast<std::shared_ptr<IAsset> *>(payload->Data);
                 if (!ptr || payload_n.get() != ptr.get()) {
                     target = payload_n;
+=======
+    for (const auto &typeName : acceptableTypeNames)
+    {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                Handle payload_n = *static_cast<Handle *>(payload->Data);
+                if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
+                {
+                    target.m_assetHandle = payload_n;
+                    target.Update();
+>>>>>>> Stashed changes
                     statusChanged = true;
                 }
             }

@@ -266,6 +266,21 @@ void ProjectManager::OnInspect()
             for (auto &i : projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords)
             {
                 ImGui::Button(i.second.m_relativeFilePath.filename().string().c_str());
+                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+                {
+                    const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
+                    ImGui::SetDragDropPayload(i.second.m_typeName.c_str(), &i.first, sizeof(Handle));
+                    /*if (ptr->m_icon)
+                        ImGui::Image(
+                            reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
+                            ImVec2(30, 30),
+                            ImVec2(0, 1),
+                            ImVec2(1, 0));
+                    else
+                     */
+                    ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second.m_name + tag).c_str());
+                    ImGui::EndDragDropSource();
+                }
             }
         }
     }

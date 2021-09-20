@@ -77,7 +77,7 @@ bool AssetRef::Update()
     }
     else if (!m_value)
     {
-        auto ptr = AssetManager::Get(m_assetTypeName, m_assetHandle);
+        auto ptr = AssetManager::Get(m_assetHandle);
         if (ptr)
         {
             m_value = ptr;
@@ -96,9 +96,8 @@ void AssetRef::Clear()
 }
 void AssetRef::Set(const AssetRef &target)
 {
-    m_value.reset();
     m_assetHandle = target.m_assetHandle;
-    m_assetTypeName = target.m_assetTypeName;
+    Update();
 }
 
 void IAsset::OnCreate()

@@ -86,6 +86,8 @@ class UNIENGINE_API AssetRef : public ISerializable
 {
     friend class Prefab;
     friend class Project;
+    friend class EditorManager;
+    friend class AssetManager;
     std::shared_ptr<IAsset> m_value;
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName;

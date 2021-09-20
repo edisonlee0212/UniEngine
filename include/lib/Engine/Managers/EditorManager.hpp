@@ -203,7 +203,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
         const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
+            ImGui::SetDragDropPayload(type.c_str(), &target.m_assetHandle, sizeof(Handle));
             /*if (ptr->m_icon)
                 ImGui::Image(
                     reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
@@ -280,12 +280,12 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
     {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<T> payload_n =
-                std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IAsset> *>(payload->Data));
-            if (!ptr || payload_n.get() != ptr.get())
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *static_cast<Handle *>(payload->Data);
+            if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
             {
-                target = payload_n;
+                target.m_assetHandle = payload_n;
+                target.Update();
                 statusChanged = true;
             }
         }
@@ -385,7 +385,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
     const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
-        ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
+        ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
         /*if (ptr->m_icon)
             ImGui::Image(
                 reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),

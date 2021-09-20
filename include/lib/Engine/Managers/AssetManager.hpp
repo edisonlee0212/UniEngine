@@ -49,6 +49,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static std::shared_ptr<T> Get(const Handle &handle);
 
     static std::shared_ptr<IAsset> Get(const std::string &typeName, const Handle &handle);
+    static std::shared_ptr<IAsset> Get(const Handle &handle);
     template <typename T> static void RemoveFromShared(const Handle &handle);
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
