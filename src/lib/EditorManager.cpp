@@ -961,6 +961,8 @@ void EditorManager::OnInspect()
                             filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
                         }
                         assetRef.m_value->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
+                        ProjectManager::ScanProjectFolder();
+                        ProjectManager::SaveAssetRegistry();
                     }
                 }
             }

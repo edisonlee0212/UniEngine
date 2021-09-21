@@ -107,6 +107,10 @@ m_fileRecords:
     m_name: sponza_curtain_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_curtain_diff.tga
     m_typeName: Texture2D
+  - Handle: 2898794859881670187
+    m_name: Thumbs
+    m_relativeFilePath: Models\Sponza\textures\Thumbs.db
+    m_typeName: Binary
   - Handle: 2175850995580154
     m_name: sponza_fabric_ddn
     m_relativeFilePath: Models\Sponza\textures\sponza_fabric_ddn.tga
@@ -159,10 +163,6 @@ m_fileRecords:
     m_name: sponza_thorn_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
     m_typeName: Texture2D
-  - Handle: 10902152952271578533
-    m_name: Thumbs
-    m_relativeFilePath: Models\Sponza\textures\Thumbs.db
-    m_typeName: Binary
   - Handle: 6270401653015458644
     m_name: vase_ddn
     m_relativeFilePath: Models\Sponza\textures\vase_ddn.tga

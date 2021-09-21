@@ -1,7 +1,13 @@
 AssetRecords:
-  - Handle: 7848918918311938670
+  - Handle: 708322110295742465
     RelativeFilePath: New Scene.uescene
     TypeName: Scene
-  - Handle: 3327099408446377081
+  - Handle: 9384052518083345284
+    RelativeFilePath: New Material.uemat
+    TypeName: Material
+  - Handle: 160784356165269753
     RelativeFilePath: Textures\border.png
     TypeName: Texture2D
+  - Handle: 2411018712044793779
+    RelativeFilePath: Planet 3.ueprefab
+    TypeName: Prefab

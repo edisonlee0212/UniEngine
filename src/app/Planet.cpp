@@ -20,7 +20,7 @@ int main()
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Planet/Planet.ueproj";
     Application::Init(applicationConfigs);
-    LoadScene();
+    //LoadScene();
     Application::Run();
     Application::End();
 #pragma endregion

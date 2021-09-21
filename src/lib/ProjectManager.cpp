@@ -71,6 +71,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     auto directory = projectManager.m_projectPath.parent_path();
     projectManager.m_currentFocusedFolder->m_name = directory.filename().string();
     ScanProjectFolder();
+
     if (projectManager.m_newSceneCustomizer.has_value())
         projectManager.m_newSceneCustomizer.value()();
 }
@@ -104,7 +105,7 @@ void ProjectManager::SaveProject()
     std::ofstream fout(projectManager.m_projectPath.string());
     fout << out.c_str();
     fout.flush();
-    SaveAssetRegistry();
+    ScanProjectFolder();
 }
 void ProjectManager::SaveAssetRegistry()
 {
@@ -147,6 +148,8 @@ void ProjectManager::ScanProjectFolder()
 
     std::shared_ptr<Folder> currentFolder = projectManager.m_currentProject->m_projectFolder;
     ScanFolderHelper(directory, currentFolder);
+
+    SaveAssetRegistry();
 }
 void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, std::shared_ptr<Folder> &folder)
 {

@@ -109,10 +109,10 @@ void IAsset::OnCreate()
 void IAsset::SetPath(const std::filesystem::path &path)
 {
     assert(path.is_relative());
-    m_projectRelativePath = ProjectManager::GetRelativePath(std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
     if(path.empty()){
         return;
     }
+    m_projectRelativePath = ProjectManager::GetRelativePath(std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
     m_saved = false;
     auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
     auto &fileMap = ProjectManager::GetInstance().m_assetRegistry->m_fileMap;
@@ -121,7 +121,7 @@ void IAsset::SetPath(const std::filesystem::path &path)
     {
         m_handle = search->second;
     }
-    else if (!m_projectRelativePath.empty())
+    else
     {
         FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
