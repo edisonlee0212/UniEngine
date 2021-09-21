@@ -206,14 +206,6 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &target.m_assetHandle, sizeof(Handle));
-            /*if (ptr->m_icon)
-                ImGui::Image(
-                    reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
-                    ImVec2(30, 30),
-                    ImVec2(0, 1),
-                    ImVec2(1, 0));
-            else
-             */
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
@@ -388,14 +380,6 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
         ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
-        /*if (ptr->m_icon)
-            ImGui::Image(
-                reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
-                ImVec2(30, 30),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        else
-         */
         ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
         ImGui::EndDragDropSource();
     }

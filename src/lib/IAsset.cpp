@@ -81,6 +81,7 @@ bool AssetRef::Update()
         if (ptr)
         {
             m_value = ptr;
+            m_assetTypeName = ptr->GetTypeName();
             return true;
         }
         Clear();

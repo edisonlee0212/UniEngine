@@ -119,10 +119,10 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
-            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            if (!smmc->RagDoll())
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
-            DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4(
-                "model", ltw.m_value);
+            DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
             skinnedMesh->Draw();
         }
     }
@@ -166,7 +166,8 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
-            if(!smmc->RagDoll()) ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            if (!smmc->RagDoll())
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
@@ -935,6 +936,37 @@ void EditorManager::OnInspect()
     auto &projectManager = ProjectManager::GetInstance();
     if (ImGui::Begin("Project"))
     {
+        if (ImGui::BeginDragDropTarget())
+        {
+            auto &assetManager = AssetManager::GetInstance();
+            for (const auto &i : assetManager.m_defaultExtensions)
+            {
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(i.first.c_str()))
+                {
+                    IM_ASSERT(payload->DataSize == sizeof(Handle));
+                    Handle payload_n = *(Handle *)payload->Data;
+                    AssetRef assetRef;
+                    assetRef.m_assetHandle = payload_n;
+                    assetRef.Update();
+                    if (assetRef.m_value->GetPath().empty())
+                    {
+                        //If current folder doesn't contain file with same name
+                        auto tempFileName = assetRef.m_value->m_name;
+                        auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
+                        auto folderPath = projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath;
+                        std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
+                        int index = 0;
+                        while(std::filesystem::exists(filePath)){
+                            index++;
+                            filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
+                        }
+                        assetRef.m_value->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
+                    }
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         ImGui::Text("Parent folder:");
         auto parentFolder = projectManager.m_currentFocusedFolder->m_parent;
         bool updated = false;
@@ -953,12 +985,16 @@ void EditorManager::OnInspect()
         int columnCount = (int)(panelWidth / cellSize);
         ImGui::Columns(columnCount, 0, false);
 
-        auto& editorManager = EditorManager::GetInstance();
+        auto &editorManager = EditorManager::GetInstance();
         if (!updated)
         {
             for (auto &i : projectManager.m_currentFocusedFolder->m_children)
             {
-                ImGui::Image((ImTextureID)editorManager.m_assetsIcons["Folder"]->UnsafeGetGLTexture()->Id(), {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
+                ImGui::Image(
+                    (ImTextureID)editorManager.m_assetsIcons["Folder"]->UnsafeGetGLTexture()->Id(),
+                    {thumbnailSizePadding.x, thumbnailSizePadding.x},
+                    {0, 1},
+                    {1, 0});
                 if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
                 {
                     projectManager.m_currentFocusedFolder = i.second;
@@ -975,10 +1011,13 @@ void EditorManager::OnInspect()
             {
                 ImTextureID textureId = 0;
                 auto fileName = i.second.m_relativeFilePath.filename();
-                if(fileName.extension().string() == ".ueassetregistry" || fileName.extension().string() == ".uemetadata") continue;
-                if(fileName.extension().string() == ".ueproj"){
+                if (fileName.string() == ".ueassetregistry" || fileName.string() == ".uemetadata")
+                    continue;
+                if (fileName.extension().string() == ".ueproj")
+                {
                     textureId = (ImTextureID)editorManager.m_assetsIcons["Project"]->UnsafeGetGLTexture()->Id();
-                }else
+                }
+                else
                 {
                     auto iconSearch = editorManager.m_assetsIcons.find(i.second.m_typeName);
                     if (iconSearch != editorManager.m_assetsIcons.end())
@@ -991,17 +1030,21 @@ void EditorManager::OnInspect()
                     }
                 }
                 static std::shared_ptr<IAsset> asset;
-                if(asset && asset->m_handle.GetValue() == i.first.GetValue()){
+                if (asset && asset->m_handle.GetValue() == i.first.GetValue())
+                {
                     ImGui::ImageButton(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
-                }else
+                }
+                else
                 {
                     ImGui::Image(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
                 }
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) && AssetManager::IsAsset(i.second.m_typeName))
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) &&
+                    AssetManager::IsAsset(i.second.m_typeName))
                 {
-                    //If it's an asset then inspect.
+                    // If it's an asset then inspect.
                     asset = AssetManager::Get(i.first);
-                    if(asset) editorManager.m_inspectingAsset = asset;
+                    if (asset)
+                        editorManager.m_inspectingAsset = asset;
                 }
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
                 {
@@ -1015,7 +1058,7 @@ void EditorManager::OnInspect()
             }
         }
         ImGui::Columns(1);
-        //ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
+        // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
     }
     ImGui::End();
 #pragma endregion
@@ -1050,13 +1093,15 @@ void EditorManager::OnInspect()
     if (!editorManager.m_inspectingAsset.expired())
     {
         auto asset = editorManager.m_inspectingAsset.lock();
-        if(!asset->GetPath().empty())
+        if (!asset->GetPath().empty())
         {
             if (ImGui::Button("Save"))
             {
                 asset->Save();
             }
-        }else{
+        }
+        else
+        {
             ImGui::Text("Temporary asset");
         }
         ImGui::Separator();
@@ -1610,7 +1655,8 @@ void EditorManager::CameraWindowDragAndDrop()
             AssetRef assetRef;
             assetRef.m_assetHandle = payload_n;
             assetRef.Update();
-            RenderManager::GetInstance().m_environmentalMap = std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
+            RenderManager::GetInstance().m_environmentalMap =
+                std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
         }
 
         const std::string cubeMapTypeHash = SerializationManager::GetSerializableTypeName<Cubemap>();
@@ -1691,8 +1737,10 @@ bool EditorManager::DragAndDropButton(
     const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
-    if (ptr) {
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+    if (ptr)
+    {
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
             EditorManager::GetInstance().m_inspectingAsset = ptr;
         }
         const std::string tag = "##" + ptr->GetTypeName() + (ptr ? std::to_string(ptr->GetHandle()) : "");
@@ -1702,16 +1750,20 @@ bool EditorManager::DragAndDropButton(
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
-        if (ImGui::BeginPopupContextItem(tag.c_str())) {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str())) {
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-            if (removable) {
-                if (ImGui::Button(("Remove" + tag).c_str())) {
+            if (removable)
+            {
+                if (ImGui::Button(("Remove" + tag).c_str()))
+                {
                     target.Clear();
                     statusChanged = true;
                 }

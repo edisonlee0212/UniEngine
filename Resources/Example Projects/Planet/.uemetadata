@@ -1,13 +1,29 @@
 m_fileRecords:
-  - Handle: 10756161953792354214
-    m_name: .ueassetregistry
-    m_relativeFilePath: .ueassetregistry
-    m_typeName: Binary
-  - Handle: 17494600091599130938
-    m_name: Planet
-    m_relativeFilePath: Planet.ueproj
-    m_typeName: Binary
+  - Handle: 8475403160873744207
+    m_name: New Material
+    m_relativeFilePath: New Material.uemat
+    m_typeName: Material
   - Handle: 7848918918311938670
     m_name: New Scene
     m_relativeFilePath: New Scene.uescene
     m_typeName: Scene
+  - Handle: 2073219141608061061
+    m_name: Planet 1
+    m_relativeFilePath: Planet 1.ueprefab
+    m_typeName: Prefab
+  - Handle: 2744227053290551316
+    m_name: .ueassetregistry
+    m_relativeFilePath: .ueassetregistry
+    m_typeName: Binary
+  - Handle: 8211852013293265007
+    m_name: Planet
+    m_relativeFilePath: Planet.ueproj
+    m_typeName: Binary
+  - Handle: 987436264699074879
+    m_name: New Material(1)
+    m_relativeFilePath: New Material(1).uemat
+    m_typeName: Material
+  - Handle: 91808807231681634
+    m_name: Point Light 1
+    m_relativeFilePath: Point Light 1.ueprefab
+    m_typeName: Prefab

@@ -32,6 +32,7 @@ class UNIENGINE_API AssetRegistry : public ISerializable
 };
 
 struct UNIENGINE_API Folder {
+    std::filesystem::path m_relativePath;
     std::string m_name;
     FolderMetadata m_folderMetadata;
     std::map<std::string, std::shared_ptr<Folder>> m_children;

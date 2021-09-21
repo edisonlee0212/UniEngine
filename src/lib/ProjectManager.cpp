@@ -162,6 +162,7 @@ void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, s
             {
                 auto newFolder = std::make_shared<Folder>();
                 newFolder->m_folderMetadata = FolderMetadata();
+                newFolder->m_relativePath = GetRelativePath(folderPath);
                 newFolder->m_name = folderName;
                 folder->m_children[entry.path().string()] = newFolder;
                 newFolder->m_parent = folder;

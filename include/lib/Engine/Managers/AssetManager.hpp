@@ -107,7 +107,7 @@ template <typename T> void AssetManager::RegisterExternalAssetTypeExtensions(std
     auto &resourceManager = GetInstance();
     auto name = SerializationManager::GetSerializableTypeName<T>();
     resourceManager.m_defaultExtensions[name].insert(
-        resourceManager.m_defaultExtensions[name].begin(), extensions.begin(), extensions.end());
+        resourceManager.m_defaultExtensions[name].end(), extensions.begin(), extensions.end());
     for (const auto &extension : extensions)
     {
         resourceManager.m_typeNames[extension] = name;
