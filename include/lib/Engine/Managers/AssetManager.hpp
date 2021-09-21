@@ -18,9 +18,8 @@ struct UNIENGINE_API AssetCreateHelper
 };
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
-    bool m_enableAssetMenu = true;
+    bool m_enableAssetMenu = false;
     friend class ClassRegistry;
-
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
 

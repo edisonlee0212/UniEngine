@@ -15,6 +15,7 @@
 #include <PostProcessing.hpp>
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
+#include <Utilities.hpp>
 #include <WindowManager.hpp>
 using namespace UniEngine;
 inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &entity)
@@ -950,13 +951,15 @@ void EditorManager::OnInspect()
                     assetRef.Update();
                     if (assetRef.m_value->GetPath().empty())
                     {
-                        //If current folder doesn't contain file with same name
+                        // If current folder doesn't contain file with same name
                         auto tempFileName = assetRef.m_value->m_name;
                         auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
-                        auto folderPath = projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath;
+                        auto folderPath = projectManager.m_projectPath.parent_path() /
+                                          projectManager.m_currentFocusedFolder->m_relativePath;
                         std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
                         int index = 0;
-                        while(std::filesystem::exists(filePath)){
+                        while (std::filesystem::exists(filePath))
+                        {
                             index++;
                             filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
                         }
@@ -968,23 +971,29 @@ void EditorManager::OnInspect()
             }
             ImGui::EndDragDropTarget();
         }
-
-        ImGui::Text("Parent folder:");
-        auto parentFolder = projectManager.m_currentFocusedFolder->m_parent;
-        bool updated = false;
-        if (parentFolder)
-        {
-            ImGui::Button(parentFolder->m_name.c_str());
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-            {
-                projectManager.m_currentFocusedFolder = parentFolder;
-                updated = true;
-            }
-        }
         static glm::vec2 thumbnailSizePadding = {96.0f, 8.0f};
         float cellSize = thumbnailSizePadding.x + thumbnailSizePadding.y;
+        static float size1 = 200;
+        static float size2 = 200;
+        static float h = 100;
+        auto avail = ImGui::GetContentRegionAvail();
+        size2 = glm::max(avail.x - size1, cellSize + 8.0f);
+        size1 = glm::max(avail.x - size2, 32.0f);
+        h = avail.y;
+        ImGui::Splitter(true, 2.0, size1, size2, 32.0f, cellSize + 8.0f, h);
+        ImGui::BeginChild("1", ImVec2(size1, h), false);
+
+        FolderHierarchyHelper(ProjectManager::GetInstance().m_currentProject->m_projectFolder);
+
+        ImGui::EndChild();
+        ImGui::SameLine();
+        ImGui::BeginChild("2", ImVec2(size2, h), false);
+
+        bool updated = false;
+
+
         float panelWidth = ImGui::GetContentRegionAvailWidth();
-        int columnCount = (int)(panelWidth / cellSize);
+        int columnCount = glm::max(1, (int)(panelWidth / cellSize));
         ImGui::Columns(columnCount, 0, false);
 
         auto &editorManager = EditorManager::GetInstance();
@@ -1013,7 +1022,7 @@ void EditorManager::OnInspect()
             {
                 ImTextureID textureId = 0;
                 auto fileName = i.second.m_relativeFilePath.filename();
-                if (fileName.string() == ".ueassetregistry" || fileName.string() == ".uemetadata")
+                if (fileName.string() == ".ueassetregistry" || fileName.string() == ".uemetadata" || fileName.string() == ".ueproj" || fileName.extension().string() == ".ueproj")
                     continue;
                 if (fileName.extension().string() == ".ueproj")
                 {
@@ -1061,6 +1070,7 @@ void EditorManager::OnInspect()
         }
         ImGui::Columns(1);
         // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
+        ImGui::EndChild();
     }
     ImGui::End();
 #pragma endregion
@@ -1116,6 +1126,26 @@ void EditorManager::OnInspect()
     ImGui::End();
 #pragma endregion
 }
+
+void EditorManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)
+{
+    auto &focusFolder = ProjectManager::GetInstance().m_currentFocusedFolder;
+    const bool opened = ImGui::TreeNodeEx(
+        folder->m_name.c_str(), ImGuiTreeNodeFlags_OpenOnArrow | (folder == focusFolder ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None));
+    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+    {
+        focusFolder = folder;
+    }
+    if (opened)
+    {
+        for (const auto &i : folder->m_children)
+        {
+            FolderHierarchyHelper(i.second);
+        }
+        ImGui::TreePop();
+    }
+}
+
 void EditorManager::LateUpdate()
 {
 #pragma region ImGui

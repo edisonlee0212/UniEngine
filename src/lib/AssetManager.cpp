@@ -143,7 +143,7 @@ void AssetManager::OnInspect()
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Asset Manager", &resourceManager.m_enableAssetMenu);
+            ImGui::Checkbox("Shared Assets", &resourceManager.m_enableAssetMenu);
             ImGui::EndMenu();
         }
 
@@ -151,7 +151,7 @@ void AssetManager::OnInspect()
     }
     if (resourceManager.m_enableAssetMenu)
     {
-        ImGui::Begin("Asset Manager");
+        ImGui::Begin("Shared Assets");
         if (ImGui::BeginTabBar(
                 "##Resource Tab", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
         {

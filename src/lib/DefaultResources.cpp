@@ -892,38 +892,54 @@ void DefaultResources::LoadIcons()
 {
     auto& editorManager = EditorManager::GetInstance();
     auto texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/project.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/project.png");
     editorManager.m_assetsIcons["Project"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/binary.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/scene.png");
+    editorManager.m_assetsIcons["Scene"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/binary.png");
     editorManager.m_assetsIcons["Binary"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/folder.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/folder.png");
     editorManager.m_assetsIcons["Folder"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/material.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/material.png");
     editorManager.m_assetsIcons["Material"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/mesh.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/mesh.png");
     editorManager.m_assetsIcons["Mesh"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/prefab.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/prefab.png");
     editorManager.m_assetsIcons["Prefab"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/texture2d.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/texture2d.png");
     editorManager.m_assetsIcons["Texture2D"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/PlayButton.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/PlayButton.png");
     editorManager.m_assetsIcons["PlayButton"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
-    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/PauseButton.png");
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/PauseButton.png");
     editorManager.m_assetsIcons["PauseButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/ErrorButton.png");
+    editorManager.m_assetsIcons["ErrorButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/WarningButton.png");
+    editorManager.m_assetsIcons["WarningButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/InfoButton.png");
+    editorManager.m_assetsIcons["InfoButton"] = texture2D;
 }

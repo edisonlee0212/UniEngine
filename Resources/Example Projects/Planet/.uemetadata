@@ -1,21 +1,21 @@
 m_fileRecords:
-  - Handle: 708322110295742465
-    m_name: New Scene
-    m_relativeFilePath: New Scene.uescene
-    m_typeName: Scene
   - Handle: 9384052518083345284
     m_name: New Material
     m_relativeFilePath: New Material.uemat
     m_typeName: Material
-  - Handle: 12260153698882569402
+  - Handle: 10268004775438639061
     m_name: .ueassetregistry
     m_relativeFilePath: .ueassetregistry
     m_typeName: Binary
+  - Handle: 708322110295742465
+    m_name: New Scene
+    m_relativeFilePath: New Scene.uescene
+    m_typeName: Scene
   - Handle: 2411018712044793779
     m_name: Planet 3
     m_relativeFilePath: Planet 3.ueprefab
     m_typeName: Prefab
-  - Handle: 5054113917620051602
+  - Handle: 12541833677891304573
     m_name: Planet
     m_relativeFilePath: Planet.ueproj
     m_typeName: Binary

@@ -17,6 +17,7 @@ enum EntityEditorSystemConfigFlags
     EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
     EntityEditorSystem_EnableEntityInspector = 1 << 1
 };
+class Folder;
 class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 {
     friend class ClassRegistry;
@@ -77,7 +78,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static Entity MouseEntitySelection(const glm::vec2 &mousePosition);
     static void HighLightEntityPrePassHelper(const Entity &entity);
     static void HighLightEntityHelper(const Entity &entity);
-
+    static void FolderHierarchyHelper(const std::shared_ptr<Folder>& folder);
     static void SceneCameraWindow();
     static void MainCameraWindow();
 
@@ -219,7 +220,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-
+            /*
             if (ImGui::BeginMenu("I/O"))
             {
                 FileUtils::SaveFile(
@@ -256,7 +257,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
 
                 ImGui::EndMenu();
             }
-
+            */
 
             if (removable)
             {
@@ -394,7 +395,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
                 ptr->m_name = std::string(newName);
             ImGui::EndMenu();
         }
-
+        /*
         if (ImGui::BeginMenu("I/O"))
         {
             auto &extensions = AssetManager::GetInstance().m_defaultExtensions[type];
@@ -426,6 +427,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
 
             ImGui::EndMenu();
         }
+         */
         ImGui::EndPopup();
     }
     return;
