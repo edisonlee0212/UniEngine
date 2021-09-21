@@ -14,6 +14,7 @@
 #include <Scene.hpp>
 #include <SkinnedMesh.hpp>
 #include <Utilities.hpp>
+#include "EditorManager.hpp"
 using namespace UniEngine;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_2DToCubemapProgram;
@@ -342,7 +343,6 @@ void DefaultResources::Load()
 
     LoadRenderManagerResources();
     LoadEditorManagerResources();
-
 #pragma region Physics
     Physics::DefaultPhysicsMaterial = AssetManager::CreateAsset<PhysicsMaterial>(GenerateNewHandle(), "Default");
     AssetManager::Share(Physics::DefaultPhysicsMaterial);
@@ -885,4 +885,45 @@ void DefaultResources::LoadEditorManagerResources()
     m_sceneHighlightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
     m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
 #pragma endregion
+
+    LoadIcons();
+}
+void DefaultResources::LoadIcons()
+{
+    auto& editorManager = EditorManager::GetInstance();
+    auto texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/project.png");
+    editorManager.m_assetsIcons["Project"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/binary.png");
+    editorManager.m_assetsIcons["Binary"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/folder.png");
+    editorManager.m_assetsIcons["Folder"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/material.png");
+    editorManager.m_assetsIcons["Material"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/mesh.png");
+    editorManager.m_assetsIcons["Mesh"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/prefab.png");
+    editorManager.m_assetsIcons["Prefab"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/texture2d.png");
+    editorManager.m_assetsIcons["Texture2D"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/PlayButton.png");
+    editorManager.m_assetsIcons["PlayButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/PauseButton.png");
+    editorManager.m_assetsIcons["PauseButton"] = texture2D;
 }

@@ -1,571 +1,379 @@
 AssetRecords:
-  - Handle: 9829481615408437453
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_normal.png
-    TypeName: Cubemap
-  - Handle: 10147338139763314398
-    RelativeFilePath: Models\Sponza\textures\sponza_floor_a_diff.tga
-    TypeName: Cubemap
-  - Handle: 11097839160688505557
-    RelativeFilePath: New Scene.uescene
-    TypeName: Scene
-  - Handle: 4634508293133727442
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_normal.png
+  - Handle: 1399270900147459298
+    RelativeFilePath: Models\Sponza_FBX\Lion_Albedo.png
     TypeName: Texture2D
-  - Handle: 5504877654797758142
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Roughness.png
-    TypeName: Cubemap
-  - Handle: 16152127948743081327
-    RelativeFilePath: Models\dancing-stormtrooper\temp_skin_2951_140733547266464_888834631.fbm\Stormtrooper_D.tga
-    TypeName: Cubemap
-  - Handle: 14761786163616151738
-    RelativeFilePath: Models\Sponza\textures\lion.tga
-    TypeName: Cubemap
-  - Handle: 15105637852893460406
-    RelativeFilePath: Models\Capoeira.fbx
-    TypeName: Prefab
-  - Handle: 14167507073125503142
-    RelativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
-    TypeName: Cubemap
-  - Handle: 17571533872039701225
-    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Metallic.png
-    TypeName: Cubemap
-  - Handle: 185352461853409090
-    RelativeFilePath: Models\Sponza\textures\sponza_flagpole_ddn.tga
-    TypeName: Cubemap
-  - Handle: 13042960533524445287
-    RelativeFilePath: Models\dancing-stormtrooper\silly_dancing.fbx
-    TypeName: Prefab
-  - Handle: 549702393337280156
-    RelativeFilePath: Models\Sponza_FBX\Lion_Normal.png
-    TypeName: Cubemap
-  - Handle: 4924626790674651440
+  - Handle: 3919442822595590449
+    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Roughness.png
+    TypeName: Texture2D
+  - Handle: 17402563291703496344
     RelativeFilePath: Models\UniEngine.obj
     TypeName: Prefab
-  - Handle: 6250486467904282743
+  - Handle: 4218805913492885160
+    RelativeFilePath: Models\Sponza\textures\vase_round.tga
+    TypeName: Texture2D
+  - Handle: 17776021411836671244
+    RelativeFilePath: Models\Sponza\textures\sponza_ceiling_a_diff.tga
+    TypeName: Texture2D
+  - Handle: 2613470554892137753
+    RelativeFilePath: New Scene.uescene
+    TypeName: Scene
+  - Handle: 8324230688794014605
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_diffuse.png
+    TypeName: Texture2D
+  - Handle: 8825269706193700569
+    RelativeFilePath: Models\Sponza\textures\background.tga
+    TypeName: Texture2D
+  - Handle: 15918409316395941353
+    RelativeFilePath: Models\Sponza\textures\chain_texture_ddn.tga
+    TypeName: Texture2D
+  - Handle: 10816349135134983117
+    RelativeFilePath: Models\Sponza\textures\chain_texture.tga
+    TypeName: Texture2D
+  - Handle: 16593047115661473943
+    RelativeFilePath: Models\Capoeira.fbx
+    TypeName: Prefab
+  - Handle: 11786824410169665389
+    RelativeFilePath: Models\Sponza\textures\sponza_roof_ddn.tga
+    TypeName: Texture2D
+  - Handle: 6229168257836783492
+    RelativeFilePath: Models\Sponza_FBX\VasePlant_roughness.png
+    TypeName: Texture2D
+  - Handle: 9089648173396203452
     RelativeFilePath: Models\Sponza\sponza.obj
     TypeName: Prefab
-  - Handle: 15990602362258238652
-    RelativeFilePath: Models\Sponza\textures\background_ddn.tga
-    TypeName: Cubemap
-  - Handle: 12613215846781935441
-    RelativeFilePath: Models\Sponza\textures\background.tga
-    TypeName: Cubemap
-  - Handle: 4264402764318533120
-    RelativeFilePath: Models\Sponza\textures\chain_texture.tga
-    TypeName: Cubemap
-  - Handle: 8434521067202248892
-    RelativeFilePath: Models\Sponza_FBX\Lion_Roughness.png
-    TypeName: Cubemap
-  - Handle: 14482885932576317948
-    RelativeFilePath: Models\Sponza\textures\sponza_column_c_ddn.tga
-    TypeName: Cubemap
-  - Handle: 3322928974768856341
-    RelativeFilePath: Models\Sponza\textures\chain_texture_ddn.tga
-    TypeName: Cubemap
-  - Handle: 3584216174961145901
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_normal.png
+  - Handle: 10069052136194164059
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_diffuse.png
     TypeName: Texture2D
-  - Handle: 4381063983962218657
-    RelativeFilePath: Models\Sponza\textures\lion2_ddn.tga
-    TypeName: Cubemap
-  - Handle: 12721474842164741734
-    RelativeFilePath: Models\Sponza\textures\lion_ddn.tga
-    TypeName: Cubemap
-  - Handle: 14043016370068074732
-    RelativeFilePath: Models\Sponza\textures\sponza_arch_ddn.tga
-    TypeName: Cubemap
-  - Handle: 7120477520772636969
-    RelativeFilePath: Models\Sponza_FBX\VasePlant_normal.png
-    TypeName: Texture2D
-  - Handle: 10885726117602145390
-    RelativeFilePath: Models\Sponza\textures\spnza_bricks_a_ddn.tga
-    TypeName: Cubemap
-  - Handle: 14517070531580861628
-    RelativeFilePath: Models\Sponza\textures\spnza_bricks_a_diff.tga
-    TypeName: Cubemap
-  - Handle: 3359217561918454274
-    RelativeFilePath: Models\Sponza\textures\sponza_arch_diff.tga
-    TypeName: Cubemap
-  - Handle: 12353937058074815813
-    RelativeFilePath: Models\Sponza\textures\sponza_fabric_blue_diff.tga
-    TypeName: Cubemap
-  - Handle: 15232713184374342892
-    RelativeFilePath: Models\Sponza_FBX\Vase_diffuse.png
-    TypeName: Texture2D
-  - Handle: 10686791332655599366
-    RelativeFilePath: Models\Sponza\textures\sponza_ceiling_a_ddn.tga
-    TypeName: Cubemap
-  - Handle: 3770700576589856896
-    RelativeFilePath: Models/dancing-stormtrooper/silly_dancing.fbx
-    TypeName: Prefab
-  - Handle: 16175139877372917742
-    RelativeFilePath: Models\Sponza_FBX\gi_flag.png
-    TypeName: Cubemap
-  - Handle: 12602172576040284102
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Albedo.png
-    TypeName: Cubemap
-  - Handle: 11084820919274000194
-    RelativeFilePath: Models\Sponza_FBX\Background_Roughness.png
-    TypeName: Cubemap
-  - Handle: 11931907958492669491
-    RelativeFilePath: Models\Sponza\textures\sponza_column_b_ddn.tga
-    TypeName: Cubemap
-  - Handle: 3131391510179885487
+  - Handle: 13119126908050894071
     RelativeFilePath: Models\Sponza_FBX\Lion_Normal.png
     TypeName: Texture2D
-  - Handle: 2967508659335905175
-    RelativeFilePath: Models\Sponza\textures\sponza_ceiling_a_diff.tga
-    TypeName: Cubemap
-  - Handle: 1638021715141460031
-    RelativeFilePath: Models\Sponza\textures\sponza_column_a_ddn.tga
-    TypeName: Cubemap
-  - Handle: 9940373981574762122
-    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Normal.png
-    TypeName: Cubemap
-  - Handle: 9512357664832527865
-    RelativeFilePath: Models\Sponza\textures\sponza_column_a_diff.tga
-    TypeName: Cubemap
-  - Handle: 9857958030427831561
-    RelativeFilePath: Models\Sponza\textures\sponza_details_ddn.tga
-    TypeName: Cubemap
-  - Handle: 13254422760330509809
-    RelativeFilePath: Models\Sponza\textures\sponza_column_b_diff.tga
-    TypeName: Cubemap
-  - Handle: 8310168738677583870
-    RelativeFilePath: Models\Sponza\textures\sponza_column_c_diff.tga
-    TypeName: Cubemap
-  - Handle: 2758053149367177231
-    RelativeFilePath: Models\Sponza_FBX\Background_Normal.png
-    TypeName: Cubemap
-  - Handle: 5240525218092168920
-    RelativeFilePath: Models\Sponza\textures\sponza_curtain_blue_diff.tga
-    TypeName: Cubemap
-  - Handle: 12678016588726466711
-    RelativeFilePath: Models\Sponza\textures\sponza_curtain_ddn.tga
-    TypeName: Cubemap
-  - Handle: 8470117215461417517
-    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_roughness.png
-    TypeName: Cubemap
-  - Handle: 16538613000905998214
-    RelativeFilePath: Models\Sponza\textures\sponza_curtain_diff.tga
-    TypeName: Cubemap
-  - Handle: 18022619826716675317
-    RelativeFilePath: Models\Sponza\textures\sponza_curtain_green_diff.tga
-    TypeName: Cubemap
-  - Handle: 7564293091835340805
-    RelativeFilePath: Models\Sponza_FBX\VaseHanging_normal.png
-    TypeName: Texture2D
-  - Handle: 10556733135365137028
-    RelativeFilePath: Models\Sponza\textures\sponza_details_diff.tga
-    TypeName: Cubemap
-  - Handle: 677586029568200899
-    RelativeFilePath: Models\Sponza\textures\vase_round_ddn.tga
-    TypeName: Cubemap
-  - Handle: 1581679888564919340
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_diffuse.png
-    TypeName: Cubemap
-  - Handle: 18406934695714782936
-    RelativeFilePath: Models\Sponza\textures\sponza_fabric_ddn.tga
-    TypeName: Cubemap
-  - Handle: 9919380336595006818
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_diffuse.png
-    TypeName: Texture2D
-  - Handle: 14271633381690660161
-    RelativeFilePath: Models\Sponza\textures\sponza_fabric_diff.tga
-    TypeName: Cubemap
-  - Handle: 2991018348830303061
-    RelativeFilePath: Models\Sponza\textures\sponza_fabric_green_diff.tga
-    TypeName: Cubemap
-  - Handle: 13024547762191603906
-    RelativeFilePath: Models\Sponza\textures\sponza_flagpole_diff.tga
-    TypeName: Cubemap
-  - Handle: 6044681877711443213
-    RelativeFilePath: Models\Sponza_FBX\Lion_Albedo.png
-    TypeName: Cubemap
-  - Handle: 6316626030052901882
-    RelativeFilePath: Models\Sponza\textures\sponza_roof_ddn.tga
-    TypeName: Cubemap
-  - Handle: 16430116854806292799
-    RelativeFilePath: Models\Sponza\textures\sponza_floor_a_ddn.tga
-    TypeName: Cubemap
-  - Handle: 8960145107714302785
-    RelativeFilePath: Models\Sponza\textures\sponza_roof_diff.tga
-    TypeName: Cubemap
-  - Handle: 7823203073922838922
-    RelativeFilePath: Models\Sponza\textures\vase_ddn.tga
-    TypeName: Cubemap
-  - Handle: 7922908887567407812
-    RelativeFilePath: Models\Sponza\textures\sponza_thorn_ddn.tga
-    TypeName: Cubemap
-  - Handle: 8897697350701716942
-    RelativeFilePath: Models\Sponza\textures\vase_dif.tga
-    TypeName: Cubemap
-  - Handle: 9811969928884310863
-    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Albedo.png
-    TypeName: Cubemap
-  - Handle: 8718828841600837420
-    RelativeFilePath: Models\Sponza\textures\vase_hanging.tga
-    TypeName: Cubemap
-  - Handle: 1047188509890222505
-    RelativeFilePath: Models\TV\retrotv0319_Main_Roughness.png
-    TypeName: Cubemap
-  - Handle: 15791585165017673267
-    RelativeFilePath: Models\Sponza\textures\vase_hanging_ddn.tga
-    TypeName: Cubemap
-  - Handle: 18382380540572022893
-    RelativeFilePath: Models\Sponza\textures\vase_plant.tga
-    TypeName: Cubemap
-  - Handle: 15116942533907461585
-    RelativeFilePath: Models\Sponza\textures\vase_round.tga
-    TypeName: Cubemap
-  - Handle: 13506567976009757345
-    RelativeFilePath: Models\Sponza_FBX\Background_Albedo.png
-    TypeName: Cubemap
-  - Handle: 257804232827322375
-    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Roughness.png
-    TypeName: Cubemap
-  - Handle: 6682254386484773261
-    RelativeFilePath: Models\Sponza_FBX\Dielectric_metallic.png
-    TypeName: Cubemap
-  - Handle: 12237279608169100557
-    RelativeFilePath: Models\Sponza_FBX\Metallic_metallic.png
-    TypeName: Cubemap
-  - Handle: 15508894276733164291
-    RelativeFilePath: Models\Sponza_FBX\Sponza.fbx
+  - Handle: 2167803535860703018
+    RelativeFilePath: Models\dancing-stormtrooper\silly_dancing.fbx
     TypeName: Prefab
-  - Handle: 6644271290896932240
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_roughness.png
-    TypeName: Cubemap
-  - Handle: 17781600030445052498
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_roughness.png
-    TypeName: Cubemap
-  - Handle: 15235517822200300954
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_diffuse.png
-    TypeName: Cubemap
-  - Handle: 4869867773099581673
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_normal.png
-    TypeName: Cubemap
-  - Handle: 17670623079506732525
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_roughness.png
-    TypeName: Cubemap
-  - Handle: 12308015857972587464
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Normal.png
-    TypeName: Cubemap
-  - Handle: 484834172219663736
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_diffuse.png
-    TypeName: Cubemap
-  - Handle: 11402063648453150167
-    RelativeFilePath: Models\Sponza_FBX\VasePlant_diffuse.png
+  - Handle: 16063510999894394276
+    RelativeFilePath: Models\Sponza\textures\sponza_fabric_green_diff.tga
     TypeName: Texture2D
-  - Handle: 2989573938652060607
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_roughness.png
-    TypeName: Cubemap
-  - Handle: 4416258146766012222
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_diffuse.png
+  - Handle: 14496213950408413189
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_normal.png
     TypeName: Texture2D
-  - Handle: 10297028633217115343
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_diffuse.png
-    TypeName: Cubemap
-  - Handle: 5287678369537449338
+  - Handle: 11122808494781086540
+    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_normal.png
+    TypeName: Texture2D
+  - Handle: 4629177419294961792
+    RelativeFilePath: Models\Sponza_FBX\Lion_Roughness.png
+    TypeName: Texture2D
+  - Handle: 16235016055764223453
+    RelativeFilePath: Models\Sponza\textures\sponza_details_ddn.tga
+    TypeName: Texture2D
+  - Handle: 647645346173957536
+    RelativeFilePath: Models\Sponza\textures\vase_plant.tga
+    TypeName: Texture2D
+  - Handle: 9929745990515920191
+    RelativeFilePath: Models\Sponza\textures\sponza_details_diff.tga
+    TypeName: Texture2D
+  - Handle: 9303703330985567661
     RelativeFilePath: Models\dancing-stormtrooper\temp_skin_2951_140733547266464_888834631.fbm\Stormtrooper_D.tga
     TypeName: Texture2D
-  - Handle: 13892521689392353098
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_metallic.png
-    TypeName: Cubemap
-  - Handle: 10474682025927910118
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_normal.png
-    TypeName: Cubemap
-  - Handle: 1250517916578165332
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_roughness.png
-    TypeName: Cubemap
-  - Handle: 16411993858637476663
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_roughness.png
-    TypeName: Cubemap
-  - Handle: 17806940907304705682
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_diffuse.png
-    TypeName: Cubemap
-  - Handle: 9062837415474435145
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_normal.png
-    TypeName: Cubemap
-  - Handle: 1699134125824735730
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_diffuse.png
-    TypeName: Cubemap
-  - Handle: 11088885069941937463
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_normal.png
-    TypeName: Cubemap
-  - Handle: 9962648936655691884
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_diffuse.png
-    TypeName: Cubemap
-  - Handle: 13373049176802875846
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_normal.png
-    TypeName: Cubemap
-  - Handle: 16704683631272835911
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_diffuse.png
-    TypeName: Cubemap
-  - Handle: 14590248410878315439
-    RelativeFilePath: Models\Sponza_FBX\VasePlant_diffuse.png
-    TypeName: Cubemap
-  - Handle: 9972798297597440185
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_normal.png
-    TypeName: Cubemap
-  - Handle: 5343878440831672820
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_normal.png
-    TypeName: Cubemap
-  - Handle: 2166447658245261581
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_normal.png
+  - Handle: 6609363294600567720
+    RelativeFilePath: Models\Sponza\textures\background_ddn.tga
     TypeName: Texture2D
-  - Handle: 140978689175786292
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_metallic.png
-    TypeName: Cubemap
-  - Handle: 18305466397109793482
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_diffuse.png
-    TypeName: Cubemap
-  - Handle: 13162303751461600029
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_normal.png
-    TypeName: Cubemap
-  - Handle: 10273307568240440972
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_roughness.png
-    TypeName: Cubemap
-  - Handle: 1145223322611047232
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_diffuse.png
-    TypeName: Cubemap
-  - Handle: 2383425462721005924
+  - Handle: 16258684108092351297
+    RelativeFilePath: Models\Sponza\textures\sponza_column_c_diff.tga
+    TypeName: Texture2D
+  - Handle: 11262137591896929089
+    RelativeFilePath: Models\Sponza\textures\sponza_column_a_ddn.tga
+    TypeName: Texture2D
+  - Handle: 6857458763517899570
     RelativeFilePath: Models\Sponza_FBX\VaseHanging_roughness.png
-    TypeName: Cubemap
-  - Handle: 10259866767523663114
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_roughness.png
-    TypeName: Cubemap
-  - Handle: 6936652535482700872
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_roughness.png
-    TypeName: Cubemap
-  - Handle: 13872416785035657158
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_diffuse.png
-    TypeName: Cubemap
-  - Handle: 13080412289496904812
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_normal.png
-    TypeName: Cubemap
-  - Handle: 21346443146369848
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_diffuse.png
-    TypeName: Cubemap
-  - Handle: 13998413499288011912
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_normal.png
-    TypeName: Cubemap
-  - Handle: 2028757456671028339
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_metallic.png
-    TypeName: Cubemap
-  - Handle: 5076023166393740933
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_diffuse.png
-    TypeName: Cubemap
-  - Handle: 15139938201701590318
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_normal.png
-    TypeName: Cubemap
-  - Handle: 2192752071540633601
-    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_diffuse.png
-    TypeName: Cubemap
-  - Handle: 4630660747065386080
-    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_normal.png
-    TypeName: Cubemap
-  - Handle: 11090008544032410085
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_diffuse.png
-    TypeName: Cubemap
-  - Handle: 10880009153671897564
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_normal.png
-    TypeName: Cubemap
-  - Handle: 13984148741896736898
-    RelativeFilePath: Models\TV\retrotv0319_Screen_NormalGL.png
-    TypeName: Cubemap
-  - Handle: 9607591885489211308
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_roughness.png
-    TypeName: Cubemap
-  - Handle: 6578773507194283681
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_normal.png
-    TypeName: Cubemap
-  - Handle: 1961330443833921136
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_roughness.png
-    TypeName: Cubemap
-  - Handle: 11707242828153007524
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_diffuse.png
-    TypeName: Cubemap
-  - Handle: 13606139681987118259
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_normal.png
-    TypeName: Cubemap
-  - Handle: 8228411868597037154
-    RelativeFilePath: Models\Sponza_FBX\VaseHanging_diffuse.png
-    TypeName: Cubemap
-  - Handle: 6776367211043273151
-    RelativeFilePath: Models\Sponza_FBX\VaseHanging_normal.png
-    TypeName: Cubemap
-  - Handle: 9810893990855844401
-    RelativeFilePath: Models\Sponza_FBX\VasePlant_normal.png
-    TypeName: Cubemap
-  - Handle: 11135934525502478861
-    RelativeFilePath: Models\Sponza_FBX\VasePlant_roughness.png
-    TypeName: Cubemap
-  - Handle: 3158456156678578497
-    RelativeFilePath: Models\Sponza_FBX\VaseRound_diffuse.png
-    TypeName: Cubemap
-  - Handle: 4521014980453103844
-    RelativeFilePath: Models\Sponza_FBX\VaseRound_normal.png
-    TypeName: Cubemap
-  - Handle: 15603675667657220960
-    RelativeFilePath: Models\Sponza_FBX\VaseRound_roughness.png
-    TypeName: Cubemap
-  - Handle: 2055068690511151369
-    RelativeFilePath: Models\Sponza_FBX\Vase_diffuse.png
-    TypeName: Cubemap
-  - Handle: 8063548084469025167
-    RelativeFilePath: Models\Sponza_FBX\Vase_normal.png
-    TypeName: Cubemap
-  - Handle: 6136649575736865980
-    RelativeFilePath: Models\Sponza_FBX\Vase_roughness.png
-    TypeName: Cubemap
-  - Handle: 5969895051208762545
-    RelativeFilePath: Models\TV\retrotv.obj
-    TypeName: Prefab
-  - Handle: 11064496874289682224
-    RelativeFilePath: Models\TV\retrotv0319_Main_AO.png
-    TypeName: Cubemap
-  - Handle: 18113379248859026265
-    RelativeFilePath: Models\TV\retrotv0319_Main_BaseColor.png
-    TypeName: Cubemap
-  - Handle: 18315766106988035324
-    RelativeFilePath: Models\TV\retrotv0319_Main_Metallic.png
-    TypeName: Cubemap
-  - Handle: 15835561169462146829
-    RelativeFilePath: Models\TV\retrotv0319_Main_NormalGL.png
-    TypeName: Cubemap
-  - Handle: 1766922157870182107
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_diffuse.png
     TypeName: Texture2D
-  - Handle: 13316813702714968635
-    RelativeFilePath: Models\TV\retrotv0319_Screen_AO.png
-    TypeName: Cubemap
-  - Handle: 13152591677831175089
-    RelativeFilePath: Models\TV\retrotv0319_Screen_BaseColor.png
-    TypeName: Cubemap
-  - Handle: 1395471114390323947
-    RelativeFilePath: Models\TV\retrotv0319_Screen_BaseColor_noise.png
-    TypeName: Cubemap
-  - Handle: 4507177544703425015
-    RelativeFilePath: Models\TV\retrotv0319_Screen_Metallic.png
-    TypeName: Cubemap
-  - Handle: 18207519059087667084
-    RelativeFilePath: Models\TV\retrotv0319_Screen_Roughness.png
-    TypeName: Cubemap
-  - Handle: 18349707519382125545
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_diffuse.png
+  - Handle: 14745675487375811064
+    RelativeFilePath: Models\Sponza\textures\lion.tga
     TypeName: Texture2D
-  - Handle: 1477474426081881106
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_normal.png
+  - Handle: 10980547985642785581
+    RelativeFilePath: Models\Sponza\textures\lion2_ddn.tga
     TypeName: Texture2D
-  - Handle: 3604582828601821444
-    RelativeFilePath: Models\Sponza_FBX\VaseRound_diffuse.png
+  - Handle: 14778078971597415203
+    RelativeFilePath: Models\Sponza\textures\lion_ddn.tga
     TypeName: Texture2D
-  - Handle: 16440323033031094257
-    RelativeFilePath: Models\Sponza_FBX\VaseRound_normal.png
+  - Handle: 1948342307543347412
+    RelativeFilePath: Models\Sponza\textures\spnza_bricks_a_ddn.tga
     TypeName: Texture2D
-  - Handle: 3038929842250683666
-    RelativeFilePath: Models\Sponza_FBX\Background_Albedo.png
+  - Handle: 4070955642820953055
+    RelativeFilePath: Models\Sponza\textures\spnza_bricks_a_diff.tga
     TypeName: Texture2D
-  - Handle: 2244054813706304749
-    RelativeFilePath: Models/Capoeira.fbx
-    TypeName: Prefab
-  - Handle: 16601043994233557870
-    RelativeFilePath: Models\Sponza_FBX\Background_Normal.png
+  - Handle: 2829427477339553391
+    RelativeFilePath: Models\Sponza\textures\sponza_curtain_ddn.tga
     TypeName: Texture2D
-  - Handle: 7622701240297400144
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Albedo.png
+  - Handle: 3409690520397006366
+    RelativeFilePath: Models\Sponza\textures\sponza_arch_ddn.tga
     TypeName: Texture2D
-  - Handle: 2808665000138106026
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Normal.png
+  - Handle: 10231427261715773245
+    RelativeFilePath: Models\Sponza\textures\sponza_arch_diff.tga
     TypeName: Texture2D
-  - Handle: 14482668436907005106
-    RelativeFilePath: Models\Sponza_FBX\Vase_normal.png
+  - Handle: 4745701120625455696
+    RelativeFilePath: Models\Sponza\textures\sponza_roof_diff.tga
     TypeName: Texture2D
-  - Handle: 6538988458972970276
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_diffuse.png
+  - Handle: 17456937927827535487
+    RelativeFilePath: Models\Sponza\textures\sponza_ceiling_a_ddn.tga
     TypeName: Texture2D
-  - Handle: 791312181873550779
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_normal.png
+  - Handle: 15976908522159394137
+    RelativeFilePath: Models\Sponza\textures\sponza_column_a_diff.tga
     TypeName: Texture2D
-  - Handle: 9153154984057430182
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_diffuse.png
+  - Handle: 4717143785396392524
+    RelativeFilePath: Models\Sponza\textures\sponza_fabric_diff.tga
     TypeName: Texture2D
-  - Handle: 17459091050264811916
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_normal.png
+  - Handle: 12802462336538986516
+    RelativeFilePath: Models\Sponza\textures\sponza_column_b_ddn.tga
     TypeName: Texture2D
-  - Handle: 697183205140294819
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_diffuse.png
-    TypeName: Texture2D
-  - Handle: 6247600073588958448
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_normal.png
-    TypeName: Texture2D
-  - Handle: 13568520112737623084
-    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_diffuse.png
-    TypeName: Texture2D
-  - Handle: 2192644068441048713
+  - Handle: 9578710278946076207
     RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_diffuse.png
     TypeName: Texture2D
-  - Handle: 14076742173051950717
-    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_normal.png
-    TypeName: Texture2D
-  - Handle: 932665620267081208
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_diffuse.png
-    TypeName: Texture2D
-  - Handle: 6489011556857155553
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_diffuse.png
-    TypeName: Texture2D
-  - Handle: 18270972548591378334
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_normal.png
-    TypeName: Texture2D
-  - Handle: 5880627302418612611
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_normal.png
-    TypeName: Texture2D
-  - Handle: 8360610415067994408
-    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Albedo.png
-    TypeName: Texture2D
-  - Handle: 5899030268327208481
+  - Handle: 13635968524641211406
     RelativeFilePath: Models\Sponza_FBX\ChainTexture_Normal.png
     TypeName: Texture2D
-  - Handle: 14114831775854681742
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_diffuse.png
+  - Handle: 11587490645872172729
+    RelativeFilePath: Models\Sponza\textures\sponza_column_b_diff.tga
     TypeName: Texture2D
-  - Handle: 11748493034148570535
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_normal.png
+  - Handle: 13363317679150033989
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_normal.png
     TypeName: Texture2D
-  - Handle: 16825707077234637579
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_diffuse.png
+  - Handle: 16897426326840292692
+    RelativeFilePath: Models\Sponza\textures\sponza_flagpole_diff.tga
     TypeName: Texture2D
-  - Handle: 8633099304909062738
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_normal.png
+  - Handle: 18382592813012827669
+    RelativeFilePath: Models\Sponza\textures\sponza_column_c_ddn.tga
     TypeName: Texture2D
-  - Handle: 64307882821131909
-    RelativeFilePath: Models\Sponza_FBX\VaseHanging_diffuse.png
+  - Handle: 9119122350211232378
+    RelativeFilePath: Models\Sponza\textures\vase_dif.tga
     TypeName: Texture2D
-  - Handle: 11370751736325219116
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_normal.png
+  - Handle: 3101236306428977119
+    RelativeFilePath: Models\Sponza\textures\sponza_curtain_blue_diff.tga
     TypeName: Texture2D
-  - Handle: 4113081956198244448
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_normal.png
-    TypeName: Texture2D
-  - Handle: 8075764978194875282
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_diffuse.png
-    TypeName: Texture2D
-  - Handle: 11567843966367176305
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_normal.png
-    TypeName: Texture2D
-  - Handle: 801526164742720529
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_diffuse.png
-    TypeName: Texture2D
-  - Handle: 16521981937653247295
-    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_normal.png
-    TypeName: Texture2D
-  - Handle: 14612068488247624094
-    RelativeFilePath: Models\Sponza_FBX\Lion_Albedo.png
-    TypeName: Texture2D
-  - Handle: 16575822145054170669
+  - Handle: 7325815062951544716
     RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_diffuse.png
     TypeName: Texture2D
-  - Handle: 17599468382142877225
-    RelativeFilePath: Models/UniEngine.obj
+  - Handle: 4754125879160137895
+    RelativeFilePath: Models\Sponza\textures\sponza_curtain_diff.tga
+    TypeName: Texture2D
+  - Handle: 12813334738169886372
+    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_roughness.png
+    TypeName: Texture2D
+  - Handle: 2175850995580154
+    RelativeFilePath: Models\Sponza\textures\sponza_fabric_ddn.tga
+    TypeName: Texture2D
+  - Handle: 15853448335557319949
+    RelativeFilePath: Models\Sponza\textures\sponza_curtain_green_diff.tga
+    TypeName: Texture2D
+  - Handle: 3071034186798161515
+    RelativeFilePath: Models\Sponza\textures\sponza_fabric_blue_diff.tga
+    TypeName: Texture2D
+  - Handle: 8339675967829026930
+    RelativeFilePath: Models\Sponza\textures\sponza_flagpole_ddn.tga
+    TypeName: Texture2D
+  - Handle: 5741698808728495257
+    RelativeFilePath: Models\Sponza\textures\sponza_floor_a_ddn.tga
+    TypeName: Texture2D
+  - Handle: 3383290529982707729
+    RelativeFilePath: Models\Sponza\textures\sponza_floor_a_diff.tga
+    TypeName: Texture2D
+  - Handle: 16733474059488438380
+    RelativeFilePath: Models\Sponza\textures\sponza_thorn_ddn.tga
+    TypeName: Texture2D
+  - Handle: 2998359674596120828
+    RelativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
+    TypeName: Texture2D
+  - Handle: 6270401653015458644
+    RelativeFilePath: Models\Sponza\textures\vase_ddn.tga
+    TypeName: Texture2D
+  - Handle: 5261124003629419831
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_diffuse.png
+    TypeName: Texture2D
+  - Handle: 18153000840024390592
+    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Metallic.png
+    TypeName: Texture2D
+  - Handle: 7819808040140742227
+    RelativeFilePath: Models\Sponza\textures\vase_hanging.tga
+    TypeName: Texture2D
+  - Handle: 18143371521106301363
+    RelativeFilePath: Models\Sponza_FBX\ChainTexture_Albedo.png
+    TypeName: Texture2D
+  - Handle: 813510521614258067
+    RelativeFilePath: Models\Sponza\textures\vase_hanging_ddn.tga
+    TypeName: Texture2D
+  - Handle: 2185607709845321806
+    RelativeFilePath: Models\Sponza_FBX\Metallic_metallic.png
+    TypeName: Texture2D
+  - Handle: 5485673426049705386
+    RelativeFilePath: Models\Sponza\textures\vase_round_ddn.tga
+    TypeName: Texture2D
+  - Handle: 1347193008884373120
+    RelativeFilePath: Models\Sponza_FBX\Background_Albedo.png
+    TypeName: Texture2D
+  - Handle: 13318336795117116638
+    RelativeFilePath: Models\Sponza_FBX\Dielectric_metallic.png
+    TypeName: Texture2D
+  - Handle: 8146343554785943931
+    RelativeFilePath: Models\Sponza_FBX\Background_Normal.png
+    TypeName: Texture2D
+  - Handle: 13097076932764533311
+    RelativeFilePath: Models\Sponza_FBX\Sponza.fbx
     TypeName: Prefab
+  - Handle: 15618112609489463861
+    RelativeFilePath: Models\Sponza_FBX\Background_Roughness.png
+    TypeName: Texture2D
+  - Handle: 6730697631223142916
+    RelativeFilePath: Models\Sponza_FBX\gi_flag.png
+    TypeName: Texture2D
+  - Handle: 2805703377142304829
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_diffuse.png
+    TypeName: Texture2D
+  - Handle: 5068621624458702156
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_normal.png
+    TypeName: Texture2D
+  - Handle: 14724797119689813928
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Arch_roughness.png
+    TypeName: Texture2D
+  - Handle: 10180238241255826615
+    RelativeFilePath: Models\Sponza_FBX\Vase_diffuse.png
+    TypeName: Texture2D
+  - Handle: 12734391921597271356
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Albedo.png
+    TypeName: Texture2D
+  - Handle: 10841568606922185840
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Normal.png
+    TypeName: Texture2D
+  - Handle: 9168164717618179125
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Bricks_a_Roughness.png
+    TypeName: Texture2D
+  - Handle: 17682768155345516253
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_diffuse.png
+    TypeName: Texture2D
+  - Handle: 16402087780079996634
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_normal.png
+    TypeName: Texture2D
+  - Handle: 17937893738037574297
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Ceiling_roughness.png
+    TypeName: Texture2D
+  - Handle: 11896800103415963401
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_diffuse.png
+    TypeName: Texture2D
+  - Handle: 3257676504056552023
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_normal.png
+    TypeName: Texture2D
+  - Handle: 6002124899973991071
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_a_roughness.png
+    TypeName: Texture2D
+  - Handle: 6715744118820508711
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_normal.png
+    TypeName: Texture2D
+  - Handle: 17781404842333537980
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_b_roughness.png
+    TypeName: Texture2D
+  - Handle: 1126647780873444462
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_diffuse.png
+    TypeName: Texture2D
+  - Handle: 14484517666753734175
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_diffuse.png
+    TypeName: Texture2D
+  - Handle: 13710757015809356440
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_normal.png
+    TypeName: Texture2D
+  - Handle: 7345567224654995960
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Column_c_roughness.png
+    TypeName: Texture2D
+  - Handle: 5557403415335214331
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_diffuse.png
+    TypeName: Texture2D
+  - Handle: 18443231876448481509
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Blue_normal.png
+    TypeName: Texture2D
+  - Handle: 8532162740950443826
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Green_normal.png
+    TypeName: Texture2D
+  - Handle: 15267096819572799385
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_metallic.png
+    TypeName: Texture2D
+  - Handle: 5040233303828884843
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_Red_diffuse.png
+    TypeName: Texture2D
+  - Handle: 2503985304479334723
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Curtain_roughness.png
+    TypeName: Texture2D
+  - Handle: 10431965765288147653
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_metallic.png
+    TypeName: Texture2D
+  - Handle: 4668961935764147264
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_normal.png
+    TypeName: Texture2D
+  - Handle: 7725262287582726102
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Details_roughness.png
+    TypeName: Texture2D
+  - Handle: 13604309758300751058
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Blue_normal.png
+    TypeName: Texture2D
+  - Handle: 5483757264907145934
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_diffuse.png
+    TypeName: Texture2D
+  - Handle: 13319903508419096073
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Green_normal.png
+    TypeName: Texture2D
+  - Handle: 12564925747424958512
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_metallic.png
+    TypeName: Texture2D
+  - Handle: 15922659861884953583
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_diffuse.png
+    TypeName: Texture2D
+  - Handle: 11096779785133596961
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_Red_normal.png
+    TypeName: Texture2D
+  - Handle: 3429276562010583705
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Fabric_roughness.png
+    TypeName: Texture2D
+  - Handle: 6304582501925369076
+    RelativeFilePath: Models\Sponza_FBX\Sponza_FlagPole_diffuse.png
+    TypeName: Texture2D
+  - Handle: 11560495244469557220
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_normal.png
+    TypeName: Texture2D
+  - Handle: 6950587728263518448
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Floor_roughness.png
+    TypeName: Texture2D
+  - Handle: 15110868527367237538
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_normal.png
+    TypeName: Texture2D
+  - Handle: 5469430514049591329
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Roof_roughness.png
+    TypeName: Texture2D
+  - Handle: 5879785538000865401
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_diffuse.png
+    TypeName: Texture2D
+  - Handle: 6951776384146245578
+    RelativeFilePath: Models\Sponza_FBX\Sponza_Thorn_roughness.png
+    TypeName: Texture2D
+  - Handle: 12804403412757603357
+    RelativeFilePath: Models\Sponza_FBX\VaseHanging_diffuse.png
+    TypeName: Texture2D
+  - Handle: 3463444168018160139
+    RelativeFilePath: Models\Sponza_FBX\VaseHanging_normal.png
+    TypeName: Texture2D
+  - Handle: 4575019630103778787
+    RelativeFilePath: Models\Sponza_FBX\VasePlant_diffuse.png
+    TypeName: Texture2D
+  - Handle: 4139872382049482609
+    RelativeFilePath: Models\Sponza_FBX\VasePlant_normal.png
+    TypeName: Texture2D
+  - Handle: 11311662197061467123
+    RelativeFilePath: Models\Sponza_FBX\VaseRound_diffuse.png
+    TypeName: Texture2D
+  - Handle: 10345252180436303307
+    RelativeFilePath: Models\Sponza_FBX\VaseRound_normal.png
+    TypeName: Texture2D
+  - Handle: 8244493909867584991
+    RelativeFilePath: Models\Sponza_FBX\VaseRound_roughness.png
+    TypeName: Texture2D
+  - Handle: 2894633188050603216
+    RelativeFilePath: Models\Sponza_FBX\Vase_normal.png
+    TypeName: Texture2D
+  - Handle: 4814291363100928231
+    RelativeFilePath: Models\Sponza_FBX\Vase_roughness.png
+    TypeName: Texture2D

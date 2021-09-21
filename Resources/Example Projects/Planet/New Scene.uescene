@@ -2,7 +2,7 @@ m_name: New Scene
 Scene: New Scene
 EntityInfos:
   - Name: Main Camera
-    Handle: 2046891962780436299
+    Handle: 4686561011413720658
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -29,7 +29,7 @@ EntityInfos:
       - TypeName: PostProcessing
         Enabled: true
   - Name: Planet 1
-    Handle: 14296405168413575665
+    Handle: 2018957353755955317
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -46,10 +46,10 @@ EntityInfos:
           Index: 0
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 16570743615331006176
           m_assetTypeName: Material
   - Name: Planet 2
-    Handle: 1067829141746641725
+    Handle: 3335055040922250223
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -66,10 +66,10 @@ EntityInfos:
           Index: 1
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 16570743615331006176
           m_assetTypeName: Material
   - Name: Planet 3
-    Handle: 4184163129470202561
+    Handle: 10825132973563292038
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -86,10 +86,10 @@ EntityInfos:
           Index: 2
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 16570743615331006176
           m_assetTypeName: Material
   - Name: Directional Light 1
-    Handle: 4572483012097769765
+    Handle: 2525493080942108296
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -106,7 +106,7 @@ EntityInfos:
         m_lightSize: 0.00999999978
         m_normalOffset: 0.00100000005
   - Name: Point Light 1
-    Handle: 13084873672453321423
+    Handle: 8177332308916249207
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -123,7 +123,7 @@ EntityInfos:
           m_assetHandle: 21
           m_assetTypeName: Mesh
         m_material:
-          m_assetHandle: 18338167872729261410
+          m_assetHandle: 18247106205836985927
           m_assetTypeName: Material
       - TypeName: PointLight
         Enabled: true
@@ -136,7 +136,7 @@ EntityInfos:
         m_diffuseBrightness: 5
         m_lightSize: 0.100000001
   - Name: Point Light 2
-    Handle: 3268696936047014410
+    Handle: 9810921409764513091
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -163,17 +163,17 @@ EntityInfos:
           m_assetHandle: 21
           m_assetTypeName: Mesh
         m_material:
-          m_assetHandle: 18338167872729261410
+          m_assetHandle: 18247106205836985927
           m_assetTypeName: Material
 Systems:
   - TypeName: PhysicsSystem
     Enabled: true
     Rank: 1
-    Handle: 174742752887850648
+    Handle: 7375126604616143108
   - TypeName: PlanetTerrainSystem
     Enabled: true
     Rank: 1
-    Handle: 17028116151162506910
+    Handle: 18270256792484269553
 DataComponentStorages:
   - EntitySize: 129
     ChunkCapacity: 127
@@ -197,11 +197,11 @@ DataComponentStorages:
 Entities: !!binary "AAAAAAAAAAABAAAAAQAAAAIAAAABAAAAAwAAAAEAAAAEAAAAAQAAAAUAAAABAAAABgAAAAEAAAAHAAAAAQAAAA=="
 LocalAssets:
   - TypeName: Material
-    Handle: 18338167872729261410
+    Handle: 16570743615331006176
     Name: New Material
     m_albedoTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
+      m_assetHandle: 3327099408446377081
+      m_assetTypeName: Texture2D
     m_normalTexture:
       m_assetHandle: 0
       m_assetTypeName: ""
@@ -225,11 +225,11 @@ LocalAssets:
     m_alphaDiscardEnabled: true
     m_alphaDiscardOffset: 0.100000001
   - TypeName: Material
-    Handle: 6772794520594257077
+    Handle: 18247106205836985927
     Name: New Material
     m_albedoTexture:
-      m_assetHandle: 18016785182989340294
-      m_assetTypeName: Texture2D
+      m_assetHandle: 0
+      m_assetTypeName: ""
     m_normalTexture:
       m_assetHandle: 0
       m_assetTypeName: ""

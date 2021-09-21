@@ -51,6 +51,7 @@ class UNIENGINE_API Project : public ISerializable
 class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 {
     friend class AssetManager;
+    friend class EditorManager;
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;
     std::optional<std::function<void()>> m_newSceneCustomizer;

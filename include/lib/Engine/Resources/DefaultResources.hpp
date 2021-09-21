@@ -17,7 +17,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
 {
     static void LoadShaders();
     static void LoadPrimitives();
-
+    static void LoadIcons();
     static void LoadRenderManagerResources();
     static void LoadEditorManagerResources();
     static void PrepareBrdfLut();

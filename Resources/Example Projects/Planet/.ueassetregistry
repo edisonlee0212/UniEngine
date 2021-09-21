@@ -1,10 +1,7 @@
 AssetRecords:
-  - Handle: 3898288497125659120
+  - Handle: 7848918918311938670
     RelativeFilePath: New Scene.uescene
     TypeName: Scene
-  - Handle: 7322342515271418124
+  - Handle: 3327099408446377081
     RelativeFilePath: Textures\border.png
-    TypeName: Cubemap
-  - Handle: 18016785182989340294
-    RelativeFilePath: Textures/border.png
     TypeName: Texture2D

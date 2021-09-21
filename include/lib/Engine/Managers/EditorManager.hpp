@@ -20,7 +20,9 @@ enum EntityEditorSystemConfigFlags
 class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 {
     friend class ClassRegistry;
-
+    friend class DefaultResources;
+    friend class ProjectManager;
+    std::map<std::string, std::shared_ptr<Texture2D>> m_assetsIcons;
     EntityArchetype m_basicEntityArchetype;
     bool m_enabled = false;
     std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;

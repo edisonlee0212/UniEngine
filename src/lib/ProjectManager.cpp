@@ -39,8 +39,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         LoadAssetRegistry();
         auto sceneHandle = projectManager.m_currentProject->m_startScene.GetAssetHandle();
         auto sceneRecord = projectManager.m_assetRegistry->m_assetRecords[sceneHandle];
-        scene = AssetManager::CreateAsset<Scene>(sceneHandle, sceneRecord.m_name);
-        scene->SetPathAndLoad(sceneRecord.m_relativeFilePath);
+        scene = std::dynamic_pointer_cast<Scene>(AssetManager::Get(sceneHandle));
         EntityManager::Attach(scene);
         UNIENGINE_LOG("Found and loaded project");
     }
@@ -232,69 +231,19 @@ void ProjectManager::OnInspect()
         ImGui::EndMainMenuBar();
     }
 
-    if (ImGui::Begin("Project"))
-    {
-        ImGui::Text("Parent folder:");
-        auto parentFolder = projectManager.m_currentFocusedFolder->m_parent;
-        bool updated = false;
-        if (parentFolder)
-        {
-            ImGui::Button(parentFolder->m_name.c_str());
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-            {
-                projectManager.m_currentFocusedFolder = parentFolder;
-                updated = true;
-            }
-        }
-        if (!updated)
-        {
-            ImGui::Text("Child folders:");
-            for (auto &i : projectManager.m_currentFocusedFolder->m_children)
-            {
-                ImGui::Button(i.second->m_name.c_str());
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                {
-                    projectManager.m_currentFocusedFolder = i.second;
-                    updated = true;
-                    break;
-                }
-            }
-        }
-        if (!updated)
-        {
-            ImGui::Text("Files in current folder:");
-            for (auto &i : projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords)
-            {
-                ImGui::Button(i.second.m_relativeFilePath.filename().string().c_str());
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-                {
-                    const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
-                    ImGui::SetDragDropPayload(i.second.m_typeName.c_str(), &i.first, sizeof(Handle));
-                    /*if (ptr->m_icon)
-                        ImGui::Image(
-                            reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
-                            ImVec2(30, 30),
-                            ImVec2(0, 1),
-                            ImVec2(1, 0));
-                    else
-                     */
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second.m_name + tag).c_str());
-                    ImGui::EndDragDropSource();
-                }
-            }
-        }
-    }
-    ImGui::End();
+
 }
-void ProjectManager::Init(const std::filesystem::path& projectPath)
+void ProjectManager::Init(const std::filesystem::path &projectPath)
 {
     auto &projectManager = GetInstance();
-    if(projectPath.empty())
+    if (projectPath.empty())
     {
         std::filesystem::path path =
             std::filesystem::path(".\\temp") / "Projects" / std::to_string(Handle().GetValue()) / "New Project.ueproj";
         CreateOrLoadProject(path);
-    }else{
+    }
+    else
+    {
         CreateOrLoadProject(projectPath);
     }
 }
@@ -364,21 +313,19 @@ void ProjectManager::FolderMetadataUpdater(const std::filesystem::path &folderPa
                 {
                     assetRecord.m_typeName = "Binary";
                 }
+                auto relativePath = GetRelativePath(entry.path());
                 if (isAsset)
                 {
-                    auto assetRegistrySearch = assetRegistry->m_fileMap.find(entry.path().string());
-                    if (assetRegistrySearch != assetRegistry->m_fileMap.end())
-                    {
-                        fileHandle = assetRegistrySearch->second;
-                    }
-                    else
-                    {
-                        assetRegistry->m_fileMap[entry.path().string()] = fileHandle;
+                    auto fileSearch = assetRegistry->m_fileMap.find(relativePath.string());
+                    if(fileSearch != assetRegistry->m_fileMap.end()){
+                        fileHandle = fileSearch->second;
+                    }else{
+                        assetRegistry->m_fileMap[relativePath.string()] = fileHandle;
                         assetRegistry->m_assetRecords[fileHandle] = assetRecord;
                         assetRegistry->m_needUpdate = true;
                     }
                 }
-                folderMetadata.m_fileMap[entry.path().string()] = fileHandle;
+                folderMetadata.m_fileMap[relativePath.string()] = fileHandle;
                 folderMetadata.m_fileRecords[fileHandle] = assetRecord;
                 metadataUpdated = true;
             }
@@ -397,7 +344,8 @@ bool ProjectManager::IsInProjectFolder(const std::filesystem::path &target)
     auto it = std::search(target.begin(), target.end(), projectFolderPath.begin(), projectFolderPath.end());
     return it != target.end();
 }
-std::filesystem::path ProjectManager::GetRelativePath(const std::filesystem::path &target){
+std::filesystem::path ProjectManager::GetRelativePath(const std::filesystem::path &target)
+{
     auto &projectManager = GetInstance();
     return std::filesystem::relative(target, projectManager.m_projectPath.parent_path());
 }

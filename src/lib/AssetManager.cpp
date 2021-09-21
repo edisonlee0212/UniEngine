@@ -40,6 +40,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
         auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
         retVal->SetPath(search2->second.m_relativeFilePath);
         retVal->Load();
+        assetManager.m_assets[handle] = retVal;
         return retVal;
     }
     return nullptr;
@@ -74,6 +75,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const Handle &handle)
         auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
         retVal->SetPath(search2->second.m_relativeFilePath);
         retVal->Load();
+        assetManager.m_assets[handle] = retVal;
         return retVal;
     }
     return nullptr;
@@ -130,7 +132,10 @@ std::shared_ptr<OpenGLUtils::GLProgram> AssetManager::LoadProgram(
     retVal->Link();
     return retVal;
 }
-
+bool AssetManager::IsAsset(const std::string& typeName)
+{
+    return GetInstance().m_defaultExtensions.find(typeName) != GetInstance().m_defaultExtensions.end();
+}
 void AssetManager::OnInspect()
 {
     auto &resourceManager = GetInstance();

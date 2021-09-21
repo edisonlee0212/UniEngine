@@ -1,181 +1,181 @@
 m_fileRecords:
-  - Handle: 17495561180080815128
-    m_name: vase_ddn
-    m_relativeFilePath: Models\Sponza\textures\vase_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 12755803355029881710
-    m_name: background
-    m_relativeFilePath: Models\Sponza\textures\background.tga
-    m_typeName: Texture2D
-  - Handle: 9584016524362031909
-    m_name: lion2_ddn
-    m_relativeFilePath: Models\Sponza\textures\lion2_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 3793320526639945400
-    m_name: background_ddn
-    m_relativeFilePath: Models\Sponza\textures\background_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 17765281367364016489
-    m_name: chain_texture_ddn
-    m_relativeFilePath: Models\Sponza\textures\chain_texture_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 1668218851451358868
+  - Handle: 10816349135134983117
     m_name: chain_texture
     m_relativeFilePath: Models\Sponza\textures\chain_texture.tga
     m_typeName: Texture2D
-  - Handle: 13115440225718132543
-    m_name: lion
-    m_relativeFilePath: Models\Sponza\textures\lion.tga
+  - Handle: 15918409316395941353
+    m_name: chain_texture_ddn
+    m_relativeFilePath: Models\Sponza\textures\chain_texture_ddn.tga
     m_typeName: Texture2D
-  - Handle: 7118521007897538218
-    m_name: lion_ddn
-    m_relativeFilePath: Models\Sponza\textures\lion_ddn.tga
+  - Handle: 8825269706193700569
+    m_name: background
+    m_relativeFilePath: Models\Sponza\textures\background.tga
     m_typeName: Texture2D
-  - Handle: 6254803921490134596
-    m_name: spnza_bricks_a_ddn
-    m_relativeFilePath: Models\Sponza\textures\spnza_bricks_a_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 9471015015823245115
-    m_name: sponza_details_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_details_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 985868222064278252
-    m_name: sponza_curtain_blue_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_blue_diff.tga
-    m_typeName: Texture2D
-  - Handle: 1543135170160068257
-    m_name: spnza_bricks_a_diff
-    m_relativeFilePath: Models\Sponza\textures\spnza_bricks_a_diff.tga
-    m_typeName: Texture2D
-  - Handle: 13046744676267147431
-    m_name: sponza_curtain_green_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_green_diff.tga
-    m_typeName: Texture2D
-  - Handle: 8263312135555747218
-    m_name: sponza_column_a_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_column_a_diff.tga
-    m_typeName: Texture2D
-  - Handle: 3863699847293684676
-    m_name: sponza_arch_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_arch_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 5965301274565172743
-    m_name: sponza_column_a_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_column_a_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 15569325536669065279
-    m_name: sponza_arch_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_arch_diff.tga
-    m_typeName: Texture2D
-  - Handle: 6046913496590909411
-    m_name: sponza_thorn_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_thorn_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 561562936464681492
-    m_name: sponza_ceiling_a_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_ceiling_a_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 2539901965556261390
-    m_name: vase_plant
-    m_relativeFilePath: Models\Sponza\textures\vase_plant.tga
-    m_typeName: Texture2D
-  - Handle: 14378000930080904196
-    m_name: sponza_roof_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_roof_diff.tga
-    m_typeName: Texture2D
-  - Handle: 14966496079533336106
-    m_name: sponza_ceiling_a_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_ceiling_a_diff.tga
-    m_typeName: Texture2D
-  - Handle: 6332741155401827898
-    m_name: sponza_column_b_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_column_b_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 2523340729311116807
-    m_name: sponza_curtain_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 7879926452984169986
-    m_name: sponza_column_b_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_column_b_diff.tga
-    m_typeName: Texture2D
-  - Handle: 316815680504520378
-    m_name: sponza_roof_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_roof_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 6850146036554065018
-    m_name: sponza_column_c_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_column_c_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 10853583101311630162
-    m_name: vase_round
-    m_relativeFilePath: Models\Sponza\textures\vase_round.tga
-    m_typeName: Texture2D
-  - Handle: 3426316229554555957
+  - Handle: 16258684108092351297
     m_name: sponza_column_c_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_column_c_diff.tga
     m_typeName: Texture2D
-  - Handle: 7704325537980944769
-    m_name: sponza_floor_a_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_floor_a_ddn.tga
+  - Handle: 6609363294600567720
+    m_name: background_ddn
+    m_relativeFilePath: Models\Sponza\textures\background_ddn.tga
     m_typeName: Texture2D
-  - Handle: 14142080375844040174
-    m_name: sponza_curtain_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_diff.tga
+  - Handle: 1948342307543347412
+    m_name: spnza_bricks_a_ddn
+    m_relativeFilePath: Models\Sponza\textures\spnza_bricks_a_ddn.tga
     m_typeName: Texture2D
-  - Handle: 3670722559519699963
-    m_name: sponza_details_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_details_diff.tga
+  - Handle: 11262137591896929089
+    m_name: sponza_column_a_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_column_a_ddn.tga
     m_typeName: Texture2D
-  - Handle: 8329896249611249930
-    m_name: sponza_fabric_blue_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_blue_diff.tga
+  - Handle: 14745675487375811064
+    m_name: lion
+    m_relativeFilePath: Models\Sponza\textures\lion.tga
     m_typeName: Texture2D
-  - Handle: 16947430495174270574
-    m_name: sponza_fabric_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_ddn.tga
+  - Handle: 10980547985642785581
+    m_name: lion2_ddn
+    m_relativeFilePath: Models\Sponza\textures\lion2_ddn.tga
     m_typeName: Texture2D
-  - Handle: 6452050101365926749
+  - Handle: 14778078971597415203
+    m_name: lion_ddn
+    m_relativeFilePath: Models\Sponza\textures\lion_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 4070955642820953055
+    m_name: spnza_bricks_a_diff
+    m_relativeFilePath: Models\Sponza\textures\spnza_bricks_a_diff.tga
+    m_typeName: Texture2D
+  - Handle: 2829427477339553391
+    m_name: sponza_curtain_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 3409690520397006366
+    m_name: sponza_arch_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_arch_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 10231427261715773245
+    m_name: sponza_arch_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_arch_diff.tga
+    m_typeName: Texture2D
+  - Handle: 4745701120625455696
+    m_name: sponza_roof_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_roof_diff.tga
+    m_typeName: Texture2D
+  - Handle: 17456937927827535487
+    m_name: sponza_ceiling_a_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_ceiling_a_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 4218805913492885160
+    m_name: vase_round
+    m_relativeFilePath: Models\Sponza\textures\vase_round.tga
+    m_typeName: Texture2D
+  - Handle: 17776021411836671244
+    m_name: sponza_ceiling_a_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_ceiling_a_diff.tga
+    m_typeName: Texture2D
+  - Handle: 15976908522159394137
+    m_name: sponza_column_a_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_column_a_diff.tga
+    m_typeName: Texture2D
+  - Handle: 4717143785396392524
     m_name: sponza_fabric_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_fabric_diff.tga
     m_typeName: Texture2D
-  - Handle: 6405081443073161184
-    m_name: sponza_fabric_green_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_green_diff.tga
+  - Handle: 12802462336538986516
+    m_name: sponza_column_b_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_column_b_ddn.tga
     m_typeName: Texture2D
-  - Handle: 14063442120178008222
-    m_name: vase_round_ddn
-    m_relativeFilePath: Models\Sponza\textures\vase_round_ddn.tga
+  - Handle: 11587490645872172729
+    m_name: sponza_column_b_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_column_b_diff.tga
     m_typeName: Texture2D
-  - Handle: 2963537629317129020
-    m_name: sponza_flagpole_ddn
-    m_relativeFilePath: Models\Sponza\textures\sponza_flagpole_ddn.tga
-    m_typeName: Texture2D
-  - Handle: 4132343061811909541
+  - Handle: 16897426326840292692
     m_name: sponza_flagpole_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_flagpole_diff.tga
     m_typeName: Texture2D
-  - Handle: 3993239662594801124
-    m_name: sponza_floor_a_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_floor_a_diff.tga
+  - Handle: 18382592813012827669
+    m_name: sponza_column_c_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_column_c_ddn.tga
     m_typeName: Texture2D
-  - Handle: 4376363868327137167
-    m_name: sponza_thorn_diff
-    m_relativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
-    m_typeName: Texture2D
-  - Handle: 9282778851638667923
-    m_name: Thumbs
-    m_relativeFilePath: Models\Sponza\textures\Thumbs.db
-    m_typeName: Binary
-  - Handle: 15453153693104690608
-    m_name: vase_hanging
-    m_relativeFilePath: Models\Sponza\textures\vase_hanging.tga
-    m_typeName: Texture2D
-  - Handle: 6410100422535590702
+  - Handle: 9119122350211232378
     m_name: vase_dif
     m_relativeFilePath: Models\Sponza\textures\vase_dif.tga
     m_typeName: Texture2D
-  - Handle: 5329455788323612250
+  - Handle: 3101236306428977119
+    m_name: sponza_curtain_blue_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_blue_diff.tga
+    m_typeName: Texture2D
+  - Handle: 4754125879160137895
+    m_name: sponza_curtain_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_diff.tga
+    m_typeName: Texture2D
+  - Handle: 2175850995580154
+    m_name: sponza_fabric_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 15853448335557319949
+    m_name: sponza_curtain_green_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_curtain_green_diff.tga
+    m_typeName: Texture2D
+  - Handle: 647645346173957536
+    m_name: vase_plant
+    m_relativeFilePath: Models\Sponza\textures\vase_plant.tga
+    m_typeName: Texture2D
+  - Handle: 9929745990515920191
+    m_name: sponza_details_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_details_diff.tga
+    m_typeName: Texture2D
+  - Handle: 16235016055764223453
+    m_name: sponza_details_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_details_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 3071034186798161515
+    m_name: sponza_fabric_blue_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_blue_diff.tga
+    m_typeName: Texture2D
+  - Handle: 16063510999894394276
+    m_name: sponza_fabric_green_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_fabric_green_diff.tga
+    m_typeName: Texture2D
+  - Handle: 8339675967829026930
+    m_name: sponza_flagpole_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_flagpole_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 5741698808728495257
+    m_name: sponza_floor_a_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_floor_a_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 3383290529982707729
+    m_name: sponza_floor_a_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_floor_a_diff.tga
+    m_typeName: Texture2D
+  - Handle: 11786824410169665389
+    m_name: sponza_roof_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_roof_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 16733474059488438380
+    m_name: sponza_thorn_ddn
+    m_relativeFilePath: Models\Sponza\textures\sponza_thorn_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 2998359674596120828
+    m_name: sponza_thorn_diff
+    m_relativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
+    m_typeName: Texture2D
+  - Handle: 10902152952271578533
+    m_name: Thumbs
+    m_relativeFilePath: Models\Sponza\textures\Thumbs.db
+    m_typeName: Binary
+  - Handle: 6270401653015458644
+    m_name: vase_ddn
+    m_relativeFilePath: Models\Sponza\textures\vase_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 7819808040140742227
+    m_name: vase_hanging
+    m_relativeFilePath: Models\Sponza\textures\vase_hanging.tga
+    m_typeName: Texture2D
+  - Handle: 813510521614258067
     m_name: vase_hanging_ddn
     m_relativeFilePath: Models\Sponza\textures\vase_hanging_ddn.tga
+    m_typeName: Texture2D
+  - Handle: 5485673426049705386
+    m_name: vase_round_ddn
+    m_relativeFilePath: Models\Sponza\textures\vase_round_ddn.tga
     m_typeName: Texture2D
