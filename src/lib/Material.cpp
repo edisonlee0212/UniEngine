@@ -1,6 +1,7 @@
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <Material.hpp>
+#include "DefaultResources.hpp"
 using namespace UniEngine;
 static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
 static const char *MatCullingMode[]{"BACK", "FRONT", "OFF"};
@@ -21,6 +22,7 @@ MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::m
 void Material::OnCreate()
 {
     m_name = "New material";
+    m_program = DefaultResources::GLPrograms::StandardProgram;
 }
 
 void Material::OnInspect()

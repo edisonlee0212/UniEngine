@@ -243,6 +243,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
             Handle payload_n = *static_cast<Handle *>(payload->Data);
             if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
             {
+                target.Clear();
                 target.m_assetHandle = payload_n;
                 target.Update();
                 statusChanged = true;

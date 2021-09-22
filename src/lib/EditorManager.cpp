@@ -963,6 +963,21 @@ void EditorManager::OnInspect()
 
         ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
         bool updated = false;
+        auto& assetManager = AssetManager::GetInstance();
+        if (ImGui::BeginPopupContextWindow("NewAssetPopup"))
+        {
+            ImGui::Text("Create new asset...");
+            for(auto& i : assetManager.m_defaultExtensions){
+                if(ImGui::Button(i.first.c_str())){
+                    std::string newFileName = "New " + i.first;
+                    auto newAsset = AssetManager::CreateAsset(i.first, Handle(), newFileName);
+                    newAsset->SetPathAndSave(projectManager.m_currentFocusedFolder->m_relativePath / (newFileName + AssetManager::GetExtension(i.first)[0]));
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+
         float panelWidth = ImGui::GetContentRegionAvailWidth();
         int columnCount = glm::max(1, (int)(panelWidth / cellSize));
         ImGui::Columns(columnCount, 0, false);
@@ -1051,7 +1066,7 @@ void EditorManager::OnInspect()
                                 projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath,
                                 projectManager.m_projectPath.parent_path() / newPath);
                             // Asset path
-                            auto& assetManager = AssetManager::GetInstance();
+
                             auto search1 = assetManager.m_assets.find(i.first);
                             if (search1 != assetManager.m_assets.end())
                             {
@@ -1090,6 +1105,7 @@ void EditorManager::OnInspect()
                 ImGui::NextColumn();
             }
         }
+
         ImGui::Columns(1);
         // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
         ImGui::EndChild();
