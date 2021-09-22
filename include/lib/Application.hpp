@@ -48,6 +48,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     friend class WindowManager;
     friend class EditorManager;
     friend class ProjectManager;
+    ApplicationConfigs m_applicationConfigs;
     ApplicationStatus m_applicationStatus = ApplicationStatus::WelcomingScreen;
     bool m_playing = false;
 

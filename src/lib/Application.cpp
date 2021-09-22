@@ -18,7 +18,7 @@ using namespace UniEngine;
 void Application::Init(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-
+    application.m_applicationConfigs = applicationConfigs;
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
     InputManager::Init();
     JobManager::Init();
