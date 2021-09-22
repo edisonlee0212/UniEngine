@@ -1,7 +1,7 @@
+#include "DefaultResources.hpp"
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <Material.hpp>
-#include "DefaultResources.hpp"
 using namespace UniEngine;
 static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
 static const char *MatCullingMode[]{"BACK", "FRONT", "OFF"};
@@ -171,6 +171,10 @@ void Material::Serialize(YAML::Emitter &out)
     m_aoTexture.Save("m_aoTexture", out);
     m_program.Save("m_program", out);
 
+    out << YAML::Key << "m_polygonMode" << YAML::Value << (unsigned)m_polygonMode;
+    out << YAML::Key << "m_cullingMode" << YAML::Value << (unsigned)m_cullingMode;
+    out << YAML::Key << "m_blendingMode" << YAML::Value << (unsigned)m_blendingMode;
+
     out << YAML::Key << "m_metallic" << YAML::Value << m_metallic;
     out << YAML::Key << "m_roughness" << YAML::Value << m_roughness;
     out << YAML::Key << "m_ambient" << YAML::Value << m_ambient;
@@ -187,6 +191,13 @@ void Material::Deserialize(const YAML::Node &in)
     m_roughnessTexture.Load("m_roughnessTexture", in);
     m_aoTexture.Load("m_aoTexture", in);
     m_program.Load("m_program", in);
+
+    if (in["m_polygonMode"])
+        m_polygonMode = (MaterialPolygonMode)in["m_polygonMode"].as<unsigned>();
+    if (in["m_cullingMode"])
+        m_cullingMode = (MaterialCullingMode)in["m_cullingMode"].as<unsigned>();
+    if (in["m_blendingMode"])
+        m_blendingMode = (MaterialBlendingMode)in["m_blendingMode"].as<unsigned>();
 
     m_metallic = in["m_metallic"].as<float>();
     m_roughness = in["m_roughness"].as<float>();
