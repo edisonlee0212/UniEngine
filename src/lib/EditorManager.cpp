@@ -231,25 +231,6 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
 
 void EditorManager::Init()
 {
-#pragma region ImGUI
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-#ifdef NDEBUG
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-#endif
-    ImGui::StyleColorsDark();
-    ImGuiStyle &style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-    ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 450 core");
-#pragma endregion
-
     auto &editorManager = GetInstance();
     editorManager.m_enabled = true;
     editorManager.m_basicEntityArchetype =
@@ -1927,5 +1908,26 @@ void EditorManager::ImGuiLateUpdate()
         ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }
+#pragma endregion
+}
+void EditorManager::InitImGui()
+{
+#pragma region ImGUI
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+#ifdef NDEBUG
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
+    ImGui::StyleColorsDark();
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+    ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
+    ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
 }

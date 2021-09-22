@@ -86,6 +86,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     template <typename T1 = IPrivateComponent> static void RegisterPrivateComponent();
     template <typename T1 = IDataComponent> static void RegisterDataComponent();
     friend class Application;
+    static void InitImGui();
     static void ImGuiPreUpdate();
     static void ImGuiLateUpdate();
   public:

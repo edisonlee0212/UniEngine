@@ -29,20 +29,24 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
 
     EntityManager::Init();
 
-    if(!applicationConfigs.m_projectPath.empty()){
+    EditorManager::InitImGui();
+
+    RenderManager::Init();
+    ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
+    EditorManager::Init();
+    if (!applicationConfigs.m_projectPath.empty())
+    {
         ProjectManager::CreateOrLoadProject(applicationConfigs.m_projectPath);
         TransformManager::Init();
-        RenderManager::Init();
-        ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-        application.m_applicationStatus = ApplicationStatus::Initialized;
-    }else{
+    }
+    else
+    {
         application.m_applicationStatus = ApplicationStatus::WelcomingScreen;
     }
 
-    EditorManager::Init();
+
 
     application.m_playing = false;
-
 }
 void ApplicationTime::OnInspect()
 {
@@ -96,7 +100,6 @@ void Application::PreUpdateInternal()
     if (application.m_applicationStatus != ApplicationStatus::Initialized)
         return;
 
-
     EditorManager::PreUpdate();
     ProfilerManager::PreUpdate();
     ProfilerManager::StartEvent("PreUpdate");
@@ -104,7 +107,6 @@ void Application::PreUpdateInternal()
 
     RenderManager::PreUpdate();
     InputManager::PreUpdate();
-
 
     ProfilerManager::EndEvent("Internals");
     ProfilerManager::StartEvent("Externals");
@@ -246,13 +248,12 @@ void Application::Run()
         {
         case ApplicationStatus::WelcomingScreen: {
             ImGui::Begin("Open or Create Project...");
-            FileUtils::SaveFile("Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path){
-                ProjectManager::CreateOrLoadProject(path);
-                application.m_applicationStatus = ApplicationStatus::Initialized;
-                TransformManager::Init();
-                RenderManager::Init();
-                ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-            });
+            FileUtils::SaveFile(
+                "Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path) {
+                    ProjectManager::CreateOrLoadProject(path);
+                    application.m_applicationStatus = ApplicationStatus::Initialized;
+                    TransformManager::Init();
+                });
             ImGui::End();
         }
         break;
