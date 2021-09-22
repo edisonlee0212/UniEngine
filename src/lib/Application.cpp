@@ -33,10 +33,11 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
 
     RenderManager::Init();
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-    EditorManager::Init();
+
     if (!applicationConfigs.m_projectPath.empty())
     {
         ProjectManager::CreateOrLoadProject(applicationConfigs.m_projectPath);
+        EditorManager::Init();
         TransformManager::Init();
     }
     else
@@ -244,15 +245,14 @@ void Application::Run()
         WindowManager::PreUpdate();
         EditorManager::ImGuiPreUpdate();
         OpenGLUtils::PreUpdate();
+        std::filesystem::path newPath;
         switch (application.m_applicationStatus)
         {
         case ApplicationStatus::WelcomingScreen: {
             ImGui::Begin("Open or Create Project...");
             FileUtils::SaveFile(
                 "Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path) {
-                    ProjectManager::CreateOrLoadProject(path);
-                    application.m_applicationStatus = ApplicationStatus::Initialized;
-                    TransformManager::Init();
+                    newPath = path;
                 });
             ImGui::End();
         }
@@ -270,6 +270,13 @@ void Application::Run()
         // Swap Window's framebuffer
         WindowManager::LateUpdate();
         application.m_time.m_lastUpdateTime = glfwGetTime();
+
+        if(application.m_applicationStatus == ApplicationStatus::WelcomingScreen && !newPath.empty()){
+            ProjectManager::CreateOrLoadProject(newPath);
+            application.m_applicationStatus = ApplicationStatus::Initialized;
+            EditorManager::Init();
+            TransformManager::Init();
+        }
     }
 }
 
