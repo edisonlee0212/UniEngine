@@ -18,7 +18,7 @@ struct UNIENGINE_API AssetCreateHelper
 };
 class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 {
-    bool m_enableAssetMenu = true;
+    bool m_enableAssetMenu = false;
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
@@ -39,9 +39,10 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static void RegisterAssetType(const std::string &name, const std::string &extension);
 
   public:
+    static bool IsAsset(const std::string &typeName);
     template <typename T> static void RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);
 
-    template <typename T> static std::shared_ptr<T> Import(const std::filesystem::path& path);
+    template <typename T> static std::shared_ptr<T> Import(const std::filesystem::path &path);
     template <typename T> static void Share(std::shared_ptr<T> resource);
 
     template <typename T> static std::shared_ptr<T> CreateAsset(const std::string &name = "");
@@ -49,6 +50,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T> static std::shared_ptr<T> Get(const Handle &handle);
 
     static std::shared_ptr<IAsset> Get(const std::string &typeName, const Handle &handle);
+    static std::shared_ptr<IAsset> Get(const Handle &handle);
     template <typename T> static void RemoveFromShared(const Handle &handle);
     static void RemoveFromShared(const std::string &typeName, const Handle &handle);
 #pragma region Loaders
@@ -68,7 +70,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     template <typename T = IAsset> static std::vector<std::string> GetExtension();
     static std::vector<std::string> GetExtension(const std::string &typeName);
 };
-template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path& path)
+template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {
     auto asset = CreateAsset<T>(path.filename().string());
     std::dynamic_pointer_cast<IAsset>(asset)->SetPathAndLoad(path);
@@ -103,8 +105,9 @@ template <typename T> void AssetManager::RegisterExternalAssetTypeExtensions(std
 {
     auto &resourceManager = GetInstance();
     auto name = SerializationManager::GetSerializableTypeName<T>();
-    resourceManager.m_defaultExtensions[name].insert(resourceManager.m_defaultExtensions[name].begin(), extensions.begin(), extensions.end());
-    for(const auto& extension : extensions)
+    resourceManager.m_defaultExtensions[name].insert(
+        resourceManager.m_defaultExtensions[name].end(), extensions.begin(), extensions.end());
+    for (const auto &extension : extensions)
     {
         resourceManager.m_typeNames[extension] = name;
     }
@@ -125,4 +128,5 @@ template <typename T> void AssetManager::RemoveFromShared(const Handle &handle)
     assert(handle != 0);
     GetInstance().m_sharedAssets[SerializationManager::GetSerializableTypeName<T>()].erase(handle);
 }
+
 } // namespace UniEngine

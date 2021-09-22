@@ -1,0 +1,9 @@
+m_fileRecords:
+  - Handle: 9089648173396203452
+    m_name: sponza
+    m_relativeFilePath: Models\Sponza\sponza.obj
+    m_typeName: Prefab
+  - Handle: 17524410307112535283
+    m_name: sponza
+    m_relativeFilePath: Models\Sponza\sponza.mtl
+    m_typeName: Binary

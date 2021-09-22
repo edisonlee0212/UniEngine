@@ -2,7 +2,7 @@ m_name: New Scene
 Scene: New Scene
 EntityInfos:
   - Name: Main Camera
-    Handle: 2046891962780436299
+    Handle: 17003019192410369711
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -12,7 +12,7 @@ EntityInfos:
     PrivateComponent:
       - TypeName: Camera
         Enabled: true
-        m_resolutionX: 649
+        m_resolutionX: 582
         m_resolutionY: 681
         m_isMainCamera: true
         m_useClearColor: false
@@ -29,7 +29,7 @@ EntityInfos:
       - TypeName: PostProcessing
         Enabled: true
   - Name: Planet 1
-    Handle: 14296405168413575665
+    Handle: 16301669954084937352
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -46,10 +46,10 @@ EntityInfos:
           Index: 0
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 5270106088961169031
           m_assetTypeName: Material
   - Name: Planet 2
-    Handle: 1067829141746641725
+    Handle: 1495676819962834151
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -66,10 +66,10 @@ EntityInfos:
           Index: 1
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 5270106088961169031
           m_assetTypeName: Material
   - Name: Planet 3
-    Handle: 4184163129470202561
+    Handle: 7721851451504265796
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -86,10 +86,10 @@ EntityInfos:
           Index: 2
           Resolution: 8
         m_surfaceMaterial:
-          m_assetHandle: 6772794520594257077
+          m_assetHandle: 5270106088961169031
           m_assetTypeName: Material
   - Name: Directional Light 1
-    Handle: 4572483012097769765
+    Handle: 2793410996622553076
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -106,7 +106,7 @@ EntityInfos:
         m_lightSize: 0.00999999978
         m_normalOffset: 0.00100000005
   - Name: Point Light 1
-    Handle: 13084873672453321423
+    Handle: 12549794210064578704
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -123,7 +123,7 @@ EntityInfos:
           m_assetHandle: 21
           m_assetTypeName: Mesh
         m_material:
-          m_assetHandle: 18338167872729261410
+          m_assetHandle: 11693781259932304322
           m_assetTypeName: Material
       - TypeName: PointLight
         Enabled: true
@@ -136,7 +136,7 @@ EntityInfos:
         m_diffuseBrightness: 5
         m_lightSize: 0.100000001
   - Name: Point Light 2
-    Handle: 3268696936047014410
+    Handle: 8843065267405900401
     Version: 1
     Enabled: true
     Parent.Index: 0
@@ -163,17 +163,17 @@ EntityInfos:
           m_assetHandle: 21
           m_assetTypeName: Mesh
         m_material:
-          m_assetHandle: 18338167872729261410
+          m_assetHandle: 11693781259932304322
           m_assetTypeName: Material
 Systems:
   - TypeName: PhysicsSystem
     Enabled: true
     Rank: 1
-    Handle: 174742752887850648
+    Handle: 17523607049031876738
   - TypeName: PlanetTerrainSystem
     Enabled: true
     Rank: 1
-    Handle: 17028116151162506910
+    Handle: 2353324385602687959
 DataComponentStorages:
   - EntitySize: 129
     ChunkCapacity: 127
@@ -197,38 +197,10 @@ DataComponentStorages:
 Entities: !!binary "AAAAAAAAAAABAAAAAQAAAAIAAAABAAAAAwAAAAEAAAAEAAAAAQAAAAUAAAABAAAABgAAAAEAAAAHAAAAAQAAAA=="
 LocalAssets:
   - TypeName: Material
-    Handle: 18338167872729261410
+    Handle: 5270106088961169031
     Name: New Material
     m_albedoTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_normalTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_metallicTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_roughnessTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_aoTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_program:
-      m_assetHandle: 3
-      m_assetTypeName: GLProgram
-    m_metallic: 0.300000012
-    m_roughness: 0.300000012
-    m_ambient: 1
-    m_emission: 0
-    m_albedoColor: [1, 1, 1]
-    m_alphaDiscardEnabled: true
-    m_alphaDiscardOffset: 0.100000001
-  - TypeName: Material
-    Handle: 6772794520594257077
-    Name: New Material
-    m_albedoTexture:
-      m_assetHandle: 18016785182989340294
+      m_assetHandle: 13836965349006394375
       m_assetTypeName: Texture2D
     m_normalTexture:
       m_assetHandle: 0
@@ -245,6 +217,34 @@ LocalAssets:
     m_program:
       m_assetHandle: 3
       m_assetTypeName: GLProgram
+    m_metallic: 1
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 1, 1]
+    m_alphaDiscardEnabled: true
+    m_alphaDiscardOffset: 0.100000001
+  - TypeName: Material
+    Handle: 11693781259932304322
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 0
+      m_assetTypeName: ""
     m_metallic: 0.300000012
     m_roughness: 0.300000012
     m_ambient: 1

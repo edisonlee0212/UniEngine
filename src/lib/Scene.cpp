@@ -283,16 +283,24 @@ void Scene::Deserialize(const YAML::Node &in)
     auto inLocalAssets = in["LocalAssets"];
     if (inLocalAssets)
     {
+        std::vector<bool> isLocal;
         for (const auto &i : inLocalAssets)
         {
             Handle handle = i["Handle"].as<uint64_t>();
-            localAssets.push_back(
-                AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+            //First, find the asset in assetregistry
+            auto asset = AssetManager::Get(handle);
+            if(!asset){
+                asset = AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
+                isLocal.push_back(false);
+            }else{
+                isLocal.push_back(true);
+            }
+            localAssets.push_back(asset);
         }
         int index = 0;
         for (const auto &i : inLocalAssets)
         {
-            localAssets[index++]->Deserialize(i);
+            if(!isLocal[index])localAssets[index++]->Deserialize(i);
         }
     }
 

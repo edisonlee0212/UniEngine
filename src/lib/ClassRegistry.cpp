@@ -50,7 +50,6 @@ AssetRegistration<Collider> ColliderReg("Collider", "uecollider");
 AssetRegistration<Prefab> PrefabReg("Prefab", ".ueprefab");
 AssetRegistration<Scene> SceneReg("Scene", ".uescene");
 
-SerializableRegistration<AssetRegistry> AssetRegistryReg("AssetRegistry");
 SerializableRegistration<Project> ProjectRegistryReg("Project");
 SerializableRegistration<EntityRef> EntityRefReg("EntityRef");
 SerializableRegistration<AssetRef> AssetRefReg("AssetRef");

@@ -21,17 +21,22 @@ struct UNIENGINE_API FolderMetadata{
     void Load(const std::filesystem::path &path);
 };
 
-class UNIENGINE_API AssetRegistry : public ISerializable
+class UNIENGINE_API AssetRegistry
 {
-  public:
-    bool m_needUpdate = false;
     std::unordered_map<Handle, FileRecord> m_assetRecords;
     std::unordered_map<std::string, Handle> m_fileMap;
-    void Serialize(YAML::Emitter &out) override;
-    void Deserialize(const YAML::Node &in) override;
+  public:
+    void ResetFilePath(Handle handle, const std::filesystem::path &newFilePath);
+    void AddOrResetFile(Handle handle, const FileRecord &newFileRecord);
+    void RemoveFile(Handle handle);
+    bool Find(Handle handle, FileRecord& target);
+    bool Find(const std::filesystem::path &newRelativePath, Handle& handle);
+    bool Find(const std::filesystem::path &newRelativePath);
+    void Clear();
 };
 
 struct UNIENGINE_API Folder {
+    std::filesystem::path m_relativePath;
     std::string m_name;
     FolderMetadata m_folderMetadata;
     std::map<std::string, std::shared_ptr<Folder>> m_children;
@@ -42,15 +47,16 @@ class UNIENGINE_API Project : public ISerializable
 {
   public:
     std::shared_ptr<Folder> m_projectFolder;
-    std::filesystem::path m_assetRegistryPath;
-    AssetRef m_startScene;
+    std::filesystem::path m_startScenePath;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+
 };
 
 class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 {
     friend class AssetManager;
+    friend class EditorManager;
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;
     std::optional<std::function<void()>> m_newSceneCustomizer;
@@ -58,21 +64,21 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void FolderMetadataUpdater(const std::filesystem::path& folderPath, std::shared_ptr<Folder>& folder);
     std::shared_ptr<Folder> m_currentFocusedFolder;
 
-
+    static void GenerateNewDefaultScene();
+    static std::filesystem::path GenerateNewPath(const std::string &filestem, const std::string &extension);
   public:
     static bool IsInProjectFolder(const std::filesystem::path &target);
     static std::filesystem::path GetRelativePath(const std::filesystem::path &target);
     static void SetScenePostLoadActions(const std::function<void()> &actions);
 
-    std::shared_ptr<AssetRegistry> m_assetRegistry;
+    AssetRegistry m_assetRegistry;
     std::string m_currentProjectName = "New Project";
     static void Init(const std::filesystem::path& projectPath);
     static void OnInspect();
     static void CreateOrLoadProject(const std::filesystem::path &path);
     static void SaveProject();
     static void ScanProjectFolder();
-    static void SaveAssetRegistry();
-    static void LoadAssetRegistry();
     static std::filesystem::path GetProjectPath();
+
 };
 } // namespace UniEngine

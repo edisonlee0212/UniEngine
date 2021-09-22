@@ -2,9 +2,9 @@
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>
+#include <ProjectManager.hpp>
 #include <Utilities.hpp>
 #include <WindowManager.hpp>
-#include <ProjectManager.hpp>
 using namespace UniEngine;
 Bound::Bound()
 {
@@ -512,8 +512,10 @@ void FileUtils::OpenFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if(ProjectManager::IsInProjectFolder(path)) func(path);
-            else{
+            if (ProjectManager::IsInProjectFolder(path))
+                func(path);
+            else
+            {
                 UNIENGINE_ERROR("Not in project folder!!");
             }
         }
@@ -661,8 +663,10 @@ void FileUtils::SaveFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if(ProjectManager::IsInProjectFolder(path)) func(path);
-            else{
+            if (ProjectManager::IsInProjectFolder(path))
+                func(path);
+            else
+            {
                 UNIENGINE_ERROR("Not in project folder!!");
             }
         }
@@ -704,7 +708,8 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         {
             Clear();
         }
-        if(ImGui::Button("Clear")) Clear();
+        if (ImGui::Button("Clear"))
+            Clear();
         static ImVec2 start_pan;
         ImGuiContext &g = *GImGui;
         const ImGuiStyle &style = g.Style;
@@ -1280,7 +1285,7 @@ void Curve::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_min" << m_min;
     out << YAML::Key << "m_max" << m_max;
 
-    if(!m_values.empty())
+    if (!m_values.empty())
     {
         out << YAML::Key << "m_values" << YAML::BeginSeq;
         for (auto &i : m_values)
@@ -1296,10 +1301,33 @@ void Curve::Deserialize(const YAML::Node &in)
     m_min = in["m_min"].as<glm::vec2>();
     m_max = in["m_max"].as<glm::vec2>();
     m_values.clear();
-    if(in["m_values"]){
-        for(const auto& i : in["m_values"]){
+    if (in["m_values"])
+    {
+        for (const auto &i : in["m_values"])
+        {
             m_values.push_back(i.as<glm::vec2>());
         }
     }
-
+}
+bool ImGui::Splitter(
+    bool split_vertically,
+    float thickness,
+    float &size1,
+    float &size2,
+    float min_size1,
+    float min_size2,
+    float splitter_long_axis_size)
+{
+    ImGuiContext &g = *GImGui;
+    ImGuiWindow *window = g.CurrentWindow;
+    ImGuiID id = window->GetID("##Splitter");
+    ImRect bb;
+    bb.Min = window->DC.CursorPos + (split_vertically ? ImVec2(size1, 0.0f) : ImVec2(0.0f, size1));
+    bb.Max = bb.Min + CalcItemSize(
+                          split_vertically ? ImVec2(thickness, splitter_long_axis_size)
+                                           : ImVec2(splitter_long_axis_size, thickness),
+                          0.0f,
+                          0.0f);
+    return SplitterBehavior(
+        bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, &size1, &size2, min_size1, min_size2, 0.0f);
 }

@@ -10,6 +10,7 @@ class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
     friend class DefaultResources;
+    friend class EditorManager;
     std::filesystem::path m_projectRelativePath;
 
     /**
@@ -86,6 +87,8 @@ class UNIENGINE_API AssetRef : public ISerializable
 {
     friend class Prefab;
     friend class Project;
+    friend class EditorManager;
+    friend class AssetManager;
     std::shared_ptr<IAsset> m_value;
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName;

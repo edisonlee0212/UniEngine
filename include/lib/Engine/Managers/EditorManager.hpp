@@ -17,10 +17,13 @@ enum EntityEditorSystemConfigFlags
     EntityEditorSystem_EnableEntityHierarchy = 1 << 0,
     EntityEditorSystem_EnableEntityInspector = 1 << 1
 };
+class Folder;
 class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 {
     friend class ClassRegistry;
-
+    friend class DefaultResources;
+    friend class ProjectManager;
+    std::map<std::string, std::shared_ptr<Texture2D>> m_assetsIcons;
     EntityArchetype m_basicEntityArchetype;
     bool m_enabled = false;
     std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
@@ -75,7 +78,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     static Entity MouseEntitySelection(const glm::vec2 &mousePosition);
     static void HighLightEntityPrePassHelper(const Entity &entity);
     static void HighLightEntityHelper(const Entity &entity);
-
+    static void FolderHierarchyHelper(const std::shared_ptr<Folder>& folder);
     static void SceneCameraWindow();
     static void MainCameraWindow();
 
@@ -203,15 +206,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
         const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IAsset>));
-            /*if (ptr->m_icon)
-                ImGui::Image(
-                    reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
-                    ImVec2(30, 30),
-                    ImVec2(0, 1),
-                    ImVec2(1, 0));
-            else
-             */
+            ImGui::SetDragDropPayload(type.c_str(), &target.m_assetHandle, sizeof(Handle));
             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
             ImGui::EndDragDropSource();
         }
@@ -225,44 +220,6 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
                     ptr->m_name = std::string(newName);
                 ImGui::EndMenu();
             }
-
-            if (ImGui::BeginMenu("I/O"))
-            {
-                FileUtils::SaveFile(
-                    ("Save " + type + tag).c_str(),
-                    type,
-                    {AssetManager::GetExtension<T>()},
-                    [&](const std::filesystem::path &filePath) {
-                        try
-                        {
-                            ptr->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                            UNIENGINE_LOG("Saved to " + filePath.string());
-                        }
-                        catch (std::exception &e)
-                        {
-                            UNIENGINE_ERROR("Failed to save to " + filePath.string());
-                        }
-                    });
-
-                FileUtils::OpenFile(
-                    ("Load " + type + tag).c_str(),
-                    type,
-                    {AssetManager::GetExtension<T>()},
-                    [&](const std::filesystem::path &filePath) {
-                        try
-                        {
-                            ptr->SetPathAndLoad(ProjectManager::GetRelativePath(filePath));
-                            UNIENGINE_LOG("Loaded from " + filePath.string());
-                        }
-                        catch (std::exception &e)
-                        {
-                            UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                        }
-                    });
-
-                ImGui::EndMenu();
-            }
-
 
             if (removable)
             {
@@ -280,12 +237,12 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
     {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IAsset>));
-            std::shared_ptr<T> payload_n =
-                std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IAsset> *>(payload->Data));
-            if (!ptr || payload_n.get() != ptr.get())
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *static_cast<Handle *>(payload->Data);
+            if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
             {
-                target = payload_n;
+                target.m_assetHandle = payload_n;
+                target.Update();
                 statusChanged = true;
             }
         }
@@ -385,15 +342,7 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
     const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
-        ImGui::SetDragDropPayload(type.c_str(), &target, sizeof(std::shared_ptr<IAsset>));
-        /*if (ptr->m_icon)
-            ImGui::Image(
-                reinterpret_cast<ImTextureID>(ptr->m_icon->UnsafeGetGLTexture()->Id()),
-                ImVec2(30, 30),
-                ImVec2(0, 1),
-                ImVec2(1, 0));
-        else
-         */
+        ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
         ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
         ImGui::EndDragDropSource();
     }
@@ -406,38 +355,6 @@ template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &tar
             ImGui::InputText(("New name" + tag).c_str(), newName, 256);
             if (ImGui::Button(("Confirm" + tag).c_str()))
                 ptr->m_name = std::string(newName);
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("I/O"))
-        {
-            auto &extensions = AssetManager::GetInstance().m_defaultExtensions[type];
-            FileUtils::SaveFile(
-                ("Save " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        ptr->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                        UNIENGINE_LOG("Saved to " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to save to " + filePath.string());
-                    }
-                });
-
-            FileUtils::OpenFile(
-                ("Load " + type + tag).c_str(), type, extensions, [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        ptr->SetPathAndLoad(ProjectManager::GetRelativePath(filePath));
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
-
             ImGui::EndMenu();
         }
         ImGui::EndPopup();

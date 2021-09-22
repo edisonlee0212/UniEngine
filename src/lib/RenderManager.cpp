@@ -167,6 +167,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                if(!program) break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -180,6 +181,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                if(!program) break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -202,6 +204,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+                if(!program) break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);

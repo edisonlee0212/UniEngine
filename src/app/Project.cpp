@@ -19,16 +19,6 @@ int main()
     ProjectManager::SetScenePostLoadActions([&]() {
         Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();
-
-            ImGui::Begin("Test");
-            curve.CurveEditor("Test"); //
-            curve1.CurveEditor("Test1"); //
-            curve2.CurveEditor("Test2"); //
-            curve3.CurveEditor("Test3"); //
-            curve4.CurveEditor("Test4"); //
-            curve5.CurveEditor("Test5"); //
-            curve6.CurveEditor("Test6"); //
-            ImGui::End();
         });
     });
     ApplicationConfigs applicationConfigs;

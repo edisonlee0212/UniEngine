@@ -437,6 +437,10 @@ void OpenGLUtils::GLTexture2D::SubData(
     Bind(0);
     glTexSubImage2D(m_type, level, xOffset, yOffset, width, height, format, type, pixels);
 }
+glm::ivec2 OpenGLUtils::GLTexture2D::GetSize() const
+{
+    return glm::ivec2(m_width, m_height);
+}
 
 OpenGLUtils::GLTexture3D::GLTexture3D(
     const GLsizei &levels,
