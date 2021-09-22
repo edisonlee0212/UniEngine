@@ -32,13 +32,10 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
             return search1->second.lock();
         }
     }
-    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
-    auto search2 = assetRecords.find(handle);
-    if (search2 != assetRecords.end())
-    {
-        assert(search2->second.m_typeName == typeName);
-        auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
-        retVal->SetPath(search2->second.m_relativeFilePath);
+    FileRecord fileRecord;
+    if(ProjectManager::GetInstance().m_assetRegistry.Find(handle, fileRecord)){
+        auto retVal = CreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
+        retVal->SetPath(fileRecord.m_relativeFilePath);
         retVal->Load();
         assetManager.m_assets[handle] = retVal;
         return retVal;
@@ -68,12 +65,10 @@ std::shared_ptr<IAsset> AssetManager::Get(const Handle &handle)
             return search1->second.lock();
         }
     }
-    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
-    auto search2 = assetRecords.find(handle);
-    if (search2 != assetRecords.end())
-    {
-        auto retVal = CreateAsset(search2->second.m_typeName, handle, search2->second.m_name);
-        retVal->SetPath(search2->second.m_relativeFilePath);
+    FileRecord fileRecord;
+    if(ProjectManager::GetInstance().m_assetRegistry.Find(handle, fileRecord)){
+        auto retVal = CreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
+        retVal->SetPath(fileRecord.m_relativeFilePath);
         retVal->Load();
         assetManager.m_assets[handle] = retVal;
         return retVal;
@@ -132,7 +127,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> AssetManager::LoadProgram(
     retVal->Link();
     return retVal;
 }
-bool AssetManager::IsAsset(const std::string& typeName)
+bool AssetManager::IsAsset(const std::string &typeName)
 {
     return GetInstance().m_defaultExtensions.find(typeName) != GetInstance().m_defaultExtensions.end();
 }
@@ -228,47 +223,70 @@ void AssetManager::OnInspect()
 }
 void AssetManager::Init()
 {
-    ProjectManager::GetInstance().m_assetRegistry = SerializationManager::ProduceSerializable<AssetRegistry>();
     DefaultResources::Load();
 
     RegisterExternalAssetTypeExtensions<Prefab>({".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
     RegisterExternalAssetTypeExtensions<Texture2D>({".png", ".jpg", ".jpeg", ".tga", ".hdr"});
 }
 
-void AssetRegistry::Serialize(YAML::Emitter &out)
+void AssetRegistry::AddOrResetFile(Handle handle, const FileRecord &newFileRecord)
 {
-    out << YAML::Key << "AssetRecords" << YAML::Value << YAML::BeginSeq;
-    for (const auto &i : m_assetRecords)
+    std::string original = m_assetRecords[handle].m_relativeFilePath.string();
+    m_assetRecords[handle] = newFileRecord;
+    if (m_fileMap.find(original) != m_fileMap.end())
+        m_fileMap.erase(original);
+    m_fileMap[newFileRecord.m_relativeFilePath.string()] = handle;
+}
+void AssetRegistry::RemoveFile(Handle handle)
+{
+    if (m_assetRecords.find(handle) != m_assetRecords.end())
     {
-        out << YAML::BeginMap;
-        out << YAML::Key << "Handle" << i.first;
-        out << YAML::Key << "RelativeFilePath" << i.second.m_relativeFilePath.string();
-        out << YAML::Key << "TypeName" << i.second.m_typeName;
-        out << YAML::EndMap;
+        m_fileMap.erase(m_assetRecords[handle].m_relativeFilePath.string());
+        m_assetRecords.erase(handle);
     }
-    out << YAML::EndSeq;
+}
+bool AssetRegistry::Find(Handle handle, FileRecord &target)
+{
+    auto search = m_assetRecords.find(handle);
+    if (search != m_assetRecords.end())
+    {
+        target = search->second;
+        return true;
+    }
+    return false;
 }
 
-void AssetRegistry::Deserialize(const YAML::Node &in)
+bool AssetRegistry::Find(const std::filesystem::path &newRelativePath, Handle &handle)
 {
-    auto inAssetRecords = in["AssetRecords"];
-    m_assetRecords.clear();
+    auto search = m_fileMap.find(newRelativePath.string());
+    if (search != m_fileMap.end())
+    {
+        handle = search->second;
+        return true;
+    }
+    return false;
+}
+void AssetRegistry::Clear()
+{
     m_fileMap.clear();
-    for (const auto &inAssetRecord : inAssetRecords)
+    m_assetRecords.clear();
+}
+void AssetRegistry::ResetFilePath(Handle handle, const std::filesystem::path &newFilePath)
+{
+    std::string original = m_assetRecords[handle].m_relativeFilePath.string();
+    m_assetRecords[handle].m_relativeFilePath = newFilePath;
+    if (m_fileMap.find(original) != m_fileMap.end())
+        m_fileMap.erase(original);
+    m_fileMap[newFilePath.string()] = handle;
+}
+bool AssetRegistry::Find(const std::filesystem::path &newRelativePath)
+{
+    auto search = m_fileMap.find(newRelativePath.string());
+    if (search != m_fileMap.end())
     {
-        Handle assetHandle(inAssetRecord["Handle"].as<uint64_t>());
-        FileRecord assetRecord;
-        assetRecord.m_relativeFilePath = inAssetRecord["RelativeFilePath"].as<std::string>();
-        assetRecord.m_typeName = inAssetRecord["TypeName"].as<std::string>();
-        if (std::filesystem::exists(ProjectManager::GetProjectPath().parent_path() / assetRecord.m_relativeFilePath))
-        {
-            m_assetRecords.insert({assetHandle, assetRecord});
-        }
+        return true;
     }
-    for (const auto &i : m_assetRecords)
-    {
-        m_fileMap[i.second.m_relativeFilePath.string()] = i.first;
-    }
+    return false;
 }
 
 std::shared_ptr<IAsset> AssetManager::CreateAsset(

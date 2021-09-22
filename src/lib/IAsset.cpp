@@ -6,7 +6,8 @@ bool IAsset::Save()
 {
     if (m_projectRelativePath.empty())
         return false;
-    if(SaveInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath)) {
+    if (SaveInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath))
+    {
         m_saved = true;
         return true;
     }
@@ -16,7 +17,8 @@ bool IAsset::Load()
 {
     if (m_projectRelativePath.empty())
         return false;
-    if(LoadInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath)) {
+    if (LoadInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath))
+    {
         m_saved = true;
         return true;
     }
@@ -37,7 +39,9 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
         std::ofstream fout(path.string());
         fout << out.c_str();
         fout.flush();
-    }catch (std::exception e){
+    }
+    catch (std::exception e)
+    {
         UNIENGINE_ERROR("Failed to save!");
         return false;
     }
@@ -45,7 +49,8 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 }
 bool IAsset::LoadInternal(const std::filesystem::path &path)
 {
-    if(!std::filesystem::exists(path)){
+    if (!std::filesystem::exists(path))
+    {
         UNIENGINE_ERROR("Not exist!");
         return false;
     }
@@ -57,7 +62,9 @@ bool IAsset::LoadInternal(const std::filesystem::path &path)
         YAML::Node in = YAML::Load(stringStream.str());
         m_name = in["m_name"].as<std::string>();
         Deserialize(in);
-    }catch (std::exception e){
+    }
+    catch (std::exception e)
+    {
         UNIENGINE_ERROR("Failed to load!");
         return false;
     }
@@ -109,25 +116,28 @@ void IAsset::OnCreate()
 void IAsset::SetPath(const std::filesystem::path &path)
 {
     assert(path.is_relative());
-    if(path.empty()){
+    auto &projectManager = ProjectManager::GetInstance();
+    if (path.empty())
+    {
+        m_projectRelativePath.clear();
+        projectManager.m_assetRegistry.RemoveFile(m_handle);
         return;
     }
-    m_projectRelativePath = ProjectManager::GetRelativePath(std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
+    m_projectRelativePath = ProjectManager::GetRelativePath(
+        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
     m_saved = false;
-    auto &assetRecords = ProjectManager::GetInstance().m_assetRegistry->m_assetRecords;
-    auto &fileMap = ProjectManager::GetInstance().m_assetRegistry->m_fileMap;
-    auto search = fileMap.find(m_projectRelativePath.string());
-    if (search != fileMap.end())
-    {
-        m_handle = search->second;
-    }
-    else
+
+    if (!projectManager.m_assetRegistry.Find(m_projectRelativePath))
     {
         FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
         assetRecord.m_relativeFilePath = m_projectRelativePath;
-        assetRecords[m_handle] = assetRecord;
-        fileMap[m_projectRelativePath.string()] = m_handle;
+        projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
+        ProjectManager::ScanProjectFolder();
+    }
+    else
+    {
+        projectManager.m_assetRegistry.ResetFilePath(m_handle, m_projectRelativePath);
     }
 }
 bool IAsset::SetPathAndSave(const std::filesystem::path &path)
@@ -137,6 +147,17 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &path)
 }
 bool IAsset::SetPathAndLoad(const std::filesystem::path &path)
 {
-    SetPath(path);
-    return Load();
+    auto &projectManager = ProjectManager::GetInstance();
+    auto correctedPath = ProjectManager::GetRelativePath(
+        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
+    if (projectManager.m_assetRegistry.Find(correctedPath, m_handle))
+    {
+        FileRecord fileRecord;
+        projectManager.m_assetRegistry.Find(m_handle, fileRecord);
+        m_projectRelativePath = fileRecord.m_relativeFilePath;
+        m_name = fileRecord.m_name;
+        if (m_typeName == fileRecord.m_typeName)
+            return Load();
+    }
+    return false;
 }

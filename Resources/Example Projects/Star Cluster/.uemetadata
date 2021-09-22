@@ -1,13 +1,9 @@
 m_fileRecords:
-  - Handle: 561356411847611273
-    m_name: .ueassetregistry
-    m_relativeFilePath: .ueassetregistry
-    m_typeName: Binary
-  - Handle: 11567079477937366231
+  - Handle: 15224213176401461673
     m_name: New Scene
     m_relativeFilePath: New Scene.uescene
     m_typeName: Scene
-  - Handle: 11726890525193550632
+  - Handle: 1121763851383070864
     m_name: Star Cluster
     m_relativeFilePath: Star Cluster.ueproj
     m_typeName: Binary

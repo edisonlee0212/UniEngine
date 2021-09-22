@@ -10,6 +10,7 @@ class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
     friend class DefaultResources;
+    friend class EditorManager;
     std::filesystem::path m_projectRelativePath;
 
     /**

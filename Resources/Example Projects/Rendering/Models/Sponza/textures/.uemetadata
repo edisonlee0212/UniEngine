@@ -159,7 +159,7 @@ m_fileRecords:
     m_name: sponza_thorn_diff
     m_relativeFilePath: Models\Sponza\textures\sponza_thorn_diff.tga
     m_typeName: Texture2D
-  - Handle: 2922264037658192045
+  - Handle: 559342168311702846
     m_name: Thumbs
     m_relativeFilePath: Models\Sponza\textures\Thumbs.db
     m_typeName: Binary
