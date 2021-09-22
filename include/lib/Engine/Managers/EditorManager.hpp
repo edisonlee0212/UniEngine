@@ -150,7 +150,7 @@ template <typename T> void EditorManager::RegisterPrivateComponent()
     auto func = [&](Entity owner) {
         if (owner.HasPrivateComponent<T>())
             return;
-        if (ImGui::SmallButton(SerializationManager::GetSerializableTypeName<T>().c_str()))
+        if (ImGui::Button(SerializationManager::GetSerializableTypeName<T>().c_str()))
         {
             owner.GetOrSetPrivateComponent<T>();
         }
@@ -175,7 +175,7 @@ template <typename T> void EditorManager::RegisterDataComponent()
     auto func = [](Entity owner) {
         if (owner.HasDataComponent<T>())
             return;
-        if (ImGui::SmallButton(SerializationManager::GetDataComponentTypeName<T>().c_str()))
+        if (ImGui::Button(SerializationManager::GetDataComponentTypeName<T>().c_str()))
         {
             EntityManager::AddDataComponent<T>(owner, T());
         }
