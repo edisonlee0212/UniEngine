@@ -133,6 +133,7 @@ void IAsset::SetPath(const std::filesystem::path &path)
         assetRecord.m_typeName = m_typeName;
         assetRecord.m_relativeFilePath = m_projectRelativePath;
         projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
+        //TODO: Do not scan all, just update needed metadata file.
         ProjectManager::ScanProjectFolder();
     }
     else

@@ -970,8 +970,17 @@ void EditorManager::OnInspect()
             for(auto& i : assetManager.m_defaultExtensions){
                 if(ImGui::Button(i.first.c_str())){
                     std::string newFileName = "New " + i.first;
-                    auto newAsset = AssetManager::CreateAsset(i.first, Handle(), newFileName);
-                    newAsset->SetPathAndSave(projectManager.m_currentFocusedFolder->m_relativePath / (newFileName + AssetManager::GetExtension(i.first)[0]));
+                    auto newHandle = Handle();
+                    auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
+                    auto newPath = ProjectManager::GenerateNewPath((projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(), AssetManager::GetExtension(i.first)[0]);
+                    newAsset->SetPathAndSave(newPath);
+                    FileRecord fileRecord;
+                    fileRecord.m_relativeFilePath = newPath;
+                    fileRecord.m_typeName = i.first;
+                    fileRecord.m_name = newFileName;
+                    projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords[newHandle] = fileRecord;
+                    projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = newHandle;
+                    projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
                 }
             }
             ImGui::EndPopup();
@@ -1095,6 +1104,7 @@ void EditorManager::OnInspect()
                         projectManager.m_assetRegistry.RemoveFile(i.first);
                         projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(i.second.m_relativeFilePath.string());
                         projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords.erase(i.first);
+                        projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
                         ImGui::CloseCurrentPopup();
                         ImGui::EndPopup();
                         break;
