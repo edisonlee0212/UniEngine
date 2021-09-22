@@ -104,7 +104,7 @@ void Application::PreUpdateInternal()
 
     RenderManager::PreUpdate();
     InputManager::PreUpdate();
-    OpenGLUtils::PreUpdate();
+
 
     ProfilerManager::EndEvent("Internals");
     ProfilerManager::StartEvent("Externals");
@@ -241,7 +241,7 @@ void Application::Run()
         application.m_time.m_frameStartTime = glfwGetTime();
         WindowManager::PreUpdate();
         EditorManager::ImGuiPreUpdate();
-
+        OpenGLUtils::PreUpdate();
         switch (application.m_applicationStatus)
         {
         case ApplicationStatus::WelcomingScreen: {
