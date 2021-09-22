@@ -37,13 +37,18 @@ struct UNIENGINE_API ApplicationConfigs{
     std::filesystem::path m_projectPath;
     bool m_fullScreen = false;
 };
-
+enum class UNIENGINE_API ApplicationStatus{
+    WelcomingScreen,
+    Initialized,
+    OnDestroy
+};
 class UNIENGINE_API Application final : ISingleton<Application>
 {
     friend class EntityManager;
+    friend class WindowManager;
     friend class EditorManager;
     friend class ProjectManager;
-    bool m_initialized;
+    ApplicationStatus m_applicationStatus = ApplicationStatus::WelcomingScreen;
     bool m_playing = false;
 
     std::vector<std::function<void()>> m_externalPreUpdateFunctions;
@@ -53,7 +58,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
 
     static void PreUpdateInternal();
     static void UpdateInternal();
-    static bool LateUpdateInternal();
+    static void LateUpdateInternal();
     ApplicationTime m_time;
     friend class Scene;
     bool m_needFixedUpdate = false;

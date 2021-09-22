@@ -98,6 +98,7 @@ void ProjectManager::ScanProjectFolder()
 {
     auto &projectManager = GetInstance();
     auto projectPath = projectManager.m_projectPath;
+    if(projectPath.empty()) return;
     auto directory = projectManager.m_projectPath.parent_path();
     if (!std::filesystem::exists(directory))
     {

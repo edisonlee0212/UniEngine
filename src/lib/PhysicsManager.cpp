@@ -94,14 +94,10 @@ void PhysicsManager::Destroy()
     auto &physicsManager = GetInstance();
     PX_RELEASE(physicsManager.m_dispatcher);
     PX_RELEASE(physicsManager.m_physics);
-    if (physicsManager.m_physVisDebugger)
-    {
-        PxPvdTransport *transport = physicsManager.m_physVisDebugger->getTransport();
-        physicsManager.m_physVisDebugger->release();
-        physicsManager.m_physVisDebugger = nullptr;
-        PX_RELEASE(transport);
-    }
-    PX_RELEASE(physicsManager.m_physicsFoundation);
+    PX_RELEASE(physicsManager.m_physVisDebugger);
+    PX_RELEASE(physicsManager.m_pvdTransport);
+
+    //PX_RELEASE(physicsManager.m_physicsFoundation);
 }
 void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
 {

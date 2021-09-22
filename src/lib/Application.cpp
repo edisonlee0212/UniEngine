@@ -1,13 +1,13 @@
 #include <AnimationManager.hpp>
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <OpenGLUtils.hpp>
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <JobManager.hpp>
+#include <OpenGLUtils.hpp>
 #include <PhysicsManager.hpp>
 #include <ProjectManager.hpp>
 #include <RenderManager.hpp>
@@ -15,10 +15,10 @@
 #include <WindowManager.hpp>
 using namespace UniEngine;
 
-void Application::Init(const ApplicationConfigs& applicationConfigs)
+void Application::Init(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-    application.m_initialized = false;
+
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
     InputManager::Init();
     JobManager::Init();
@@ -28,14 +28,21 @@ void Application::Init(const ApplicationConfigs& applicationConfigs)
     AssetManager::Init();
 
     EntityManager::Init();
-    ProjectManager::Init(applicationConfigs.m_projectPath);
-    TransformManager::Init();
-    RenderManager::Init();
+
+    if(!applicationConfigs.m_projectPath.empty()){
+        ProjectManager::CreateOrLoadProject(applicationConfigs.m_projectPath);
+        TransformManager::Init();
+        RenderManager::Init();
+        ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
+        application.m_applicationStatus = ApplicationStatus::Initialized;
+    }else{
+        application.m_applicationStatus = ApplicationStatus::WelcomingScreen;
+    }
+
     EditorManager::Init();
 
-    application.m_initialized = true;
     application.m_playing = false;
-    ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
+
 }
 void ApplicationTime::OnInspect()
 {
@@ -86,13 +93,9 @@ void ApplicationTime::EndFixedUpdate()
 void Application::PreUpdateInternal()
 {
     auto &application = GetInstance();
-    if (!application.m_initialized)
+    if (application.m_applicationStatus != ApplicationStatus::Initialized)
         return;
-    application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
-    application.m_time.m_frameStartTime = glfwGetTime();
-    application.m_initialized = !glfwWindowShouldClose(WindowManager::GetWindow());
 
-    WindowManager::PreUpdate();
 
     EditorManager::PreUpdate();
     ProfilerManager::PreUpdate();
@@ -146,7 +149,7 @@ void Application::PreUpdateInternal()
 void Application::UpdateInternal()
 {
     auto &application = GetInstance();
-    if (!application.m_initialized)
+    if (application.m_applicationStatus != ApplicationStatus::Initialized)
         return;
     ProfilerManager::StartEvent("Set");
     ProfilerManager::StartEvent("Externals");
@@ -162,11 +165,11 @@ void Application::UpdateInternal()
     ProfilerManager::EndEvent("Set");
 }
 
-bool Application::LateUpdateInternal()
+void Application::LateUpdateInternal()
 {
     auto &application = GetInstance();
-    if (!application.m_initialized)
-        return false;
+    if (application.m_applicationStatus != ApplicationStatus::Initialized)
+        return;
     ProfilerManager::StartEvent("LateUpdate");
     ProfilerManager::StartEvent("Externals");
     for (const auto &i : application.m_externalLateUpdateFunctions)
@@ -198,12 +201,7 @@ bool Application::LateUpdateInternal()
     ProfilerManager::LateUpdate();
     ProfilerManager::OnInspect();
 
-    // ImGui drawing
     EditorManager::LateUpdate();
-    // Swap Window's framebuffer
-    WindowManager::LateUpdate();
-    application.m_time.m_lastUpdateTime = glfwGetTime();
-    return application.m_initialized;
 }
 
 ApplicationTime &Application::Time()
@@ -223,7 +221,7 @@ bool Application::IsPlaying()
 
 bool Application::IsInitialized()
 {
-    return GetInstance().m_initialized;
+    return GetInstance().m_applicationStatus == ApplicationStatus::Initialized;
 }
 
 void Application::End()
@@ -236,11 +234,41 @@ void Application::End()
 void Application::Run()
 {
     auto &application = GetInstance();
-    while (application.m_initialized)
+
+    while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
     {
-        PreUpdateInternal();
-        UpdateInternal();
-        application.m_initialized = LateUpdateInternal();
+        application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
+        application.m_time.m_frameStartTime = glfwGetTime();
+        WindowManager::PreUpdate();
+        EditorManager::ImGuiPreUpdate();
+
+        switch (application.m_applicationStatus)
+        {
+        case ApplicationStatus::WelcomingScreen: {
+            ImGui::Begin("Open or Create Project...");
+            FileUtils::SaveFile("Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path){
+                ProjectManager::CreateOrLoadProject(path);
+                application.m_applicationStatus = ApplicationStatus::Initialized;
+                TransformManager::Init();
+                RenderManager::Init();
+                ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
+            });
+            ImGui::End();
+        }
+        break;
+        case ApplicationStatus::Initialized: {
+            PreUpdateInternal();
+            UpdateInternal();
+            LateUpdateInternal();
+        }
+        break;
+        }
+
+        // ImGui drawing
+        EditorManager::ImGuiLateUpdate();
+        // Swap Window's framebuffer
+        WindowManager::LateUpdate();
+        application.m_time.m_lastUpdateTime = glfwGetTime();
     }
 }
 

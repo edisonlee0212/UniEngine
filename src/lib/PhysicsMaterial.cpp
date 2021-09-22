@@ -1,5 +1,6 @@
 #include "PhysicsMaterial.hpp"
 #include <PhysicsManager.hpp>
+#include "Application.hpp"
 void UniEngine::PhysicsMaterial::OnCreate()
 {
     m_name = "New physics model";
@@ -8,7 +9,7 @@ void UniEngine::PhysicsMaterial::OnCreate()
 }
 UniEngine::PhysicsMaterial::~PhysicsMaterial()
 {
-    if (m_value)
+    if (Application::IsInitialized() && m_value)
         m_value->release();
 }
 void UniEngine::PhysicsMaterial::SetDynamicFriction(const float &value)

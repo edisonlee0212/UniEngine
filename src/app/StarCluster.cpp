@@ -24,10 +24,14 @@ int main()
     ClassRegistry::RegisterSystem<StarClusterSystem>("StarClusterSystem");
 
     const std::filesystem::path resourceFolderPath("../Resources");
+
+    ProjectManager::SetScenePostLoadActions([](){
+        //LoadScene();
+    });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Star Cluster/Star Cluster.ueproj";
     Application::Init(applicationConfigs);
-    //LoadScene();
+
 #pragma region EngineLoop
     Application::Run();
     Application::End();

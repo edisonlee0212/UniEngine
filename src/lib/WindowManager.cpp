@@ -1,3 +1,4 @@
+#include <Application.hpp>
 #include <ConsoleManager.hpp>
 #include <DefaultResources.hpp>
 #include <ProfilerManager.hpp>
@@ -92,11 +93,14 @@ GLFWmonitor *WindowManager::PrimaryMonitor()
 
 void WindowManager::PreUpdate()
 {
-    ProfilerManager::StartEvent("WindowManager");
     glfwPollEvents();
     RenderTarget::BindDefault();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    ProfilerManager::EndEvent("WindowManager");
+
+    if (glfwWindowShouldClose(WindowManager::GetWindow()))
+    {
+        Application::GetInstance().m_applicationStatus = ApplicationStatus::OnDestroy;
+    }
 }
 
 void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)

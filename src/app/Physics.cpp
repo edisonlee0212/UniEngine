@@ -58,11 +58,15 @@ Entity CreateSphere(
 void LoadScene();
 int main()
 {
+    ProjectManager::SetScenePostLoadActions([](){
+        //LoadScene();
+    });
+
     const std::filesystem::path resourceFolderPath("../Resources");
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Physics/Physics.ueproj";
     Application::Init(applicationConfigs);
-    //LoadScene();
+
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
     Application::Run();

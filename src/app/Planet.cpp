@@ -19,8 +19,12 @@ int main()
     const std::filesystem::path resourceFolderPath("../Resources");
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Planet/Planet.ueproj";
+
+    ProjectManager::SetScenePostLoadActions([](){
+        //LoadScene();
+    });
+
     Application::Init(applicationConfigs);
-    LoadScene();
     Application::Run();
     Application::End();
 #pragma endregion
