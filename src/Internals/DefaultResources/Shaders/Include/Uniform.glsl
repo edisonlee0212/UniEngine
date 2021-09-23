@@ -54,7 +54,9 @@ layout (std140, binding = 0) uniform UE_CAMERA
 	mat4 UE_CAMERA_INVERSE_PROJECTION;
 	mat4 UE_CAMERA_INVERSE_VIEW;
 	vec4 UE_CAMERA_RESERVED;
+	vec4 UE_CAMERA_CLEAR_COLOR;
 	vec3 UE_CAMERA_POSITION;
+
 };
 
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
@@ -131,7 +133,7 @@ uniform sampler2D UE_METALLIC_MAP;
 uniform sampler2D UE_ROUGHNESS_MAP;
 uniform sampler2D UE_AO_MAP;
 
-uniform samplerCube UE_ENVIRONMENTAL_MAP;
+uniform samplerCube UE_SKYBOX;
 uniform samplerCube UE_ENVIRONMENTAL_IRRADIANCE;
 uniform samplerCube UE_ENVIRONMENTAL_PREFILERED;
 uniform sampler2D UE_ENVIRONMENTAL_BRDFLUT;
@@ -238,7 +240,7 @@ vec3 UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(vec3 albedo, vec3 normal, vec3 viewDi
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
     
-    vec3 irradiance = UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz : texture(UE_ENVIRONMENTAL_IRRADIANCE, normal).rgb;
+    vec3 irradiance = UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz * UE_ENVIRONMENTAL_LIGHTING_INTENSITY : pow(texture(UE_ENVIRONMENTAL_IRRADIANCE, normal).rgb, vec3(1.0 / UE_ENVIRONMENTAL_MAP_GAMMA)) * UE_ENVIRONMENTAL_LIGHTING_INTENSITY;
     vec3 diffuse      = irradiance * albedo;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.

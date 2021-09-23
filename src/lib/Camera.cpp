@@ -463,6 +463,13 @@ void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm:
         camera->m_farDistance,
         glm::tan(glm::radians(camera->m_fov * 0.5f)),
         static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
+    m_clearColor = glm::vec4(camera->m_clearColor, 1.0f);
+    if(camera->m_useClearColor){
+        m_clearColor.w = 1.0f;
+    }else{
+        m_clearColor.w = 0.0f;
+    }
+
 }
 
 void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera) const

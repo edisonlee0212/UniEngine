@@ -14,13 +14,14 @@ struct UNIENGINE_API Plane
     void Normalize();
 };
 
-struct UNIENGINE_API CameraInfoBlock
+struct UNIENGINE_API  CameraInfoBlock
 {
     glm::mat4 m_projection;
     glm::mat4 m_view;
     glm::mat4 m_inverseProjection;
     glm::mat4 m_inverseView;
     glm::vec4 m_reservedParameters;
+    glm::vec4 m_clearColor;
     glm::vec4 m_position;
     void UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation);
     void UploadMatrices(const std::shared_ptr<Camera> &camera) const;

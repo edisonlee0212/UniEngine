@@ -142,7 +142,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     DefaultResources::m_gBufferLightingPass->SetInt("UE_DIRECTIONAL_LIGHT_SM", 0);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_POINT_LIGHT_SM", 1);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_SPOT_LIGHT_SM", 2);
-    DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_MAP", 8);
+    DefaultResources::m_gBufferLightingPass->SetInt("UE_SKYBOX", 8);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_IRRADIANCE", 9);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_PREFILERED", 10);
     DefaultResources::m_gBufferLightingPass->SetInt("UE_ENVIRONMENTAL_BRDFLUT", 11);
@@ -223,7 +223,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     DefaultResources::SkyboxProgram->Bind();
     DefaultResources::SkyboxVAO->Bind();
 
-    DefaultResources::SkyboxProgram->SetInt("UE_ENVIRONMENTAL_MAP", 8);
+    DefaultResources::SkyboxProgram->SetInt("UE_SKYBOX", 8);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS); // set depth function back to default
@@ -1674,8 +1674,6 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
 {
     auto &manager = GetInstance();
     auto scene = EntityManager::GetCurrentScene();
-    scene->m_environmentalMapSettings.m_backgroundColor =
-        glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
     if (!cameraSkybox || !cameraSkybox->Texture())
@@ -1685,8 +1683,10 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     if (!environmentalMap || !environmentalMap->m_ready)
     {
         environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
+        scene->m_environmentalMapSettings.m_backgroundColor.w = 1.0f;
+    }else{
+        scene->m_environmentalMapSettings.m_backgroundColor.w = 0.0f;
     }
-    scene->m_environmentalMapSettings.m_environmentalMapGamma = environmentalMap->m_gamma;
 
     cameraSkybox->Texture()->Bind(8);
     DefaultResources::m_brdfLut->UnsafeGetGLTexture()->Bind(11);
@@ -1840,7 +1840,7 @@ void RenderManager::ApplyProgramSettings(
         program->SetInt("UE_AO_MAP", 3);
     }
 
-    program->SetInt("UE_ENVIRONMENTAL_MAP", 8);
+    program->SetInt("UE_SKYBOX", 8);
     program->SetInt("UE_ENVIRONMENTAL_IRRADIANCE", 9);
     program->SetInt("UE_ENVIRONMENTAL_PREFILERED", 10);
     program->SetInt("UE_ENVIRONMENTAL_BRDFLUT", 11);

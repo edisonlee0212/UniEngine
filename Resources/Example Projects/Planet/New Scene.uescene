@@ -1,5 +1,12 @@
 m_name: New Scene
 Scene: New Scene
+m_environmentalMapSettings:
+  m_backgroundColor: [1, 1, 1, 0]
+  m_environmentalMapGamma: 1
+  m_environmentalLightingIntensity: 1
+  m_environmentalMap:
+    m_assetHandle: 85
+    m_assetTypeName: EnvironmentalMap
 EntityInfos:
   - Name: Main Camera
     Handle: 17003019192410369711

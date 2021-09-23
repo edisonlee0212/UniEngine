@@ -22,6 +22,9 @@ struct EnvironmentalMapSettingsBlock
     float m_environmentalLightingIntensity = 1.0f;
     float m_environmentalPadding1 = 0.0f;
     float m_environmentalPadding2 = 0.0f;
+
+    void Serialize(YAML::Emitter &out);
+    void Deserialize(const YAML::Node &in);
 };
 struct SceneDataStorage
 {

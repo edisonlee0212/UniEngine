@@ -354,7 +354,7 @@ void DefaultResources::Load()
     defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->ConvertFromEquirectangularTexture(defaultSkyboxEquiTex);
     Environmental::DefaultSkybox->m_name = "Default";
-
+    AssetManager::Share(Environmental::DefaultSkybox);
     Textures::MissingTexture = AssetManager::CreateAsset<Texture2D>(GenerateNewHandle(), "Missing");
     Textures::MissingTexture->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/texture-missing.png");
     Textures::MissingTexture->m_name = "Missing";
@@ -362,6 +362,7 @@ void DefaultResources::Load()
     Environmental::DefaultEnvironmentalMap =
         AssetManager::CreateAsset<EnvironmentalMap>(GenerateNewHandle(), "Default");
     Environmental::DefaultEnvironmentalMap->ConstructFromCubemap(Environmental::DefaultSkybox);
+    AssetManager::Share(Environmental::DefaultEnvironmentalMap);
 #pragma endregion
 }
 

@@ -57,21 +57,27 @@ Scene::~Scene()
 void Scene::PreUpdate()
 {
     auto entities = m_sceneDataStorage.m_entities;
-    for(const auto& entity : entities){
-        if(entity.m_version == 0) continue;
+    for (const auto &entity : entities)
+    {
+        if (entity.m_version == 0)
+            continue;
         auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
-        if(!entityInfo.m_enabled) continue;
-        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             if (!privateComponentElement.m_privateComponentData->m_started)
             {
                 privateComponentElement.m_privateComponentData->Start();
-                if(entityInfo.m_version != entityInfo.m_version) break;
+                if (entityInfo.m_version != entityInfo.m_version)
+                    break;
                 privateComponentElement.m_privateComponentData->m_started = true;
             }
             privateComponentElement.m_privateComponentData->PreUpdate();
-            if(entityInfo.m_version != entityInfo.m_version) break;
+            if (entityInfo.m_version != entityInfo.m_version)
+                break;
         }
     }
 
@@ -94,15 +100,20 @@ void Scene::PreUpdate()
 void Scene::Update()
 {
     auto entities = m_sceneDataStorage.m_entities;
-    for(const auto& entity : entities){
-        if(entity.m_version == 0) continue;
+    for (const auto &entity : entities)
+    {
+        if (entity.m_version == 0)
+            continue;
         auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
-        if(!entityInfo.m_enabled) continue;
-        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->Update();
-            if(entityInfo.m_version != entityInfo.m_version) break;
+            if (entityInfo.m_version != entityInfo.m_version)
+                break;
         }
     }
 
@@ -120,15 +131,20 @@ void Scene::Update()
 void Scene::LateUpdate()
 {
     auto entities = m_sceneDataStorage.m_entities;
-    for(const auto& entity : entities){
-        if(entity.m_version == 0) continue;
+    for (const auto &entity : entities)
+    {
+        if (entity.m_version == 0)
+            continue;
         auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
-        if(!entityInfo.m_enabled) continue;
-        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->LateUpdate();
-            if(entityInfo.m_version != entityInfo.m_version) break;
+            if (entityInfo.m_version != entityInfo.m_version)
+                break;
         }
     }
 
@@ -145,15 +161,20 @@ void Scene::LateUpdate()
 void Scene::FixedUpdate()
 {
     auto entities = m_sceneDataStorage.m_entities;
-    for(const auto& entity : entities){
-        if(entity.m_version == 0) continue;
+    for (const auto &entity : entities)
+    {
+        if (entity.m_version == 0)
+            continue;
         auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
-        if(!entityInfo.m_enabled) continue;
-        for(auto &privateComponentElement : entityInfo.m_privateComponentElements){
+        if (!entityInfo.m_enabled)
+            continue;
+        for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
+        {
             if (!privateComponentElement.m_privateComponentData->m_enabled)
                 continue;
             privateComponentElement.m_privateComponentData->FixedUpdate();
-            if(entityInfo.m_version != entityInfo.m_version) break;
+            if (entityInfo.m_version != entityInfo.m_version)
+                break;
         }
     }
 
@@ -173,8 +194,15 @@ void Scene::OnInspect()
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         EditorManager::DragAndDropButton<EnvironmentalMap>(m_environmentalMap, "Environmental Map");
+        if(!m_environmentalMap.Get<EnvironmentalMap>()){
+            ImGui::ColorEdit3("Background Color", &m_environmentalMapSettings.m_backgroundColor.x);
+        }
         ImGui::DragFloat(
-            "Environmental light intensity", &m_environmentalMapSettings.m_environmentalLightingIntensity, 0.01f, 0.0f, 2.0f);
+            "Environmental light intensity",
+            &m_environmentalMapSettings.m_environmentalLightingIntensity,
+            0.01f,
+            0.0f,
+            2.0f);
         ImGui::DragFloat(
             "Environmental light gamma", &m_environmentalMapSettings.m_environmentalMapGamma, 0.01f, 0.0f, 2.0f);
     }
@@ -182,9 +210,13 @@ void Scene::OnInspect()
 void Scene::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "Scene" << YAML::Value << m_name;
-
+    out << YAML::Key << "m_environmentalMapSettings" << YAML::Value << YAML::BeginMap;
+    m_environmentalMapSettings.Serialize(out);
+    m_environmentalMap.Save("m_environmentalMap", out);
+    out << YAML::EndMap;
     std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
     std::vector<AssetRef> list;
+    list.push_back(m_environmentalMap);
     auto &sceneDataStorage = m_sceneDataStorage;
 #pragma region EntityInfo
     out << YAML::Key << "EntityInfos" << YAML::Value << YAML::BeginSeq;
@@ -278,7 +310,7 @@ void Scene::Deserialize(const YAML::Node &in)
     UNIENGINE_LOG("Loading scene...");
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
-
+    if(in["m_environmentalMapSettings"]) m_environmentalMapSettings.Deserialize(in["m_environmentalMapSettings"]);
     // Must attach current scene to entitymanager before loading!
     // assert(EntityManager::GetCurrentScene().get() == this);
 
@@ -291,12 +323,15 @@ void Scene::Deserialize(const YAML::Node &in)
         for (const auto &i : inLocalAssets)
         {
             Handle handle = i["Handle"].as<uint64_t>();
-            //First, find the asset in assetregistry
+            // First, find the asset in assetregistry
             auto asset = AssetManager::Get(handle);
-            if(!asset){
+            if (!asset)
+            {
                 asset = AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
                 isLocal.push_back(false);
-            }else{
+            }
+            else
+            {
                 isLocal.push_back(true);
             }
             localAssets.push_back(asset);
@@ -304,10 +339,11 @@ void Scene::Deserialize(const YAML::Node &in)
         int index = 0;
         for (const auto &i : inLocalAssets)
         {
-            if(!isLocal[index])localAssets[index++]->Deserialize(i);
+            if (!isLocal[index])
+                localAssets[index++]->Deserialize(i);
         }
     }
-
+    m_environmentalMap.Load("m_environmentalMap", in);
 #pragma endregion
 #pragma region DataComponentStorage
     auto inDataComponentStorages = in["DataComponentStorages"];
@@ -387,14 +423,17 @@ void Scene::Deserialize(const YAML::Node &in)
             {
                 auto name = inPrivateComponent["TypeName"].as<std::string>();
                 size_t hashCode;
-                if(SerializationManager::HasSerializableType(name)){
+                if (SerializationManager::HasSerializableType(name))
+                {
                     auto ptr = std::static_pointer_cast<IPrivateComponent>(
                         SerializationManager::ProduceSerializable(name, hashCode));
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
                     entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
-                }else{
+                }
+                else
+                {
                     auto ptr = std::static_pointer_cast<IPrivateComponent>(
                         SerializationManager::ProduceSerializable("UnknownPrivateComponent", hashCode));
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
@@ -402,7 +441,6 @@ void Scene::Deserialize(const YAML::Node &in)
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
                     entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
                 }
-
             }
         }
         entityIndex++;
@@ -515,7 +553,7 @@ void Scene::OnCreate()
 bool Scene::LoadInternal(const std::filesystem::path &path)
 {
     auto previousScene = EntityManager::GetCurrentScene();
-    EntityManager::Attach(std::shared_ptr<Scene>(this, [](Scene*){}));
+    EntityManager::Attach(std::shared_ptr<Scene>(this, [](Scene *) {}));
     std::ifstream stream(path.string());
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
@@ -525,4 +563,16 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
     EntityManager::Attach(previousScene);
 
     return true;
+}
+void EnvironmentalMapSettingsBlock::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_backgroundColor" << YAML::Value << m_backgroundColor;
+    out << YAML::Key << "m_environmentalMapGamma" << YAML::Value << m_environmentalMapGamma;
+    out << YAML::Key << "m_environmentalLightingIntensity" << YAML::Value << m_environmentalLightingIntensity;
+}
+void EnvironmentalMapSettingsBlock::Deserialize(const YAML::Node &in)
+{
+    if(in["m_backgroundColor"]) m_backgroundColor = in["m_backgroundColor"].as<glm::vec4>();
+    if(in["m_environmentalMapGamma"]) m_environmentalMapGamma = in["m_environmentalMapGamma"].as<float>();
+    if(in["m_environmentalLightingIntensity"]) m_environmentalLightingIntensity = in["m_environmentalLightingIntensity"].as<float>();
 }

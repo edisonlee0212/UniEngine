@@ -661,8 +661,11 @@ void EditorManager::OnInspect()
         {
             title += " *";
         }
-        if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
         {
+            if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)){
+                editorManager.m_inspectingAsset = scene;
+            }
             if (ImGui::BeginDragDropTarget())
             {
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
