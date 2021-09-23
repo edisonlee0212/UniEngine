@@ -135,6 +135,7 @@ void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
 void EntityManager::RefreshEntityQueryInfo(const size_t &index)
 {
     auto &entityManager = GetInstance();
+    if(!entityManager.m_scene) return;
     auto &queryInfos = entityManager.m_entityQueryInfos.at(index);
     auto &entityComponentStorage = GetInstance().m_entityDataComponentStorage;
     auto &queriedStorage = entityManager.m_entityQueryInfos.at(index).m_queriedStorage;

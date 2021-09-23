@@ -82,13 +82,9 @@ layout (std140, binding = 4) uniform UE_LIGHT_SETTINGS_BLOCK
 	float UE_SHADOW_SPLIT_2;
 	float UE_SHADOW_SPLIT_3;
 	int UE_SHADOW_SAMPLE_SIZE;
-	float UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;
 	int UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
 	float UE_SHADOW_SEAM_FIX_RATIO;
-	float UE_SHADOW_VSM_VARIANCE;
-	float UE_SHADOW_LIGHT_BLEED_FACTOR;
 	float UE_GAMMA;
-	float UE_AMBIENT_LIGHT;
 };
 
 layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
@@ -120,7 +116,7 @@ layout (std140, binding = 7) uniform UE_ENVIRONMENTAL_BLOCK
 {
 	vec4 UE_ENVIRONMENTAL_BACKGROUND_COLOR;
 	float UE_ENVIRONMENTAL_MAP_GAMMA;
-	float UE_ENVIRONMENTAL_LIGHTING_GAMMA;
+	float UE_ENVIRONMENTAL_LIGHTING_INTENSITY;
 	float UE_ENVIRONMENTAL_PADDING1;
 	float UE_ENVIRONMENTAL_PADDING2;
 };
@@ -247,7 +243,7 @@ vec3 UE_FUNC_CALCULATE_ENVIRONMENTAL_LIGHT(vec3 albedo, vec3 normal, vec3 viewDi
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz : textureLod(UE_ENVIRONMENTAL_PREFILERED, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec3 prefilteredColor = UE_ENVIRONMENTAL_BACKGROUND_COLOR.w == 1.0 ? UE_ENVIRONMENTAL_BACKGROUND_COLOR.xyz * UE_ENVIRONMENTAL_LIGHTING_INTENSITY : pow(textureLod(UE_ENVIRONMENTAL_PREFILERED, R,  roughness * MAX_REFLECTION_LOD).rgb, vec3(1.0 / UE_ENVIRONMENTAL_MAP_GAMMA)) * UE_ENVIRONMENTAL_LIGHTING_INTENSITY;
     vec2 brdf  = texture(UE_ENVIRONMENTAL_BRDFLUT, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 	vec3 ambient = kD * diffuse + specular;
@@ -438,7 +434,7 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
-	float texelSize = penumbraWidth * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE / UE_DIRECTIONAL_LIGHTS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHTS[i].lightFrustumDistance[splitIndex] / 100.0;
+	float texelSize = penumbraWidth * UE_DIRECTIONAL_LIGHTS[i].ReservedParameters.x / UE_DIRECTIONAL_LIGHTS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHTS[i].lightFrustumDistance[splitIndex] / 100.0;
 	
 	int shadowCount = 0;
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
@@ -481,7 +477,7 @@ float UE_FUNC_SPOT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal){
 	}
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	//End search
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	float shadow = 0.0;
@@ -554,7 +550,7 @@ float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
-	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize * UE_SHADOW_PCSS_DIRECTIONAL_LIGHT_SCALE;	
+	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
 	//End search
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
 	for(int i = 0; i < sampleAmount; i++)

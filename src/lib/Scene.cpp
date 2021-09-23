@@ -172,8 +172,16 @@ void Scene::FixedUpdate()
     }
 }
 
-void Scene::OnGui()
+void Scene::OnInspect()
 {
+    if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        EditorManager::DragAndDropButton<EnvironmentalMap>(m_environmentalMap, "Environmental Map");
+        ImGui::DragFloat(
+            "Environmental light intensity", &m_environmentalMapSettings.m_environmentalLightingIntensity, 0.01f, 0.0f, 2.0f);
+        ImGui::DragFloat(
+            "Environmental light gamma", &m_environmentalMapSettings.m_environmentalMapGamma, 0.01f, 0.0f, 2.0f);
+    }
 }
 void Scene::Serialize(YAML::Emitter &out)
 {
@@ -506,6 +514,7 @@ void Scene::OnCreate()
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
+    m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
 bool Scene::LoadInternal(const std::filesystem::path &path)
 {

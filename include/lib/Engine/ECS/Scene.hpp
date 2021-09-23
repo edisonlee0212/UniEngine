@@ -15,7 +15,14 @@ enum UNIENGINE_API SystemGroup
     SimulationSystemGroup = 1,
     PresentationSystemGroup = 2
 };
-
+struct EnvironmentalMapSettingsBlock
+{
+    glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    float m_environmentalMapGamma = 1.0f;
+    float m_environmentalLightingIntensity = 1.0f;
+    float m_environmentalPadding1 = 0.0f;
+    float m_environmentalPadding2 = 0.0f;
+};
 struct SceneDataStorage
 {
     std::vector<Entity> m_entities;
@@ -44,6 +51,8 @@ class UNIENGINE_API Scene : public IAsset
     bool LoadInternal(const std::filesystem::path &path) override;
 
   public:
+    AssetRef m_environmentalMap;
+    EnvironmentalMapSettingsBlock m_environmentalMapSettings;
     void Purge();
     void OnCreate() override;
     Scene &operator=(Scene &&) = delete;
@@ -56,11 +65,10 @@ class UNIENGINE_API Scene : public IAsset
     void PreUpdate();
     void Update();
     void LateUpdate();
-    void OnGui();
+    void OnInspect() override;
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
 };
 
 template <typename T> void Scene::DestroySystem()

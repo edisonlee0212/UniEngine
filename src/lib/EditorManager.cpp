@@ -437,7 +437,7 @@ void EditorManager::RenderToSceneCamera()
         }
     }
 
-    if (editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
+    if (!renderManager.m_mainCameraComponent.expired() && editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
     {
         Camera::m_cameraInfoBlock.UpdateMatrices(
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
@@ -561,6 +561,9 @@ void EditorManager::RenderToSceneCamera()
         RenderManager::ApplyShadowMapSettings();
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
         RenderManager::RenderToCamera(editorManager.m_sceneCamera);
+    }
+    else{
+
     }
     ProfilerManager::EndEvent("RenderToSceneCamera");
 }
@@ -1178,11 +1181,6 @@ void EditorManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)
     }
 }
 
-void EditorManager::LateUpdate()
-{
-
-}
-
 void EditorManager::SetSelectedEntity(const Entity &entity, bool openMenu)
 {
     auto &manager = GetInstance();
@@ -1703,7 +1701,7 @@ void EditorManager::CameraWindowDragAndDrop()
             AssetRef assetRef;
             assetRef.m_assetHandle = payload_n;
             assetRef.Update();
-            RenderManager::GetInstance().m_environmentalMap =
+            EntityManager::GetCurrentScene()->m_environmentalMap =
                 std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
         }
 

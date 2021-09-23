@@ -231,12 +231,13 @@ void Camera::ResizeResolution(int x, int y)
         return;
     m_resolutionX = x > 0 ? x : 1;
     m_resolutionY = y > 0 ? y : 1;
-    m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
-    m_gBufferDepth->ReSize(0, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+
     m_gBufferNormal->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBufferDepth->ReSize(0, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBufferAlbedo->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBufferMetallicRoughnessEmissionAmbient->ReSize(
         0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
 
     m_colorTexture->m_texture->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_depthStencilTexture->m_texture->ReSize(
@@ -305,6 +306,8 @@ void Camera::OnCreate()
     m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_gBuffer->AttachTexture(m_gBufferMetallicRoughnessEmissionAmbient.get(), GL_COLOR_ATTACHMENT2);
 
+
+    m_gBuffer->Clear();
     SetEnabled(true);
 }
 

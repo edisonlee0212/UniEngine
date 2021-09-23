@@ -11,13 +11,9 @@ struct UNIENGINE_API LightSettingsBlock
 {
     float m_splitDistance[4];
     int m_pcfSampleAmount = 64;
-    float m_scaleFactor = 1.0f;
     int m_blockerSearchAmount = 1;
     float m_seamFixRatio = 0.05f;
-    float m_vsmMaxVariance = 0.001f;
-    float m_lightBleedFactor = 0.5f;
     float m_gamma = 2.2f;
-    float m_ambientLight = 0.8f;
 };
 
 struct MaterialSettingsBlock
@@ -38,14 +34,7 @@ struct MaterialSettingsBlock
     float m_emissionVal = 0.0f;
     float m_alphaDiscardOffset = 0.1f;
 };
-struct EnvironmentalMapSettingsBlock
-{
-    glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    float m_skyboxGamma = 1.0f;
-    float m_environmentalLightingGamma = 1.0f;
-    float m_environmentalPadding1 = 1.0f;
-    float m_environmentalPadding2 = 0.0f;
-};
+
 
 enum class RenderCommandType
 {
@@ -298,7 +287,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     std::unique_ptr<OpenGLUtils::GLUBO> m_environmentalMapSettingsBuffer;
 #pragma endregion
 #pragma region Lightings
-    AssetRef m_environmentalMap;
+
 
     OpenGLUtils::GLUBO m_directionalLightBlock;
     OpenGLUtils::GLUBO m_pointLightBlock;
@@ -322,7 +311,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma region internal helpers
 
     MaterialSettingsBlock m_materialSettings;
-    EnvironmentalMapSettingsBlock m_environmentalMapSettings;
+
     static void ApplyShadowMapSettings();
     static void ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent);
     static void MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending = false);

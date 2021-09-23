@@ -33,12 +33,13 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
 
     RenderManager::Init();
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-
+    EditorManager::Init();
+    TransformManager::Init();
     if (!applicationConfigs.m_projectPath.empty())
     {
+        application.m_applicationStatus = ApplicationStatus::Initialized;
         ProjectManager::CreateOrLoadProject(applicationConfigs.m_projectPath);
-        EditorManager::Init();
-        TransformManager::Init();
+
     }
     else
     {
@@ -185,7 +186,6 @@ void Application::LateUpdateInternal()
         ProfilerManager::EndEvent("Scene");
     }
     ProfilerManager::StartEvent("Internals");
-    EntityManager::GetInstance().m_scene->OnGui();
 
     // Post-processing happens here
     RenderManager::LateUpdate();
@@ -203,8 +203,6 @@ void Application::LateUpdateInternal()
     ProfilerManager::EndEvent("LateUpdate");
     ProfilerManager::LateUpdate();
     ProfilerManager::OnInspect();
-
-    EditorManager::LateUpdate();
 }
 
 ApplicationTime &Application::Time()
@@ -240,19 +238,32 @@ void Application::Run()
 
     while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
     {
+        WindowManager::PreUpdate();
         application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
         application.m_time.m_frameStartTime = glfwGetTime();
-        WindowManager::PreUpdate();
         EditorManager::ImGuiPreUpdate();
         OpenGLUtils::PreUpdate();
-        std::filesystem::path newPath;
         switch (application.m_applicationStatus)
         {
         case ApplicationStatus::WelcomingScreen: {
+
             ImGui::Begin("Open or Create Project...");
             FileUtils::SaveFile(
                 "Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path) {
-                    newPath = path;
+                    bool search = false;
+                    for (const auto &entry : std::filesystem::directory_iterator(path.parent_path())){
+                        if(!entry.is_directory() && entry.path().extension() == ".ueproj" && entry.path().filename() != path.filename()){
+                            search = true;
+                            break;
+                        }
+                    }
+                    if(!search) {
+                        ProjectManager::CreateOrLoadProject(path);
+                        application.m_applicationStatus = ApplicationStatus::Initialized;
+                    }
+                    else{
+                        std::cout << "Project already exists!" << std::endl;
+                    }
                 });
             ImGui::End();
         }
@@ -270,13 +281,6 @@ void Application::Run()
         // Swap Window's framebuffer
         WindowManager::LateUpdate();
         application.m_time.m_lastUpdateTime = glfwGetTime();
-
-        if(application.m_applicationStatus == ApplicationStatus::WelcomingScreen && !newPath.empty()){
-            ProjectManager::CreateOrLoadProject(newPath);
-            application.m_applicationStatus = ApplicationStatus::Initialized;
-            EditorManager::Init();
-            TransformManager::Init();
-        }
     }
 }
 

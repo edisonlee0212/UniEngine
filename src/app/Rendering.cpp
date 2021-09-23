@@ -32,7 +32,7 @@ void LoadScene(){
     double time = 0;
     const float sinTime = glm::sin(time / 5.0f);
     const float cosTime = glm::cos(time / 5.0f);
-    RenderManager::GetInstance().m_lightSettings.m_ambientLight = 0.5f;
+    EntityManager::GetCurrentScene()->m_environmentalMapSettings.m_environmentalLightingIntensity = 0.5f;
 #pragma region Set main camera to correct position and rotation
     auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();

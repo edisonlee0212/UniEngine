@@ -234,7 +234,7 @@ void RenderManager::PreUpdate()
     ProfilerManager::StartEvent("RenderManager");
 
     auto &renderManager = GetInstance();
-    if (!renderManager.m_mainCameraComponent.expired())
+    //if (!renderManager.m_mainCameraComponent.expired())
         EditorManager::RenderToSceneCamera();
 
     ProfilerManager::StartEvent("Clear GBuffer");
@@ -378,12 +378,7 @@ void RenderManager::OnInspect()
     {
         ImGui::Begin("Render Manager");
         ImGui::DragFloat("Gamma", &renderManager.m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
-        if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            EditorManager::DragAndDropButton<EnvironmentalMap>(renderManager.m_environmentalMap, "Environmental Map");
-            ImGui::DragFloat(
-                "Environmental light intensity", &renderManager.m_lightSettings.m_ambientLight, 0.01f, 0.0f, 2.0f);
-        }
+
         bool enableShadow = renderManager.m_materialSettings.m_enableShadow;
         if (ImGui::Checkbox("Enable shadow", &enableShadow))
         {
@@ -423,7 +418,6 @@ void RenderManager::OnInspect()
             }
             if (ImGui::TreeNode("PCSS"))
             {
-                ImGui::DragFloat("PCSS Factor", &renderManager.m_lightSettings.m_scaleFactor, 0.01f, 0.0f);
                 ImGui::DragInt(
                     "Blocker search side amount", &renderManager.m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
                 ImGui::DragInt("PCF Sample Size", &renderManager.m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
@@ -499,7 +493,6 @@ void RenderManager::Init()
     manager.m_spotLightShadowMap = std::make_unique<SpotLightShadowMap>(manager.m_spotLightShadowMapResolution);
 #pragma endregion
 #pragma endregion
-    manager.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
 void RenderManager::CollectRenderInstances(
     const std::shared_ptr<Camera> &camera, const glm::vec3 &position, Bound &worldBound, const bool &calculateBound)
@@ -1673,20 +1666,20 @@ void RenderManager::ApplyShadowMapSettings()
 void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
     auto &manager = GetInstance();
-    manager.m_environmentalMapSettings.m_backgroundColor =
+    auto scene = EntityManager::GetCurrentScene();
+    scene->m_environmentalMapSettings.m_backgroundColor =
         glm::vec4(cameraComponent->m_clearColor, cameraComponent->m_useClearColor);
 
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
     if (!cameraSkybox || !cameraSkybox->Texture())
         cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();
-    manager.m_environmentalMapSettings.m_skyboxGamma = cameraSkybox->m_gamma;
 
-    auto environmentalMap = manager.m_environmentalMap.Get<EnvironmentalMap>();
+    auto environmentalMap = EntityManager::GetCurrentScene()->m_environmentalMap.Get<EnvironmentalMap>();
     if (!environmentalMap || !environmentalMap->m_ready)
     {
         environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
     }
-    manager.m_environmentalMapSettings.m_environmentalLightingGamma = environmentalMap->m_gamma;
+    scene->m_environmentalMapSettings.m_environmentalMapGamma = environmentalMap->m_gamma;
 
     cameraSkybox->Texture()->Bind(8);
     DefaultResources::m_brdfLut->UnsafeGetGLTexture()->Bind(11);
@@ -1694,7 +1687,7 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
 
     manager.m_environmentalMapSettingsBuffer->SubData(
-        0, sizeof(EnvironmentalMapSettingsBlock), &manager.m_environmentalMapSettings);
+        0, sizeof(EnvironmentalMapSettingsBlock), &scene->m_environmentalMapSettings);
 }
 
 void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending)
