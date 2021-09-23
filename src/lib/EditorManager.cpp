@@ -1807,7 +1807,7 @@ bool EditorManager::DragAndDropButton(
         {
             EditorManager::GetInstance().m_inspectingAsset = ptr;
         }
-        const std::string tag = "##" + ptr->GetTypeName() + (ptr ? std::to_string(ptr->GetHandle()) : "");
+        const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
@@ -1946,4 +1946,58 @@ void EditorManager::InitImGui()
     ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
+}
+bool EditorManager::DragAndDropButton(
+    PrivateComponentRef &target,
+    const std::string &name,
+    const std::vector<std::string> &acceptableTypeNames,
+    bool removable)
+{
+    ImGui::Text(name.c_str());
+    ImGui::SameLine();
+    bool statusChanged = false;
+    const std::shared_ptr<IPrivateComponent> ptr = target.Get<IPrivateComponent>();
+    ImGui::Button(ptr ? ptr->GetOwner().GetName().c_str() : "none");
+    if (ptr)
+    {
+        const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->GetOwner().GetName() + tag).c_str());
+            ImGui::EndDragDropSource();
+        }
+        if (removable)
+        {
+            if (ImGui::BeginPopupContextItem(tag.c_str()))
+            {
+
+                if (ImGui::Button(("Remove" + tag).c_str()))
+                {
+                    target.Clear();
+                    statusChanged = true;
+                }
+                ImGui::EndPopup();
+            }
+        }
+    }
+    for(const auto &type : acceptableTypeNames)
+    {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IPrivateComponent>));
+                std::shared_ptr<IPrivateComponent> payload_n =
+                    *static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data);
+                if (!ptr || payload_n.get() != ptr.get())
+                {
+                    target = payload_n;
+                    statusChanged = true;
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    }
+    return statusChanged;
 }

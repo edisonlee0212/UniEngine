@@ -124,6 +124,12 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
         const std::string &name,
         const std::vector<std::string> &acceptableTypeNames,
         bool removable = true);
+    static bool DragAndDropButton(
+        PrivateComponentRef &target,
+        const std::string &name,
+        const std::vector<std::string> &acceptableTypeNames,
+        bool removable = true);
+
     template <typename T = IAsset>
     static bool DragAndDropButton(AssetRef &target, const std::string &name, bool removable = true);
     template <typename T = IPrivateComponent>
@@ -205,7 +211,7 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
         {
             GetInstance().m_inspectingAsset = ptr;
         }
-        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
+        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &target.m_assetHandle, sizeof(Handle));
@@ -265,7 +271,7 @@ bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::st
     const std::string type = SerializationManager::GetSerializableTypeName<T>();
     if (ptr)
     {
-        const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
+        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
