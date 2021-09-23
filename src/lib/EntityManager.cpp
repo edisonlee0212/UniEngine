@@ -14,8 +14,14 @@ void EntityManager::UnsafeForEachDataComponent(
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     const ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -34,7 +40,12 @@ void EntityManager::ForEachPrivateComponent(
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &component : elements)
     {
         func(component);
@@ -45,34 +56,46 @@ void EntityManager::UnsafeForEachEntityStorage(
     const std::function<void(int i, const std::string &name, const DataComponentStorage &storage)> &func)
 {
     auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &archetypeInfos = entityManager.m_entityArchetypeInfos;
     for (int i = 0; i < archetypeInfos.size(); i++)
     {
         func(
             i,
             archetypeInfos[i].m_name,
-            entityManager.m_entityDataComponentStorage->at(archetypeInfos[i].m_dataComponentStorageIndex));
+            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfos[i].m_dataComponentStorageIndex));
     }
 }
 
 size_t EntityManager::GetArchetypeChunkSize()
 {
-    return GetInstance().m_archetypeChunkSize;
+    auto &entityManager = GetInstance();
+    return entityManager.m_archetypeChunkSize;
 }
 
 void EntityManager::DeleteEntityInternal(const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
-    Entity actualEntity = entityManager.m_entities->at(entity.m_index);
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    Entity actualEntity = scene->m_sceneDataStorage.m_entities.at(entity.m_index);
     if (actualEntity == entity)
     {
-        entityManager.m_entityPrivateComponentStorage->DeleteEntity(actualEntity);
+        scene->m_sceneDataStorage.m_entityPrivateComponentStorage.DeleteEntity(actualEntity);
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_enabled = true;
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = Entity();
+        scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = Entity();
         entityInfo.m_handle = Handle(0);
 
         for (auto &i : entityInfo.m_privateComponentElements)
@@ -89,7 +112,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
             const auto swappedIndex = SwapEntity(
                 dataComponentStorage, entityInfo.m_chunkArrayIndex, dataComponentStorage.m_entityAliveCount - 1);
             entityInfo.m_chunkArrayIndex = dataComponentStorage.m_entityAliveCount - 1;
-            GetInstance().m_entityMetaDataCollection->at(swappedIndex).m_chunkArrayIndex = originalIndex;
+            scene->m_sceneDataStorage.m_entityInfos.at(swappedIndex).m_chunkArrayIndex = originalIndex;
         }
         dataComponentStorage.m_entityAliveCount--;
     }
@@ -98,16 +121,20 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         UNIENGINE_ERROR("Entity already deleted!");
         return;
     }
-    GetInstance().m_entities->at(entity.m_index) = actualEntity;
+    scene->m_sceneDataStorage.m_entities.at(entity.m_index) = actualEntity;
 }
 
 void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
 {
     auto &entityManager = GetInstance();
-    if(!entityManager.m_entityDataComponentStorage) return;
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &archetypeInfo = entityManager.m_entityArchetypeInfos.at(index);
     int targetIndex = 0;
-    for (const auto &i : *entityManager.m_entityDataComponentStorage)
+    for (const auto &i : scene->m_sceneDataStorage.m_dataComponentStorages)
     {
         if (i.m_dataComponentTypes.size() != archetypeInfo.m_dataComponentTypes.size())
         {
@@ -135,17 +162,21 @@ void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
 void EntityManager::RefreshEntityQueryInfo(const size_t &index)
 {
     auto &entityManager = GetInstance();
-    if(!entityManager.m_scene) return;
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &queryInfos = entityManager.m_entityQueryInfos.at(index);
-    auto &entityComponentStorage = GetInstance().m_entityDataComponentStorage;
+    auto &entityComponentStorage = scene->m_sceneDataStorage.m_dataComponentStorages;
     auto &queriedStorage = entityManager.m_entityQueryInfos.at(index).m_queriedStorage;
     queriedStorage.clear();
     // Select storage with every contained.
     if (!queryInfos.m_allDataComponentTypes.empty())
     {
-        for (int i = 0; i < entityComponentStorage->size(); i++)
+        for (int i = 0; i < entityComponentStorage.size(); i++)
         {
-            auto &dataStorage = entityComponentStorage->at(i);
+            auto &dataStorage = entityComponentStorage.at(i);
             bool check = true;
             for (const auto &type : queryInfos.m_allDataComponentTypes)
             {
@@ -158,9 +189,9 @@ void EntityManager::RefreshEntityQueryInfo(const size_t &index)
     }
     else
     {
-        for (int i = 0; i < entityComponentStorage->size(); i++)
+        for (int i = 0; i < entityComponentStorage.size(); i++)
         {
-            auto &dataStorage = entityComponentStorage->at(i);
+            auto &dataStorage = entityComponentStorage.at(i);
             queriedStorage.push_back(&dataStorage);
         }
     }
@@ -228,13 +259,21 @@ void EntityManager::EraseDuplicates(std::vector<DataComponentType> &types)
     }
 }
 
-void EntityManager::GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable)
+void EntityManager::GetEntityStorage(
+    const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     const size_t amount = storage.m_entityAliveCount;
     if (amount == 0)
         return;
-    if(checkEnable){
-        auto& workers = JobManager::PrimaryWorkers();
+    if (checkEnable)
+    {
+        auto &workers = JobManager::PrimaryWorkers();
         const auto capacity = storage.m_chunkCapacity;
         const auto &chunkArray = storage.m_chunkArray;
         const auto &entities = &chunkArray.m_entities;
@@ -246,37 +285,38 @@ void EntityManager::GetEntityStorage(const DataComponentStorage &storage, std::v
         tempStorage.resize(threadSize);
         for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
         {
-            results.push_back(
-                workers
-                    .Push([=, &chunkArray, &entities, &tempStorage](int id) {
-                        for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                        {
-                            const auto chunkIndex = i / capacity;
-                            const auto remainder = i % capacity;
-                            const auto entity = entities->at(i);
-                            if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                continue;
-                            tempStorage[threadIndex].push_back(entity);
-                        }
-                        if (threadIndex < loadReminder)
-                        {
-                            const int i = threadIndex + threadSize * threadLoad;
-                            const auto chunkIndex = i / capacity;
-                            const auto remainder = i % capacity;
-                            const auto entity = entities->at(i);
-                            if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
-                                return;
-                            tempStorage[threadIndex].push_back(entity);
-                        }
-                    })
-                    .share());
+            results.push_back(workers
+                                  .Push([=, &chunkArray, &entities, &tempStorage](int id) {
+                                      for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                      {
+                                          const auto chunkIndex = i / capacity;
+                                          const auto remainder = i % capacity;
+                                          const auto entity = entities->at(i);
+                                          if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                                              continue;
+                                          tempStorage[threadIndex].push_back(entity);
+                                      }
+                                      if (threadIndex < loadReminder)
+                                      {
+                                          const int i = threadIndex + threadSize * threadLoad;
+                                          const auto chunkIndex = i / capacity;
+                                          const auto remainder = i % capacity;
+                                          const auto entity = entities->at(i);
+                                          if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                                              return;
+                                          tempStorage[threadIndex].push_back(entity);
+                                      }
+                                  })
+                                  .share());
         }
         for (const auto &i : results)
             i.wait();
-        for(auto& i : tempStorage){
+        for (auto &i : tempStorage)
+        {
             container.insert(container.end(), i.begin(), i.end());
         }
-    }else
+    }
+    else
     {
         container.resize(container.size() + amount);
         const size_t capacity = storage.m_chunkCapacity;
@@ -287,6 +327,12 @@ void EntityManager::GetEntityStorage(const DataComponentStorage &storage, std::v
 
 size_t EntityManager::SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return -1;
+    }
     if (index1 == index2)
         return -1;
     const size_t retVal = storage.m_chunkArray.m_entities[index2].m_index;
@@ -319,33 +365,14 @@ size_t EntityManager::SwapEntity(DataComponentStorage &storage, size_t index1, s
 
 void EntityManager::GetAllEntities(std::vector<Entity> &target)
 {
-    target.insert(target.end(), GetInstance().m_entities->begin() + 1, GetInstance().m_entities->end());
-}
-
-void EntityManager::Detach()
-{
     auto &entityManager = GetInstance();
-    /*
-    if(entityManager.m_scene && !entityManager.m_scene->m_saved){
-        ImGui::Begin("Entity Explorer");
-        ImGui::OpenPopup("Unsaved scene warning");
-        if (ImGui::BeginPopupModal("Unsaved scene warning", nullptr,
-                                   ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::Text("Save previous scene?");
-            if (ImGui::Button("Yes", ImVec2(120, 0))) {
-                entityManager.m_scene->Save();
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SetItemDefaultFocus();
-            ImGui::SameLine();
-            if (ImGui::Button("No", ImVec2(120, 0))) {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
-        ImGui::End();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
     }
-     */
+    target.insert(
+        target.end(), scene->m_sceneDataStorage.m_entities.begin() + 1, scene->m_sceneDataStorage.m_entities.end());
 }
 
 void EntityManager::ForEachDescendant(
@@ -361,26 +388,20 @@ void EntityManager::ForEachDescendant(
 
 std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
 {
-    return GetInstance().m_entities;
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return nullptr;
+    }
+    return &scene->m_sceneDataStorage.m_entities;
 }
 
 void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
 {
-    if (scene == nullptr)
-        return;
-    Detach();
-
     auto &entityManager = GetInstance();
     auto &targetStorage = scene->m_sceneDataStorage;
-    entityManager.m_currentAttachedWorldEntityStorage = &targetStorage;
-    entityManager.m_entities = &targetStorage.m_entities;
-    entityManager.m_entityMetaDataCollection = &targetStorage.m_entityInfos;
-    entityManager.m_entityDataComponentStorage = &targetStorage.m_dataComponentStorages;
-    entityManager.m_entityPrivateComponentStorage = &targetStorage.m_entityPrivateComponentStorage;
     entityManager.m_scene = scene;
-
-
-
     for (auto &i : entityManager.m_entityArchetypeInfos)
     {
         i.m_dataComponentStorageIndex = 0;
@@ -389,44 +410,44 @@ void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
     {
         i.m_queriedStorage.clear();
     }
-
     RefreshAllEntityArchetypeInfos();
     RefreshAllEntityQueryInfos();
 }
 
 Entity EntityManager::CreateEntity(const std::string &name)
 {
-    if (!GetInstance().m_currentAttachedWorldEntityStorage)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
     {
-        UNIENGINE_ERROR("EntityManager not attached to any world!");
         return Entity();
     }
-    return CreateEntity(GetInstance().m_basicArchetype, name);
+    return CreateEntity(entityManager.m_basicArchetype, name);
 }
 
 Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name, const Handle &handle)
 {
-    if (!GetInstance().m_currentAttachedWorldEntityStorage)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
     {
-        UNIENGINE_ERROR("EntityManager not attached to any world!");
         return Entity();
     }
-    auto &entityManager = GetInstance();
     assert(archetype.IsValid());
     entityManager.m_scene->m_saved = false;
     Entity retVal;
     EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
     if (archetypeInfo.m_dataComponentStorageIndex == 0)
     {
-        archetypeInfo.m_dataComponentStorageIndex = entityManager.m_entityDataComponentStorage->size();
-        entityManager.m_entityDataComponentStorage->emplace_back(archetypeInfo);
-        for (size_t i = 0; i < GetInstance().m_entityQueryInfos.size(); i++)
+        archetypeInfo.m_dataComponentStorageIndex = scene->m_sceneDataStorage.m_dataComponentStorages.size();
+        scene->m_sceneDataStorage.m_dataComponentStorages.emplace_back(archetypeInfo);
+        for (size_t i = 0; i < entityManager.m_entityQueryInfos.size(); i++)
         {
             RefreshEntityQueryInfo(i);
         }
     }
     DataComponentStorage &storage =
-        entityManager.m_entityDataComponentStorage->at(archetypeInfo.m_dataComponentStorageIndex);
+        scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex);
     if (storage.m_entityCount == storage.m_entityAliveCount)
     {
         const size_t chunkIndex = storage.m_entityCount / storage.m_chunkCapacity + 1;
@@ -434,10 +455,10 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         {
             // Allocate new chunk;
             ComponentDataChunk chunk;
-            chunk.m_data = static_cast<void *>(calloc(1, GetInstance().m_archetypeChunkSize));
+            chunk.m_data = static_cast<void *>(calloc(1, entityManager.m_archetypeChunkSize));
             storage.m_chunkArray.m_chunks.push_back(chunk);
         }
-        retVal.m_index = GetInstance().m_entities->size();
+        retVal.m_index = scene->m_sceneDataStorage.m_entities.size();
         // If the version is 0 in chunk means it's deleted.
         retVal.m_version = 1;
         EntityMetadata entityInfo;
@@ -447,31 +468,31 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         entityInfo.m_chunkArrayIndex = storage.m_entityCount;
         storage.m_chunkArray.m_entities.push_back(retVal);
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = retVal;
-        GetInstance().m_entityMetaDataCollection->push_back(std::move(entityInfo));
-        GetInstance().m_entities->push_back(retVal);
+        scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = retVal;
+        scene->m_sceneDataStorage.m_entityInfos.push_back(std::move(entityInfo));
+        scene->m_sceneDataStorage.m_entities.push_back(retVal);
         storage.m_entityCount++;
         storage.m_entityAliveCount++;
     }
     else
     {
         retVal = storage.m_chunkArray.m_entities.at(storage.m_entityAliveCount);
-        EntityMetadata &entityInfo = GetInstance().m_entityMetaDataCollection->at(retVal.m_index);
+        EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(retVal.m_index);
         entityInfo.m_handle = handle;
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
         retVal.m_version = entityInfo.m_version;
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = retVal;
+        scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = retVal;
         storage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = retVal;
-        GetInstance().m_entities->at(retVal.m_index) = retVal;
+        scene->m_sceneDataStorage.m_entities.at(retVal.m_index) = retVal;
         storage.m_entityAliveCount++;
         // Reset all component data
         const auto chunkIndex = entityInfo.m_chunkArrayIndex / storage.m_chunkCapacity;
         const auto chunkPointer = entityInfo.m_chunkArrayIndex % storage.m_chunkCapacity;
-        const auto chunk = GetInstance()
-                               .m_entityDataComponentStorage->at(archetypeInfo.m_dataComponentStorageIndex)
-                               .m_chunkArray.m_chunks[chunkIndex];
+        const auto chunk =
+            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex)
+                .m_chunkArray.m_chunks[chunkIndex];
         for (const auto &i : storage.m_dataComponentTypes)
         {
             const auto offset = i.m_offset * storage.m_chunkCapacity + chunkPointer * i.m_size;
@@ -487,24 +508,24 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
 std::vector<Entity> EntityManager::CreateEntities(
     const EntityArchetype &archetype, const size_t &amount, const std::string &name)
 {
-    if (!GetInstance().m_currentAttachedWorldEntityStorage)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
     {
-        UNIENGINE_ERROR("EntityManager not attached to any world!");
         return {};
     }
     assert(archetype.IsValid());
     std::vector<Entity> retVal;
-    auto &entityManager = GetInstance();
     entityManager.m_scene->m_saved = false;
     EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
     if (archetypeInfo.m_dataComponentStorageIndex == 0)
     {
-        archetypeInfo.m_dataComponentStorageIndex = entityManager.m_entityDataComponentStorage->size();
-        entityManager.m_entityDataComponentStorage->emplace_back(archetypeInfo);
+        archetypeInfo.m_dataComponentStorageIndex = scene->m_sceneDataStorage.m_dataComponentStorages.size();
+        scene->m_sceneDataStorage.m_dataComponentStorages.emplace_back(archetypeInfo);
         RefreshAllEntityQueryInfos();
     }
     DataComponentStorage &storage =
-        entityManager.m_entityDataComponentStorage->at(archetypeInfo.m_dataComponentStorageIndex);
+        scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex);
     auto remainAmount = amount;
     const Transform transform;
     const GlobalTransform globalTransform;
@@ -513,22 +534,21 @@ std::vector<Entity> EntityManager::CreateEntities(
     {
         remainAmount--;
         Entity entity = storage.m_chunkArray.m_entities.at(storage.m_entityAliveCount);
-        EntityMetadata &entityInfo = GetInstance().m_entityMetaDataCollection->at(entity.m_index);
+        EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
         entity.m_version = entityInfo.m_version;
         entityInfo.m_handle = Handle();
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = entity;
+        scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = entity;
         storage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
-        GetInstance().m_entities->at(entity.m_index) = entity;
+        scene->m_sceneDataStorage.m_entities.at(entity.m_index) = entity;
         storage.m_entityAliveCount++;
         // Reset all component data
         const size_t chunkIndex = entityInfo.m_chunkArrayIndex / storage.m_chunkCapacity;
         const size_t chunkPointer = entityInfo.m_chunkArrayIndex % storage.m_chunkCapacity;
         const ComponentDataChunk &chunk =
-            GetInstance()
-                .m_entityDataComponentStorage->at(archetypeInfo.m_dataComponentStorageIndex)
+            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex)
                 .m_chunkArray.m_chunks[chunkIndex];
         for (const auto &i : storage.m_dataComponentTypes)
         {
@@ -549,20 +569,20 @@ std::vector<Entity> EntityManager::CreateEntities(
     {
         // Allocate new chunk;
         ComponentDataChunk chunk;
-        chunk.m_data = static_cast<void *>(calloc(1, GetInstance().m_archetypeChunkSize));
+        chunk.m_data = static_cast<void *>(calloc(1, entityManager.m_archetypeChunkSize));
         storage.m_chunkArray.m_chunks.push_back(chunk);
     }
-    const size_t originalSize = GetInstance().m_entities->size();
-    GetInstance().m_entities->resize(originalSize + remainAmount);
-    GetInstance().m_entityMetaDataCollection->resize(originalSize + remainAmount);
+    const size_t originalSize = scene->m_sceneDataStorage.m_entities.size();
+    scene->m_sceneDataStorage.m_entities.resize(originalSize + remainAmount);
+    scene->m_sceneDataStorage.m_entityInfos.resize(originalSize + remainAmount);
 
     for (int i = 0; i < remainAmount; i++)
     {
-        auto &entity = GetInstance().m_entities->at(originalSize + i);
+        auto &entity = scene->m_sceneDataStorage.m_entities.at(originalSize + i);
         entity.m_index = originalSize + i;
         entity.m_version = 1;
 
-        auto &entityInfo = GetInstance().m_entityMetaDataCollection->at(originalSize + i);
+        auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(originalSize + i);
         entityInfo = EntityMetadata();
         entityInfo.m_name = name;
         entityInfo.m_dataComponentStorageIndex = archetypeInfo.m_dataComponentStorageIndex;
@@ -570,13 +590,13 @@ std::vector<Entity> EntityManager::CreateEntities(
 
         entityInfo.m_handle = Handle();
 
-        entityManager.m_currentAttachedWorldEntityStorage->m_entityMap[entityInfo.m_handle] = entity;
+        scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = entity;
     }
 
     storage.m_chunkArray.m_entities.insert(
         storage.m_chunkArray.m_entities.end(),
-        GetInstance().m_entities->begin() + originalSize,
-        GetInstance().m_entities->end());
+        scene->m_sceneDataStorage.m_entities.begin() + originalSize,
+        scene->m_sceneDataStorage.m_entities.end());
     const int threadSize = JobManager::PrimaryWorkers().Size();
     int perThreadAmount = remainAmount / threadSize;
     if (perThreadAmount > 0)
@@ -585,14 +605,14 @@ std::vector<Entity> EntityManager::CreateEntities(
         for (int i = 0; i < threadSize; i++)
         {
             results.push_back(JobManager::PrimaryWorkers()
-                                  .Push([i, perThreadAmount, originalSize](int id) {
+                                  .Push([i, perThreadAmount, originalSize, scene](int id) {
                                       const Transform transform;
                                       const GlobalTransform globalTransform;
                                       for (int index = originalSize + i * perThreadAmount;
                                            index < originalSize + (i + 1) * perThreadAmount;
                                            index++)
                                       {
-                                          auto &entity = GetInstance().m_entities->at(index);
+                                          auto &entity = scene->m_sceneDataStorage.m_entities.at(index);
                                           entity.SetDataComponent(transform);
                                           entity.SetDataComponent(globalTransform);
                                           entity.SetDataComponent(GlobalTransformUpdateFlag());
@@ -601,14 +621,14 @@ std::vector<Entity> EntityManager::CreateEntities(
                                   .share());
         }
         results.push_back(JobManager::PrimaryWorkers()
-                              .Push([perThreadAmount, originalSize, &remainAmount, threadSize](int id) {
+                              .Push([perThreadAmount, originalSize, &remainAmount, threadSize, scene](int id) {
                                   const Transform transform;
                                   const GlobalTransform globalTransform;
                                   for (int index = originalSize + perThreadAmount * threadSize;
                                        index < originalSize + remainAmount;
                                        index++)
                                   {
-                                      auto &entity = GetInstance().m_entities->at(index);
+                                      auto &entity = scene->m_sceneDataStorage.m_entities.at(index);
                                       entity.SetDataComponent(transform);
                                       entity.SetDataComponent(globalTransform);
                                       entity.SetDataComponent(GlobalTransformUpdateFlag());
@@ -619,13 +639,17 @@ std::vector<Entity> EntityManager::CreateEntities(
             i.wait();
     }
 
-    retVal.insert(retVal.end(), GetInstance().m_entities->begin() + originalSize, GetInstance().m_entities->end());
+    retVal.insert(
+        retVal.end(),
+        scene->m_sceneDataStorage.m_entities.begin() + originalSize,
+        scene->m_sceneDataStorage.m_entities.end());
     return retVal;
 }
 
 std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const std::string &name)
 {
-    return CreateEntities(GetInstance().m_basicArchetype, amount, name);
+    auto &entityManager = GetInstance();
+    return CreateEntities(entityManager.m_basicArchetype, amount, name);
 }
 
 void EntityManager::DeleteEntity(const Entity &entity)
@@ -634,15 +658,21 @@ void EntityManager::DeleteEntity(const Entity &entity)
     {
         return;
     }
-    GetInstance().m_scene->m_saved = false;
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    entityManager.m_scene->m_saved = false;
     const size_t entityIndex = entity.m_index;
-    auto children = GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
+    auto children = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
     for (const auto &child : children)
     {
         DeleteEntity(child);
     }
-    if (GetInstance().m_entityMetaDataCollection->at(entityIndex).m_parent.m_index != 0)
-        RemoveChild(entity, GetInstance().m_entityMetaDataCollection->at(entityIndex).m_parent);
+    if (scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent.m_index != 0)
+        RemoveChild(entity, scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent);
     DeleteEntityInternal(entity);
 }
 
@@ -650,32 +680,42 @@ std::string EntityManager::GetEntityName(const Entity &entity)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
-
-    if (entity != GetInstance().m_entities->at(index))
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return "";
+    }
+    if (entity != scene->m_sceneDataStorage.m_entities.at(index))
     {
         UNIENGINE_ERROR("Child already deleted!");
         return "";
     }
-    return GetInstance().m_entityMetaDataCollection->at(index).m_name;
+    return scene->m_sceneDataStorage.m_entityInfos.at(index).m_name;
 }
 
 void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
-
-    if (entity != GetInstance().m_entities->at(index))
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    if (entity != scene->m_sceneDataStorage.m_entities.at(index))
     {
         UNIENGINE_ERROR("Child already deleted!");
         return;
     }
-    GetInstance().m_scene->m_saved = false;
+    entityManager.m_scene->m_saved = false;
     if (name.length() != 0)
     {
-        GetInstance().m_entityMetaDataCollection->at(index).m_name = name;
+        scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = name;
         return;
     }
-    GetInstance().m_entityMetaDataCollection->at(index).m_name = "Unnamed";
+    scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = "Unnamed";
 }
 
 void EntityManager::SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform)
@@ -684,14 +724,19 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
     auto &entityManager = GetInstance();
-    auto &parentEntityInfo = entityManager.m_entityMetaDataCollection->at(parentIndex);
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto &parentEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(parentIndex);
     for (const auto &i : parentEntityInfo.m_children)
     {
         if (i == entity)
             return;
     }
     entityManager.m_scene->m_saved = false;
-    auto &childEntityInfo = entityManager.m_entityMetaDataCollection->at(childIndex);
+    auto &childEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
         RemoveChild(entity, childEntityInfo.m_parent);
@@ -711,37 +756,68 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
 Entity EntityManager::GetParent(const Entity &entity)
 {
     assert(entity.IsValid());
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return Entity();
+    }
     const size_t entityIndex = entity.m_index;
-    return GetInstance().m_entityMetaDataCollection->at(entityIndex).m_parent;
+    return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent;
 }
 
 std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
 {
     assert(entity.IsValid());
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return {};
+    }
     const size_t entityIndex = entity.m_index;
-    return GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
+    return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
 }
 
 Entity EntityManager::GetChild(const Entity &entity, int index)
 {
     assert(entity.IsValid());
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return Entity();
+    }
     const size_t entityIndex = entity.m_index;
-    auto& children = GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children;
-    if(children.size() > index) return children[index];
+    auto &children = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
+    if (children.size() > index)
+        return children[index];
     return Entity();
 }
 
 size_t EntityManager::GetChildrenAmount(const Entity &entity)
 {
     assert(entity.IsValid());
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return 0;
+    }
     const size_t entityIndex = entity.m_index;
-    return GetInstance().m_entityMetaDataCollection->at(entityIndex).m_children.size();
+    return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children.size();
 }
 
 inline void EntityManager::ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func)
 {
     assert(entity.IsValid());
-    auto children = GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_children;
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto children = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_children;
     for (auto i : children)
     {
         if (i.IsValid())
@@ -752,23 +828,29 @@ inline void EntityManager::ForEachChild(const Entity &entity, const std::functio
 void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
 {
     assert(entity.IsValid() && parent.IsValid());
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
-    if (GetInstance().m_entityMetaDataCollection->at(childIndex).m_parent.m_index == 0)
+    if (scene->m_sceneDataStorage.m_entityInfos.at(childIndex).m_parent.m_index == 0)
     {
         UNIENGINE_ERROR("No child by the parent!");
     }
-    GetInstance().m_scene->m_saved = false;
-    GetInstance().m_entityMetaDataCollection->at(childIndex).m_parent = Entity();
-    const size_t childrenCount = GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children.size();
+    entityManager.m_scene->m_saved = false;
+    scene->m_sceneDataStorage.m_entityInfos.at(childIndex).m_parent = Entity();
+    const size_t childrenCount = scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.size();
 
     for (int i = 0; i < childrenCount; i++)
     {
-        if (GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children[i].m_index == childIndex)
+        if (scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children[i].m_index == childIndex)
         {
-            GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children[i] =
-                GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children.back();
-            GetInstance().m_entityMetaDataCollection->at(parentIndex).m_children.pop_back();
+            scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children[i] =
+                scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.back();
+            scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.pop_back();
             break;
         }
     }
@@ -787,9 +869,15 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
         return;
     }
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     if (dataComponentStorage.m_dataComponentTypes.size() <= 3)
     {
         UNIENGINE_ERROR("Remove Component Data failed: Entity must have at least 1 data component besides 3 basic data "
@@ -824,7 +912,7 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
     }
     newArchetypeInfo.m_entitySize =
         newArchetypeInfo.m_dataComponentTypes.back().m_offset + newArchetypeInfo.m_dataComponentTypes.back().m_size;
-    newArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / newArchetypeInfo.m_entitySize;
+    newArchetypeInfo.m_chunkCapacity = entityManager.m_archetypeChunkSize / newArchetypeInfo.m_entitySize;
     auto archetype = CreateEntityArchetypeHelper(newArchetypeInfo);
 #pragma endregion
 #pragma region Create new Entity with new archetype
@@ -835,7 +923,7 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
         SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = GetInstance().m_entityMetaDataCollection->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -843,9 +931,9 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
     entityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
     entityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
     // Apply to chunk.
-    entityManager.m_entityDataComponentStorage->at(entityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
-    entityManager.m_entityDataComponentStorage->at(newEntityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
@@ -855,8 +943,14 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
 void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data)
 {
     auto &entityManager = GetInstance();
-    auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entityIndex);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     const auto chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -908,8 +1002,14 @@ IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, con
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return nullptr;
+    }
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     const auto chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -943,6 +1043,7 @@ IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, con
 EntityArchetype EntityManager::CreateEntityArchetype(
     const std::string &name, const std::vector<DataComponentType> &types)
 {
+    auto& entityManager = GetInstance();
     EntityArchetypeInfo entityArchetypeInfo;
     entityArchetypeInfo.m_name = name;
     std::vector<DataComponentType> actualTypes;
@@ -963,7 +1064,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     entityArchetypeInfo.m_dataComponentTypes = actualTypes;
     entityArchetypeInfo.m_entitySize = entityArchetypeInfo.m_dataComponentTypes.back().m_offset +
                                        entityArchetypeInfo.m_dataComponentTypes.back().m_size;
-    entityArchetypeInfo.m_chunkCapacity = GetInstance().m_archetypeChunkSize / entityArchetypeInfo.m_entitySize;
+    entityArchetypeInfo.m_chunkCapacity = entityManager.m_archetypeChunkSize / entityArchetypeInfo.m_entitySize;
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
 
@@ -971,10 +1072,15 @@ void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IP
 {
     assert(ptr && entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto typeName = ptr->GetTypeName();
     bool found = false;
     size_t i = 0;
-    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
@@ -993,7 +1099,7 @@ void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IP
     if (!found)
     {
         auto id = SerializationManager::GetSerializableTypeId(typeName);
-        GetInstance().m_entityPrivateComponentStorage->SetPrivateComponent(entity, id);
+        scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
         elements.emplace_back(id, ptr, entity);
     }
     entityManager.m_scene->m_saved = false;
@@ -1007,12 +1113,14 @@ void EntityManager::ForEachDescendantHelper(const Entity &target, const std::fun
 
 EntityArchetype EntityManager::GetDefaultEntityArchetype()
 {
-    return GetInstance().m_basicArchetype;
+    auto& entityManager = GetInstance();
+    return entityManager.m_basicArchetype;
 }
 
 EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype &entityArchetype)
 {
-    return GetInstance().m_entityArchetypeInfos[entityArchetype.m_index];
+    auto& entityManager = GetInstance();
+    return entityManager.m_entityArchetypeInfos[entityArchetype.m_index];
 }
 
 Entity EntityManager::GetRoot(const Entity &entity)
@@ -1029,17 +1137,28 @@ Entity EntityManager::GetRoot(const Entity &entity)
 
 Entity EntityManager::GetEntity(const size_t &index)
 {
-    if (index > 0 && index < GetInstance().m_entities->size())
-        return GetInstance().m_entities->at(index);
-    return Entity();
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return {};
+    }
+    if (index > 0 && index < scene->m_sceneDataStorage.m_entities.size())
+        return scene->m_sceneDataStorage.m_entities.at(index);
+    return {};
 }
 
 void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &privateComponentElements =
-        entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+        scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < privateComponentElements.size(); i++)
     {
         if (privateComponentElements[i].m_typeId == typeId)
@@ -1050,15 +1169,21 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
         }
     }
     entityManager.m_scene->m_saved = false;
-    entityManager.m_entityPrivateComponentStorage->RemovePrivateComponent(entity, typeId);
+    scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(entity, typeId);
 }
 
 void EntityManager::SetEnable(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
-    if (GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled != value)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
     {
-        for (auto &i : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
+        return;
+    }
+    if (scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled != value)
+    {
+        for (auto &i : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements)
         {
             if (value)
             {
@@ -1070,20 +1195,25 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
             }
         }
     }
-    GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled = value;
+    scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled = value;
 
-    for (const auto &i : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_children)
+    for (const auto &i : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_children)
     {
         SetEnable(i, value);
     }
-    GetInstance().m_scene->m_saved = false;
+    entityManager.m_scene->m_saved = false;
 }
 
 void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
-    auto& entityManager = GetInstance();
-    auto &entityMetadata = entityManager.m_entityMetaDataCollection->at(entity.m_index);
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto &entityMetadata = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
     if (entityMetadata.m_enabled != value)
     {
         for (auto &i : entityMetadata.m_privateComponentElements)
@@ -1105,9 +1235,10 @@ void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
 EntityQuery EntityManager::CreateEntityQuery()
 {
     EntityQuery retVal;
-    retVal.m_index = GetInstance().m_entityQueryInfos.size();
+    auto &entityManager = GetInstance();
+    retVal.m_index = entityManager.m_entityQueryInfos.size();
     const EntityQueryInfo info;
-    GetInstance().m_entityQueryInfos.push_back(info);
+    entityManager.m_entityQueryInfos.push_back(info);
     RefreshEntityQueryInfo(retVal.m_index);
     return retVal;
 }
@@ -1115,29 +1246,38 @@ EntityQuery EntityManager::CreateEntityQuery()
 std::vector<DataComponentStorage *> EntityManager::UnsafeGetDataComponentStorage(const EntityQuery &entityQuery)
 {
     assert(entityQuery.IsValid());
-    return GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage;
+    auto &entityManager = GetInstance();
+    return entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage;
 }
 
 void EntityManager::ForAllEntities(const std::function<void(int i, Entity entity)> &func)
 {
-    for (int index = 0; index < GetInstance().m_entities->size(); index++)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
     {
-        if (GetInstance().m_entities->at(index).m_version != 0)
+        return;
+    }
+    for (int index = 0; index < scene->m_sceneDataStorage.m_entities.size(); index++)
+    {
+        if (scene->m_sceneDataStorage.m_entities.at(index).m_version != 0)
         {
-            func(index, GetInstance().m_entities->at(index));
+            func(index, scene->m_sceneDataStorage.m_entities.at(index));
         }
     }
 }
 
 std::string EntityManager::GetEntityArchetypeName(const EntityArchetype &entityArchetype)
 {
-    return GetInstance().m_entityArchetypeInfos[entityArchetype.m_index].m_name;
+    auto &entityManager = GetInstance();
+    return entityManager.m_entityArchetypeInfos[entityArchetype.m_index].m_name;
 }
 
 void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto &entityManager = GetInstance();
+    for (const auto *i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
     {
         GetEntityStorage(*i, container, checkEnable);
     }
@@ -1152,16 +1292,21 @@ size_t EntityManager::GetEntityAmount(EntityQuery entityQuery, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     size_t retVal = 0;
-    if(checkEnable){
-        for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto &entityManager = GetInstance();
+    if (checkEnable)
+    {
+        for (auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
         {
-            for(int index = 0; index < i->m_entityAliveCount; index++){
-                if(i->m_chunkArray.m_entities[index].IsEnabled()) retVal++;
+            for (int index = 0; index < i->m_entityAliveCount; index++)
+            {
+                if (i->m_chunkArray.m_entities[index].IsEnabled())
+                    retVal++;
             }
         }
-    }else
+    }
+    else
     {
-        for (auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+        for (auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
         {
             retVal += i->m_entityAliveCount;
         }
@@ -1170,7 +1315,8 @@ size_t EntityManager::GetEntityAmount(EntityQuery entityQuery, bool checkEnable)
 }
 void EntityManager::SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string &name)
 {
-    GetInstance().m_entityArchetypeInfos[entityArchetype.m_index].m_name = name;
+    auto &entityManager = GetInstance();
+    entityManager.m_entityArchetypeInfos[entityArchetype.m_index].m_name = name;
 }
 std::vector<Entity> EntityManager::GetDescendants(const Entity &entity)
 {
@@ -1180,15 +1326,27 @@ std::vector<Entity> EntityManager::GetDescendants(const Entity &entity)
 }
 void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entity> &results)
 {
-    auto &children = GetInstance().m_entityMetaDataCollection->at(target.m_index).m_children;
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
+    auto &children = scene->m_sceneDataStorage.m_entityInfos.at(target.m_index).m_children;
     if (!children.empty())
         results.insert(results.end(), children.begin(), children.end());
     for (const auto &i : children)
         GetDescendantsHelper(i, results);
 }
-template <typename T> const std::vector<Entity> EntityManager::GetPrivateComponentOwnersList()
+template <typename T> std::vector<Entity> EntityManager::GetPrivateComponentOwnersList()
 {
-    return GetInstance().m_entityPrivateComponentStorage->GetOwnersList<T>();
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return {};
+    }
+    return scene->m_sceneDataStorage.m_entityPrivateComponentStorage.GetOwnersList<T>();
 }
 void EntityManager::Init()
 {
@@ -1196,12 +1354,13 @@ void EntityManager::Init()
     entityManager.m_entityArchetypeInfos.emplace_back();
     entityManager.m_entityQueryInfos.emplace_back();
 
-    GetInstance().m_basicArchetype =
+    entityManager.m_basicArchetype =
         CreateEntityArchetype("Basic", Transform(), GlobalTransform(), GlobalTransformUpdateFlag());
 }
 std::shared_ptr<Scene> EntityManager::GetCurrentScene()
 {
-    return GetInstance().m_scene;
+    auto &entityManager = GetInstance();
+    return entityManager.m_scene;
 }
 EntityArchetype EntityManager::CreateEntityArchetypeHelper(const EntityArchetypeInfo &info)
 {
@@ -1245,8 +1404,13 @@ std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const Entity
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        throw 0;
+    }
     size_t i = 0;
-    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
@@ -1260,7 +1424,8 @@ std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const Entity
 
 void EntityManager::RefreshAllEntityQueryInfos()
 {
-    for (size_t i = 1; i < GetInstance().m_entityQueryInfos.size(); i++)
+    auto &entityManager = GetInstance();
+    for (size_t i = 1; i < entityManager.m_entityQueryInfos.size(); i++)
     {
         RefreshEntityQueryInfo(i);
     }
@@ -1277,17 +1442,28 @@ void EntityManager::RefreshAllEntityArchetypeInfos()
 Entity EntityManager::GetEntity(const Handle &handle)
 {
     auto &entityManager = GetInstance();
-    auto search = entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.find(handle);
-    if (search != entityManager.m_currentAttachedWorldEntityStorage->m_entityMap.end())
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return {};
+    }
+    auto search = scene->m_sceneDataStorage.m_entityMap.find(handle);
+    if (search != scene->m_sceneDataStorage.m_entityMap.end())
     {
         return search->second;
     }
-    return Entity();
+    return {};
 }
 bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
-    for (auto &element : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return false;
+    }
+    for (auto &element : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements)
     {
         if (element.m_privateComponentData->m_typeName == typeName)
         {
@@ -1296,7 +1472,6 @@ bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string 
     }
     return false;
 }
-
 
 size_t EntityQuery::GetEntityAmount(bool checkEnabled) const
 {

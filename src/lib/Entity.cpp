@@ -41,7 +41,7 @@ size_t Entity::operator()(Entity const &key) const
 bool Entity::IsEnabled() const
 {
     assert(IsValid());
-    return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).m_enabled;
+    return EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(m_index).m_enabled;
 }
 
 void Entity::SetEnabled(const bool &value) const
@@ -61,7 +61,8 @@ bool Entity::IsNull() const
 
 bool Entity::IsValid() const
 {
-    return m_index != 0 && m_version != 0 && m_index < EntityManager::GetInstance().m_entities->size() && EntityManager::GetInstance().m_entities->at(m_index).m_version == m_version;
+    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entities;
+    return m_index != 0 && m_version != 0 && m_index < storage.size() && storage.at(m_index).m_version == m_version;
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
@@ -131,7 +132,8 @@ unsigned Entity::GetVersion() const
 }
 Handle Entity::GetHandle() const
 {
-    return EntityManager::GetInstance().m_entityMetaDataCollection->at(m_index).GetHandle();
+    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
+    return storage.at(m_index).GetHandle();
 }
 
 

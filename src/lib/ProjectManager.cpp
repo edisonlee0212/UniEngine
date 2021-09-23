@@ -156,29 +156,17 @@ void ProjectManager::OnInspect()
             ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
 
             FileUtils::SaveFile(
-                "New...##ProjectManager", "Project", {".ueproj"}, [](const std::filesystem::path &filePath) {
+                "Create or load New Project##ProjectManager", "Project", {".ueproj"}, [](const std::filesystem::path &filePath) {
                     try
                     {
                         CreateOrLoadProject(filePath);
-                        UNIENGINE_LOG("Saved to " + filePath.string());
                     }
                     catch (std::exception &e)
                     {
-                        UNIENGINE_ERROR("Failed to save to " + filePath.string());
+                        UNIENGINE_ERROR("Failed to create/load from " + filePath.string());
                     }
                 });
-            FileUtils::OpenFile(
-                "Open...##ProjectManager", "Project", {".ueproj"}, [&](const std::filesystem::path &filePath) {
-                    try
-                    {
-                        CreateOrLoadProject(filePath);
-                        UNIENGINE_LOG("Loaded from " + filePath.string());
-                    }
-                    catch (std::exception &e)
-                    {
-                        UNIENGINE_ERROR("Failed to load from " + filePath.string());
-                    }
-                });
+
             if (ImGui::Button("Save"))
             {
                 SaveProject();
@@ -191,8 +179,6 @@ void ProjectManager::OnInspect()
         }
         ImGui::EndMainMenuBar();
     }
-
-
 }
 void ProjectManager::Init(const std::filesystem::path &projectPath)
 {

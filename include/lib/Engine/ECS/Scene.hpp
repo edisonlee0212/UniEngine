@@ -39,6 +39,10 @@ class UNIENGINE_API Scene : public IAsset
     friend class EditorManager;
     friend class SerializationManager;
     friend class SystemRef;
+    friend struct Entity;
+    friend class Prefab;
+    friend class TransformManager;
+    friend class PrivateComponentStorage;
     SceneDataStorage m_sceneDataStorage;
     std::multimap<float, std::shared_ptr<ISystem>> m_systems;
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;

@@ -38,7 +38,7 @@ struct UNIENGINE_API ApplicationConfigs{
     bool m_fullScreen = false;
 };
 enum class UNIENGINE_API ApplicationStatus{
-    WelcomingScreen,
+    None,
     Initialized,
     OnDestroy
 };
@@ -49,7 +49,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     friend class EditorManager;
     friend class ProjectManager;
     ApplicationConfigs m_applicationConfigs;
-    ApplicationStatus m_applicationStatus = ApplicationStatus::WelcomingScreen;
+    ApplicationStatus m_applicationStatus = ApplicationStatus::None;
     bool m_playing = false;
 
     std::vector<std::function<void()>> m_externalPreUpdateFunctions;
@@ -65,6 +65,8 @@ class UNIENGINE_API Application final : ISingleton<Application>
     bool m_needFixedUpdate = false;
     static void OnInspect();
     bool m_enableSettingsMenu = false;
+
+    static bool RequestProjectPath(std::filesystem::path& path);
   public:
     static void Reset();
     static ApplicationTime &Time();

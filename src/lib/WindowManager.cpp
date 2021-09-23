@@ -39,7 +39,8 @@ void WindowManager::SetMonitorCallback(GLFWmonitor *monitor, int event)
 
 void WindowManager::LateUpdate()
 {
-    glfwSwapBuffers(GetInstance().m_window);
+    auto& windowManager = GetInstance();
+    glfwSwapBuffers(windowManager.m_window);
 }
 
 void WindowManager::Init(std::string name, bool fullScreen)

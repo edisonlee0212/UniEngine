@@ -11,13 +11,14 @@ void TransformManager::Init()
 
 void TransformManager::PreUpdate()
 {
-    CalculateTransformGraphs();
+    CalculateTransformGraphs(EntityManager::GetCurrentScene());
 }
 
-void TransformManager::CalculateTransformGraph(const GlobalTransform &pltw, Entity parent)
+void TransformManager::CalculateTransformGraph(
+    std::vector<EntityMetadata> &entityInfos, const GlobalTransform &pltw, Entity parent)
 {
     auto &transformManager = GetInstance();
-    EntityMetadata &entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(parent.GetIndex());
+    EntityMetadata &entityInfo = entityInfos.at(parent.GetIndex());
     for (const auto &entity : entityInfo.m_children)
     {
         auto *transformStatus = reinterpret_cast<GlobalTransformUpdateFlag *>(
@@ -37,11 +38,14 @@ void TransformManager::CalculateTransformGraph(const GlobalTransform &pltw, Enti
             *reinterpret_cast<GlobalTransform *>(
                 EntityManager::GetDataComponentPointer(entity, typeid(GlobalTransform).hash_code())) = ltw;
         }
-        CalculateTransformGraph(ltw, entity);
+        CalculateTransformGraph(entityInfos, ltw, entity);
     }
 }
-void TransformManager::CalculateTransformGraphs()
+void TransformManager::CalculateTransformGraphs(std::shared_ptr<Scene> scene)
 {
+    if (!scene)
+        return;
+    auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
     ProfilerManager::StartEvent("TransformManager");
     auto &transformManager = GetInstance();
     EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
@@ -52,7 +56,7 @@ void TransformManager::CalculateTransformGraphs()
             Transform &transform,
             GlobalTransform &globalTransform,
             GlobalTransformUpdateFlag &transformStatus) {
-            EntityMetadata &entityInfo = EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex());
+            EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex());
             if (!entityInfo.m_parent.IsNull())
                 return;
             if (transformStatus.m_value)
@@ -62,13 +66,16 @@ void TransformManager::CalculateTransformGraphs()
             else
                 globalTransform.m_value = transform.m_value;
             transformStatus.m_value = false;
-            CalculateTransformGraph(globalTransform, entity);
+            CalculateTransformGraph(entityInfos, globalTransform, entity);
         },
         false);
     transformManager.m_physicsSystemOverride = false;
     ProfilerManager::EndEvent("TransformManager");
 }
-void TransformManager::CalculateTransformGraphForDescendents(const Entity& entity)
+void TransformManager::CalculateTransformGraphForDescendents(const Entity &entity)
 {
-    CalculateTransformGraph(entity.GetDataComponent<GlobalTransform>(), entity);
+    auto scene = EntityManager::GetCurrentScene();
+    if(!scene) return;
+    auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
+    CalculateTransformGraph(entityInfos, entity.GetDataComponent<GlobalTransform>(), entity);
 }

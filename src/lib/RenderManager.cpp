@@ -255,6 +255,8 @@ void RenderManager::LateUpdate()
     std::shared_ptr<Camera> mainCamera;
     if (mainCameraExist)
         mainCamera = renderManager.m_mainCameraComponent.lock();
+    auto scene = EntityManager::GetCurrentScene();
+
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
@@ -280,25 +282,30 @@ void RenderManager::LateUpdate()
             }
         }
     }
+    auto& editorManager = EditorManager::GetInstance();
 
     CollectRenderInstances(
-        EditorManager::GetInstance().m_sceneCamera,
-        EditorManager::GetInstance().m_sceneCameraPosition,
+        editorManager.m_sceneCamera,
+        editorManager.m_sceneCameraPosition,
         worldBound,
         !boundCalculated);
     ProfilerManager::EndEvent("RenderCommand Collection");
+
 #pragma endregion
 #pragma region Shadowmap prepass
-    ProfilerManager::StartEvent("Shadowmap Prepass");
-    EntityManager::GetCurrentScene()->SetBound(worldBound);
-    if (mainCameraExist)
+    if(scene)
     {
-        if (const auto mainCameraEntity = mainCamera->GetOwner(); mainCameraEntity.IsEnabled())
+        ProfilerManager::StartEvent("Shadowmap Prepass");
+        scene->SetBound(worldBound);
+        if (mainCameraExist)
         {
-            RenderShadows(worldBound, mainCamera, mainCameraEntity);
+            if (const auto mainCameraEntity = mainCamera->GetOwner(); mainCameraEntity.IsEnabled())
+            {
+                RenderShadows(worldBound, mainCamera, mainCameraEntity);
+            }
         }
+        ProfilerManager::EndEvent("Shadowmap Prepass");
     }
-    ProfilerManager::EndEvent("Shadowmap Prepass");
 #pragma endregion
 #pragma region Render to cameras
     ProfilerManager::StartEvent("Main Rendering");

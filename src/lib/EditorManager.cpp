@@ -437,7 +437,8 @@ void EditorManager::RenderToSceneCamera()
         }
     }
 
-    if (!renderManager.m_mainCameraComponent.expired() && editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
+    if (!renderManager.m_mainCameraComponent.expired() && editorManager.m_enabled &&
+        editorManager.m_sceneCamera->IsEnabled())
     {
         Camera::m_cameraInfoBlock.UpdateMatrices(
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
@@ -562,8 +563,8 @@ void EditorManager::RenderToSceneCamera()
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
         RenderManager::RenderToCamera(editorManager.m_sceneCamera);
     }
-    else{
-
+    else
+    {
     }
     ProfilerManager::EndEvent("RenderToSceneCamera");
 }
@@ -638,8 +639,8 @@ void EditorManager::OnInspect()
         editorManager.m_rightMouseButtonHold = false;
         editorManager.m_startMouse = false;
     }
-#pragma region Entity Explorer
-    if (editorManager.m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
+    auto scene = EntityManager::GetCurrentScene();
+    if (scene && editorManager.m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
     {
         ImGui::Begin("Entity Explorer");
         if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
@@ -737,9 +738,7 @@ void EditorManager::OnInspect()
         }
         ImGui::End();
     }
-#pragma endregion
-#pragma region Entity Inspector
-    if (editorManager.m_configFlags & EntityEditorSystem_EnableEntityInspector)
+    if (scene && editorManager.m_configFlags & EntityEditorSystem_EnableEntityInspector)
     {
         ImGui::Begin("Entity Inspector");
         if (editorManager.m_selectedEntity.IsValid())
@@ -861,8 +860,7 @@ void EditorManager::OnInspect()
         }
         ImGui::End();
     }
-#pragma endregion
-    if (InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow()))
+    if (scene && InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow()))
     {
         if (editorManager.m_selectedEntity.IsValid())
         {
@@ -871,293 +869,310 @@ void EditorManager::OnInspect()
     }
     MainCameraWindow();
     SceneCameraWindow();
-#pragma region Project Inspection
     auto &projectManager = ProjectManager::GetInstance();
-    if (ImGui::Begin("Project"))
+
+    if (ImGui::Begin("Project Manager"))
     {
-        if (ImGui::BeginDragDropTarget())
+        if (projectManager.m_currentProject)
         {
-            auto &assetManager = AssetManager::GetInstance();
-            for (const auto &i : assetManager.m_defaultExtensions)
+            if (ImGui::BeginDragDropTarget())
             {
-                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(i.first.c_str()))
+                auto &assetManager = AssetManager::GetInstance();
+                for (const auto &i : assetManager.m_defaultExtensions)
                 {
-                    IM_ASSERT(payload->DataSize == sizeof(Handle));
-                    Handle payload_n = *(Handle *)payload->Data;
-                    AssetRef assetRef;
-                    assetRef.m_assetHandle = payload_n;
-                    assetRef.Update();
-                    if (assetRef.m_value->GetPath().empty())
+                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(i.first.c_str()))
                     {
-                        // If current folder doesn't contain file with same name
-                        auto tempFileName = assetRef.m_value->m_name;
-                        auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
-                        auto folderPath = projectManager.m_projectPath.parent_path() /
-                                          projectManager.m_currentFocusedFolder->m_relativePath;
-                        std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
-                        int index = 0;
-                        while (std::filesystem::exists(filePath))
+                        IM_ASSERT(payload->DataSize == sizeof(Handle));
+                        Handle payload_n = *(Handle *)payload->Data;
+                        AssetRef assetRef;
+                        assetRef.m_assetHandle = payload_n;
+                        assetRef.Update();
+                        if (assetRef.m_value->GetPath().empty())
                         {
-                            index++;
-                            filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
-                        }
-                        assetRef.m_value->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                        ProjectManager::ScanProjectFolder();
-                    }
-                }
-            }
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
-            {
-                IM_ASSERT(payload->DataSize == sizeof(Entity));
-                auto prefab = AssetManager::CreateAsset<Prefab>();
-                prefab->FromEntity(*static_cast<Entity *>(payload->Data));
-                // If current folder doesn't contain file with same name
-                auto tempFileName = prefab->m_name;
-                auto fileExtension = assetManager.m_defaultExtensions["Prefab"].at(0);
-                auto folderPath =
-                    projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath;
-                std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
-                int index = 0;
-                while (std::filesystem::exists(filePath))
-                {
-                    index++;
-                    filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
-                }
-                prefab->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                ProjectManager::ScanProjectFolder();
-            }
-
-            ImGui::EndDragDropTarget();
-        }
-        static glm::vec2 thumbnailSizePadding = {96.0f, 8.0f};
-        float cellSize = thumbnailSizePadding.x + thumbnailSizePadding.y;
-        static float size1 = 200;
-        static float size2 = 200;
-        static float h = 100;
-        auto avail = ImGui::GetContentRegionAvail();
-        size2 = glm::max(avail.x - size1, cellSize + 8.0f);
-        size1 = glm::max(avail.x - size2, 32.0f);
-        h = avail.y;
-        ImGui::Splitter(true, 8.0, size1, size2, 32.0f, cellSize + 8.0f, h);
-        ImGui::BeginChild("1", ImVec2(size1, h), true);
-        FolderHierarchyHelper(ProjectManager::GetInstance().m_currentProject->m_projectFolder);
-        ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
-        bool updated = false;
-        auto& assetManager = AssetManager::GetInstance();
-        if (ImGui::BeginPopupContextWindow("NewAssetPopup"))
-        {
-            ImGui::Text("Create new asset...");
-            for(auto& i : assetManager.m_defaultExtensions){
-                if(ImGui::Button(i.first.c_str())){
-                    std::string newFileName = "New " + i.first;
-                    auto newHandle = Handle();
-                    auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
-                    auto newPath = ProjectManager::GenerateNewPath((projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(), AssetManager::GetExtension(i.first)[0]);
-                    newAsset->SetPathAndSave(newPath);
-                    FileRecord fileRecord;
-                    fileRecord.m_relativeFilePath = newPath;
-                    fileRecord.m_typeName = i.first;
-                    fileRecord.m_name = newFileName;
-                    projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords[newHandle] = fileRecord;
-                    projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = newHandle;
-                    projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
-                }
-            }
-            ImGui::EndPopup();
-        }
-
-
-        float panelWidth = ImGui::GetContentRegionAvailWidth();
-        int columnCount = glm::max(1, (int)(panelWidth / cellSize));
-        ImGui::Columns(columnCount, 0, false);
-        auto &editorManager = EditorManager::GetInstance();
-        if (!updated)
-        {
-            for (auto &i : projectManager.m_currentFocusedFolder->m_children)
-            {
-                ImGui::Image(
-                    (ImTextureID)editorManager.m_assetsIcons["Folder"]->UnsafeGetGLTexture()->Id(),
-                    {thumbnailSizePadding.x, thumbnailSizePadding.x},
-                    {0, 1},
-                    {1, 0});
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                {
-                    projectManager.m_currentFocusedFolder = i.second;
-                    updated = true;
-                    break;
-                }
-                ImGui::TextWrapped(i.second->m_name.c_str());
-                ImGui::NextColumn();
-            }
-        }
-        if (!updated)
-        {
-            for (auto &i : projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords)
-            {
-                ImTextureID textureId = 0;
-                auto fileName = i.second.m_relativeFilePath.filename();
-                if (fileName.string() == ".ueassetregistry" || fileName.string() == ".uemetadata" ||
-                    fileName.string() == ".ueproj" || fileName.extension().string() == ".ueproj")
-                    continue;
-                if (fileName.extension().string() == ".ueproj")
-                {
-                    textureId = (ImTextureID)editorManager.m_assetsIcons["Project"]->UnsafeGetGLTexture()->Id();
-                }
-                else
-                {
-                    auto iconSearch = editorManager.m_assetsIcons.find(i.second.m_typeName);
-                    if (iconSearch != editorManager.m_assetsIcons.end())
-                    {
-                        textureId = (ImTextureID)iconSearch->second->UnsafeGetGLTexture()->Id();
-                    }
-                    else
-                    {
-                        textureId = (ImTextureID)editorManager.m_assetsIcons["Binary"]->UnsafeGetGLTexture()->Id();
-                    }
-                }
-                static std::shared_ptr<IAsset> asset;
-                if (asset && asset->m_handle.GetValue() == i.first.GetValue())
-                {
-                    ImGui::ImageButton(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
-                }
-                else
-                {
-                    ImGui::Image(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
-                }
-                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) &&
-                    AssetManager::IsAsset(i.second.m_typeName))
-                {
-                    // If it's an asset then inspect.
-                    asset = AssetManager::Get(i.first);
-                    if (asset)
-                        editorManager.m_inspectingAsset = asset;
-                }
-                const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-                {
-                    ImGui::SetDragDropPayload(i.second.m_typeName.c_str(), &i.first, sizeof(Handle));
-                    ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second.m_name + tag).c_str());
-                    ImGui::EndDragDropSource();
-                }
-                if (ImGui::BeginPopupContextItem(tag.c_str()))
-                {
-                    if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-                    {
-                        static char newName[256] = {0};
-                        ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                        if (ImGui::Button(("Confirm" + tag).c_str()))
-                        {
-                            auto originalName = i.second.m_name;
-                            auto newFileName = std::string(newName);
-                            auto newPath = i.second.m_relativeFilePath;
-                            newPath.replace_filename(newFileName + newPath.extension().string());
-                            std::filesystem::rename(
-                                projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath,
-                                projectManager.m_projectPath.parent_path() / newPath);
-                            // Asset path
-
-                            auto search1 = assetManager.m_assets.find(i.first);
-                            if (search1 != assetManager.m_assets.end())
+                            // If current folder doesn't contain file with same name
+                            auto tempFileName = assetRef.m_value->m_name;
+                            auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
+                            auto folderPath = projectManager.m_projectPath.parent_path() /
+                                              projectManager.m_currentFocusedFolder->m_relativePath;
+                            std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
+                            int index = 0;
+                            while (std::filesystem::exists(filePath))
                             {
-                                if (!search1->second.expired())
-                                {
-                                    search1->second.lock()->m_projectRelativePath = newPath;;
-                                }
+                                index++;
+                                filePath =
+                                    folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
                             }
-                            // AssetRegistry
-                            projectManager.m_assetRegistry.ResetFilePath(i.first, newPath);
-                            // FolderMetadata
-                            i.second.m_relativeFilePath = newPath;
-                            ImGui::CloseCurrentPopup();
+                            assetRef.m_value->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
+                            ProjectManager::ScanProjectFolder();
                         }
-                        ImGui::EndMenu();
                     }
-                    if (ImGui::Button(("Remove" + tag).c_str()))
+                }
+                if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+                {
+                    IM_ASSERT(payload->DataSize == sizeof(Entity));
+                    auto prefab = AssetManager::CreateAsset<Prefab>();
+                    prefab->FromEntity(*static_cast<Entity *>(payload->Data));
+                    // If current folder doesn't contain file with same name
+                    auto tempFileName = prefab->m_name;
+                    auto fileExtension = assetManager.m_defaultExtensions["Prefab"].at(0);
+                    auto folderPath = projectManager.m_projectPath.parent_path() /
+                                      projectManager.m_currentFocusedFolder->m_relativePath;
+                    std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
+                    int index = 0;
+                    while (std::filesystem::exists(filePath))
                     {
-                        asset = AssetManager::Get(i.first);
-                        if (asset)
-                        {
-                            asset->m_projectRelativePath.clear();
-                        }
-                        std::filesystem::remove(
-                            projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
-                        projectManager.m_assetRegistry.RemoveFile(i.first);
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(i.second.m_relativeFilePath.string());
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords.erase(i.first);
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
-                        ImGui::CloseCurrentPopup();
-                        ImGui::EndPopup();
+                        index++;
+                        filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
+                    }
+                    prefab->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
+                    ProjectManager::ScanProjectFolder();
+                }
+
+                ImGui::EndDragDropTarget();
+            }
+            static glm::vec2 thumbnailSizePadding = {96.0f, 8.0f};
+            float cellSize = thumbnailSizePadding.x + thumbnailSizePadding.y;
+            static float size1 = 200;
+            static float size2 = 200;
+            static float h = 100;
+            auto avail = ImGui::GetContentRegionAvail();
+            size2 = glm::max(avail.x - size1, cellSize + 8.0f);
+            size1 = glm::max(avail.x - size2, 32.0f);
+            h = avail.y;
+            ImGui::Splitter(true, 8.0, size1, size2, 32.0f, cellSize + 8.0f, h);
+            ImGui::BeginChild("1", ImVec2(size1, h), true);
+            FolderHierarchyHelper(ProjectManager::GetInstance().m_currentProject->m_projectFolder);
+            ImGui::EndChild();
+
+            ImGui::SameLine();
+
+            ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
+            bool updated = false;
+            auto &assetManager = AssetManager::GetInstance();
+            if (ImGui::BeginPopupContextWindow("NewAssetPopup"))
+            {
+                ImGui::Text("Create new asset...");
+                for (auto &i : assetManager.m_defaultExtensions)
+                {
+                    if (ImGui::Button(i.first.c_str()))
+                    {
+                        std::string newFileName = "New " + i.first;
+                        auto newHandle = Handle();
+                        auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
+                        auto newPath = ProjectManager::GenerateNewPath(
+                            (projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
+                            AssetManager::GetExtension(i.first)[0]);
+                        newAsset->SetPathAndSave(newPath);
+                        FileRecord fileRecord;
+                        fileRecord.m_relativeFilePath = newPath;
+                        fileRecord.m_typeName = i.first;
+                        fileRecord.m_name = newFileName;
+                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords[newHandle] = fileRecord;
+                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = newHandle;
+                        projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
+                            projectManager.m_projectPath.parent_path() /
+                            projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                    }
+                }
+                ImGui::EndPopup();
+            }
+
+            float panelWidth = ImGui::GetContentRegionAvailWidth();
+            int columnCount = glm::max(1, (int)(panelWidth / cellSize));
+            ImGui::Columns(columnCount, 0, false);
+            auto &editorManager = EditorManager::GetInstance();
+            if (!updated)
+            {
+                for (auto &i : projectManager.m_currentFocusedFolder->m_children)
+                {
+                    ImGui::Image(
+                        (ImTextureID)editorManager.m_assetsIcons["Folder"]->UnsafeGetGLTexture()->Id(),
+                        {thumbnailSizePadding.x, thumbnailSizePadding.x},
+                        {0, 1},
+                        {1, 0});
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+                    {
+                        projectManager.m_currentFocusedFolder = i.second;
+                        updated = true;
                         break;
                     }
-                    ImGui::EndPopup();
+                    ImGui::TextWrapped(i.second->m_name.c_str());
+                    ImGui::NextColumn();
                 }
-                ImGui::TextWrapped(fileName.string().c_str());
-                ImGui::NextColumn();
             }
-        }
-
-        ImGui::Columns(1);
-        // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
-        ImGui::EndChild();
-
-    }
-    ImGui::End();
-#pragma endregion
-#pragma region System Inspection
-    ImGui::Begin("System Inspector");
-    for (auto &i : EntityManager::GetCurrentScene().get()->m_systems)
-    {
-        if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
-        {
-            bool enabled = i.second->Enabled();
-            if (ImGui::Checkbox("Enabled", &enabled))
+            if (!updated)
             {
-                if (i.second->Enabled() != enabled)
+                for (auto &i : projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords)
                 {
-                    if (enabled)
+                    ImTextureID textureId = 0;
+                    auto fileName = i.second.m_relativeFilePath.filename();
+                    if (fileName.string() == ".ueassetregistry" || fileName.string() == ".uemetadata" ||
+                        fileName.string() == ".ueproj" || fileName.extension().string() == ".ueproj")
+                        continue;
+                    if (fileName.extension().string() == ".ueproj")
                     {
-                        i.second->Enable();
+                        textureId = (ImTextureID)editorManager.m_assetsIcons["Project"]->UnsafeGetGLTexture()->Id();
                     }
                     else
                     {
-                        i.second->Disable();
+                        auto iconSearch = editorManager.m_assetsIcons.find(i.second.m_typeName);
+                        if (iconSearch != editorManager.m_assetsIcons.end())
+                        {
+                            textureId = (ImTextureID)iconSearch->second->UnsafeGetGLTexture()->Id();
+                        }
+                        else
+                        {
+                            textureId = (ImTextureID)editorManager.m_assetsIcons["Binary"]->UnsafeGetGLTexture()->Id();
+                        }
                     }
+                    static std::shared_ptr<IAsset> asset;
+                    if (asset && asset->m_handle.GetValue() == i.first.GetValue())
+                    {
+                        ImGui::ImageButton(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
+                    }
+                    else
+                    {
+                        ImGui::Image(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
+                    }
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) &&
+                        AssetManager::IsAsset(i.second.m_typeName))
+                    {
+                        // If it's an asset then inspect.
+                        asset = AssetManager::Get(i.first);
+                        if (asset)
+                            editorManager.m_inspectingAsset = asset;
+                    }
+                    const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+                    {
+                        ImGui::SetDragDropPayload(i.second.m_typeName.c_str(), &i.first, sizeof(Handle));
+                        ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second.m_name + tag).c_str());
+                        ImGui::EndDragDropSource();
+                    }
+                    if (ImGui::BeginPopupContextItem(tag.c_str()))
+                    {
+                        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+                        {
+                            static char newName[256] = {0};
+                            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                            if (ImGui::Button(("Confirm" + tag).c_str()))
+                            {
+                                auto originalName = i.second.m_name;
+                                auto newFileName = std::string(newName);
+                                auto newPath = i.second.m_relativeFilePath;
+                                newPath.replace_filename(newFileName + newPath.extension().string());
+                                std::filesystem::rename(
+                                    projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath,
+                                    projectManager.m_projectPath.parent_path() / newPath);
+                                // Asset path
+
+                                auto search1 = assetManager.m_assets.find(i.first);
+                                if (search1 != assetManager.m_assets.end())
+                                {
+                                    if (!search1->second.expired())
+                                    {
+                                        search1->second.lock()->m_projectRelativePath = newPath;
+                                        ;
+                                    }
+                                }
+                                // AssetRegistry
+                                projectManager.m_assetRegistry.ResetFilePath(i.first, newPath);
+                                // FolderMetadata
+                                i.second.m_relativeFilePath = newPath;
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndMenu();
+                        }
+                        if (ImGui::Button(("Remove" + tag).c_str()))
+                        {
+                            asset = AssetManager::Get(i.first);
+                            if (asset)
+                            {
+                                asset->m_projectRelativePath.clear();
+                            }
+                            std::filesystem::remove(
+                                projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
+                            projectManager.m_assetRegistry.RemoveFile(i.first);
+                            projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(
+                                i.second.m_relativeFilePath.string());
+                            projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords.erase(i.first);
+                            projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
+                                projectManager.m_projectPath.parent_path() /
+                                projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                            ImGui::CloseCurrentPopup();
+                            ImGui::EndPopup();
+                            break;
+                        }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::TextWrapped(fileName.string().c_str());
+                    ImGui::NextColumn();
                 }
             }
-            i.second->OnInspect();
+
+            ImGui::Columns(1);
+            // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
+            ImGui::EndChild();
+        }
+        else{
+            ImGui::Text("No project loaded!");
         }
     }
     ImGui::End();
-#pragma endregion
-#pragma region Asset Inspection
-    ImGui::Begin("Asset Inspector");
-    if (!editorManager.m_inspectingAsset.expired())
+    if (scene)
     {
-        auto asset = editorManager.m_inspectingAsset.lock();
-        if (!asset->GetPath().empty())
+        if (ImGui::Begin("System Inspector"))
         {
-            if (ImGui::Button("Save"))
+            for (auto &i : EntityManager::GetCurrentScene().get()->m_systems)
             {
-                asset->Save();
+                if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
+                {
+                    bool enabled = i.second->Enabled();
+                    if (ImGui::Checkbox("Enabled", &enabled))
+                    {
+                        if (i.second->Enabled() != enabled)
+                        {
+                            if (enabled)
+                            {
+                                i.second->Enable();
+                            }
+                            else
+                            {
+                                i.second->Disable();
+                            }
+                        }
+                    }
+                    i.second->OnInspect();
+                }
             }
+        }
+        ImGui::End();
+    }
+    if (ImGui::Begin("Asset Inspector"))
+    {
+        if (!editorManager.m_inspectingAsset.expired())
+        {
+            auto asset = editorManager.m_inspectingAsset.lock();
+            if (!asset->GetPath().empty())
+            {
+                if (ImGui::Button("Save"))
+                {
+                    asset->Save();
+                }
+            }
+            else
+            {
+                ImGui::Text("Temporary asset");
+            }
+            ImGui::Separator();
+            asset->OnInspect();
         }
         else
         {
-            ImGui::Text("Temporary asset");
+            ImGui::Text("None");
         }
-        ImGui::Separator();
-        asset->OnInspect();
-    }
-    else
-    {
-        ImGui::Text("None");
     }
     ImGui::End();
-#pragma endregion
 }
 
 void EditorManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)

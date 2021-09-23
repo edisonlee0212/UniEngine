@@ -20,6 +20,19 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     auto &application = GetInstance();
     application.m_applicationConfigs = applicationConfigs;
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
+
+    while (application.m_applicationConfigs.m_projectPath.empty())
+    {
+        if (!RequestProjectPath(application.m_applicationConfigs.m_projectPath))
+        {
+            break;
+        }
+    }
+    if (application.m_applicationConfigs.m_projectPath.empty())
+    {
+        exit(0);
+    }
+
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
@@ -35,19 +48,8 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
     EditorManager::Init();
     TransformManager::Init();
-    if (!applicationConfigs.m_projectPath.empty())
-    {
-        application.m_applicationStatus = ApplicationStatus::Initialized;
-        ProjectManager::CreateOrLoadProject(applicationConfigs.m_projectPath);
-
-    }
-    else
-    {
-        application.m_applicationStatus = ApplicationStatus::WelcomingScreen;
-    }
-
-
-
+    application.m_applicationStatus = ApplicationStatus::Initialized;
+    ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
     application.m_playing = false;
 }
 void ApplicationTime::OnInspect()
@@ -243,38 +245,10 @@ void Application::Run()
         application.m_time.m_frameStartTime = glfwGetTime();
         EditorManager::ImGuiPreUpdate();
         OpenGLUtils::PreUpdate();
-        switch (application.m_applicationStatus)
-        {
-        case ApplicationStatus::WelcomingScreen: {
 
-            ImGui::Begin("Open or Create Project...");
-            FileUtils::SaveFile(
-                "Open Or Create Project...", "UniEngine Project", {".ueproj"}, [&](const std::filesystem::path &path) {
-                    bool search = false;
-                    for (const auto &entry : std::filesystem::directory_iterator(path.parent_path())){
-                        if(!entry.is_directory() && entry.path().extension() == ".ueproj" && entry.path().filename() != path.filename()){
-                            search = true;
-                            break;
-                        }
-                    }
-                    if(!search) {
-                        ProjectManager::CreateOrLoadProject(path);
-                        application.m_applicationStatus = ApplicationStatus::Initialized;
-                    }
-                    else{
-                        std::cout << "Project already exists!" << std::endl;
-                    }
-                });
-            ImGui::End();
-        }
-        break;
-        case ApplicationStatus::Initialized: {
-            PreUpdateInternal();
-            UpdateInternal();
-            LateUpdateInternal();
-        }
-        break;
-        }
+        PreUpdateInternal();
+        UpdateInternal();
+        LateUpdateInternal();
 
         // ImGui drawing
         EditorManager::ImGuiLateUpdate();
@@ -334,6 +308,77 @@ void Application::OnInspect()
         application.m_time.OnInspect();
     }
     ImGui::End();
+}
+bool Application::RequestProjectPath(std::filesystem::path &path)
+{
+    std::string fileType = "UniEngine Project";
+    std::vector<std::string> extensions = {".ueproj"};
+    OPENFILENAMEA ofn;
+    CHAR szFile[260] = {0};
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+    std::string filters = fileType + " (";
+    for (int i = 0; i < extensions.size(); i++)
+    {
+        filters += "*" + extensions[i];
+        if (i < extensions.size() - 1)
+            filters += ", ";
+    }
+    filters += ") ";
+    std::string filters2;
+    for (int i = 0; i < extensions.size(); i++)
+    {
+        filters2 += "*" + extensions[i];
+        if (i < extensions.size() - 1)
+            filters2 += ";";
+    }
+    char actualFilter[256];
+    char title[256];
+    strcpy(title, "Create or load UniEngine project");
+    int index = 0;
+    for (auto &i : filters)
+    {
+        actualFilter[index] = i;
+        index++;
+    }
+    actualFilter[index] = 0;
+    index++;
+    for (auto &i : filters2)
+    {
+        actualFilter[index] = i;
+        index++;
+    }
+    actualFilter[index] = 0;
+    index++;
+    actualFilter[index] = 0;
+    index++;
+    ofn.lpstrFilter = actualFilter;
+    ofn.nFilterIndex = 1;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+    ofn.lpstrTitle = title;
+    // Sets the default extension by extracting it from the filter
+    ofn.lpstrDefExt = strchr(actualFilter, '\0') + 1;
+
+    if (GetSaveFileNameA(&ofn) == TRUE)
+    {
+        std::string retVal = ofn.lpstrFile;
+        const std::string search = "\\";
+        size_t pos = retVal.find(search);
+        // Repeat till end is reached
+        while (pos != std::string::npos)
+        {
+            // Replace this occurrence of Sub String
+            retVal.replace(pos, 1, "/");
+            // Get the next occurrence from the current position
+            pos = retVal.find(search, pos + 1);
+        }
+        path = retVal;
+        return true;
+    }
+    return false;
 }
 void ApplicationTime::Reset()
 {

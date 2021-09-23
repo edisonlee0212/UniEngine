@@ -711,6 +711,12 @@ void Prefab::ApplyBoneIndices(Prefab *node)
 }
 void Prefab::FromEntity(const Entity &entity)
 {
+    auto scene = EntityManager::GetCurrentScene();
+    if (!scene)
+    {
+        UNIENGINE_ERROR("Scene not attached!");
+        return;
+    }
     m_entityHandle = entity.GetHandle();
     m_name = entity.GetName();
     m_enabled = entity.IsEnabled();
@@ -725,8 +731,7 @@ void Prefab::FromEntity(const Entity &entity)
         m_dataComponents.push_back(std::move(holder));
     });
 
-    auto &elements =
-        EntityManager::GetInstance().m_entityMetaDataCollection->at(entity.GetIndex()).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements;
     for (auto &element : elements)
     {
         size_t id;

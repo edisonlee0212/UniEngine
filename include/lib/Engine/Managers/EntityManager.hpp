@@ -50,12 +50,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     std::vector<EntityQueryInfo> m_entityQueryInfos;
 #pragma region Data Storage
     std::shared_ptr<Scene> m_scene;
-
-    SceneDataStorage *m_currentAttachedWorldEntityStorage = nullptr;
-    std::vector<Entity> *m_entities = nullptr;
-    std::vector<EntityMetadata> *m_entityMetaDataCollection = nullptr;
-    std::vector<DataComponentStorage> *m_entityDataComponentStorage = nullptr;
-    PrivateComponentStorage *m_entityPrivateComponentStorage = nullptr;
 #pragma endregion
 #pragma region Helpers
     template <typename T = IDataComponent> static bool CheckDataComponentTypes(T arg);
@@ -75,7 +69,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
     static void EraseDuplicates(std::vector<DataComponentType> &types);
     template <typename T = IDataComponent>
-    static void GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable);
+    static void GetDataComponentArrayStorage(
+        const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable);
     static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable);
     static size_t SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2);
     static void SetEnableSingle(const Entity &entity, const bool &value);
@@ -202,7 +197,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = IDataComponent> static bool HasDataComponent(const Entity &entity);
 
     template <typename T = IPrivateComponent> static std::weak_ptr<T> GetOrSetPrivateComponent(const Entity &entity);
-    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(const Entity &entity, const std::string& typeName);
+    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(const Entity &entity, const std::string &typeName);
 
     template <typename T = IPrivateComponent> static void RemovePrivateComponent(const Entity &entity);
     template <typename T = IPrivateComponent> static bool HasPrivateComponent(const Entity &entity);
@@ -223,27 +218,35 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(
-        const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable);
+        const EntityQuery &entityQuery,
+        std::vector<T1> &container,
+        const std::function<bool(const T2 &)> &filterFunc,
+        bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void GetComponentDataArray(
         const EntityQuery &entityQuery,
         std::vector<T1> &container,
-        const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable);
+        const std::function<bool(const T2 &, const T3 &)> &filterFunc,
+        bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    static void GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable);
+    static void GetComponentDataArray(
+        const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable);
     static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable);
     template <typename T1 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable);
+        const std::function<bool(const Entity &, const T1 &)> &filterFunc,
+        bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetEntityArray(
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable);
+        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
+        bool checkEnable);
     template <typename T1 = IDataComponent>
-    static void GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable);
+    static void GetEntityArray(
+        const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable);
     static size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable);
 #pragma endregion
   public:
@@ -281,18 +284,18 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetArchetypeChunkSize();
     static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype &entityArchetype);
     static Entity GetEntity(const size_t &index);
-    template <typename T> static const std::vector<Entity> GetPrivateComponentOwnersList();
+    template <typename T> static std::vector<Entity> GetPrivateComponentOwnersList();
     static void ForEachPrivateComponent(
         const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
     static void GetAllEntities(std::vector<Entity> &target);
-    static void Detach();
     static void Attach(const std::shared_ptr<Scene> &scene);
     static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
 
     template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
     static Entity CreateEntity(const std::string &name = "New Entity");
-    static Entity CreateEntity(const EntityArchetype &archetype, const std::string &name = "New Entity", const Handle& handle = Handle());
+    static Entity CreateEntity(
+        const EntityArchetype &archetype, const std::string &name = "New Entity", const Handle &handle = Handle());
     static std::vector<Entity> CreateEntities(
         const EntityArchetype &archetype, const size_t &amount, const std::string &name = "New Entity");
     static std::vector<Entity> CreateEntities(const size_t &amount, const std::string &name = "New Entity");
@@ -614,6 +617,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     const auto entityCount = storage.m_entityAliveCount;
     auto found1 = false;
@@ -646,7 +655,7 @@ void EntityManager::ForEachStorage(
                         auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(static_cast<int>(i), entity, address1[remainder]);
                     }
@@ -658,7 +667,7 @@ void EntityManager::ForEachStorage(
                         auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(static_cast<int>(i), entity, address1[remainder]);
                     }
@@ -675,6 +684,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     const auto entityCount = storage.m_entityAliveCount;
@@ -716,7 +731,7 @@ void EntityManager::ForEachStorage(
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                     }
@@ -729,7 +744,7 @@ void EntityManager::ForEachStorage(
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                     }
@@ -746,6 +761,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -794,7 +815,7 @@ void EntityManager::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -809,7 +830,7 @@ void EntityManager::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -827,6 +848,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -883,7 +910,7 @@ void EntityManager::ForEachStorage(
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -905,7 +932,7 @@ void EntityManager::ForEachStorage(
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -928,6 +955,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -992,7 +1025,7 @@ void EntityManager::ForEachStorage(
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1015,7 +1048,7 @@ void EntityManager::ForEachStorage(
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1039,6 +1072,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -1111,7 +1150,7 @@ void EntityManager::ForEachStorage(
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1136,7 +1175,7 @@ void EntityManager::ForEachStorage(
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1161,6 +1200,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -1241,7 +1286,7 @@ void EntityManager::ForEachStorage(
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1268,7 +1313,7 @@ void EntityManager::ForEachStorage(
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1294,6 +1339,12 @@ void EntityManager::ForEachStorage(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType1 = Typeof<T1>();
     auto targetType2 = Typeof<T2>();
     auto targetType3 = Typeof<T3>();
@@ -1382,7 +1433,7 @@ void EntityManager::ForEachStorage(
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1411,7 +1462,7 @@ void EntityManager::ForEachStorage(
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1434,8 +1485,15 @@ void EntityManager::ForEachStorage(
 #pragma endregion
 #pragma region Others
 template <typename T>
-void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable)
+void EntityManager::GetDataComponentArrayStorage(
+    const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto targetType = Typeof<T>();
     for (const auto &type : storage.m_dataComponentTypes)
     {
@@ -1445,8 +1503,9 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
             size_t amount = storage.m_entityAliveCount;
             if (amount == 0)
                 return;
-            if(checkEnable){
-                auto& workers = JobManager::PrimaryWorkers();
+            if (checkEnable)
+            {
+                auto &workers = JobManager::PrimaryWorkers();
                 const auto capacity = storage.m_chunkCapacity;
                 const auto &chunkArray = storage.m_chunkArray;
                 const auto &entities = chunkArray.m_entities;
@@ -1468,7 +1527,7 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
                                     auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                     T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
                                     const auto entity = entities.at(i);
-                                    if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                    if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                                         continue;
                                     tempStorage[threadIndex].push_back(address1[remainder]);
                                 }
@@ -1480,7 +1539,7 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
                                     auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                     T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
                                     const auto entity = entities.at(i);
-                                    if (!GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_enabled)
+                                    if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
                                         return;
                                     tempStorage[threadIndex].push_back(address1[remainder]);
                                 }
@@ -1489,10 +1548,12 @@ void EntityManager::GetDataComponentArrayStorage(const DataComponentStorage &sto
                 }
                 for (const auto &i : results)
                     i.wait();
-                for(auto& i : tempStorage){
+                for (auto &i : tempStorage)
+                {
                     container.insert(container.end(), i.begin(), i.end());
                 }
-            }else
+            }
+            else
             {
                 container.resize(container.size() + amount);
                 const auto capacity = storage.m_chunkCapacity;
@@ -1543,14 +1604,20 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
 #pragma region GetSetHas
 template <typename T> void EntityManager::AddDataComponent(const Entity &entity, const T &value)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
-    auto &entityManager = GetInstance();
-    auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    auto &dataComponentStorage = entityManager.m_entityDataComponentStorage->at(entityInfo.m_dataComponentStorageIndex);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex);
     auto originalComponentTypes = dataComponentStorage.m_dataComponentTypes;
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -1597,7 +1664,7 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     }
     newEntity.SetDataComponent(value);
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = GetInstance().m_entityMetaDataCollection->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1605,9 +1672,9 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     entityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
     entityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
     // Apply to chunk.
-    entityManager.m_entityDataComponentStorage->at(entityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
-    entityManager.m_entityDataComponentStorage->at(newEntityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
@@ -1615,6 +1682,12 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
 
 template <typename T> void EntityManager::RemoveDataComponent(const Entity &entity)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code() || id == typeid(GlobalTransform).hash_code() ||
@@ -1622,11 +1695,11 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     {
         return;
     }
-    auto &entityManager = GetInstance();
-    auto &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     if (dataComponentStorage.m_dataComponentTypes.size() <= 3)
     {
         UNIENGINE_ERROR("Remove Component Data failed: Entity must have at least 1 data component besides 3 basic data "
@@ -1673,7 +1746,7 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     }
     T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = GetInstance().m_entityMetaDataCollection->at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1681,9 +1754,9 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     entityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
     entityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
     // Apply to chunk.
-    entityManager.m_entityDataComponentStorage->at(entityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
-    entityManager.m_entityDataComponentStorage->at(newEntityInfo.m_dataComponentStorageIndex)
+    scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
 #pragma endregion
@@ -1697,16 +1770,28 @@ template <typename T> void EntityManager::SetDataComponent(const Entity &entity,
 }
 template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     const size_t id = typeid(T).hash_code();
-    assert(index < GetInstance().m_entityMetaDataCollection->size());
+    assert(index < scene->m_sceneDataStorage.m_entityInfos.size());
     SetDataComponent(index, id, sizeof(T), (IDataComponent *)&value);
 }
 template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 {
-    assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return T();
+    }
+    assert(entity.IsValid());
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -1739,10 +1824,16 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
 }
 template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 {
-    assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(entity.m_index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return false;
+    }
+    assert(entity.IsValid());
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
     {
@@ -1767,11 +1858,17 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
 }
 template <typename T> T EntityManager::GetDataComponent(const size_t &index)
 {
-    if (index > GetInstance().m_entityMetaDataCollection->size())
-        return T();
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return T();
+    }
+    if (index > scene->m_sceneDataStorage.m_entityInfos.size())
+        return T();
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -1805,11 +1902,17 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
 }
 template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 {
-    if (index > GetInstance().m_entityMetaDataCollection->size())
-        return false;
     auto &entityManager = GetInstance();
-    EntityMetadata &entityInfo = entityManager.m_entityMetaDataCollection->at(index);
-    auto &dataComponentStorage = (*entityManager.m_entityDataComponentStorage)[entityInfo.m_dataComponentStorageIndex];
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return false;
+    }
+    if (index > scene->m_sceneDataStorage.m_entityInfos.size())
+        return false;
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(index);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
 
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
@@ -1836,11 +1939,16 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
 
 template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const Entity &entity)
 {
-    assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        throw 0;
+    }
+    assert(entity.IsValid());
     auto typeName = SerializationManager::GetSerializableTypeName<T>();
     size_t i = 0;
-    auto &elements = entityManager.m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
@@ -1849,7 +1957,7 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
         }
         i++;
     }
-    entityManager.m_entityPrivateComponentStorage->SetPrivateComponent<T>(entity);
+    scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent<T>(entity);
     auto ptr = SerializationManager::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity);
     entityManager.m_scene->m_saved = false;
@@ -1857,13 +1965,19 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
 }
 template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     assert(entity.IsValid());
-    auto &elements = GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
         if (std::dynamic_pointer_cast<T>(elements[i].m_privateComponentData))
         {
-            GetInstance().m_entityPrivateComponentStorage->RemovePrivateComponent<T>(entity);
+            scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
             elements.erase(elements.begin() + i);
             GetInstance().m_scene->m_saved = false;
@@ -1874,8 +1988,14 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
 
 template <typename T> bool EntityManager::HasPrivateComponent(const Entity &entity)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return false;
+    }
     assert(entity.IsValid());
-    for (auto &element : GetInstance().m_entityMetaDataCollection->at(entity.m_index).m_privateComponentElements)
+    for (auto &element : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements)
     {
         if (std::dynamic_pointer_cast<T>(element.m_privateComponentData))
         {
@@ -2030,9 +2150,15 @@ template <typename T1>
 void EntityManager::ForEach(
     ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &)> &func, bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2042,9 +2168,15 @@ template <typename T1, typename T2>
 void EntityManager::ForEach(
     ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &, T2 &)> &func, bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2054,9 +2186,15 @@ template <typename T1, typename T2, typename T3>
 void EntityManager::ForEach(
     ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func, bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2068,9 +2206,15 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2082,9 +2226,15 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2096,9 +2246,15 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2110,9 +2266,15 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2124,9 +2286,15 @@ void EntityManager::ForEach(
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return;
+    }
     auto &manager = GetInstance();
-    auto *storages = manager.m_entityDataComponentStorage;
-    for (auto i = storages->begin() + 1; i < storages->end(); ++i)
+    auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
+    for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
         ForEachStorage(workers, *i, func, checkEnable);
     }
@@ -2264,7 +2432,10 @@ void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::v
 
 template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(
-    const EntityQuery &entityQuery, std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
+    const EntityQuery &entityQuery,
+    std::vector<T1> &container,
+    const std::function<bool(const T2 &)> &filterFunc,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T2> componentDataList;
@@ -2323,7 +2494,8 @@ template <typename T1, typename T2, typename T3>
 void EntityManager::GetComponentDataArray(
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
-    const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable)
+    const std::function<bool(const T2 &, const T3 &)> &filterFunc,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T3> componentDataList2;
@@ -2387,7 +2559,8 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1, typename T2>
-void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable)
+void EntityManager::GetComponentDataArray(
+    const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T1> componentDataList;
@@ -2445,7 +2618,8 @@ template <typename T1>
 void EntityManager::GetEntityArray(
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
-    const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable)
+    const std::function<bool(const Entity &, const T1 &)> &filterFunc,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
@@ -2503,7 +2677,8 @@ template <typename T1, typename T2>
 void EntityManager::GetEntityArray(
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
-    const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable)
+    const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
@@ -2565,7 +2740,8 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T1>
-void EntityManager::GetEntityArray(const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
+void EntityManager::GetEntityArray(
+    const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
@@ -2659,9 +2835,14 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(c
 
 template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList()
 {
-    return GetInstance().m_entityPrivateComponentStorage->UnsafeGetOwnersList<T>();
+    auto &entityManager = GetInstance();
+    auto scene = entityManager.m_scene;
+    if (!scene)
+    {
+        return nullptr;
+    }
+    return scene->m_sceneDataStorage.m_entityPrivateComponentStorage.UnsafeGetOwnersList<T>();
 }
-
 
 template <typename T> void Entity::SetDataComponent(const T &value) const
 {
@@ -2724,7 +2905,8 @@ template <typename T1> void EntityQuery::ToComponentDataArray(std::vector<T1> &c
 }
 
 template <typename T1, typename T2>
-void EntityQuery::ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
+void EntityQuery::ToComponentDataArray(
+    std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
 {
     EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
 }
@@ -2736,11 +2918,13 @@ void EntityQuery::ToComponentDataArray(
     EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
 }
 
-template <typename T1, typename T2> void EntityQuery::ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable)
+template <typename T1, typename T2>
+void EntityQuery::ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
     EntityManager::GetComponentDataArray(*this, filter, container, checkEnable);
 }
-template <typename T1> void EntityQuery::ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable)
+template <typename T1>
+void EntityQuery::ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
     EntityManager::GetEntityArray(*this, filter, container, checkEnable);
 }
@@ -2754,7 +2938,9 @@ void EntityQuery::ToEntityArray(
 
 template <typename T1, typename T2>
 void EntityQuery::ToEntityArray(
-    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable)
+    std::vector<Entity> &container,
+    const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
+    bool checkEnable)
 {
     EntityManager::GetEntityArray<T1>(*this, container, filterFunc, checkEnable);
 }

@@ -478,6 +478,8 @@ void FileUtils::OpenFile(
                 filters2 += ";";
         }
         char actualFilter[256];
+        char title[256];
+        strcpy(title, dialogTitle.c_str());
         int index = 0;
         for (auto &i : filters)
         {
@@ -498,6 +500,7 @@ void FileUtils::OpenFile(
         ofn.lpstrFilter = actualFilter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+        ofn.lpstrTitle = title;
         if (GetOpenFileNameA(&ofn) == TRUE)
         {
             std::string retVal = ofn.lpstrFile;
@@ -512,7 +515,7 @@ void FileUtils::OpenFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if (ProjectManager::IsInProjectFolder(path))
+            if (extensions[0] == ".ueproj" || ProjectManager::IsInProjectFolder(path))
                 func(path);
             else
             {
@@ -625,6 +628,8 @@ void FileUtils::SaveFile(
                 filters2 += ";";
         }
         char actualFilter[256];
+        char title[256];
+        strcpy(title, dialogTitle.c_str());
         int index = 0;
         for (auto &i : filters)
         {
@@ -645,7 +650,7 @@ void FileUtils::SaveFile(
         ofn.lpstrFilter = actualFilter;
         ofn.nFilterIndex = 1;
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
+        ofn.lpstrTitle = title;
         // Sets the default extension by extracting it from the filter
         ofn.lpstrDefExt = strchr(actualFilter, '\0') + 1;
 
@@ -663,7 +668,7 @@ void FileUtils::SaveFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if (ProjectManager::IsInProjectFolder(path))
+            if (extensions[0] == ".ueproj" || ProjectManager::IsInProjectFolder(path))
                 func(path);
             else
             {

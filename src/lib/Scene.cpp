@@ -52,10 +52,6 @@ Scene::~Scene()
     {
         i.second->OnDestroy();
     }
-    if (EntityManager::GetInstance().m_currentAttachedWorldEntityStorage == &m_sceneDataStorage)
-    {
-        EntityManager::Detach();
-    };
 }
 
 void Scene::PreUpdate()
