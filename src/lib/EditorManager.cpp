@@ -663,7 +663,8 @@ void EditorManager::OnInspect()
         }
         if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
         {
-            if(ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)){
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
                 editorManager.m_inspectingAsset = scene;
             }
             if (ImGui::BeginDragDropTarget())
@@ -1117,7 +1118,8 @@ void EditorManager::OnInspect()
             // ImGui::SliderFloat("Thumbnail Size", &thumbnailSizePadding.x, 16, 512);
             ImGui::EndChild();
         }
-        else{
+        else
+        {
             ImGui::Text("No project loaded!");
         }
     }
@@ -1167,6 +1169,14 @@ void EditorManager::OnInspect()
             {
                 ImGui::Text("Temporary asset");
             }
+
+            FileUtils::SaveFile(
+                "Export",
+                asset->GetTypeName(),
+                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                [&](const std::filesystem::path &path) { asset->Export(path); },
+                false);
+
             ImGui::Separator();
             asset->OnInspect();
         }
@@ -1981,7 +1991,7 @@ bool EditorManager::DragAndDropButton(
             }
         }
     }
-    for(const auto &type : acceptableTypeNames)
+    for (const auto &type : acceptableTypeNames)
     {
         if (ImGui::BeginDragDropTarget())
         {

@@ -23,6 +23,15 @@ void Mesh::OnInspect()
         }
         ImGui::EndPopup();
     }
+
+    if(!m_vertices.empty()){
+        FileUtils::SaveFile(
+            "Export as OBJ",
+            "Mesh",
+            {".obj"},
+            [&](const std::filesystem::path &path) { Export(path); },
+            false);
+    }
 }
 
 glm::vec3 Mesh::GetCenter() const
@@ -347,4 +356,73 @@ void Mesh::Deserialize(const YAML::Node &in)
 
         SetVertices(m_mask, vertices, triangles);
     }
+}
+bool Mesh::SaveInternal(const std::filesystem::path &path)
+{
+    if(path.extension() == ".uemesh"){
+        return IAsset::SaveInternal(path);
+    }else if(path.extension() == ".obj"){
+        std::ofstream of;
+        of.open(path.string(), std::ofstream::out | std::ofstream::trunc);
+        if (of.is_open()) {
+            std::string start = "#Mesh exporter, by Bosheng Li";
+            start += "\n";
+            of.write(start.c_str(), start.size());
+            of.flush();
+            unsigned startIndex = 1;
+            if (!m_triangles.empty()) {
+                std::string header =
+                    "#Vertices: " + std::to_string(m_vertices.size()) +
+                    ", tris: " + std::to_string(m_triangles.size());
+                header += "\n";
+                of.write(header.c_str(), header.size());
+                of.flush();
+                std::string data;
+#pragma region Data collection
+                for (auto i = 0; i < m_vertices.size(); i++) {
+                    auto &vertexPosition = m_vertices.at(i).m_position;
+                    auto &color = m_vertices.at(i).m_color;
+                    data += "v " + std::to_string(vertexPosition.x) + " " +
+                            std::to_string(vertexPosition.y) + " " +
+                            std::to_string(vertexPosition.z) + " " +
+                            std::to_string(color.x) + " " + std::to_string(color.y) + " " +
+                            std::to_string(color.z) + "\n";
+                }
+                for (const auto &vertex : m_vertices) {
+                    data += "vn " + std::to_string(vertex.m_normal.x) + " " +
+                            std::to_string(vertex.m_normal.y) + " " +
+                            std::to_string(vertex.m_normal.z) + "\n";
+                }
+
+                for (const auto &vertex : m_vertices) {
+                    data += "vt " + std::to_string(vertex.m_texCoords.x) + " " +
+                            std::to_string(vertex.m_texCoords.y) + "\n";
+                }
+                // data += "s off\n";
+                data += "# List of indices for faces vertices, with (x, y, z).\n";
+                auto &triangles = m_triangles;
+                for (auto i = 0; i < m_triangles.size(); i++) {
+                    const auto triangle = triangles[i];
+                    const auto f1 = triangle.x + startIndex;
+                    const auto f2 = triangle.y + startIndex;
+                    const auto f3 = triangle.z + startIndex;
+                    data += "f " + std::to_string(f1) + "/" + std::to_string(f1) + "/" +
+                            std::to_string(f1) + " " + std::to_string(f2) + "/" +
+                            std::to_string(f2) + "/" + std::to_string(f2) + " " +
+                            std::to_string(f3) + "/" + std::to_string(f3) + "/" +
+                            std::to_string(f3) + "\n";
+                }
+                startIndex += m_vertices.size();
+#pragma endregion
+                of.write(data.c_str(), data.size());
+                of.flush();
+            }
+            of.close();
+            return true;
+        } else {
+            UNIENGINE_ERROR("Can't open file!");
+            return false;
+        }
+    }
+    return false;
 }

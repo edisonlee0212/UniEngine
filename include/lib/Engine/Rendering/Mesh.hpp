@@ -52,6 +52,9 @@ class UNIENGINE_API Mesh : public IAsset
     std::vector<Vertex> m_vertices;
     std::vector<glm::uvec3> m_triangles;
 
+  protected:
+    bool SaveInternal(const std::filesystem::path &path) override;
+
   public:
     void Draw() const;
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;

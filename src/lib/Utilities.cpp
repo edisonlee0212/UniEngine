@@ -450,7 +450,7 @@ void FileUtils::OpenFile(
     const std::string &dialogTitle,
     const std::string &fileType,
     const std::vector<std::string> &extensions,
-    const std::function<void(const std::filesystem::path &path)> &func)
+    const std::function<void(const std::filesystem::path &path)> &func, bool projectDirCheck)
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     if (ImGui::Button(dialogTitle.c_str()))
@@ -515,12 +515,8 @@ void FileUtils::OpenFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if (extensions[0] == ".ueproj" || ProjectManager::IsInProjectFolder(path))
+            if (!projectDirCheck || ProjectManager::IsInProjectFolder(path))
                 func(path);
-            else
-            {
-                UNIENGINE_ERROR("Not in project folder!!");
-            }
         }
     }
 #else
@@ -600,7 +596,7 @@ void FileUtils::SaveFile(
     const std::string &dialogTitle,
     const std::string &fileType,
     const std::vector<std::string> &extensions,
-    const std::function<void(const std::filesystem::path &)> &func)
+    const std::function<void(const std::filesystem::path &)> &func, bool projectDirCheck)
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     if (ImGui::Button(dialogTitle.c_str()))
@@ -668,12 +664,8 @@ void FileUtils::SaveFile(
                 pos = retVal.find(search, pos + 1);
             }
             std::filesystem::path path = retVal;
-            if (extensions[0] == ".ueproj" || ProjectManager::IsInProjectFolder(path))
+            if (!projectDirCheck || ProjectManager::IsInProjectFolder(path))
                 func(path);
-            else
-            {
-                UNIENGINE_ERROR("Not in project folder!!");
-            }
         }
     }
 #else

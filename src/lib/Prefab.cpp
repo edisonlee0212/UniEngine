@@ -1002,6 +1002,10 @@ bool Prefab::SaveInternal(const std::filesystem::path &path)
         fout << out.c_str();
         fout.flush();
     }
+    else if (path.extension() == ".obj")
+    {
+        SaveModelInternal(path);
+    }
     return true;
 }
 void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
@@ -1013,6 +1017,16 @@ void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map
 void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)
 {
     LoadModelInternal(ProjectManager::GetProjectPath().parent_path() / path, optimize, flags);
+}
+
+void Prefab::SaveModelInternal(const std::filesystem::path &path)
+{
+#ifdef USE_ASSIMP
+    Assimp::Exporter exporter;
+    aiScene* scene = new aiScene();
+
+    delete scene;
+#endif
 }
 void Prefab::LoadModelInternal(const std::filesystem::path &path, bool optimize, unsigned int flags)
 {

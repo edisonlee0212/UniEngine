@@ -44,7 +44,7 @@ AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", ".ueglshader");
 
 AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", ".ueenvirmap");
 AssetRegistration<Animation> AnimationReg("Animation", ".ueanimation");
-AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", "uesmesh");
+AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", "ueskinnedmesh");
 AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial", "uephysmat");
 AssetRegistration<Collider> ColliderReg("Collider", "uecollider");
 AssetRegistration<Prefab> PrefabReg("Prefab", ".ueprefab");

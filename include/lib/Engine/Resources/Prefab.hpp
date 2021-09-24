@@ -105,6 +105,7 @@ class UNIENGINE_API Prefab : public IAsset
     bool LoadInternal(const std::filesystem::path &path) override;
     bool SaveInternal(const std::filesystem::path &path) override;
     void LoadModelInternal(const std::filesystem::path &path, bool optimize = false, unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
+    void SaveModelInternal(const std::filesystem::path &path);
   public:
     Handle m_entityHandle = Handle();
     std::vector<DataComponentHolder> m_dataComponents;
@@ -135,4 +136,5 @@ template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
     }
     return nullptr;
 }
+
 } // namespace UniEngine

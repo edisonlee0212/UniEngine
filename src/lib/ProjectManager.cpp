@@ -165,7 +165,7 @@ void ProjectManager::OnInspect()
                     {
                         UNIENGINE_ERROR("Failed to create/load from " + filePath.string());
                     }
-                });
+                }, false);
 
             if (ImGui::Button("Save"))
             {

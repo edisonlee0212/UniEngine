@@ -45,6 +45,8 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     //Don't serialize.
     std::vector<std::shared_ptr<Bone>> m_bones;
     friend class Prefab;
+  protected:
+    bool SaveInternal(const std::filesystem::path &path) override;
   public:
     void Draw() const;
     void DrawInstanced(const std::vector<glm::mat4>& matrices) const;

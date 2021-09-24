@@ -13,12 +13,12 @@ class UNIENGINE_API FileUtils
         const std::string &dialogTitle,
         const std::string &fileType,
         const std::vector<std::string> &extensions,
-        const std::function<void(const std::filesystem::path &path)> &func);
+        const std::function<void(const std::filesystem::path &path)> &func, bool projectDirCheck = true);
     static void SaveFile(
         const std::string &dialogTitle,
         const std::string &fileType,
         const std::vector<std::string> &extensions,
-        const std::function<void(const std::filesystem::path &path)> &func);
+        const std::function<void(const std::filesystem::path &path)> &func, bool projectDirCheck = true);
     static std::pair<bool, uint32_t> DirectoryTreeViewRecursive(
         const std::filesystem::path &path, uint32_t *count, int *selection_mask);
 };

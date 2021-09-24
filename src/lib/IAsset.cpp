@@ -162,3 +162,9 @@ bool IAsset::SetPathAndLoad(const std::filesystem::path &path)
     }
     return false;
 }
+bool IAsset::Export(const std::filesystem::path &path)
+{
+    if (!path.is_absolute())
+        return false;
+    return SaveInternal(path);
+}
