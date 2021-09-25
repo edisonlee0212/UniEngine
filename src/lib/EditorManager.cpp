@@ -907,7 +907,6 @@ void EditorManager::OnInspect()
                                     folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
                             }
                             assetRef.m_value->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                            ProjectManager::ScanProjectFolder();
                         }
                     }
                 }
@@ -929,7 +928,6 @@ void EditorManager::OnInspect()
                         filePath = folderPath / (tempFileName + "(" + std::to_string(index) + ")" + fileExtension);
                     }
                     prefab->SetPathAndSave(ProjectManager::GetRelativePath(filePath));
-                    ProjectManager::ScanProjectFolder();
                 }
 
                 ImGui::EndDragDropTarget();
@@ -951,32 +949,52 @@ void EditorManager::OnInspect()
             ImGui::SameLine();
 
             ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
+            if(ImGui::ImageButton(
+                (ImTextureID)editorManager.m_assetsIcons["RefreshButton"]->UnsafeGetGLTexture()->Id(),
+                {16, 16},
+                {0, 1},
+                {1, 0})){
+                ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder);
+            }
+
+            if(projectManager.m_currentFocusedFolder != projectManager.m_currentProject->m_projectFolder)
+            {
+                ImGui::SameLine();
+                if(ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["BackButton"]->UnsafeGetGLTexture()->Id(),
+                    {16, 16},
+                    {0, 1},
+                    {1, 0})){
+                    projectManager.m_currentFocusedFolder = projectManager.m_currentFocusedFolder->m_parent;
+                }
+            }
+            ImGui::Separator();
+
             bool updated = false;
             auto &assetManager = AssetManager::GetInstance();
             if (ImGui::BeginPopupContextWindow("NewAssetPopup"))
             {
-                ImGui::Text("Create new asset...");
-                for (auto &i : assetManager.m_defaultExtensions)
+                if(ImGui::Button("New folder...")){
+                    auto newPath = ProjectManager::GenerateNewPath((projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / "New Folder").string(), "");
+                    std::filesystem::create_directories(newPath);
+                    ProjectManager::ScanProjectFolder(false);
+                }
+                if(ImGui::BeginMenu("Create new asset..."))
                 {
-                    if (ImGui::Button(i.first.c_str()))
+                    for (auto &i : assetManager.m_defaultExtensions)
                     {
-                        std::string newFileName = "New " + i.first;
-                        auto newHandle = Handle();
-                        auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
-                        auto newPath = ProjectManager::GenerateNewPath(
-                            (projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
-                            AssetManager::GetExtension(i.first)[0]);
-                        newAsset->SetPathAndSave(newPath);
-                        FileRecord fileRecord;
-                        fileRecord.m_relativeFilePath = newPath;
-                        fileRecord.m_typeName = i.first;
-                        fileRecord.m_name = newFileName;
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords[newHandle] = fileRecord;
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = newHandle;
-                        projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
-                            projectManager.m_projectPath.parent_path() /
-                            projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                        if (ImGui::Button(i.first.c_str()))
+                        {
+                            std::string newFileName = "New " + i.first;
+                            auto newHandle = Handle();
+                            auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
+                            auto newPath = ProjectManager::GenerateNewPath(
+                                (projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
+                                AssetManager::GetExtension(i.first)[0]);
+                            newAsset->SetPathAndSave(newPath);
+                        }
                     }
+                    ImGui::EndMenu();
                 }
                 ImGui::EndPopup();
             }
@@ -994,13 +1012,45 @@ void EditorManager::OnInspect()
                         {thumbnailSizePadding.x, thumbnailSizePadding.x},
                         {0, 1},
                         {1, 0});
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-                    {
-                        projectManager.m_currentFocusedFolder = i.second;
-                        updated = true;
-                        break;
+                    bool itemHovered = false;
+                    if(ImGui::IsItemHovered()){
+                        itemHovered = true;
+                        if(ImGui::IsMouseDoubleClicked(0))
+                        {
+                            projectManager.m_currentFocusedFolder = i.second;
+                            updated = true;
+                            break;
+                        }
                     }
+                    const std::string tag = "##Folder" + i.first;
+                    if (ImGui::BeginPopupContextItem(tag.c_str()))
+                    {
+                        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+                        {
+                            static char newName[256] = {0};
+                            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                            if (ImGui::Button(("Confirm" + tag).c_str()))
+                            {
+                                i.second->Rename(std::string(newName));
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndMenu();
+                        }
+                        if (ImGui::Button(("Remove" + tag).c_str()))
+                        {
+                            std::filesystem::remove_all(
+                                projectManager.m_projectPath.parent_path() / i.second->m_relativePath);
+                            ProjectManager::ScanProjectFolder(false);
+                            updated = true;
+                            ImGui::CloseCurrentPopup();
+                            ImGui::EndPopup();
+                            break;
+                        }
+                        ImGui::EndPopup();
+                    }
+                    if(itemHovered) ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
                     ImGui::TextWrapped(i.second->m_name.c_str());
+                    if(itemHovered) ImGui::PopStyleColor(1);
                     ImGui::NextColumn();
                 }
             }
@@ -1030,21 +1080,24 @@ void EditorManager::OnInspect()
                         }
                     }
                     static std::shared_ptr<IAsset> asset;
+                    bool itemFocused = false;
                     if (asset && asset->m_handle.GetValue() == i.first.GetValue())
                     {
-                        ImGui::ImageButton(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
+                        itemFocused = true;
                     }
-                    else
+                    ImGui::Image(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
+
+                    bool itemHovered = false;
+                    if (ImGui::IsItemHovered())
                     {
-                        ImGui::Image(textureId, {thumbnailSizePadding.x, thumbnailSizePadding.x}, {0, 1}, {1, 0});
-                    }
-                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) &&
-                        AssetManager::IsAsset(i.second.m_typeName))
-                    {
-                        // If it's an asset then inspect.
-                        asset = AssetManager::Get(i.first);
-                        if (asset)
-                            editorManager.m_inspectingAsset = asset;
+                        itemHovered = true;
+                        if (ImGui::IsMouseDoubleClicked(0) && AssetManager::IsAsset(i.second.m_typeName))
+                        {
+                            // If it's an asset then inspect.
+                            asset = AssetManager::Get(i.first);
+                            if (asset)
+                                editorManager.m_inspectingAsset = asset;
+                        }
                     }
                     const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
                     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -1076,7 +1129,6 @@ void EditorManager::OnInspect()
                                     if (!search1->second.expired())
                                     {
                                         search1->second.lock()->m_projectRelativePath = newPath;
-                                        ;
                                     }
                                 }
                                 // AssetRegistry
@@ -1097,19 +1149,17 @@ void EditorManager::OnInspect()
                             std::filesystem::remove(
                                 projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
                             projectManager.m_assetRegistry.RemoveFile(i.first);
-                            projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(
-                                i.second.m_relativeFilePath.string());
-                            projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileRecords.erase(i.first);
-                            projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
-                                projectManager.m_projectPath.parent_path() /
-                                projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                            ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder);
                             ImGui::CloseCurrentPopup();
                             ImGui::EndPopup();
                             break;
                         }
                         ImGui::EndPopup();
                     }
+                    if(itemFocused) ImGui::PushStyleColor(ImGuiCol_Text, {1, 0, 0, 1});
+                    else if(itemHovered) ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
                     ImGui::TextWrapped(fileName.string().c_str());
+                    if(itemFocused || itemHovered) ImGui::PopStyleColor(1);
                     ImGui::NextColumn();
                 }
             }

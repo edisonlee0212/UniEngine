@@ -236,6 +236,12 @@ void AssetRegistry::AddOrResetFile(Handle handle, const FileRecord &newFileRecor
     if (m_fileMap.find(original) != m_fileMap.end())
         m_fileMap.erase(original);
     m_fileMap[newFileRecord.m_relativeFilePath.string()] = handle;
+
+    auto& assetManager = AssetManager::GetInstance();
+    auto search = assetManager.m_assets.find(handle);
+    if(search != assetManager.m_assets.end() && !search->second.expired()){
+        search->second.lock()->m_projectRelativePath = newFileRecord.m_relativeFilePath;
+    }
 }
 void AssetRegistry::RemoveFile(Handle handle)
 {

@@ -32,6 +32,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     projectManager.m_currentProject->m_projectFolder = projectManager.m_currentFocusedFolder =
         std::make_shared<Folder>();
     auto directory = projectManager.m_projectPath.parent_path();
+    projectManager.m_currentFocusedFolder->m_relativePath = "";
     projectManager.m_currentFocusedFolder->m_name = directory.filename().string();
     ScanProjectFolder();
 
@@ -92,9 +93,9 @@ void ProjectManager::SaveProject()
     std::ofstream fout(projectManager.m_projectPath.string());
     fout << out.c_str();
     fout.flush();
-    ScanProjectFolder();
+    UpdateFolderMetadata(projectManager.m_currentProject->m_projectFolder);
 }
-void ProjectManager::ScanProjectFolder()
+void ProjectManager::ScanProjectFolder(bool updateMetadata)
 {
     auto &projectManager = GetInstance();
     auto projectPath = projectManager.m_projectPath;
@@ -106,11 +107,16 @@ void ProjectManager::ScanProjectFolder()
     }
 
     std::shared_ptr<Folder> currentFolder = projectManager.m_currentProject->m_projectFolder;
-    ScanFolderHelper(directory, currentFolder);
+    ScanFolderHelper(directory, currentFolder, updateMetadata);
+
+    if (!std::filesystem::exists(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath))
+    {
+        projectManager.m_currentFocusedFolder = projectManager.m_currentProject->m_projectFolder;
+    }
 }
-void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, std::shared_ptr<Folder> &folder)
+void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &folder, bool updateMetaData)
 {
-    FolderMetadataUpdater(folderPath, folder);
+    if(updateMetaData) UpdateFolderMetadata(folder);
     for (const auto &entry : std::filesystem::directory_iterator(folderPath))
     {
         if (std::filesystem::is_directory(entry.path()))
@@ -122,7 +128,7 @@ void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, s
             {
                 auto newFolder = std::make_shared<Folder>();
                 newFolder->m_folderMetadata = FolderMetadata();
-                newFolder->m_relativePath = GetRelativePath(folderPath);
+                newFolder->m_relativePath = GetRelativePath(entry.path());
                 newFolder->m_name = folderName;
                 folder->m_children[entry.path().string()] = newFolder;
                 newFolder->m_parent = folder;
@@ -171,10 +177,6 @@ void ProjectManager::OnInspect()
             {
                 SaveProject();
             }
-            if (ImGui::Button("Refresh Assets"))
-            {
-                ScanProjectFolder();
-            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -198,12 +200,13 @@ void ProjectManager::SetScenePostLoadActions(const std::function<void()> &action
 {
     GetInstance().m_newSceneCustomizer = actions;
 }
-void ProjectManager::FolderMetadataUpdater(const std::filesystem::path &folderPath, std::shared_ptr<Folder> &folder)
+void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
 {
     auto &projectManager = GetInstance();
     auto &assetManager = AssetManager::GetInstance();
     // 1. Find metadata file
     std::filesystem::path fileMetadataPath;
+    auto folderPath = projectManager.m_projectPath.parent_path() / folder->m_relativePath;
     bool found = false;
     for (const auto &entry : std::filesystem::directory_iterator(folderPath))
     {
@@ -328,10 +331,35 @@ std::filesystem::path ProjectManager::GenerateNewPath(const std::string &fileste
     std::filesystem::path retVal = filestem + extension;
     int i = 0;
     while(std::filesystem::exists(retVal)){
-        retVal = filestem + "(" + std::to_string(i) + ")" + extension;
+        i++;
+        retVal = filestem + " (" + std::to_string(i) + ")" + extension;
     }
     return retVal;
 }
+
+void ProjectManager::FindFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& walker, std::shared_ptr<Folder>& result){
+    if(walker->m_relativePath != folderPath){
+        for(const auto& i : walker->m_children){
+            FindFolderHelper(folderPath, i.second, result);
+        }
+    }else{
+        result = walker;
+    }
+}
+
+std::shared_ptr<Folder> ProjectManager::FindFolder(const std::filesystem::path& folderPath){
+    std::shared_ptr<Folder> retVal;
+    auto& projectManager = GetInstance();
+    if(!std::filesystem::exists(projectManager.m_projectPath.parent_path() / folderPath)) return nullptr;
+    FindFolderHelper(folderPath, projectManager.m_currentProject->m_projectFolder, retVal);
+    if(!retVal){
+        auto directory = projectManager.m_projectPath.parent_path();
+        ScanFolderHelper(directory, projectManager.m_currentProject->m_projectFolder, false);
+    }
+    return retVal;
+}
+
+
 void FolderMetadata::Save(const std::filesystem::path &path)
 {
     auto directory = path;
@@ -386,4 +414,8 @@ void FileRecord::Deserialize(const YAML::Node &in)
     m_name = in["m_name"].as<std::string>();
     m_relativeFilePath = in["m_relativeFilePath"].as<std::string>();
     m_typeName = in["m_typeName"].as<std::string>();
+}
+void Folder::Rename(const std::string &newName)
+{
+
 }

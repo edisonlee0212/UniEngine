@@ -41,6 +41,7 @@ struct UNIENGINE_API Folder {
     FolderMetadata m_folderMetadata;
     std::map<std::string, std::shared_ptr<Folder>> m_children;
     std::shared_ptr<Folder> m_parent;
+    void Rename(const std::string& newName);
 };
 
 class UNIENGINE_API Project : public ISerializable
@@ -60,13 +61,24 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;
     std::optional<std::function<void()>> m_newSceneCustomizer;
-    static void ScanFolderHelper(const std::filesystem::path& folderPath, std::shared_ptr<Folder>& folder);
-    static void FolderMetadataUpdater(const std::filesystem::path& folderPath, std::shared_ptr<Folder>& folder);
     std::shared_ptr<Folder> m_currentFocusedFolder;
 
     static void GenerateNewDefaultScene();
     static std::filesystem::path GenerateNewPath(const std::string &filestem, const std::string &extension);
+    static void ScanFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& folder, bool updateMetaData = true);
+
+
+    static void FindFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& walker, std::shared_ptr<Folder>& result);
   public:
+    /**
+     * Find a specific folder
+     * @param folderPath The path relative to project.
+     * @return The folder target. Null if not found.
+     */
+    static std::shared_ptr<Folder> FindFolder(const std::filesystem::path& folderPath);
+
+    static void UpdateFolderMetadata(const std::shared_ptr<Folder>& folder);
+
     static bool IsInProjectFolder(const std::filesystem::path &target);
     static std::filesystem::path GetRelativePath(const std::filesystem::path &target);
     static void SetScenePostLoadActions(const std::function<void()> &actions);
@@ -77,7 +89,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void OnInspect();
     static void CreateOrLoadProject(const std::filesystem::path &path);
     static void SaveProject();
-    static void ScanProjectFolder();
+    static void ScanProjectFolder(bool updateMetadata = true);
     static std::filesystem::path GetProjectPath();
 
 };

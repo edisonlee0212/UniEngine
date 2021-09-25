@@ -6,6 +6,8 @@ bool IAsset::Save()
 {
     if (m_projectRelativePath.empty())
         return false;
+    auto directory = (ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath).parent_path();
+    std::filesystem::create_directories(directory);
     if (SaveInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath))
     {
         m_saved = true;
@@ -28,9 +30,6 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
     try
     {
-        auto directory = path;
-        directory.remove_filename();
-        std::filesystem::create_directories(directory);
         YAML::Emitter out;
         out << YAML::BeginMap;
         out << YAML::Key << "m_name" << YAML::Value << m_name;
@@ -133,18 +132,23 @@ void IAsset::SetPath(const std::filesystem::path &path)
         assetRecord.m_typeName = m_typeName;
         assetRecord.m_relativeFilePath = m_projectRelativePath;
         projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
-        //TODO: Do not scan all, just update needed metadata file.
-        ProjectManager::ScanProjectFolder();
     }
     else
     {
         projectManager.m_assetRegistry.ResetFilePath(m_handle, m_projectRelativePath);
     }
+    auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
 }
 bool IAsset::SetPathAndSave(const std::filesystem::path &path)
 {
     SetPath(path);
-    return Save();
+    bool success = Save();
+    if(success){
+        auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
+        assert(folder);
+        ProjectManager::UpdateFolderMetadata(folder);
+    }
+    return success;
 }
 bool IAsset::SetPathAndLoad(const std::filesystem::path &path)
 {

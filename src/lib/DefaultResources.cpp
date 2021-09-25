@@ -933,6 +933,26 @@ void DefaultResources::LoadIcons()
     editorManager.m_assetsIcons["PauseButton"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/back.png");
+    editorManager.m_assetsIcons["BackButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/left.png");
+    editorManager.m_assetsIcons["LeftButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/right.png");
+    editorManager.m_assetsIcons["RightButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Navigation/refresh.png");
+    editorManager.m_assetsIcons["RefreshButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
+    texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/InfoButton.png");
+    editorManager.m_assetsIcons["InfoButton"] = texture2D;
+
+    texture2D = std::make_shared<Texture2D>();
     texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/ErrorButton.png");
     editorManager.m_assetsIcons["ErrorButton"] = texture2D;
 
@@ -943,4 +963,6 @@ void DefaultResources::LoadIcons()
     texture2D = std::make_shared<Texture2D>();
     texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Console/InfoButton.png");
     editorManager.m_assetsIcons["InfoButton"] = texture2D;
+
+
 }

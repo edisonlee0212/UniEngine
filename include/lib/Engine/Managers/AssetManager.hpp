@@ -26,6 +26,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     std::unordered_map<std::string, std::vector<std::string>> m_defaultExtensions;
     std::unordered_map<std::string, std::string> m_typeNames;
     friend class DefaultResources;
+    friend class AssetRegistry;
     friend class ProjectManager;
     friend class EditorManager;
     friend class IAsset;
