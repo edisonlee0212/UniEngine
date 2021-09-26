@@ -965,7 +965,7 @@ void EditorManager::OnInspect()
                     {16, 16},
                     {0, 1},
                     {1, 0})){
-                    projectManager.m_currentFocusedFolder = projectManager.m_currentFocusedFolder->m_parent;
+                    projectManager.m_currentFocusedFolder = projectManager.m_currentFocusedFolder->m_parent.lock();
                 }
             }
             ImGui::Separator();

@@ -42,7 +42,7 @@ struct UNIENGINE_API Folder {
     std::string m_name;
     FolderMetadata m_folderMetadata;
     std::map<std::string, std::shared_ptr<Folder>> m_children;
-    std::shared_ptr<Folder> m_parent;
+    std::weak_ptr<Folder> m_parent;
     void Rename(const std::string& newName);
 };
 
