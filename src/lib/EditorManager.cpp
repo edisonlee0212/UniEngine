@@ -1128,13 +1128,17 @@ void EditorManager::OnInspect()
                                 {
                                     if (!search1->second.expired())
                                     {
-                                        search1->second.lock()->m_projectRelativePath = newPath;
+                                        auto searchAsset = search1->second.lock();
+                                        searchAsset->SetPath(newPath);
                                     }
                                 }
-                                // AssetRegistry
-                                projectManager.m_assetRegistry.ResetFilePath(i.first, newPath);
                                 // FolderMetadata
+                                auto originalHandle = projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[i.second.m_relativeFilePath.string()];
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(i.second.m_relativeFilePath.string());
                                 i.second.m_relativeFilePath = newPath;
+                                i.second.m_fileName = newPath.filename().string();
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = originalHandle;
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndMenu();

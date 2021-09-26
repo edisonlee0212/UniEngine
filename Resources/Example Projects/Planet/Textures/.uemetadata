@@ -1,5 +1,5 @@
 m_fileRecords:
-  - Handle: 13836965349006394375
+  - Handle: 4808206824596603538
     m_name: border
-    m_relativeFilePath: Textures\border.png
+    m_fileName: border.png
     m_typeName: Texture2D

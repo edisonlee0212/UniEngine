@@ -9,16 +9,18 @@ struct UNIENGINE_API FileRecord
 {
     std::string m_name = "";
     std::filesystem::path m_relativeFilePath = "";
+    std::string m_fileName = "";
     std::string m_typeName = "";
     void Serialize(YAML::Emitter &out) const;
     void Deserialize(const YAML::Node &in);
 };
 
 struct UNIENGINE_API FolderMetadata{
+    friend class EditorManager;
     std::unordered_map<Handle, FileRecord> m_fileRecords;
     std::map<std::string, Handle> m_fileMap;
     void Save(const std::filesystem::path &path);
-    void Load(const std::filesystem::path &path);
+    bool Load(const std::filesystem::path &path);
 };
 
 class UNIENGINE_API AssetRegistry

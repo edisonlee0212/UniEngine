@@ -122,8 +122,11 @@ void IAsset::SetPath(const std::filesystem::path &path)
         projectManager.m_assetRegistry.RemoveFile(m_handle);
         return;
     }
-    m_projectRelativePath = ProjectManager::GetRelativePath(
+    auto newPath = ProjectManager::GetRelativePath(
         std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
+    if(newPath == m_projectRelativePath) return;
+
+    m_projectRelativePath = newPath;
     m_saved = false;
 
     if (!projectManager.m_assetRegistry.Find(m_projectRelativePath))
@@ -131,6 +134,7 @@ void IAsset::SetPath(const std::filesystem::path &path)
         FileRecord assetRecord;
         assetRecord.m_typeName = m_typeName;
         assetRecord.m_relativeFilePath = m_projectRelativePath;
+        assetRecord.m_fileName = m_projectRelativePath.filename().string();
         projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
     }
     else

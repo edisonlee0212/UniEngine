@@ -28,7 +28,6 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     Application::Reset();
     std::shared_ptr<Scene> scene;
 
-
     projectManager.m_currentProject->m_projectFolder = projectManager.m_currentFocusedFolder =
         std::make_shared<Folder>();
     auto directory = projectManager.m_projectPath.parent_path();
@@ -44,10 +43,13 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         YAML::Node in = YAML::Load(stringStream.str());
         projectManager.m_currentProject->Deserialize(in);
         Handle sceneHandle;
-        if(projectManager.m_assetRegistry.Find(projectManager.m_currentProject->m_startScenePath, sceneHandle)){
+        if (projectManager.m_assetRegistry.Find(projectManager.m_currentProject->m_startScenePath, sceneHandle))
+        {
             scene = std::dynamic_pointer_cast<Scene>(AssetManager::Get(sceneHandle));
             EntityManager::Attach(scene);
-        }else{
+        }
+        else
+        {
             GenerateNewDefaultScene();
         }
         UNIENGINE_LOG("Found and loaded project");
@@ -56,7 +58,6 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     {
         GenerateNewDefaultScene();
     }
-
 
     if (projectManager.m_newSceneCustomizer.has_value())
         projectManager.m_newSceneCustomizer.value()();
@@ -75,7 +76,8 @@ void ProjectManager::SaveProject()
 {
     auto &projectManager = GetInstance();
     auto currentScene = EntityManager::GetCurrentScene();
-    if(currentScene->GetPath().empty()){
+    if (currentScene->GetPath().empty())
+    {
         GenerateNewPath(currentScene->m_name, ".uescene");
     }
     currentScene->Save();
@@ -99,7 +101,8 @@ void ProjectManager::ScanProjectFolder(bool updateMetadata)
 {
     auto &projectManager = GetInstance();
     auto projectPath = projectManager.m_projectPath;
-    if(projectPath.empty()) return;
+    if (projectPath.empty())
+        return;
     auto directory = projectManager.m_projectPath.parent_path();
     if (!std::filesystem::exists(directory))
     {
@@ -109,14 +112,17 @@ void ProjectManager::ScanProjectFolder(bool updateMetadata)
     std::shared_ptr<Folder> currentFolder = projectManager.m_currentProject->m_projectFolder;
     ScanFolderHelper(directory, currentFolder, updateMetadata);
 
-    if (!std::filesystem::exists(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath))
+    if (!std::filesystem::exists(
+            projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath))
     {
         projectManager.m_currentFocusedFolder = projectManager.m_currentProject->m_projectFolder;
     }
 }
-void ProjectManager::ScanFolderHelper(const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &folder, bool updateMetaData)
+void ProjectManager::ScanFolderHelper(
+    const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &folder, bool updateMetaData)
 {
-    if(updateMetaData) UpdateFolderMetadata(folder);
+    if (updateMetaData)
+        UpdateFolderMetadata(folder);
     for (const auto &entry : std::filesystem::directory_iterator(folderPath))
     {
         if (std::filesystem::is_directory(entry.path()))
@@ -162,7 +168,10 @@ void ProjectManager::OnInspect()
             ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
 
             FileUtils::SaveFile(
-                "Create or load New Project##ProjectManager", "Project", {".ueproj"}, [](const std::filesystem::path &filePath) {
+                "Create or load New Project##ProjectManager",
+                "Project",
+                {".ueproj"},
+                [](const std::filesystem::path &filePath) {
                     try
                     {
                         CreateOrLoadProject(filePath);
@@ -171,7 +180,8 @@ void ProjectManager::OnInspect()
                     {
                         UNIENGINE_ERROR("Failed to create/load from " + filePath.string());
                     }
-                }, false);
+                },
+                false);
 
             if (ImGui::Button("Save"))
             {
@@ -221,24 +231,30 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
     FolderMetadata &folderMetadata = folder->m_folderMetadata;
     if (found)
     {
-        folderMetadata.Load(fileMetadataPath);
+        if(folderMetadata.Load(fileMetadataPath)){
+            metadataUpdated = true;
+        }
     }
     else
     {
         fileMetadataPath = folderPath / ".uemetadata";
         metadataUpdated = true;
     }
-    //Remove deleted files.
+    // Scan and remove deleted files.
     auto it = folderMetadata.m_fileMap.begin();
     while (it != folderMetadata.m_fileMap.end())
     {
+        // If we can't find the file, then we need to make the corresponding asset (if exists) to be temporary asset.
+        // If we find the asset, we need to update it's relative path since it may be changed by other programs.
         if (!std::filesystem::exists(projectManager.m_projectPath.parent_path() / it->first))
         {
             auto handle = it->second;
             auto search = assetManager.m_assets.find(handle);
-            if(search != assetManager.m_assets.end()){
+            if (search != assetManager.m_assets.end())
+            {
                 auto asset = search->second.lock();
-                if(asset){
+                if (asset)
+                {
                     asset->SetPath("");
                 }
             }
@@ -247,7 +263,19 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
             it = folderMetadata.m_fileMap.erase(it);
         }
         else
+        {
+            auto handle = it->second;
+            auto search = assetManager.m_assets.find(handle);
+            if (search != assetManager.m_assets.end())
+            {
+                auto asset = search->second.lock();
+                if (asset)
+                {
+                    asset->SetPath(it->first);
+                }
+            }
             it++;
+        }
     }
     // 3. Load metadata file and scan the folder. Update metadata if needed.
     auto &assetRegistry = projectManager.m_assetRegistry;
@@ -258,9 +286,10 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
             FileRecord fileRecord;
             fileRecord.m_name = entry.path().stem().string();
             fileRecord.m_relativeFilePath = GetRelativePath(entry.path());
+            fileRecord.m_fileName = fileRecord.m_relativeFilePath.filename().string();
             auto search = folderMetadata.m_fileMap.find(GetRelativePath(entry.path()).string());
             Handle fileHandle = Handle();
-            //Update assetRegistry
+            // Update assetRegistry
             auto typeSearch = assetManager.m_typeNames.find(entry.path().extension().string());
             bool isAsset = false;
             if (typeSearch != assetManager.m_typeNames.end())
@@ -272,13 +301,28 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
             {
                 fileRecord.m_typeName = "Binary";
             }
-            assetRegistry.Find(fileRecord.m_relativeFilePath, fileHandle);
+            Handle registeredHandle;
+            bool assetRegistered = assetRegistry.Find(fileRecord.m_relativeFilePath, registeredHandle);
             if (search == folderMetadata.m_fileMap.end())
             {
+                if (assetRegistered)
+                    fileHandle = registeredHandle;
                 folderMetadata.m_fileMap[fileRecord.m_relativeFilePath.string()] = fileHandle;
                 folderMetadata.m_fileRecords[fileHandle] = fileRecord;
                 metadataUpdated = true;
-            }else{
+            }
+            else
+            {
+                if (assetRegistered && registeredHandle != search->second)
+                {
+                    // This means we found an asset in registry with another handle different with the metadata.
+                    // Then we need to make the asset in registry to be temporary asset.
+                    auto asset = assetManager.m_assets.find(registeredHandle)->second.lock();
+                    if (asset)
+                    {
+                        asset->SetPath("");
+                    }
+                }
                 fileHandle = search->second;
             }
             if (isAsset)
@@ -307,7 +351,7 @@ std::filesystem::path ProjectManager::GetRelativePath(const std::filesystem::pat
 }
 void ProjectManager::GenerateNewDefaultScene()
 {
-    auto& projectManager = GetInstance();
+    auto &projectManager = GetInstance();
     auto scene = AssetManager::CreateAsset<Scene>("New Scene");
     std::filesystem::path newSceneRelativePath = GenerateNewPath("New Scene", ".uescene");
     scene->SetPath(newSceneRelativePath);
@@ -330,35 +374,44 @@ std::filesystem::path ProjectManager::GenerateNewPath(const std::string &fileste
 {
     std::filesystem::path retVal = filestem + extension;
     int i = 0;
-    while(std::filesystem::exists(retVal)){
+    while (std::filesystem::exists(retVal))
+    {
         i++;
         retVal = filestem + " (" + std::to_string(i) + ")" + extension;
     }
     return retVal;
 }
 
-void ProjectManager::FindFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& walker, std::shared_ptr<Folder>& result){
-    if(walker->m_relativePath != folderPath){
-        for(const auto& i : walker->m_children){
+void ProjectManager::FindFolderHelper(
+    const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &walker, std::shared_ptr<Folder> &result)
+{
+    if (walker->m_relativePath != folderPath)
+    {
+        for (const auto &i : walker->m_children)
+        {
             FindFolderHelper(folderPath, i.second, result);
         }
-    }else{
+    }
+    else
+    {
         result = walker;
     }
 }
 
-std::shared_ptr<Folder> ProjectManager::FindFolder(const std::filesystem::path& folderPath){
+std::shared_ptr<Folder> ProjectManager::FindFolder(const std::filesystem::path &folderPath)
+{
     std::shared_ptr<Folder> retVal;
-    auto& projectManager = GetInstance();
-    if(!std::filesystem::exists(projectManager.m_projectPath.parent_path() / folderPath)) return nullptr;
+    auto &projectManager = GetInstance();
+    if (!std::filesystem::exists(projectManager.m_projectPath.parent_path() / folderPath))
+        return nullptr;
     FindFolderHelper(folderPath, projectManager.m_currentProject->m_projectFolder, retVal);
-    if(!retVal){
+    if (!retVal)
+    {
         auto directory = projectManager.m_projectPath.parent_path();
         ScanFolderHelper(directory, projectManager.m_currentProject->m_projectFolder, false);
     }
     return retVal;
 }
-
 
 void FolderMetadata::Save(const std::filesystem::path &path)
 {
@@ -383,7 +436,7 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     fout << out.c_str();
     fout.flush();
 }
-void FolderMetadata::Load(const std::filesystem::path &path)
+bool FolderMetadata::Load(const std::filesystem::path &path)
 {
     m_fileMap.clear();
     m_fileRecords.clear();
@@ -391,6 +444,7 @@ void FolderMetadata::Load(const std::filesystem::path &path)
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
+    bool changed = false;
     if (in["m_fileRecords"])
     {
         for (const auto &inFileRecords : in["m_fileRecords"])
@@ -398,24 +452,33 @@ void FolderMetadata::Load(const std::filesystem::path &path)
             Handle handle = Handle(inFileRecords["Handle"].as<uint64_t>());
             FileRecord fileRecord;
             fileRecord.Deserialize(inFileRecords);
+            if (fileRecord.m_fileName.empty())
+            {
+                changed = true;
+                continue;
+            }
+            fileRecord.m_relativeFilePath = ProjectManager::GetRelativePath(path.parent_path() / fileRecord.m_fileName);
             m_fileRecords[handle] = fileRecord;
             m_fileMap[fileRecord.m_relativeFilePath.string()] = handle;
         }
     }
+    return changed;
 }
 void FileRecord::Serialize(YAML::Emitter &out) const
 {
     out << YAML::Key << "m_name" << YAML::Value << m_name;
-    out << YAML::Key << "m_relativeFilePath" << YAML::Value << m_relativeFilePath.string();
+    out << YAML::Key << "m_fileName" << YAML::Value << m_fileName;
     out << YAML::Key << "m_typeName" << YAML::Value << m_typeName;
 }
 void FileRecord::Deserialize(const YAML::Node &in)
 {
-    m_name = in["m_name"].as<std::string>();
-    m_relativeFilePath = in["m_relativeFilePath"].as<std::string>();
-    m_typeName = in["m_typeName"].as<std::string>();
+    if (in["m_name"])
+        m_name = in["m_name"].as<std::string>();
+    if (in["m_fileName"])
+        m_fileName = in["m_fileName"].as<std::string>();
+    if (in["m_typeName"])
+        m_typeName = in["m_typeName"].as<std::string>();
 }
 void Folder::Rename(const std::string &newName)
 {
-
 }

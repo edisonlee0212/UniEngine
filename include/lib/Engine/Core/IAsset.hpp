@@ -12,6 +12,7 @@ class UNIENGINE_API IAsset : public ISerializable
     friend class DefaultResources;
     friend class EditorManager;
     friend class AssetRegistry;
+    friend class ProjectManager;
     std::filesystem::path m_projectRelativePath;
 
     /**

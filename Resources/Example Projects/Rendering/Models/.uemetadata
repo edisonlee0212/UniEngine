@@ -1,9 +1,9 @@
 m_fileRecords:
-  - Handle: 16593047115661473943
+  - Handle: 15894276206713942534
     m_name: Capoeira
-    m_relativeFilePath: Models\Capoeira.fbx
+    m_fileName: Capoeira.fbx
     m_typeName: Prefab
-  - Handle: 17402563291703496344
+  - Handle: 845740753382667670
     m_name: UniEngine
-    m_relativeFilePath: Models\UniEngine.obj
+    m_fileName: UniEngine.obj
     m_typeName: Prefab

@@ -281,6 +281,7 @@ void AssetRegistry::ResetFilePath(Handle handle, const std::filesystem::path &ne
 {
     std::string original = m_assetRecords[handle].m_relativeFilePath.string();
     m_assetRecords[handle].m_relativeFilePath = newFilePath;
+    m_assetRecords[handle].m_fileName = newFilePath.filename().string();
     if (m_fileMap.find(original) != m_fileMap.end())
         m_fileMap.erase(original);
     m_fileMap[newFilePath.string()] = handle;
