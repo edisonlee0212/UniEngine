@@ -123,6 +123,17 @@ void ProjectManager::ScanFolderHelper(
 {
     if (updateMetaData)
         UpdateFolderMetadata(folder);
+    auto it = folder->m_children.begin();
+    while (it != folder->m_children.end())
+    {
+        if (!std::filesystem::exists(folderPath / it->first))
+        {
+            it->second->ClearAllDescendents();
+            it = folder->m_children.erase(it);
+        }
+        else
+            it++;
+    }
     for (const auto &entry : std::filesystem::directory_iterator(folderPath))
     {
         if (std::filesystem::is_directory(entry.path()))
@@ -136,7 +147,7 @@ void ProjectManager::ScanFolderHelper(
                 newFolder->m_folderMetadata = FolderMetadata();
                 newFolder->m_relativePath = GetRelativePath(entry.path());
                 newFolder->m_name = folderName;
-                folder->m_children[entry.path().string()] = newFolder;
+                folder->m_children[folderName] = newFolder;
                 newFolder->m_parent = folder;
                 childFolder = newFolder;
             }
@@ -147,17 +158,7 @@ void ProjectManager::ScanFolderHelper(
             ScanFolderHelper(entry.path(), childFolder);
         }
     }
-    auto it = folder->m_children.begin();
-    while (it != folder->m_children.end())
-    {
-        if (!std::filesystem::exists(it->first))
-        {
-            it->second->ClearAllDescendents();
-            it = folder->m_children.erase(it);
-        }
-        else
-            it++;
-    }
+
 }
 void ProjectManager::OnInspect()
 {
