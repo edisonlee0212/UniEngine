@@ -152,6 +152,7 @@ void ProjectManager::ScanFolderHelper(
     {
         if (!std::filesystem::exists(it->first))
         {
+            it->second->ClearAllDescendents();
             it = folder->m_children.erase(it);
         }
         else
@@ -481,4 +482,9 @@ void FileRecord::Deserialize(const YAML::Node &in)
 }
 void Folder::Rename(const std::string &newName)
 {
+}
+void Folder::ClearAllDescendents()
+{
+    for(auto& i : m_children) i.second->ClearAllDescendents();
+    m_children.clear();
 }

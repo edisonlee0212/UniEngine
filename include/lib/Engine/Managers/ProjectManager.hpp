@@ -44,6 +44,7 @@ struct UNIENGINE_API Folder {
     std::map<std::string, std::shared_ptr<Folder>> m_children;
     std::weak_ptr<Folder> m_parent;
     void Rename(const std::string& newName);
+    void ClearAllDescendents();
 };
 
 class UNIENGINE_API Project : public ISerializable
