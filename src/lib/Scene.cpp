@@ -236,23 +236,9 @@ void Scene::Serialize(YAML::Emitter &out)
     for (const auto &i : m_systems)
     {
         SerializeSystem(i.second, out);
+        i.second->CollectAssetRef(list);
     }
     out << YAML::EndSeq;
-#pragma endregion
-
-#pragma region DataComponentStorage
-    out << YAML::Key << "DataComponentStorages" << YAML::Value << YAML::BeginSeq;
-    for (int i = 1; i < sceneDataStorage.m_dataComponentStorages.size(); i++)
-    {
-        SerializeDataComponentStorage(sceneDataStorage.m_dataComponentStorages[i], out);
-    }
-    out << YAML::EndSeq;
-#pragma endregion
-#pragma region Entities
-    out << YAML::Key << "Entities" << YAML::Value
-        << YAML::Binary(
-               (const unsigned char *)sceneDataStorage.m_entities.data(),
-               sceneDataStorage.m_entities.size() * sizeof(Entity));
 #pragma endregion
 
 #pragma region Assets
@@ -299,6 +285,21 @@ void Scene::Serialize(YAML::Emitter &out)
         out << YAML::EndSeq;
     }
 #pragma endregion
+
+#pragma region DataComponentStorage
+    out << YAML::Key << "DataComponentStorages" << YAML::Value << YAML::BeginSeq;
+    for (int i = 1; i < sceneDataStorage.m_dataComponentStorages.size(); i++)
+    {
+        SerializeDataComponentStorage(sceneDataStorage.m_dataComponentStorages[i], out);
+    }
+    out << YAML::EndSeq;
+#pragma endregion
+#pragma region Entities
+    out << YAML::Key << "Entities" << YAML::Value
+        << YAML::Binary(
+               (const unsigned char *)sceneDataStorage.m_entities.data(),
+               sceneDataStorage.m_entities.size() * sizeof(Entity));
+#pragma endregion
     out << YAML::EndMap;
 }
 void Scene::Deserialize(const YAML::Node &in)
@@ -314,37 +315,6 @@ void Scene::Deserialize(const YAML::Node &in)
     // Must attach current scene to entitymanager before loading!
     // assert(EntityManager::GetCurrentScene().get() == this);
 
-#pragma region Assets
-    std::vector<std::shared_ptr<IAsset>> localAssets;
-    auto inLocalAssets = in["LocalAssets"];
-    if (inLocalAssets)
-    {
-        std::vector<bool> isLocal;
-        for (const auto &i : inLocalAssets)
-        {
-            Handle handle = i["Handle"].as<uint64_t>();
-            // First, find the asset in assetregistry
-            auto asset = AssetManager::Get(handle);
-            if (!asset)
-            {
-                asset = AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
-                isLocal.push_back(false);
-            }
-            else
-            {
-                isLocal.push_back(true);
-            }
-            localAssets.push_back(asset);
-        }
-        int index = 0;
-        for (const auto &i : inLocalAssets)
-        {
-            if (!isLocal[index])
-                localAssets[index++]->Deserialize(i);
-        }
-    }
-    m_environmentalMap.Load("m_environmentalMap", in);
-#pragma endregion
 #pragma region DataComponentStorage
     auto inDataComponentStorages = in["DataComponentStorages"];
     for (const auto &inDataComponentStorage : inDataComponentStorages)
@@ -409,6 +379,40 @@ void Scene::Deserialize(const YAML::Node &in)
         sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
         entityIndex++;
     }
+
+
+#pragma region Assets
+    std::vector<std::shared_ptr<IAsset>> localAssets;
+    auto inLocalAssets = in["LocalAssets"];
+    if (inLocalAssets)
+    {
+        std::vector<bool> isLocal;
+        for (const auto &i : inLocalAssets)
+        {
+            Handle handle = i["Handle"].as<uint64_t>();
+            // First, find the asset in assetregistry
+            auto asset = AssetManager::Get(handle);
+            if (!asset)
+            {
+                asset = AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
+                isLocal.push_back(false);
+            }
+            else
+            {
+                isLocal.push_back(true);
+            }
+            localAssets.push_back(asset);
+        }
+        int index = 0;
+        for (const auto &i : inLocalAssets)
+        {
+            if (!isLocal[index])
+                localAssets[index++]->Deserialize(i);
+        }
+    }
+    m_environmentalMap.Load("m_environmentalMap", in);
+#pragma endregion
+
     entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
