@@ -1,6 +1,6 @@
 #include "PhysicsMaterial.hpp"
-#include <PhysicsManager.hpp>
 #include "Application.hpp"
+#include <PhysicsManager.hpp>
 void UniEngine::PhysicsMaterial::OnCreate()
 {
     m_name = "New physics model";
@@ -16,16 +16,19 @@ void UniEngine::PhysicsMaterial::SetDynamicFriction(const float &value)
 {
     m_dynamicFriction = value;
     m_value->setDynamicFriction(m_dynamicFriction);
+    m_saved = false;
 }
 void UniEngine::PhysicsMaterial::SetStaticFriction(const float &value)
 {
     m_staticFriction = value;
     m_value->setStaticFriction(m_staticFriction);
+    m_saved = false;
 }
 void UniEngine::PhysicsMaterial::SetRestitution(const float &value)
 {
     m_restitution = value;
     m_value->setRestitution(m_restitution);
+    m_saved = false;
 }
 void UniEngine::PhysicsMaterial::OnGui()
 {

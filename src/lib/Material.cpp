@@ -35,55 +35,98 @@ void Material::OnInspect()
             static char newName[256];
             ImGui::InputText("New name##Material", newName, 256);
             if (ImGui::Button("Confirm##Material"))
+            {
+                m_saved = false;
                 m_name = std::string(newName);
+            }
             ImGui::EndMenu();
         }
         ImGui::EndPopup();
     }
-    EditorManager::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program");
+    if (EditorManager::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program"))
+        m_saved = false;
     ImGui::Separator();
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
     {
         if (!m_albedoTexture.Get())
-            ImGui::ColorEdit3("Albedo##Material", &m_albedoColor.x);
+            if (ImGui::ColorEdit3("Albedo##Material", &m_albedoColor.x))
+            {
+                m_saved = false;
+            }
         if (!m_metallicTexture.Get())
-            ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f);
+            if (ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f))
+            {
+                m_saved = false;
+            }
         if (!m_roughnessTexture.Get())
-            ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f);
+            if (ImGui::DragFloat("Roughness##Material", &m_roughness, 0.01f, 0.0f, 1.0f))
+            {
+                m_saved = false;
+            }
         if (!m_aoTexture.Get())
-            ImGui::DragFloat("AO##Material", &m_ambient, 0.01f, 0.0f, 1.0f);
-        ImGui::DragFloat("Emission##Material", &m_emission, 0.01f, 0.0f, 10.0f);
+            if (ImGui::DragFloat("AO##Material", &m_ambient, 0.01f, 0.0f, 1.0f))
+            {
+                m_saved = false;
+            }
+        if (ImGui::DragFloat("Emission##Material", &m_emission, 0.01f, 0.0f, 10.0f))
+        {
+            m_saved = false;
+        }
         ImGui::TreePop();
     }
     if (ImGui::TreeNodeEx("Others##Material"))
     {
-        ImGui::Checkbox("Enable alpha discard##Material", &m_alphaDiscardEnabled);
+        if (ImGui::Checkbox("Enable alpha discard##Material", &m_alphaDiscardEnabled))
+        {
+            m_saved = false;
+        }
         if (m_alphaDiscardEnabled)
-            ImGui::DragFloat("Alpha discard offset##Material", &m_alphaDiscardOffset, 0.01f, 0.0f, 0.99f);
-        ImGui::Combo(
+        {
+            if (ImGui::DragFloat("Alpha discard offset##Material", &m_alphaDiscardOffset, 0.01f, 0.0f, 0.99f))
+            {
+                m_saved = false;
+            }
+        }
+        if(ImGui::Combo(
             "Polygon Mode##Material",
             reinterpret_cast<int *>(&m_polygonMode),
             MatPolygonMode,
-            IM_ARRAYSIZE(MatPolygonMode));
-        ImGui::Combo(
+            IM_ARRAYSIZE(MatPolygonMode))){
+            m_saved = false;
+        }
+        if(ImGui::Combo(
             "Culling Mode##Material",
             reinterpret_cast<int *>(&m_cullingMode),
             MatCullingMode,
-            IM_ARRAYSIZE(MatCullingMode));
-        ImGui::Combo(
+            IM_ARRAYSIZE(MatCullingMode))){
+            m_saved = false;
+        }
+        if(ImGui::Combo(
             "Blending Mode##Material",
             reinterpret_cast<int *>(&m_blendingMode),
             MatBlendingMode,
-            IM_ARRAYSIZE(MatBlendingMode));
+            IM_ARRAYSIZE(MatBlendingMode))){
+            m_saved = false;
+        }
         ImGui::TreePop();
     }
     if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
     {
-        EditorManager::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex");
-        EditorManager::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex");
-        EditorManager::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex");
-        EditorManager::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex");
-        EditorManager::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex");
+        if(EditorManager::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex")){
+            m_saved = false;
+        }
+        if(EditorManager::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex")){
+            m_saved = false;
+        }
+        if(EditorManager::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex")){
+            m_saved = false;
+        }
+        if(EditorManager::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex")){
+            m_saved = false;
+        }
+        if(EditorManager::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex")){
+            m_saved = false;
+        }
         ImGui::TreePop();
     }
 }
