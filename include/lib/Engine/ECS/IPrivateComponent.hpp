@@ -56,8 +56,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     Handle m_entityHandle = Handle(0);
     std::string m_privateComponentTypeName;
     bool Update();
-
-  protected:
+  public:
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
@@ -69,7 +68,6 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
     }
 
-  public:
     PrivateComponentRef()
     {
         m_entityHandle = Handle(0);
