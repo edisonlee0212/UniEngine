@@ -684,7 +684,7 @@ void FileUtils::SaveFile(
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
+bool Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
 {
     enum class StorageValues : ImGuiID
     {
@@ -721,7 +721,7 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         {
             ImGui::EndChildFrame();
             ImGui::TreePop();
-            return -1;
+            return false;
         }
 
         int hovered_idx = -1;
@@ -731,7 +731,7 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
         {
             ImGui::EndChildFrame();
             ImGui::TreePop();
-            return -1;
+            return false;
         }
 
         ImVec2 points_min(FLT_MAX, FLT_MAX);
@@ -1152,9 +1152,9 @@ int Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsi
             ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y);
         }
         ImGui::TreePop();
-        return changed_idx;
+        return changed_idx != -1;
     }
-    return -1;
+    return false;
 }
 std::vector<glm::vec2> &Curve::UnsafeGetValues()
 {

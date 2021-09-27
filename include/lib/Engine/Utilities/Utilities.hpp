@@ -78,7 +78,7 @@ class UNIENGINE_API Curve : public ISerializable
     void SetStart(float value);
     void SetEnd(float value);
     [[nodiscard]] bool IsTangent();
-    int CurveEditor(
+    bool CurveEditor(
         const std::string &label,
         const ImVec2 &editor_size = ImVec2(-1, -1),
         unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
