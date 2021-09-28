@@ -248,7 +248,7 @@ void Camera::OnCreate()
 {
     m_resolutionX = 1;
     m_resolutionY = 1;
-
+    m_frameCount = 0;
     m_colorTexture = AssetManager::CreateAsset<Texture2D>();
     m_colorTexture->m_name = "CameraTexture";
     m_colorTexture->m_texture =

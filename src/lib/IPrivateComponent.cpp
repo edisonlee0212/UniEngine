@@ -17,6 +17,10 @@ void PrivateComponentElement::ResetOwner(const Entity &newOwner) const
     m_privateComponentData->m_owner = newOwner;
 }
 
+bool IPrivateComponent::Started()
+{
+    return m_started;
+}
 
 bool IPrivateComponent::IsEnabled() const
 {

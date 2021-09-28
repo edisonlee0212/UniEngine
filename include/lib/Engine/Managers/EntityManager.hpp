@@ -519,6 +519,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
 
+
 #pragma endregion
 
 #pragma region Functions

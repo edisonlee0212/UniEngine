@@ -59,6 +59,11 @@ void RenderManager::DispatchRenderCommands(
 #pragma endregion
 void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent)
 {
+    if(cameraComponent->m_frameCount == 0){
+        cameraComponent->m_frameCount++;
+        return;
+    }
+    cameraComponent->m_frameCount++;
     auto &renderManager = GetInstance();
     glEnable(GL_DEPTH_TEST);
     cameraComponent->m_gBuffer->Bind();

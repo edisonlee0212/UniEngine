@@ -16,11 +16,12 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     Entity m_owner = Entity();
     bool m_started = false;
 
+
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
-
+    bool Started();
     virtual void OnInspect(){};
     virtual void FixedUpdate(){};
     virtual void PreUpdate(){};

@@ -50,7 +50,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 
     static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
     bool m_isMainCamera = false;
-
+    size_t m_frameCount = 0;
   public:
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 
