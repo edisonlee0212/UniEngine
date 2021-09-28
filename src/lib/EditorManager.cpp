@@ -561,7 +561,9 @@ void EditorManager::RenderToSceneCamera()
 #pragma endregion
         RenderManager::ApplyShadowMapSettings();
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
-        RenderManager::RenderToCamera(editorManager.m_sceneCamera);
+        GlobalTransform sceneCameraGT;
+        sceneCameraGT.SetValue(editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation, glm::vec3(1.0f));
+        RenderManager::RenderToCamera(editorManager.m_sceneCamera, sceneCameraGT);
     }
     else
     {
@@ -989,9 +991,9 @@ void EditorManager::OnInspect()
                             auto newHandle = Handle();
                             auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
                             auto newPath = ProjectManager::GenerateNewPath(
-                                (projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
+                                (projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
                                 AssetManager::GetExtension(i.first)[0]);
-                            newAsset->SetPathAndSave(newPath);
+                            newAsset->SetPathAndSave(ProjectManager::GetRelativePath(newPath));
                         }
                     }
                     ImGui::EndMenu();

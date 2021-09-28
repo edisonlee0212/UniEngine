@@ -57,7 +57,7 @@ void RenderManager::DispatchRenderCommands(
 }
 
 #pragma endregion
-void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent)
+void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel)
 {
     if(cameraComponent->m_frameCount == 0){
         cameraComponent->m_frameCount++;
@@ -65,6 +65,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     }
     cameraComponent->m_frameCount++;
     auto &renderManager = GetInstance();
+    auto sceneBound = EntityManager::GetCurrentScene()->GetBound();
+    RenderShadows(sceneBound, cameraComponent, cameraModel);
     glEnable(GL_DEPTH_TEST);
     cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
@@ -256,12 +258,17 @@ void RenderManager::LateUpdate()
 {
     ProfilerManager::StartEvent("RenderManager");
     auto &renderManager = GetInstance();
-    const bool mainCameraExist = !renderManager.m_mainCameraComponent.expired();
+    bool mainCameraExist = !renderManager.m_mainCameraComponent.expired();
     std::shared_ptr<Camera> mainCamera;
     if (mainCameraExist)
         mainCamera = renderManager.m_mainCameraComponent.lock();
-    auto scene = EntityManager::GetCurrentScene();
+    if(mainCamera && !mainCamera->GetOwner().IsValid()){
+        renderManager.m_mainCameraComponent.reset();
+        mainCameraExist = false;
+    }
 
+    auto scene = EntityManager::GetCurrentScene();
+    if(!scene) return;
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
@@ -297,21 +304,6 @@ void RenderManager::LateUpdate()
     ProfilerManager::EndEvent("RenderCommand Collection");
 
 #pragma endregion
-#pragma region Shadowmap prepass
-    if(scene)
-    {
-        ProfilerManager::StartEvent("Shadowmap Prepass");
-        scene->SetBound(worldBound);
-        if (mainCameraExist)
-        {
-            if (const auto mainCameraEntity = mainCamera->GetOwner(); mainCameraEntity.IsEnabled())
-            {
-                RenderShadows(worldBound, mainCamera, mainCameraEntity);
-            }
-        }
-        ProfilerManager::EndEvent("Shadowmap Prepass");
-    }
-#pragma endregion
 #pragma region Render to cameras
     ProfilerManager::StartEvent("Main Rendering");
     renderManager.m_triangles = 0;
@@ -322,7 +314,7 @@ void RenderManager::LateUpdate()
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
 
-    if (mainCameraExist && cameraEntities != nullptr)
+    if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
         {
@@ -336,7 +328,7 @@ void RenderManager::LateUpdate()
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
                 ApplyShadowMapSettings();
                 ApplyEnvironmentalSettings(cameraComponent);
-                RenderToCamera(cameraComponent);
+                RenderToCamera(cameraComponent, cameraEntity.GetDataComponent<GlobalTransform>());
             }
         }
     }
@@ -346,7 +338,7 @@ void RenderManager::LateUpdate()
     ProfilerManager::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
-    if (mainCameraExist && postProcessingEntities != nullptr)
+    if (postProcessingEntities != nullptr)
     {
         for (auto postProcessingEntity : *postProcessingEntities)
         {
@@ -1200,7 +1192,7 @@ void RenderManager::ShadowMapPrePass(
     }
 }
 void RenderManager::RenderShadows(
-    Bound &worldBound, const std::shared_ptr<Camera> &cameraComponent, const Entity &mainCameraEntity)
+    Bound &worldBound, const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel)
 {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -1210,7 +1202,7 @@ void RenderManager::RenderShadows(
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
 
-    auto ltw = mainCameraEntity.GetDataComponent<GlobalTransform>();
+    auto ltw = cameraModel;
     glm::vec3 mainCameraPos = ltw.GetPosition();
     glm::quat mainCameraRot = ltw.GetRotation();
     renderManager.m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &renderManager.m_lightSettings);

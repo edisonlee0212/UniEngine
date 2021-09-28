@@ -253,10 +253,12 @@ void Application::Run()
         switch (application.m_applicationStatus)
         {
         case ApplicationStatus::WelcomeScreen:
+            ImGui::Begin("Welcome to UniEngine");
             FileUtils::SaveFile("Create or load project", "Project", {".ueproj"}, [&](const std::filesystem::path& path){
                 ProjectManager::CreateOrLoadProject(path);
                 application.m_applicationStatus = ApplicationStatus::Initialized;
             }, false);
+            ImGui::End();
             break;
         case ApplicationStatus::Initialized:
             PreUpdateInternal();
