@@ -253,6 +253,8 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         const bool &setMaterial);
     static void Init();
   private:
+    unsigned m_frameIndex = 0;
+
 #pragma region Class members
     std::weak_ptr<Camera> m_mainCameraComponent;
 #pragma region GUI

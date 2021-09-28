@@ -39,6 +39,7 @@ struct UNIENGINE_API ApplicationConfigs{
 };
 enum class UNIENGINE_API ApplicationStatus{
     None,
+    WelcomeScreen,
     Initialized,
     OnDestroy
 };

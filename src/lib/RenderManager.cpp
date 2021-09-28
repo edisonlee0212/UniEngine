@@ -235,7 +235,7 @@ void RenderManager::PreUpdate()
 
     auto &renderManager = GetInstance();
     //if (!renderManager.m_mainCameraComponent.expired())
-        EditorManager::RenderToSceneCamera();
+    if(renderManager.m_frameIndex != 0) EditorManager::RenderToSceneCamera();
 
     ProfilerManager::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
@@ -354,7 +354,7 @@ void RenderManager::LateUpdate()
     }
     ProfilerManager::EndEvent("Post Processing");
 #pragma endregion
-
+    renderManager.m_frameIndex++;
     ProfilerManager::EndEvent("RenderManager");
 }
 glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
@@ -439,7 +439,7 @@ void RenderManager::OnInspect()
 void RenderManager::Init()
 {
     auto &manager = GetInstance();
-
+    manager.m_frameIndex = 0;
     Camera::GenerateMatrices();
     manager.m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     manager.m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);

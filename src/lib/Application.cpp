@@ -21,6 +21,7 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     application.m_applicationConfigs = applicationConfigs;
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
 
+    /*
     while (application.m_applicationConfigs.m_projectPath.empty())
     {
         if (!RequestProjectPath(application.m_applicationConfigs.m_projectPath))
@@ -32,7 +33,7 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     {
         exit(0);
     }
-
+*/
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
@@ -48,8 +49,11 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
     EditorManager::Init();
     TransformManager::Init();
-    application.m_applicationStatus = ApplicationStatus::Initialized;
-    ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
+    application.m_applicationStatus = ApplicationStatus::WelcomeScreen;
+    if(!application.m_applicationConfigs.m_projectPath.empty()){
+        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
+        application.m_applicationStatus = ApplicationStatus::Initialized;
+    }
     application.m_playing = false;
 }
 void ApplicationTime::OnInspect()
@@ -246,9 +250,20 @@ void Application::Run()
         EditorManager::ImGuiPreUpdate();
         OpenGLUtils::PreUpdate();
 
-        PreUpdateInternal();
-        UpdateInternal();
-        LateUpdateInternal();
+        switch (application.m_applicationStatus)
+        {
+        case ApplicationStatus::WelcomeScreen:
+            FileUtils::SaveFile("Create or load project", "Project", {".ueproj"}, [&](const std::filesystem::path& path){
+                ProjectManager::CreateOrLoadProject(path);
+                application.m_applicationStatus = ApplicationStatus::Initialized;
+            }, false);
+            break;
+        case ApplicationStatus::Initialized:
+            PreUpdateInternal();
+            UpdateInternal();
+            LateUpdateInternal();
+            break;
+        }
 
         // ImGui drawing
         EditorManager::ImGuiLateUpdate();
