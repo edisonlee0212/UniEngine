@@ -322,7 +322,7 @@ void RenderManager::LateUpdate()
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
 
-    if (cameraEntities != nullptr)
+    if (mainCameraExist && cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
         {
@@ -346,7 +346,7 @@ void RenderManager::LateUpdate()
     ProfilerManager::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
-    if (postProcessingEntities != nullptr)
+    if (mainCameraExist && postProcessingEntities != nullptr)
     {
         for (auto postProcessingEntity : *postProcessingEntities)
         {
