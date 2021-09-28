@@ -232,14 +232,14 @@ void Camera::ResizeResolution(int x, int y)
     m_resolutionX = x > 0 ? x : 1;
     m_resolutionY = y > 0 ? y : 1;
 
-    m_gBufferNormal->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBufferNormal->ReSize(0, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBufferDepth->ReSize(0, GL_DEPTH_COMPONENT32F, GL_DEPTH_COMPONENT, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
-    m_gBufferAlbedo->ReSize(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_gBufferAlbedo->ReSize(0, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBufferMetallicRoughnessEmissionAmbient->ReSize(
-        0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+        0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_gBuffer->SetResolution(m_resolutionX, m_resolutionY);
 
-    m_colorTexture->m_texture->ReSize(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0, m_resolutionX, m_resolutionY);
+    m_colorTexture->m_texture->ReSize(0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0, m_resolutionX, m_resolutionY);
     m_depthStencilTexture->m_texture->ReSize(
         0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0, m_resolutionX, m_resolutionY);
 }
@@ -253,7 +253,7 @@ void Camera::OnCreate()
     m_colorTexture->m_name = "CameraTexture";
     m_colorTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
-    m_colorTexture->m_texture->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
+    m_colorTexture->m_texture->SetData(0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0);
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -282,7 +282,7 @@ void Camera::OnCreate()
     m_gBuffer->AttachTexture(m_gBufferDepth.get(), GL_DEPTH_ATTACHMENT);
 
     m_gBufferNormal = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, m_resolutionX, m_resolutionY, false);
-    m_gBufferNormal->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_gBufferNormal->SetData(0, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, 0);
     m_gBufferNormal->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_gBufferNormal->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_gBufferNormal->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -290,7 +290,7 @@ void Camera::OnCreate()
     m_gBuffer->AttachTexture(m_gBufferNormal.get(), GL_COLOR_ATTACHMENT0);
 
     m_gBufferAlbedo = std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGB16F, m_resolutionX, m_resolutionY, false);
-    m_gBufferAlbedo->SetData(0, GL_RGB16F, GL_RGB, GL_FLOAT, 0);
+    m_gBufferAlbedo->SetData(0, GL_RGB16F, GL_RGB, GL_HALF_FLOAT, 0);
     m_gBufferAlbedo->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_gBufferAlbedo->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_gBufferAlbedo->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -299,7 +299,7 @@ void Camera::OnCreate()
 
     m_gBufferMetallicRoughnessEmissionAmbient =
         std::make_unique<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
-    m_gBufferMetallicRoughnessEmissionAmbient->SetData(0, GL_RGBA16F, GL_RGBA, GL_FLOAT, 0);
+    m_gBufferMetallicRoughnessEmissionAmbient->SetData(0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0);
     m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
