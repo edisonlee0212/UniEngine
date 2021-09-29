@@ -328,11 +328,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
         std::shared_ptr<OpenGLUtils::GLProgram> &instancedSkinnedProgram);
     static void RenderShadows(
         Bound &worldBound, const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel);
-    static void CollectRenderInstances(
-        const std::shared_ptr<Camera> &camera,
-        const glm::vec3 &position,
-        Bound &worldBound,
-        const bool &calculateBound = false);
+    static void CollectRenderInstances(Bound &worldBound);
     static void RenderToCamera(const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel);
 
     static void PrepareBrdfLut();

@@ -59,7 +59,8 @@ void RenderManager::DispatchRenderCommands(
 #pragma endregion
 void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel)
 {
-    if(cameraComponent->m_frameCount == 0){
+    if (cameraComponent->m_frameCount == 0)
+    {
         cameraComponent->m_frameCount++;
         return;
     }
@@ -174,7 +175,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
-                if(!program) break;
+                if (!program)
+                    break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -188,7 +190,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
-                if(!program) break;
+                if (!program)
+                    break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -211,7 +214,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
                 renderManager.m_materialSettingsBuffer->SubData(
                     0, sizeof(MaterialSettingsBlock), &renderManager.m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
-                if(!program) break;
+                if (!program)
+                    break;
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -241,8 +245,9 @@ void RenderManager::PreUpdate()
     ProfilerManager::StartEvent("RenderManager");
 
     auto &renderManager = GetInstance();
-    //if (!renderManager.m_mainCameraComponent.expired())
-    if(renderManager.m_frameIndex != 0) EditorManager::RenderToSceneCamera();
+    // if (!renderManager.m_mainCameraComponent.expired())
+    if (renderManager.m_frameIndex != 0)
+        EditorManager::RenderToSceneCamera();
 
     ProfilerManager::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
@@ -262,45 +267,19 @@ void RenderManager::LateUpdate()
     std::shared_ptr<Camera> mainCamera;
     if (mainCameraExist)
         mainCamera = renderManager.m_mainCameraComponent.lock();
-    if(mainCamera && !mainCamera->GetOwner().IsValid()){
+    if (mainCamera && !mainCamera->GetOwner().IsValid())
+    {
         renderManager.m_mainCameraComponent.reset();
         mainCameraExist = false;
     }
 
     auto scene = EntityManager::GetCurrentScene();
-    if(!scene) return;
+    if (!scene)
+        return;
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
-    bool boundCalculated = false;
-    if (cameraEntities != nullptr)
-    {
-        for (auto cameraEntity : *cameraEntities)
-        {
-            if (!cameraEntity.IsEnabled())
-                continue;
-            auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
-            if (cameraComponent->IsEnabled())
-            {
-                const bool calculateBound = mainCameraExist && cameraComponent.get() == mainCamera.get();
-                CollectRenderInstances(
-                    cameraComponent,
-                    cameraComponent->GetOwner().GetDataComponent<GlobalTransform>().GetPosition(),
-                    worldBound,
-                    calculateBound);
-                if (calculateBound)
-                    boundCalculated = true;
-            }
-        }
-    }
-    auto& editorManager = EditorManager::GetInstance();
-
-    CollectRenderInstances(
-        editorManager.m_sceneCamera,
-        editorManager.m_sceneCameraPosition,
-        worldBound,
-        !boundCalculated);
+    CollectRenderInstances(worldBound);
     ProfilerManager::EndEvent("RenderCommand Collection");
 
 #pragma endregion
@@ -313,7 +292,7 @@ void RenderManager::LateUpdate()
         if (mainCamera->m_allowAutoResize)
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
-
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
     if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
@@ -498,24 +477,29 @@ void RenderManager::Init()
 #pragma endregion
 #pragma endregion
 }
-void RenderManager::CollectRenderInstances(
-    const std::shared_ptr<Camera> &camera, const glm::vec3 &position, Bound &worldBound, const bool &calculateBound)
+void RenderManager::CollectRenderInstances(Bound &worldBound)
 {
     auto &renderManager = GetInstance();
-    auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[camera].m_value;
-    auto &deferredInstancedRenderInstances = renderManager.m_deferredInstancedRenderInstances[camera].m_value;
-    auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[camera].m_value;
-    auto &forwardInstancedRenderInstances = renderManager.m_forwardInstancedRenderInstances[camera].m_value;
-    auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[camera].m_value;
-    auto &instancedTransparentRenderInstances = renderManager.m_instancedTransparentRenderInstances[camera].m_value;
-
+    auto &editorManager = EditorManager::GetInstance();
+    std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
+    if (editorManager.m_sceneCamera && editorManager.m_sceneCamera->IsEnabled())
+    {
+        cameraPairs.emplace_back(editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition);
+    }
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
+    if(cameraEntities){
+        for(const auto& i : *cameraEntities){
+            if(!i.IsEnabled()) continue;
+            auto camera = i.GetOrSetPrivateComponent<Camera>().lock();
+            if(!camera || !camera->IsEnabled()) continue;
+            cameraPairs.emplace_back(camera, i.GetDataComponent<GlobalTransform>().GetPosition());
+        }
+    }
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
-    if (calculateBound)
-    {
-        minBound = glm::vec3(INT_MAX);
-        maxBound = glm::vec3(INT_MIN);
-    }
+    minBound = glm::vec3(INT_MAX);
+    maxBound = glm::vec3(INT_MIN);
+
     const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
     if (owners)
     {
@@ -533,38 +517,50 @@ void RenderManager::CollectRenderInstances(
             auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
-            if (calculateBound)
-            {
-                glm::vec3 size = meshBound.Size();
-                minBound = glm::vec3(
-                    (glm::min)(minBound.x, center.x - size.x),
-                    (glm::min)(minBound.y, center.y - size.y),
-                    (glm::min)(minBound.z, center.z - size.z));
-                maxBound = glm::vec3(
-                    (glm::max)(maxBound.x, center.x + size.x),
-                    (glm::max)(maxBound.y, center.y + size.y),
-                    (glm::max)(maxBound.z, center.z + size.z));
-            }
+
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+
             auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), position);
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = mesh;
-            renderInstance.m_castShadow = mmc->m_castShadow;
-            renderInstance.m_receiveShadow = mmc->m_receiveShadow;
-            renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (material->m_blendingMode != MaterialBlendingMode::Off)
+            for (const auto &pair : cameraPairs)
             {
-                transparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
-            }
-            else if (mmc->m_forwardRendering)
-            {
-                forwardRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
-            }
-            else
-            {
-                deferredRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances =
+                    renderManager.m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances =
+                    renderManager.m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances =
+                    renderManager.m_instancedTransparentRenderInstances[pair.first].m_value;
+
+                float distance = glm::distance(glm::vec3(meshCenter), pair.second);
+                RenderCommand renderInstance;
+                renderInstance.m_owner = owner;
+                renderInstance.m_globalTransform = gt;
+                renderInstance.m_mesh = mesh;
+                renderInstance.m_castShadow = mmc->m_castShadow;
+                renderInstance.m_receiveShadow = mmc->m_receiveShadow;
+                renderInstance.m_meshType = RenderCommandMeshType::Default;
+                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                {
+                    transparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
+                else if (mmc->m_forwardRendering)
+                {
+                    forwardRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
+                else
+                {
+                    deferredRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
             }
         }
     }
@@ -585,40 +581,50 @@ void RenderManager::CollectRenderInstances(
             auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
-            if (calculateBound)
-            {
-                glm::vec3 size = meshBound.Size();
-                minBound = glm::vec3(
-                    (glm::min)(minBound.x, center.x - size.x),
-                    (glm::min)(minBound.y, center.y - size.y),
-                    (glm::min)(minBound.z, center.z - size.z));
 
-                maxBound = glm::vec3(
-                    (glm::max)(maxBound.x, center.x + size.x),
-                    (glm::max)(maxBound.y, center.y + size.y),
-                    (glm::max)(maxBound.z, center.z + size.z));
-            }
-            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), position);
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_mesh = mesh;
-            renderInstance.m_castShadow = particles->m_castShadow;
-            renderInstance.m_receiveShadow = particles->m_receiveShadow;
-            renderInstance.m_matrices = particles->m_matrices;
-            renderInstance.m_meshType = RenderCommandMeshType::Default;
-            if (material->m_blendingMode != MaterialBlendingMode::Off)
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+            for (const auto &pair : cameraPairs)
             {
-                instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
-            }
-            else if (particles->m_forwardRendering)
-            {
-                forwardInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
-            }
-            else
-            {
-                deferredInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances =
+                    renderManager.m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances =
+                    renderManager.m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances =
+                    renderManager.m_instancedTransparentRenderInstances[pair.first].m_value;
+                auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+                float distance = glm::distance(glm::vec3(meshCenter), pair.second);
+                RenderCommand renderInstance;
+                renderInstance.m_owner = owner;
+                renderInstance.m_globalTransform = gt;
+                renderInstance.m_mesh = mesh;
+                renderInstance.m_castShadow = particles->m_castShadow;
+                renderInstance.m_receiveShadow = particles->m_receiveShadow;
+                renderInstance.m_matrices = particles->m_matrices;
+                renderInstance.m_meshType = RenderCommandMeshType::Default;
+                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                {
+                    instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
+                else if (particles->m_forwardRendering)
+                {
+                    forwardInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
+                else
+                {
+                    deferredInstancedRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
+                }
             }
         }
     }
@@ -640,7 +646,7 @@ void RenderManager::CollectRenderInstances(
             {
                 continue;
             }
-            if(!smmc->m_ragDoll)
+            if (!smmc->m_ragDoll)
             {
                 gt = owner.GetDataComponent<GlobalTransform>();
             }
@@ -648,39 +654,49 @@ void RenderManager::CollectRenderInstances(
             auto meshBound = skinnedMesh->GetBound();
             meshBound.ApplyTransform(ltw);
             glm::vec3 center = meshBound.Center();
-            if (calculateBound)
+
+            glm::vec3 size = meshBound.Size();
+            minBound = glm::vec3(
+                (glm::min)(minBound.x, center.x - size.x),
+                (glm::min)(minBound.y, center.y - size.y),
+                (glm::min)(minBound.z, center.z - size.z));
+            maxBound = glm::vec3(
+                (glm::max)(maxBound.x, center.x + size.x),
+                (glm::max)(maxBound.y, center.y + size.y),
+                (glm::max)(maxBound.z, center.z + size.z));
+            for (const auto &pair : cameraPairs)
             {
-                glm::vec3 size = meshBound.Size();
-                minBound = glm::vec3(
-                    (glm::min)(minBound.x, center.x - size.x),
-                    (glm::min)(minBound.y, center.y - size.y),
-                    (glm::min)(minBound.z, center.z - size.z));
-                maxBound = glm::vec3(
-                    (glm::max)(maxBound.x, center.x + size.x),
-                    (glm::max)(maxBound.y, center.y + size.y),
-                    (glm::max)(maxBound.z, center.z + size.z));
-            }
-            auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
-            float distance = glm::distance(glm::vec3(meshCenter), position);
-            RenderCommand renderInstance;
-            renderInstance.m_owner = owner;
-            renderInstance.m_globalTransform = gt;
-            renderInstance.m_skinnedMesh = skinnedMesh;
-            renderInstance.m_castShadow = smmc->m_castShadow;
-            renderInstance.m_receiveShadow = smmc->m_receiveShadow;
-            renderInstance.m_meshType = RenderCommandMeshType::Skinned;
-            renderInstance.m_boneMatrices = smmc->m_finalResults;
-            if (material->m_blendingMode != MaterialBlendingMode::Off)
-            {
-                transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
-            }
-            else if (smmc->m_forwardRendering)
-            {
-                forwardRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
-            }
-            else
-            {
-                deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
+                auto &deferredRenderInstances = renderManager.m_deferredRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances =
+                    renderManager.m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &forwardRenderInstances = renderManager.m_forwardRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances =
+                    renderManager.m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &transparentRenderInstances = renderManager.m_transparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances =
+                    renderManager.m_instancedTransparentRenderInstances[pair.first].m_value;
+                auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+                float distance = glm::distance(glm::vec3(meshCenter), pair.second);
+                RenderCommand renderInstance;
+                renderInstance.m_owner = owner;
+                renderInstance.m_globalTransform = gt;
+                renderInstance.m_skinnedMesh = skinnedMesh;
+                renderInstance.m_castShadow = smmc->m_castShadow;
+                renderInstance.m_receiveShadow = smmc->m_receiveShadow;
+                renderInstance.m_meshType = RenderCommandMeshType::Skinned;
+                renderInstance.m_boneMatrices = smmc->m_finalResults;
+                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                {
+                    transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
+                }
+                else if (smmc->m_forwardRendering)
+                {
+                    forwardRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
+                }
+                else
+                {
+                    deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
+                }
             }
         }
     }
@@ -1681,7 +1697,9 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     {
         environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
         scene->m_environmentalMapSettings.m_backgroundColor.w = 1.0f;
-    }else{
+    }
+    else
+    {
         scene->m_environmentalMapSettings.m_backgroundColor.w = 0.0f;
     }
 

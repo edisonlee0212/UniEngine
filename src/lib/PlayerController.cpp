@@ -5,6 +5,7 @@
 #include <PlayerController.hpp>
 void UniEngine::PlayerController::OnCreate()
 {
+    m_startMouse = false;
 }
 void UniEngine::PlayerController::LateUpdate()
 {
@@ -92,15 +93,29 @@ void UniEngine::PlayerController::LateUpdate()
 #pragma endregion
     }
 }
-void UniEngine::PlayerController::SetVelocity(float velocity)
-{
-    m_velocity = velocity;
-}
-void UniEngine::PlayerController::SetSensitivity(float sensitivity)
-{
-    m_sensitivity = sensitivity;
-}
+
 void UniEngine::PlayerController::Clone(const std::shared_ptr<IPrivateComponent> &target)
 {
     *this = *std::static_pointer_cast<PlayerController>(target);
+}
+void UniEngine::PlayerController::Serialize(YAML::Emitter &out)
+{
+    out << YAML::Key << "m_velocity" << YAML::Value << m_velocity;
+    out << YAML::Key << "m_sensitivity" << YAML::Value << m_sensitivity;
+    out << YAML::Key << "m_sceneCameraYawAngle" << YAML::Value << m_sceneCameraYawAngle;
+    out << YAML::Key << "m_sceneCameraPitchAngle" << YAML::Value << m_sceneCameraPitchAngle;
+}
+void UniEngine::PlayerController::Deserialize(const YAML::Node &in)
+{
+    if(in["m_velocity"]) m_velocity = in["m_velocity"].as<float>();
+    if(in["m_sensitivity"]) m_velocity = in["m_sensitivity"].as<float>();
+    if(in["m_sceneCameraYawAngle"]) m_velocity = in["m_sceneCameraYawAngle"].as<float>();
+    if(in["m_sceneCameraPitchAngle"]) m_velocity = in["m_sceneCameraPitchAngle"].as<float>();
+}
+void UniEngine::PlayerController::OnInspect()
+{
+    ImGui::DragFloat("Velocity", &m_velocity, 0.01f);
+    ImGui::DragFloat("Mouse sensitivity", &m_sensitivity, 0.01f);
+    ImGui::DragFloat("Yaw angle", &m_sceneCameraYawAngle, 0.01f);
+    ImGui::DragFloat("Pitch angle", &m_sceneCameraPitchAngle, 0.01f);
 }
