@@ -108,9 +108,9 @@ void UniEngine::PlayerController::Serialize(YAML::Emitter &out)
 void UniEngine::PlayerController::Deserialize(const YAML::Node &in)
 {
     if(in["m_velocity"]) m_velocity = in["m_velocity"].as<float>();
-    if(in["m_sensitivity"]) m_velocity = in["m_sensitivity"].as<float>();
-    if(in["m_sceneCameraYawAngle"]) m_velocity = in["m_sceneCameraYawAngle"].as<float>();
-    if(in["m_sceneCameraPitchAngle"]) m_velocity = in["m_sceneCameraPitchAngle"].as<float>();
+    if(in["m_sensitivity"]) m_sensitivity = in["m_sensitivity"].as<float>();
+    if(in["m_sceneCameraYawAngle"]) m_sceneCameraYawAngle = in["m_sceneCameraYawAngle"].as<float>();
+    if(in["m_sceneCameraPitchAngle"]) m_sceneCameraPitchAngle = in["m_sceneCameraPitchAngle"].as<float>();
 }
 void UniEngine::PlayerController::OnInspect()
 {
