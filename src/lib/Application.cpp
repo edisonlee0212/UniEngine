@@ -21,19 +21,6 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
     application.m_applicationConfigs = applicationConfigs;
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
 
-    /*
-    while (application.m_applicationConfigs.m_projectPath.empty())
-    {
-        if (!RequestProjectPath(application.m_applicationConfigs.m_projectPath))
-        {
-            break;
-        }
-    }
-    if (application.m_applicationConfigs.m_projectPath.empty())
-    {
-        exit(0);
-    }
-*/
     InputManager::Init();
     JobManager::Init();
     OpenGLUtils::Init();
