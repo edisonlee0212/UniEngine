@@ -360,7 +360,7 @@ void ProjectManager::GenerateNewDefaultScene()
     projectManager.m_currentProject->m_startScenePath = newSceneRelativePath;
     EntityManager::Attach(scene);
 #pragma region Main Camera
-    const auto mainCameraEntity = EntityManager::CreateEntity("Main Camera");
+    const auto mainCameraEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Main Camera");
     Transform cameraLtw;
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
@@ -370,7 +370,7 @@ void ProjectManager::GenerateNewDefaultScene()
     mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
 
-    EntityManager::GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+    EntityManager::GetOrCreateSystem<PhysicsSystem>(scene, SystemGroup::SimulationSystemGroup);
 }
 std::filesystem::path ProjectManager::GenerateNewPath(const std::string &filestem, const std::string &extension)
 {

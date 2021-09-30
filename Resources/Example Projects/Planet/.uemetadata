@@ -1,9 +1,9 @@
 m_fileRecords:
-  - Handle: 7768063199067428658
+  - Handle: 17450698072845569994
     m_name: Planet
     m_fileName: Planet.ueproj
     m_typeName: Binary
-  - Handle: 2993138817828575540
-    m_name: 12345
-    m_fileName: Planet.uescene
+  - Handle: 5785619318599918355
+    m_name: New Scene
+    m_fileName: New Scene.uescene
     m_typeName: Scene

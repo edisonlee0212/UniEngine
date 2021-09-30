@@ -1,10 +1,12 @@
 //
 // Created by lllll on 8/13/2021.
 //
-#include <EntityManager.hpp>
 #include "IPrivateComponent.hpp"
+#include <AssetManager.hpp>
+#include <EntityManager.hpp>
 using namespace UniEngine;
-PrivateComponentElement::PrivateComponentElement(size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner)
+PrivateComponentElement::PrivateComponentElement(
+    size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner)
 {
     m_typeId = id;
     m_privateComponentData = data;
@@ -49,20 +51,28 @@ void IPrivateComponent::SetEnabled(const bool &value)
 
 bool PrivateComponentRef::Update()
 {
-    if (m_entityHandle.GetValue() == 0)
+    if (m_entityHandle.GetValue() == 0 && m_sceneHandle.GetValue() == 0)
     {
         m_value.reset();
         return false;
     }
-    else if(!m_value.has_value() || m_value->expired())
+    else if (!m_value.has_value() || m_value->expired())
     {
-        auto entity = EntityManager::GetEntity(m_entityHandle);
-        if (!entity.IsNull())
+        auto scene = EntityManager::GetCurrentScene();
+        if (scene->GetHandle().GetValue() != m_sceneHandle.GetValue())
         {
-            if (EntityManager::HasPrivateComponent(entity, m_privateComponentTypeName))
+            scene = AssetManager::Get<Scene>(m_sceneHandle);
+        }
+        if (scene)
+        {
+            auto entity = EntityManager::GetEntity(scene, m_entityHandle);
+            if (!entity.IsNull())
             {
-                m_value = EntityManager::GetPrivateComponent(entity, m_privateComponentTypeName);
-                return true;
+                if (EntityManager::HasPrivateComponent(entity, m_privateComponentTypeName))
+                {
+                    m_value = EntityManager::GetPrivateComponent(entity, m_privateComponentTypeName);
+                    return true;
+                }
             }
         }
         Clear();
@@ -74,4 +84,5 @@ void PrivateComponentRef::Clear()
 {
     m_value.reset();
     m_entityHandle = Handle(0);
+    m_sceneHandle = Handle(0);
 }

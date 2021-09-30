@@ -292,7 +292,7 @@ void RenderManager::LateUpdate()
         if (mainCamera->m_allowAutoResize)
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
     if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
@@ -316,7 +316,7 @@ void RenderManager::LateUpdate()
 #pragma region Post - processing
     ProfilerManager::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>();
+        EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>(EntityManager::GetCurrentScene());
     if (postProcessingEntities != nullptr)
     {
         for (auto postProcessingEntity : *postProcessingEntities)
@@ -486,7 +486,7 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
     {
         cameraPairs.emplace_back(editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition);
     }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>();
+    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
     if(cameraEntities){
         for(const auto& i : *cameraEntities){
             if(!i.IsEnabled()) continue;
@@ -500,7 +500,7 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
     minBound = glm::vec3(INT_MAX);
     maxBound = glm::vec3(INT_MIN);
 
-    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(EntityManager::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -564,7 +564,7 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Particles>();
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Particles>(EntityManager::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -628,7 +628,7 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(EntityManager::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -1223,7 +1223,7 @@ void RenderManager::RenderShadows(
     glm::quat mainCameraRot = ltw.GetRotation();
     renderManager.m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &renderManager.m_lightSettings);
     const std::vector<Entity> *directionalLightEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<DirectionalLight>();
+        EntityManager::UnsafeGetPrivateComponentOwnersList<DirectionalLight>(EntityManager::GetCurrentScene());
     size_t size = 0;
     if (directionalLightEntities && !directionalLightEntities->empty())
     {
@@ -1442,7 +1442,7 @@ void RenderManager::RenderShadows(
     {
         renderManager.m_directionalLightBlock.SubData(0, 4, &size);
     }
-    const std::vector<Entity> *pointLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>();
+    const std::vector<Entity> *pointLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>(EntityManager::GetCurrentScene());
     size = 0;
     if (pointLightEntities && !pointLightEntities->empty())
     {
@@ -1558,7 +1558,7 @@ void RenderManager::RenderShadows(
     {
         renderManager.m_pointLightBlock.SubData(0, 4, &size);
     }
-    const std::vector<Entity> *spotLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>();
+    const std::vector<Entity> *spotLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>(EntityManager::GetCurrentScene());
     size = 0;
     if (spotLightEntities && !spotLightEntities->empty())
     {

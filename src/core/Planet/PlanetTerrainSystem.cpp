@@ -10,7 +10,7 @@ void Planet::PlanetTerrainSystem::OnCreate()
 void Planet::PlanetTerrainSystem::Update()
 {
     const std::vector<Entity> *const planetTerrainList =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
+        EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>(EntityManager::GetCurrentScene());
     if (planetTerrainList == nullptr)
         return;
 

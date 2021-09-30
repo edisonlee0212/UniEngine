@@ -1,9 +1,9 @@
 m_fileRecords:
-  - Handle: 7649315474549087511
+  - Handle: 1450024932436942953
     m_name: New Scene
-    m_fileName: Rendering.uescene
+    m_fileName: New Scene.uescene
     m_typeName: Scene
-  - Handle: 4263897364403131257
+  - Handle: 14307223304017282800
     m_name: Rendering
     m_fileName: Rendering.ueproj
     m_typeName: Binary

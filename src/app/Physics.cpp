@@ -85,8 +85,8 @@ void LoadScene(){
 #pragma region Create 9 spheres in different PBR properties
     const int amount = 20;
     const float scaleFactor = 0.1f;
-    const auto collection = EntityManager::CreateEntity("Spheres");
-    auto spheres = EntityManager::CreateEntities(amount * amount, "Instance");
+    const auto collection = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Spheres");
+    auto spheres = EntityManager::CreateEntities(EntityManager::GetCurrentScene(), amount * amount, "Instance");
 
     for (int i = 0; i < amount; i++)
     {
@@ -120,7 +120,7 @@ void LoadScene(){
 #pragma endregion
 
 #pragma region Lighting
-    const auto dirLightEntity = EntityManager::CreateEntity("Dir Light");
+    const auto dirLightEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Dir Light");
     auto dirLight = dirLightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
@@ -250,7 +250,7 @@ Entity CreateCube(
     const glm::vec3 &scale,
     const std::string &name)
 {
-    auto cube = EntityManager::CreateEntity(name);
+    auto cube = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), name);
     auto groundMeshRenderer = cube.GetOrSetPrivateComponent<MeshRenderer>().lock();
     groundMeshRenderer->m_material.Set<Material>(
         AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
@@ -318,7 +318,7 @@ Entity CreateSphere(
     const float &scale,
     const std::string &name)
 {
-    auto sphere = EntityManager::CreateEntity(name);
+    auto sphere = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), name);
     auto groundMeshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
     groundMeshRenderer->m_material.Set<Material>(
         AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));

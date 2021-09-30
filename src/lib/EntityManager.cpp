@@ -10,12 +10,12 @@ using namespace UniEngine;
 #pragma region EntityManager
 
 void EntityManager::UnsafeForEachDataComponent(
-    const std::shared_ptr<Scene> &scene,
     const Entity &entity,
     const std::function<void(const DataComponentType &type, void *data)> &func)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -37,11 +37,11 @@ void EntityManager::UnsafeForEachDataComponent(
 }
 
 void EntityManager::ForEachPrivateComponent(
-    const std::shared_ptr<Scene> &scene,
     const Entity &entity,
     const std::function<void(PrivateComponentElement &data)> &func)
 {
     assert(entity.IsValid());
+    auto scene = entity.GetOwner();
     auto &entityManager = GetInstance();
     if (!scene)
     {
@@ -80,19 +80,18 @@ size_t EntityManager::GetArchetypeChunkSize()
     return entityManager.m_archetypeChunkSize;
 }
 
-void EntityManager::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, const Entity &entity)
+void EntityManager::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, unsigned entityIndex)
 {
     auto &entityManager = GetInstance();
     if (!scene)
     {
         return;
     }
-    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
-    Entity actualEntity = scene->m_sceneDataStorage.m_entities.at(entity.m_index);
-    if (actualEntity == entity)
-    {
+    Entity actualEntity = scene->m_sceneDataStorage.m_entities.at(entityIndex);
+
         scene->m_sceneDataStorage.m_entityPrivateComponentStorage.DeleteEntity(actualEntity);
         entityInfo.m_version = actualEntity.m_version + 1;
         entityInfo.m_enabled = true;
@@ -117,13 +116,8 @@ void EntityManager::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, co
             scene->m_sceneDataStorage.m_entityInfos.at(swappedIndex).m_chunkArrayIndex = originalIndex;
         }
         dataComponentStorage.m_entityAliveCount--;
-    }
-    else
-    {
-        UNIENGINE_ERROR("Entity already deleted!");
-        return;
-    }
-    scene->m_sceneDataStorage.m_entities.at(entity.m_index) = actualEntity;
+
+    scene->m_sceneDataStorage.m_entities.at(entityIndex) = actualEntity;
 }
 
 std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> EntityManager::GetDataComponentStorage(
@@ -174,7 +168,7 @@ std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>>
 std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDataComponentStorages(
     const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery)
 {
-    QueryDataComponentStorages(scene, entityQuery.m_index);
+    return QueryDataComponentStorages(scene, entityQuery.m_index);
 }
 
 void EntityManager::EraseDuplicates(std::vector<DataComponentType> &types)
@@ -317,7 +311,6 @@ void EntityManager::GetAllEntities(const std::shared_ptr<Scene> &scene, std::vec
 }
 
 void EntityManager::ForEachDescendant(
-    const std::shared_ptr<Scene> &scene,
     const Entity &target,
     const std::function<void(const Entity &entity)> &func,
     const bool &fromRoot)
@@ -326,8 +319,8 @@ void EntityManager::ForEachDescendant(
     if (!realTarget.IsValid())
         return;
     if (fromRoot)
-        realTarget = GetRoot(scene, realTarget);
-    ForEachDescendantHelper(scene, realTarget, func);
+        realTarget = GetRoot(realTarget);
+    ForEachDescendantHelper(realTarget, func);
 }
 
 std::vector<Entity> *EntityManager::UnsafeGetAllEntities(const std::shared_ptr<Scene> &scene)
@@ -370,6 +363,7 @@ Entity EntityManager::CreateEntity(
     assert(archetype.IsValid());
     entityManager.m_scene->m_saved = false;
     Entity retVal;
+    retVal.m_sceneHandle = scene->GetHandle();
     auto search = GetDataComponentStorage(scene, archetype);
     DataComponentStorage &storage = search->first;
     if (storage.m_entityCount == storage.m_entityAliveCount)
@@ -456,7 +450,6 @@ std::vector<Entity> EntityManager::CreateEntities(
         entityInfo.m_name = name;
         entity.m_version = entityInfo.m_version;
         entityInfo.m_handle = Handle();
-
         scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = entity;
         storage.m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
         scene->m_sceneDataStorage.m_entities.at(entity.m_index) = entity;
@@ -496,6 +489,7 @@ std::vector<Entity> EntityManager::CreateEntities(
         auto &entity = scene->m_sceneDataStorage.m_entities.at(originalSize + i);
         entity.m_index = originalSize + i;
         entity.m_version = 1;
+        entity.m_sceneHandle = scene->GetHandle();
 
         auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(originalSize + i);
         entityInfo = EntityMetadata();
@@ -568,12 +562,13 @@ std::vector<Entity> EntityManager::CreateEntities(
     return CreateEntities(scene, entityManager.m_basicArchetype, amount, name);
 }
 
-void EntityManager::DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &entity)
+void EntityManager::DeleteEntity(const Entity &entity)
 {
     if (!entity.IsValid())
     {
         return;
     }
+    auto scene = entity.GetOwner();
     auto &entityManager = GetInstance();
     if (!scene)
     {
@@ -584,18 +579,19 @@ void EntityManager::DeleteEntity(const std::shared_ptr<Scene> &scene, const Enti
     auto children = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
     for (const auto &child : children)
     {
-        DeleteEntity(scene, child);
+        DeleteEntity(child);
     }
     if (scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent.m_index != 0)
-        RemoveChild(scene, entity, scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent);
-    DeleteEntityInternal(scene, entity);
+        RemoveChild(entity, scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent);
+    DeleteEntityInternal(scene, entity.m_index);
 }
 
-std::string EntityManager::GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity)
+std::string EntityManager::GetEntityName(const Entity &entity)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return "";
@@ -608,11 +604,12 @@ std::string EntityManager::GetEntityName(const std::shared_ptr<Scene> &scene, co
     return scene->m_sceneDataStorage.m_entityInfos.at(index).m_name;
 }
 
-void EntityManager::SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name)
+void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -631,15 +628,19 @@ void EntityManager::SetEntityName(const std::shared_ptr<Scene> &scene, const Ent
     scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = "Unnamed";
 }
 
-void EntityManager::SetParent(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent, const bool &recalculateTransform)
+void EntityManager::SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform)
 {
     assert(entity.IsValid() && parent.IsValid());
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
+        return;
+    }
+    if(entity.GetSceneHandle().GetValue() != parent.GetSceneHandle().GetValue()){
+        UNIENGINE_ERROR("Entity from different scene!");
         return;
     }
     auto &parentEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(parentIndex);
@@ -652,12 +653,12 @@ void EntityManager::SetParent(
     auto &childEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
-        RemoveChild(scene, entity, childEntityInfo.m_parent);
+        RemoveChild(entity, childEntityInfo.m_parent);
     }
     if (recalculateTransform)
     {
-        const auto childGlobalTransform = GetDataComponent<GlobalTransform>(scene, entity);
-        const auto parentGlobalTransform = GetDataComponent<GlobalTransform>(scene, parent);
+        const auto childGlobalTransform = GetDataComponent<GlobalTransform>(entity);
+        const auto parentGlobalTransform = GetDataComponent<GlobalTransform>(parent);
         Transform childTransform;
         childTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * childGlobalTransform.m_value;
         entity.SetDataComponent(childTransform);
@@ -666,10 +667,11 @@ void EntityManager::SetParent(
     parentEntityInfo.m_children.push_back(entity);
 }
 
-Entity EntityManager::GetParent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+Entity EntityManager::GetParent(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return Entity();
@@ -678,10 +680,11 @@ Entity EntityManager::GetParent(const std::shared_ptr<Scene> &scene, const Entit
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent;
 }
 
-std::vector<Entity> EntityManager::GetChildren(const std::shared_ptr<Scene> &scene, const Entity &entity)
+std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return {};
@@ -690,10 +693,11 @@ std::vector<Entity> EntityManager::GetChildren(const std::shared_ptr<Scene> &sce
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
 }
 
-Entity EntityManager::GetChild(const std::shared_ptr<Scene> &scene, const Entity &entity, int index)
+Entity EntityManager::GetChild(const Entity &entity, int index)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return Entity();
@@ -705,10 +709,11 @@ Entity EntityManager::GetChild(const std::shared_ptr<Scene> &scene, const Entity
     return Entity();
 }
 
-size_t EntityManager::GetChildrenAmount(const std::shared_ptr<Scene> &scene, const Entity &entity)
+size_t EntityManager::GetChildrenAmount(const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return 0;
@@ -717,10 +722,10 @@ size_t EntityManager::GetChildrenAmount(const std::shared_ptr<Scene> &scene, con
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children.size();
 }
 
-inline void EntityManager::ForEachChild(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(Entity child)> &func)
+inline void EntityManager::ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func)
 {
     assert(entity.IsValid());
+    auto scene = entity.GetOwner();
     auto &entityManager = GetInstance();
     if (!scene)
     {
@@ -734,10 +739,11 @@ inline void EntityManager::ForEachChild(
     }
 }
 
-void EntityManager::RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent)
+void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
 {
     assert(entity.IsValid() && parent.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -762,13 +768,13 @@ void EntityManager::RemoveChild(const std::shared_ptr<Scene> &scene, const Entit
             break;
         }
     }
-    const auto childGlobalTransform = GetDataComponent<GlobalTransform>(scene, entity);
+    const auto childGlobalTransform = GetDataComponent<GlobalTransform>(entity);
     Transform childTransform;
     childTransform.m_value = childGlobalTransform.m_value;
     entity.SetDataComponent(childTransform);
 }
 
-void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &typeID)
+void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &typeID)
 {
     assert(entity.IsValid());
     if (typeID == typeid(Transform).hash_code() || typeID == typeid(GlobalTransform).hash_code() ||
@@ -777,6 +783,7 @@ void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, con
         return;
     }
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -832,7 +839,7 @@ void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, con
             newEntity.m_index,
             type.m_typeId,
             type.m_size,
-            GetDataComponentPointer(scene, entity, type.m_typeId));
+            GetDataComponentPointer(entity, type.m_typeId));
     }
     // 5. Swap entity.
     EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
@@ -847,7 +854,7 @@ void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, con
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
     scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
-    DeleteEntity(scene, newEntity);
+    DeleteEntity(newEntity);
 #pragma endregion
     entityManager.m_scene->m_saved = false;
 }
@@ -909,12 +916,51 @@ void EntityManager::SetDataComponent(
         UNIENGINE_LOG("ComponentData doesn't exist");
     }
 }
-
+IDataComponent *EntityManager::GetDataComponentPointer(const std::shared_ptr<Scene>& scene,
+                                                       unsigned entityIndex, const size_t &id){
+    auto &entityManager = GetInstance();
+    if (!scene)
+    {
+        return nullptr;
+    }
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex);
+    auto &dataComponentStorage =
+        scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
+    const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
+    const auto chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
+    if (id == typeid(Transform).hash_code())
+    {
+        return chunk.GetDataPointer(static_cast<size_t>(chunkPointer * sizeof(Transform)));
+    }
+    if (id == typeid(GlobalTransform).hash_code())
+    {
+        return chunk.GetDataPointer(static_cast<size_t>(
+            sizeof(Transform) * dataComponentStorage.m_chunkCapacity + chunkPointer * sizeof(GlobalTransform)));
+    }
+    if (id == typeid(GlobalTransformUpdateFlag).hash_code())
+    {
+        return chunk.GetDataPointer(static_cast<size_t>(
+            (sizeof(Transform) + sizeof(GlobalTransform)) * dataComponentStorage.m_chunkCapacity +
+            chunkPointer * sizeof(GlobalTransformUpdateFlag)));
+    }
+    for (const auto &type : dataComponentStorage.m_dataComponentTypes)
+    {
+        if (type.m_typeId == id)
+        {
+            return chunk.GetDataPointer(
+                static_cast<size_t>(type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size));
+        }
+    }
+    UNIENGINE_LOG("ComponentData doesn't exist");
+    return nullptr;
+}
 IDataComponent *EntityManager::GetDataComponentPointer(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id)
+    const Entity &entity, const size_t &id)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return nullptr;
@@ -980,11 +1026,11 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
 
-void EntityManager::SetPrivateComponent(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
+void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
 {
     assert(ptr && entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -1017,11 +1063,10 @@ void EntityManager::SetPrivateComponent(
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::ForEachDescendantHelper(
-    const std::shared_ptr<Scene> &scene, const Entity &target, const std::function<void(const Entity &entity)> &func)
+void EntityManager::ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func)
 {
     func(target);
-    ForEachChild(scene, target, [&](Entity child) { ForEachDescendantHelper(scene, child, func); });
+    ForEachChild(target, [&](Entity child) { ForEachDescendantHelper(child, func); });
 }
 
 EntityArchetype EntityManager::GetDefaultEntityArchetype()
@@ -1036,14 +1081,14 @@ EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype &entit
     return entityManager.m_entityArchetypeInfos[entityArchetype.m_index];
 }
 
-Entity EntityManager::GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity)
+Entity EntityManager::GetRoot(const Entity &entity)
 {
     Entity retVal = entity;
-    auto parent = GetParent(scene, retVal);
+    auto parent = GetParent(retVal);
     while (!parent.IsNull())
     {
         retVal = parent;
-        parent = GetParent(scene, retVal);
+        parent = GetParent(retVal);
     }
     return retVal;
 }
@@ -1060,10 +1105,11 @@ Entity EntityManager::GetEntity(const std::shared_ptr<Scene> &scene, const size_
     return {};
 }
 
-void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId)
+void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -1083,10 +1129,11 @@ void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, 
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(entity, typeId);
 }
 
-void EntityManager::SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
+void EntityManager::SetEnable(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -1109,15 +1156,16 @@ void EntityManager::SetEnable(const std::shared_ptr<Scene> &scene, const Entity 
 
     for (const auto &i : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_children)
     {
-        SetEnable(scene, i, value);
+        SetEnable(i, value);
     }
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
+void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return;
@@ -1226,16 +1274,16 @@ void EntityManager::SetEntityArchetypeName(const EntityArchetype &entityArchetyp
     auto &entityManager = GetInstance();
     entityManager.m_entityArchetypeInfos[entityArchetype.m_index].m_name = name;
 }
-std::vector<Entity> EntityManager::GetDescendants(const std::shared_ptr<Scene> &scene, const Entity &entity)
+std::vector<Entity> EntityManager::GetDescendants(const Entity &entity)
 {
     std::vector<Entity> retVal;
-    GetDescendantsHelper(scene, entity, retVal);
+    GetDescendantsHelper(entity, retVal);
     return retVal;
 }
-void EntityManager::GetDescendantsHelper(
-    const std::shared_ptr<Scene> &scene, const Entity &target, std::vector<Entity> &results)
+void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entity> &results)
 {
     auto &entityManager = GetInstance();
+    auto scene = target.GetOwner();
     if (!scene)
     {
         return;
@@ -1244,7 +1292,7 @@ void EntityManager::GetDescendantsHelper(
     if (!children.empty())
         results.insert(results.end(), children.begin(), children.end());
     for (const auto &i : children)
-        GetDescendantsHelper(scene, i, results);
+        GetDescendantsHelper(i, results);
 }
 template <typename T>
 std::vector<Entity> EntityManager::GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
@@ -1309,10 +1357,11 @@ EntityArchetype EntityManager::CreateEntityArchetypeHelper(const EntityArchetype
 }
 
 std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
+    const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         throw 0;
@@ -1344,11 +1393,11 @@ Entity EntityManager::GetEntity(const std::shared_ptr<Scene> &scene, const Handl
     }
     return {};
 }
-bool EntityManager::HasPrivateComponent(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
+bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
+    auto scene = entity.GetOwner();
     if (!scene)
     {
         return false;

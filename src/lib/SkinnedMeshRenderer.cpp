@@ -221,12 +221,12 @@ void SkinnedMeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target
 {
     *this = *std::static_pointer_cast<SkinnedMeshRenderer>(target);
 }
-void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map)
+void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
 {
-    m_animator.Relink(map);
+    m_animator.Relink(map, newSceneHandle);
     for (auto &i : m_boundEntities)
     {
-        i.Relink(map);
+        i.Relink(map, newSceneHandle);
     }
 }
 void SkinnedMeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)

@@ -35,7 +35,6 @@ class UNIENGINE_API ISystem : public ISerializable
     // Will only exec when editor is enabled, and no matter application is running or not.
     virtual void OnInspect(){};
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
-    virtual void Relink(const std::unordered_map<Handle, Handle> &map){};
 };
 
 class UNIENGINE_API SystemRef : public ISerializable

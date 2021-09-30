@@ -45,7 +45,7 @@ void LoadScene(){
     borderTexture->SetPathAndLoad("Textures/border.png");
     surfaceMaterial->m_albedoTexture = borderTexture;
 
-    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
+    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(EntityManager::GetCurrentScene(), SystemGroup::SimulationSystemGroup);
 
     pts->Enable();
 
@@ -62,7 +62,7 @@ void LoadScene(){
 
     // Serialization not implemented.
     // planetTerrain1->TerrainConstructionStages.push_back(std::make_shared<PerlinNoiseStage>());
-    auto planet1 = EntityManager::CreateEntity();
+    auto planet1 = EntityManager::CreateEntity(EntityManager::GetCurrentScene());
     auto planetTerrain1 = planet1.GetOrSetPrivateComponent<PlanetTerrain>().lock();
     planetTerrain1->m_surfaceMaterial = surfaceMaterial;
     planetTerrain1->SetPlanetInfo(pi);
@@ -74,7 +74,7 @@ void LoadScene(){
     pi.m_radius = 15.0;
     pi.m_index = 1;
 
-    auto planet2 = EntityManager::CreateEntity();
+    auto planet2 = EntityManager::CreateEntity(EntityManager::GetCurrentScene());
     auto planetTerrain2 = planet2.GetOrSetPrivateComponent<PlanetTerrain>().lock();
     planetTerrain2->m_surfaceMaterial = surfaceMaterial;
     planetTerrain2->SetPlanetInfo(pi);
@@ -86,7 +86,7 @@ void LoadScene(){
     pi.m_radius = 5.0;
     pi.m_index = 2;
 
-    auto planet3 = EntityManager::CreateEntity();
+    auto planet3 = EntityManager::CreateEntity(EntityManager::GetCurrentScene());
     auto planetTerrain3 = planet3.GetOrSetPrivateComponent<PlanetTerrain>().lock();
     planetTerrain3->m_surfaceMaterial = surfaceMaterial;
     planetTerrain3->SetPlanetInfo(pi);
@@ -99,13 +99,13 @@ void LoadScene(){
 
     Transform ltw;
 
-    Entity dle = EntityManager::CreateEntity("Directional Light");
+    Entity dle = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Directional Light");
     dle.SetName("Directional Light 1");
     auto dlc = dle.GetOrSetPrivateComponent<DirectionalLight>().lock();
     dlc->m_diffuse = glm::vec3(1.0f);
     ltw.SetScale(glm::vec3(0.5f));
 
-    Entity ple = EntityManager::CreateEntity("Point Light 1");
+    Entity ple = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Point Light 1");
     auto plmmc = ple.GetOrSetPrivateComponent<MeshRenderer>().lock();
     plmmc->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     plmmc->m_material.Set<Material>(sharedMat);
@@ -118,7 +118,7 @@ void LoadScene(){
 
     ple.SetDataComponent(ltw);
 
-    Entity ple2 = EntityManager::CreateEntity("Point Light 2");
+    Entity ple2 = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Point Light 2");
     auto plc2 = ple2.GetOrSetPrivateComponent<PointLight>().lock();
     plc2->m_constant = 1.0f;
     plc2->m_linear = 0.09f;

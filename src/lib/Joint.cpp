@@ -357,10 +357,10 @@ void Joint::Clone(const std::shared_ptr<IPrivateComponent> &target)
     *this = *std::static_pointer_cast<Joint>(target);
     m_joint = nullptr;
 }
-void Joint::Relink(const std::unordered_map<Handle, Handle> &map)
+void Joint::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
 {
-    m_rigidBody1.Relink(map);
-    m_rigidBody2.Relink(map);
+    m_rigidBody1.Relink(map, newSceneHandle);
+    m_rigidBody2.Relink(map, newSceneHandle);
 }
 void Joint::Start()
 {

@@ -133,7 +133,8 @@ class UNIENGINE_API EntityRef : public ISerializable
             m_sceneHandle = newSceneHandle;
             m_value = Entity();
         }
-        else{
+        else
+        {
             Clear();
         }
     };

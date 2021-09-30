@@ -5,7 +5,7 @@
 void UniEngine::AnimationManager::PreUpdate()
 {
     ProfilerManager::StartEvent("AnimationManager");
-    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>(EntityManager::GetCurrentScene());
     if (!owners)
     {
         ProfilerManager::EndEvent("AnimationManager");
@@ -46,7 +46,7 @@ void UniEngine::AnimationManager::PreUpdate()
         i.wait();
     results.clear();
 
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
+    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(EntityManager::GetCurrentScene());
     if (!owners)
     {
         ProfilerManager::EndEvent("AnimationManager");
@@ -80,7 +80,7 @@ void UniEngine::AnimationManager::PreUpdate()
 void UniEngine::AnimationManager::LateUpdate()
 {
     ProfilerManager::StartEvent("AnimationManager");
-    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>();
+    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>(EntityManager::GetCurrentScene());
     if (!owners)
     {
         ProfilerManager::EndEvent("AnimationManager");

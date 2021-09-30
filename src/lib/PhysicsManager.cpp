@@ -101,7 +101,7 @@ void PhysicsManager::Destroy()
 }
 void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
 {
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
         entities != nullptr)
     {
         for (auto entity : *entities)
@@ -170,7 +170,7 @@ void PhysicsScene::Simulate(float time) const
 
 void PhysicsSystem::Simulate(float time) const
 {
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (!rigidBodyEntities)
         return;
     m_scene->Simulate(time);
@@ -183,7 +183,7 @@ void PhysicsSystem::OnEnable()
 }
 void PhysicsSystem::DownloadRigidBodyTransforms() const
 {
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (rigidBodyEntities)
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
@@ -213,7 +213,7 @@ void PhysicsManager::UploadRigidBodyShapes(
 void PhysicsManager::UploadRigidBodyShapes()
 {
     auto physicsManager = GetInstance();
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>();
+    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (rigidBodyEntities)
     {
         for (int i = 0; i < physicsManager.m_scenes.size(); i++)

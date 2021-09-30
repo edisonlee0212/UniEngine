@@ -45,8 +45,8 @@ void LoadScene(){
 
 #pragma region Create 9 spheres in different PBR properties
     int amount = 4;
-    auto collection = EntityManager::CreateEntity("Spheres");
-    auto spheres = EntityManager::CreateEntities(amount * amount, "Instance");
+    auto collection = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Spheres");
+    auto spheres = EntityManager::CreateEntities(EntityManager::GetCurrentScene(), amount * amount, "Instance");
     for (int i = 0; i < amount; i++)
     {
         for (int j = 0; j < amount; j++)
@@ -133,7 +133,7 @@ void LoadScene(){
 #pragma endregion
 
 #pragma region Create ground
-    auto ground = EntityManager::CreateEntity("Ground");
+    auto ground = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Ground");
     auto groundMeshRenderer = ground.GetOrSetPrivateComponent<MeshRenderer>().lock();
     auto groundMat = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material.Set<Material>(groundMat);
@@ -144,12 +144,12 @@ void LoadScene(){
 #pragma endregion
 
 #pragma region Lighting
-    auto dirLightEntity = EntityManager::CreateEntity("Directional Light");
+    auto dirLightEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Directional Light");
     auto dirLight = dirLightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
 
-    auto pointLightLeftEntity = EntityManager::CreateEntity("Right Point Light");
+    auto pointLightLeftEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Right Point Light");
     auto pointLightLeftRenderer = pointLightLeftEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
     auto groundMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material.Set<Material>(groundMaterial);
@@ -163,7 +163,7 @@ void LoadScene(){
     pointLightLeft->m_quadratic = 0.0001;
     pointLightLeft->m_diffuse = glm::vec3(0.0, 0.5, 1.0);
 
-    auto pointLightRightEntity = EntityManager::CreateEntity("Left Point Light");
+    auto pointLightRightEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Left Point Light");
     auto pointLightRightRenderer = pointLightRightEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
     auto pointLightRightMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material.Set<Material>(pointLightRightMaterial);
@@ -177,7 +177,7 @@ void LoadScene(){
     pointLightRight->m_quadratic = 0.0001;
     pointLightRight->m_diffuse = glm::vec3(1.0, 0.8, 0.0);
 
-    auto spotLightConeEntity = EntityManager::CreateEntity("Top Spot Light");
+    auto spotLightConeEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Top Spot Light");
     Transform spotLightConeTransform;
     spotLightConeTransform.SetPosition(glm::vec3(12, 14, 0));
     spotLightConeEntity.SetDataComponent(spotLightConeTransform);
@@ -189,7 +189,7 @@ void LoadScene(){
     spotLightMaterial->m_emission = 10.0f;
     spotLightRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cone);
 
-    auto spotLightEntity = EntityManager::CreateEntity("Spot Light");
+    auto spotLightEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Spot Light");
     Transform spotLightTransform;
     spotLightTransform.SetEulerRotation(glm::radians(glm::vec3(-90, 0, 0)));
     spotLightEntity.SetDataComponent(spotLightTransform);

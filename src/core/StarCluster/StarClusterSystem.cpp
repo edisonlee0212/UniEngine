@@ -172,7 +172,7 @@ void Galaxy::StarClusterPattern::OnInspect()
 void Galaxy::StarClusterPattern::Apply(const bool &forceUpdateAllStars, const bool &onlyUpdateColors)
 {
     SetAb();
-    EntityManager::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion, SurfaceColor>(
+    EntityManager::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion, SurfaceColor>(EntityManager::GetCurrentScene(),
         JobManager::SecondaryWorkers(),
         [&](int i,
             Entity entity,
@@ -246,7 +246,7 @@ void Galaxy::StarClusterSystem::OnInspect()
 
 void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
 {
-    auto list = EntityManager::UnsafeGetDataComponentArray<GlobalTransform>(m_starQuery);
+    auto list = EntityManager::UnsafeGetDataComponentArray<GlobalTransform>(EntityManager::GetCurrentScene(),m_starQuery);
     if (m_firstTime || m_currentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
     {
         m_useFront = !m_useFront;
@@ -255,7 +255,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
         ApplyPosition();
         m_calcPositionTimer = Application::Time().CurrentTime();
         m_currentStatus = std::async(std::launch::async, [=]() {
-            EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
+            EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(EntityManager::GetCurrentScene(),
                 JobManager::SecondaryWorkers(),
                 m_starQuery,
                 [=](int i,
@@ -283,7 +283,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
     // galaxy. StarOrbit: The orbit which contains the function for calculating the position based on current time
     // and proportion value. StarOrbitOffset: The position offset of the star, used to add irregularity to the
     // position.
-    EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
+    EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(EntityManager::GetCurrentScene(),
         JobManager::SecondaryWorkers(),
         m_starQuery,
         [=](int i,
@@ -309,7 +309,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 void Galaxy::StarClusterSystem::ApplyPosition()
 {
     m_applyPositionTimer = Application::Time().CurrentTime();
-    EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(
+    EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(EntityManager::GetCurrentScene(),
         JobManager::SecondaryWorkers(),
         m_starQuery,
         [this](
@@ -337,10 +337,10 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
     auto matrices = check ? m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices
                           : m_rendererBack.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices;
     auto &colors = check ? m_frontColors : m_backColors;
-    const auto starAmount = m_starQuery.GetEntityAmount();
+    const auto starAmount = m_starQuery.GetEntityAmount(EntityManager::GetCurrentScene());
     matrices->m_value.resize(starAmount);
     colors.resize(starAmount);
-    EntityManager::ForEach<GlobalTransform, DisplayColor>(
+    EntityManager::ForEach<GlobalTransform, DisplayColor>(EntityManager::GetCurrentScene(),
         JobManager::SecondaryWorkers(),
         m_starQuery,
         [&](int i, Entity entity, GlobalTransform &globalTransform, DisplayColor &displayColor) {
@@ -377,7 +377,7 @@ void Galaxy::StarClusterSystem::Update()
 void Galaxy::StarClusterSystem::PushStars(StarClusterPattern &pattern, const size_t &amount)
 {
     m_counter = 0;
-    auto stars = EntityManager::CreateEntities(m_starArchetype, amount, "Star");
+    auto stars = EntityManager::CreateEntities(EntityManager::GetCurrentScene(), m_starArchetype, amount, "Star");
     for (auto i = 0; i < amount; i++)
     {
         auto starEntity = stars[i];
@@ -395,7 +395,7 @@ void Galaxy::StarClusterSystem::RandomlyRemoveStars(const size_t &amount)
 {
     m_counter = 0;
     std::vector<Entity> stars;
-    m_starQuery.ToEntityArray(stars);
+    m_starQuery.ToEntityArray(EntityManager::GetCurrentScene(), stars);
     size_t residue = amount;
     for (const auto &i : stars)
     {
@@ -411,7 +411,7 @@ void Galaxy::StarClusterSystem::ClearAllStars()
 {
     m_counter = 0;
     std::vector<Entity> stars;
-    m_starQuery.ToEntityArray(stars);
+    m_starQuery.ToEntityArray(EntityManager::GetCurrentScene(), stars);
     for (const auto &i : stars)
         EntityManager::DeleteEntity(i);
 }
@@ -429,7 +429,7 @@ void StarClusterSystem::Start()
     EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
     if (m_rendererFront.Get().IsNull() && m_rendererBack.Get().IsNull())
     {
-        m_rendererFront = EntityManager::CreateEntity("Renderer 1");
+        m_rendererFront = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Renderer 1");
         GlobalTransform ltw;
         ltw.SetScale(glm::vec3(1.0f));
         auto imr = m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock();
@@ -444,7 +444,7 @@ void StarClusterSystem::Start()
 
         m_rendererFront.Get().SetDataComponent(ltw);
 
-        m_rendererBack = EntityManager::CreateEntity("Renderer 2");
+        m_rendererBack = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Renderer 2");
         ltw.SetScale(glm::vec3(1.0f));
         auto imr2 = m_rendererBack.Get().GetOrSetPrivateComponent<Particles>().lock();
         imr2->m_material = imr->m_material;
@@ -493,10 +493,4 @@ void StarClusterSystem::Deserialize(const YAML::Node &in)
 
     m_rendererFront.Load("m_rendererFront", in);
     m_rendererBack.Load("m_rendererBack", in);
-}
-
-void StarClusterSystem::Relink(const std::unordered_map<Handle, Handle> &map)
-{
-    m_rendererBack.Relink(map);
-    m_rendererFront.Relink(map);
 }

@@ -414,6 +414,7 @@ void Scene::Deserialize(const YAML::Node &in)
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
+        entity.m_sceneHandle = self->GetHandle();
         auto inPrivateComponents = inEntityInfo["PrivateComponent"];
         if (inPrivateComponents)
         {

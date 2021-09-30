@@ -308,7 +308,5 @@ class StarClusterSystem : public ISystem
     void FixedUpdate() override;
     void OnEnable() override;
 
-    void Relink(const std::unordered_map<Handle, Handle> &map) override;
-
 };
 } // namespace Galaxy

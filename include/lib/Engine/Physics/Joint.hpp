@@ -114,7 +114,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void OnInspect() override;
     void OnDestroy() override;
 
-    void Relink(const std::unordered_map<Handle, Handle> &map) override;
+    void Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle) override;
     void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
 
     void Serialize(YAML::Emitter &out) override;

@@ -26,12 +26,12 @@ bool DataComponentType::operator!=(const DataComponentType &other) const
 
 bool Entity::operator==(const Entity &other) const
 {
-    return (other.m_index == m_index) && (other.m_version == m_version);
+    return (other.m_index == m_index) && (other.m_version == m_version) && (other.m_sceneHandle == m_sceneHandle);
 }
 
 bool Entity::operator!=(const Entity &other) const
 {
-    return (other.m_index != m_index) || (other.m_version != m_version);
+    return (other.m_index != m_index) || (other.m_version != m_version) || (other.m_sceneHandle != m_sceneHandle);
 }
 
 size_t Entity::operator()(Entity const &key) const
@@ -47,12 +47,12 @@ bool Entity::IsEnabled() const
 
 void Entity::SetEnabled(const bool &value) const
 {
-    EntityManager::SetEnable(GetOwner(), *this, value);
+    EntityManager::SetEnable(*this, value);
 }
 
 void Entity::SetEnabledSingle(const bool &value) const
 {
-    EntityManager::SetEnableSingle(GetOwner(), *this, value);
+    EntityManager::SetEnableSingle(*this, value);
 }
 
 bool Entity::IsNull() const
@@ -68,60 +68,60 @@ bool Entity::IsValid() const
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
 {
-    EntityManager::SetParent(GetOwner(), *this, parent, recalculateTransform);
+    EntityManager::SetParent(*this, parent, recalculateTransform);
 }
 
 std::string Entity::GetName() const
 {
-    return EntityManager::GetEntityName(GetOwner(), *this);
+    return EntityManager::GetEntityName(*this);
 }
 
 void Entity::SetName(const std::string &name) const
 {
-    return EntityManager::SetEntityName(GetOwner(), *this, name);
+    return EntityManager::SetEntityName(*this, name);
 }
 
 Entity Entity::GetParent() const
 {
-    return EntityManager::GetParent(GetOwner(), *this);
+    return EntityManager::GetParent(*this);
 }
 template <typename T> void Entity::RemoveDataComponent() const
 {
-    EntityManager::RemoveDataComponent(GetOwner(), *this);
+    EntityManager::RemoveDataComponent(*this);
 }
 
 Entity Entity::GetRoot() const
 {
-    return EntityManager::GetRoot(GetOwner(), *this);
+    return EntityManager::GetRoot(*this);
 }
 size_t Entity::GetChildrenAmount() const
 {
-    return EntityManager::GetChildrenAmount(GetOwner(), *this);
+    return EntityManager::GetChildrenAmount(*this);
 }
 std::vector<Entity> Entity::GetChildren() const
 {
-    return std::move(EntityManager::GetChildren(GetOwner(), *this));
+    return std::move(EntityManager::GetChildren(*this));
 }
 Entity Entity::GetChild(int index) const
 {
-    return std::move(EntityManager::GetChild(GetOwner(), *this, index));
+    return std::move(EntityManager::GetChild(*this, index));
 }
 void Entity::ForEachChild(const std::function<void(Entity)> &func) const
 {
-    EntityManager::ForEachChild(GetOwner(), *this, func);
+    EntityManager::ForEachChild(*this, func);
 }
 
 void Entity::RemoveChild(const Entity &child) const
 {
-    EntityManager::RemoveChild(GetOwner(), child, *this);
+    EntityManager::RemoveChild(child, *this);
 }
 std::vector<Entity> Entity::GetDescendants() const
 {
-    return std::move(EntityManager::GetDescendants(GetOwner(), *this));
+    return std::move(EntityManager::GetDescendants(*this));
 }
 void Entity::ForEachDescendant(const std::function<void(const Entity &)> &func, const bool &fromRoot) const
 {
-    EntityManager::ForEachDescendant(GetOwner(), *this, func, fromRoot);
+    EntityManager::ForEachDescendant(*this, func, fromRoot);
 }
 unsigned Entity::GetIndex() const
 {
@@ -245,9 +245,15 @@ bool DataComponentStorage::HasType(const size_t &typeId)
 
 void EntityRef::Set(const Entity &target)
 {
-    if(target.IsNull()) m_entityHandle = Handle(0);
-    else m_entityHandle = target.GetHandle();
-    m_value = target;
+    if(target.IsNull())
+    {
+        Clear();
+    }
+    else {
+        m_entityHandle = target.GetHandle();
+        m_sceneHandle = target.GetSceneHandle();
+        m_value = target;
+    }
 }
 void EntityRef::Clear()
 {
@@ -257,7 +263,7 @@ void EntityRef::Clear()
 }
 void EntityRef::Update()
 {
-    if(m_entityHandle.GetValue() == 0){
+    if(m_entityHandle.GetValue() == 0 || m_sceneHandle.GetValue() == 0){
         Clear();
         return;
     }else if(m_value.IsNull()){

@@ -16,7 +16,6 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     Entity m_owner = Entity();
     bool m_started = false;
 
-
   public:
     [[nodiscard]] Entity GetOwner() const;
     void SetEnabled(const bool &value);
@@ -37,7 +36,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void OnDestroy(){};
 
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
-    virtual void Relink(const std::unordered_map<Handle, Handle> &map){};
+    virtual void Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle){};
     virtual void Clone(const std::shared_ptr<IPrivateComponent> &target) = 0;
 };
 
@@ -55,23 +54,28 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     friend class Prefab;
     std::optional<std::weak_ptr<IPrivateComponent>> m_value;
     Handle m_entityHandle = Handle(0);
+    Handle m_sceneHandle = Handle(0);
     std::string m_privateComponentTypeName;
     bool Update();
+
   public:
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+        out << YAML::Key << "m_sceneHandle" << YAML::Value << m_sceneHandle;
         out << YAML::Key << "m_privateComponentTypeName" << YAML::Value << m_privateComponentTypeName;
     }
     void Deserialize(const YAML::Node &in) override
     {
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+        m_sceneHandle = Handle(in["m_sceneHandle"].as<uint64_t>());
         m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
     }
 
     PrivateComponentRef()
     {
         m_entityHandle = Handle(0);
+        m_sceneHandle = Handle(0);
         m_privateComponentTypeName = "";
     }
     template <typename T = IPrivateComponent> PrivateComponentRef(const std::shared_ptr<T> &other)
@@ -91,21 +95,24 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
 
     bool operator==(const PrivateComponentRef &rhs) const
     {
-        return m_entityHandle == rhs.m_entityHandle;
+        return m_entityHandle == rhs.m_entityHandle && m_sceneHandle == rhs.m_sceneHandle;
     }
     bool operator!=(const PrivateComponentRef &rhs) const
     {
-        return m_entityHandle != rhs.m_entityHandle;
+        return m_entityHandle != rhs.m_entityHandle || m_sceneHandle != rhs.m_sceneHandle;
     }
 
-    void Relink(const std::unordered_map<Handle, Handle> &map)
+    void Relink(const std::unordered_map<Handle, Handle> &map, const Handle &newSceneHandle)
     {
         auto search = map.find(m_entityHandle);
         if (search != map.end())
+        {
             m_entityHandle = search->second;
+            m_sceneHandle = newSceneHandle;
+            m_value.reset();
+        }
         else
-            m_entityHandle = Handle(0);
-        m_value.reset();
+            Clear();
     };
 
     template <typename T = IPrivateComponent> [[nodiscard]] std::shared_ptr<T> Get()
@@ -123,12 +130,12 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
             auto privateComponent = std::dynamic_pointer_cast<IPrivateComponent>(target);
             m_privateComponentTypeName = privateComponent->GetTypeName();
             m_entityHandle = privateComponent->GetOwner().GetHandle();
+            m_sceneHandle = privateComponent->GetOwner().GetSceneHandle();
             m_value = privateComponent;
         }
         else
         {
-            m_entityHandle = Handle(0);
-            m_value.reset();
+            Clear();
         }
     }
 
@@ -143,7 +150,9 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         {
             auto pc = target.GetOrSetPrivateComponent<T>().lock();
             m_privateComponentTypeName = pc->GetTypeName();
-            m_entityHandle = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner().GetHandle();
+            auto entity = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner();
+            m_entityHandle = entity.GetHandle();
+            m_sceneHandle = entity.GetSceneHandle();
             m_value = pc;
         }
         else
@@ -158,6 +167,11 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     [[nodiscard]] Handle GetEntityHandle() const
     {
         return m_entityHandle;
+    }
+
+    [[nodiscard]] Handle GetSceneHandle() const
+    {
+        return m_sceneHandle;
     }
 
     void Save(const std::string &name, YAML::Emitter &out)

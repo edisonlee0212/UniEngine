@@ -77,7 +77,7 @@ Entity EditorManager::MouseEntitySelection(const glm::vec2 &mousePosition)
         glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
         if (entityIndex > 0)
         {
-            retVal = EntityManager::GetEntity(static_cast<unsigned>(entityIndex));
+            retVal = EntityManager::GetEntity(EntityManager::GetCurrentScene(), static_cast<unsigned>(entityIndex));
         }
     }
     return retVal;
@@ -96,7 +96,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
-                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model",
+                EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->Draw();
         }
     }
@@ -108,7 +109,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
-                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model",
+                EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
     }
@@ -562,7 +564,8 @@ void EditorManager::RenderToSceneCamera()
         RenderManager::ApplyShadowMapSettings();
         RenderManager::ApplyEnvironmentalSettings(editorManager.m_sceneCamera);
         GlobalTransform sceneCameraGT;
-        sceneCameraGT.SetValue(editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation, glm::vec3(1.0f));
+        sceneCameraGT.SetValue(
+            editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation, glm::vec3(1.0f));
         RenderManager::RenderToCamera(editorManager.m_sceneCamera, sceneCameraGT);
     }
     else
@@ -649,7 +652,8 @@ void EditorManager::OnInspect()
         {
             if (ImGui::Button("Create new entity"))
             {
-                auto newEntity = EntityManager::CreateEntity(editorManager.m_basicEntityArchetype);
+                auto newEntity =
+                    EntityManager::CreateEntity(EntityManager::GetCurrentScene(), editorManager.m_basicEntityArchetype);
             }
             ImGui::EndPopup();
         }
@@ -684,6 +688,7 @@ void EditorManager::OnInspect()
             if (editorManager.m_selectedHierarchyDisplayMode == 0)
             {
                 EntityManager::UnsafeForEachEntityStorage(
+                    EntityManager::GetCurrentScene(),
                     [&](int i, const std::string &name, const DataComponentStorage &storage) {
                         if (i == 0)
                             return;
@@ -732,9 +737,9 @@ void EditorManager::OnInspect()
                 ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-                EntityManager::ForAllEntities([](int i, Entity entity) {
-                    if (EntityManager::GetParent(entity).IsNull())
-                        DrawEntityNode(entity, 0);
+                EntityManager::ForAllEntities(EntityManager::GetCurrentScene(), [](int i, Entity entity) {
+                        if (EntityManager::GetParent(entity).IsNull())
+                            DrawEntityNode(entity, 0);
                 });
                 editorManager.m_selectedEntityHierarchyList.clear();
                 ImGui::PopStyleColor();
@@ -793,7 +798,9 @@ void EditorManager::OnInspect()
                                 if (ImGui::Button("Remove"))
                                 {
                                     skip = true;
-                                    EntityManager::RemoveDataComponent(editorManager.m_selectedEntity, type.m_typeId);
+                                    EntityManager::RemoveDataComponent(
+                                        editorManager.m_selectedEntity,
+                                        type.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -802,7 +809,8 @@ void EditorManager::OnInspect()
                                 editorManager.m_selectedEntity,
                                 static_cast<IDataComponent *>(data),
                                 type,
-                                EntityManager::GetParent(editorManager.m_selectedEntity).IsNull());
+                                EntityManager::GetParent(editorManager.m_selectedEntity)
+                                    .IsNull());
                             ImGui::Separator();
                             i++;
                         });
@@ -824,8 +832,7 @@ void EditorManager::OnInspect()
 
                     int i = 0;
                     bool skip = false;
-                    EntityManager::ForEachPrivateComponent(
-                        editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
+                    EntityManager::ForEachPrivateComponent(editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
                             ImGui::Checkbox(
@@ -840,7 +847,8 @@ void EditorManager::OnInspect()
                                 {
                                     skip = true;
                                     EntityManager::RemovePrivateComponent(
-                                        editorManager.m_selectedEntity, data.m_typeId);
+                                        editorManager.m_selectedEntity,
+                                        data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -951,22 +959,24 @@ void EditorManager::OnInspect()
             ImGui::SameLine();
 
             ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
-            if(ImGui::ImageButton(
-                (ImTextureID)editorManager.m_assetsIcons["RefreshButton"]->UnsafeGetGLTexture()->Id(),
-                {16, 16},
-                {0, 1},
-                {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["RefreshButton"]->UnsafeGetGLTexture()->Id(),
+                    {16, 16},
+                    {0, 1},
+                    {1, 0}))
+            {
                 ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder);
             }
 
-            if(projectManager.m_currentFocusedFolder != projectManager.m_currentProject->m_projectFolder)
+            if (projectManager.m_currentFocusedFolder != projectManager.m_currentProject->m_projectFolder)
             {
                 ImGui::SameLine();
-                if(ImGui::ImageButton(
-                    (ImTextureID)editorManager.m_assetsIcons["BackButton"]->UnsafeGetGLTexture()->Id(),
-                    {16, 16},
-                    {0, 1},
-                    {1, 0})){
+                if (ImGui::ImageButton(
+                        (ImTextureID)editorManager.m_assetsIcons["BackButton"]->UnsafeGetGLTexture()->Id(),
+                        {16, 16},
+                        {0, 1},
+                        {1, 0}))
+                {
                     projectManager.m_currentFocusedFolder = projectManager.m_currentFocusedFolder->m_parent.lock();
                 }
             }
@@ -976,12 +986,17 @@ void EditorManager::OnInspect()
             auto &assetManager = AssetManager::GetInstance();
             if (ImGui::BeginPopupContextWindow("NewAssetPopup"))
             {
-                if(ImGui::Button("New folder...")){
-                    auto newPath = ProjectManager::GenerateNewPath((projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / "New Folder").string(), "");
+                if (ImGui::Button("New folder..."))
+                {
+                    auto newPath = ProjectManager::GenerateNewPath(
+                        (projectManager.m_projectPath.parent_path() /
+                         projectManager.m_currentFocusedFolder->m_relativePath / "New Folder")
+                            .string(),
+                        "");
                     std::filesystem::create_directories(newPath);
                     ProjectManager::ScanProjectFolder(false);
                 }
-                if(ImGui::BeginMenu("Create new asset..."))
+                if (ImGui::BeginMenu("Create new asset..."))
                 {
                     for (auto &i : assetManager.m_defaultExtensions)
                     {
@@ -991,7 +1006,9 @@ void EditorManager::OnInspect()
                             auto newHandle = Handle();
                             auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
                             auto newPath = ProjectManager::GenerateNewPath(
-                                (projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / newFileName).string(),
+                                (projectManager.m_projectPath.parent_path() /
+                                 projectManager.m_currentFocusedFolder->m_relativePath / newFileName)
+                                    .string(),
                                 AssetManager::GetExtension(i.first)[0]);
                             newAsset->SetPathAndSave(ProjectManager::GetRelativePath(newPath));
                         }
@@ -1015,9 +1032,10 @@ void EditorManager::OnInspect()
                         {0, 1},
                         {1, 0});
                     bool itemHovered = false;
-                    if(ImGui::IsItemHovered()){
+                    if (ImGui::IsItemHovered())
+                    {
                         itemHovered = true;
-                        if(ImGui::IsMouseDoubleClicked(0))
+                        if (ImGui::IsMouseDoubleClicked(0))
                         {
                             projectManager.m_currentFocusedFolder = i.second;
                             updated = true;
@@ -1050,9 +1068,11 @@ void EditorManager::OnInspect()
                         }
                         ImGui::EndPopup();
                     }
-                    if(itemHovered) ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
+                    if (itemHovered)
+                        ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
                     ImGui::TextWrapped(i.second->m_name.c_str());
-                    if(itemHovered) ImGui::PopStyleColor(1);
+                    if (itemHovered)
+                        ImGui::PopStyleColor(1);
                     ImGui::NextColumn();
                 }
             }
@@ -1135,12 +1155,17 @@ void EditorManager::OnInspect()
                                     }
                                 }
                                 // FolderMetadata
-                                auto originalHandle = projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[i.second.m_relativeFilePath.string()];
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(i.second.m_relativeFilePath.string());
+                                auto originalHandle = projectManager.m_currentFocusedFolder->m_folderMetadata
+                                                          .m_fileMap[i.second.m_relativeFilePath.string()];
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(
+                                    i.second.m_relativeFilePath.string());
                                 i.second.m_relativeFilePath = newPath;
                                 i.second.m_fileName = newPath.filename().string();
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] = originalHandle;
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.Save(projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] =
+                                    originalHandle;
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
+                                    projectManager.m_projectPath.parent_path() /
+                                    projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndMenu();
@@ -1162,10 +1187,13 @@ void EditorManager::OnInspect()
                         }
                         ImGui::EndPopup();
                     }
-                    if(itemFocused) ImGui::PushStyleColor(ImGuiCol_Text, {1, 0, 0, 1});
-                    else if(itemHovered) ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
+                    if (itemFocused)
+                        ImGui::PushStyleColor(ImGuiCol_Text, {1, 0, 0, 1});
+                    else if (itemHovered)
+                        ImGui::PushStyleColor(ImGuiCol_Text, {1, 1, 0, 1});
                     ImGui::TextWrapped(fileName.string().c_str());
-                    if(itemFocused || itemHovered) ImGui::PopStyleColor(1);
+                    if (itemFocused || itemHovered)
+                        ImGui::PopStyleColor(1);
                     ImGui::NextColumn();
                 }
             }
@@ -1506,11 +1534,13 @@ void EditorManager::SceneCameraWindow()
 
                 auto transform = editorManager.m_selectedEntity.GetDataComponent<Transform>();
                 GlobalTransform parentGlobalTransform;
-                Entity parentEntity = EntityManager::GetParent(editorManager.m_selectedEntity);
+                Entity parentEntity =
+                    EntityManager::GetParent(editorManager.m_selectedEntity);
                 if (!parentEntity.IsNull())
                 {
                     parentGlobalTransform =
-                        EntityManager::GetParent(editorManager.m_selectedEntity).GetDataComponent<GlobalTransform>();
+                        EntityManager::GetParent(editorManager.m_selectedEntity)
+                            .GetDataComponent<GlobalTransform>();
                 }
                 auto globalTransform = editorManager.m_selectedEntity.GetDataComponent<GlobalTransform>();
                 ImGuizmo::Manipulate(
@@ -1769,7 +1799,7 @@ void EditorManager::CameraWindowDragAndDrop()
             AssetRef assetRef;
             assetRef.m_assetHandle = payload_n;
             assetRef.Update();
-            Entity entity = EntityManager::CreateEntity("Mesh");
+            Entity entity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Mesh");
             auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
             meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(assetRef.m_value));
             auto material = AssetManager::CreateAsset<Material>();

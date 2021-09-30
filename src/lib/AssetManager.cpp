@@ -83,7 +83,7 @@ void AssetManager::RemoveFromShared(const std::string &typeName, const Handle &h
 
 Entity AssetManager::ToEntity(EntityArchetype archetype, std::shared_ptr<Texture2D> texture)
 {
-    const Entity entity = EntityManager::CreateEntity(archetype);
+    const Entity entity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), archetype);
     entity.SetName(texture->m_name);
     auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
     mmc->m_material.Set<Material>(LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
