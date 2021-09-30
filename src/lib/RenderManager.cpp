@@ -283,7 +283,7 @@ void RenderManager::LateUpdate()
     Bound worldBound;
     CollectRenderInstances(worldBound);
     ProfilerManager::EndEvent("RenderCommand Collection");
-
+    scene->SetBound(worldBound);
 #pragma endregion
 #pragma region Render to cameras
     ProfilerManager::StartEvent("Main Rendering");
