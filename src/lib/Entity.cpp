@@ -3,6 +3,7 @@
 #include <ISerializable.hpp>
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>
+#include <AssetManager.hpp>
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
@@ -41,17 +42,17 @@ size_t Entity::operator()(Entity const &key) const
 bool Entity::IsEnabled() const
 {
     assert(IsValid());
-    return EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(m_index).m_enabled;
+    return GetOwner()->m_sceneDataStorage.m_entityInfos.at(m_index).m_enabled;
 }
 
 void Entity::SetEnabled(const bool &value) const
 {
-    EntityManager::SetEnable(*this, value);
+    EntityManager::SetEnable(GetOwner(), *this, value);
 }
 
 void Entity::SetEnabledSingle(const bool &value) const
 {
-    EntityManager::SetEnableSingle(*this, value);
+    EntityManager::SetEnableSingle(GetOwner(), *this, value);
 }
 
 bool Entity::IsNull() const
@@ -61,66 +62,66 @@ bool Entity::IsNull() const
 
 bool Entity::IsValid() const
 {
-    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entities;
+    auto& storage = GetOwner()->m_sceneDataStorage.m_entities;
     return m_index != 0 && m_version != 0 && m_index < storage.size() && storage.at(m_index).m_version == m_version;
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
 {
-    EntityManager::SetParent(*this, parent, recalculateTransform);
+    EntityManager::SetParent(GetOwner(), *this, parent, recalculateTransform);
 }
 
 std::string Entity::GetName() const
 {
-    return EntityManager::GetEntityName(*this);
+    return EntityManager::GetEntityName(GetOwner(), *this);
 }
 
 void Entity::SetName(const std::string &name) const
 {
-    return EntityManager::SetEntityName(*this, name);
+    return EntityManager::SetEntityName(GetOwner(), *this, name);
 }
 
 Entity Entity::GetParent() const
 {
-    return EntityManager::GetParent(*this);
+    return EntityManager::GetParent(GetOwner(), *this);
 }
 template <typename T> void Entity::RemoveDataComponent() const
 {
-    EntityManager::RemoveDataComponent(*this);
+    EntityManager::RemoveDataComponent(GetOwner(), *this);
 }
 
 Entity Entity::GetRoot() const
 {
-    return EntityManager::GetRoot(*this);
+    return EntityManager::GetRoot(GetOwner(), *this);
 }
 size_t Entity::GetChildrenAmount() const
 {
-    return EntityManager::GetChildrenAmount(*this);
+    return EntityManager::GetChildrenAmount(GetOwner(), *this);
 }
 std::vector<Entity> Entity::GetChildren() const
 {
-    return std::move(EntityManager::GetChildren(*this));
+    return std::move(EntityManager::GetChildren(GetOwner(), *this));
 }
 Entity Entity::GetChild(int index) const
 {
-    return std::move(EntityManager::GetChild(*this, index));
+    return std::move(EntityManager::GetChild(GetOwner(), *this, index));
 }
 void Entity::ForEachChild(const std::function<void(Entity)> &func) const
 {
-    EntityManager::ForEachChild(*this, func);
+    EntityManager::ForEachChild(GetOwner(), *this, func);
 }
 
 void Entity::RemoveChild(const Entity &child) const
 {
-    EntityManager::RemoveChild(child, *this);
+    EntityManager::RemoveChild(GetOwner(), child, *this);
 }
 std::vector<Entity> Entity::GetDescendants() const
 {
-    return std::move(EntityManager::GetDescendants(*this));
+    return std::move(EntityManager::GetDescendants(GetOwner(), *this));
 }
 void Entity::ForEachDescendant(const std::function<void(const Entity &)> &func, const bool &fromRoot) const
 {
-    EntityManager::ForEachDescendant(*this, func, fromRoot);
+    EntityManager::ForEachDescendant(GetOwner(), *this, func, fromRoot);
 }
 unsigned Entity::GetIndex() const
 {
@@ -132,11 +133,19 @@ unsigned Entity::GetVersion() const
 }
 Handle Entity::GetHandle() const
 {
-    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
+    auto& storage = GetOwner()->m_sceneDataStorage.m_entityInfos;
     return storage.at(m_index).GetHandle();
 }
-
-
+Handle Entity::GetSceneHandle() const
+{
+    return m_sceneHandle;
+}
+std::shared_ptr<Scene> Entity::GetOwner() const
+{
+    auto currentScene = EntityManager::GetCurrentScene();
+    if(currentScene->GetHandle().GetValue() == m_sceneHandle.GetValue()) return currentScene;
+    return AssetManager::Get<Scene>(m_sceneHandle);
+}
 
 IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {
@@ -244,15 +253,27 @@ void EntityRef::Clear()
 {
     m_value = Entity();
     m_entityHandle = Handle(0);
+    m_sceneHandle = Handle(0);
 }
 void EntityRef::Update()
 {
     if(m_entityHandle.GetValue() == 0){
-        m_value = Entity();
+        Clear();
         return;
     }else if(m_value.IsNull()){
-        m_value = EntityManager::GetEntity(m_entityHandle);
-        if(m_value.IsNull()) m_entityHandle = Handle(0);
+        auto scene = EntityManager::GetCurrentScene();
+        if(scene->GetHandle().GetValue() != m_sceneHandle.GetValue()){
+            scene = AssetManager::Get<Scene>(m_sceneHandle);
+        }
+        if(!scene) Clear();
+        else
+        {
+            m_value = EntityManager::GetEntity(scene, m_entityHandle);
+            if (m_value.IsNull())
+            {
+                Clear();
+            }
+        }
     }
     if(!m_value.IsValid()){
         Clear();

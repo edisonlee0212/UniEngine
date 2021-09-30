@@ -21,18 +21,6 @@ void Scene::Purge()
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
-
-    if (EntityManager::GetCurrentScene().get() == this)
-    {
-        for (auto &i : EntityManager::GetInstance().m_entityArchetypeInfos)
-        {
-            i.m_dataComponentStorageIndex = 0;
-        }
-        for (auto &i : EntityManager::GetInstance().m_entityQueryInfos)
-        {
-            i.m_queriedStorage.clear();
-        }
-    }
 }
 
 Bound Scene::GetBound() const
@@ -316,12 +304,10 @@ void Scene::Deserialize(const YAML::Node &in)
         UNIENGINE_ERROR("Scene load failed!");
     }
     UNIENGINE_LOG("Loading scene...");
+    auto self = AssetManager::Get<Scene>(m_handle);
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
     if(in["m_environmentalMapSettings"]) m_environmentalMapSettings.Deserialize(in["m_environmentalMapSettings"]);
-    // Must attach current scene to entitymanager before loading!
-    // assert(EntityManager::GetCurrentScene().get() == this);
-
 #pragma region DataComponentStorage
     auto inDataComponentStorages = in["DataComponentStorages"];
     for (const auto &inDataComponentStorage : inDataComponentStorages)
@@ -383,6 +369,7 @@ void Scene::Deserialize(const YAML::Node &in)
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
+        entity.m_sceneHandle = GetHandle();
         sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
         entityIndex++;
     }
@@ -460,6 +447,7 @@ void Scene::Deserialize(const YAML::Node &in)
 #pragma region Systems
     auto inSystems = in["Systems"];
     std::vector<std::shared_ptr<ISystem>> systems;
+
     for (const auto &inSystem : inSystems)
     {
         auto name = inSystem["TypeName"].as<std::string>();
@@ -469,6 +457,7 @@ void Scene::Deserialize(const YAML::Node &in)
         ptr->m_enabled = inSystem["Enabled"].as<bool>();
         ptr->m_rank = inSystem["Rank"].as<float>();
         ptr->m_started = false;
+        ptr->m_owner = self;
         m_systems.insert({ptr->m_rank, ptr});
         m_indexedSystems.insert({hashCode, ptr});
         m_mappedSystems[ptr->m_handle] = ptr;

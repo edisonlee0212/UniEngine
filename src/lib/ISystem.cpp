@@ -25,6 +25,11 @@ void ISystem::Disable()
     }
 }
 
+std::shared_ptr<Scene> ISystem::GetOwner()
+{
+    return m_owner.lock();
+}
+
 bool ISystem::Enabled() const
 {
     return m_enabled;

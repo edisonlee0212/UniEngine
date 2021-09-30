@@ -10,11 +10,12 @@ using namespace UniEngine;
 #pragma region EntityManager
 
 void EntityManager::UnsafeForEachDataComponent(
-    const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func)
+    const std::shared_ptr<Scene> &scene,
+    const Entity &entity,
+    const std::function<void(const DataComponentType &type, void *data)> &func)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -36,11 +37,12 @@ void EntityManager::UnsafeForEachDataComponent(
 }
 
 void EntityManager::ForEachPrivateComponent(
-    const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func)
+    const std::shared_ptr<Scene> &scene,
+    const Entity &entity,
+    const std::function<void(PrivateComponentElement &data)> &func)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -53,21 +55,22 @@ void EntityManager::ForEachPrivateComponent(
 }
 
 void EntityManager::UnsafeForEachEntityStorage(
+    const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, const std::string &name, const DataComponentStorage &storage)> &func)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
     }
+
     auto &archetypeInfos = entityManager.m_entityArchetypeInfos;
     for (int i = 0; i < archetypeInfos.size(); i++)
     {
-        func(
-            i,
-            archetypeInfos[i].m_name,
-            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfos[i].m_dataComponentStorageIndex));
+        auto dcs = GetDataComponentStorage(scene, i);
+        if (!dcs.has_value())
+            continue;
+        func(i, archetypeInfos[i].m_name, dcs->first.get());
     }
 }
 
@@ -77,10 +80,9 @@ size_t EntityManager::GetArchetypeChunkSize()
     return entityManager.m_archetypeChunkSize;
 }
 
-void EntityManager::DeleteEntityInternal(const Entity &entity)
+void EntityManager::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -110,7 +112,7 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
         if (entityInfo.m_chunkArrayIndex != dataComponentStorage.m_entityAliveCount - 1)
         {
             const auto swappedIndex = SwapEntity(
-                dataComponentStorage, entityInfo.m_chunkArrayIndex, dataComponentStorage.m_entityAliveCount - 1);
+                scene, dataComponentStorage, entityInfo.m_chunkArrayIndex, dataComponentStorage.m_entityAliveCount - 1);
             entityInfo.m_chunkArrayIndex = dataComponentStorage.m_entityAliveCount - 1;
             scene->m_sceneDataStorage.m_entityInfos.at(swappedIndex).m_chunkArrayIndex = originalIndex;
         }
@@ -124,17 +126,17 @@ void EntityManager::DeleteEntityInternal(const Entity &entity)
     scene->m_sceneDataStorage.m_entities.at(entity.m_index) = actualEntity;
 }
 
-void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
+std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> EntityManager::GetDataComponentStorage(
+    const std::shared_ptr<Scene> &scene, unsigned entityArchetypeIndex)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
-        return;
+        return std::nullopt;
     }
-    auto &archetypeInfo = entityManager.m_entityArchetypeInfos.at(index);
+    auto &archetypeInfo = entityManager.m_entityArchetypeInfos.at(entityArchetypeIndex);
     int targetIndex = 0;
-    for (const auto &i : scene->m_sceneDataStorage.m_dataComponentStorages)
+    for (auto &i : scene->m_sceneDataStorage.m_dataComponentStorages)
     {
         if (i.m_dataComponentTypes.size() != archetypeInfo.m_dataComponentTypes.size())
         {
@@ -152,89 +154,27 @@ void EntityManager::RefreshEntityArchetypeInfo(const size_t &index)
         }
         if (check)
         {
-            archetypeInfo.m_dataComponentStorageIndex = targetIndex;
-            break;
+            return {{std::ref(i), targetIndex}};
         }
         targetIndex++;
     }
+    // If we didn't find the target storage, then we need to create a new one.
+    scene->m_sceneDataStorage.m_dataComponentStorages.emplace_back(archetypeInfo);
+    return {
+        {std::ref(scene->m_sceneDataStorage.m_dataComponentStorages.back()),
+         scene->m_sceneDataStorage.m_dataComponentStorages.size() - 1}};
 }
 
-void EntityManager::RefreshEntityQueryInfo(const size_t &index)
+std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> EntityManager::GetDataComponentStorage(
+    const std::shared_ptr<Scene> &scene, const EntityArchetype &entityArchetype)
 {
-    auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
-    if (!scene)
-    {
-        return;
-    }
-    auto &queryInfos = entityManager.m_entityQueryInfos.at(index);
-    auto &entityComponentStorage = scene->m_sceneDataStorage.m_dataComponentStorages;
-    auto &queriedStorage = entityManager.m_entityQueryInfos.at(index).m_queriedStorage;
-    queriedStorage.clear();
-    // Select storage with every contained.
-    if (!queryInfos.m_allDataComponentTypes.empty())
-    {
-        for (int i = 0; i < entityComponentStorage.size(); i++)
-        {
-            auto &dataStorage = entityComponentStorage.at(i);
-            bool check = true;
-            for (const auto &type : queryInfos.m_allDataComponentTypes)
-            {
-                if (!dataStorage.HasType(type.m_typeId))
-                    check = false;
-            }
-            if (check)
-                queriedStorage.push_back(&dataStorage);
-        }
-    }
-    else
-    {
-        for (int i = 0; i < entityComponentStorage.size(); i++)
-        {
-            auto &dataStorage = entityComponentStorage.at(i);
-            queriedStorage.push_back(&dataStorage);
-        }
-    }
-    // Erase with any
-    if (!queryInfos.m_anyDataComponentTypes.empty())
-    {
-        for (int i = 0; i < queriedStorage.size(); i++)
-        {
-            bool contain = false;
-            for (const auto &type : queryInfos.m_anyDataComponentTypes)
-            {
-                if (queriedStorage.at(i)->HasType(type.m_typeId))
-                    contain = true;
-                if (contain)
-                    break;
-            }
-            if (!contain)
-            {
-                queriedStorage.erase(queriedStorage.begin() + i);
-                i--;
-            }
-        }
-    }
-    // Erase with none
-    if (!queryInfos.m_noneDataComponentTypes.empty())
-    {
-        for (int i = 0; i < queriedStorage.size(); i++)
-        {
-            bool contain = false;
-            for (const auto &type : queryInfos.m_noneDataComponentTypes)
-            {
-                if (queriedStorage.at(i)->HasType(type.m_typeId))
-                    contain = true;
-                if (contain)
-                    break;
-            }
-            if (contain)
-            {
-                queriedStorage.erase(queriedStorage.begin() + i);
-                i--;
-            }
-        }
-    }
+    return GetDataComponentStorage(scene, entityArchetype.m_index);
+}
+
+std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDataComponentStorages(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery)
+{
+    QueryDataComponentStorages(scene, entityQuery.m_index);
 }
 
 void EntityManager::EraseDuplicates(std::vector<DataComponentType> &types)
@@ -260,10 +200,12 @@ void EntityManager::EraseDuplicates(std::vector<DataComponentType> &types)
 }
 
 void EntityManager::GetEntityStorage(
-    const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    const DataComponentStorage &storage,
+    std::vector<Entity> &container,
+    bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -325,10 +267,10 @@ void EntityManager::GetEntityStorage(
     }
 }
 
-size_t EntityManager::SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2)
+size_t EntityManager::SwapEntity(
+    const std::shared_ptr<Scene> &scene, DataComponentStorage &storage, size_t index1, size_t index2)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return -1;
@@ -363,10 +305,9 @@ size_t EntityManager::SwapEntity(DataComponentStorage &storage, size_t index1, s
     return retVal;
 }
 
-void EntityManager::GetAllEntities(std::vector<Entity> &target)
+void EntityManager::GetAllEntities(const std::shared_ptr<Scene> &scene, std::vector<Entity> &target)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -376,20 +317,22 @@ void EntityManager::GetAllEntities(std::vector<Entity> &target)
 }
 
 void EntityManager::ForEachDescendant(
-    const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot)
+    const std::shared_ptr<Scene> &scene,
+    const Entity &target,
+    const std::function<void(const Entity &entity)> &func,
+    const bool &fromRoot)
 {
     Entity realTarget = target;
     if (!realTarget.IsValid())
         return;
     if (fromRoot)
-        realTarget = GetRoot(realTarget);
-    ForEachDescendantHelper(realTarget, func);
+        realTarget = GetRoot(scene, realTarget);
+    ForEachDescendantHelper(scene, realTarget, func);
 }
 
-std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
+std::vector<Entity> *EntityManager::UnsafeGetAllEntities(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return nullptr;
@@ -400,35 +343,26 @@ std::vector<Entity> *EntityManager::UnsafeGetAllEntities()
 void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
-    auto &targetStorage = scene->m_sceneDataStorage;
     entityManager.m_scene = scene;
-    for (auto &i : entityManager.m_entityArchetypeInfos)
-    {
-        i.m_dataComponentStorageIndex = 0;
-    }
-    for (auto &i : entityManager.m_entityQueryInfos)
-    {
-        i.m_queriedStorage.clear();
-    }
-    RefreshAllEntityArchetypeInfos();
-    RefreshAllEntityQueryInfos();
 }
 
-Entity EntityManager::CreateEntity(const std::string &name)
+Entity EntityManager::CreateEntity(const std::shared_ptr<Scene> &scene, const std::string &name)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return Entity();
     }
-    return CreateEntity(entityManager.m_basicArchetype, name);
+    return CreateEntity(scene, entityManager.m_basicArchetype, name);
 }
 
-Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::string &name, const Handle &handle)
+Entity EntityManager::CreateEntity(
+    const std::shared_ptr<Scene> &scene,
+    const EntityArchetype &archetype,
+    const std::string &name,
+    const Handle &handle)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return Entity();
@@ -436,18 +370,8 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
     assert(archetype.IsValid());
     entityManager.m_scene->m_saved = false;
     Entity retVal;
-    EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
-    if (archetypeInfo.m_dataComponentStorageIndex == 0)
-    {
-        archetypeInfo.m_dataComponentStorageIndex = scene->m_sceneDataStorage.m_dataComponentStorages.size();
-        scene->m_sceneDataStorage.m_dataComponentStorages.emplace_back(archetypeInfo);
-        for (size_t i = 0; i < entityManager.m_entityQueryInfos.size(); i++)
-        {
-            RefreshEntityQueryInfo(i);
-        }
-    }
-    DataComponentStorage &storage =
-        scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex);
+    auto search = GetDataComponentStorage(scene, archetype);
+    DataComponentStorage &storage = search->first;
     if (storage.m_entityCount == storage.m_entityAliveCount)
     {
         const size_t chunkIndex = storage.m_entityCount / storage.m_chunkCapacity + 1;
@@ -464,7 +388,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         EntityMetadata entityInfo;
         entityInfo.m_name = name;
         entityInfo.m_handle = handle;
-        entityInfo.m_dataComponentStorageIndex = archetypeInfo.m_dataComponentStorageIndex;
+        entityInfo.m_dataComponentStorageIndex = search->second;
         entityInfo.m_chunkArrayIndex = storage.m_entityCount;
         storage.m_chunkArray.m_entities.push_back(retVal);
 
@@ -490,9 +414,7 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
         // Reset all component data
         const auto chunkIndex = entityInfo.m_chunkArrayIndex / storage.m_chunkCapacity;
         const auto chunkPointer = entityInfo.m_chunkArrayIndex % storage.m_chunkCapacity;
-        const auto chunk =
-            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex)
-                .m_chunkArray.m_chunks[chunkIndex];
+        const auto chunk = storage.m_chunkArray.m_chunks[chunkIndex];
         for (const auto &i : storage.m_dataComponentTypes)
         {
             const auto offset = i.m_offset * storage.m_chunkCapacity + chunkPointer * i.m_size;
@@ -506,10 +428,12 @@ Entity EntityManager::CreateEntity(const EntityArchetype &archetype, const std::
 }
 
 std::vector<Entity> EntityManager::CreateEntities(
-    const EntityArchetype &archetype, const size_t &amount, const std::string &name)
+    const std::shared_ptr<Scene> &scene,
+    const EntityArchetype &archetype,
+    const size_t &amount,
+    const std::string &name)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return {};
@@ -517,15 +441,8 @@ std::vector<Entity> EntityManager::CreateEntities(
     assert(archetype.IsValid());
     std::vector<Entity> retVal;
     entityManager.m_scene->m_saved = false;
-    EntityArchetypeInfo &archetypeInfo = entityManager.m_entityArchetypeInfos[archetype.m_index];
-    if (archetypeInfo.m_dataComponentStorageIndex == 0)
-    {
-        archetypeInfo.m_dataComponentStorageIndex = scene->m_sceneDataStorage.m_dataComponentStorages.size();
-        scene->m_sceneDataStorage.m_dataComponentStorages.emplace_back(archetypeInfo);
-        RefreshAllEntityQueryInfos();
-    }
-    DataComponentStorage &storage =
-        scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex);
+    auto search = GetDataComponentStorage(scene, archetype);
+    DataComponentStorage &storage = search->first;
     auto remainAmount = amount;
     const Transform transform;
     const GlobalTransform globalTransform;
@@ -547,9 +464,7 @@ std::vector<Entity> EntityManager::CreateEntities(
         // Reset all component data
         const size_t chunkIndex = entityInfo.m_chunkArrayIndex / storage.m_chunkCapacity;
         const size_t chunkPointer = entityInfo.m_chunkArrayIndex % storage.m_chunkCapacity;
-        const ComponentDataChunk &chunk =
-            scene->m_sceneDataStorage.m_dataComponentStorages.at(archetypeInfo.m_dataComponentStorageIndex)
-                .m_chunkArray.m_chunks[chunkIndex];
+        const ComponentDataChunk &chunk = storage.m_chunkArray.m_chunks[chunkIndex];
         for (const auto &i : storage.m_dataComponentTypes)
         {
             const size_t offset = i.m_offset * storage.m_chunkCapacity + chunkPointer * i.m_size;
@@ -585,7 +500,7 @@ std::vector<Entity> EntityManager::CreateEntities(
         auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(originalSize + i);
         entityInfo = EntityMetadata();
         entityInfo.m_name = name;
-        entityInfo.m_dataComponentStorageIndex = archetypeInfo.m_dataComponentStorageIndex;
+        entityInfo.m_dataComponentStorageIndex = search->second;
         entityInfo.m_chunkArrayIndex = storage.m_entityAliveCount - remainAmount + i;
 
         entityInfo.m_handle = Handle();
@@ -646,20 +561,20 @@ std::vector<Entity> EntityManager::CreateEntities(
     return retVal;
 }
 
-std::vector<Entity> EntityManager::CreateEntities(const size_t &amount, const std::string &name)
+std::vector<Entity> EntityManager::CreateEntities(
+    const std::shared_ptr<Scene> &scene, const size_t &amount, const std::string &name)
 {
     auto &entityManager = GetInstance();
-    return CreateEntities(entityManager.m_basicArchetype, amount, name);
+    return CreateEntities(scene, entityManager.m_basicArchetype, amount, name);
 }
 
-void EntityManager::DeleteEntity(const Entity &entity)
+void EntityManager::DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     if (!entity.IsValid())
     {
         return;
     }
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -669,19 +584,18 @@ void EntityManager::DeleteEntity(const Entity &entity)
     auto children = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
     for (const auto &child : children)
     {
-        DeleteEntity(child);
+        DeleteEntity(scene, child);
     }
     if (scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent.m_index != 0)
-        RemoveChild(entity, scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent);
-    DeleteEntityInternal(entity);
+        RemoveChild(scene, entity, scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent);
+    DeleteEntityInternal(scene, entity);
 }
 
-std::string EntityManager::GetEntityName(const Entity &entity)
+std::string EntityManager::GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return "";
@@ -694,12 +608,11 @@ std::string EntityManager::GetEntityName(const Entity &entity)
     return scene->m_sceneDataStorage.m_entityInfos.at(index).m_name;
 }
 
-void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
+void EntityManager::SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name)
 {
     assert(entity.IsValid());
     const size_t index = entity.m_index;
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -718,13 +631,13 @@ void EntityManager::SetEntityName(const Entity &entity, const std::string &name)
     scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = "Unnamed";
 }
 
-void EntityManager::SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform)
+void EntityManager::SetParent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent, const bool &recalculateTransform)
 {
     assert(entity.IsValid() && parent.IsValid());
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -739,12 +652,12 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
     auto &childEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
-        RemoveChild(entity, childEntityInfo.m_parent);
+        RemoveChild(scene, entity, childEntityInfo.m_parent);
     }
     if (recalculateTransform)
     {
-        const auto childGlobalTransform = entity.GetDataComponent<GlobalTransform>();
-        const auto parentGlobalTransform = parent.GetDataComponent<GlobalTransform>();
+        const auto childGlobalTransform = GetDataComponent<GlobalTransform>(scene, entity);
+        const auto parentGlobalTransform = GetDataComponent<GlobalTransform>(scene, parent);
         Transform childTransform;
         childTransform.m_value = glm::inverse(parentGlobalTransform.m_value) * childGlobalTransform.m_value;
         entity.SetDataComponent(childTransform);
@@ -753,11 +666,10 @@ void EntityManager::SetParent(const Entity &entity, const Entity &parent, const 
     parentEntityInfo.m_children.push_back(entity);
 }
 
-Entity EntityManager::GetParent(const Entity &entity)
+Entity EntityManager::GetParent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return Entity();
@@ -766,11 +678,10 @@ Entity EntityManager::GetParent(const Entity &entity)
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_parent;
 }
 
-std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
+std::vector<Entity> EntityManager::GetChildren(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return {};
@@ -779,11 +690,10 @@ std::vector<Entity> EntityManager::GetChildren(const Entity &entity)
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
 }
 
-Entity EntityManager::GetChild(const Entity &entity, int index)
+Entity EntityManager::GetChild(const std::shared_ptr<Scene> &scene, const Entity &entity, int index)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return Entity();
@@ -795,11 +705,10 @@ Entity EntityManager::GetChild(const Entity &entity, int index)
     return Entity();
 }
 
-size_t EntityManager::GetChildrenAmount(const Entity &entity)
+size_t EntityManager::GetChildrenAmount(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return 0;
@@ -808,11 +717,11 @@ size_t EntityManager::GetChildrenAmount(const Entity &entity)
     return scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children.size();
 }
 
-inline void EntityManager::ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func)
+inline void EntityManager::ForEachChild(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(Entity child)> &func)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -825,11 +734,10 @@ inline void EntityManager::ForEachChild(const Entity &entity, const std::functio
     }
 }
 
-void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
+void EntityManager::RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent)
 {
     assert(entity.IsValid() && parent.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -854,13 +762,13 @@ void EntityManager::RemoveChild(const Entity &entity, const Entity &parent)
             break;
         }
     }
-    const auto childGlobalTransform = entity.GetDataComponent<GlobalTransform>();
+    const auto childGlobalTransform = GetDataComponent<GlobalTransform>(scene, entity);
     Transform childTransform;
     childTransform.m_value = childGlobalTransform.m_value;
     entity.SetDataComponent(childTransform);
 }
 
-void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &typeID)
+void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &typeID)
 {
     assert(entity.IsValid());
     if (typeID == typeid(Transform).hash_code() || typeID == typeid(GlobalTransform).hash_code() ||
@@ -869,7 +777,6 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
         return;
     }
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -916,11 +823,16 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
     auto archetype = CreateEntityArchetypeHelper(newArchetypeInfo);
 #pragma endregion
 #pragma region Create new Entity with new archetype
-    const Entity newEntity = CreateEntity(archetype);
+    const Entity newEntity = CreateEntity(scene, archetype);
     // Transfer component data
     for (const auto &type : newArchetypeInfo.m_dataComponentTypes)
     {
-        SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
+        SetDataComponent(
+            scene,
+            newEntity.m_index,
+            type.m_typeId,
+            type.m_size,
+            GetDataComponentPointer(scene, entity, type.m_typeId));
     }
     // 5. Swap entity.
     EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
@@ -935,15 +847,15 @@ void EntityManager::RemoveDataComponent(const Entity &entity, const size_t &type
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
     scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
-    DeleteEntity(newEntity);
+    DeleteEntity(scene, newEntity);
 #pragma endregion
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data)
+void EntityManager::SetDataComponent(
+    const std::shared_ptr<Scene> &scene, const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -998,11 +910,11 @@ void EntityManager::SetDataComponent(const unsigned &entityIndex, size_t id, siz
     }
 }
 
-IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, const size_t &id)
+IDataComponent *EntityManager::GetDataComponentPointer(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return nullptr;
@@ -1043,7 +955,7 @@ IDataComponent *EntityManager::GetDataComponentPointer(const Entity &entity, con
 EntityArchetype EntityManager::CreateEntityArchetype(
     const std::string &name, const std::vector<DataComponentType> &types)
 {
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     EntityArchetypeInfo entityArchetypeInfo;
     entityArchetypeInfo.m_name = name;
     std::vector<DataComponentType> actualTypes;
@@ -1068,11 +980,11 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
 
-void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
+void EntityManager::SetPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
 {
     assert(ptr && entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1105,40 +1017,40 @@ void EntityManager::SetPrivateComponent(const Entity &entity, std::shared_ptr<IP
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func)
+void EntityManager::ForEachDescendantHelper(
+    const std::shared_ptr<Scene> &scene, const Entity &target, const std::function<void(const Entity &entity)> &func)
 {
     func(target);
-    ForEachChild(target, [&](Entity child) { ForEachDescendantHelper(child, func); });
+    ForEachChild(scene, target, [&](Entity child) { ForEachDescendantHelper(scene, child, func); });
 }
 
 EntityArchetype EntityManager::GetDefaultEntityArchetype()
 {
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     return entityManager.m_basicArchetype;
 }
 
 EntityArchetypeInfo EntityManager::GetArchetypeInfo(const EntityArchetype &entityArchetype)
 {
-    auto& entityManager = GetInstance();
+    auto &entityManager = GetInstance();
     return entityManager.m_entityArchetypeInfos[entityArchetype.m_index];
 }
 
-Entity EntityManager::GetRoot(const Entity &entity)
+Entity EntityManager::GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     Entity retVal = entity;
-    auto parent = GetParent(retVal);
+    auto parent = GetParent(scene, retVal);
     while (!parent.IsNull())
     {
         retVal = parent;
-        parent = GetParent(retVal);
+        parent = GetParent(scene, retVal);
     }
     return retVal;
 }
 
-Entity EntityManager::GetEntity(const size_t &index)
+Entity EntityManager::GetEntity(const std::shared_ptr<Scene> &scene, const size_t &index)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return {};
@@ -1148,11 +1060,10 @@ Entity EntityManager::GetEntity(const size_t &index)
     return {};
 }
 
-void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
+void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1172,11 +1083,10 @@ void EntityManager::RemovePrivateComponent(const Entity &entity, size_t typeId)
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(entity, typeId);
 }
 
-void EntityManager::SetEnable(const Entity &entity, const bool &value)
+void EntityManager::SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1199,16 +1109,15 @@ void EntityManager::SetEnable(const Entity &entity, const bool &value)
 
     for (const auto &i : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_children)
     {
-        SetEnable(i, value);
+        SetEnable(scene, i, value);
     }
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::SetEnableSingle(const Entity &entity, const bool &value)
+void EntityManager::SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1239,21 +1148,13 @@ EntityQuery EntityManager::CreateEntityQuery()
     retVal.m_index = entityManager.m_entityQueryInfos.size();
     const EntityQueryInfo info;
     entityManager.m_entityQueryInfos.push_back(info);
-    RefreshEntityQueryInfo(retVal.m_index);
     return retVal;
 }
 
-std::vector<DataComponentStorage *> EntityManager::UnsafeGetDataComponentStorage(const EntityQuery &entityQuery)
-{
-    assert(entityQuery.IsValid());
-    auto &entityManager = GetInstance();
-    return entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage;
-}
-
-void EntityManager::ForAllEntities(const std::function<void(int i, Entity entity)> &func)
+void EntityManager::ForAllEntities(
+    const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity)> &func)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1273,42 +1174,49 @@ std::string EntityManager::GetEntityArchetypeName(const EntityArchetype &entityA
     return entityManager.m_entityArchetypeInfos[entityArchetype.m_index].m_name;
 }
 
-void EntityManager::GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable)
+void EntityManager::GetEntityArray(
+    const std::shared_ptr<Scene> &scene,
+    const EntityQuery &entityQuery,
+    std::vector<Entity> &container,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    auto &entityManager = GetInstance();
-    for (const auto *i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        GetEntityStorage(*i, container, checkEnable);
+        GetEntityStorage(scene, i.get(), container, checkEnable);
     }
 }
 
-void EntityQuery::ToEntityArray(std::vector<Entity> &container, bool checkEnable) const
+void EntityQuery::ToEntityArray(
+    const std::shared_ptr<Scene> &scene, std::vector<Entity> &container, bool checkEnable) const
 {
-    EntityManager::GetEntityArray(*this, container, checkEnable);
+    EntityManager::GetEntityArray(scene, *this, container, checkEnable);
 }
 
-size_t EntityManager::GetEntityAmount(EntityQuery entityQuery, bool checkEnable)
+size_t EntityManager::GetEntityAmount(const std::shared_ptr<Scene> &scene, EntityQuery entityQuery, bool checkEnable)
 {
     assert(entityQuery.IsValid());
     size_t retVal = 0;
     auto &entityManager = GetInstance();
     if (checkEnable)
     {
-        for (auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+        auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+        for (const auto i : queriedStorages)
         {
-            for (int index = 0; index < i->m_entityAliveCount; index++)
+            for (int index = 0; index < i.get().m_entityAliveCount; index++)
             {
-                if (i->m_chunkArray.m_entities[index].IsEnabled())
+                if (i.get().m_chunkArray.m_entities[index].IsEnabled())
                     retVal++;
             }
         }
     }
     else
     {
-        for (auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+        auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+        for (const auto i : queriedStorages)
         {
-            retVal += i->m_entityAliveCount;
+            retVal += i.get().m_entityAliveCount;
         }
     }
     return retVal;
@@ -1318,16 +1226,16 @@ void EntityManager::SetEntityArchetypeName(const EntityArchetype &entityArchetyp
     auto &entityManager = GetInstance();
     entityManager.m_entityArchetypeInfos[entityArchetype.m_index].m_name = name;
 }
-std::vector<Entity> EntityManager::GetDescendants(const Entity &entity)
+std::vector<Entity> EntityManager::GetDescendants(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     std::vector<Entity> retVal;
-    GetDescendantsHelper(entity, retVal);
+    GetDescendantsHelper(scene, entity, retVal);
     return retVal;
 }
-void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entity> &results)
+void EntityManager::GetDescendantsHelper(
+    const std::shared_ptr<Scene> &scene, const Entity &target, std::vector<Entity> &results)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return;
@@ -1336,12 +1244,12 @@ void EntityManager::GetDescendantsHelper(const Entity &target, std::vector<Entit
     if (!children.empty())
         results.insert(results.end(), children.begin(), children.end());
     for (const auto &i : children)
-        GetDescendantsHelper(i, results);
+        GetDescendantsHelper(scene, i, results);
 }
-template <typename T> std::vector<Entity> EntityManager::GetPrivateComponentOwnersList()
+template <typename T>
+std::vector<Entity> EntityManager::GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return {};
@@ -1400,11 +1308,11 @@ EntityArchetype EntityManager::CreateEntityArchetypeHelper(const EntityArchetype
     return retVal;
 }
 
-std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const Entity &entity, const std::string &typeName)
+std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         throw 0;
@@ -1422,27 +1330,9 @@ std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const Entity
     throw 0;
 }
 
-void EntityManager::RefreshAllEntityQueryInfos()
+Entity EntityManager::GetEntity(const std::shared_ptr<Scene> &scene, const Handle &handle)
 {
     auto &entityManager = GetInstance();
-    for (size_t i = 1; i < entityManager.m_entityQueryInfos.size(); i++)
-    {
-        RefreshEntityQueryInfo(i);
-    }
-}
-
-void EntityManager::RefreshAllEntityArchetypeInfos()
-{
-    auto &entityManager = GetInstance();
-    for (size_t i = 1; i < entityManager.m_entityArchetypeInfos.size(); i++)
-    {
-        RefreshEntityArchetypeInfo(i);
-    }
-}
-Entity EntityManager::GetEntity(const Handle &handle)
-{
-    auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return {};
@@ -1454,11 +1344,11 @@ Entity EntityManager::GetEntity(const Handle &handle)
     }
     return {};
 }
-bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string &typeName)
+bool EntityManager::HasPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
     if (!scene)
     {
         return false;
@@ -1472,9 +1362,86 @@ bool EntityManager::HasPrivateComponent(const Entity &entity, const std::string 
     }
     return false;
 }
-
-size_t EntityQuery::GetEntityAmount(bool checkEnabled) const
+std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDataComponentStorages(
+    const std::shared_ptr<Scene> &scene, unsigned int entityQueryIndex)
 {
-    return EntityManager::GetEntityAmount(*this, checkEnabled);
+    auto &entityManager = GetInstance();
+    if (!scene)
+    {
+        return {};
+    }
+    auto &queryInfos = entityManager.m_entityQueryInfos.at(entityQueryIndex);
+    auto &entityComponentStorage = scene->m_sceneDataStorage.m_dataComponentStorages;
+    std::vector<std::reference_wrapper<DataComponentStorage>> queriedStorage;
+    // Select storage with every contained.
+    if (!queryInfos.m_allDataComponentTypes.empty())
+    {
+        for (int i = 0; i < entityComponentStorage.size(); i++)
+        {
+            auto &dataStorage = entityComponentStorage.at(i);
+            bool check = true;
+            for (const auto &type : queryInfos.m_allDataComponentTypes)
+            {
+                if (!dataStorage.HasType(type.m_typeId))
+                    check = false;
+            }
+            if (check)
+                queriedStorage.push_back(std::ref(dataStorage));
+        }
+    }
+    else
+    {
+        for (int i = 0; i < entityComponentStorage.size(); i++)
+        {
+            auto &dataStorage = entityComponentStorage.at(i);
+            queriedStorage.push_back(std::ref(dataStorage));
+        }
+    }
+    // Erase with any
+    if (!queryInfos.m_anyDataComponentTypes.empty())
+    {
+        for (int i = 0; i < queriedStorage.size(); i++)
+        {
+            bool contain = false;
+            for (const auto &type : queryInfos.m_anyDataComponentTypes)
+            {
+                if (queriedStorage.at(i).get().HasType(type.m_typeId))
+                    contain = true;
+                if (contain)
+                    break;
+            }
+            if (!contain)
+            {
+                queriedStorage.erase(queriedStorage.begin() + i);
+                i--;
+            }
+        }
+    }
+    // Erase with none
+    if (!queryInfos.m_noneDataComponentTypes.empty())
+    {
+        for (int i = 0; i < queriedStorage.size(); i++)
+        {
+            bool contain = false;
+            for (const auto &type : queryInfos.m_noneDataComponentTypes)
+            {
+                if (queriedStorage.at(i).get().HasType(type.m_typeId))
+                    contain = true;
+                if (contain)
+                    break;
+            }
+            if (contain)
+            {
+                queriedStorage.erase(queriedStorage.begin() + i);
+                i--;
+            }
+        }
+    }
+    return queriedStorage;
+}
+
+size_t EntityQuery::GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnabled) const
+{
+    return EntityManager::GetEntityAmount(scene, *this, checkEnabled);
 }
 #pragma endregion

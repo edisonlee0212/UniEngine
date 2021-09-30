@@ -41,10 +41,12 @@ struct UNIENGINE_API Entity final
     friend class SerializationManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
+    Handle m_sceneHandle = Handle(0);
 
   public:
+    [[nodiscard]] std::shared_ptr<Scene> GetOwner() const;
     [[nodiscard]] Handle GetHandle() const;
-
+    [[nodiscard]] Handle GetSceneHandle() const;
     [[nodiscard]] unsigned GetIndex() const;
     [[nodiscard]] unsigned GetVersion() const;
     bool operator==(const Entity &other) const;
@@ -83,21 +85,25 @@ struct UNIENGINE_API Entity final
 class UNIENGINE_API EntityRef : public ISerializable
 {
     Entity m_value = Entity();
+    Handle m_sceneHandle = Handle(0);
     Handle m_entityHandle = Handle(0);
     void Update();
 
   public:
     void Serialize(YAML::Emitter &out) override
     {
-      out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+        out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
+        out << YAML::Key << "m_sceneHandle" << YAML::Value << m_sceneHandle;
     }
     void Deserialize(const YAML::Node &in) override
     {
-      m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+        m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
+        m_sceneHandle = Handle(in["m_sceneHandle"].as<uint64_t>());
     }
     EntityRef()
     {
         m_entityHandle = Handle(0);
+        m_sceneHandle = Handle(0);
         m_value = Entity();
     }
     template <typename T = IAsset> EntityRef(const Entity &other)
@@ -116,17 +122,20 @@ class UNIENGINE_API EntityRef : public ISerializable
         return *this;
     }
 
-    void Relink(const std::unordered_map<Handle, Handle> &map)
+    void Relink(const std::unordered_map<Handle, Handle> &map, const Handle &newSceneHandle)
     {
-        if(m_entityHandle.GetValue() == 0) return;
+        if (m_entityHandle.GetValue() == 0)
+            return;
         auto search = map.find(m_entityHandle);
         if (search != map.end())
         {
             m_entityHandle = search->second;
+            m_sceneHandle = newSceneHandle;
             m_value = Entity();
         }
-        else
-            m_entityHandle = Handle(0);
+        else{
+            Clear();
+        }
     };
     [[nodiscard]] Entity Get()
     {
@@ -137,15 +146,21 @@ class UNIENGINE_API EntityRef : public ISerializable
     {
         return m_entityHandle;
     }
+    [[nodiscard]] Handle GetSceneHandle() const
+    {
+        return m_sceneHandle;
+    }
     void Set(const Entity &target);
     void Clear();
 
-    void Save(const std::string& name, YAML::Emitter &out){
+    void Save(const std::string &name, YAML::Emitter &out)
+    {
         out << YAML::Key << name << YAML::Value << YAML::BeginMap;
         Serialize(out);
         out << YAML::EndMap;
     }
-    void Load(const std::string& name, const YAML::Node &in){
+    void Load(const std::string &name, const YAML::Node &in)
+    {
         Deserialize(in[name]);
     }
 };
@@ -170,7 +185,6 @@ struct UNIENGINE_API DataComponentChunkArray
 struct UNIENGINE_API EntityArchetypeInfo
 {
     std::string m_name = "New Entity Archetype";
-    size_t m_dataComponentStorageIndex = 0;
     size_t m_entitySize = 0;
     size_t m_chunkCapacity = 0;
     std::vector<DataComponentType> m_dataComponentTypes;
@@ -195,23 +209,41 @@ struct UNIENGINE_API EntityQuery final
     template <typename T = IDataComponent, typename... Ts> void SetAllFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetAnyFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetNoneFilters(T arg, Ts... args);
-    template <typename T1 = IDataComponent> void ToComponentDataArray(std::vector<T1> &container, bool checkEnable = true);
+    template <typename T1 = IDataComponent>
+    void ToComponentDataArray(const std::shared_ptr<Scene> &scene, std::vector<T1> &container, bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable = true);
+    void ToComponentDataArray(
+        const std::shared_ptr<Scene> &scene,
+        std::vector<T1> &container,
+        const std::function<bool(const T2 &)> &filterFunc,
+        bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     void ToComponentDataArray(
-        std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable = true);
+        const std::shared_ptr<Scene> &scene,
+        std::vector<T1> &container,
+        const std::function<bool(const T2 &, const T3 &)> &filterFunc,
+        bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable = true);
-    void ToEntityArray(std::vector<Entity> &container, bool checkEnable = true) const;
-    template <typename T1 = IDataComponent> void ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable = true);
+    void ToComponentDataArray(
+        const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<T2> &container, bool checkEnable = true);
+    void ToEntityArray(
+        const std::shared_ptr<Scene> &scene, std::vector<Entity> &container, bool checkEnable = true) const;
     template <typename T1 = IDataComponent>
     void ToEntityArray(
-        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable = true);
+        const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<Entity> &container, bool checkEnable = true);
+    template <typename T1 = IDataComponent>
+    void ToEntityArray(
+        const std::shared_ptr<Scene> &scene,
+        std::vector<Entity> &container,
+        const std::function<bool(const Entity &, const T1 &)> &filterFunc,
+        bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     void ToEntityArray(
-        std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc, bool checkEnable = true);
-    [[nodiscard]] size_t GetEntityAmount(bool checkEnable = true) const;
+        const std::shared_ptr<Scene> &scene,
+        std::vector<Entity> &container,
+        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
+        bool checkEnable = true);
+    [[nodiscard]] size_t GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnable = true) const;
 };
 struct UNIENGINE_API DataComponentStorage
 {
@@ -229,10 +261,11 @@ struct UNIENGINE_API DataComponentStorage
 
 struct EntityQueryInfo
 {
+    size_t m_index = 0;
     std::vector<DataComponentType> m_allDataComponentTypes;
     std::vector<DataComponentType> m_anyDataComponentTypes;
     std::vector<DataComponentType> m_noneDataComponentTypes;
-    std::vector<DataComponentStorage *> m_queriedStorage;
+    std::vector<std::reference_wrapper<DataComponentStorage>> QueryStorage(const std::shared_ptr<Scene> &scenew);
 };
 #pragma endregion
 #pragma endregion

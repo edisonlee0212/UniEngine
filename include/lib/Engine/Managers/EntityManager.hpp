@@ -9,6 +9,8 @@
 #include <Scene.hpp>
 #include <SerializationManager.hpp>
 #include <Transform.hpp>
+#include <ISystem.hpp>
+
 
 namespace UniEngine
 {
@@ -60,51 +62,72 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts>
     static std::vector<DataComponentType> CollectDataComponentTypes(T arg, Ts... args);
-    static void DeleteEntityInternal(const Entity &entity);
+    static void DeleteEntityInternal(const std::shared_ptr<Scene> &scene, const Entity &entity);
 
-    static void RefreshAllEntityQueryInfos();
-    static void RefreshEntityQueryInfo(const size_t &index);
-    static void RefreshAllEntityArchetypeInfos();
-    static void RefreshEntityArchetypeInfo(const size_t &index);
+    static std::vector<std::reference_wrapper<DataComponentStorage>> QueryDataComponentStorages(
+        const std::shared_ptr<Scene> &scene, unsigned entityQueryIndex);
+    static std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> GetDataComponentStorage(
+        const std::shared_ptr<Scene> &scene, unsigned entityArchetypeIndex);
 
     static void EraseDuplicates(std::vector<DataComponentType> &types);
     template <typename T = IDataComponent>
     static void GetDataComponentArrayStorage(
-        const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable);
-    static void GetEntityStorage(const DataComponentStorage &storage, std::vector<Entity> &container, bool checkEnable);
-    static size_t SwapEntity(DataComponentStorage &storage, size_t index1, size_t index2);
-    static void SetEnableSingle(const Entity &entity, const bool &value);
-    static void SetDataComponent(const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data);
+        const std::shared_ptr<Scene> &scene,
+        const DataComponentStorage &storage,
+        std::vector<T> &container,
+        bool checkEnable);
+    static void GetEntityStorage(
+        const std::shared_ptr<Scene> &scene,
+        const DataComponentStorage &storage,
+        std::vector<Entity> &container,
+        bool checkEnable);
+    static size_t SwapEntity(
+        const std::shared_ptr<Scene> &scene, DataComponentStorage &storage, size_t index1, size_t index2);
+    static void SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
+    static void SetDataComponent(
+        const std::shared_ptr<Scene> &scene, const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data);
     friend class SerializationManager;
-    static IDataComponent *GetDataComponentPointer(const Entity &entity, const size_t &id);
+    static IDataComponent *GetDataComponentPointer(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id);
     static EntityArchetype CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types);
 
-    static void SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr);
+    static void SetPrivateComponent(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, std::shared_ptr<IPrivateComponent> ptr);
 
-    static void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
-    static void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
+    static void ForEachDescendantHelper(
+        const std::shared_ptr<Scene> &scene,
+        const Entity &target,
+        const std::function<void(const Entity &entity)> &func);
+    static void GetDescendantsHelper(
+        const std::shared_ptr<Scene> &scene, const Entity &target, std::vector<Entity> &results);
 
-    static void RemoveDataComponent(const Entity &entity, const size_t &typeID);
-    template <typename T = IDataComponent> static T GetDataComponent(const size_t &index);
-    template <typename T = IDataComponent> static bool HasDataComponent(const size_t &index);
-    template <typename T = IDataComponent> static void SetDataComponent(const size_t &index, const T &value);
+    static void RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &typeID);
+    template <typename T = IDataComponent>
+    static T GetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index);
+    template <typename T = IDataComponent>
+    static bool HasDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index);
+    template <typename T = IDataComponent>
+    static void SetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index, const T &value);
 
 #pragma endregion
 #pragma region ForEach
     template <typename T1 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &)> &func,
         bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
@@ -115,6 +138,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T3 = IDataComponent,
         typename T4 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
@@ -126,6 +150,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T4 = IDataComponent,
         typename T5 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
@@ -138,6 +163,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T5 = IDataComponent,
         typename T6 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
@@ -151,6 +177,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T6 = IDataComponent,
         typename T7 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
@@ -165,6 +192,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T7 = IDataComponent,
         typename T8 = IDataComponent>
     static void ForEachStorage(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const DataComponentStorage &storage,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
@@ -174,34 +202,52 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma region Entity methods
     // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
     // entity.
-    static void SetEnable(const Entity &entity, const bool &value);
+    static void SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
 
-    static Entity GetRoot(const Entity &entity);
-    static std::string GetEntityName(const Entity &entity);
-    static void SetEntityName(const Entity &entity, const std::string &name);
-    static void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform);
-    static Entity GetParent(const Entity &entity);
-    static std::vector<Entity> GetChildren(const Entity &entity);
-    static Entity GetChild(const Entity &entity, int index);
-    static size_t GetChildrenAmount(const Entity &entity);
-    static void ForEachChild(const Entity &entity, const std::function<void(Entity child)> &func);
-    static void RemoveChild(const Entity &entity, const Entity &parent);
-    static std::vector<Entity> GetDescendants(const Entity &entity);
+    static Entity GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::string GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static void SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name);
+    static void SetParent(
+        const std::shared_ptr<Scene> &scene,
+        const Entity &entity,
+        const Entity &parent,
+        const bool &recalculateTransform);
+    static Entity GetParent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::vector<Entity> GetChildren(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static Entity GetChild(const std::shared_ptr<Scene> &scene, const Entity &entity, int index);
+    static size_t GetChildrenAmount(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static void ForEachChild(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(Entity child)> &func);
+    static void RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent);
+    static std::vector<Entity> GetDescendants(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static void ForEachDescendant(
-        const Entity &target, const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true);
+        const std::shared_ptr<Scene> &scene,
+        const Entity &target,
+        const std::function<void(const Entity &entity)> &func,
+        const bool &fromRoot = true);
 
-    template <typename T = IDataComponent> static void AddDataComponent(const Entity &entity, const T &value);
-    template <typename T = IDataComponent> static void RemoveDataComponent(const Entity &entity);
-    template <typename T = IDataComponent> static void SetDataComponent(const Entity &entity, const T &value);
-    template <typename T = IDataComponent> static T GetDataComponent(const Entity &entity);
-    template <typename T = IDataComponent> static bool HasDataComponent(const Entity &entity);
+    template <typename T = IDataComponent>
+    static void AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
+    template <typename T = IDataComponent>
+    static void RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IDataComponent>
+    static void SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
+    template <typename T = IDataComponent>
+    static T GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IDataComponent>
+    static bool HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
 
-    template <typename T = IPrivateComponent> static std::weak_ptr<T> GetOrSetPrivateComponent(const Entity &entity);
-    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(const Entity &entity, const std::string &typeName);
+    template <typename T = IPrivateComponent>
+    static std::weak_ptr<T> GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
 
-    template <typename T = IPrivateComponent> static void RemovePrivateComponent(const Entity &entity);
-    template <typename T = IPrivateComponent> static bool HasPrivateComponent(const Entity &entity);
-    static bool HasPrivateComponent(const Entity &entity, const std::string &typeName);
+    template <typename T = IPrivateComponent>
+    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IPrivateComponent>
+    static bool HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static bool HasPrivateComponent(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
 #pragma endregion
 #pragma region EntityArchetype Methods
     static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
@@ -209,50 +255,78 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma endregion
 #pragma region EntityQuery Methods
     template <typename T = IDataComponent, typename... Ts>
-    static void SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args);
+    static void SetEntityQueryAllFilters(
+        const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts>
-    static void SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args);
+    static void SetEntityQueryAnyFilters(
+        const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts>
-    static void SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args);
+    static void SetEntityQueryNoneFilters(
+        const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args);
     template <typename T = IDataComponent>
-    static void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable);
+    static void GetComponentDataArray(
+        const std::shared_ptr<Scene> &scene,
+        const EntityQuery &entityQuery,
+        std::vector<T> &container,
+        bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(
+        const std::shared_ptr<Scene> &scene,
         const EntityQuery &entityQuery,
         std::vector<T1> &container,
         const std::function<bool(const T2 &)> &filterFunc,
         bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void GetComponentDataArray(
+        const std::shared_ptr<Scene> &scene,
         const EntityQuery &entityQuery,
         std::vector<T1> &container,
         const std::function<bool(const T2 &, const T3 &)> &filterFunc,
         bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetComponentDataArray(
-        const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable);
-    static void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable);
+        const std::shared_ptr<Scene> &scene,
+        const EntityQuery &entityQuery,
+        const T1 &filter,
+        std::vector<T2> &container,
+        bool checkEnable);
+    static void GetEntityArray(
+        const std::shared_ptr<Scene> &scene,
+        const EntityQuery &entityQuery,
+        std::vector<Entity> &container,
+        bool checkEnable);
     template <typename T1 = IDataComponent>
     static void GetEntityArray(
+        const std::shared_ptr<Scene> &scene,
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
         const std::function<bool(const Entity &, const T1 &)> &filterFunc,
         bool checkEnable);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void GetEntityArray(
+        const std::shared_ptr<Scene> &scene,
         const EntityQuery &entityQuery,
         std::vector<Entity> &container,
         const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
         bool checkEnable);
     template <typename T1 = IDataComponent>
     static void GetEntityArray(
-        const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable);
-    static size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable);
+        const std::shared_ptr<Scene> &scene,
+        const EntityQuery &entityQuery,
+        const T1 &filter,
+        std::vector<Entity> &container,
+        bool checkEnable);
+    static size_t GetEntityAmount(const std::shared_ptr<Scene> &scene, EntityQuery entityQuery, bool checkEnable);
 #pragma endregion
   public:
-    static void RemovePrivateComponent(const Entity &entity, size_t typeId);
+    static std::vector<std::reference_wrapper<DataComponentStorage>> QueryDataComponentStorages(
+        const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery);
+    static std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> GetDataComponentStorage(
+        const std::shared_ptr<Scene> &scene, const EntityArchetype &entityArchetype);
 
-    static Entity GetEntity(const Handle &handle);
+    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId);
+
+    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const Handle &handle);
 
     static EntityArchetype GetDefaultEntityArchetype();
 
@@ -262,12 +336,13 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      * \brief Unsafe method, retrieve the internal storage of the entities.
      * \return A pointer to the internal storage for all arrays.
      */
-    static std::vector<Entity> *UnsafeGetAllEntities();
-
-    static std::vector<DataComponentStorage *> UnsafeGetDataComponentStorage(const EntityQuery &entityQuery);
+    static std::vector<Entity> *UnsafeGetAllEntities(const std::shared_ptr<Scene> &scene);
     static void UnsafeForEachDataComponent(
-        const Entity &entity, const std::function<void(const DataComponentType &type, void *data)> &func);
+        const std::shared_ptr<Scene> &scene,
+        const Entity &entity,
+        const std::function<void(const DataComponentType &type, void *data)> &func);
     static void UnsafeForEachEntityStorage(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, const std::string &name, const DataComponentStorage &storage)> &func);
 
     /**
@@ -278,44 +353,58 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
      * to the first data instance and the size indicates the amount of data instances.
      */
     template <typename T>
-    static std::vector<std::pair<T *, size_t>> UnsafeGetDataComponentArray(const EntityQuery &entityQuery);
-    template <typename T> static const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList();
+    static std::vector<std::pair<T *, size_t>> UnsafeGetDataComponentArray(
+        const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery);
+    template <typename T>
+    static const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene);
 #pragma endregion
     static size_t GetArchetypeChunkSize();
     static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype &entityArchetype);
-    static Entity GetEntity(const size_t &index);
-    template <typename T> static std::vector<Entity> GetPrivateComponentOwnersList();
+    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const size_t &index);
+    template <typename T> static std::vector<Entity> GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene);
     static void ForEachPrivateComponent(
-        const Entity &entity, const std::function<void(PrivateComponentElement &data)> &func);
-    static void GetAllEntities(std::vector<Entity> &target);
+        const std::shared_ptr<Scene> &scene,
+        const Entity &entity,
+        const std::function<void(PrivateComponentElement &data)> &func);
+    static void GetAllEntities(const std::shared_ptr<Scene> &scene, std::vector<Entity> &target);
     static void Attach(const std::shared_ptr<Scene> &scene);
     static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
 
     template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
-    static Entity CreateEntity(const std::string &name = "New Entity");
+    static Entity CreateEntity(const std::shared_ptr<Scene> &scene, const std::string &name = "New Entity");
     static Entity CreateEntity(
-        const EntityArchetype &archetype, const std::string &name = "New Entity", const Handle &handle = Handle());
+        const std::shared_ptr<Scene> &scene,
+        const EntityArchetype &archetype,
+        const std::string &name = "New Entity",
+        const Handle &handle = Handle());
     static std::vector<Entity> CreateEntities(
-        const EntityArchetype &archetype, const size_t &amount, const std::string &name = "New Entity");
-    static std::vector<Entity> CreateEntities(const size_t &amount, const std::string &name = "New Entity");
-    static void DeleteEntity(const Entity &entity);
+        const std::shared_ptr<Scene> &scene,
+        const EntityArchetype &archetype,
+        const size_t &amount,
+        const std::string &name = "New Entity");
+    static std::vector<Entity> CreateEntities(
+        const std::shared_ptr<Scene> &scene, const size_t &amount, const std::string &name = "New Entity");
+    static void DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static EntityQuery CreateEntityQuery();
 #pragma region For Each
     template <typename T1 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &)> &func,
         bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
@@ -326,6 +415,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T3 = IDataComponent,
         typename T4 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
@@ -337,6 +427,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T4 = IDataComponent,
         typename T5 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
@@ -349,6 +440,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T5 = IDataComponent,
         typename T6 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
@@ -362,6 +454,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T6 = IDataComponent,
         typename T7 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
@@ -376,6 +469,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T7 = IDataComponent,
         typename T8 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const EntityQuery &entityQuery,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
@@ -383,14 +477,19 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     // For implicit parallel task dispatching
     template <typename T1 = IDataComponent>
     static void ForEach(
-        ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &)> &func, bool checkEnable = true);
+        const std::shared_ptr<Scene> &scene,
+        ThreadPool &workers,
+        const std::function<void(int i, Entity entity, T1 &)> &func,
+        bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
         bool checkEnable = true);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
         bool checkEnable = true);
@@ -400,6 +499,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T3 = IDataComponent,
         typename T4 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
         bool checkEnable = true);
@@ -410,6 +510,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T4 = IDataComponent,
         typename T5 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
         bool checkEnable = true);
@@ -421,6 +522,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T5 = IDataComponent,
         typename T6 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
         bool checkEnable = true);
@@ -433,6 +535,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T6 = IDataComponent,
         typename T7 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
         bool checkEnable = true);
@@ -446,6 +549,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T7 = IDataComponent,
         typename T8 = IDataComponent>
     static void ForEach(
+        const std::shared_ptr<Scene> &scene,
         ThreadPool &workers,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
         bool checkEnable = true);
@@ -453,19 +557,20 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     // For explicit parallel task dispatching
     template <typename T1 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
-        const std::function<void(int i, Entity entity, T1 &)> &func);
+        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &)> &func);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
-        const std::function<void(int i, Entity entity, T1 &, T2 &)> &func);
+        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &)> &func);
     template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
-        const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func);
+        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func);
     template <
         typename T1 = IDataComponent,
         typename T2 = IDataComponent,
         typename T3 = IDataComponent,
         typename T4 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func);
     template <
         typename T1 = IDataComponent,
@@ -474,6 +579,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T4 = IDataComponent,
         typename T5 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func);
     template <
         typename T1 = IDataComponent,
@@ -483,6 +589,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T5 = IDataComponent,
         typename T6 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func);
     template <
         typename T1 = IDataComponent,
@@ -493,6 +600,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T6 = IDataComponent,
         typename T7 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func);
     template <
         typename T1 = IDataComponent,
@@ -504,19 +612,19 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         typename T7 = IDataComponent,
         typename T8 = IDataComponent>
     static std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> CreateParallelTask(
+        const std::shared_ptr<Scene> &scene,
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func);
 
 #pragma endregion
-    static void ForAllEntities(const std::function<void(int i, Entity entity)> &func);
+    static void ForAllEntities(
+        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity)> &func);
     static std::shared_ptr<Scene> GetCurrentScene();
 
     static void Init();
 
     template <typename T = ISystem>
     static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &order);
-    template <typename T = ISystem> static std::shared_ptr<T> GetOrCreateSystem(const float &order);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
-    template <typename T = ISystem> static std::shared_ptr<T> GetSystem();
 };
 
 
@@ -530,14 +638,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_pt
         return std::dynamic_pointer_cast<T>(search->second);
     return nullptr;
 }
-template <typename T> std::shared_ptr<T> EntityManager::GetSystem()
-{
-    auto scene = GetCurrentScene();
-    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
-    if (search != scene->m_indexedSystems.end())
-        return std::dynamic_pointer_cast<T>(search->second);
-    return nullptr;
-}
+
 template <typename T>
 std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &rank)
 {
@@ -555,11 +656,6 @@ std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene
     system->OnCreate();
     scene->m_saved = false;
     return ptr;
-}
-template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(const float &rank)
-{
-    auto scene = GetCurrentScene();
-    return GetOrCreateSystem<T>(scene, rank);
 }
 
 #pragma region Collectors
@@ -613,13 +709,14 @@ std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, T
 #pragma region ForEachStorage
 template <typename T1>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -680,13 +777,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -757,13 +855,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -844,13 +943,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3, typename T4>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -951,13 +1051,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1068,13 +1169,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1196,13 +1298,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1335,13 +1438,14 @@ void EntityManager::ForEachStorage(
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 void EntityManager::ForEachStorage(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1487,10 +1591,13 @@ void EntityManager::ForEachStorage(
 #pragma region Others
 template <typename T>
 void EntityManager::GetDataComponentArrayStorage(
-    const DataComponentStorage &storage, std::vector<T> &container, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    const DataComponentStorage &storage,
+    std::vector<T> &container,
+    bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1598,15 +1705,15 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
     info.m_entitySize = info.m_dataComponentTypes.back().m_offset + info.m_dataComponentTypes.back().m_size;
     info.m_chunkCapacity = GetInstance().m_archetypeChunkSize / info.m_entitySize;
     retVal = CreateEntityArchetypeHelper(info);
-    RefreshAllEntityArchetypeInfos();
     return retVal;
 }
 #pragma endregion
 #pragma region GetSetHas
-template <typename T> void EntityManager::AddDataComponent(const Entity &entity, const T &value)
+template <typename T>
+void EntityManager::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1657,11 +1764,16 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
     auto archetype = CreateEntityArchetypeHelper(newArchetypeInfo);
 #pragma endregion
 #pragma region Create new Entity with new archetype.
-    Entity newEntity = CreateEntity(archetype);
+    Entity newEntity = CreateEntity(scene, archetype);
     // Transfer component data
     for (const auto &type : originalComponentTypes)
     {
-        SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
+        SetDataComponent(
+            scene,
+            newEntity.m_index,
+            type.m_typeId,
+            type.m_size,
+            GetDataComponentPointer(scene, entity, type.m_typeId));
     }
     newEntity.SetDataComponent(value);
     // 5. Swap entity.
@@ -1677,14 +1789,14 @@ template <typename T> void EntityManager::AddDataComponent(const Entity &entity,
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
     scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
-    DeleteEntity(newEntity);
+    DeleteEntity(scene, newEntity);
 #pragma endregion
 }
 
-template <typename T> void EntityManager::RemoveDataComponent(const Entity &entity)
+template <typename T> void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1739,11 +1851,16 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
     auto archetype = CreateEntityArchetypeHelper(newArchetypeInfo);
 #pragma endregion
 #pragma region Create new Entity with new archetype
-    const Entity newEntity = CreateEntity(archetype);
+    const Entity newEntity = CreateEntity(scene, archetype);
     // Transfer component data
     for (const auto &type : newArchetypeInfo.m_dataComponentTypes)
     {
-        SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
+        SetDataComponent(
+            scene,
+            newEntity.m_index,
+            type.m_typeId,
+            type.m_size,
+            GetDataComponentPointer(scene, entity, type.m_typeId));
     }
     T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
@@ -1759,32 +1876,34 @@ template <typename T> void EntityManager::RemoveDataComponent(const Entity &enti
         .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
     scene->m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
-    DeleteEntity(newEntity);
+    DeleteEntity(scene, newEntity);
 #pragma endregion
     return;
 }
 
-template <typename T> void EntityManager::SetDataComponent(const Entity &entity, const T &value)
+template <typename T>
+void EntityManager::SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
 {
     assert(entity.IsValid());
-    SetDataComponent(entity.m_index, typeid(T).hash_code(), sizeof(T), (IDataComponent *)&value);
+    SetDataComponent(scene, entity.m_index, typeid(T).hash_code(), sizeof(T), (IDataComponent *)&value);
 }
-template <typename T> void EntityManager::SetDataComponent(const size_t &index, const T &value)
+template <typename T>
+void EntityManager::SetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index, const T &value)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
     }
     const size_t id = typeid(T).hash_code();
     assert(index < scene->m_sceneDataStorage.m_entityInfos.size());
-    SetDataComponent(index, id, sizeof(T), (IDataComponent *)&value);
+    SetDataComponent(scene, index, id, sizeof(T), (IDataComponent *)&value);
 }
-template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
+template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return T();
@@ -1823,10 +1942,10 @@ template <typename T> T EntityManager::GetDataComponent(const Entity &entity)
     UNIENGINE_LOG("ComponentData doesn't exist");
     return T();
 }
-template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
+template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return false;
@@ -1857,10 +1976,10 @@ template <typename T> bool EntityManager::HasDataComponent(const Entity &entity)
     }
     return false;
 }
-template <typename T> T EntityManager::GetDataComponent(const size_t &index)
+template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return T();
@@ -1901,10 +2020,10 @@ template <typename T> T EntityManager::GetDataComponent(const size_t &index)
     UNIENGINE_LOG("ComponentData doesn't exist");
     return T();
 }
-template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
+template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return false;
@@ -1938,10 +2057,11 @@ template <typename T> bool EntityManager::HasDataComponent(const size_t &index)
     return false;
 }
 
-template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const Entity &entity)
+template <typename T>
+std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         throw 0;
@@ -1964,10 +2084,11 @@ template <typename T> std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(c
     entityManager.m_scene->m_saved = false;
     return std::move(ptr);
 }
-template <typename T> void EntityManager::RemovePrivateComponent(const Entity &entity)
+template <typename T>
+void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -1987,10 +2108,10 @@ template <typename T> void EntityManager::RemovePrivateComponent(const Entity &e
     }
 }
 
-template <typename T> bool EntityManager::HasPrivateComponent(const Entity &entity)
+template <typename T> bool EntityManager::HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return false;
@@ -2007,35 +2128,36 @@ template <typename T> bool EntityManager::HasPrivateComponent(const Entity &enti
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void EntityManager::SetEntityQueryAllFilters(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_allDataComponentTypes =
         CollectDataComponentTypes(arg, args...);
-    RefreshEntityQueryInfo(entityQuery.m_index);
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void EntityManager::SetEntityQueryAnyFilters(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_anyDataComponentTypes =
         CollectDataComponentTypes(arg, args...);
-    RefreshEntityQueryInfo(entityQuery.m_index);
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void EntityManager::SetEntityQueryNoneFilters(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_noneDataComponentTypes =
         CollectDataComponentTypes(arg, args...);
-    RefreshEntityQueryInfo(entityQuery.m_index);
 }
 #pragma endregion
 #pragma region For Each
 template <typename T1>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &)> &func,
@@ -2043,13 +2165,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
@@ -2057,13 +2181,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
@@ -2071,13 +2197,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
@@ -2085,13 +2213,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
@@ -2099,13 +2229,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
@@ -2113,13 +2245,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
@@ -2127,13 +2261,15 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
@@ -2141,18 +2277,22 @@ void EntityManager::ForEach(
 {
     assert(entityQuery.IsValid());
     auto entityManager = GetInstance();
-    for (const auto i : entityManager.m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, i.get(), func, checkEnable);
     }
 }
 
 template <typename T1>
 void EntityManager::ForEach(
-    ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &)> &func, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    ThreadPool &workers,
+    const std::function<void(int i, Entity entity, T1 &)> &func,
+    bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2161,16 +2301,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2>
 void EntityManager::ForEach(
-    ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &, T2 &)> &func, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    ThreadPool &workers,
+    const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
+    bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2179,16 +2322,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3>
 void EntityManager::ForEach(
-    ThreadPool &workers, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    ThreadPool &workers,
+    const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
+    bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2197,18 +2343,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2217,18 +2364,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2237,18 +2385,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2257,18 +2406,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2277,18 +2427,19 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 void EntityManager::ForEach(
+    const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
     bool checkEnable)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return;
@@ -2297,20 +2448,21 @@ void EntityManager::ForEach(
     auto &storages = scene->m_sceneDataStorage.m_dataComponentStorages;
     for (auto i = storages.begin() + 1; i < storages.end(); ++i)
     {
-        ForEachStorage(workers, *i, func, checkEnable);
+        ForEachStorage(scene, workers, *i, func, checkEnable);
     }
 }
 
 template <typename T1>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
-    const std::function<void(int i, Entity entity, T1 &)> &func)
+    const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2318,14 +2470,15 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
-    const std::function<void(int i, Entity entity, T1 &, T2 &)> &func)
+    const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2333,14 +2486,15 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
-    const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func)
+    const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2348,14 +2502,15 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3, typename T4>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
-    const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func)
+    const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2363,14 +2518,16 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+    const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2378,14 +2535,16 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+    const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2393,14 +2552,16 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+    const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
@@ -2408,31 +2569,36 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+    const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
-        [func](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
+        [&](ThreadPool &workers, const EntityQuery &entityQuery, bool checkEnable) {
             assert(entityQuery.IsValid());
-            for (const auto i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+            auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+            for (const auto i : queriedStorages)
             {
-                ForEachStorage(workers, *i, func, checkEnable);
+                ForEachStorage(scene, workers, i.get(), func, checkEnable);
             }
         });
     return task;
 }
 #pragma endregion
 template <typename T>
-void EntityManager::GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable)
+void EntityManager::GetComponentDataArray(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
-    for (const auto *i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto i : queriedStorages)
     {
-        GetDataComponentArrayStorage(*i, container, checkEnable);
+        GetDataComponentArrayStorage(scene, i.get(), container, checkEnable);
     }
 }
 
 template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(
+    const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
     const std::function<bool(const T2 &)> &filterFunc,
@@ -2493,6 +2659,7 @@ void EntityManager::GetComponentDataArray(
 
 template <typename T1, typename T2, typename T3>
 void EntityManager::GetComponentDataArray(
+    const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
     const std::function<bool(const T2 &, const T3 &)> &filterFunc,
@@ -2561,7 +2728,11 @@ void EntityManager::GetComponentDataArray(
 
 template <typename T1, typename T2>
 void EntityManager::GetComponentDataArray(
-    const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    const EntityQuery &entityQuery,
+    const T1 &filter,
+    std::vector<T2> &container,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<T1> componentDataList;
@@ -2617,6 +2788,7 @@ void EntityManager::GetComponentDataArray(
 
 template <typename T1>
 void EntityManager::GetEntityArray(
+    const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
     const std::function<bool(const Entity &, const T1 &)> &filterFunc,
@@ -2625,7 +2797,7 @@ void EntityManager::GetEntityArray(
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
-    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetEntityArray(scene, entityQuery, allEntities, checkEnable);
     GetComponentDataArray(entityQuery, componentDataList, checkEnable);
     if (allEntities.size() != componentDataList.size())
         return;
@@ -2676,6 +2848,7 @@ void EntityManager::GetEntityArray(
 
 template <typename T1, typename T2>
 void EntityManager::GetEntityArray(
+    const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
     const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
@@ -2685,7 +2858,7 @@ void EntityManager::GetEntityArray(
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList1;
     std::vector<T2> componentDataList2;
-    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetEntityArray(scene, entityQuery, allEntities, checkEnable);
     GetComponentDataArray(entityQuery, componentDataList1, checkEnable);
     GetComponentDataArray(entityQuery, componentDataList2, checkEnable);
     if (allEntities.size() != componentDataList1.size() || componentDataList1.size() != componentDataList2.size())
@@ -2742,12 +2915,16 @@ void EntityManager::GetEntityArray(
 
 template <typename T1>
 void EntityManager::GetEntityArray(
-    const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    const EntityQuery &entityQuery,
+    const T1 &filter,
+    std::vector<Entity> &container,
+    bool checkEnable)
 {
     assert(entityQuery.IsValid());
     std::vector<Entity> allEntities;
     std::vector<T1> componentDataList;
-    GetEntityArray(entityQuery, allEntities, checkEnable);
+    GetEntityArray(scene, entityQuery, allEntities, checkEnable);
     GetComponentDataArray(entityQuery, componentDataList, checkEnable);
     std::vector<std::shared_future<void>> futures;
     size_t size = allEntities.size();
@@ -2795,16 +2972,19 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T>
-std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(const EntityQuery &entityQuery)
+std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(
+    const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery)
 {
     std::vector<std::pair<T *, size_t>> retVal;
     assert(entityQuery.IsValid());
-    for (const auto &i : GetInstance().m_entityQueryInfos[entityQuery.m_index].m_queriedStorage)
+    auto queriedStorages = QueryDataComponentStorages(scene, entityQuery);
+    for (const auto storage : queriedStorages)
     {
+        auto& i = storage.get();
         auto targetType = Typeof<T>();
-        const auto entityCount = i->m_entityAliveCount;
+        const auto entityCount = i.m_entityAliveCount;
         auto found = false;
-        for (const auto &type : i->m_dataComponentTypes)
+        for (const auto &type : i.m_dataComponentTypes)
         {
             if (type.m_typeId == targetType.m_typeId)
             {
@@ -2814,8 +2994,8 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(c
         }
         if (!found)
             continue;
-        const auto capacity = i->m_chunkCapacity;
-        const auto &chunkArray = i->m_chunkArray;
+        const auto capacity = i.m_chunkCapacity;
+        const auto &chunkArray = i.m_chunkArray;
         const auto chunkSize = entityCount / capacity;
         const auto chunkReminder = entityCount % capacity;
         for (int chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++)
@@ -2834,10 +3014,11 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(c
     return retVal;
 }
 
-template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList()
+template <typename T>
+const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
-    auto scene = entityManager.m_scene;
+
     if (!scene)
     {
         return nullptr;
@@ -2847,7 +3028,7 @@ template <typename T> const std::vector<Entity> *EntityManager::UnsafeGetPrivate
 
 template <typename T> void Entity::SetDataComponent(const T &value) const
 {
-    EntityManager::SetDataComponent(*this, value);
+    EntityManager::SetDataComponent(GetOwner(), *this, value);
 }
 
 template <typename T> T Entity::GetDataComponent() const
@@ -2900,50 +3081,64 @@ template <typename T, typename... Ts> void EntityQuery::SetNoneFilters(T arg, Ts
     EntityManager::SetEntityQueryNoneFilters(*this, arg, args...);
 }
 
-template <typename T1> void EntityQuery::ToComponentDataArray(std::vector<T1> &container, bool checkEnable)
+template <typename T1>
+void EntityQuery::ToComponentDataArray(
+    const std::shared_ptr<Scene> &scene, std::vector<T1> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray<T1>(*this, container, checkEnable);
+    EntityManager::GetComponentDataArray<T1>(scene, *this, container, checkEnable);
 }
 
 template <typename T1, typename T2>
 void EntityQuery::ToComponentDataArray(
-    std::vector<T1> &container, const std::function<bool(const T2 &)> &filterFunc, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    std::vector<T1> &container,
+    const std::function<bool(const T2 &)> &filterFunc,
+    bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
+    EntityManager::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2, typename T3>
 void EntityQuery::ToComponentDataArray(
-    std::vector<T1> &container, const std::function<bool(const T2 &, const T3 &)> &filterFunc, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    std::vector<T1> &container,
+    const std::function<bool(const T2 &, const T3 &)> &filterFunc,
+    bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, container, filterFunc, checkEnable);
+    EntityManager::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2>
-void EntityQuery::ToComponentDataArray(const T1 &filter, std::vector<T2> &container, bool checkEnable)
+void EntityQuery::ToComponentDataArray(
+    const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(*this, filter, container, checkEnable);
+    EntityManager::GetComponentDataArray(scene, *this, filter, container, checkEnable);
 }
 template <typename T1>
-void EntityQuery::ToEntityArray(const T1 &filter, std::vector<Entity> &container, bool checkEnable)
+void EntityQuery::ToEntityArray(
+    const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
-    EntityManager::GetEntityArray(*this, filter, container, checkEnable);
+    EntityManager::GetEntityArray(scene, *this, filter, container, checkEnable);
 }
 
 template <typename T1>
 void EntityQuery::ToEntityArray(
-    std::vector<Entity> &container, const std::function<bool(const Entity &, const T1 &)> &filterFunc, bool checkEnable)
+    const std::shared_ptr<Scene> &scene,
+    std::vector<Entity> &container,
+    const std::function<bool(const Entity &, const T1 &)> &filterFunc,
+    bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(*this, container, filterFunc, checkEnable);
+    EntityManager::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2>
 void EntityQuery::ToEntityArray(
+    const std::shared_ptr<Scene> &scene,
     std::vector<Entity> &container,
     const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
     bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(*this, container, filterFunc, checkEnable);
+    EntityManager::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
 }
 #pragma endregion
 
