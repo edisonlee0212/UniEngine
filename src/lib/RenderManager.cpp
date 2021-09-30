@@ -68,6 +68,8 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     auto &renderManager = GetInstance();
     auto sceneBound = EntityManager::GetCurrentScene()->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
+    ApplyShadowMapSettings();
+    ApplyEnvironmentalSettings(cameraComponent);
     glEnable(GL_DEPTH_TEST);
     cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
@@ -305,8 +307,7 @@ void RenderManager::LateUpdate()
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
                 Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-                ApplyShadowMapSettings();
-                ApplyEnvironmentalSettings(cameraComponent);
+
                 RenderToCamera(cameraComponent, cameraEntity.GetDataComponent<GlobalTransform>());
             }
         }

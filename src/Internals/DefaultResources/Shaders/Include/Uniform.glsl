@@ -436,7 +436,7 @@ float UE_FUNC_DIRECTIONAL_LIGHT_SHADOW(int i, int splitIndex, vec3 fragPos, vec3
 	if(blockers == 0) return 1.0;
 	float blockerDistance = avgDistance / blockers;
 	float penumbraWidth = (projCoords.z - blockerDistance) / blockerDistance * lightSize;
-	float texelSize = penumbraWidth * UE_DIRECTIONAL_LIGHTS[i].ReservedParameters.x / UE_DIRECTIONAL_LIGHTS[i].lightFrustumWidth[splitIndex] * UE_DIRECTIONAL_LIGHTS[i].lightFrustumDistance[splitIndex] / 100.0;
+	float texelSize = penumbraWidth * light.ReservedParameters.x / light.lightFrustumWidth[splitIndex] * light.lightFrustumDistance[splitIndex] / 100.0;
 	
 	int shadowCount = 0;
 	sampleAmount = UE_SHADOW_SAMPLE_SIZE;
