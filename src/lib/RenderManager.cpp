@@ -1213,7 +1213,8 @@ void RenderManager::RenderShadows(
 {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     auto &renderManager = GetInstance();
 #pragma region Shadow
     auto &minBound = worldBound.m_min;
