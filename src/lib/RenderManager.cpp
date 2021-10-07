@@ -294,7 +294,8 @@ void RenderManager::LateUpdate()
         if (mainCamera->m_allowAutoResize)
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
     }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *cameraEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
     if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
@@ -487,12 +488,17 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
     {
         cameraPairs.emplace_back(editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition);
     }
-    const std::vector<Entity> *cameraEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
-    if(cameraEntities){
-        for(const auto& i : *cameraEntities){
-            if(!i.IsEnabled()) continue;
+    const std::vector<Entity> *cameraEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
+    if (cameraEntities)
+    {
+        for (const auto &i : *cameraEntities)
+        {
+            if (!i.IsEnabled())
+                continue;
             auto camera = i.GetOrSetPrivateComponent<Camera>().lock();
-            if(!camera || !camera->IsEnabled()) continue;
+            if (!camera || !camera->IsEnabled())
+                continue;
             cameraPairs.emplace_back(camera, i.GetDataComponent<GlobalTransform>().GetPosition());
         }
     }
@@ -501,7 +507,8 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
     minBound = glm::vec3(INT_MAX);
     maxBound = glm::vec3(INT_MIN);
 
-    const std::vector<Entity> *owners = EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *owners =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(EntityManager::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -1444,7 +1451,8 @@ void RenderManager::RenderShadows(
     {
         renderManager.m_directionalLightBlock.SubData(0, 4, &size);
     }
-    const std::vector<Entity> *pointLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *pointLightEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>(EntityManager::GetCurrentScene());
     size = 0;
     if (pointLightEntities && !pointLightEntities->empty())
     {
@@ -1560,7 +1568,8 @@ void RenderManager::RenderShadows(
     {
         renderManager.m_pointLightBlock.SubData(0, 4, &size);
     }
-    const std::vector<Entity> *spotLightEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *spotLightEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>(EntityManager::GetCurrentScene());
     size = 0;
     if (spotLightEntities && !spotLightEntities->empty())
     {
@@ -1694,24 +1703,36 @@ void RenderManager::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &ca
     if (!cameraSkybox || !cameraSkybox->Texture())
         cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();
 
-    auto environmentalMap = EntityManager::GetCurrentScene()->m_environmentalMap.Get<EnvironmentalMap>();
-    if (!environmentalMap || !environmentalMap->m_ready)
+    auto environmentalMap = scene->m_environmentSettings.m_environmentalMap.Get<EnvironmentalMap>();
+    switch (scene->m_environmentSettings.m_environmentType)
     {
+    case EnvironmentType::EnvironmentalMap: {
+        if (!environmentalMap || !environmentalMap->m_ready)
+        {
+            environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
+            manager.m_environmentalMapSettings.m_backgroundColor.w = 1.0f;
+        }
+        else
+        {
+            manager.m_environmentalMapSettings.m_backgroundColor.w = 0.0f;
+        }
+    }
+    break;
+    case EnvironmentType::Color: {
         environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
-        scene->m_environmentalMapSettings.m_backgroundColor.w = 1.0f;
+        manager.m_environmentalMapSettings.m_backgroundColor = glm::vec4(scene->m_environmentSettings.m_backgroundColor, 1.0f);
     }
-    else
-    {
-        scene->m_environmentalMapSettings.m_backgroundColor.w = 0.0f;
+    break;
     }
-
+    manager.m_environmentalMapSettings.m_environmentalMapGamma = scene->m_environmentSettings.m_environmentGamma;
+    manager.m_environmentalMapSettings.m_environmentalLightingIntensity = scene->m_environmentSettings.m_ambientLightIntensity;
     cameraSkybox->Texture()->Bind(8);
     DefaultResources::m_brdfLut->UnsafeGetGLTexture()->Bind(11);
     environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
     environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
 
     manager.m_environmentalMapSettingsBuffer->SubData(
-        0, sizeof(EnvironmentalMapSettingsBlock), &scene->m_environmentalMapSettings);
+        0, sizeof(EnvironmentalMapSettingsBlock), &manager.m_environmentalMapSettings);
 }
 
 void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending)

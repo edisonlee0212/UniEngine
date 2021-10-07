@@ -15,17 +15,24 @@ enum UNIENGINE_API SystemGroup
     SimulationSystemGroup = 1,
     PresentationSystemGroup = 2
 };
-struct EnvironmentalMapSettingsBlock
-{
-    glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    float m_environmentalMapGamma = 1.0f;
-    float m_environmentalLightingIntensity = 1.0f;
-    float m_environmentalPadding1 = 0.0f;
-    float m_environmentalPadding2 = 0.0f;
+
+
+enum class UNIENGINE_API EnvironmentType {
+    EnvironmentalMap,
+    Color
+};
+
+struct UNIENGINE_API EnvironmentSettings{
+    AssetRef m_environmentalMap;
+    glm::vec3 m_backgroundColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    float m_environmentGamma = 1.0f;
+    float m_ambientLightIntensity = 0.8f;
+    EnvironmentType m_environmentType = EnvironmentType::EnvironmentalMap;
 
     void Serialize(YAML::Emitter &out);
     void Deserialize(const YAML::Node &in);
 };
+
 struct SceneDataStorage
 {
     std::vector<Entity> m_entities;
@@ -56,10 +63,9 @@ class UNIENGINE_API Scene : public IAsset
 
   protected:
     bool LoadInternal(const std::filesystem::path &path) override;
-
   public:
-    AssetRef m_environmentalMap;
-    EnvironmentalMapSettingsBlock m_environmentalMapSettings;
+    EnvironmentSettings m_environmentSettings;
+
     void Purge();
     void OnCreate() override;
     Scene &operator=(Scene &&) = delete;
@@ -73,7 +79,6 @@ class UNIENGINE_API Scene : public IAsset
     void Update();
     void LateUpdate();
     void OnInspect() override;
-
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };

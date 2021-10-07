@@ -1,10 +1,11 @@
 m_name: New Scene
 Scene: New Scene
-m_environmentalMapSettings:
-  m_backgroundColor: [1, 1, 1, 0]
-  m_environmentalMapGamma: 1
-  m_environmentalLightingIntensity: 1
-  m_environmentalMap:
+m_environmentSettings:
+  m_backgroundColor: [1, 1, 1]
+  m_environmentGamma: 1
+  m_ambientLightIntensity: 0.800000012
+  m_environmentType: 0
+  m_environmentSettings:
     m_assetHandle: 85
     m_assetTypeName: EnvironmentalMap
 EntityInfos:
@@ -19,8 +20,8 @@ EntityInfos:
     PrivateComponent:
       - TypeName: Camera
         Enabled: true
-        m_resolutionX: 747
-        m_resolutionY: 420
+        m_resolutionX: 1007
+        m_resolutionY: 681
         m_isMainCamera: true
         m_useClearColor: false
         m_clearColor: [0, 0, 0]

@@ -176,35 +176,48 @@ void Scene::FixedUpdate()
         }
     }
 }
-
+static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        EditorManager::DragAndDropButton<EnvironmentalMap>(m_environmentalMap, "Environmental Map");
-        if(!m_environmentalMap.Get<EnvironmentalMap>()){
-            ImGui::ColorEdit3("Background Color", &m_environmentalMapSettings.m_backgroundColor.x);
+        static int type = (int)m_environmentSettings.m_environmentType;
+        if(ImGui::Combo(
+            "Environment type",
+            &type,
+            EnvironmentTypes,
+            IM_ARRAYSIZE(EnvironmentTypes))){
+            m_environmentSettings.m_environmentType = (EnvironmentType)type;
+        }
+        switch(m_environmentSettings.m_environmentType){
+        case EnvironmentType::EnvironmentalMap:
+        {
+            EditorManager::DragAndDropButton<EnvironmentalMap>(m_environmentSettings.m_environmentalMap, "Environmental Map");
+        }break;
+        case EnvironmentType::Color:
+        {
+            ImGui::ColorEdit3("Background Color", &m_environmentSettings.m_backgroundColor.x);
+        }break;
         }
         ImGui::DragFloat(
             "Environmental light intensity",
-            &m_environmentalMapSettings.m_environmentalLightingIntensity,
+            &m_environmentSettings.m_ambientLightIntensity,
             0.01f,
             0.0f,
             2.0f);
         ImGui::DragFloat(
-            "Environmental light gamma", &m_environmentalMapSettings.m_environmentalMapGamma, 0.01f, 0.0f, 2.0f);
+            "Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f);
     }
 }
 void Scene::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "Scene" << YAML::Value << m_name;
-    out << YAML::Key << "m_environmentalMapSettings" << YAML::Value << YAML::BeginMap;
-    m_environmentalMapSettings.Serialize(out);
-    m_environmentalMap.Save("m_environmentalMap", out);
+    out << YAML::Key << "m_environmentSettings" << YAML::Value << YAML::BeginMap;
+    m_environmentSettings.Serialize(out);
     out << YAML::EndMap;
     std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
     std::vector<AssetRef> list;
-    list.push_back(m_environmentalMap);
+    list.push_back(m_environmentSettings.m_environmentalMap);
     auto &sceneDataStorage = m_sceneDataStorage;
 #pragma region EntityInfo
     out << YAML::Key << "EntityInfos" << YAML::Value << YAML::BeginSeq;
@@ -307,7 +320,7 @@ void Scene::Deserialize(const YAML::Node &in)
     auto self = AssetManager::Get<Scene>(m_handle);
     auto &sceneDataStorage = m_sceneDataStorage;
     m_name = in["Scene"].as<std::string>();
-    if(in["m_environmentalMapSettings"]) m_environmentalMapSettings.Deserialize(in["m_environmentalMapSettings"]);
+
 #pragma region DataComponentStorage
     auto inDataComponentStorages = in["DataComponentStorages"];
     for (const auto &inDataComponentStorage : inDataComponentStorages)
@@ -404,9 +417,9 @@ void Scene::Deserialize(const YAML::Node &in)
                 localAssets[index++]->Deserialize(i);
         }
     }
-    m_environmentalMap.Load("m_environmentalMap", in);
-#pragma endregion
 
+#pragma endregion
+    if(in["m_environmentSettings"]) m_environmentSettings.Deserialize(in["m_environmentSettings"]);
     entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
@@ -549,7 +562,7 @@ void Scene::OnCreate()
     m_sceneDataStorage.m_entities.emplace_back();
     m_sceneDataStorage.m_entityInfos.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
-    m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
+    m_environmentSettings.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
 bool Scene::LoadInternal(const std::filesystem::path &path)
 {
@@ -565,15 +578,19 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 
     return true;
 }
-void EnvironmentalMapSettingsBlock::Serialize(YAML::Emitter &out)
+void EnvironmentSettings::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_backgroundColor" << YAML::Value << m_backgroundColor;
-    out << YAML::Key << "m_environmentalMapGamma" << YAML::Value << m_environmentalMapGamma;
-    out << YAML::Key << "m_environmentalLightingIntensity" << YAML::Value << m_environmentalLightingIntensity;
+    out << YAML::Key << "m_environmentGamma" << YAML::Value << m_environmentGamma;
+    out << YAML::Key << "m_ambientLightIntensity" << YAML::Value << m_ambientLightIntensity;
+    out << YAML::Key << "m_environmentType" << YAML::Value << (unsigned)m_environmentType;
+    m_environmentalMap.Save("m_environmentSettings", out);
 }
-void EnvironmentalMapSettingsBlock::Deserialize(const YAML::Node &in)
+void EnvironmentSettings::Deserialize(const YAML::Node &in)
 {
-    if(in["m_backgroundColor"]) m_backgroundColor = in["m_backgroundColor"].as<glm::vec4>();
-    if(in["m_environmentalMapGamma"]) m_environmentalMapGamma = in["m_environmentalMapGamma"].as<float>();
-    if(in["m_environmentalLightingIntensity"]) m_environmentalLightingIntensity = in["m_environmentalLightingIntensity"].as<float>();
+    if(in["m_backgroundColor"]) m_backgroundColor = in["m_backgroundColor"].as<glm::vec3>();
+    if(in["m_environmentGamma"]) m_environmentGamma = in["m_environmentGamma"].as<float>();
+    if(in["m_ambientLightIntensity"]) m_ambientLightIntensity = in["m_ambientLightIntensity"].as<float>();
+    if(in["m_environmentType"]) m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
+    m_environmentalMap.Load("m_environmentSettings", in);
 }

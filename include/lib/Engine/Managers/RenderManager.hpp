@@ -16,6 +16,15 @@ struct UNIENGINE_API LightSettingsBlock
     float m_gamma = 2.2f;
 };
 
+struct EnvironmentalMapSettingsBlock
+{
+    glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    float m_environmentalMapGamma = 1.0f;
+    float m_environmentalLightingIntensity = 1.0f;
+    float m_environmentalPadding1 = 0.0f;
+    float m_environmentalPadding2 = 0.0f;
+};
+
 struct MaterialSettingsBlock
 {
     int m_albedoEnabled = 0;
@@ -313,7 +322,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
 #pragma region internal helpers
 
     MaterialSettingsBlock m_materialSettings;
-
+    EnvironmentalMapSettingsBlock m_environmentalMapSettings;
     static void ApplyShadowMapSettings();
     static void ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent);
     static void MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending = false);

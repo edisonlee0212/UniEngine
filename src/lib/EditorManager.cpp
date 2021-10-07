@@ -1815,7 +1815,7 @@ void EditorManager::CameraWindowDragAndDrop()
             AssetRef assetRef;
             assetRef.m_assetHandle = payload_n;
             assetRef.Update();
-            EntityManager::GetCurrentScene()->m_environmentalMap =
+            EntityManager::GetCurrentScene()->m_environmentSettings.m_environmentalMap =
                 std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
         }
 
