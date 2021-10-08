@@ -96,8 +96,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
-                "model",
-                EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->Draw();
         }
     }
@@ -109,8 +108,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
-                "model",
-                EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
     }
@@ -356,19 +354,56 @@ static const char *HierarchyDisplayMode[]{"Archetype", "Hierarchy"};
 
 void EditorManager::PreUpdate()
 {
-
     auto &editorManager = GetInstance();
+    auto &application = Application::GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
-        if (ImGui::Button(Application::GetInstance().m_playing ? "Pause" : "Play"))
+        switch (application.m_gameStatus)
         {
-            Application::GetInstance().m_playing = !Application::GetInstance().m_playing;
+        case GameStatus::Stop: {
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Play();
+            }
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Step();
+            }
+            break;
+        }
+        case GameStatus::Playing: {
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PauseButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Pause();
+            }
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Stop();
+            }
+            break;
+        }
+        case GameStatus::Pause: {
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Play();
+            }
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Step();
+            }
+            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
+                                   {1, 0})){
+                Application::Stop();
+            }
+            break;
+        }
         }
         ImGui::Separator();
         if (ImGui::BeginMenu("Project"))
         {
             ImGui::EndMenu();
         }
+        /*
         if (ImGui::BeginMenu("File"))
         {
             ImGui::EndMenu();
@@ -377,14 +412,17 @@ void EditorManager::PreUpdate()
         {
             ImGui::EndMenu();
         }
+        */
         if (ImGui::BeginMenu("View"))
         {
             ImGui::EndMenu();
         }
+        /*
         if (ImGui::BeginMenu("Help"))
         {
             ImGui::EndMenu();
         }
+        */
         ImGui::EndMainMenuBar();
     }
 }
@@ -738,8 +776,8 @@ void EditorManager::OnInspect()
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
                 EntityManager::ForAllEntities(EntityManager::GetCurrentScene(), [](int i, Entity entity) {
-                        if (EntityManager::GetParent(entity).IsNull())
-                            DrawEntityNode(entity, 0);
+                    if (EntityManager::GetParent(entity).IsNull())
+                        DrawEntityNode(entity, 0);
                 });
                 editorManager.m_selectedEntityHierarchyList.clear();
                 ImGui::PopStyleColor();
@@ -798,9 +836,7 @@ void EditorManager::OnInspect()
                                 if (ImGui::Button("Remove"))
                                 {
                                     skip = true;
-                                    EntityManager::RemoveDataComponent(
-                                        editorManager.m_selectedEntity,
-                                        type.m_typeId);
+                                    EntityManager::RemoveDataComponent(editorManager.m_selectedEntity, type.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -809,8 +845,7 @@ void EditorManager::OnInspect()
                                 editorManager.m_selectedEntity,
                                 static_cast<IDataComponent *>(data),
                                 type,
-                                EntityManager::GetParent(editorManager.m_selectedEntity)
-                                    .IsNull());
+                                EntityManager::GetParent(editorManager.m_selectedEntity).IsNull());
                             ImGui::Separator();
                             i++;
                         });
@@ -832,7 +867,8 @@ void EditorManager::OnInspect()
 
                     int i = 0;
                     bool skip = false;
-                    EntityManager::ForEachPrivateComponent(editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
+                    EntityManager::ForEachPrivateComponent(
+                        editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
                             ImGui::Checkbox(
@@ -847,8 +883,7 @@ void EditorManager::OnInspect()
                                 {
                                     skip = true;
                                     EntityManager::RemovePrivateComponent(
-                                        editorManager.m_selectedEntity,
-                                        data.m_typeId);
+                                        editorManager.m_selectedEntity, data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -1534,13 +1569,11 @@ void EditorManager::SceneCameraWindow()
 
                 auto transform = editorManager.m_selectedEntity.GetDataComponent<Transform>();
                 GlobalTransform parentGlobalTransform;
-                Entity parentEntity =
-                    EntityManager::GetParent(editorManager.m_selectedEntity);
+                Entity parentEntity = EntityManager::GetParent(editorManager.m_selectedEntity);
                 if (!parentEntity.IsNull())
                 {
                     parentGlobalTransform =
-                        EntityManager::GetParent(editorManager.m_selectedEntity)
-                            .GetDataComponent<GlobalTransform>();
+                        EntityManager::GetParent(editorManager.m_selectedEntity).GetDataComponent<GlobalTransform>();
                 }
                 auto globalTransform = editorManager.m_selectedEntity.GetDataComponent<GlobalTransform>();
                 ImGuizmo::Manipulate(

@@ -41,7 +41,7 @@ void Application::Init(const ApplicationConfigs &applicationConfigs)
         ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
         application.m_applicationStatus = ApplicationStatus::Initialized;
     }
-    application.m_playing = false;
+    application.m_gameStatus = GameStatus::Stop;
 }
 void ApplicationTime::OnInspect()
 {
@@ -108,7 +108,7 @@ void Application::PreUpdateInternal()
     for (const auto &i : application.m_externalPreUpdateFunctions)
         i();
     ProfilerManager::EndEvent("Externals");
-    if (application.m_playing)
+    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
     {
         ProfilerManager::StartEvent("Scene");
         EntityManager::GetInstance().m_scene->PreUpdate();
@@ -129,7 +129,7 @@ void Application::PreUpdateInternal()
         for (const auto &i : application.m_externalFixedUpdateFunctions)
             i();
         ProfilerManager::EndEvent("Externals");
-        if (application.m_playing)
+        if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
             ProfilerManager::StartEvent("Scene");
             EntityManager::GetInstance().m_scene->FixedUpdate();
@@ -153,7 +153,7 @@ void Application::UpdateInternal()
     for (const auto &i : application.m_externalUpdateFunctions)
         i();
     ProfilerManager::EndEvent("Externals");
-    if (application.m_playing)
+    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
     {
         ProfilerManager::StartEvent("Scene");
         EntityManager::GetInstance().m_scene->Update();
@@ -172,7 +172,7 @@ void Application::LateUpdateInternal()
     for (const auto &i : application.m_externalLateUpdateFunctions)
         i();
     ProfilerManager::EndEvent("Externals");
-    if (application.m_playing)
+    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
     {
         ProfilerManager::StartEvent("Scene");
         EntityManager::GetInstance().m_scene->LateUpdate();
@@ -196,21 +196,14 @@ void Application::LateUpdateInternal()
     ProfilerManager::EndEvent("LateUpdate");
     ProfilerManager::LateUpdate();
     ProfilerManager::OnInspect();
+
+    if(application.m_gameStatus == GameStatus::Step)
+        application.m_gameStatus = GameStatus::Pause;
 }
 
 ApplicationTime &Application::Time()
 {
     return GetInstance().m_time;
-}
-
-void Application::SetPlaying(bool value)
-{
-    GetInstance().m_playing = value;
-}
-
-bool Application::IsPlaying()
-{
-    return GetInstance().m_playing;
 }
 
 bool Application::IsInitialized()
@@ -240,12 +233,18 @@ void Application::Run()
         switch (application.m_applicationStatus)
         {
         case ApplicationStatus::WelcomeScreen:
-            ImGui::Begin("Welcome to UniEngine");
-            FileUtils::SaveFile("Create or load project", "Project", {".ueproj"}, [&](const std::filesystem::path& path){
-                ProjectManager::CreateOrLoadProject(path);
-                application.m_applicationStatus = ApplicationStatus::Initialized;
-            }, false);
-            ImGui::End();
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("Project"))
+                {
+                    FileUtils::SaveFile("Create or load New Project", "Project", {".ueproj"}, [&](const std::filesystem::path& path){
+                            ProjectManager::CreateOrLoadProject(path);
+                            application.m_applicationStatus = ApplicationStatus::Initialized;
+                        }, false);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMainMenuBar();
+            }
             break;
         case ApplicationStatus::Initialized:
             PreUpdateInternal();
@@ -287,7 +286,7 @@ void Application::Reset()
     application.m_externalUpdateFunctions.clear();
     application.m_externalFixedUpdateFunctions.clear();
     application.m_externalLateUpdateFunctions.clear();
-    application.m_playing = false;
+    application.m_gameStatus = GameStatus::Stop;
     application.m_needFixedUpdate = false;
     application.m_time.Reset();
 }
@@ -384,6 +383,49 @@ bool Application::RequestProjectPath(std::filesystem::path &path)
     }
     return false;
 }
+void Application::Play()
+{
+    auto& application = GetInstance();
+    if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
+    if(application.m_gameStatus == GameStatus::Stop)
+    {
+        // TODO: Copy scene and run.
+    }
+    application.m_gameStatus = GameStatus::Playing;
+}
+void Application::Stop()
+{
+    auto& application = GetInstance();
+    if(application.m_gameStatus == GameStatus::Stop) return;
+    //TODO: Delete active scene and retarget to saved scene.
+    application.m_gameStatus = GameStatus::Stop;
+}
+void Application::Pause()
+{
+    auto& application = GetInstance();
+    if(application.m_gameStatus != GameStatus::Playing) return;
+    application.m_gameStatus = GameStatus::Pause;
+}
+GameStatus Application::GameStatus()
+{
+    return GetInstance().m_gameStatus;
+}
+void Application::Step()
+{
+    auto& application = GetInstance();
+    if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
+    if(application.m_gameStatus == GameStatus::Stop)
+    {
+        // TODO: Copy scene and run.
+    }
+    application.m_gameStatus = GameStatus::Step;
+}
+bool Application::IsPlaying()
+{
+    auto& application = GetInstance();
+    return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
+}
+
 void ApplicationTime::Reset()
 {
     m_lastFixedUpdateTime = 0;

@@ -38,10 +38,15 @@ struct UNIENGINE_API ApplicationConfigs{
     bool m_fullScreen = false;
 };
 enum class UNIENGINE_API ApplicationStatus{
-    None,
     WelcomeScreen,
     Initialized,
     OnDestroy
+};
+enum class UNIENGINE_API GameStatus{
+    Stop,
+    Pause,
+    Step,
+    Playing
 };
 class UNIENGINE_API Application final : ISingleton<Application>
 {
@@ -50,8 +55,8 @@ class UNIENGINE_API Application final : ISingleton<Application>
     friend class EditorManager;
     friend class ProjectManager;
     ApplicationConfigs m_applicationConfigs;
-    ApplicationStatus m_applicationStatus = ApplicationStatus::None;
-    bool m_playing = false;
+    ApplicationStatus m_applicationStatus = ApplicationStatus::WelcomeScreen;
+    GameStatus m_gameStatus = GameStatus::Stop;
 
     std::vector<std::function<void()>> m_externalPreUpdateFunctions;
     std::vector<std::function<void()>> m_externalUpdateFunctions;
@@ -69,10 +74,14 @@ class UNIENGINE_API Application final : ISingleton<Application>
 
     static bool RequestProjectPath(std::filesystem::path& path);
   public:
+    static bool IsPlaying();
     static void Reset();
     static ApplicationTime &Time();
-    static void SetPlaying(bool value);
-    static bool IsPlaying();
+    static void Play();
+    static void Step();
+    static void Stop();
+    static void Pause();
+    static GameStatus GameStatus();
     // You are only allowed to create entity after this.
     static bool IsInitialized();
     static void Init(const ApplicationConfigs& applicationConfigs);
