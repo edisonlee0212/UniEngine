@@ -22,7 +22,6 @@ void PostProcessing::PushLayer(const std::shared_ptr<PostProcessingLayer> &layer
 {
     if (!layer)
         return;
-    layer->Init();
     layer->ResizeResolution(m_resolutionX, m_resolutionY);
     m_layers[layer->m_name] = std::move(layer);
 }
@@ -70,10 +69,6 @@ void PostProcessing::Process()
     {
         m_layers["SSR"]->Process(cameraComponent, *this);
     }
-    if (m_layers["GreyScale"] && m_layers["GreyScale"]->m_enabled)
-    {
-        m_layers["GreyScale"]->Process(cameraComponent, *this);
-    }
 }
 
 void PostProcessing::ResizeResolution(int x, int y)
@@ -110,12 +105,20 @@ void PostProcessing::Serialize(YAML::Emitter &out)
 void PostProcessing::Deserialize(const YAML::Node &in)
 {
 }
-void PostProcessing::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void PostProcessing::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    m_layers = std::static_pointer_cast<PostProcessing>(target)->m_layers;
+}
+PostProcessing &PostProcessing::operator=(const PostProcessing &source)
+{
+    PushLayer(std::make_shared<Bloom>());
+    PushLayer(std::make_shared<SSAO>());
+    PushLayer(std::make_shared<SSR>());
+    ResizeResolution(1, 1);
+    SetEnabled(source.IsEnabled());
+    return *this;
 }
 
-void Bloom::Init()
+Bloom::Bloom()
 {
     m_name = "Bloom";
     m_graph = Bezier2D();
@@ -229,7 +232,7 @@ void Bloom::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
     }
 }
 
-void SSAO::Init()
+SSAO::SSAO()
 {
     m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);
@@ -352,7 +355,7 @@ void SSAO::OnInspect(const std::shared_ptr<Camera> &cameraComponent)
     }
 }
 
-void SSR::Init()
+SSR::SSR()
 {
     m_graph = Bezier2D();
     m_graph.m_controlPoints[1] = glm::vec2(1, 0);

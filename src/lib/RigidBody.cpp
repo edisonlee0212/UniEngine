@@ -380,7 +380,7 @@ void RigidBody::Deserialize(const YAML::Node &in)
         }
     }
 }
-void RigidBody::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void RigidBody::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
     auto ptr = std::static_pointer_cast<RigidBody>(target);
     m_shapeTransform = ptr->m_shapeTransform;

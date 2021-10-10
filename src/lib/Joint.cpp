@@ -352,9 +352,8 @@ void Joint::SetDistanceLimit(
     scale.speed = toleranceSpeed;
     static_cast<PxD6Joint *>(m_joint)->setDistanceLimit(PxJointLinearLimit(scale, extent, contactDist));
 }
-void Joint::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void Joint::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<Joint>(target);
     m_joint = nullptr;
 }
 void Joint::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)

@@ -90,7 +90,7 @@ class UNIENGINE_API Animation : public IAsset
     std::shared_ptr<Bone> m_rootBone;
     size_t m_boneSize = 0;
     [[nodiscard]] std::shared_ptr<Bone> &UnsafeGetRootBone();
-    void OnGui() const;
+    void OnInspect() override;
     void Animate(
         const std::string &name,
         const float &animationTime,

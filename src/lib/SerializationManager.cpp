@@ -41,16 +41,24 @@ bool SerializationManager::RegisterSerializableType(
     const size_t &typeId,
     const std::function<std::shared_ptr<ISerializable>(size_t &)> &func)
 {
-    if (GetInstance().m_serializableNames.find(typeId) != GetInstance().m_serializableNames.end())
+    auto& serializationManger = GetInstance();
+    if (serializationManger.m_serializableNames.find(typeId) != serializationManger.m_serializableNames.end())
     {
         UNIENGINE_ERROR("Serializable already registered!");
         return false;
     }
-    GetInstance().m_serializableNames[typeId] = typeName;
-    GetInstance().m_serializableIds[typeName] = typeId;
-    return GetInstance().m_serializableGenerators.insert({typeName, func}).second;
+    serializationManger.m_serializableNames[typeId] = typeName;
+    serializationManger.m_serializableIds[typeName] = typeId;
+    return serializationManger.m_serializableGenerators.insert({typeName, func}).second;
 }
-
+bool SerializationManager::RegisterPrivateComponentType(
+    const std::string &typeName,
+    const size_t &typeId,
+    const std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent> &)> &cloneFunc)
+{
+    auto& serializationManger = GetInstance();
+    return serializationManger.m_privateComponentCloners.insert({typeName, cloneFunc}).second;
+}
 std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
     auto &serializationManager = GetInstance();
@@ -136,3 +144,17 @@ bool SerializationManager::HasComponentDataType(const std::string &typeName)
 {
     return GetInstance().m_dataComponentIds.find(typeName) != GetInstance().m_dataComponentIds.end();
 }
+
+void SerializationManager::ClonePrivateComponent(std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source)
+{
+    auto targetTypeName = target->GetTypeName();
+    auto sourceTypeName = source->GetTypeName();
+    assert(targetTypeName == sourceTypeName);
+    auto& serializationManager = GetInstance();
+    if(serializationManager.HasSerializableType(targetTypeName)){
+        serializationManager.m_privateComponentCloners[targetTypeName](target, source);
+    }else {
+        UNIENGINE_ERROR("PrivateComponent " + targetTypeName + "is not registered!");
+    }
+}
+

@@ -256,10 +256,10 @@ Currently `YAML::Node` is non-copyable, so you need to do something like
     const YAML::Node& node = doc["whatever"];
 ```
 
-This is intended behavior. If you want to copy a node, use the `Clone` function:
+This is intended behavior. If you want to copy a node, use the `PostCloneAction` function:
 
 ```
-    std::auto_ptr<YAML::Node> pCopy = myOtherNode.Clone();
+    std::auto_ptr<YAML::Node> pCopy = myOtherNode.PostCloneAction();
 ```
 
 The intent is that if you'd like to keep a `YAML::Node` around for longer than the document will stay in scope, you can clone it and store it as long as you like.

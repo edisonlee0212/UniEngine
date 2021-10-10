@@ -94,9 +94,8 @@ void UniEngine::PlayerController::LateUpdate()
     }
 }
 
-void UniEngine::PlayerController::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void UniEngine::PlayerController::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<PlayerController>(target);
 }
 void UniEngine::PlayerController::Serialize(YAML::Emitter &out)
 {

@@ -42,6 +42,6 @@ class PlanetTerrain : public IPrivateComponent
     void OnInspect() override;
 
     void Start() override;
-    void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) override;
 };
 } // namespace Planet

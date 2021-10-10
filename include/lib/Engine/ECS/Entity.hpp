@@ -1,5 +1,6 @@
 #pragma once
-#include <IAsset.hpp>
+#include "IHandle.hpp"
+#include "ISerializable.hpp"
 #include <IDataComponent.hpp>
 namespace UniEngine
 {

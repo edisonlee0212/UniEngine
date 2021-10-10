@@ -11,7 +11,6 @@ class UNIENGINE_API PostProcessingLayer
 
   public:
     bool m_enabled = false;
-    virtual void Init() = 0;
     virtual void ResizeResolution(int x, int y) = 0;
     virtual void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const = 0;
     virtual void OnInspect(const std::shared_ptr<Camera> &cameraComponent) = 0;
@@ -21,6 +20,7 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
 {
     std::map<std::string, std::shared_ptr<PostProcessingLayer>> m_layers;
   public:
+    PostProcessing& operator=(const PostProcessing& source);
     template <typename T> std::weak_ptr<T> GetLayer();
     void PushLayer(const std::shared_ptr<PostProcessingLayer> &layer);
     void RemoveLayer(const std::string &layerName);
@@ -31,7 +31,7 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
     void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 
 template <typename T> std::weak_ptr<T> PostProcessing::GetLayer()
@@ -66,7 +66,7 @@ class UNIENGINE_API Bloom : public PostProcessingLayer
 
     float m_threshold = 1.0f;
     float m_clamp = 0.0f;
-    void Init() override;
+    Bloom();
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
     void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
@@ -93,7 +93,7 @@ class UNIENGINE_API SSAO : public PostProcessingLayer
     float m_scale = 1.0f;
     int m_sampleSize = 16;
 
-    void Init() override;
+    SSAO();
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
     void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;
@@ -123,7 +123,7 @@ class UNIENGINE_API SSR : public PostProcessingLayer
     int m_numBinarySearchSteps = 8;
     float m_reflectionSpecularFalloffExponent = 3.0;
 
-    void Init() override;
+    SSR();
     void ResizeResolution(int x, int y) override;
     void Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const override;
     void OnInspect(const std::shared_ptr<Camera> &cameraComponent) override;

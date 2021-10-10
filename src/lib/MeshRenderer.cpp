@@ -71,9 +71,8 @@ void MeshRenderer::Deserialize(const YAML::Node &in)
     m_mesh.Load("m_mesh", in);
     m_material.Load("m_material", in);
 }
-void MeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void MeshRenderer::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<MeshRenderer>(target);
 }
 void MeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)
 {

@@ -20,6 +20,7 @@ class UNIENGINE_API ClassRegistry
     template <typename T = IPrivateComponent> static void RegisterPrivateComponent(const std::string &name)
     {
         SerializationManager::RegisterSerializableType<T>(name);
+        SerializationManager::RegisterPrivateComponentType<T>(name);
         EditorManager::RegisterPrivateComponent<T>();
     }
 

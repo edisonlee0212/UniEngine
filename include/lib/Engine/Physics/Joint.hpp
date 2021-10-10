@@ -2,6 +2,7 @@
 #include <EntityManager.hpp>
 #include <RigidBody.hpp>
 #include <uniengine_export.h>
+#include "PrivateComponentRef.hpp"
 using namespace physx;
 namespace UniEngine
 {
@@ -115,7 +116,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void OnDestroy() override;
 
     void Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle) override;
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;

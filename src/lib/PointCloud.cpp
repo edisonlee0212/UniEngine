@@ -161,9 +161,8 @@ void PointCloud::Load(const std::filesystem::path &path)
 void PointCloud::OnCreate()
 {
 }
-void PointCloud::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void PointCloud::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<PointCloud>(target);
 }
 void PointCloud::OnInspect()
 {

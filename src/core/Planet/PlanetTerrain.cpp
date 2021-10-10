@@ -87,7 +87,7 @@ void Planet::PlanetTerrain::OnInspect()
 {
     EditorManager::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
 }
-void Planet::PlanetTerrain::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void Planet::PlanetTerrain::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
     m_info = std::static_pointer_cast<Planet::PlanetTerrain>(target)->m_info;
     m_initialized = false;

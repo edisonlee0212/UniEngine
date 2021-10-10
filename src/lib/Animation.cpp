@@ -232,7 +232,7 @@ std::shared_ptr<Bone> &Animation::UnsafeGetRootBone()
     return m_rootBone;
 }
 
-void Animation::OnGui() const
+void Animation::OnInspect()
 {
     if (!m_rootBone)
         return;

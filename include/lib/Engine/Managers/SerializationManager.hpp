@@ -1,6 +1,7 @@
 #pragma once
 #include <ConsoleManager.hpp>
 #include <IDataComponent.hpp>
+#include <IPrivateComponent.hpp>
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
 namespace YAML
@@ -145,6 +146,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     friend class ClassRegistry;
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
     std::map<std::string, std::function<std::shared_ptr<ISerializable>(size_t &)>> m_serializableGenerators;
+    std::map<std::string, std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)>> m_privateComponentCloners;
 
     std::map<std::string, size_t> m_dataComponentIds;
     std::map<std::string, size_t> m_serializableIds;
@@ -152,7 +154,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     std::map<size_t, std::string> m_serializableNames;
     template <typename T = IDataComponent> static bool RegisterDataComponentType(const std::string &name);
     template <typename T = ISerializable> static bool RegisterSerializableType(const std::string &name);
-
+    template <typename T = IPrivateComponent> static bool RegisterPrivateComponentType(const std::string &name);
     static bool RegisterDataComponentType(
         const std::string &typeName,
         const size_t &typeId,
@@ -162,10 +164,14 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
         const size_t &typeId,
         const std::function<std::shared_ptr<ISerializable>(size_t &)> &func);
 
+    static bool RegisterPrivateComponentType(
+        const std::string &typeName,
+        const size_t &typeId,
+        const std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)> &cloneFunc);
   public:
     static std::shared_ptr<IDataComponent> ProduceDataComponent(
         const std::string &typeName, size_t &hashCode, size_t &size);
-
+    static void ClonePrivateComponent(std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source);
     static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode);
     static std::shared_ptr<ISerializable> ProduceSerializable(
         const std::string &typeName, size_t &hashCode, const Handle &handle);
@@ -173,8 +179,8 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     template <typename T = IDataComponent> static std::string GetDataComponentTypeName();
     template <typename T = ISerializable> static std::string GetSerializableTypeName();
     static std::string GetSerializableTypeName(const size_t &typeId);
-    static bool HasSerializableType(const std::string& typeName);
-    static bool HasComponentDataType(const std::string& typeName);
+    static bool HasSerializableType(const std::string &typeName);
+    static bool HasComponentDataType(const std::string &typeName);
     static size_t GetSerializableTypeId(const std::string &typeName);
     static size_t GetDataComponentTypeId(const std::string &typeName);
 };
@@ -197,13 +203,26 @@ template <typename T> bool SerializationManager::RegisterDataComponentType(const
 
 template <typename T> bool SerializationManager::RegisterSerializableType(const std::string &name)
 {
-    return RegisterSerializableType(name, typeid(T).hash_code(), [](size_t &hashCode) {
-        hashCode = typeid(T).hash_code();
-        auto ptr = std::static_pointer_cast<ISerializable>(std::make_shared<T>());
-        return ptr;
-    });
+    return RegisterSerializableType(
+        name,
+        typeid(T).hash_code(),
+        [](size_t &hashCode) {
+            hashCode = typeid(T).hash_code();
+            auto ptr = std::static_pointer_cast<ISerializable>(std::make_shared<T>());
+            return ptr;
+        }
+        );
 }
-
+template <typename T> bool SerializationManager::RegisterPrivateComponentType(const std::string &name)
+{
+    return RegisterPrivateComponentType(
+        name,
+        typeid(T).hash_code(),
+        [](std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source) {
+            *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
+            return typeid(T).hash_code();
+        });
+}
 #pragma endregion
 
 UNIENGINE_API YAML::Emitter &operator<<(YAML::Emitter &out, const glm::vec2 &v);

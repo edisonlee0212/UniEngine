@@ -422,16 +422,8 @@ void Camera::OnInspect()
     }
 }
 
-void Camera::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void Camera::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    auto ptr = std::static_pointer_cast<Camera>(target);
-    m_allowAutoResize = ptr->m_allowAutoResize;
-    m_nearDistance = ptr->m_nearDistance;
-    m_farDistance = ptr->m_farDistance;
-    m_fov = ptr->m_fov;
-    m_useClearColor = ptr->m_useClearColor;
-    m_clearColor = ptr->m_clearColor;
-    m_skybox = ptr->m_skybox;
 }
 void Camera::Start()
 {
@@ -445,6 +437,17 @@ void Camera::CollectAssetRef(std::vector<AssetRef> &list)
 std::shared_ptr<Texture2D> Camera::GetDepthStencil() const
 {
     return m_depthStencilTexture;
+}
+Camera &Camera::operator=(const Camera &source)
+{
+    m_allowAutoResize = source.m_allowAutoResize;
+    m_nearDistance = source.m_nearDistance;
+    m_farDistance = source.m_farDistance;
+    m_fov = source.m_fov;
+    m_useClearColor = source.m_useClearColor;
+    m_clearColor = source.m_clearColor;
+    m_skybox = source.m_skybox;
+    return *this;
 }
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)

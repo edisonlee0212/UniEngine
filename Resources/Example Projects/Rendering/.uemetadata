@@ -7,3 +7,7 @@ m_fileRecords:
     m_name: Rendering
     m_fileName: Rendering.ueproj
     m_typeName: Binary
+  - Handle: 3391383698341703665
+    m_name: Capoeira
+    m_fileName: Capoeira.ueprefab
+    m_typeName: Prefab

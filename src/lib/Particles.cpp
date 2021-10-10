@@ -95,9 +95,8 @@ void Particles::Deserialize(const YAML::Node &in)
 
     m_matrices->Deserialize(in["m_matrices"]);
 }
-void Particles::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void Particles::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<Particles>(target);
 }
 void Particles::CollectAssetRef(std::vector<AssetRef> &list)
 {

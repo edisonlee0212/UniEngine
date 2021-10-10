@@ -217,9 +217,8 @@ void SkinnedMeshRenderer::OnCreate()
     m_finalResults = std::make_shared<BoneMatrices>();
     SetEnabled(true);
 }
-void SkinnedMeshRenderer::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void SkinnedMeshRenderer::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<SkinnedMeshRenderer>(target);
 }
 void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
 {

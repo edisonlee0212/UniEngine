@@ -28,7 +28,7 @@ class UNIENGINE_API DirectionalLight : public IPrivateComponent
     void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 struct UNIENGINE_API PointLightInfo
 {
@@ -57,7 +57,7 @@ class UNIENGINE_API PointLight : public IPrivateComponent
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     [[nodiscard]] float GetFarPlane() const;
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 struct UNIENGINE_API SpotLightInfo
 {
@@ -89,7 +89,7 @@ class UNIENGINE_API SpotLight : public IPrivateComponent
     void Deserialize(const YAML::Node &in) override;
     [[nodiscard]] float GetFarPlane() const;
 
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 #pragma endregion
 #pragma region Shadow map

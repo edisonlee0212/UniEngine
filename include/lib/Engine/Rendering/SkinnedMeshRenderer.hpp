@@ -2,7 +2,7 @@
 #include "Animator.hpp"
 #include <Material.hpp>
 #include <SkinnedMesh.hpp>
-
+#include "PrivateComponentRef.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API BoneMatrices
@@ -47,7 +47,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void Deserialize(const YAML::Node &in) override;
     void Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
-    void Clone(const std::shared_ptr<IPrivateComponent> &target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) override;
 
     size_t GetRagDollBoneSize() const;
     void SetRagDollBoundEntity(int index, const Entity& entity, bool resetTransform = true);

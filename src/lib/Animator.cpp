@@ -45,8 +45,6 @@ void Animator::OnInspect()
     }
     if (animation)
     {
-
-        animation->OnGui();
         if (m_boneSize != 0)
         {
             if (animation->m_animationNameAndLength.find(m_currentActivatedAnimation) ==
@@ -171,9 +169,8 @@ glm::mat4 Animator::GetReverseTransform(const int &index, const Entity& entity)
         Setup();
     return m_transformChain[index] * glm::inverse(m_bones[index]->m_offsetMatrix.m_value);
 }
-void Animator::Clone(const std::shared_ptr<IPrivateComponent> &target)
+void Animator::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
-    *this = *std::static_pointer_cast<Animator>(target);
     m_needAnimate = true;
 }
 

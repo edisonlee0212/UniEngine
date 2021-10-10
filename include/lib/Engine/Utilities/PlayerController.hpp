@@ -19,6 +19,6 @@ class UNIENGINE_API PlayerController : public IPrivateComponent
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    void Clone(const std::shared_ptr<IPrivateComponent>& target) override;
+    void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 };
 } // namespace UniEngine
