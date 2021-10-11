@@ -715,7 +715,9 @@ size_t EntityManager::GetChildrenAmount(const std::shared_ptr<Scene> &scene, con
 }
 
 inline void EntityManager::ForEachChild(
-    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func)
+    const std::shared_ptr<Scene> &scene,
+    const Entity &entity,
+    const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
@@ -946,7 +948,8 @@ IDataComponent *EntityManager::GetDataComponentPointer(
     UNIENGINE_LOG("ComponentData doesn't exist");
     return nullptr;
 }
-IDataComponent *EntityManager::GetDataComponentPointer(const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id)
+IDataComponent *EntityManager::GetDataComponentPointer(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
@@ -1015,7 +1018,8 @@ EntityArchetype EntityManager::CreateEntityArchetype(
     return CreateEntityArchetypeHelper(entityArchetypeInfo);
 }
 
-void EntityManager::SetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
+void EntityManager::SetPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
 {
     assert(ptr && entity.IsValid());
     auto &entityManager = GetInstance();
@@ -1051,10 +1055,15 @@ void EntityManager::SetPrivateComponent(const std::shared_ptr<Scene> &scene, con
     entityManager.m_scene->m_saved = false;
 }
 
-void EntityManager::ForEachDescendantHelper(const std::shared_ptr<Scene> &scene, const Entity &target, const std::function<void(const std::shared_ptr<Scene> &scene, const Entity &entity)> &func)
+void EntityManager::ForEachDescendantHelper(
+    const std::shared_ptr<Scene> &scene,
+    const Entity &target,
+    const std::function<void(const std::shared_ptr<Scene> &scene, const Entity &entity)> &func)
 {
     func(scene, target);
-    ForEachChild(scene, target, [&](const std::shared_ptr<Scene> &scene, Entity child) { ForEachDescendantHelper(scene, child, func); });
+    ForEachChild(scene, target, [&](const std::shared_ptr<Scene> &scene, Entity child) {
+        ForEachDescendantHelper(scene, child, func);
+    });
 }
 
 EntityArchetype EntityManager::GetDefaultEntityArchetype()
@@ -1179,8 +1188,10 @@ EntityQuery EntityManager::CreateEntityQuery()
     EntityQuery retVal;
     auto &entityManager = GetInstance();
     retVal.m_index = entityManager.m_entityQueryInfos.size();
-    const EntityQueryInfo info;
-    entityManager.m_entityQueryInfos.push_back(info);
+    EntityQueryInfo info;
+    info.m_index = retVal.m_index;
+    entityManager.m_entityQueryInfos.resize(entityManager.m_entityQueryInfos.size() + 1);
+    entityManager.m_entityQueryInfos[info.m_index] = info;
     return retVal;
 }
 
@@ -1265,7 +1276,8 @@ std::vector<Entity> EntityManager::GetDescendants(const std::shared_ptr<Scene> &
     GetDescendantsHelper(scene, entity, retVal);
     return retVal;
 }
-void EntityManager::GetDescendantsHelper(const std::shared_ptr<Scene> &scene, const Entity &target, std::vector<Entity> &results)
+void EntityManager::GetDescendantsHelper(
+    const std::shared_ptr<Scene> &scene, const Entity &target, std::vector<Entity> &results)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -1340,7 +1352,8 @@ EntityArchetype EntityManager::CreateEntityArchetypeHelper(const EntityArchetype
     return retVal;
 }
 
-std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
+std::weak_ptr<IPrivateComponent> EntityManager::GetPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
@@ -1375,7 +1388,8 @@ Entity EntityManager::GetEntity(const std::shared_ptr<Scene> &scene, const Handl
     }
     return {};
 }
-bool EntityManager::HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
+bool EntityManager::HasPrivateComponent(
+    const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName)
 {
     assert(entity.IsValid());
     auto &entityManager = GetInstance();
