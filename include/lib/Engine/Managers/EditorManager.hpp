@@ -28,6 +28,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
     bool m_enabled = false;
     std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
+    std::vector<std::pair<size_t, std::function<void(float rank)>>> m_systemMenuList;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
     unsigned int m_configFlags = 0;
 
@@ -84,6 +85,7 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 
     static void CameraWindowDragAndDrop();
     template <typename T1 = IPrivateComponent> static void RegisterPrivateComponent();
+    template <typename T1 = ISystem> static void RegisterSystem();
     template <typename T1 = IDataComponent> static void RegisterDataComponent();
     friend class Application;
     static void InitImGui();
@@ -148,6 +150,29 @@ void EditorManager::RegisterComponentDataInspector(
     const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func)
 {
     GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
+}
+
+template <typename T> void EditorManager::RegisterSystem()
+{
+    auto &editorManager = GetInstance();
+    auto func = [&](float rank) {
+        if (EntityManager::GetSystem<T>(EntityManager::GetCurrentScene()))
+            return;
+        auto systemName = SerializationManager::GetSerializableTypeName<T>();
+        if (ImGui::Button(systemName.c_str()))
+        {
+            EntityManager::GetOrCreateSystem(systemName, EntityManager::GetCurrentScene(), rank);
+        }
+    };
+    for (int i = 0; i < editorManager.m_systemMenuList.size(); i++)
+    {
+        if (editorManager.m_systemMenuList[i].first == typeid(T).hash_code())
+        {
+            editorManager.m_systemMenuList[i].second = func;
+            return;
+        }
+    }
+    editorManager.m_systemMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
 template <typename T> void EditorManager::RegisterPrivateComponent()

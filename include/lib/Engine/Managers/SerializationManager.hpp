@@ -4,6 +4,7 @@
 #include <IPrivateComponent.hpp>
 #include <ISerializable.hpp>
 #include <ISingleton.hpp>
+#include "ISystem.hpp"
 namespace YAML
 {
 class Node;
@@ -146,8 +147,8 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     friend class ClassRegistry;
     std::map<std::string, std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)>> m_dataComponentGenerators;
     std::map<std::string, std::function<std::shared_ptr<ISerializable>(size_t &)>> m_serializableGenerators;
-    std::map<std::string, std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)>> m_privateComponentCloners;
-
+    std::map<std::string, std::function<void(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)>> m_privateComponentCloners;
+    std::map<std::string, std::function<void(std::shared_ptr<ISystem>, const std::shared_ptr<ISystem>&)>> m_systemCloners;
     std::map<std::string, size_t> m_dataComponentIds;
     std::map<std::string, size_t> m_serializableIds;
     std::map<size_t, std::string> m_dataComponentNames;
@@ -155,6 +156,7 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     template <typename T = IDataComponent> static bool RegisterDataComponentType(const std::string &name);
     template <typename T = ISerializable> static bool RegisterSerializableType(const std::string &name);
     template <typename T = IPrivateComponent> static bool RegisterPrivateComponentType(const std::string &name);
+    template <typename T = ISystem> static bool RegisterSystemType(const std::string &name);
     static bool RegisterDataComponentType(
         const std::string &typeName,
         const size_t &typeId,
@@ -167,11 +169,15 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     static bool RegisterPrivateComponentType(
         const std::string &typeName,
         const size_t &typeId,
-        const std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)> &cloneFunc);
+        const std::function<void(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent>&)> &cloneFunc);
+    static bool RegisterSystemType(
+        const std::string &typeName,
+        const std::function<void(std::shared_ptr<ISystem>, const std::shared_ptr<ISystem>&)> &cloneFunc);
   public:
     static std::shared_ptr<IDataComponent> ProduceDataComponent(
         const std::string &typeName, size_t &hashCode, size_t &size);
     static void ClonePrivateComponent(std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source);
+    static void CloneSystem(std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem>& source);
     static std::shared_ptr<ISerializable> ProduceSerializable(const std::string &typeName, size_t &hashCode);
     static std::shared_ptr<ISerializable> ProduceSerializable(
         const std::string &typeName, size_t &hashCode, const Handle &handle);
@@ -222,7 +228,16 @@ template <typename T> bool SerializationManager::RegisterPrivateComponentType(co
             *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
             target->m_started = false;
             target->PostCloneAction(source);
-            return typeid(T).hash_code();
+        });
+}
+template <typename T> bool SerializationManager::RegisterSystemType(const std::string &name)
+{
+    return RegisterSystemType(
+        name,
+        [](std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem>& source) {
+            *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
+            target->m_started = false;
+            target->PostCloneAction(source);
         });
 }
 #pragma endregion

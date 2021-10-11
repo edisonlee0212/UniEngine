@@ -383,6 +383,7 @@ void RigidBody::Deserialize(const YAML::Node &in)
 void RigidBody::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
     auto ptr = std::static_pointer_cast<RigidBody>(target);
+    m_colliders.clear();
     m_shapeTransform = ptr->m_shapeTransform;
     m_drawBounds = ptr->m_drawBounds;
     m_density = ptr->m_density;

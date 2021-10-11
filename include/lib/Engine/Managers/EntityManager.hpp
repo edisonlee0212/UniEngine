@@ -608,8 +608,10 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void Init();
 
     template <typename T = ISystem>
-    static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &order);
+    static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, float order);
     template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
+
+    static std::shared_ptr<ISystem> GetOrCreateSystem(const std::string& systemName, std::shared_ptr<Scene> scene, float order);
 };
 
 
@@ -625,7 +627,7 @@ template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_pt
 }
 
 template <typename T>
-std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, const float &rank)
+std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, float rank)
 {
     const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
     if (search != scene->m_indexedSystems.end())

@@ -12,7 +12,7 @@ m_privateComponents:
   - m_enabled: true
     m_typeName: MeshRenderer
     m_data:
-      m_handle: 14725829393626854639
+      m_handle: 703864964496933256
       m_forwardRendering: false
       m_castShadow: true
       m_receiveShadow: true
@@ -25,7 +25,7 @@ m_privateComponents:
   - m_enabled: true
     m_typeName: RigidBody
     m_data:
-      m_handle: 10442262787811042616
+      m_handle: 5187023550918625528
       m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
       m_drawBounds: false
       m_static: false
@@ -42,10 +42,8 @@ m_privateComponents:
       m_colliders:
         - m_assetHandle: 9820755936860731412
           m_assetTypeName: Collider
-        - m_assetHandle: 9820755936860731412
-          m_assetTypeName: Collider
 m_children:
-  - m_handle: 6588996454089529770
+  - m_handle: 1756815236645055590
     m_name: Link
     m_enabled: true
     m_entityHandle: 8236643515402353100
@@ -60,7 +58,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 4176692774614664607
+          m_handle: 15470402860559034275
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -73,7 +71,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 7017534206917499056
+          m_handle: 10812364071901531585
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -90,12 +88,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 4758262937438683510
               m_assetTypeName: Collider
-            - m_assetHandle: 4758262937438683510
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 11206892104773333424
+          m_handle: 13857981512284220402
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.707107067, -0.707107067, 0]
@@ -147,7 +143,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 729210829642556568
+  - m_handle: 8493377437434673634
     m_name: Link
     m_enabled: true
     m_entityHandle: 15968527932031872370
@@ -162,7 +158,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 4720552766493837795
+          m_handle: 10884572104694824318
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -175,7 +171,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 13431362674384469078
+          m_handle: 7402048770909459677
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -192,12 +188,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 1464274938087579688
               m_assetTypeName: Collider
-            - m_assetHandle: 1464274938087579688
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 2978832415246255348
+          m_handle: 3904956631485295074
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.704218388, -0.708637714, 0]
@@ -249,7 +243,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 13276941509438235642
+  - m_handle: 14617477938886517949
     m_name: Link
     m_enabled: true
     m_entityHandle: 7676009766910208713
@@ -264,7 +258,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 17743458339317798562
+          m_handle: 12424822138545602692
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -277,7 +271,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 16703680198180511292
+          m_handle: 5697431810461758107
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -294,12 +288,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 17222939841253267432
               m_assetTypeName: Collider
-            - m_assetHandle: 17222939841253267432
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 13528434240196320938
+          m_handle: 9903736183289009028
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.70680809, -0.70710659, 0]
@@ -351,7 +343,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 2286895482230308253
+  - m_handle: 5374813238756460266
     m_name: Link
     m_enabled: true
     m_entityHandle: 15073924633702022762
@@ -366,7 +358,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 4925572471048882180
+          m_handle: 10120972419513138511
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -379,7 +371,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 15010052614730080949
+          m_handle: 3927801835855119741
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -396,12 +388,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 9571425715197582240
               m_assetTypeName: Collider
-            - m_assetHandle: 9571425715197582240
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 18009221168020322037
+          m_handle: 15604274812528956698
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.70584774, -0.707195282, 0]
@@ -453,7 +443,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 8151155730576527034
+  - m_handle: 2521761417098612273
     m_name: Link
     m_enabled: true
     m_entityHandle: 2903339788317894018
@@ -468,7 +458,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 9491603911797560357
+          m_handle: 18434787885904170311
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -481,7 +471,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 2859405027703640101
+          m_handle: 11245381742533823254
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -498,12 +488,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 10514663515299103557
               m_assetTypeName: Collider
-            - m_assetHandle: 10514663515299103557
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 12424698011692978793
+          m_handle: 2956315524800428101
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.706882477, -0.707105637, 0]
@@ -555,7 +543,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 9727754424149414953
+  - m_handle: 9987192366431937469
     m_name: Link
     m_enabled: true
     m_entityHandle: 12148994934180354983
@@ -570,7 +558,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 1266389317232563759
+          m_handle: 8650118288472283412
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -583,7 +571,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 14370675282663892540
+          m_handle: 3560014792898345999
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -600,12 +588,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 5275666267906696079
               m_assetTypeName: Collider
-            - m_assetHandle: 5275666267906696079
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 10098542492262412402
+          m_handle: 13674308816738828887
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.70674324, -0.706562996, 0]
@@ -657,7 +643,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 2218885353938379135
+  - m_handle: 7002422518206719143
     m_name: Link
     m_enabled: true
     m_entityHandle: 10198385703334446528
@@ -672,7 +658,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 5410442099752823611
+          m_handle: 15806925409350855017
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -685,7 +671,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 13906547918894850901
+          m_handle: 13166770808038672906
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -702,12 +688,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 9550487378405157032
               m_assetTypeName: Collider
-            - m_assetHandle: 9550487378405157032
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 555275704541411117
+          m_handle: 10146967914163481976
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.706959724, -0.707107544, 0]
@@ -759,7 +743,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 11888965820962174922
+  - m_handle: 5978331422733719725
     m_name: Link
     m_enabled: true
     m_entityHandle: 3828085758585225699
@@ -774,7 +758,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 259165801547850185
+          m_handle: 6074858105964639718
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -787,7 +771,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 8777662129400636167
+          m_handle: 4382125718878155841
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -804,12 +788,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 4746557264935203844
               m_assetTypeName: Collider
-            - m_assetHandle: 4746557264935203844
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 3612443147705132618
+          m_handle: 8533663532198120838
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.707201958, -0.706410408, 0]
@@ -861,7 +843,7 @@ m_children:
               Stiffness: 0
               Damping: 0
               Flags: 0
-  - m_handle: 2085265897312948010
+  - m_handle: 14968538406917733917
     m_name: Link
     m_enabled: true
     m_entityHandle: 7876899480816634706
@@ -876,7 +858,7 @@ m_children:
       - m_enabled: true
         m_typeName: MeshRenderer
         m_data:
-          m_handle: 5256485954404901020
+          m_handle: 14945357027555377567
           m_forwardRendering: false
           m_castShadow: true
           m_receiveShadow: true
@@ -889,7 +871,7 @@ m_children:
       - m_enabled: true
         m_typeName: RigidBody
         m_data:
-          m_handle: 5086140259025874368
+          m_handle: 13234483251331888605
           m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
           m_drawBounds: false
           m_static: false
@@ -906,12 +888,10 @@ m_children:
           m_colliders:
             - m_assetHandle: 16771286923146079150
               m_assetTypeName: Collider
-            - m_assetHandle: 16771286923146079150
-              m_assetTypeName: Collider
       - m_enabled: true
         m_typeName: Joint
         m_data:
-          m_handle: 12480201915827989960
+          m_handle: 13118891965811721088
           m_jointType: 1
           m_localPosition1: [0, 0, 0]
           m_localPosition2: [0.707035065, -0.707108498, 0]
@@ -938,108 +918,6 @@ m_children:
               MotionType: 0
             - Index: 5
               MotionType: 0
-          m_drives:
-            - Index: 0
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-            - Index: 1
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-            - Index: 2
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-            - Index: 3
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-            - Index: 4
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-            - Index: 5
-              Stiffness: 0
-              Damping: 0
-              Flags: 0
-  - m_handle: 8568578069584759109
-    m_name: Free Cube
-    m_enabled: true
-    m_entityHandle: 13656406481389701954
-    m_dataComponents:
-      - m_type.m_name: Transform
-        m_data: !!binary "I/HZvwxQ6j8AAAAAAAAAAAlQ6r8i8dm/AAAAAAAAAAAAAAAAAAAAAAAAIEAAAAAAjiwCwsTy0UEAAAAAAACAPw=="
-      - m_type.m_name: GlobalTransform
-        m_data: !!binary "d9X/vrgrlDwAAAAAAAAAALArlLx11f++AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAjIKSwVwVZL8AAAAAAACAPw=="
-      - m_type.m_name: GlobalTransformUpdateFlag
-        m_data: !!binary "AA=="
-    m_privateComponents:
-      - m_enabled: true
-        m_typeName: MeshRenderer
-        m_data:
-          m_handle: 9389398021790257477
-          m_forwardRendering: false
-          m_castShadow: true
-          m_receiveShadow: true
-          m_mesh:
-            m_assetHandle: 22
-            m_assetTypeName: Mesh
-          m_material:
-            m_assetHandle: 13893695207362695835
-            m_assetTypeName: Material
-      - m_enabled: true
-        m_typeName: RigidBody
-        m_data:
-          m_handle: 5425346652788670459
-          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-          m_drawBounds: false
-          m_static: false
-          m_density: 0.0799999982
-          m_massCenter: [0, 0, 0]
-          m_linearVelocity: [-0.372246593, -0.987830102, 0]
-          m_angularVelocity: [0, 0, -0.523497939]
-          m_kinematic: false
-          m_linearDamping: 0.5
-          m_angularDamping: 0.5
-          m_minPositionIterations: 4
-          m_minVelocityIterations: 1
-          m_gravity: true
-          m_colliders:
-            - m_assetHandle: 17408197660328082741
-              m_assetTypeName: Collider
-            - m_assetHandle: 17408197660328082741
-              m_assetTypeName: Collider
-      - m_enabled: true
-        m_typeName: Joint
-        m_data:
-          m_handle: 8167270823046131694
-          m_jointType: 1
-          m_localPosition1: [0, 0, 0]
-          m_localPosition2: [0.70724678, -0.707395613, 0]
-          m_localRotation1: [0, 0, 0, 1]
-          m_localRotation2: [0, 0, 0.911823094, -0.410583317]
-          m_rigidBody1:
-            m_entityHandle: 13656406481389701954
-            m_sceneHandle: 828770397143567110
-            m_privateComponentTypeName: RigidBody
-          m_rigidBody2:
-            m_entityHandle: 7876899480816634706
-            m_sceneHandle: 828770397143567110
-            m_privateComponentTypeName: RigidBody
-          m_motionTypes:
-            - Index: 0
-              MotionType: 0
-            - Index: 1
-              MotionType: 0
-            - Index: 2
-              MotionType: 0
-            - Index: 3
-              MotionType: 0
-            - Index: 4
-              MotionType: 2
-            - Index: 5
-              MotionType: 2
           m_drives:
             - Index: 0
               Stiffness: 0
@@ -1175,37 +1053,6 @@ LocalAssets:
     m_ambient: 1
     m_emission: 0
     m_albedoColor: [1, 0, 0]
-    m_alphaDiscardEnabled: true
-    m_alphaDiscardOffset: 0.100000001
-  - TypeName: Material
-    Handle: 13893695207362695835
-    Name: New Material
-    m_albedoTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_normalTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_metallicTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_roughnessTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_aoTexture:
-      m_assetHandle: 0
-      m_assetTypeName: ""
-    m_program:
-      m_assetHandle: 3
-      m_assetTypeName: GLProgram
-    m_polygonMode: 0
-    m_cullingMode: 0
-    m_blendingMode: 0
-    m_metallic: 0.300000012
-    m_roughness: 0.300000012
-    m_ambient: 1
-    m_emission: 0
-    m_albedoColor: [0, 1, 0]
     m_alphaDiscardEnabled: true
     m_alphaDiscardOffset: 0.100000001
   - TypeName: Collider
@@ -1497,12 +1344,3 @@ LocalAssets:
     m_albedoColor: [1, 0, 0]
     m_alphaDiscardEnabled: true
     m_alphaDiscardOffset: 0.100000001
-  - TypeName: Collider
-    Handle: 17408197660328082741
-    Name: New Collider
-    m_physicsMaterial:
-      m_assetHandle: 82
-      m_assetTypeName: PhysicsMaterial
-    m_shapeParam: [0.5, 0.5, 0.5]
-    m_attachCount: 4
-    m_shapeType: 1

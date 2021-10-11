@@ -686,7 +686,7 @@ void EditorManager::OnInspect()
     if (scene && editorManager.m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
     {
         ImGui::Begin("Entity Explorer");
-        if (ImGui::BeginPopupContextWindow("DataComponentInspectorPopup"))
+        if (ImGui::BeginPopupContextWindow("NewEntityPopup"))
         {
             if (ImGui::Button("Create new entity"))
             {
@@ -1247,6 +1247,19 @@ void EditorManager::OnInspect()
     {
         if (ImGui::Begin("System Inspector"))
         {
+            if (ImGui::BeginPopupContextWindow("SystemInspectorPopup"))
+            {
+                ImGui::Text("Add system: ");
+                ImGui::Separator();
+                static float rank = 0.0f;
+                ImGui::DragFloat("Rank", &rank, 1.0f, 0.0f, 999.0f);
+                for (auto &i : editorManager.m_systemMenuList)
+                {
+                    i.second(rank);
+                }
+                ImGui::Separator();
+                ImGui::EndPopup();
+            }
             for (auto &i : EntityManager::GetCurrentScene().get()->m_systems)
             {
                 if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
@@ -2130,3 +2143,4 @@ bool EditorManager::DragAndDropButton(
     }
     return statusChanged;
 }
+

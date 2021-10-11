@@ -27,6 +27,8 @@ class UNIENGINE_API ClassRegistry
     template <typename T = ISystem> static void RegisterSystem(const std::string &name)
     {
         SerializationManager::RegisterSerializableType<T>(name);
+        SerializationManager::RegisterSystemType<T>(name);
+        EditorManager::RegisterSystem<T>();
     }
 
     template <typename T = ISerializable> static void RegisterSerializable(const std::string &name)

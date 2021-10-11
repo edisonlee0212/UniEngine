@@ -1488,6 +1488,21 @@ std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDa
     }
     return queriedStorage;
 }
+std::shared_ptr<ISystem> EntityManager::GetOrCreateSystem(const std::string& systemName, std::shared_ptr<Scene> scene, float order)
+{
+    size_t typeId;
+    auto ptr = SerializationManager::ProduceSerializable(systemName, typeId);
+    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
+    system->m_handle = Handle();
+    system->m_rank = order;
+    scene->m_systems.insert({order, system});
+    scene->m_indexedSystems[typeId] = system;
+    scene->m_mappedSystems[system->m_handle] = system;
+    system->m_started = false;
+    system->OnCreate();
+    scene->m_saved = false;
+    return std::dynamic_pointer_cast<ISystem>(ptr);
+}
 
 size_t EntityQuery::GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnabled) const
 {

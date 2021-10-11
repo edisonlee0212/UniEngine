@@ -54,7 +54,7 @@ bool SerializationManager::RegisterSerializableType(
 bool SerializationManager::RegisterPrivateComponentType(
     const std::string &typeName,
     const size_t &typeId,
-    const std::function<size_t(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent> &)> &cloneFunc)
+    const std::function<void(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent> &)> &cloneFunc)
 {
     auto& serializationManger = GetInstance();
     return serializationManger.m_privateComponentCloners.insert({typeName, cloneFunc}).second;
@@ -157,4 +157,22 @@ void SerializationManager::ClonePrivateComponent(std::shared_ptr<IPrivateCompone
         UNIENGINE_ERROR("PrivateComponent " + targetTypeName + "is not registered!");
     }
 }
-
+void SerializationManager::CloneSystem(std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem> &source)
+{
+    auto targetTypeName = target->GetTypeName();
+    auto sourceTypeName = source->GetTypeName();
+    assert(targetTypeName == sourceTypeName);
+    auto& serializationManager = GetInstance();
+    if(serializationManager.HasSerializableType(targetTypeName)){
+        serializationManager.m_systemCloners[targetTypeName](target, source);
+    }else {
+        UNIENGINE_ERROR("System " + targetTypeName + "is not registered!");
+    }
+}
+bool SerializationManager::RegisterSystemType(
+    const std::string &typeName,
+    const std::function<void(std::shared_ptr<ISystem>, const std::shared_ptr<ISystem> &)> &cloneFunc)
+{
+    auto& serializationManger = GetInstance();
+    return serializationManger.m_systemCloners.insert({typeName, cloneFunc}).second;
+}
