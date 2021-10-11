@@ -182,31 +182,25 @@ void Scene::OnInspect()
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
-        if(ImGui::Combo(
-            "Environment type",
-            &type,
-            EnvironmentTypes,
-            IM_ARRAYSIZE(EnvironmentTypes))){
+        if (ImGui::Combo("Environment type", &type, EnvironmentTypes, IM_ARRAYSIZE(EnvironmentTypes)))
+        {
             m_environmentSettings.m_environmentType = (EnvironmentType)type;
         }
-        switch(m_environmentSettings.m_environmentType){
-        case EnvironmentType::EnvironmentalMap:
+        switch (m_environmentSettings.m_environmentType)
         {
-            EditorManager::DragAndDropButton<EnvironmentalMap>(m_environmentSettings.m_environmentalMap, "Environmental Map");
-        }break;
-        case EnvironmentType::Color:
-        {
+        case EnvironmentType::EnvironmentalMap: {
+            EditorManager::DragAndDropButton<EnvironmentalMap>(
+                m_environmentSettings.m_environmentalMap, "Environmental Map");
+        }
+        break;
+        case EnvironmentType::Color: {
             ImGui::ColorEdit3("Background Color", &m_environmentSettings.m_backgroundColor.x);
-        }break;
+        }
+        break;
         }
         ImGui::DragFloat(
-            "Environmental light intensity",
-            &m_environmentSettings.m_ambientLightIntensity,
-            0.01f,
-            0.0f,
-            2.0f);
-        ImGui::DragFloat(
-            "Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f);
+            "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 2.0f);
+        ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f);
     }
 }
 void Scene::Serialize(YAML::Emitter &out)
@@ -263,7 +257,7 @@ void Scene::Serialize(YAML::Emitter &out)
         for (auto &i : list)
         {
             auto asset = i.Get<IAsset>();
-            if(asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle())
+            if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle())
             {
                 if (asset->GetPath().empty())
                 {
@@ -368,7 +362,6 @@ void Scene::Deserialize(const YAML::Node &in)
         sceneDataStorage.m_entityInfos.emplace_back();
         auto &newInfo = sceneDataStorage.m_entityInfos.back();
         newInfo.Deserialize(inEntityInfo);
-        newInfo.m_parent.m_sceneHandle = GetHandle();
     }
 #pragma endregion
 #pragma region Entities
@@ -383,11 +376,9 @@ void Scene::Deserialize(const YAML::Node &in)
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
-        entity.m_sceneHandle = GetHandle();
         sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
         entityIndex++;
     }
-
 
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
@@ -420,7 +411,8 @@ void Scene::Deserialize(const YAML::Node &in)
     }
 
 #pragma endregion
-    if(in["m_environmentSettings"]) m_environmentSettings.Deserialize(in["m_environmentSettings"]);
+    if (in["m_environmentSettings"])
+        m_environmentSettings.Deserialize(in["m_environmentSettings"]);
     entityIndex = 1;
     for (const auto &inEntityInfo : inEntityInfos)
     {
@@ -428,7 +420,6 @@ void Scene::Deserialize(const YAML::Node &in)
         Entity entity;
         entity.m_index = entityIndex;
         entity.m_version = entityInfo.m_version;
-        entity.m_sceneHandle = self->GetHandle();
         auto inPrivateComponents = inEntityInfo["PrivateComponent"];
         if (inPrivateComponents)
         {
@@ -472,7 +463,6 @@ void Scene::Deserialize(const YAML::Node &in)
         ptr->m_enabled = inSystem["Enabled"].as<bool>();
         ptr->m_rank = inSystem["Rank"].as<float>();
         ptr->m_started = false;
-        ptr->m_owner = self;
         m_systems.insert({ptr->m_rank, ptr});
         m_indexedSystems.insert({hashCode, ptr});
         m_mappedSystems[ptr->m_handle] = ptr;
@@ -579,10 +569,32 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 
     return true;
 }
-void Scene::Clone(const std::shared_ptr<Scene>& target)
+Scene &Scene::operator=(const Scene &source)
 {
+    m_name = source.m_name;
+    m_environmentSettings = source.m_environmentSettings;
+    m_projectRelativePath = source.m_projectRelativePath;
+    m_saved = source.m_saved;
 
+    m_worldBound = source.m_worldBound;
+    m_sceneDataStorage = source.m_sceneDataStorage;
+
+    for (const auto &i : source.m_systems)
+    {
+        auto systemName = i.second->GetTypeName();
+        size_t hashCode;
+        auto system = std::dynamic_pointer_cast<ISystem>(
+            SerializationManager::ProduceSerializable(systemName, hashCode, i.second->GetHandle()));
+        m_systems.insert({i.first, system});
+        m_indexedSystems[hashCode] = system;
+        m_mappedSystems[i.second->GetHandle()] = system;
+
+        system->OnCreate();
+        SerializationManager::CloneSystem(system, i.second);
+    }
+    return *this;
 }
+
 
 void EnvironmentSettings::Serialize(YAML::Emitter &out)
 {
@@ -594,9 +606,24 @@ void EnvironmentSettings::Serialize(YAML::Emitter &out)
 }
 void EnvironmentSettings::Deserialize(const YAML::Node &in)
 {
-    if(in["m_backgroundColor"]) m_backgroundColor = in["m_backgroundColor"].as<glm::vec3>();
-    if(in["m_environmentGamma"]) m_environmentGamma = in["m_environmentGamma"].as<float>();
-    if(in["m_ambientLightIntensity"]) m_ambientLightIntensity = in["m_ambientLightIntensity"].as<float>();
-    if(in["m_environmentType"]) m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
+    if (in["m_backgroundColor"])
+        m_backgroundColor = in["m_backgroundColor"].as<glm::vec3>();
+    if (in["m_environmentGamma"])
+        m_environmentGamma = in["m_environmentGamma"].as<float>();
+    if (in["m_ambientLightIntensity"])
+        m_ambientLightIntensity = in["m_ambientLightIntensity"].as<float>();
+    if (in["m_environmentType"])
+        m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
     m_environmentalMap.Load("m_environmentSettings", in);
+}
+SceneDataStorage &SceneDataStorage::operator=(const SceneDataStorage &source)
+{
+    m_entities = source.m_entities;
+    m_entityInfos.resize(source.m_entityInfos.size());
+    for(int i = 0; i < m_entityInfos.size(); i++) m_entityInfos[i] = source.m_entityInfos[i];
+    m_dataComponentStorages.resize(source.m_dataComponentStorages.size());
+    for(int i = 0; i < m_dataComponentStorages.size(); i++) m_dataComponentStorages[i] = source.m_dataComponentStorages[i];
+    m_entityMap = source.m_entityMap;
+    m_entityPrivateComponentStorage = source.m_entityPrivateComponentStorage;
+    return *this;
 }

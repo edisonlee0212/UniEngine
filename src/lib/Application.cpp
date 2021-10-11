@@ -389,7 +389,9 @@ void Application::Play()
     if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
     if(application.m_gameStatus == GameStatus::Stop)
     {
-        // TODO: Copy scene and run.
+        auto copiedScene = SerializationManager::ProduceSerializable<Scene>();
+        *copiedScene = *application.m_scene;
+        EntityManager::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Playing;
 }
@@ -397,8 +399,8 @@ void Application::Stop()
 {
     auto& application = GetInstance();
     if(application.m_gameStatus == GameStatus::Stop) return;
-    //TODO: Delete active scene and retarget to saved scene.
     application.m_gameStatus = GameStatus::Stop;
+    EntityManager::Attach(application.m_scene);
 }
 void Application::Pause()
 {
@@ -416,7 +418,9 @@ void Application::Step()
     if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
     if(application.m_gameStatus == GameStatus::Stop)
     {
-        // TODO: Copy scene and run.
+        auto copiedScene = SerializationManager::ProduceSerializable<Scene>();
+        *copiedScene = *application.m_scene;
+        EntityManager::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Step;
 }

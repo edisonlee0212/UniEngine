@@ -1,13 +1,2 @@
 m_fileRecords:
-  - Handle: 828770397143567110
-    m_name: New Scene
-    m_fileName: New Scene.uescene
-    m_typeName: Scene
-  - Handle: 59525657138261152
-    m_name: Physics
-    m_fileName: Physics.ueproj
-    m_typeName: Binary
-  - Handle: 16090266842998111730
-    m_name: Anchor
-    m_fileName: Anchor.ueprefab
-    m_typeName: Prefab
+  []

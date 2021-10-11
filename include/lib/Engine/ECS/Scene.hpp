@@ -1,11 +1,11 @@
 #pragma once
 #include <Entity.hpp>
+#include <EntityMetadata.hpp>
+#include <IAsset.hpp>
+#include <IPrivateComponent.hpp>
 #include <ISystem.hpp>
 #include <PrivateComponentStorage.hpp>
 #include <Utilities.hpp>
-#include <IAsset.hpp>
-#include <EntityMetadata.hpp>
-#include <IPrivateComponent.hpp>
 namespace UniEngine
 {
 
@@ -16,13 +16,14 @@ enum UNIENGINE_API SystemGroup
     PresentationSystemGroup = 2
 };
 
-
-enum class UNIENGINE_API EnvironmentType {
+enum class UNIENGINE_API EnvironmentType
+{
     EnvironmentalMap,
     Color
 };
 
-struct UNIENGINE_API EnvironmentSettings{
+struct UNIENGINE_API EnvironmentSettings
+{
     AssetRef m_environmentalMap;
     glm::vec3 m_backgroundColor = glm::vec3(1.0f, 1.0f, 1.0f);
     float m_environmentGamma = 1.0f;
@@ -40,6 +41,8 @@ struct SceneDataStorage
     std::vector<DataComponentStorage> m_dataComponentStorages;
     std::unordered_map<Handle, Entity> m_entityMap;
     PrivateComponentStorage m_entityPrivateComponentStorage;
+
+    SceneDataStorage &operator=(const SceneDataStorage &source);
 };
 
 class UNIENGINE_API Scene : public IAsset
@@ -58,18 +61,18 @@ class UNIENGINE_API Scene : public IAsset
     std::map<size_t, std::shared_ptr<ISystem>> m_indexedSystems;
     std::map<Handle, std::shared_ptr<ISystem>> m_mappedSystems;
     Bound m_worldBound;
-    void SerializeDataComponentStorage(const DataComponentStorage& storage, YAML::Emitter &out);
-    void SerializeSystem(const std::shared_ptr<ISystem>& system, YAML::Emitter &out);
+    void SerializeDataComponentStorage(const DataComponentStorage &storage, YAML::Emitter &out);
+    void SerializeSystem(const std::shared_ptr<ISystem> &system, YAML::Emitter &out);
 
   protected:
     bool LoadInternal(const std::filesystem::path &path) override;
+
   public:
     EnvironmentSettings m_environmentSettings;
 
     void Purge();
     void OnCreate() override;
-    Scene &operator=(Scene &&) = delete;
-    Scene &operator=(const Scene &) = delete;
+    Scene &operator=(const Scene &source);
     [[nodiscard]] Bound GetBound() const;
     void SetBound(const Bound &value);
     template <typename T = ISystem> void DestroySystem();
@@ -81,8 +84,6 @@ class UNIENGINE_API Scene : public IAsset
     void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
-    void Clone(const std::shared_ptr<Scene>& target);
 };
 
 template <typename T> void Scene::DestroySystem()
@@ -93,7 +94,8 @@ template <typename T> void Scene::DestroySystem()
     m_indexedSystems.erase(typeid(T).hash_code());
     for (auto &i : m_systems)
     {
-        if (i.second.get() == system.get()){
+        if (i.second.get() == system.get())
+        {
             m_systems.erase(i.first);
             return;
         }

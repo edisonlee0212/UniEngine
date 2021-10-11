@@ -61,3 +61,16 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
     }
     out << YAML::EndMap;
 }
+EntityMetadata &EntityMetadata::operator=(const EntityMetadata &source)
+{
+    m_name = source.m_name;
+    m_version = source.m_version;
+    m_enabled = source.m_enabled;
+    m_parent = source.m_parent;
+    m_dataComponentStorageIndex = source.m_dataComponentStorageIndex;
+    m_chunkArrayIndex = source.m_chunkArrayIndex;
+    m_children = source.m_children;
+    m_privateComponentElements.resize(source.m_privateComponentElements.size());
+    for(int i = 0; i < m_privateComponentElements.size(); i++) m_privateComponentElements[i] = source.m_privateComponentElements[i];
+    return *this;
+}

@@ -13,13 +13,10 @@ class UNIENGINE_API ISystem : public ISerializable
     bool m_enabled;
     float m_rank = 0.0f;
     bool m_started = false;
-    std::weak_ptr<Scene> m_owner;
   protected:
     virtual void OnEnable(){};
     virtual void OnDisable(){};
-
   public:
-    [[nodiscard]] std::shared_ptr<Scene> GetOwner();
     [[nodiscard]] float GetRank();
     ISystem();
     void Enable();

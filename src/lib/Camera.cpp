@@ -447,6 +447,8 @@ Camera &Camera::operator=(const Camera &source)
     m_useClearColor = source.m_useClearColor;
     m_clearColor = source.m_clearColor;
     m_skybox = source.m_skybox;
+    if(source.m_isMainCamera) RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
+    m_isMainCamera = source.m_isMainCamera;
     return *this;
 }
 

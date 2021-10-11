@@ -42,12 +42,8 @@ struct UNIENGINE_API Entity final
     friend class SerializationManager;
     unsigned m_index = 0;
     unsigned m_version = 0;
-    Handle m_sceneHandle = Handle(0);
-
   public:
-    [[nodiscard]] std::shared_ptr<Scene> GetOwner() const;
     [[nodiscard]] Handle GetHandle() const;
-    [[nodiscard]] Handle GetSceneHandle() const;
     [[nodiscard]] unsigned GetIndex() const;
     [[nodiscard]] unsigned GetVersion() const;
     bool operator==(const Entity &other) const;
@@ -65,10 +61,10 @@ struct UNIENGINE_API Entity final
     [[nodiscard]] Entity GetChild(int index) const;
     [[nodiscard]] size_t GetChildrenAmount() const;
     [[nodiscard]] Entity GetRoot() const;
-    void ForEachChild(const std::function<void(Entity child)> &func) const;
+    void ForEachChild(const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func) const;
     void RemoveChild(const Entity &child) const;
     [[nodiscard]] std::vector<Entity> GetDescendants() const;
-    void ForEachDescendant(const std::function<void(const Entity &entity)> &func, const bool &fromRoot = true) const;
+    void ForEachDescendant(const std::function<void(const std::shared_ptr<Scene> &, const Entity &entity)> &func, const bool &fromRoot = true) const;
     template <typename T = IDataComponent> void SetDataComponent(const T &value) const;
     template <typename T = IDataComponent> T GetDataComponent() const;
     template <typename T = IDataComponent> [[nodiscard]] bool HasDataComponent() const;
@@ -86,7 +82,6 @@ struct UNIENGINE_API Entity final
 class UNIENGINE_API EntityRef : public ISerializable
 {
     Entity m_value = Entity();
-    Handle m_sceneHandle = Handle(0);
     Handle m_entityHandle = Handle(0);
     void Update();
 
@@ -94,17 +89,14 @@ class UNIENGINE_API EntityRef : public ISerializable
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
-        out << YAML::Key << "m_sceneHandle" << YAML::Value << m_sceneHandle;
     }
     void Deserialize(const YAML::Node &in) override
     {
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
-        m_sceneHandle = Handle(in["m_sceneHandle"].as<uint64_t>());
     }
     EntityRef()
     {
         m_entityHandle = Handle(0);
-        m_sceneHandle = Handle(0);
         m_value = Entity();
     }
     template <typename T = IAsset> EntityRef(const Entity &other)
@@ -131,7 +123,6 @@ class UNIENGINE_API EntityRef : public ISerializable
         if (search != map.end())
         {
             m_entityHandle = search->second;
-            m_sceneHandle = newSceneHandle;
             m_value = Entity();
         }
         else
@@ -147,10 +138,6 @@ class UNIENGINE_API EntityRef : public ISerializable
     [[nodiscard]] Handle GetEntityHandle() const
     {
         return m_entityHandle;
-    }
-    [[nodiscard]] Handle GetSceneHandle() const
-    {
-        return m_sceneHandle;
     }
     void Set(const Entity &target);
     void Clear();
@@ -176,12 +163,15 @@ struct UNIENGINE_API ComponentDataChunk
     template <typename T> void SetData(const size_t &offset, const T &data);
     void SetData(const size_t &offset, const size_t &size, IDataComponent *data) const;
     void ClearData(const size_t &offset, const size_t &size) const;
+
+    ComponentDataChunk &operator=(const ComponentDataChunk &source);
 };
 
 struct UNIENGINE_API DataComponentChunkArray
 {
     std::vector<Entity> m_entities;
     std::vector<ComponentDataChunk> m_chunks;
+    DataComponentChunkArray &operator=(const DataComponentChunkArray &source);
 };
 
 struct UNIENGINE_API EntityArchetypeInfo
@@ -259,6 +249,7 @@ struct UNIENGINE_API DataComponentStorage
     DataComponentChunkArray m_chunkArray;
     DataComponentStorage() = default;
     DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo);
+    DataComponentStorage &operator=(const DataComponentStorage &source);
 };
 
 struct EntityQueryInfo
@@ -267,7 +258,6 @@ struct EntityQueryInfo
     std::vector<DataComponentType> m_allDataComponentTypes;
     std::vector<DataComponentType> m_anyDataComponentTypes;
     std::vector<DataComponentType> m_noneDataComponentTypes;
-    std::vector<std::reference_wrapper<DataComponentStorage>> QueryStorage(const std::shared_ptr<Scene> &scenew);
 };
 #pragma endregion
 #pragma endregion
@@ -290,5 +280,6 @@ template <typename T> bool DataComponentStorage::HasType()
     }
     return false;
 }
+
 
 } // namespace UniEngine

@@ -70,7 +70,7 @@ void LoadScene(){
     }
 #pragma endregion
 #pragma region Load models and display
-
+    /*
     auto sponza =
         AssetManager::CreateAsset<Prefab>();
     sponza->LoadModel("Models/Sponza_FBX/Sponza.fbx", true);
@@ -78,7 +78,7 @@ void LoadScene(){
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
-
+*/
     auto title = AssetManager::Import<Prefab>("Models/UniEngine.obj");
     auto titleEntity = title->ToEntity();
     titleEntity.SetName("Title");

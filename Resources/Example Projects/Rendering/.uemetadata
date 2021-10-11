@@ -1,13 +1,9 @@
 m_fileRecords:
-  - Handle: 9417722929775542377
+  - Handle: 12396237663621660220
     m_name: New Scene
     m_fileName: New Scene.uescene
     m_typeName: Scene
-  - Handle: 1612330800121676696
+  - Handle: 10486801022554441754
     m_name: Rendering
     m_fileName: Rendering.ueproj
     m_typeName: Binary
-  - Handle: 3391383698341703665
-    m_name: Capoeira
-    m_fileName: Capoeira.ueprefab
-    m_typeName: Prefab

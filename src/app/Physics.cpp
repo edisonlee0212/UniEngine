@@ -59,7 +59,7 @@ void LoadScene();
 int main()
 {
     ProjectManager::SetScenePostLoadActions([](){
-        //LoadScene();
+        LoadScene();
     });
 
     const std::filesystem::path resourceFolderPath("../Resources");

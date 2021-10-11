@@ -46,6 +46,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         if (projectManager.m_assetRegistry.Find(projectManager.m_currentProject->m_startScenePath, sceneHandle))
         {
             scene = std::dynamic_pointer_cast<Scene>(AssetManager::Get(sceneHandle));
+            Application::GetInstance().m_scene = scene;
             EntityManager::Attach(scene);
         }
         else
@@ -75,7 +76,7 @@ std::filesystem::path ProjectManager::GetProjectPath()
 void ProjectManager::SaveProject()
 {
     auto &projectManager = GetInstance();
-    auto currentScene = EntityManager::GetCurrentScene();
+    auto currentScene = Application::GetInstance().m_scene;
     if (currentScene->GetPath().empty())
     {
         GenerateNewPath(currentScene->m_name, ".uescene");
@@ -358,6 +359,7 @@ void ProjectManager::GenerateNewDefaultScene()
     std::filesystem::path newSceneRelativePath = GenerateNewPath("New Scene", ".uescene");
     scene->SetPath(newSceneRelativePath);
     projectManager.m_currentProject->m_startScenePath = newSceneRelativePath;
+    Application::GetInstance().m_scene = scene;
     EntityManager::Attach(scene);
 #pragma region Main Camera
     const auto mainCameraEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Main Camera");

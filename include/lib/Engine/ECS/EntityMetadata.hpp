@@ -14,9 +14,10 @@ struct EntityMetadata : public ISerializable
     std::vector<Entity> m_children;
     size_t m_dataComponentStorageIndex = 0;
     size_t m_chunkArrayIndex = 0;
-
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+
+    EntityMetadata &operator=(const EntityMetadata &source);
 };
 
 } // namespace UniEngine

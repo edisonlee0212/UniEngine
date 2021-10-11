@@ -403,7 +403,7 @@ void Galaxy::StarClusterSystem::RandomlyRemoveStars(const size_t &amount)
             residue--;
         else
             break;
-        EntityManager::DeleteEntity(i);
+        EntityManager::DeleteEntity(EntityManager::GetCurrentScene(), i);
     }
 }
 
@@ -413,7 +413,7 @@ void Galaxy::StarClusterSystem::ClearAllStars()
     std::vector<Entity> stars;
     m_starQuery.ToEntityArray(EntityManager::GetCurrentScene(), stars);
     for (const auto &i : stars)
-        EntityManager::DeleteEntity(i);
+        EntityManager::DeleteEntity(EntityManager::GetCurrentScene(), i);
 }
 
 void Galaxy::StarClusterSystem::FixedUpdate()

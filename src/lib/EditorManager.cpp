@@ -26,7 +26,7 @@ inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &ent
         ImGui::Text(("Handle: " + std::to_string(entity.GetHandle().GetValue())).c_str());
         if (ImGui::Button("Delete"))
         {
-            EntityManager::DeleteEntity(entity);
+            EntityManager::DeleteEntity(EntityManager::GetCurrentScene(), entity);
             deleted = true;
         }
         if (!deleted && ImGui::Button(enabled ? "Disable" : "Enable"))
@@ -45,7 +45,7 @@ inline bool EditorManager::DrawEntityMenu(const bool &enabled, const Entity &ent
             static char newName[256];
             ImGui::InputText("New name", newName, 256);
             if (ImGui::Button("Confirm"))
-                EntityManager::SetEntityName(entity, std::string(newName));
+                EntityManager::SetEntityName(EntityManager::GetCurrentScene(), entity, std::string(newName));
 
             ImGui::EndMenu();
         }
@@ -87,7 +87,10 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
 {
     if (!entity.IsValid() || !entity.IsEnabled())
         return;
-    EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityPrePassHelper(child); });
+    EntityManager::ForEachChild(
+        EntityManager::GetCurrentScene(), entity, [](const std::shared_ptr<Scene> &scene, Entity child) {
+            HighLightEntityPrePassHelper(child);
+        });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
@@ -96,7 +99,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
-                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model",
+                EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity).m_value);
             mesh->Draw();
         }
     }
@@ -108,7 +112,8 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
-                "model", EntityManager::GetDataComponent<GlobalTransform>(entity).m_value);
+                "model",
+                EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity).m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
     }
@@ -121,7 +126,7 @@ void EditorManager::HighLightEntityPrePassHelper(const Entity &entity)
         {
             GlobalTransform ltw;
             if (!smmc->RagDoll())
-                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
             skinnedMesh->Draw();
@@ -133,7 +138,10 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
 {
     if (!entity.IsValid() || !entity.IsEnabled())
         return;
-    EntityManager::ForEachChild(entity, [](Entity child) { HighLightEntityHelper(child); });
+    EntityManager::ForEachChild(
+        EntityManager::GetCurrentScene(), entity, [](const std::shared_ptr<Scene> &scene, Entity child) {
+            HighLightEntityHelper(child);
+        });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
@@ -141,7 +149,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto mesh = mmc->m_mesh.Get<Mesh>();
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
-            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity);
             DefaultResources::m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
             mesh->Draw();
@@ -154,7 +162,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         auto mesh = immc->m_mesh.Get<Mesh>();
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
-            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+            auto ltw = EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity);
             DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
@@ -168,7 +176,7 @@ void EditorManager::HighLightEntityHelper(const Entity &entity)
         {
             GlobalTransform ltw;
             if (!smmc->RagDoll())
-                ltw = EntityManager::GetDataComponent<GlobalTransform>(entity);
+                ltw = EntityManager::GetDataComponent<GlobalTransform>(EntityManager::GetCurrentScene(), entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
@@ -361,38 +369,66 @@ void EditorManager::PreUpdate()
         switch (application.m_gameStatus)
         {
         case GameStatus::Stop: {
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Play();
             }
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Step();
             }
             break;
         }
         case GameStatus::Playing: {
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PauseButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["PauseButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Pause();
             }
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Stop();
             }
             break;
         }
         case GameStatus::Pause: {
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["PlayButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Play();
             }
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["StepButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Step();
             }
-            if(ImGui::ImageButton((ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(), {15, 15}, {0, 1},
-                                   {1, 0})){
+            if (ImGui::ImageButton(
+                    (ImTextureID)editorManager.m_assetsIcons["StopButton"]->UnsafeGetGLTexture()->Id(),
+                    {15, 15},
+                    {0, 1},
+                    {1, 0}))
+            {
                 Application::Stop();
             }
             break;
@@ -648,7 +684,8 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Entity));
-            EntityManager::SetParent(*static_cast<Entity *>(payload->Data), entity, true);
+            EntityManager::SetParent(
+                EntityManager::GetCurrentScene(), *static_cast<Entity *>(payload->Data), entity, true);
         }
         ImGui::EndDragDropTarget();
     }
@@ -664,7 +701,10 @@ void EditorManager::DrawEntityNode(const Entity &entity, const unsigned &hierarc
     if (opened && !deleted)
     {
         ImGui::TreePush();
-        EntityManager::ForEachChild(entity, [=](Entity child) { DrawEntityNode(child, hierarchyLevel + 1); });
+        EntityManager::ForEachChild(
+            EntityManager::GetCurrentScene(), entity, [=](const std::shared_ptr<Scene> &scene, Entity child) {
+                DrawEntityNode(child, hierarchyLevel + 1);
+            });
         ImGui::TreePop();
     }
 }
@@ -717,9 +757,9 @@ void EditorManager::OnInspect()
                 {
                     IM_ASSERT(payload->DataSize == sizeof(Entity));
                     Entity payload_n = *static_cast<Entity *>(payload->Data);
-                    auto parent = EntityManager::GetParent(payload_n);
+                    auto parent = EntityManager::GetParent(EntityManager::GetCurrentScene(), payload_n);
                     if (!parent.IsNull())
-                        EntityManager::RemoveChild(payload_n, parent);
+                        EntityManager::RemoveChild(EntityManager::GetCurrentScene(), payload_n, parent);
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -776,7 +816,7 @@ void EditorManager::OnInspect()
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
                 EntityManager::ForAllEntities(EntityManager::GetCurrentScene(), [](int i, Entity entity) {
-                    if (EntityManager::GetParent(entity).IsNull())
+                    if (EntityManager::GetParent(EntityManager::GetCurrentScene(), entity).IsNull())
                         DrawEntityNode(entity, 0);
                 });
                 editorManager.m_selectedEntityHierarchyList.clear();
@@ -823,6 +863,7 @@ void EditorManager::OnInspect()
                     bool skip = false;
                     int i = 0;
                     EntityManager::UnsafeForEachDataComponent(
+                        EntityManager::GetCurrentScene(),
                         editorManager.m_selectedEntity,
                         [&skip, &i, &editorManager](DataComponentType type, void *data) {
                             if (skip)
@@ -836,7 +877,10 @@ void EditorManager::OnInspect()
                                 if (ImGui::Button("Remove"))
                                 {
                                     skip = true;
-                                    EntityManager::RemoveDataComponent(editorManager.m_selectedEntity, type.m_typeId);
+                                    EntityManager::RemoveDataComponent(
+                                        EntityManager::GetCurrentScene(),
+                                        editorManager.m_selectedEntity,
+                                        type.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -845,7 +889,9 @@ void EditorManager::OnInspect()
                                 editorManager.m_selectedEntity,
                                 static_cast<IDataComponent *>(data),
                                 type,
-                                EntityManager::GetParent(editorManager.m_selectedEntity).IsNull());
+                                EntityManager::GetParent(
+                                    EntityManager::GetCurrentScene(), editorManager.m_selectedEntity)
+                                    .IsNull());
                             ImGui::Separator();
                             i++;
                         });
@@ -868,7 +914,9 @@ void EditorManager::OnInspect()
                     int i = 0;
                     bool skip = false;
                     EntityManager::ForEachPrivateComponent(
-                        editorManager.m_selectedEntity, [&i, &skip, &editorManager](PrivateComponentElement &data) {
+                        EntityManager::GetCurrentScene(),
+                        editorManager.m_selectedEntity,
+                        [&i, &skip, &editorManager](PrivateComponentElement &data) {
                             if (skip)
                                 return;
                             ImGui::Checkbox(
@@ -883,7 +931,9 @@ void EditorManager::OnInspect()
                                 {
                                     skip = true;
                                     EntityManager::RemovePrivateComponent(
-                                        editorManager.m_selectedEntity, data.m_typeId);
+                                        EntityManager::GetCurrentScene(),
+                                        editorManager.m_selectedEntity,
+                                        data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -913,7 +963,7 @@ void EditorManager::OnInspect()
     {
         if (editorManager.m_selectedEntity.IsValid())
         {
-            EntityManager::DeleteEntity(editorManager.m_selectedEntity);
+            EntityManager::DeleteEntity(EntityManager::GetCurrentScene(), editorManager.m_selectedEntity);
         }
     }
     MainCameraWindow();
@@ -1361,7 +1411,7 @@ void EditorManager::SetSelectedEntity(const Entity &entity, bool openMenu)
     while (!walker.IsNull())
     {
         manager.m_selectedEntityHierarchyList.push_back(walker);
-        walker = EntityManager::GetParent(walker);
+        walker = EntityManager::GetParent(EntityManager::GetCurrentScene(), walker);
     }
 }
 
@@ -1582,11 +1632,13 @@ void EditorManager::SceneCameraWindow()
 
                 auto transform = editorManager.m_selectedEntity.GetDataComponent<Transform>();
                 GlobalTransform parentGlobalTransform;
-                Entity parentEntity = EntityManager::GetParent(editorManager.m_selectedEntity);
+                Entity parentEntity =
+                    EntityManager::GetParent(EntityManager::GetCurrentScene(), editorManager.m_selectedEntity);
                 if (!parentEntity.IsNull())
                 {
                     parentGlobalTransform =
-                        EntityManager::GetParent(editorManager.m_selectedEntity).GetDataComponent<GlobalTransform>();
+                        EntityManager::GetParent(EntityManager::GetCurrentScene(), editorManager.m_selectedEntity)
+                            .GetDataComponent<GlobalTransform>();
                 }
                 auto globalTransform = editorManager.m_selectedEntity.GetDataComponent<GlobalTransform>();
                 ImGuizmo::Manipulate(
@@ -1629,11 +1681,11 @@ void EditorManager::SceneCameraWindow()
                                 found = true;
                                 break;
                             }
-                            walker = EntityManager::GetParent(walker);
+                            walker = EntityManager::GetParent(EntityManager::GetCurrentScene(), walker);
                         }
                         if (found)
                         {
-                            walker = EntityManager::GetParent(walker);
+                            walker = EntityManager::GetParent(EntityManager::GetCurrentScene(), walker);
                             if (walker.IsNull())
                             {
                                 SetSelectedEntity(focusedEntity);
@@ -1805,15 +1857,19 @@ void EditorManager::CameraWindowDragAndDrop()
 {
     if (ImGui::BeginDragDropTarget())
     {
-        const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+        if (!Application::IsPlaying())
         {
-            IM_ASSERT(payload->DataSize == sizeof(Handle));
-            Handle payload_n = *(Handle *)payload->Data;
-            AssetRef assetRef;
-            assetRef.m_assetHandle = payload_n;
-            assetRef.Update();
-            EntityManager::Attach(std::dynamic_pointer_cast<Scene>(assetRef.m_value));
+            const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                Handle payload_n = *(Handle *)payload->Data;
+                AssetRef assetRef;
+                assetRef.m_assetHandle = payload_n;
+                assetRef.Update();
+                Application::GetInstance().m_scene = assetRef.Get<Scene>();
+                EntityManager::Attach(Application::GetInstance().m_scene);
+            }
         }
         const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Prefab>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
@@ -2143,4 +2199,3 @@ bool EditorManager::DragAndDropButton(
     }
     return statusChanged;
 }
-

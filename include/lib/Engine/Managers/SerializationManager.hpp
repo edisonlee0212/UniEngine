@@ -225,6 +225,9 @@ template <typename T> bool SerializationManager::RegisterPrivateComponentType(co
         name,
         typeid(T).hash_code(),
         [](std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source) {
+            target->m_handle = source->m_handle;
+            target->m_enabled = source->m_enabled;
+            target->m_owner = source->m_owner;
             *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
             target->m_started = false;
             target->PostCloneAction(source);
@@ -235,6 +238,9 @@ template <typename T> bool SerializationManager::RegisterSystemType(const std::s
     return RegisterSystemType(
         name,
         [](std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem>& source) {
+            target->m_handle = source->m_handle;
+            target->m_rank = source->m_rank;
+            target->m_enabled = source->m_enabled;
             *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
             target->m_started = false;
             target->PostCloneAction(source);

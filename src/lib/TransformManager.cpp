@@ -72,9 +72,8 @@ void TransformManager::CalculateTransformGraphs(const std::shared_ptr<Scene>& sc
     transformManager.m_physicsSystemOverride = false;
     ProfilerManager::EndEvent("TransformManager");
 }
-void TransformManager::CalculateTransformGraphForDescendents(const Entity &entity)
+void TransformManager::CalculateTransformGraphForDescendents(const std::shared_ptr<Scene>& scene, const Entity &entity)
 {
-    auto scene = entity.GetOwner();
     if(!scene) return;
     auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
     CalculateTransformGraph(scene, entityInfos, EntityManager::GetDataComponent<GlobalTransform>(scene, entity.GetIndex()), entity);

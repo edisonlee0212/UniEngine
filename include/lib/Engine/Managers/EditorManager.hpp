@@ -208,7 +208,7 @@ template <typename T> void EditorManager::RegisterDataComponent()
             return;
         if (ImGui::Button(SerializationManager::GetDataComponentTypeName<T>().c_str()))
         {
-            EntityManager::AddDataComponent<T>(owner, T());
+            EntityManager::AddDataComponent<T>(EntityManager::GetCurrentScene(), owner, T());
         }
     };
     for (int i = 0; i < GetInstance().m_componentDataMenuList.size(); i++)

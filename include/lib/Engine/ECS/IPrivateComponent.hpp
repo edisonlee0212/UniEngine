@@ -43,9 +43,12 @@ struct PrivateComponentElement
 {
     size_t m_typeId;
     std::shared_ptr<IPrivateComponent> m_privateComponentData;
+    UNIENGINE_API PrivateComponentElement() = default;
     UNIENGINE_API PrivateComponentElement(
         size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner);
     UNIENGINE_API void ResetOwner(const Entity &newOwner) const;
+    PrivateComponentElement& operator=(const PrivateComponentElement& source);
+
 };
 
 } // namespace UniEngine
