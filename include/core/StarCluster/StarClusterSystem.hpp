@@ -286,7 +286,6 @@ class StarClusterSystem : public ISystem
     float m_speed = 0.0f;
     float m_size = 0.05f;
     float m_galaxyTime = 0.0;
-    std::future<void> m_currentStatus;
     bool m_firstTime = true;
 
 
@@ -295,7 +294,6 @@ class StarClusterSystem : public ISystem
     void Deserialize(const YAML::Node &in) override;
     void OnInspect() override;
 
-    void CalculateStarPositionAsync();
     void CalculateStarPositionSync();
     void ApplyPosition();
     void CopyPosition(const bool &reverse = false);

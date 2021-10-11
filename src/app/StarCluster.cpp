@@ -26,7 +26,7 @@ int main()
     const std::filesystem::path resourceFolderPath("../Resources");
 
     ProjectManager::SetScenePostLoadActions([](){
-        //LoadScene();
+        LoadScene();
     });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Star Cluster/Star Cluster.ueproj";
@@ -40,19 +40,20 @@ int main()
 }
 
 void LoadScene(){
-    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    auto mainCameraEntity = mainCamera->GetOwner();
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma region Star System
     auto starClusterSystem =
         EntityManager::GetOrCreateSystem<StarClusterSystem>(EntityManager::GetCurrentScene(), SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto postProcessing =
-        RenderManager::GetMainCamera().lock()->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
+        mainCamera->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
     auto bloom = postProcessing->GetLayer<Bloom>().lock();
     bloom->m_intensity = 0.1f;
     bloom->m_diffusion = 8;
     bloom->m_enabled = true;
 
     postProcessing->GetLayer<SSAO>().lock()->m_enabled = false;
-    RenderManager::GetMainCamera().lock()->m_useClearColor = true;
+    mainCamera->m_useClearColor = true;
 }

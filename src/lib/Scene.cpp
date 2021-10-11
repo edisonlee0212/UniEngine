@@ -179,6 +179,7 @@ void Scene::FixedUpdate()
 static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
+    if(this == EntityManager::GetCurrentScene().get()) EditorManager::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
@@ -209,6 +210,7 @@ void Scene::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_environmentSettings" << YAML::Value << YAML::BeginMap;
     m_environmentSettings.Serialize(out);
     out << YAML::EndMap;
+    m_mainCamera.Save("m_mainCamera", out);
     std::unordered_map<Handle, std::shared_ptr<IAsset>> assetMap;
     std::vector<AssetRef> list;
     list.push_back(m_environmentSettings.m_environmentalMap);
@@ -379,7 +381,7 @@ void Scene::Deserialize(const YAML::Node &in)
         sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
         entityIndex++;
     }
-
+    m_mainCamera.Load("m_mainCamera", in);
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
     auto inLocalAssets = in["LocalAssets"];
@@ -575,10 +577,10 @@ Scene &Scene::operator=(const Scene &source)
     m_environmentSettings = source.m_environmentSettings;
     m_projectRelativePath = source.m_projectRelativePath;
     m_saved = source.m_saved;
-
+    m_mainCamera = source.m_mainCamera;
     m_worldBound = source.m_worldBound;
     m_sceneDataStorage = source.m_sceneDataStorage;
-
+    m_projectRelativePath.clear();
     for (const auto &i : source.m_systems)
     {
         auto systemName = i.second->GetTypeName();

@@ -15,10 +15,9 @@ void Planet::PlanetTerrainSystem::Update()
         return;
 
     std::mutex meshGenLock;
-
-    if (!RenderManager::GetMainCamera().expired())
+    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    if (mainCamera)
     {
-        const auto mainCamera = RenderManager::GetMainCamera().lock();
         const auto cameraLtw = mainCamera->GetOwner().GetDataComponent<GlobalTransform>();
         for (auto i = 0; i < planetTerrainList->size(); i++)
         {
@@ -40,7 +39,7 @@ void Planet::PlanetTerrainSystem::Update()
                 glm::translate(glm::mat4_cast(planetTransform.GetRotation()), glm::vec3(planetTransform.GetPosition())),
                 glm::vec3(1.0f));
             auto material = planetTerrain->m_surfaceMaterial.Get<Material>();
-            if(material)
+            if (material)
             {
                 for (auto j = 0; j < planetChunks.size(); j++)
                 {
@@ -108,4 +107,3 @@ void Planet::PlanetTerrainSystem::RenderChunk(
         RenderChunk(chunk->m_c3, material, matrix, camera, receiveShadow);
     }
 }
-

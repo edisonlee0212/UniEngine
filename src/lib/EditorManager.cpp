@@ -513,8 +513,7 @@ void EditorManager::RenderToSceneCamera()
         }
     }
 
-    if (!renderManager.m_mainCameraComponent.expired() && editorManager.m_enabled &&
-        editorManager.m_sceneCamera->IsEnabled())
+    if (editorManager.m_enabled && editorManager.m_sceneCamera->IsEnabled())
     {
         Camera::m_cameraInfoBlock.UpdateMatrices(
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
@@ -747,6 +746,26 @@ void EditorManager::OnInspect()
         }
         if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
         {
+            const auto type = scene->GetTypeName();
+            const std::string tag = "##" + type + (scene ? std::to_string(scene->GetHandle()) : "");
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                ImGui::SetDragDropPayload(type.c_str(), &scene->m_handle, sizeof(Handle));
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), (scene->m_name + tag).c_str());
+                ImGui::EndDragDropSource();
+            }
+            if (ImGui::BeginPopupContextItem(tag.c_str()))
+            {
+                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+                {
+                    static char newName[256];
+                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                    if (ImGui::Button(("Confirm" + tag).c_str()))
+                        scene->m_name = std::string(newName);
+                    ImGui::EndMenu();
+                }
+                ImGui::EndPopup();
+            }
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
                 editorManager.m_inspectingAsset = scene;
@@ -986,14 +1005,14 @@ void EditorManager::OnInspect()
                         AssetRef assetRef;
                         assetRef.m_assetHandle = payload_n;
                         assetRef.Update();
-                        if (assetRef.m_value->GetPath().empty())
+                        // If current folder doesn't contain file with same name
+                        auto tempFileName = assetRef.m_value->m_name;
+                        auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
+                        auto folderPath = projectManager.m_projectPath.parent_path() /
+                                          projectManager.m_currentFocusedFolder->m_relativePath;
+                        std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
+                        if (assetRef.m_value->GetPath() != projectManager.m_currentFocusedFolder->m_relativePath  / (tempFileName + fileExtension))
                         {
-                            // If current folder doesn't contain file with same name
-                            auto tempFileName = assetRef.m_value->m_name;
-                            auto fileExtension = assetManager.m_defaultExtensions[assetRef.m_assetTypeName].at(0);
-                            auto folderPath = projectManager.m_projectPath.parent_path() /
-                                              projectManager.m_currentFocusedFolder->m_relativePath;
-                            std::filesystem::path filePath = folderPath / (tempFileName + fileExtension);
                             int index = 0;
                             while (std::filesystem::exists(filePath))
                             {
@@ -1516,28 +1535,13 @@ void EditorManager::SceneCameraWindow()
             editorManager.m_sceneCameraResolutionX = viewPortSize.x;
             editorManager.m_sceneCameraResolutionY = viewPortSize.y;
 
-            bool cameraActive = false;
-            if (!RenderManager::GetMainCamera().expired())
-            {
-                auto mainCamera = RenderManager::GetMainCamera().lock();
-                auto entity = mainCamera->GetOwner();
-                if (entity.IsEnabled() && mainCamera->IsEnabled())
-                {
-                    // Because I use the texture from OpenGL, I need to invert the V from the UV.
-                    ImGui::Image(
-                        (ImTextureID)editorManager.m_sceneCamera->GetTexture()->UnsafeGetGLTexture()->Id(),
-                        viewPortSize,
-                        ImVec2(0, 1),
-                        ImVec2(1, 0));
-                    CameraWindowDragAndDrop();
-
-                    cameraActive = true;
-                }
-            }
-            if (!cameraActive)
-            {
-                ImGui::Text("No active main camera!");
-            }
+            // Because I use the texture from OpenGL, I need to invert the V from the UV.
+            ImGui::Image(
+                (ImTextureID)editorManager.m_sceneCamera->GetTexture()->UnsafeGetGLTexture()->Id(),
+                viewPortSize,
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            CameraWindowDragAndDrop();
 
             glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
             if (editorManager.m_sceneCameraWindowFocused)
@@ -1736,6 +1740,7 @@ void EditorManager::MainCameraWindow()
 {
     auto &renderManager = RenderManager::GetInstance();
     auto &editorManager = GetInstance();
+    auto scene = EntityManager::GetCurrentScene();
 #pragma region Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -1770,9 +1775,9 @@ void EditorManager::MainCameraWindow()
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
             bool cameraActive = false;
-            if (!RenderManager::GetMainCamera().expired())
+            auto mainCamera = scene->m_mainCamera.Get<Camera>();
+            if (mainCamera)
             {
-                auto mainCamera = RenderManager::GetMainCamera().lock();
                 auto entity = mainCamera->GetOwner();
                 if (entity.IsEnabled() && mainCamera->IsEnabled())
                 {
@@ -1924,14 +1929,14 @@ void EditorManager::CameraWindowDragAndDrop()
         const std::string cubeMapTypeHash = SerializationManager::GetSerializableTypeName<Cubemap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
         {
-            if (!RenderManager::GetMainCamera().expired())
+            auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+            if (mainCamera)
             {
                 IM_ASSERT(payload->DataSize == sizeof(Handle));
                 Handle payload_n = *(Handle *)payload->Data;
                 AssetRef assetRef;
                 assetRef.m_assetHandle = payload_n;
                 assetRef.Update();
-                auto mainCamera = RenderManager::GetMainCamera().lock();
                 mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(assetRef.m_value);
             }
         }

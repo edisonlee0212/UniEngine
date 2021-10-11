@@ -13,7 +13,7 @@ int main()
      */
     const std::filesystem::path resourceFolderPath("../Resources");
     ProjectManager::SetScenePostLoadActions([](){
-        //LoadScene();
+        LoadScene();
     });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Rendering/Rendering.ueproj";
@@ -34,7 +34,8 @@ void LoadScene(){
     const float cosTime = glm::cos(time / 5.0f);
     EntityManager::GetCurrentScene()->m_environmentSettings.m_ambientLightIntensity = 0.5f;
 #pragma region Set main camera to correct position and rotation
-    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    auto mainCameraEntity = mainCamera->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, 0, 40));
     mainCameraEntity.SetDataComponent(mainCameraTransform);
@@ -70,7 +71,7 @@ void LoadScene(){
     }
 #pragma endregion
 #pragma region Load models and display
-    /*
+
     auto sponza =
         AssetManager::CreateAsset<Prefab>();
     sponza->LoadModel("Models/Sponza_FBX/Sponza.fbx", true);
@@ -78,7 +79,7 @@ void LoadScene(){
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
-*/
+
     auto title = AssetManager::Import<Prefab>("Models/UniEngine.obj");
     auto titleEntity = title->ToEntity();
     titleEntity.SetName("Title");

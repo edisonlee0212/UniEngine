@@ -244,36 +244,6 @@ void Galaxy::StarClusterSystem::OnInspect()
     ImGui::InputFloat("Calculation time", &m_calcPositionResult, 0, 0, "%.5f", ImGuiInputTextFlags_ReadOnly);
 }
 
-void Galaxy::StarClusterSystem::CalculateStarPositionAsync()
-{
-    auto list = EntityManager::UnsafeGetDataComponentArray<GlobalTransform>(EntityManager::GetCurrentScene(),m_starQuery);
-    if (m_firstTime || m_currentStatus.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        m_useFront = !m_useFront;
-        m_calcPositionResult = Application::Time().CurrentTime() - m_calcPositionTimer;
-        m_firstTime = false;
-        ApplyPosition();
-        m_calcPositionTimer = Application::Time().CurrentTime();
-        m_currentStatus = std::async(std::launch::async, [=]() {
-            EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(EntityManager::GetCurrentScene(),
-                JobManager::SecondaryWorkers(),
-                m_starQuery,
-                [=](int i,
-                    Entity entity,
-                    StarOrbitProportion &starProportion,
-                    StarPosition &starPosition,
-                    StarOrbit &starOrbit,
-                    StarOrbitOffset &starOrbitOffset) {
-                    // Code here will be exec in parallel
-                    starPosition.m_value = starOrbit.GetPoint(
-                        starOrbitOffset.m_value, starProportion.m_value * 360.0f + m_galaxyTime, true);
-                },
-                false);
-            CopyPosition(true);
-        });
-    }
-}
-
 void Galaxy::StarClusterSystem::CalculateStarPositionSync()
 {
 

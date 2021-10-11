@@ -264,20 +264,13 @@ void RenderManager::PreUpdate()
 void RenderManager::LateUpdate()
 {
     ProfilerManager::StartEvent("RenderManager");
-    auto &renderManager = GetInstance();
-    bool mainCameraExist = !renderManager.m_mainCameraComponent.expired();
-    std::shared_ptr<Camera> mainCamera;
-    if (mainCameraExist)
-        mainCamera = renderManager.m_mainCameraComponent.lock();
-    if (mainCamera && !mainCamera->GetOwner().IsValid())
-    {
-        renderManager.m_mainCameraComponent.reset();
-        mainCameraExist = false;
-    }
-
     auto scene = EntityManager::GetCurrentScene();
     if (!scene)
         return;
+
+    auto &renderManager = GetInstance();
+    std::shared_ptr<Camera> mainCamera = scene->m_mainCamera.Get<Camera>();
+
 #pragma region Collect RenderCommands
     ProfilerManager::StartEvent("RenderCommand Collection");
     Bound worldBound;
@@ -289,7 +282,7 @@ void RenderManager::LateUpdate()
     ProfilerManager::StartEvent("Main Rendering");
     renderManager.m_triangles = 0;
     renderManager.m_drawCall = 0;
-    if (mainCameraExist)
+    if (mainCamera)
     {
         if (mainCamera->m_allowAutoResize)
             mainCamera->ResizeResolution(renderManager.m_mainCameraResolutionX, renderManager.m_mainCameraResolutionY);
@@ -2516,22 +2509,6 @@ void RenderManager::DrawTexture2D(
     DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
 */
-void RenderManager::SetMainCamera(const std::shared_ptr<Camera> &value)
-{
-    auto &renderManager = GetInstance();
-    if (!renderManager.m_mainCameraComponent.expired())
-    {
-        renderManager.m_mainCameraComponent.lock()->m_isMainCamera = false;
-    }
-    renderManager.m_mainCameraComponent = value;
-    if (value)
-        value->m_isMainCamera = true;
-}
-
-std::weak_ptr<Camera> RenderManager::GetMainCamera()
-{
-    return GetInstance().m_mainCameraComponent;
-}
 
 #pragma endregion
 #pragma region Gizmo

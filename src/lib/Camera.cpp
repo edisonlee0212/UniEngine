@@ -315,7 +315,6 @@ void Camera::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_resolutionX" << YAML::Value << m_resolutionX;
     out << YAML::Key << "m_resolutionY" << YAML::Value << m_resolutionY;
-    out << YAML::Key << "m_isMainCamera" << YAML::Value << m_isMainCamera;
     out << YAML::Key << "m_useClearColor" << YAML::Value << m_useClearColor;
     out << YAML::Key << "m_clearColor" << YAML::Value << m_clearColor;
     out << YAML::Key << "m_allowAutoResize" << YAML::Value << m_allowAutoResize;
@@ -329,9 +328,6 @@ void Camera::Deserialize(const YAML::Node &in)
 {
     int resolutionX = in["m_resolutionX"].as<int>();
     int resolutionY = in["m_resolutionY"].as<int>();
-    m_isMainCamera = in["m_isMainCamera"].as<bool>();
-    if (m_isMainCamera)
-        RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
     m_useClearColor = in["m_useClearColor"].as<bool>();
     m_clearColor = in["m_clearColor"].as<glm::vec3>();
     m_allowAutoResize = in["m_allowAutoResize"].as<bool>();
@@ -345,10 +341,6 @@ void Camera::Deserialize(const YAML::Node &in)
 
 void Camera::OnDestroy()
 {
-    if (!RenderManager::GetMainCamera().expired() && RenderManager::GetMainCamera().lock().get() == this)
-    {
-        RenderManager::SetMainCamera(nullptr);
-    }
 }
 
 void Camera::OnInspect()
@@ -363,17 +355,18 @@ void Camera::OnInspect()
         }
     }
     ImGui::Checkbox("Use clear color", &m_useClearColor);
-    const bool savedState = m_isMainCamera;
-    ImGui::Checkbox("Main Camera", &m_isMainCamera);
-    if (savedState != m_isMainCamera)
+    const bool savedState = (this == EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>().get());
+    bool isMainCamera = savedState;
+    ImGui::Checkbox("Main Camera", &isMainCamera);
+    if (savedState != isMainCamera)
     {
-        if (m_isMainCamera)
+        if (isMainCamera)
         {
-            RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
+            EntityManager::GetCurrentScene()->m_mainCamera = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
         }
         else
         {
-            RenderManager::SetMainCamera(nullptr);
+            EntityManager::GetCurrentScene()->m_mainCamera.Clear();
         }
     }
     if (m_useClearColor)
@@ -427,8 +420,6 @@ void Camera::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 }
 void Camera::Start()
 {
-    if (m_isMainCamera)
-        RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
 }
 void Camera::CollectAssetRef(std::vector<AssetRef> &list)
 {
@@ -447,8 +438,6 @@ Camera &Camera::operator=(const Camera &source)
     m_useClearColor = source.m_useClearColor;
     m_clearColor = source.m_clearColor;
     m_skybox = source.m_skybox;
-    if(source.m_isMainCamera) RenderManager::SetMainCamera(GetOwner().GetOrSetPrivateComponent<Camera>().lock());
-    m_isMainCamera = source.m_isMainCamera;
     return *this;
 }
 

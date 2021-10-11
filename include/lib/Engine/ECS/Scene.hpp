@@ -6,6 +6,7 @@
 #include <ISystem.hpp>
 #include <PrivateComponentStorage.hpp>
 #include <Utilities.hpp>
+#include <PrivateComponentRef.hpp>
 namespace UniEngine
 {
 
@@ -69,7 +70,7 @@ class UNIENGINE_API Scene : public IAsset
 
   public:
     EnvironmentSettings m_environmentSettings;
-
+    PrivateComponentRef m_mainCamera;
     void Purge();
     void OnCreate() override;
     Scene &operator=(const Scene &source);

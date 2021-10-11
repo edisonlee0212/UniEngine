@@ -49,7 +49,6 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferMetallicRoughnessEmissionAmbient;
 
     static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
-    bool m_isMainCamera = false;
     size_t m_frameCount = 0;
   public:
     Camera& operator=(const Camera& source);

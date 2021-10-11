@@ -368,7 +368,7 @@ void ProjectManager::GenerateNewDefaultScene()
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
     mainCameraEntity.SetDataComponent(cameraLtw);
     auto mainCameraComponent = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
-    RenderManager::SetMainCamera(mainCameraComponent);
+    scene->m_mainCamera = mainCameraComponent;
     mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
 

@@ -389,7 +389,7 @@ void Application::Play()
     if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
     if(application.m_gameStatus == GameStatus::Stop)
     {
-        auto copiedScene = SerializationManager::ProduceSerializable<Scene>();
+        auto copiedScene = AssetManager::CreateAsset<Scene>();
         *copiedScene = *application.m_scene;
         EntityManager::Attach(copiedScene);
     }
@@ -418,7 +418,7 @@ void Application::Step()
     if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
     if(application.m_gameStatus == GameStatus::Stop)
     {
-        auto copiedScene = SerializationManager::ProduceSerializable<Scene>();
+        auto copiedScene = AssetManager::CreateAsset<Scene>();
         *copiedScene = *application.m_scene;
         EntityManager::Attach(copiedScene);
     }

@@ -63,6 +63,7 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
 }
 EntityMetadata &EntityMetadata::operator=(const EntityMetadata &source)
 {
+    m_handle = source.m_handle;
     m_name = source.m_name;
     m_version = source.m_version;
     m_enabled = source.m_enabled;

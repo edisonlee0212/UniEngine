@@ -55,7 +55,8 @@ bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
 }
 void InputManager::PreUpdate()
 {
-    if (!RenderManager::GetMainCamera().expired() && EditorManager::MainCameraWindowFocused())
+    auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    if (mainCamera && EditorManager::MainCameraWindowFocused())
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 

@@ -1,9 +1,13 @@
 m_fileRecords:
-  - Handle: 7513815373803065731
+  - Handle: 7954778150999321617
     m_name: New Scene
     m_fileName: New Scene.uescene
     m_typeName: Scene
-  - Handle: 9321109511834793058
+  - Handle: 3983573481043197578
     m_name: Star Cluster
     m_fileName: Star Cluster.ueproj
     m_typeName: Binary
+  - Handle: 6931162490240795878
+    m_name: New Scene(1)
+    m_fileName: New Scene(1).uescene
+    m_typeName: Scene

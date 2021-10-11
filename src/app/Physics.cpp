@@ -59,7 +59,7 @@ void LoadScene();
 int main()
 {
     ProjectManager::SetScenePostLoadActions([](){
-        LoadScene();
+        //LoadScene();
     });
 
     const std::filesystem::path resourceFolderPath("../Resources");
@@ -75,7 +75,8 @@ int main()
     return 0;
 }
 void LoadScene(){
-    auto mainCameraEntity = RenderManager::GetMainCamera().lock()->GetOwner();
+    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    auto mainCameraEntity = mainCamera->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
     mainCameraEntity.SetDataComponent(mainCameraTransform);

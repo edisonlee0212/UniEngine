@@ -38,3 +38,9 @@ void PrivateComponentRef::Clear()
     m_value.reset();
     m_entityHandle = Handle(0);
 }
+PrivateComponentRef &PrivateComponentRef::operator=(const PrivateComponentRef &other)
+{
+    m_entityHandle = other.m_entityHandle;
+    m_privateComponentTypeName = other.m_privateComponentTypeName;
+    return *this;
+}

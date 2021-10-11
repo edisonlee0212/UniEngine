@@ -95,8 +95,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void SetPointLightShadowMapResolution(const size_t &value);
     static void SetSpotLightShadowMapResolution(const size_t &value);
     static glm::vec3 ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b);
-    static void SetMainCamera(const std::shared_ptr<Camera> &value);
-    static std::weak_ptr<Camera> GetMainCamera();
 #pragma endregion
 #pragma region Render API
 #pragma region Gizmos
@@ -265,7 +263,6 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     unsigned m_frameIndex = 0;
 
 #pragma region Class members
-    std::weak_ptr<Camera> m_mainCameraComponent;
 #pragma region GUI
     bool m_enableRenderMenu = true;
     bool m_enableInfoWindow = true;

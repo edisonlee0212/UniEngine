@@ -15,6 +15,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
     bool Update();
 
   public:
+    PrivateComponentRef &operator=(const PrivateComponentRef &other);
     void Serialize(YAML::Emitter &out) override
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
