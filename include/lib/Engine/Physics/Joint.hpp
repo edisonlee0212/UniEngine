@@ -47,7 +47,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     glm::vec3 m_localPosition2;
     glm::quat m_localRotation1;
     glm::quat m_localRotation2;
-
+    bool m_linked = false;
 #pragma region Fixed
     void FixedGui();
 #pragma endregion
@@ -80,7 +80,6 @@ class UNIENGINE_API Joint : public IPrivateComponent
     PxD6JointDrive m_drives[6] = { PxD6JointDrive() };
     void D6Gui();
 #pragma endregion
-    bool SafetyCheck();
     bool TypeCheck(const JointType &type);
 
   public:
@@ -107,9 +106,6 @@ class UNIENGINE_API Joint : public IPrivateComponent
     void Unlink();
     bool Linked();
     void OnCreate() override;
-    void Start() override;
-
-    void Link(bool resetLocalFrames);
 
     void Link(const Entity& entity);
     void OnInspect() override;

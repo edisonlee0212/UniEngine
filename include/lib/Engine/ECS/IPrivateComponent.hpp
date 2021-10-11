@@ -8,6 +8,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class EntityManager;
     friend class EditorManager;
     friend struct PrivateComponentElement;
+    friend class SerializationManager;
     friend class Scene;
     friend class Prefab;
     bool m_enabled = true;
@@ -35,7 +36,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
 
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
     virtual void Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle){};
-    virtual void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) = 0;
+    virtual void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) {};
 };
 
 struct PrivateComponentElement

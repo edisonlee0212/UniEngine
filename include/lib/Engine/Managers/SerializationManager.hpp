@@ -220,6 +220,8 @@ template <typename T> bool SerializationManager::RegisterPrivateComponentType(co
         typeid(T).hash_code(),
         [](std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source) {
             *std::dynamic_pointer_cast<T>(target) = *std::dynamic_pointer_cast<T>(source);
+            target->m_started = false;
+            target->PostCloneAction(source);
             return typeid(T).hash_code();
         });
 }

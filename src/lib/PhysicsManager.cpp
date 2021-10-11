@@ -1,3 +1,4 @@
+#include "Joint.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <PhysicsManager.hpp>
@@ -57,8 +58,8 @@ void PhysicsManager::PreUpdate()
     const bool playing = Application::IsPlaying();
 
     UploadRigidBodyShapes();
-
     UploadTransforms(!playing);
+    UploadJointLinks();
 }
 
 void PhysicsManager::Init()
@@ -97,11 +98,12 @@ void PhysicsManager::Destroy()
     PX_RELEASE(physicsManager.m_physVisDebugger);
     PX_RELEASE(physicsManager.m_pvdTransport);
 
-    //PX_RELEASE(physicsManager.m_physicsFoundation);
+    // PX_RELEASE(physicsManager.m_physicsFoundation);
 }
 void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
 {
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+    if (const std::vector<Entity> *entities =
+            EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
         entities != nullptr)
     {
         for (auto entity : *entities)
@@ -117,7 +119,7 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
                     if (freeze || updateAll)
                     {
                         static_cast<PxRigidDynamic *>(rigidBody->m_rigidActor)
-                        ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                            ->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
                     }
                     else
                     {
@@ -170,7 +172,8 @@ void PhysicsScene::Simulate(float time) const
 
 void PhysicsSystem::Simulate(float time) const
 {
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *rigidBodyEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (!rigidBodyEntities)
         return;
     m_scene->Simulate(time);
@@ -183,7 +186,8 @@ void PhysicsSystem::OnEnable()
 }
 void PhysicsSystem::DownloadRigidBodyTransforms() const
 {
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *rigidBodyEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (rigidBodyEntities)
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
@@ -213,7 +217,8 @@ void PhysicsManager::UploadRigidBodyShapes(
 void PhysicsManager::UploadRigidBodyShapes()
 {
     auto physicsManager = GetInstance();
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+    const std::vector<Entity> *rigidBodyEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
     if (rigidBodyEntities)
     {
         for (int i = 0; i < physicsManager.m_scenes.size(); i++)
@@ -232,6 +237,180 @@ void PhysicsManager::UploadRigidBodyShapes()
         }
     }
 }
+void PhysicsManager::UploadJointLinks()
+{
+    auto physicsManager = GetInstance();
+    const std::vector<Entity> *jointEntities =
+        EntityManager::UnsafeGetPrivateComponentOwnersList<Joint>(EntityManager::GetCurrentScene());
+    if (jointEntities)
+    {
+        for (int i = 0; i < physicsManager.m_scenes.size(); i++)
+        {
+            auto scene = physicsManager.m_scenes[i].lock();
+            if (scene)
+            {
+
+                UploadJointLinks(scene, jointEntities);
+            }
+            else
+            {
+                physicsManager.m_scenes.erase(physicsManager.m_scenes.begin() + i);
+                i--;
+            }
+        }
+    }
+}
+void PhysicsManager::UploadJointLinks(
+    const std::shared_ptr<PhysicsScene> &scene, const std::vector<Entity> *jointEntities)
+{
+#pragma region Update shape
+    for (auto entity : *jointEntities)
+    {
+        auto joint = entity.GetOrSetPrivateComponent<Joint>().lock();
+        auto rigidBody1 = joint->m_rigidBody1.Get<RigidBody>();
+        auto rigidBody2 = joint->m_rigidBody2.Get<RigidBody>();
+        if (joint->m_linked == false && entity.IsValid() && entity.IsEnabled() && joint->IsEnabled())
+        {
+            if(rigidBody1 && rigidBody2)
+            {
+                PxTransform localFrame1;
+                auto ownerGT = rigidBody1->GetOwner().GetDataComponent<GlobalTransform>();
+                ownerGT.SetScale(glm::vec3(1.0f));
+                auto linkerGT = rigidBody2->GetOwner().GetDataComponent<GlobalTransform>();
+                linkerGT.SetScale(glm::vec3(1.0f));
+                Transform transform;
+                transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;
+                joint->m_localPosition1 = glm::vec3(0.0f);
+                joint->m_localRotation1 = glm::vec3(0.0f);
+
+                joint->m_localPosition2 = transform.GetPosition();
+                joint->m_localRotation2 = transform.GetRotation();
+
+                switch (joint->m_jointType)
+                {
+                case JointType::Fixed:
+                    joint->m_joint = PxFixedJointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(joint->m_localPosition1.x, joint->m_localPosition1.y, joint->m_localPosition1.z),
+                            PxQuat(
+                                joint->m_localRotation1.x,
+                                joint->m_localRotation1.y,
+                                joint->m_localRotation1.z,
+                                joint->m_localRotation1.w)),
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(joint->m_localPosition2.x, joint->m_localPosition2.y, joint->m_localPosition2.z),
+                            PxQuat(
+                                joint->m_localRotation2.x,
+                                joint->m_localRotation2.y,
+                                joint->m_localRotation2.z,
+                                joint->m_localRotation2.w)));
+                    break;
+                    /*
+                case JointType::Distance:
+                    m_joint = PxDistanceJointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
+                            PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
+                            PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
+                    break;
+                case JointType::Spherical: {
+                    m_joint = PxSphericalJointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
+                            PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)),
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
+                            PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)));
+                    // static_cast<PxSphericalJoint *>(m_joint)->setLimitCone(PxJointLimitCone(PxPi / 2, PxPi / 6,
+                0.01f));
+                    // static_cast<PxSphericalJoint
+                *>(m_joint)->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED,
+                    // true);
+                }
+                break;
+                case JointType::Revolute:
+                    m_joint = PxRevoluteJointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
+                            PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
+                            PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
+                    break;
+                case JointType::Prismatic:
+                    m_joint = PxPrismaticJointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
+                            PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
+                            PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
+                    break;
+                     */
+                case JointType::D6:
+                    joint->m_joint = PxD6JointCreate(
+                        *PhysicsManager::GetInstance().m_physics,
+                        rigidBody2->m_rigidActor,
+                        PxTransform(
+                            PxVec3(joint->m_localPosition1.x, joint->m_localPosition1.y, joint->m_localPosition1.z),
+                            PxQuat(
+                                joint->m_localRotation1.x,
+                                joint->m_localRotation1.y,
+                                joint->m_localRotation1.z,
+                                joint->m_localRotation1.w)),
+                        rigidBody1->m_rigidActor,
+                        PxTransform(
+                            PxVec3(joint->m_localPosition2.x, joint->m_localPosition2.y, joint->m_localPosition2.z),
+                            PxQuat(
+                                joint->m_localRotation2.x,
+                                joint->m_localRotation2.y,
+                                joint->m_localRotation2.z,
+                                joint->m_localRotation2.w)));
+                    static_cast<PxD6Joint *>(joint->m_joint)->setProjectionAngularTolerance(1.0f);
+                    static_cast<PxD6Joint *>(joint->m_joint)->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        joint->SetMotion((MotionAxis)i, (MotionType)joint->m_motionTypes[i]);
+                    }
+                    for (int i = 0; i < 6; i++)
+                    {
+                        joint->SetDrive(
+                            (DriveType)i,
+                            joint->m_drives[i].stiffness,
+                            joint->m_drives[i].damping,
+                            joint->m_drives[i].flags == PxD6JointDriveFlag::eACCELERATION);
+                    }
+                    break;
+                }
+                joint->m_linked = true;
+            }
+        }
+        else if (joint->m_linked == true && (!entity.IsValid() || !entity.IsEnabled() || !joint->IsEnabled() || !rigidBody1 || !rigidBody2))
+        {
+            joint->Unlink();
+        }
+    }
+#pragma endregion
+}
+
 void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigidBodyEntities) const
 {
     std::vector<std::shared_future<void>> futures;
@@ -258,7 +437,7 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
                                           rigidBodyEntity.SetDataComponent(globalTransform);
-                                          if(!rigidBody->m_static)
+                                          if (!rigidBody->m_static)
                                           {
                                               PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
                                               rigidBody->m_linearVelocity = rb->getLinearVelocity();
@@ -281,7 +460,7 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
                                           rigidBodyEntity.SetDataComponent(globalTransform);
-                                          if(!rigidBody->m_static)
+                                          if (!rigidBody->m_static)
                                           {
                                               PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
                                               rigidBody->m_linearVelocity = rb->getLinearVelocity();

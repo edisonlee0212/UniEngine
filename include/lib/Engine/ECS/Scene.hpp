@@ -81,6 +81,8 @@ class UNIENGINE_API Scene : public IAsset
     void OnInspect() override;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
+
+    void Clone(const std::shared_ptr<Scene>& target);
 };
 
 template <typename T> void Scene::DestroySystem()

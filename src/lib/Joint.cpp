@@ -121,24 +121,19 @@ void Joint::D6Gui()
 #pragma endregion
 void Joint::Unlink()
 {
+    if(!m_linked) return;
     if (m_joint)
     {
         m_joint->release();
         m_joint = nullptr;
     }
+    m_linked = false;
 }
 bool Joint::Linked()
 {
-    return m_joint;
+    return m_linked;
 }
-bool Joint::SafetyCheck()
-{
-    if (!m_rigidBody1.Get<RigidBody>() || !m_rigidBody2.Get<RigidBody>())
-    {
-        return false;
-    }
-    return true;
-}
+
 void Joint::OnCreate()
 {
 }
@@ -157,7 +152,7 @@ void Joint::OnInspect()
     EditorManager::DragAndDropButton<RigidBody>(m_rigidBody2, "Link 2");
     if (m_rigidBody1.Get<RigidBody>() != storedRigidBody1 || m_rigidBody2.Get<RigidBody>() != storedRigidBody2)
     {
-        Link(true);
+        Unlink();
     }
     if (m_joint)
     {
@@ -192,113 +187,6 @@ void Joint::OnDestroy()
     Unlink();
 }
 
-void Joint::Link(const bool resetLocalFrames)
-{
-    Unlink();
-    if (SafetyCheck())
-    {
-        auto rigidBody1 = m_rigidBody1.Get<RigidBody>();
-        auto rigidBody2 = m_rigidBody2.Get<RigidBody>();
-        if (resetLocalFrames)
-        {
-            PxTransform localFrame1;
-            auto ownerGT = rigidBody1->GetOwner().GetDataComponent<GlobalTransform>();
-            ownerGT.SetScale(glm::vec3(1.0f));
-            auto linkerGT = rigidBody2->GetOwner().GetDataComponent<GlobalTransform>();
-            linkerGT.SetScale(glm::vec3(1.0f));
-            Transform transform;
-            transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;
-            m_localPosition1 = glm::vec3(0.0f);
-            m_localRotation1 = glm::vec3(0.0f);
-
-            m_localPosition2 = transform.GetPosition();
-            m_localRotation2 = transform.GetRotation();
-        }
-        switch (m_jointType)
-        {
-        case JointType::Fixed:
-            m_joint = PxFixedJointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
-            break;
-            /*
-        case JointType::Distance:
-            m_joint = PxDistanceJointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
-            break;
-        case JointType::Spherical: {
-            m_joint = PxSphericalJointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)),
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)));
-            // static_cast<PxSphericalJoint *>(m_joint)->setLimitCone(PxJointLimitCone(PxPi / 2, PxPi / 6, 0.01f));
-            // static_cast<PxSphericalJoint *>(m_joint)->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED,
-            // true);
-        }
-        break;
-        case JointType::Revolute:
-            m_joint = PxRevoluteJointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
-            break;
-        case JointType::Prismatic:
-            m_joint = PxPrismaticJointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
-            break;
-             */
-        case JointType::D6:
-            m_joint = PxD6JointCreate(
-                *PhysicsManager::GetInstance().m_physics,
-                rigidBody2->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition1.x, m_localPosition1.y, m_localPosition1.z),
-                    PxQuat(m_localRotation1.x, m_localRotation1.y, m_localRotation1.z, m_localRotation1.w)),
-                rigidBody1->m_rigidActor,
-                PxTransform(
-                    PxVec3(m_localPosition2.x, m_localPosition2.y, m_localPosition2.z),
-                    PxQuat(m_localRotation2.x, m_localRotation2.y, m_localRotation2.z, m_localRotation2.w)));
-            static_cast<PxD6Joint *>(m_joint)->setProjectionAngularTolerance(1.0f);
-            static_cast<PxD6Joint *>(m_joint)->setConstraintFlag(PxConstraintFlag::ePROJECTION, true);
-            break;
-        }
-    }
-}
 
 bool Joint::TypeCheck(const JointType &type)
 {
@@ -314,7 +202,7 @@ void Joint::SetType(const JointType &type)
     if (type != m_jointType)
     {
         m_jointType = type;
-        Link(false);
+        Unlink();
     }
 }
 
@@ -355,53 +243,14 @@ void Joint::SetDistanceLimit(
 void Joint::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
     m_joint = nullptr;
+    m_linked = false;
 }
 void Joint::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
 {
     m_rigidBody1.Relink(map, newSceneHandle);
     m_rigidBody2.Relink(map, newSceneHandle);
 }
-void Joint::Start()
-{
-    if (m_joint == nullptr)
-    {
-        Link(false);
-        switch (m_jointType)
-        {
-        case JointType::Fixed:
 
-            break;
-        /*
-    case JointType::Distance:
-        DistanceGui();
-        break;
-    case JointType::Spherical:
-        SphericalGui();
-        break;
-    case JointType::Revolute:
-        RevoluteGui();
-        break;
-    case JointType::Prismatic:
-        PrismaticGui();
-        break;
-         */
-        case JointType::D6:
-            for (int i = 0; i < 6; i++)
-            {
-                SetMotion((MotionAxis)i, (MotionType)m_motionTypes[i]);
-            }
-            for (int i = 0; i < 6; i++)
-            {
-                SetDrive(
-                    (DriveType)i,
-                    m_drives[i].stiffness,
-                    m_drives[i].damping,
-                    m_drives[i].flags == PxD6JointDriveFlag::eACCELERATION);
-            }
-            break;
-        }
-    }
-}
 void Joint::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_jointType" << YAML::Value << (unsigned)m_jointType;
@@ -503,6 +352,9 @@ case JointType::Prismatic:
         }
         break;
     }
+
+    m_linked = false;
+    m_joint = nullptr;
 }
 void Joint::Link(const Entity &entity)
 {
@@ -511,6 +363,6 @@ void Joint::Link(const Entity &entity)
     {
         m_rigidBody1.Set<RigidBody>(owner);
         m_rigidBody2.Set<RigidBody>(entity);
+        Unlink();
     }
-    Link(true);
 }

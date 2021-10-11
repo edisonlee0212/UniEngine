@@ -45,7 +45,6 @@ Entity Prefab::ToEntity() const
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         SerializationManager::ClonePrivateComponent(ptr, i.m_data);
-        ptr->PostCloneAction(i.m_data);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     for (const auto &i : m_children)
@@ -109,7 +108,6 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         SerializationManager::ClonePrivateComponent(ptr, i.m_data);
-        ptr->PostCloneAction(i.m_data);
         EntityManager::SetPrivateComponent(entity, ptr);
     }
     int index = 0;
@@ -743,8 +741,6 @@ void Prefab::FromEntity(const Entity &entity)
             SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
         ptr->OnCreate();
         SerializationManager::ClonePrivateComponent(ptr, element.m_privateComponentData);
-        ptr->PostCloneAction(element.m_privateComponentData);
-        ptr->m_started = false;
         PrivateComponentHolder holder;
         holder.m_enabled = element.m_privateComponentData->m_enabled;
         holder.m_data = ptr;

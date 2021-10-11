@@ -127,9 +127,11 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     friend class PhysicsMaterial;
     friend class Collider;
     static void UploadRigidBodyShapes(const std::shared_ptr<PhysicsScene>& scene, const std::vector<Entity> *rigidBodyEntities);
+    static void UploadJointLinks(const std::shared_ptr<PhysicsScene>& scene, const std::vector<Entity> *jointEntities);
   public:
     static void UploadTransforms(const bool& updateAll, const bool& freeze = false);
     static void UploadRigidBodyShapes();
+    static void UploadJointLinks();
     static void UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody);
     static void PreUpdate();
     static void Init();

@@ -35,6 +35,8 @@ class UNIENGINE_API ISystem : public ISerializable
     // Will only exec when editor is enabled, and no matter application is running or not.
     virtual void OnInspect(){};
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
+
+    virtual void PostCloneAction(const std::shared_ptr<ISystem>& target){};
 };
 
 class UNIENGINE_API SystemRef : public ISerializable

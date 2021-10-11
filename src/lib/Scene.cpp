@@ -368,6 +368,7 @@ void Scene::Deserialize(const YAML::Node &in)
         sceneDataStorage.m_entityInfos.emplace_back();
         auto &newInfo = sceneDataStorage.m_entityInfos.back();
         newInfo.Deserialize(inEntityInfo);
+        newInfo.m_parent.m_sceneHandle = GetHandle();
     }
 #pragma endregion
 #pragma region Entities
@@ -578,6 +579,11 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 
     return true;
 }
+void Scene::Clone(const std::shared_ptr<Scene>& target)
+{
+
+}
+
 void EnvironmentSettings::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_backgroundColor" << YAML::Value << m_backgroundColor;
