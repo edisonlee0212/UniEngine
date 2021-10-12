@@ -53,6 +53,7 @@ Here lists the features that already exists in the UniEngine.
     - Post-processing
        - Bloom
        - SSAO
+       - Screen Space Reflection
     - PBR with IBL support
        - Environmental map
        - Basic light probe/reflection probe support
@@ -80,13 +81,12 @@ Here lists the features that already exists in the UniEngine.
        - RigidBody with colliders
        - Joints
        - Articulations
+ - Documentation
+       - https://codedocs.xyz/edisonlee0212/UniEngine/
 ## Upcoming features
 Here lists the features that will be introduced to UniEngine in future, though I don't have a concrete plan of when these will come.
-- Post-processing - Screen Space Reflection
 - Procedural terrain and world generation
 - Artificial Intelligence
 - Audio system
-- Documentation
 - Event System
 ## Plans
-- Next should be Post-processing - Screen Space Reflection
