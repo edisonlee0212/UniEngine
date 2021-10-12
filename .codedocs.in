@@ -1,8 +1,0 @@
-OUTPUT_DIRECTORY    = docs/
-INPUT               = src/lib include/lib/Engine/Core include/lib/Engine/ECS include/lib/Engine/Editor include/lib/Engine/Managers include/lib/Engine/Math include/lib/Engine/Physics include/lib/Engine/Rendering include/lib/Engine/Resources include/lib/Engine/Utilities
-EXTRACT_ALL         = YES
-GENERATE_LATEX      = NO
-DISABLE_INDEX       = YES
-GENERATE_TREEVIEW   = YES
-FULL_SIDEBAR        = YES
-EXCLUDE_SYMBOLS     = imgui_addons std tinyply YAML InputTextCallback_UserData ImGui

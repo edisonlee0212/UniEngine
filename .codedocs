@@ -14,7 +14,7 @@
 # paths will be considered relative to the root of the repository, not the
 # location of the DOXYFILE.
 
-DOXYFILE = .codedocs.in
+DOXYFILE =
 
 # Specify external repository to link documentation with.
 # This is similar to Doxygen's TAGFILES option, but will automatically link to
@@ -35,6 +35,14 @@ TAGLINKS =
 # to http://doxygen.org/manual/config.html for detailed explanation of the
 # options. To request support for more options, contact support@codedocs.xyz.
 #
+
+EXTRACT_ALL         = YES
+GENERATE_LATEX      = NO
+DISABLE_INDEX       = YES
+GENERATE_TREEVIEW   = YES
+FULL_SIDEBAR        = YES
+EXCLUDE_SYMBOLS     = imgui_addons std tinyply YAML InputTextCallback_UserData ImGui
+
 # ABBREVIATE_BRIEF =
 # ALIASES =
 # ALLEXTERNALS =
@@ -78,7 +86,7 @@ TAGLINKS =
 # EXTENSION_MAPPING =
 # EXTERNAL_GROUPS =
 # EXTERNAL_PAGES =
-# EXTRACT_ALL =
+# EXTRACT_ALL = YES
 # EXTRACT_ANON_NSPACES =
 # EXTRACT_LOCAL_CLASSES =
 # EXTRACT_LOCAL_METHODS =
@@ -131,7 +139,7 @@ TAGLINKS =
 # INLINE_INHERITED_MEMB =
 # INLINE_SIMPLE_STRUCTS =
 # INLINE_SOURCES =
-# INPUT =
+INPUT = src/lib include/lib/Engine/Core include/lib/Engine/ECS include/lib/Engine/Editor include/lib/Engine/Managers include/lib/Engine/Math include/lib/Engine/Physics include/lib/Engine/Rendering include/lib/Engine/Resources include/lib/Engine/Utilities
 # INPUT_ENCODING =
 # INTERACTIVE_SVG =
 # INTERNAL_DOCS =
