@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_func_s.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -88,7 +118,7 @@ $(function() {
 <li>SetBool()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program.html#a5bf443813879dce98b7937f9955aba5f">UniEngine::OpenGLUtils::GLProgram</a></li>
 <li>SetBound()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_scene.html#aac4b42dbd9b76bdc0e1cc22fe36c37dd">UniEngine::Scene</a></li>
 <li>SetClearColor()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_camera.html#a47e9244c0abae5d94f32d422f5fa78df">UniEngine::Camera</a></li>
-<li>SetData()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_component_data_chunk.html#ac24d87ffae6a8fbabb6d8453eb3527fe">UniEngine::ComponentDataChunk</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer.html#af0b83531f616c508497988ea8fb597d7">UniEngine::OpenGLUtils::GLBuffer</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d.html#ad484eeeea3eb6f5e042e7f60c77f5a8b">UniEngine::OpenGLUtils::GLTexture1D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d_array.html#a2cbb3956543d45adf30f432367934e31">UniEngine::OpenGLUtils::GLTexture1DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html#a8c4810c39f35a8429fe99cadc56e1c06">UniEngine::OpenGLUtils::GLTexture2D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d_array.html#ae3499acdc55b5a77c109a1f016e426a9">UniEngine::OpenGLUtils::GLTexture2DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d.html#ac573328f4dfc1480a6cd9289d0c5eda2">UniEngine::OpenGLUtils::GLTexture3D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map.html#a94b69bcf90fa38d6ff7f3a3a216eaff7">UniEngine::OpenGLUtils::GLTextureCubeMap</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map_array.html#aab2d90abf82b1e03217586655c51fcf9">UniEngine::OpenGLUtils::GLTextureCubeMapArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html#a762ab73e0c25d79bafc099df881351e6">UniEngine::OpenGLUtils::GLVAO</a></li>
+<li>SetData()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_component_data_chunk.html#ac24d87ffae6a8fbabb6d8453eb3527fe">UniEngine::ComponentDataChunk</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer.html#af0b83531f616c508497988ea8fb597d7">UniEngine::OpenGLUtils::GLBuffer</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d.html#ad484eeeea3eb6f5e042e7f60c77f5a8b">UniEngine::OpenGLUtils::GLTexture1D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d_array.html#a2cbb3956543d45adf30f432367934e31">UniEngine::OpenGLUtils::GLTexture1DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html#aaac10a447be0633590b86ba8aaf5e349">UniEngine::OpenGLUtils::GLTexture2D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d_array.html#ae3499acdc55b5a77c109a1f016e426a9">UniEngine::OpenGLUtils::GLTexture2DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d.html#ac573328f4dfc1480a6cd9289d0c5eda2">UniEngine::OpenGLUtils::GLTexture3D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map.html#a8587874c37bc2cb9e1bd25a07eab3989">UniEngine::OpenGLUtils::GLTextureCubeMap</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map_array.html#aab2d90abf82b1e03217586655c51fcf9">UniEngine::OpenGLUtils::GLTextureCubeMapArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html#a762ab73e0c25d79bafc099df881351e6">UniEngine::OpenGLUtils::GLVAO</a></li>
 <li>SetDataComponent()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_entity.html#a2b3f1cc9127478f843d604caf5546bec">UniEngine::Entity</a></li>
 <li>SetDensityAndMassCenter()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_rigid_body.html#a29ec5de80a7a885ef252cd2be0361280">UniEngine::RigidBody</a></li>
 <li>SetDirectionalLightShadowMapResolution()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_render_manager.html#aa5803399a7d571451f8ae87f4b6fb3e3">UniEngine::RenderManager</a></li>
@@ -152,10 +182,8 @@ $(function() {
 <li>SetValue()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_global_transform.html#acd0cecb517e9f50937f2226558c27869">UniEngine::GlobalTransform</a>, <a class="el" href="struct_uni_engine_1_1_transform.html#ac03ca5a6062721d5ae9ed9f20faae5cb">UniEngine::Transform</a></li>
 <li>SetVertices()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_mesh.html#ad20c6669056d013d48ffa1ae356917c8">UniEngine::Mesh</a>, <a class="el" href="class_uni_engine_1_1_skinned_mesh.html#a5e375703210d32c90ffdb695260d3ea2">UniEngine::SkinnedMesh</a></li>
 <li>Share()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_manager.html#ad899b0a20f0f81de550a454a80322c90">UniEngine::AssetManager</a></li>
-<li>showFileDialog()&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#ad407e63cde02112e4abf010662ca1102">imgui_addons::ImGuiFileBrowser</a></li>
 <li>Simulate()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_physics_scene.html#a9e60a006af938df37efd2c1472e15127">UniEngine::PhysicsScene</a>, <a class="el" href="class_uni_engine_1_1_physics_system.html#acd2e33685a19ec9dffdba83a4f50a314">UniEngine::PhysicsSystem</a></li>
 <li>Size()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_bound.html#a07b8d5e3dedd47ac4317b2c6287da7dc">UniEngine::Bound</a>, <a class="el" href="class_uni_engine_1_1_thread_pool.html#a9a0eda36af0e6fea899b761810863142">UniEngine::ThreadPool</a></li>
-<li>size_bytes()&#160;:&#160;<a class="el" href="classtinyply_1_1_buffer.html#af0f3b9c2357966aaa8d84d41bf506287">tinyply::Buffer</a></li>
 <li>SpotLightShadowMap()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_spot_light_shadow_map.html#a0bd3cc311e3dacac169d6eea33f06b20">UniEngine::SpotLightShadowMap</a></li>
 <li>SSAO()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_s_s_a_o.html#a83acf2f301b9b62f0d7c79d83d7c2a88">UniEngine::SSAO</a></li>
 <li>SSR()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_s_s_r.html#a8b7a80a3ec1bc78e64b0b069eb19c737">UniEngine::SSR</a></li>
@@ -170,9 +198,12 @@ $(function() {
 <li>SystemRegistration()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_system_registration.html#ad81f12b2d0fcee26079e8b63dd0a3791">UniEngine::SystemRegistration&lt; T &gt;</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

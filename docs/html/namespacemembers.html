@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Namespace Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('namespacemembers.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -62,93 +92,32 @@ $(function() {
 </div>
 
 <div class="contents">
-<div class="textblock">Here is a list of all namespace members with links to the namespace documentation for each member:</div>
-
-<h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
+<div class="textblock">Here is a list of all namespace members with links to the namespace documentation for each member:</div><ul>
 <li>ARCHETYPE_CHUNK_SIZE&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a03770b468364d3c4da4d3e5c0164fcc0">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_c" name="index_c"></a>- c -</h3><ul>
 <li>ComponentTypeComparator()&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a5c6de04cdff3b3d963ead0089861401e">UniEngine</a></li>
 <li>ConsoleMessageType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a0b92097fc68e4d8405fd318f01fc73ec">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
 <li>DriveType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#aee8a0720188bb5d0dfba11ac4b89ff92">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_e" name="index_e"></a>- e -</h3><ul>
 <li>EntityEditorSystem_EnableEntityHierarchy&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a33a9965c4cf225ea3c8eea58dab3b6e1a8d550483a4af9e4f9aefd5671c5cc1e2">UniEngine</a></li>
 <li>EntityEditorSystem_EnableEntityInspector&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a33a9965c4cf225ea3c8eea58dab3b6e1a05ae3f56c1e876457202ecbd64c8f0aa">UniEngine</a></li>
 <li>EntityEditorSystem_None&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a33a9965c4cf225ea3c8eea58dab3b6e1a776dbb658657e86e51c05ee56c7b69f3">UniEngine</a></li>
 <li>EntityEditorSystemConfigFlags&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a33a9965c4cf225ea3c8eea58dab3b6e1">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_f" name="index_f"></a>- f -</h3><ul>
-<li>FLOAT32&#160;:&#160;<a class="el" href="namespacetinyply.html#a3a40b11156b743d81657dcca2539646e">tinyply</a></li>
-<li>FLOAT64&#160;:&#160;<a class="el" href="namespacetinyply.html#a704e5bd67902fe3ad2b3fb57cbf63a6c">tinyply</a></li>
-</ul>
-
-
-<h3><a id="index_i" name="index_i"></a>- i -</h3><ul>
-<li>INT16&#160;:&#160;<a class="el" href="namespacetinyply.html#a39f5e1c860eecbebe1859716a677f75b">tinyply</a></li>
-<li>INT32&#160;:&#160;<a class="el" href="namespacetinyply.html#a89d4f045e28d7c3225241d9a92e1073f">tinyply</a></li>
-<li>INT8&#160;:&#160;<a class="el" href="namespacetinyply.html#a92a6740b5b1e91c8ec8cacf31fd2bc23">tinyply</a></li>
-</ul>
-
-
-<h3><a id="index_j" name="index_j"></a>- j -</h3><ul>
 <li>JointType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a7f252e848bc7972d07219600d3410e4d">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_m" name="index_m"></a>- m -</h3><ul>
 <li>MeshStoreType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a0b574bb406aa5b18735cde6b108efd03">UniEngine</a></li>
 <li>MotionAxis&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a3148f037a193cc565081a885180ccf46">UniEngine</a></li>
 <li>MotionType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a0d4aeb247cad89e9d0cb1a2de0464650">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
 <li>operator&lt;&lt;()&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a39897c16280f9722b229d4f8bd617f64">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
 <li>PhysicsScene&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a57d423095907f01a15d243072b290e8a">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
 <li>RenderCommandMeshType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#a822beb51a5ea61700f3eb34f915863ca">UniEngine</a></li>
 <li>RenderCommandType&#160;:&#160;<a class="el" href="namespace_uni_engine.html#ab250b9f0bccc025e017ac3c614b1dcd9">UniEngine</a></li>
-</ul>
-
-
-<h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
-<li>Splitter()&#160;:&#160;<a class="el" href="namespace_im_gui.html#a959abae4f6c766539c0c12fdb9aef752">ImGui</a></li>
-</ul>
-
-
-<h3><a id="index_t" name="index_t"></a>- t -</h3><ul>
-<li>Type&#160;:&#160;<a class="el" href="namespacetinyply.html#acc2416ab715bb9179b5562500055e491">tinyply</a></li>
 <li>Typeof()&#160;:&#160;<a class="el" href="namespace_uni_engine.html#afa8b87ffea6b0151ba12c3ecd64b074d">UniEngine</a></li>
 </ul>
-
-
-<h3><a id="index_u" name="index_u"></a>- u -</h3><ul>
-<li>UINT16&#160;:&#160;<a class="el" href="namespacetinyply.html#ab41cd11498671f9982cbef9c11d9664a">tinyply</a></li>
-<li>UINT32&#160;:&#160;<a class="el" href="namespacetinyply.html#a0087a96a24a048e940cbcec5ffd4d0bd">tinyply</a></li>
-<li>UINT8&#160;:&#160;<a class="el" href="namespacetinyply.html#a62b691f256d8a84178d7321777cdab88">tinyply</a></li>
-</ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/ISerializable.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,17 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('_i_serializable_8hpp_source.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +91,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_4654289941ed0ee26a704349fd476d98.html">ECS</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">ISerializable.hpp</div></div>
 </div><!--header-->
@@ -72,7 +98,7 @@ $(function() {
 <a href="_i_serializable_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="_i_handle_8hpp.html">IHandle.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;uniengine_export.h&gt;</span></div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno"><a class="line" href="namespace_y_a_m_l.html">    4</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_y_a_m_l.html">YAML</a></div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="keyword">namespace </span>YAML</div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span>{</div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">class </span>Emitter;</div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">class </span>Node;</div>
@@ -114,11 +140,14 @@ $(function() {
 <div class="ttc" id="aclass_uni_engine_1_1_i_serializable_html_a5a8dabaa62e5b7db33ade2999b7cd7bd"><div class="ttname"><a href="class_uni_engine_1_1_i_serializable.html#a5a8dabaa62e5b7db33ade2999b7cd7bd">UniEngine::ISerializable::Deserialize</a></div><div class="ttdeci">virtual void Deserialize(const YAML::Node &amp;in)</div><div class="ttdef"><b>Definition:</b> ISerializable.hpp:29</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_serialization_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_serialization_manager.html">UniEngine::SerializationManager</a></div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:144</div></div>
 <div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
-<div class="ttc" id="anamespace_y_a_m_l_html"><div class="ttname"><a href="namespace_y_a_m_l.html">YAML</a></div><div class="ttdef"><b>Definition:</b> ISerializable.hpp:5</div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_4654289941ed0ee26a704349fd476d98.html">ECS</a></li><li class="navelem"><a class="el" href="_i_serializable_8hpp.html">ISerializable.hpp</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

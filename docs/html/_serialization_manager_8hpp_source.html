@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/SerializationManager.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,17 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('_serialization_manager_8hpp_source.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +91,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_75cd9fdc0e5857172e4208accfea24ce.html">Managers</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">SerializationManager.hpp</div></div>
 </div><!--header-->
@@ -76,13 +102,13 @@ $(function() {
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="_i_serializable_8hpp.html">ISerializable.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;<a class="code" href="_i_singleton_8hpp.html">ISingleton.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;<a class="code" href="_i_system_8hpp.html">ISystem.hpp</a>&quot;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_y_a_m_l.html">YAML</a></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">namespace </span>YAML</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span>{</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">class </span>Node;</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">class </span>Emitter;</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html">   12</a></span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec2&gt;</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec2&gt;</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>{</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a03c614791e8dcc9ff30dcc8f1ff7f295">   14</a></span>    <span class="keyword">static</span> Node <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a03c614791e8dcc9ff30dcc8f1ff7f295">encode</a>(<span class="keyword">const</span> glm::vec2 &amp;rhs)</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    <span class="keyword">static</span> Node encode(<span class="keyword">const</span> glm::vec2 &amp;rhs)</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    {</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        Node node;</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        node.push_back(rhs.x);</div>
@@ -90,7 +116,7 @@ $(function() {
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keywordflow">return</span> node;</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    }</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a5f4cd190c09075319d138eb24682a1fe">   22</a></span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a5f4cd190c09075319d138eb24682a1fe">decode</a>(<span class="keyword">const</span> Node &amp;node, glm::vec2 &amp;rhs)</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> decode(<span class="keyword">const</span> Node &amp;node, glm::vec2 &amp;rhs)</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    {</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keywordflow">if</span> (!node.IsSequence() || node.size() != 2)</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        {</div>
@@ -103,9 +129,9 @@ $(function() {
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    }</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>};</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html">   35</a></span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec3&gt;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec3&gt;</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>{</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a8ca152d02300c3f9a6b8176a72452fff">   37</a></span>    <span class="keyword">static</span> Node <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a8ca152d02300c3f9a6b8176a72452fff">encode</a>(<span class="keyword">const</span> glm::vec3 &amp;rhs)</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">static</span> Node encode(<span class="keyword">const</span> glm::vec3 &amp;rhs)</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    {</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        Node node;</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        node.push_back(rhs.x);</div>
@@ -114,7 +140,7 @@ $(function() {
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keywordflow">return</span> node;</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    }</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a728b087127b10d0ece4ae21148a36f94">   46</a></span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a728b087127b10d0ece4ae21148a36f94">decode</a>(<span class="keyword">const</span> Node &amp;node, glm::vec3 &amp;rhs)</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> decode(<span class="keyword">const</span> Node &amp;node, glm::vec3 &amp;rhs)</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    {</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="keywordflow">if</span> (!node.IsSequence() || node.size() != 3)</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        {</div>
@@ -127,9 +153,9 @@ $(function() {
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    }</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>};</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html">   59</a></span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec4&gt;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::vec4&gt;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>{</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a1d68c0c3afc6897b056868c8ba516595">   61</a></span>    <span class="keyword">static</span> Node <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a1d68c0c3afc6897b056868c8ba516595">encode</a>(<span class="keyword">const</span> glm::vec4 &amp;rhs)</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">static</span> Node encode(<span class="keyword">const</span> glm::vec4 &amp;rhs)</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        Node node;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        node.push_back(rhs.x);</div>
@@ -139,7 +165,7 @@ $(function() {
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <span class="keywordflow">return</span> node;</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    }</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a935e31dad7403fdefc60995d3bc8a776">   71</a></span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a935e31dad7403fdefc60995d3bc8a776">decode</a>(<span class="keyword">const</span> Node &amp;node, glm::vec4 &amp;rhs)</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> decode(<span class="keyword">const</span> Node &amp;node, glm::vec4 &amp;rhs)</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    {</div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <span class="keywordflow">if</span> (!node.IsSequence() || node.size() != 4)</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        {</div>
@@ -153,9 +179,9 @@ $(function() {
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    }</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>};</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html">   85</a></span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::quat&gt;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::quat&gt;</div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>{</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a131cea2e107386cd9de1e370abe36965">   87</a></span>    <span class="keyword">static</span> Node <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a131cea2e107386cd9de1e370abe36965">encode</a>(<span class="keyword">const</span> glm::quat &amp;rhs)</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <span class="keyword">static</span> Node encode(<span class="keyword">const</span> glm::quat &amp;rhs)</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    {</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        Node node;</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        node.push_back(rhs.x);</div>
@@ -165,7 +191,7 @@ $(function() {
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordflow">return</span> node;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    }</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a129706859aac408fb6eefcabca165d5a">   97</a></span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a129706859aac408fb6eefcabca165d5a">decode</a>(<span class="keyword">const</span> Node &amp;node, glm::quat &amp;rhs)</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> decode(<span class="keyword">const</span> Node &amp;node, glm::quat &amp;rhs)</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    {</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="keywordflow">if</span> (!node.IsSequence() || node.size() != 4)</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        {</div>
@@ -179,9 +205,9 @@ $(function() {
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
 <div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    }</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>};</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html">  111</a></span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::mat4&gt;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UNIENGINE_API convert&lt;glm::mat4&gt;</div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>{</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a931c53aeaf33d1e2127bcf7e9c9bd4d8">  113</a></span>    <span class="keyword">static</span> Node <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a931c53aeaf33d1e2127bcf7e9c9bd4d8">encode</a>(<span class="keyword">const</span> glm::mat4 &amp;rhs)</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">static</span> Node encode(<span class="keyword">const</span> glm::mat4 &amp;rhs)</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    {</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        Node node;</div>
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        node.push_back(rhs[0]);</div>
@@ -191,7 +217,7 @@ $(function() {
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="keywordflow">return</span> node;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    }</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno"><a class="line" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a3f7d19c97d53b0eabc955210799fb10b">  123</a></span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a3f7d19c97d53b0eabc955210799fb10b">decode</a>(<span class="keyword">const</span> Node &amp;node, glm::mat4 &amp;rhs)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> decode(<span class="keyword">const</span> Node &amp;node, glm::mat4 &amp;rhs)</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    {</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        <span class="keywordflow">if</span> (!node.IsSequence() || node.size() != 4)</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        {</div>
@@ -360,22 +386,15 @@ $(function() {
 <div class="ttc" id="aclass_uni_engine_1_1_serialization_manager_html_adff9466e20dd2f03defb1bd69ead88f4"><div class="ttname"><a href="class_uni_engine_1_1_serialization_manager.html#adff9466e20dd2f03defb1bd69ead88f4">UniEngine::SerializationManager::GetDataComponentTypeName</a></div><div class="ttdeci">static std::string GetDataComponentTypeName()</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:193</div></div>
 <div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
 <div class="ttc" id="anamespace_uni_engine_html_a39897c16280f9722b229d4f8bd617f64"><div class="ttname"><a href="namespace_uni_engine.html#a39897c16280f9722b229d4f8bd617f64">UniEngine::operator&lt;&lt;</a></div><div class="ttdeci">YAML::Emitter &amp; operator&lt;&lt;(YAML::Emitter &amp;out, const PxVec2 &amp;v)</div><div class="ttdef"><b>Definition:</b> PhysicsManager.cpp:9</div></div>
-<div class="ttc" id="anamespace_y_a_m_l_html"><div class="ttname"><a href="namespace_y_a_m_l.html">YAML</a></div><div class="ttdef"><b>Definition:</b> ISerializable.hpp:5</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_handle_html"><div class="ttname"><a href="struct_uni_engine_1_1_handle.html">UniEngine::Handle</a></div><div class="ttdef"><b>Definition:</b> IHandle.hpp:10</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4_html_a3f7d19c97d53b0eabc955210799fb10b"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a3f7d19c97d53b0eabc955210799fb10b">YAML::convert&lt; glm::mat4 &gt;::decode</a></div><div class="ttdeci">static bool decode(const Node &amp;node, glm::mat4 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:123</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4_html_a931c53aeaf33d1e2127bcf7e9c9bd4d8"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a931c53aeaf33d1e2127bcf7e9c9bd4d8">YAML::convert&lt; glm::mat4 &gt;::encode</a></div><div class="ttdeci">static Node encode(const glm::mat4 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:113</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4_html_a129706859aac408fb6eefcabca165d5a"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a129706859aac408fb6eefcabca165d5a">YAML::convert&lt; glm::quat &gt;::decode</a></div><div class="ttdeci">static bool decode(const Node &amp;node, glm::quat &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:97</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4_html_a131cea2e107386cd9de1e370abe36965"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a131cea2e107386cd9de1e370abe36965">YAML::convert&lt; glm::quat &gt;::encode</a></div><div class="ttdeci">static Node encode(const glm::quat &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:87</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4_html_a03c614791e8dcc9ff30dcc8f1ff7f295"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a03c614791e8dcc9ff30dcc8f1ff7f295">YAML::convert&lt; glm::vec2 &gt;::encode</a></div><div class="ttdeci">static Node encode(const glm::vec2 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:14</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4_html_a5f4cd190c09075319d138eb24682a1fe"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a5f4cd190c09075319d138eb24682a1fe">YAML::convert&lt; glm::vec2 &gt;::decode</a></div><div class="ttdeci">static bool decode(const Node &amp;node, glm::vec2 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:22</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4_html_a728b087127b10d0ece4ae21148a36f94"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a728b087127b10d0ece4ae21148a36f94">YAML::convert&lt; glm::vec3 &gt;::decode</a></div><div class="ttdeci">static bool decode(const Node &amp;node, glm::vec3 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:46</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4_html_a8ca152d02300c3f9a6b8176a72452fff"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a8ca152d02300c3f9a6b8176a72452fff">YAML::convert&lt; glm::vec3 &gt;::encode</a></div><div class="ttdeci">static Node encode(const glm::vec3 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:37</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4_html_a1d68c0c3afc6897b056868c8ba516595"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a1d68c0c3afc6897b056868c8ba516595">YAML::convert&lt; glm::vec4 &gt;::encode</a></div><div class="ttdeci">static Node encode(const glm::vec4 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:61</div></div>
-<div class="ttc" id="astruct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4_html_a935e31dad7403fdefc60995d3bc8a776"><div class="ttname"><a href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a935e31dad7403fdefc60995d3bc8a776">YAML::convert&lt; glm::vec4 &gt;::decode</a></div><div class="ttdeci">static bool decode(const Node &amp;node, glm::vec4 &amp;rhs)</div><div class="ttdef"><b>Definition:</b> SerializationManager.hpp:71</div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_75cd9fdc0e5857172e4208accfea24ce.html">Managers</a></li><li class="navelem"><a class="el" href="_serialization_manager_8hpp.html">SerializationManager.hpp</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

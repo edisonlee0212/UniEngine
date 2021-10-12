@@ -10,11 +10,9 @@ var searchData=
   ['_7egltexture_7',['~GLTexture',['../class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture.html#a565aae674a45d3d9e0061791ba4326f5',1,'UniEngine::OpenGLUtils::GLTexture']]],
   ['_7eglvao_8',['~GLVAO',['../class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html#a0e192b889696eb7fa1dc64957c8e4b82',1,'UniEngine::OpenGLUtils::GLVAO']]],
   ['_7eiasset_9',['~IAsset',['../class_uni_engine_1_1_i_asset.html#ae71b3e2d36adfa5fe4137ec36f80621d',1,'UniEngine::IAsset']]],
-  ['_7eimguifilebrowser_10',['~ImGuiFileBrowser',['../classimgui__addons_1_1_im_gui_file_browser.html#a3b079260a0c11ab7abb5c1d5740497ee',1,'imgui_addons::ImGuiFileBrowser']]],
-  ['_7eiserializable_11',['~ISerializable',['../class_uni_engine_1_1_i_serializable.html#a4d32302bb3eac18c2aa68631a881f2d7',1,'UniEngine::ISerializable']]],
-  ['_7ephysicsmaterial_12',['~PhysicsMaterial',['../class_uni_engine_1_1_physics_material.html#adbc9a6954c9a04f178a4b215d8ecfe3e',1,'UniEngine::PhysicsMaterial']]],
-  ['_7ephysicsscene_13',['~PhysicsScene',['../class_uni_engine_1_1_physics_scene.html#ab51b08cdb9a551134f9a347e59709724',1,'UniEngine::PhysicsScene']]],
-  ['_7eplyfile_14',['~PlyFile',['../structtinyply_1_1_ply_file.html#ae8d300efd98bd1d5f6d6623c3a9c42ef',1,'tinyply::PlyFile']]],
-  ['_7escene_15',['~Scene',['../class_uni_engine_1_1_scene.html#a3b8cec2e32546713915f8c6303c951f1',1,'UniEngine::Scene']]],
-  ['_7ethreadpool_16',['~ThreadPool',['../class_uni_engine_1_1_thread_pool.html#a2d231c40cebd62d470491331fd887a8e',1,'UniEngine::ThreadPool']]]
+  ['_7eiserializable_10',['~ISerializable',['../class_uni_engine_1_1_i_serializable.html#a4d32302bb3eac18c2aa68631a881f2d7',1,'UniEngine::ISerializable']]],
+  ['_7ephysicsmaterial_11',['~PhysicsMaterial',['../class_uni_engine_1_1_physics_material.html#adbc9a6954c9a04f178a4b215d8ecfe3e',1,'UniEngine::PhysicsMaterial']]],
+  ['_7ephysicsscene_12',['~PhysicsScene',['../class_uni_engine_1_1_physics_scene.html#ab51b08cdb9a551134f9a347e59709724',1,'UniEngine::PhysicsScene']]],
+  ['_7escene_13',['~Scene',['../class_uni_engine_1_1_scene.html#a3b8cec2e32546713915f8c6303c951f1',1,'UniEngine::Scene']]],
+  ['_7ethreadpool_14',['~ThreadPool',['../class_uni_engine_1_1_thread_pool.html#a2d231c40cebd62d470491331fd887a8e',1,'UniEngine::ThreadPool']]]
 ];

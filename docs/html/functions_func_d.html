@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_func_d.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -68,7 +98,6 @@ $(function() {
 <li>DataComponentRegistration()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_data_component_registration.html#a2a943b5ec7907b92702beb6c40f306db">UniEngine::DataComponentRegistration&lt; T &gt;</a></li>
 <li>DataComponentStorage()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_data_component_storage.html#a140427d5e43f8dca6d6d04d639be0c7d">UniEngine::DataComponentStorage</a></li>
 <li>DataComponentType()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_data_component_type.html#aa737236d891675050903c37c3a69420a">UniEngine::DataComponentType</a></li>
-<li>decode()&#160;:&#160;<a class="el" href="struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4.html#a3f7d19c97d53b0eabc955210799fb10b">YAML::convert&lt; glm::mat4 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4.html#a129706859aac408fb6eefcabca165d5a">YAML::convert&lt; glm::quat &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4.html#a5f4cd190c09075319d138eb24682a1fe">YAML::convert&lt; glm::vec2 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4.html#a728b087127b10d0ece4ae21148a36f94">YAML::convert&lt; glm::vec3 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4.html#a935e31dad7403fdefc60995d3bc8a776">YAML::convert&lt; glm::vec4 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01_px_mat44_01_4.html#a5d47e780a96e48d0a2132710652305ff">YAML::convert&lt; PxMat44 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01_px_vec2_01_4.html#aa88d1454d7abc7ea81640442b7a14c4e">YAML::convert&lt; PxVec2 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01_px_vec3_01_4.html#a56618cbc8f62b2d58bd67bdd5cb8523d">YAML::convert&lt; PxVec3 &gt;</a>, <a class="el" href="struct_y_a_m_l_1_1convert_3_01_px_vec4_01_4.html#a8b25f93061d1435ed59ed5b2eeeb92b2">YAML::convert&lt; PxVec4 &gt;</a></li>
 <li>Decompose()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_global_transform.html#a92c15a0675dad16232ad4de4d4cd2b36">UniEngine::GlobalTransform</a>, <a class="el" href="struct_uni_engine_1_1_transform.html#a9832e8a43700b6dda8a488c5bc3070ef">UniEngine::Transform</a></li>
 <li>DeleteEntity()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_entity_manager.html#a7ed3bbcfdb53768be754e2c382d39ac3">UniEngine::EntityManager</a>, <a class="el" href="class_uni_engine_1_1_private_component_storage.html#affb0036e7ae56192e413500e1789befe">UniEngine::PrivateComponentStorage</a></li>
 <li>Depth()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer.html#a44e36cc9d6f0800d5cd08355e63a05ce">UniEngine::OpenGLUtils::GLFrameBuffer</a></li>
@@ -103,9 +132,12 @@ $(function() {
 <li>DrawTexture()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_window_manager.html#a09ea27914cf81401252ca748a1d629d4">UniEngine::WindowManager</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

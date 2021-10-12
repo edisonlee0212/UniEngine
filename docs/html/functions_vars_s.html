@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members - Variables</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_vars_s.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -65,23 +95,20 @@ $(function() {
 &#160;
 
 <h3><a id="index_s" name="index_s"></a>- s -</h3><ul>
-<li>selected_fn&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#a7a06d70ff15e3bd44808920192766504">imgui_addons::ImGuiFileBrowser</a></li>
-<li>selected_path&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#a301654aba31cb888901dce779b6a9ce6">imgui_addons::ImGuiFileBrowser</a></li>
 <li>ShadowCascadeAmount&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_shader_includes.html#a738bfddd41ec1c2f97383070e6b0701d">UniEngine::DefaultResources::ShaderIncludes</a></li>
-<li>size&#160;:&#160;<a class="el" href="structtinyply_1_1_ply_element.html#abde85200689b94df12cdb90ee2720214">tinyply::PlyElement</a></li>
 <li>Sphere&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_primitives.html#a8d4a62cc0b3ab1dd2feca29464b7db9b">UniEngine::DefaultResources::Primitives</a></li>
 <li>StandardInstancedProgram&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_g_l_programs.html#a82f733e3cd7345ec40e7eade3217364e">UniEngine::DefaultResources::GLPrograms</a></li>
 <li>StandardInstancedSkinnedProgram&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_g_l_programs.html#a63aad9c49832dde502c031565889417a">UniEngine::DefaultResources::GLPrograms</a></li>
 <li>StandardProgram&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_g_l_programs.html#ac8c2156a3a6b4b805e675f4f17859b3b">UniEngine::DefaultResources::GLPrograms</a></li>
 <li>StandardSkinnedProgram&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_g_l_programs.html#a2616e24092fcf7613ebe37f90aa8c55f">UniEngine::DefaultResources::GLPrograms</a></li>
-<li>Str&#160;:&#160;<a class="el" href="struct_input_text_callback___user_data.html#af4af934be464cc04c79ee922e697e2d8">InputTextCallback_UserData</a></li>
-<li>str&#160;:&#160;<a class="el" href="structtinyply_1_1_property_info.html#aed415bc5e8cee0e0c18856d0f2cb8797">tinyply::PropertyInfo</a></li>
-<li>stride&#160;:&#160;<a class="el" href="structtinyply_1_1_property_info.html#a4ac0b3ad9504c0bdef3c12fbc5efc4df">tinyply::PropertyInfo</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

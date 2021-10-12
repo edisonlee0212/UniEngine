@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Utilities/Utilities.hpp Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,17 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('_utilities_8hpp_source.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +91,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_c66679dc9802d7b6940b62137d3dc6f8.html">Utilities</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">Utilities.hpp</div></div>
 </div><!--header-->
@@ -160,9 +186,9 @@ $(function() {
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>};</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>} <span class="comment">// namespace UniEngine</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="namespace_im_gui.html">   92</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_im_gui.html">ImGui</a></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="keyword">namespace </span>ImGui</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>{</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>IMGUI_API <span class="keywordtype">bool</span> <a class="code hl_function" href="namespace_im_gui.html#a959abae4f6c766539c0c12fdb9aef752">Splitter</a>(</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>IMGUI_API <span class="keywordtype">bool</span> Splitter(</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    <span class="keywordtype">bool</span> split_vertically,</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    <span class="keywordtype">float</span> thickness,</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">float</span> &amp;size1,</div>
@@ -179,8 +205,6 @@ $(function() {
 <div class="ttc" id="aclass_uni_engine_1_1_default_resources_html"><div class="ttname"><a href="class_uni_engine_1_1_default_resources.html">UniEngine::DefaultResources</a></div><div class="ttdef"><b>Definition:</b> DefaultResources.hpp:17</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_file_utils_html"><div class="ttname"><a href="class_uni_engine_1_1_file_utils.html">UniEngine::FileUtils</a></div><div class="ttdef"><b>Definition:</b> Utilities.hpp:7</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_i_serializable_html"><div class="ttname"><a href="class_uni_engine_1_1_i_serializable.html">UniEngine::ISerializable</a></div><div class="ttdef"><b>Definition:</b> ISerializable.hpp:13</div></div>
-<div class="ttc" id="anamespace_im_gui_html"><div class="ttname"><a href="namespace_im_gui.html">ImGui</a></div><div class="ttdef"><b>Definition:</b> Utilities.hpp:93</div></div>
-<div class="ttc" id="anamespace_im_gui_html_a959abae4f6c766539c0c12fdb9aef752"><div class="ttname"><a href="namespace_im_gui.html#a959abae4f6c766539c0c12fdb9aef752">ImGui::Splitter</a></div><div class="ttdeci">IMGUI_API bool Splitter(bool split_vertically, float thickness, float &amp;size1, float &amp;size2, float min_size1, float min_size2, float splitter_long_axis_size=-1.0f)</div><div class="ttdef"><b>Definition:</b> Utilities.cpp:1309</div></div>
 <div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_bezier2_d_html"><div class="ttname"><a href="struct_uni_engine_1_1_bezier2_d.html">UniEngine::Bezier2D</a></div><div class="ttdef"><b>Definition:</b> Utilities.hpp:50</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_bound_html"><div class="ttname"><a href="struct_uni_engine_1_1_bound.html">UniEngine::Bound</a></div><div class="ttdef"><b>Definition:</b> Utilities.hpp:27</div></div>
@@ -193,9 +217,13 @@ $(function() {
 <div class="ttc" id="astruct_uni_engine_1_1_ray_html_aa9381b46b6032b82599d5d4bacf34b0a"><div class="ttname"><a href="struct_uni_engine_1_1_ray.html#aa9381b46b6032b82599d5d4bacf34b0a">UniEngine::Ray::m_start</a></div><div class="ttdeci">glm::vec3 m_start</div><div class="ttdef"><b>Definition:</b> Utilities.hpp:39</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_ray_html_ad803e686f0a0fb9b0db23959e6490e6e"><div class="ttname"><a href="struct_uni_engine_1_1_ray.html#ad803e686f0a0fb9b0db23959e6490e6e">UniEngine::Ray::m_direction</a></div><div class="ttdeci">glm::vec3 m_direction</div><div class="ttdef"><b>Definition:</b> Utilities.hpp:40</div></div>
 </div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_c66679dc9802d7b6940b62137d3dc6f8.html">Utilities</a></li><li class="navelem"><a class="el" href="_utilities_8hpp.html">Utilities.hpp</a></li>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

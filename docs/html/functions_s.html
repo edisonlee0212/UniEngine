@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_s.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -75,8 +105,6 @@ $(function() {
 <li>SceneCameraWindowFocused()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_editor_manager.html#a1ec638ecd13bd5a6929ae3b5a77afb37">UniEngine::EditorManager</a></li>
 <li>ScreenPointToRay()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_camera.html#ac63c7ff307b58695810b42e3d6cefc29">UniEngine::Camera</a></li>
 <li>SecondaryWorkers()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_job_manager.html#a73ff4a043f6e3351b28c040dc8ee3e6b">UniEngine::JobManager</a></li>
-<li>selected_fn&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#a7a06d70ff15e3bd44808920192766504">imgui_addons::ImGuiFileBrowser</a></li>
-<li>selected_path&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#a301654aba31cb888901dce779b6a9ce6">imgui_addons::ImGuiFileBrowser</a></li>
 <li>SerializableRegistration()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_serializable_registration.html#a2a7f9247b486fec6ad11d244eb03324f">UniEngine::SerializableRegistration&lt; T &gt;</a></li>
 <li>SerializationManager&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_entity.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::Entity</a>, <a class="el" href="struct_uni_engine_1_1_entity_archetype.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::EntityArchetype</a>, <a class="el" href="class_uni_engine_1_1_entity_manager.html#a20e58fab7dab64bf1cce8153010b3d98">UniEngine::EntityManager</a>, <a class="el" href="struct_uni_engine_1_1_entity_query.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::EntityQuery</a>, <a class="el" href="class_uni_engine_1_1_i_handle.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::IHandle</a>, <a class="el" href="class_uni_engine_1_1_i_private_component.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::IPrivateComponent</a>, <a class="el" href="class_uni_engine_1_1_i_serializable.html#a20e58fab7dab64bf1cce8153010b3d98">UniEngine::ISerializable</a>, <a class="el" href="class_uni_engine_1_1_i_system.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::ISystem</a>, <a class="el" href="class_uni_engine_1_1_scene.html#a0da2f7b33b8c8e7c95605b9f36c38255">UniEngine::Scene</a></li>
 <li>Serialize()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_animation.html#a3ee8ec2dffabeb413ed5bf19f1607110">UniEngine::Animation</a>, <a class="el" href="class_uni_engine_1_1_animator.html#aecf3c83f58cd1105dd2087c70ee0a40d">UniEngine::Animator</a>, <a class="el" href="class_uni_engine_1_1_asset_ref.html#a321ae8a000ab463270fe651d68047af9">UniEngine::AssetRef</a>, <a class="el" href="struct_uni_engine_1_1_bone.html#a1bf0f361efeca5989f7a53b698c3b0ce">UniEngine::Bone</a>, <a class="el" href="struct_uni_engine_1_1_bone_key_frames.html#a229bef71027c17839d764e49f7f5ae6c">UniEngine::BoneKeyFrames</a>, <a class="el" href="class_uni_engine_1_1_camera.html#a5d54bc587ae3755bc7f48ecb4d6b18a9">UniEngine::Camera</a>, <a class="el" href="class_uni_engine_1_1_collider.html#a7c808ee201e9f5577f3559d30369232a">UniEngine::Collider</a>, <a class="el" href="class_uni_engine_1_1_curve.html#a748904398c52138e1a48e64298d2c085">UniEngine::Curve</a>, <a class="el" href="struct_uni_engine_1_1_data_component_holder.html#ab5bd1d2a8bd2938db02fff7a47d61e4a">UniEngine::DataComponentHolder</a>, <a class="el" href="class_uni_engine_1_1_directional_light.html#ab7ee3dc952dd028aa58eb4d3298ebcfe">UniEngine::DirectionalLight</a>, <a class="el" href="struct_uni_engine_1_1_entity_metadata.html#af1cd66cc176bf0d86e61a2a13a0a11f1">UniEngine::EntityMetadata</a>, <a class="el" href="class_uni_engine_1_1_entity_ref.html#a90d2fdd7efaa53f87f8babab602b8c08">UniEngine::EntityRef</a>, <a class="el" href="struct_uni_engine_1_1_environment_settings.html#af3eaf067237919319cefa3c886f73064">UniEngine::EnvironmentSettings</a>, <a class="el" href="struct_uni_engine_1_1_file_record.html#a8907e57b3c1f6ebf101221f76530ceab">UniEngine::FileRecord</a>, <a class="el" href="class_uni_engine_1_1_i_serializable.html#a2e43cca0b15f1c143b32e9007fb12335">UniEngine::ISerializable</a>, <a class="el" href="class_uni_engine_1_1_joint.html#a48912d4b4ad052398aff711cbdbc0c30">UniEngine::Joint</a>, <a class="el" href="class_uni_engine_1_1_material.html#a34255480de8e09e52e9b2ef780a3d061">UniEngine::Material</a>, <a class="el" href="class_uni_engine_1_1_mesh.html#a24bcfa9263066f1de89339012bb93d49">UniEngine::Mesh</a>, <a class="el" href="class_uni_engine_1_1_mesh_renderer.html#ae02871c0020d1d8fb339fb955fe43dff">UniEngine::MeshRenderer</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program.html#acda4c905c915d92e65e763da40a9cf51">UniEngine::OpenGLUtils::GLProgram</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader.html#a8a3bb0d61c09708863d9fc2a99813b00">UniEngine::OpenGLUtils::GLShader</a>, <a class="el" href="class_uni_engine_1_1_particle_matrices.html#a4ad3cfbfef677ede98c9433901924912">UniEngine::ParticleMatrices</a>, <a class="el" href="class_uni_engine_1_1_particles.html#af79e6a8c9c7789b20bc28bc1f5066777">UniEngine::Particles</a>, <a class="el" href="class_uni_engine_1_1_physics_material.html#a65615dbe733e614e704dc17a3af39391">UniEngine::PhysicsMaterial</a>, <a class="el" href="class_uni_engine_1_1_player_controller.html#accbf3b708d579de659be6f4a850ac9ed">UniEngine::PlayerController</a>, <a class="el" href="class_uni_engine_1_1_point_cloud.html#ab1cba6e207a92dd9d4d3595111927789">UniEngine::PointCloud</a>, <a class="el" href="class_uni_engine_1_1_point_light.html#aee2f644cba3d6bb06badde32c9fc7bc3">UniEngine::PointLight</a>, <a class="el" href="class_uni_engine_1_1_post_processing.html#a6d6733abbb2cba52a57dd643bb746eb6">UniEngine::PostProcessing</a>, <a class="el" href="class_uni_engine_1_1_prefab.html#a82ba839c5f4e47641425f6ed14d90b47">UniEngine::Prefab</a>, <a class="el" href="struct_uni_engine_1_1_private_component_holder.html#a64f87593d211c46c3bdc19dcb10ac08b">UniEngine::PrivateComponentHolder</a>, <a class="el" href="class_uni_engine_1_1_private_component_ref.html#a766dcc75a5c5050a98ec356dad4f1b6a">UniEngine::PrivateComponentRef</a>, <a class="el" href="class_uni_engine_1_1_project.html#a6eaf377ffee2065bb0f3c887b7930a51">UniEngine::Project</a>, <a class="el" href="class_uni_engine_1_1_rigid_body.html#a141717ee0e020d74b3540385a90e288b">UniEngine::RigidBody</a>, <a class="el" href="class_uni_engine_1_1_scene.html#aaccdf2dbec2104fed0c2a5b458f4cb5e">UniEngine::Scene</a>, <a class="el" href="class_uni_engine_1_1_skinned_mesh.html#a6dd077ae1f339bceb612709c76e1a74e">UniEngine::SkinnedMesh</a>, <a class="el" href="class_uni_engine_1_1_skinned_mesh_renderer.html#a7b2b1d58af7735b885a6b5d2394bcbe2">UniEngine::SkinnedMeshRenderer</a>, <a class="el" href="class_uni_engine_1_1_spot_light.html#a38830f1ca5127f18479612e761115975">UniEngine::SpotLight</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#a31bc9983ea568eab155592d77f9a474d">UniEngine::SystemRef</a></li>
@@ -157,11 +185,8 @@ $(function() {
 <li>SetVertices()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_mesh.html#ad20c6669056d013d48ffa1ae356917c8">UniEngine::Mesh</a>, <a class="el" href="class_uni_engine_1_1_skinned_mesh.html#a5e375703210d32c90ffdb695260d3ea2">UniEngine::SkinnedMesh</a></li>
 <li>ShadowCascadeAmount&#160;:&#160;<a class="el" href="class_uni_engine_1_1_default_resources_1_1_shader_includes.html#a738bfddd41ec1c2f97383070e6b0701d">UniEngine::DefaultResources::ShaderIncludes</a></li>
 <li>Share()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_manager.html#ad899b0a20f0f81de550a454a80322c90">UniEngine::AssetManager</a></li>
-<li>showFileDialog()&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#ad407e63cde02112e4abf010662ca1102">imgui_addons::ImGuiFileBrowser</a></li>
 <li>Simulate()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_physics_scene.html#a9e60a006af938df37efd2c1472e15127">UniEngine::PhysicsScene</a>, <a class="el" href="class_uni_engine_1_1_physics_system.html#acd2e33685a19ec9dffdba83a4f50a314">UniEngine::PhysicsSystem</a></li>
-<li>size&#160;:&#160;<a class="el" href="structtinyply_1_1_ply_element.html#abde85200689b94df12cdb90ee2720214">tinyply::PlyElement</a></li>
 <li>Size()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_bound.html#a07b8d5e3dedd47ac4317b2c6287da7dc">UniEngine::Bound</a>, <a class="el" href="class_uni_engine_1_1_thread_pool.html#a9a0eda36af0e6fea899b761810863142">UniEngine::ThreadPool</a></li>
-<li>size_bytes()&#160;:&#160;<a class="el" href="classtinyply_1_1_buffer.html#af0f3b9c2357966aaa8d84d41bf506287">tinyply::Buffer</a></li>
 <li>SkinnedMesh&#160;:&#160;<a class="el" href="class_uni_engine_1_1_particle_matrices.html#a8c107eabd2eff7dbaadc90a71c499106">UniEngine::ParticleMatrices</a></li>
 <li>SkinnedMeshBonesBlock&#160;:&#160;<a class="el" href="class_uni_engine_1_1_skinned_mesh.html#ad772c23a2c5f3cd7f685d72533ac54a7">UniEngine::SkinnedMesh</a></li>
 <li>SkinnedMeshRenderer&#160;:&#160;<a class="el" href="class_uni_engine_1_1_animator.html#ab1ea7091a50c9aabc6a21ed842f92477">UniEngine::Animator</a>, <a class="el" href="class_uni_engine_1_1_skinned_mesh.html#ab1ea7091a50c9aabc6a21ed842f92477">UniEngine::SkinnedMesh</a></li>
@@ -179,17 +204,17 @@ $(function() {
 <li>Stencil()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer.html#a90b154fe7214f84d648201003c14082c">UniEngine::OpenGLUtils::GLFrameBuffer</a></li>
 <li>StoreToJpg()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_texture2_d.html#a4195e58469baf6a22981fe788a48f116">UniEngine::Texture2D</a></li>
 <li>StoreToPng()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_texture2_d.html#a209aa87e394067a5e2786eb3fa0a6ea8">UniEngine::Texture2D</a></li>
-<li>Str&#160;:&#160;<a class="el" href="struct_input_text_callback___user_data.html#af4af934be464cc04c79ee922e697e2d8">InputTextCallback_UserData</a></li>
-<li>str&#160;:&#160;<a class="el" href="structtinyply_1_1_property_info.html#aed415bc5e8cee0e0c18856d0f2cb8797">tinyply::PropertyInfo</a></li>
-<li>stride&#160;:&#160;<a class="el" href="structtinyply_1_1_property_info.html#a4ac0b3ad9504c0bdef3c12fbc5efc4df">tinyply::PropertyInfo</a></li>
 <li>SubData()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer.html#a74a1a8c66bc9001a1defe3ba1cfa3b13">UniEngine::OpenGLUtils::GLBuffer</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d.html#ad96931e5b03af54f84fef5abb76b5361">UniEngine::OpenGLUtils::GLTexture1D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d_array.html#aa3ccc6384bedb0b894a73e3a8481e96d">UniEngine::OpenGLUtils::GLTexture1DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html#a20688c02d118d121a5ea6f2275fadc83">UniEngine::OpenGLUtils::GLTexture2D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d_array.html#a786893350107803845379d435c166408">UniEngine::OpenGLUtils::GLTexture2DArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d.html#a2614d4756ff1ed660cc91630a957f0f5">UniEngine::OpenGLUtils::GLTexture3D</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map.html#ab018dbb7fbb792190e356cd911ad3b8b">UniEngine::OpenGLUtils::GLTextureCubeMap</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map_array.html#a39a93f5aad259b6d0970c95f3fe09218">UniEngine::OpenGLUtils::GLTextureCubeMapArray</a>, <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html#aa8724b4230c8b022d1c211c926881173">UniEngine::OpenGLUtils::GLVAO</a></li>
 <li>SystemRef&#160;:&#160;<a class="el" href="class_uni_engine_1_1_scene.html#af5e382882b747d5a261300abf156ec95">UniEngine::Scene</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#a3cce1c2ba921d0d6fc022e33a441921b">UniEngine::SystemRef</a></li>
 <li>SystemRegistration()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_system_registration.html#ad81f12b2d0fcee26079e8b63dd0a3791">UniEngine::SystemRegistration&lt; T &gt;</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

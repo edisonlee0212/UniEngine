@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_func_o.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -77,14 +107,17 @@ $(function() {
 <li>operator const uint64_t()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_handle.html#a0259200de2a4d466beaabf272e3492d8">UniEngine::Handle</a></li>
 <li>operator uint64_t()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_handle.html#a7d43de4a9e3edaeda2a2b88fe9970af7">UniEngine::Handle</a></li>
 <li>operator!=()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_ref.html#a0fff62193145ea4c026f2e34c2c62100">UniEngine::AssetRef</a>, <a class="el" href="struct_uni_engine_1_1_data_component_type.html#a260f95af8a4171a061bf73602a8b4dfa">UniEngine::DataComponentType</a>, <a class="el" href="struct_uni_engine_1_1_entity.html#ae2bb991352e76415d09f30aa69d6b9f4">UniEngine::Entity</a>, <a class="el" href="struct_uni_engine_1_1_entity_query.html#a1ab02adb8a884e55d8d8464745e0ebaf">UniEngine::EntityQuery</a>, <a class="el" href="class_uni_engine_1_1_private_component_ref.html#a59a5953dd224b8982bea8640430da932">UniEngine::PrivateComponentRef</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#ae056f25289a51968b40d0664d2c1b15f">UniEngine::SystemRef</a></li>
-<li>operator()()&#160;:&#160;<a class="el" href="structstd_1_1hash_3_01_uni_engine_1_1_handle_01_4.html#a3f6f11fcd2de51c01891e7f6397d7339">std::hash&lt; UniEngine::Handle &gt;</a>, <a class="el" href="struct_uni_engine_1_1_entity.html#a8b5d8318ffe91cd537f9183b190e4db4">UniEngine::Entity</a>, <a class="el" href="struct_uni_engine_1_1_entity_query.html#a0887bc58364d5b6a8799f034c084d3b8">UniEngine::EntityQuery</a></li>
-<li>operator=()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_ref.html#aa2e14463014dc5fc5b1cc033acd4368e">UniEngine::AssetRef</a>, <a class="el" href="class_uni_engine_1_1_camera.html#a77b1aae0808ab1d4d3a70c70866585f4">UniEngine::Camera</a>, <a class="el" href="struct_uni_engine_1_1_component_data_chunk.html#a1503b49cf003f7bd3a4cdb0b8cad35c2">UniEngine::ComponentDataChunk</a>, <a class="el" href="struct_uni_engine_1_1_data_component_chunk_array.html#a884b745f9e74abe32c48466fda747baa">UniEngine::DataComponentChunkArray</a>, <a class="el" href="struct_uni_engine_1_1_data_component_storage.html#a7b01502ec215d47f777a86911c8ac57e">UniEngine::DataComponentStorage</a>, <a class="el" href="struct_uni_engine_1_1_entity_metadata.html#a4cb6e67092d693ccf1ee6008076c53e0">UniEngine::EntityMetadata</a>, <a class="el" href="class_uni_engine_1_1_entity_ref.html#a5fe313fd46bc32bbc1b519d288e92e0e">UniEngine::EntityRef</a>, <a class="el" href="class_uni_engine_1_1_i_singleton.html#aca12b1e0e89c391fd6460b4258ca2292">UniEngine::ISingleton&lt; T &gt;</a>, <a class="el" href="class_uni_engine_1_1_post_processing.html#abbb5bf6c7fcb17da9b0ba8214adc7edc">UniEngine::PostProcessing</a>, <a class="el" href="struct_uni_engine_1_1_private_component_element.html#a5b195cfb359e2c808536feabda48c0ec">UniEngine::PrivateComponentElement</a>, <a class="el" href="class_uni_engine_1_1_private_component_ref.html#a3b51ca6b2f54c439f3615875d719217d">UniEngine::PrivateComponentRef</a>, <a class="el" href="class_uni_engine_1_1_scene.html#aaf91706a58681e2f8de6e655cfac31b9">UniEngine::Scene</a>, <a class="el" href="struct_uni_engine_1_1_scene_data_storage.html#a4cd4657e858f44b0155ce19521b13a0e">UniEngine::SceneDataStorage</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#a11c6a6dc92f24b5b274f795ac54f2a3d">UniEngine::SystemRef</a></li>
+<li>operator()()&#160;:&#160;<a class="el" href="struct_uni_engine_1_1_entity.html#a8b5d8318ffe91cd537f9183b190e4db4">UniEngine::Entity</a>, <a class="el" href="struct_uni_engine_1_1_entity_query.html#a0887bc58364d5b6a8799f034c084d3b8">UniEngine::EntityQuery</a></li>
+<li>operator=()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_ref.html#aa2e14463014dc5fc5b1cc033acd4368e">UniEngine::AssetRef</a>, <a class="el" href="class_uni_engine_1_1_camera.html#a77b1aae0808ab1d4d3a70c70866585f4">UniEngine::Camera</a>, <a class="el" href="struct_uni_engine_1_1_component_data_chunk.html#a1503b49cf003f7bd3a4cdb0b8cad35c2">UniEngine::ComponentDataChunk</a>, <a class="el" href="struct_uni_engine_1_1_data_component_chunk_array.html#a884b745f9e74abe32c48466fda747baa">UniEngine::DataComponentChunkArray</a>, <a class="el" href="struct_uni_engine_1_1_data_component_storage.html#a7b01502ec215d47f777a86911c8ac57e">UniEngine::DataComponentStorage</a>, <a class="el" href="struct_uni_engine_1_1_entity_metadata.html#a4cb6e67092d693ccf1ee6008076c53e0">UniEngine::EntityMetadata</a>, <a class="el" href="class_uni_engine_1_1_entity_ref.html#a5fe313fd46bc32bbc1b519d288e92e0e">UniEngine::EntityRef</a>, <a class="el" href="class_uni_engine_1_1_i_singleton.html#aca12b1e0e89c391fd6460b4258ca2292">UniEngine::ISingleton&lt; T &gt;</a>, <a class="el" href="class_uni_engine_1_1_post_processing.html#abbb5bf6c7fcb17da9b0ba8214adc7edc">UniEngine::PostProcessing</a>, <a class="el" href="struct_uni_engine_1_1_private_component_element.html#a5b195cfb359e2c808536feabda48c0ec">UniEngine::PrivateComponentElement</a>, <a class="el" href="class_uni_engine_1_1_private_component_ref.html#a3b51ca6b2f54c439f3615875d719217d">UniEngine::PrivateComponentRef</a>, <a class="el" href="class_uni_engine_1_1_scene.html#aaf91706a58681e2f8de6e655cfac31b9">UniEngine::Scene</a>, <a class="el" href="struct_uni_engine_1_1_scene_data_storage.html#a4cd4657e858f44b0155ce19521b13a0e">UniEngine::SceneDataStorage</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#aeae83c692f43c7f70daaeeb3e86b2593">UniEngine::SystemRef</a></li>
 <li>operator==()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_asset_ref.html#a6052b94d8362f289b4ee1d190a20e59c">UniEngine::AssetRef</a>, <a class="el" href="struct_uni_engine_1_1_data_component_type.html#a7be32531e68c010f603f511f3ed08fd0">UniEngine::DataComponentType</a>, <a class="el" href="struct_uni_engine_1_1_entity.html#abeedd2b9ad7b200acca5ac2522607fad">UniEngine::Entity</a>, <a class="el" href="struct_uni_engine_1_1_entity_query.html#a41f6686eb26261c40712d41d5647764a">UniEngine::EntityQuery</a>, <a class="el" href="struct_uni_engine_1_1_global_transform.html#afc571fa317ed54c36a85371be30ab9d5">UniEngine::GlobalTransform</a>, <a class="el" href="class_uni_engine_1_1_private_component_ref.html#a8dfec57a7658ff88da8438d573671128">UniEngine::PrivateComponentRef</a>, <a class="el" href="class_uni_engine_1_1_system_ref.html#a900ba49343a80c00c6ba481cae0ffd8f">UniEngine::SystemRef</a>, <a class="el" href="struct_uni_engine_1_1_transform.html#a90008ae4eae78bd0fbf3b47be40cf8a3">UniEngine::Transform</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

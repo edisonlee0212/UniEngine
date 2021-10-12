@@ -7,14 +7,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My Project: Class Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+  $(document).ready(function() { init_search(); });
+/* @license-end */
+</script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
+<div id="side-nav" class="ui-resizable side-nav-resizable"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
@@ -25,6 +36,21 @@
    </div>
   </td>
  </tr>
+   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.svg"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
+          </span>
+        </div>
+</td></tr>
  </tbody>
 </table>
 </div>
@@ -35,18 +61,22 @@
 var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 /* @license-end */
 </script>
-<script type="text/javascript" src="menudata.js"></script>
-<script type="text/javascript" src="menu.js"></script>
+</div><!-- top -->
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(function() {
-  initMenu('',true,false,'search.php','Search');
-  $(document).ready(function() { init_search(); });
-});
+$(document).ready(function(){initNavTree('functions_~.html',''); initResizable(); });
 /* @license-end */
 </script>
-<div id="main-nav"></div>
-</div><!-- top -->
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -75,18 +105,19 @@ $(function() {
 <li>~GLTexture()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture.html#a565aae674a45d3d9e0061791ba4326f5">UniEngine::OpenGLUtils::GLTexture</a></li>
 <li>~GLVAO()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html#a0e192b889696eb7fa1dc64957c8e4b82">UniEngine::OpenGLUtils::GLVAO</a></li>
 <li>~IAsset()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_i_asset.html#ae71b3e2d36adfa5fe4137ec36f80621d">UniEngine::IAsset</a></li>
-<li>~ImGuiFileBrowser()&#160;:&#160;<a class="el" href="classimgui__addons_1_1_im_gui_file_browser.html#a3b079260a0c11ab7abb5c1d5740497ee">imgui_addons::ImGuiFileBrowser</a></li>
 <li>~ISerializable()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_i_serializable.html#a4d32302bb3eac18c2aa68631a881f2d7">UniEngine::ISerializable</a></li>
 <li>~PhysicsMaterial()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_physics_material.html#adbc9a6954c9a04f178a4b215d8ecfe3e">UniEngine::PhysicsMaterial</a></li>
 <li>~PhysicsScene()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_physics_scene.html#ab51b08cdb9a551134f9a347e59709724">UniEngine::PhysicsScene</a></li>
-<li>~PlyFile()&#160;:&#160;<a class="el" href="structtinyply_1_1_ply_file.html#ae8d300efd98bd1d5f6d6623c3a9c42ef">tinyply::PlyFile</a></li>
 <li>~Scene()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_scene.html#a3b8cec2e32546713915f8c6303c951f1">UniEngine::Scene</a></li>
 <li>~ThreadPool()&#160;:&#160;<a class="el" href="class_uni_engine_1_1_thread_pool.html#a2d231c40cebd62d470491331fd887a8e">UniEngine::ThreadPool</a></li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
+  </ul>
+</div>
 </body>
 </html>

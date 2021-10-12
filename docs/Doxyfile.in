@@ -1,4 +1,8 @@
 OUTPUT_DIRECTORY    = @CMAKE_CURRENT_SOURCE_DIR@/docs/
 INPUT               = @CMAKE_CURRENT_SOURCE_DIR@/src/lib @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Core @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/ECS @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Editor @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Managers @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Math @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Physics @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Rendering @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Resources @CMAKE_CURRENT_SOURCE_DIR@/include/lib/Engine/Utilities
 EXTRACT_ALL         = YES
+GENERATE_LATEX      = NO
+DISABLE_INDEX       = YES
 GENERATE_TREEVIEW   = YES
+FULL_SIDEBAR        = YES
+EXCLUDE_SYMBOLS     = imgui_addons std tinyply YAML InputTextCallback_UserData ImGui
