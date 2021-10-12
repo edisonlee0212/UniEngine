@@ -282,10 +282,6 @@ void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
 void Application::Reset()
 {
     auto &application = GetInstance();
-    application.m_externalPreUpdateFunctions.clear();
-    application.m_externalUpdateFunctions.clear();
-    application.m_externalFixedUpdateFunctions.clear();
-    application.m_externalLateUpdateFunctions.clear();
     application.m_gameStatus = GameStatus::Stop;
     application.m_needFixedUpdate = false;
     application.m_time.Reset();
