@@ -1,0 +1,78 @@
+\hypertarget{class_uni_engine_1_1_private_component_storage}{}\doxysection{Uni\+Engine\+::Private\+Component\+Storage Class Reference}
+\label{class_uni_engine_1_1_private_component_storage}\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+
+
+{\ttfamily \#include $<$Private\+Component\+Storage.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+UNIENGINE\+\_\+\+API void \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_a23d635003b12a2b1c2054ca848f17aa6}{Remove\+Private\+Component}} (\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, size\+\_\+t type\+ID)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_affb0036e7ae56192e413500e1789befe}{Delete\+Entity}} (\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity)
+\item 
+{\footnotesize template$<$typename T  = IPrivate\+Component$>$ }\\void \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_a02f1e50cbae96891435710f9c6944bb3}{Set\+Private\+Component}} (\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_ad18f9c0ff6f0835eb9ce313ac5cfb32b}{Set\+Private\+Component}} (\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, size\+\_\+t id)
+\item 
+{\footnotesize template$<$typename T  = IPrivate\+Component$>$ }\\void \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_a0f69442fcfeccf3793dd729772d5ac02}{Remove\+Private\+Component}} (\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity)
+\item 
+{\footnotesize template$<$typename T $>$ }\\const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ $\ast$ \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_ab672baa47352d1f88088a61e14861978}{Unsafe\+Get\+Owners\+List}} ()
+\item 
+{\footnotesize template$<$typename T $>$ }\\const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage_a7fcc5fbaa5f6dc2b0d2ade276a2e828d}{Get\+Owners\+List}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_affb0036e7ae56192e413500e1789befe}\label{class_uni_engine_1_1_private_component_storage_affb0036e7ae56192e413500e1789befe}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!DeleteEntity@{DeleteEntity}}
+\index{DeleteEntity@{DeleteEntity}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{DeleteEntity()}{DeleteEntity()}}
+{\footnotesize\ttfamily void Private\+Component\+Storage\+::\+Delete\+Entity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}}]{entity }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_a7fcc5fbaa5f6dc2b0d2ade276a2e828d}\label{class_uni_engine_1_1_private_component_storage_a7fcc5fbaa5f6dc2b0d2ade276a2e828d}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!GetOwnersList@{GetOwnersList}}
+\index{GetOwnersList@{GetOwnersList}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{GetOwnersList()}{GetOwnersList()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ Private\+Component\+Storage\+::\+Get\+Owners\+List}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_a0f69442fcfeccf3793dd729772d5ac02}\label{class_uni_engine_1_1_private_component_storage_a0f69442fcfeccf3793dd729772d5ac02}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!RemovePrivateComponent@{RemovePrivateComponent}}
+\index{RemovePrivateComponent@{RemovePrivateComponent}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{RemovePrivateComponent()}{RemovePrivateComponent()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void Uni\+Engine\+::\+Private\+Component\+Storage\+::\+Remove\+Private\+Component (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}}]{entity }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_a23d635003b12a2b1c2054ca848f17aa6}\label{class_uni_engine_1_1_private_component_storage_a23d635003b12a2b1c2054ca848f17aa6}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!RemovePrivateComponent@{RemovePrivateComponent}}
+\index{RemovePrivateComponent@{RemovePrivateComponent}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{RemovePrivateComponent()}{RemovePrivateComponent()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Private\+Component\+Storage\+::\+Remove\+Private\+Component (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}}]{entity,  }\item[{size\+\_\+t}]{type\+ID }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_a02f1e50cbae96891435710f9c6944bb3}\label{class_uni_engine_1_1_private_component_storage_a02f1e50cbae96891435710f9c6944bb3}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!SetPrivateComponent@{SetPrivateComponent}}
+\index{SetPrivateComponent@{SetPrivateComponent}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{SetPrivateComponent()}{SetPrivateComponent()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+void Uni\+Engine\+::\+Private\+Component\+Storage\+::\+Set\+Private\+Component (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}}]{entity }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_ad18f9c0ff6f0835eb9ce313ac5cfb32b}\label{class_uni_engine_1_1_private_component_storage_ad18f9c0ff6f0835eb9ce313ac5cfb32b}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!SetPrivateComponent@{SetPrivateComponent}}
+\index{SetPrivateComponent@{SetPrivateComponent}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{SetPrivateComponent()}{SetPrivateComponent()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Private\+Component\+Storage\+::\+Set\+Private\+Component (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}}]{entity,  }\item[{size\+\_\+t}]{id }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_private_component_storage_ab672baa47352d1f88088a61e14861978}\label{class_uni_engine_1_1_private_component_storage_ab672baa47352d1f88088a61e14861978}} 
+\index{UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}!UnsafeGetOwnersList@{UnsafeGetOwnersList}}
+\index{UnsafeGetOwnersList@{UnsafeGetOwnersList}!UniEngine::PrivateComponentStorage@{UniEngine::PrivateComponentStorage}}
+\doxysubsubsection{\texorpdfstring{UnsafeGetOwnersList()}{UnsafeGetOwnersList()}}
+{\footnotesize\ttfamily template$<$typename T $>$ \\
+const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ $\ast$ Uni\+Engine\+::\+Private\+Component\+Storage\+::\+Unsafe\+Get\+Owners\+List}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+ECS/\mbox{\hyperlink{_private_component_storage_8hpp}{Private\+Component\+Storage.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_private_component_storage_8cpp}{Private\+Component\+Storage.\+cpp}}\end{DoxyCompactItemize}

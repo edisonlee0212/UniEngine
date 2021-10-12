@@ -1,0 +1,156 @@
+\hypertarget{class_uni_engine_1_1_mesh_renderer}{}\doxysection{Uni\+Engine\+::Mesh\+Renderer Class Reference}
+\label{class_uni_engine_1_1_mesh_renderer}\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+
+
+{\ttfamily \#include $<$Mesh\+Renderer.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Mesh\+Renderer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_mesh_renderer}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_aed88f523710a1d2591b612bd12300036}{On\+Inspect}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ae77b641a0236107d987c1598a04e2947}{On\+Create}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ae02871c0020d1d8fb339fb955fe43dff}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a5afcffc1882438c35d4c15ea0b319fba}{Deserialize}} (const YAML\+::\+Node \&in) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a4f59cd51f5aef39cd538210e4241b4bb}{Collect\+Asset\+Ref}} (std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&list) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a239fdaeced38d5bdc89219a22e758211}{Post\+Clone\+Action}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&target) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ab809ce88216c7eb10ce97a6a31e80d5a}{m\+\_\+forward\+Rendering}} = false
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a6441abeb24743d5fd821fdbedcc31e84}{m\+\_\+cast\+Shadow}} = true
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ab6edd9ec979f6bb6be3ae52c97572330}{m\+\_\+receive\+Shadow}} = true
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a919626246d9c216e260f85c7d1992cbd}{m\+\_\+mesh}}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a6c85c5c66b7f49aeb001fd2a74f5882e}{m\+\_\+material}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ab4a07d61ba268f3670d11194a067ede4}{Editor\+Manager}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a4f59cd51f5aef39cd538210e4241b4bb}\label{class_uni_engine_1_1_mesh_renderer_a4f59cd51f5aef39cd538210e4241b4bb}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!CollectAssetRef@{CollectAssetRef}}
+\index{CollectAssetRef@{CollectAssetRef}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{CollectAssetRef()}{CollectAssetRef()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+Collect\+Asset\+Ref (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&}]{list }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a5afcffc1882438c35d4c15ea0b319fba}\label{class_uni_engine_1_1_mesh_renderer_a5afcffc1882438c35d4c15ea0b319fba}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_ae77b641a0236107d987c1598a04e2947}\label{class_uni_engine_1_1_mesh_renderer_ae77b641a0236107d987c1598a04e2947}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_aed88f523710a1d2591b612bd12300036}\label{class_uni_engine_1_1_mesh_renderer_aed88f523710a1d2591b612bd12300036}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a239fdaeced38d5bdc89219a22e758211}\label{class_uni_engine_1_1_mesh_renderer_a239fdaeced38d5bdc89219a22e758211}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!PostCloneAction@{PostCloneAction}}
+\index{PostCloneAction@{PostCloneAction}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{PostCloneAction()}{PostCloneAction()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+Post\+Clone\+Action (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_ae02871c0020d1d8fb339fb955fe43dff}\label{class_uni_engine_1_1_mesh_renderer_ae02871c0020d1d8fb339fb955fe43dff}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Mesh\+Renderer\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_ab4a07d61ba268f3670d11194a067ede4}\label{class_uni_engine_1_1_mesh_renderer_ab4a07d61ba268f3670d11194a067ede4}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!EditorManager@{EditorManager}}
+\index{EditorManager@{EditorManager}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{EditorManager}{EditorManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{Editor\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a6441abeb24743d5fd821fdbedcc31e84}\label{class_uni_engine_1_1_mesh_renderer_a6441abeb24743d5fd821fdbedcc31e84}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!m\_castShadow@{m\_castShadow}}
+\index{m\_castShadow@{m\_castShadow}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{m\_castShadow}{m\_castShadow}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Mesh\+Renderer\+::m\+\_\+cast\+Shadow = true}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_ab809ce88216c7eb10ce97a6a31e80d5a}\label{class_uni_engine_1_1_mesh_renderer_ab809ce88216c7eb10ce97a6a31e80d5a}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!m\_forwardRendering@{m\_forwardRendering}}
+\index{m\_forwardRendering@{m\_forwardRendering}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{m\_forwardRendering}{m\_forwardRendering}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Mesh\+Renderer\+::m\+\_\+forward\+Rendering = false}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a6c85c5c66b7f49aeb001fd2a74f5882e}\label{class_uni_engine_1_1_mesh_renderer_a6c85c5c66b7f49aeb001fd2a74f5882e}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!m\_material@{m\_material}}
+\index{m\_material@{m\_material}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{m\_material}{m\_material}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} Uni\+Engine\+::\+Mesh\+Renderer\+::m\+\_\+material}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_a919626246d9c216e260f85c7d1992cbd}\label{class_uni_engine_1_1_mesh_renderer_a919626246d9c216e260f85c7d1992cbd}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!m\_mesh@{m\_mesh}}
+\index{m\_mesh@{m\_mesh}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{m\_mesh}{m\_mesh}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} Uni\+Engine\+::\+Mesh\+Renderer\+::m\+\_\+mesh}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_mesh_renderer_ab6edd9ec979f6bb6be3ae52c97572330}\label{class_uni_engine_1_1_mesh_renderer_ab6edd9ec979f6bb6be3ae52c97572330}} 
+\index{UniEngine::MeshRenderer@{UniEngine::MeshRenderer}!m\_receiveShadow@{m\_receiveShadow}}
+\index{m\_receiveShadow@{m\_receiveShadow}!UniEngine::MeshRenderer@{UniEngine::MeshRenderer}}
+\doxysubsubsection{\texorpdfstring{m\_receiveShadow}{m\_receiveShadow}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Mesh\+Renderer\+::m\+\_\+receive\+Shadow = true}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_mesh_renderer_8hpp}{Mesh\+Renderer.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_mesh_renderer_8cpp}{Mesh\+Renderer.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,178 @@
+\hypertarget{class_uni_engine_1_1_spot_light}{}\doxysection{Uni\+Engine\+::Spot\+Light Class Reference}
+\label{class_uni_engine_1_1_spot_light}\index{UniEngine::SpotLight@{UniEngine::SpotLight}}
+
+
+{\ttfamily \#include $<$Lights.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Spot\+Light\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_spot_light}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a1542943e40c651549b536e23e7d4e303}{On\+Inspect}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_spot_light_adc1a6b59d47a914e5e69897abd4758df}{On\+Create}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a38830f1ca5127f18479612e761115975}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a82201c2e662a63e928a693dda9b5dba4}{Deserialize}} (const YAML\+::\+Node \&in) override
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a832f8a8f82c87adcc1bc1facccc1ffd9}{Get\+Far\+Plane}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a026ea7c5bfe6419073e59cc6f3dc2b73}{Post\+Clone\+Action}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&target) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a71b27c64bec7b9cc1bd2cf13fc26ccf8}{m\+\_\+cast\+Shadow}} = true
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_ac57ff5c301b065a52d2cbdf0aa29672d}{m\+\_\+inner\+Degrees}} = 20
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a3f049efc966f4554cb33cb002681f379}{m\+\_\+outer\+Degrees}} = 30
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_ade42cb991b5d2c53b3b997c7c7862467}{m\+\_\+constant}} = 1.\+0f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_ada0cf5c272a2606ff9d86d878b533ba5}{m\+\_\+linear}} = 0.\+07f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a97e7249292ff582f01b0b90dd5c68d26}{m\+\_\+quadratic}} = 0.\+0015f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a5eda77d7f981a216dbcd4a5ef5de5235}{m\+\_\+bias}} = 0.\+001f
+\item 
+glm\+::vec3 \mbox{\hyperlink{class_uni_engine_1_1_spot_light_af2cdd6ef57dec1321848bfb49217cf90}{m\+\_\+diffuse}} = glm\+::vec3(1.\+0f)
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a45d7da8cea00a9d97e5ec7bda972e237}{m\+\_\+diffuse\+Brightness}} = 0.\+8f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a5317cb87188cb4fdf25c4ca1b5147bde}{m\+\_\+light\+Size}} = 0.\+1f
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a82201c2e662a63e928a693dda9b5dba4}\label{class_uni_engine_1_1_spot_light_a82201c2e662a63e928a693dda9b5dba4}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Spot\+Light\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a832f8a8f82c87adcc1bc1facccc1ffd9}\label{class_uni_engine_1_1_spot_light_a832f8a8f82c87adcc1bc1facccc1ffd9}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!GetFarPlane@{GetFarPlane}}
+\index{GetFarPlane@{GetFarPlane}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{GetFarPlane()}{GetFarPlane()}}
+{\footnotesize\ttfamily float Spot\+Light\+::\+Get\+Far\+Plane (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_adc1a6b59d47a914e5e69897abd4758df}\label{class_uni_engine_1_1_spot_light_adc1a6b59d47a914e5e69897abd4758df}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily void Spot\+Light\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a1542943e40c651549b536e23e7d4e303}\label{class_uni_engine_1_1_spot_light_a1542943e40c651549b536e23e7d4e303}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Spot\+Light\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a026ea7c5bfe6419073e59cc6f3dc2b73}\label{class_uni_engine_1_1_spot_light_a026ea7c5bfe6419073e59cc6f3dc2b73}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!PostCloneAction@{PostCloneAction}}
+\index{PostCloneAction@{PostCloneAction}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{PostCloneAction()}{PostCloneAction()}}
+{\footnotesize\ttfamily void Spot\+Light\+::\+Post\+Clone\+Action (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a38830f1ca5127f18479612e761115975}\label{class_uni_engine_1_1_spot_light_a38830f1ca5127f18479612e761115975}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Spot\+Light\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a5eda77d7f981a216dbcd4a5ef5de5235}\label{class_uni_engine_1_1_spot_light_a5eda77d7f981a216dbcd4a5ef5de5235}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_bias@{m\_bias}}
+\index{m\_bias@{m\_bias}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_bias}{m\_bias}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+bias = 0.\+001f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a71b27c64bec7b9cc1bd2cf13fc26ccf8}\label{class_uni_engine_1_1_spot_light_a71b27c64bec7b9cc1bd2cf13fc26ccf8}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_castShadow@{m\_castShadow}}
+\index{m\_castShadow@{m\_castShadow}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_castShadow}{m\_castShadow}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+cast\+Shadow = true}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_ade42cb991b5d2c53b3b997c7c7862467}\label{class_uni_engine_1_1_spot_light_ade42cb991b5d2c53b3b997c7c7862467}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_constant@{m\_constant}}
+\index{m\_constant@{m\_constant}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_constant}{m\_constant}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+constant = 1.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_af2cdd6ef57dec1321848bfb49217cf90}\label{class_uni_engine_1_1_spot_light_af2cdd6ef57dec1321848bfb49217cf90}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_diffuse@{m\_diffuse}}
+\index{m\_diffuse@{m\_diffuse}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_diffuse}{m\_diffuse}}
+{\footnotesize\ttfamily glm\+::vec3 Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+diffuse = glm\+::vec3(1.\+0f)}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a45d7da8cea00a9d97e5ec7bda972e237}\label{class_uni_engine_1_1_spot_light_a45d7da8cea00a9d97e5ec7bda972e237}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_diffuseBrightness@{m\_diffuseBrightness}}
+\index{m\_diffuseBrightness@{m\_diffuseBrightness}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_diffuseBrightness}{m\_diffuseBrightness}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+diffuse\+Brightness = 0.\+8f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_ac57ff5c301b065a52d2cbdf0aa29672d}\label{class_uni_engine_1_1_spot_light_ac57ff5c301b065a52d2cbdf0aa29672d}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_innerDegrees@{m\_innerDegrees}}
+\index{m\_innerDegrees@{m\_innerDegrees}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_innerDegrees}{m\_innerDegrees}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+inner\+Degrees = 20}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a5317cb87188cb4fdf25c4ca1b5147bde}\label{class_uni_engine_1_1_spot_light_a5317cb87188cb4fdf25c4ca1b5147bde}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_lightSize@{m\_lightSize}}
+\index{m\_lightSize@{m\_lightSize}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_lightSize}{m\_lightSize}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+light\+Size = 0.\+1f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_ada0cf5c272a2606ff9d86d878b533ba5}\label{class_uni_engine_1_1_spot_light_ada0cf5c272a2606ff9d86d878b533ba5}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_linear@{m\_linear}}
+\index{m\_linear@{m\_linear}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_linear}{m\_linear}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+linear = 0.\+07f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a3f049efc966f4554cb33cb002681f379}\label{class_uni_engine_1_1_spot_light_a3f049efc966f4554cb33cb002681f379}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_outerDegrees@{m\_outerDegrees}}
+\index{m\_outerDegrees@{m\_outerDegrees}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_outerDegrees}{m\_outerDegrees}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+outer\+Degrees = 30}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_spot_light_a97e7249292ff582f01b0b90dd5c68d26}\label{class_uni_engine_1_1_spot_light_a97e7249292ff582f01b0b90dd5c68d26}} 
+\index{UniEngine::SpotLight@{UniEngine::SpotLight}!m\_quadratic@{m\_quadratic}}
+\index{m\_quadratic@{m\_quadratic}!UniEngine::SpotLight@{UniEngine::SpotLight}}
+\doxysubsubsection{\texorpdfstring{m\_quadratic}{m\_quadratic}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Spot\+Light\+::m\+\_\+quadratic = 0.\+0015f}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_lights_8hpp}{Lights.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_lights_8cpp}{Lights.\+cpp}}\end{DoxyCompactItemize}

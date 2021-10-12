@@ -1,0 +1,24 @@
+\hypertarget{_transform_manager_8hpp_source}{}\doxysection{Transform\+Manager.\+hpp}
+\label{_transform_manager_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/TransformManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/TransformManager.hpp}}
+\mbox{\hyperlink{_transform_manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_manager_8hpp}{EntityManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_transform_8hpp}{Transform.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_transform_manager}{TransformManager}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<TransformManager>}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_physics_system}{PhysicsSystem}};}
+\DoxyCodeLine{9     \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{EntityQuery}} m\_transformQuery;}
+\DoxyCodeLine{10     \textcolor{keywordtype}{bool} m\_physicsSystemOverride = \textcolor{keyword}{false};}
+\DoxyCodeLine{11     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CalculateTransformGraph(\textcolor{keyword}{const} std::shared\_ptr<Scene>\& scene, std::vector<EntityMetadata>\& entityInfos, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&parentGlobalTransform, \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} parent);}
+\DoxyCodeLine{12   \textcolor{keyword}{public}:}
+\DoxyCodeLine{13     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CalculateTransformGraphForDescendents(\textcolor{keyword}{const} std::shared\_ptr<Scene>\& scene, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}\& entity);}
+\DoxyCodeLine{14     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CalculateTransformGraphs(\textcolor{keyword}{const} std::shared\_ptr<Scene>\& scene);}
+\DoxyCodeLine{15     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Init();}
+\DoxyCodeLine{16     \textcolor{keyword}{static} \textcolor{keywordtype}{void} PreUpdate();}
+\DoxyCodeLine{17 \};}
+\DoxyCodeLine{18 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

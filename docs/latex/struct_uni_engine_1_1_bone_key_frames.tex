@@ -1,0 +1,131 @@
+\hypertarget{struct_uni_engine_1_1_bone_key_frames}{}\doxysection{Uni\+Engine\+::Bone\+Key\+Frames Struct Reference}
+\label{struct_uni_engine_1_1_bone_key_frames}\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+
+
+{\ttfamily \#include $<$Animation.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a59fe65b877de9513b4d6befaab35be0b}{Get\+Position\+Index}} (const float \&animation\+Time)
+\item 
+int \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a2b1d6d42580c7be1fa810599f6630587}{Get\+Rotation\+Index}} (const float \&animation\+Time)
+\item 
+int \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a730ea216fbdc17bcf9a03cd9afc72e23}{Get\+Scale\+Index}} (const float \&animation\+Time)
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a78daef264e66c8e4a089ab1c9a26dd3a}{Interpolate\+Position}} (const float \&animation\+Time)
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a83440c4806686553cbd54ad05d153253}{Interpolate\+Rotation}} (const float \&animation\+Time)
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a1aac27e0018d718c0c2a1cb802885965}{Interpolate\+Scaling}} (const float \&animation\+Time)
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a229bef71027c17839d764e49f7f5ae6c}{Serialize}} (YAML\+::\+Emitter \&out) const
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a1de84ec0eb46bea7ecf57c85aac7af7c}{Deserialize}} (const YAML\+::\+Node \&in)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static float \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a2a41e9b5067c41fb66a9147451d1ba51}{Get\+Scale\+Factor}} (const float \&last\+Time\+Stamp, const float \&next\+Time\+Stamp, const float \&animation\+Time)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_position}{Bone\+Position}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a66eb1fa146f108bc3880f8b5ca3acc61}{m\+\_\+positions}}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_rotation}{Bone\+Rotation}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_ab65c5666bc60c76a386cc187edbe1b27}{m\+\_\+rotations}}
+\item 
+std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_scale}{Bone\+Scale}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a4cf10695941f19724c158de10de18ed0}{m\+\_\+scales}}
+\item 
+float \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a81e7cea91945ced1a87db89d88b29404}{m\+\_\+max\+Time\+Stamp}} = 0.\+0f
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a1de84ec0eb46bea7ecf57c85aac7af7c}\label{struct_uni_engine_1_1_bone_key_frames_a1de84ec0eb46bea7ecf57c85aac7af7c}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Bone\+Key\+Frames\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a59fe65b877de9513b4d6befaab35be0b}\label{struct_uni_engine_1_1_bone_key_frames_a59fe65b877de9513b4d6befaab35be0b}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!GetPositionIndex@{GetPositionIndex}}
+\index{GetPositionIndex@{GetPositionIndex}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{GetPositionIndex()}{GetPositionIndex()}}
+{\footnotesize\ttfamily int Bone\+Key\+Frames\+::\+Get\+Position\+Index (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a2b1d6d42580c7be1fa810599f6630587}\label{struct_uni_engine_1_1_bone_key_frames_a2b1d6d42580c7be1fa810599f6630587}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!GetRotationIndex@{GetRotationIndex}}
+\index{GetRotationIndex@{GetRotationIndex}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{GetRotationIndex()}{GetRotationIndex()}}
+{\footnotesize\ttfamily int Bone\+Key\+Frames\+::\+Get\+Rotation\+Index (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a2a41e9b5067c41fb66a9147451d1ba51}\label{struct_uni_engine_1_1_bone_key_frames_a2a41e9b5067c41fb66a9147451d1ba51}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!GetScaleFactor@{GetScaleFactor}}
+\index{GetScaleFactor@{GetScaleFactor}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{GetScaleFactor()}{GetScaleFactor()}}
+{\footnotesize\ttfamily float Bone\+Key\+Frames\+::\+Get\+Scale\+Factor (\begin{DoxyParamCaption}\item[{const float \&}]{last\+Time\+Stamp,  }\item[{const float \&}]{next\+Time\+Stamp,  }\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a730ea216fbdc17bcf9a03cd9afc72e23}\label{struct_uni_engine_1_1_bone_key_frames_a730ea216fbdc17bcf9a03cd9afc72e23}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!GetScaleIndex@{GetScaleIndex}}
+\index{GetScaleIndex@{GetScaleIndex}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{GetScaleIndex()}{GetScaleIndex()}}
+{\footnotesize\ttfamily int Bone\+Key\+Frames\+::\+Get\+Scale\+Index (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a78daef264e66c8e4a089ab1c9a26dd3a}\label{struct_uni_engine_1_1_bone_key_frames_a78daef264e66c8e4a089ab1c9a26dd3a}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!InterpolatePosition@{InterpolatePosition}}
+\index{InterpolatePosition@{InterpolatePosition}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{InterpolatePosition()}{InterpolatePosition()}}
+{\footnotesize\ttfamily glm\+::mat4 Bone\+Key\+Frames\+::\+Interpolate\+Position (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a83440c4806686553cbd54ad05d153253}\label{struct_uni_engine_1_1_bone_key_frames_a83440c4806686553cbd54ad05d153253}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!InterpolateRotation@{InterpolateRotation}}
+\index{InterpolateRotation@{InterpolateRotation}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{InterpolateRotation()}{InterpolateRotation()}}
+{\footnotesize\ttfamily glm\+::mat4 Bone\+Key\+Frames\+::\+Interpolate\+Rotation (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a1aac27e0018d718c0c2a1cb802885965}\label{struct_uni_engine_1_1_bone_key_frames_a1aac27e0018d718c0c2a1cb802885965}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!InterpolateScaling@{InterpolateScaling}}
+\index{InterpolateScaling@{InterpolateScaling}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{InterpolateScaling()}{InterpolateScaling()}}
+{\footnotesize\ttfamily glm\+::mat4 Bone\+Key\+Frames\+::\+Interpolate\+Scaling (\begin{DoxyParamCaption}\item[{const float \&}]{animation\+Time }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a229bef71027c17839d764e49f7f5ae6c}\label{struct_uni_engine_1_1_bone_key_frames_a229bef71027c17839d764e49f7f5ae6c}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Bone\+Key\+Frames\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption}) const}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a81e7cea91945ced1a87db89d88b29404}\label{struct_uni_engine_1_1_bone_key_frames_a81e7cea91945ced1a87db89d88b29404}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!m\_maxTimeStamp@{m\_maxTimeStamp}}
+\index{m\_maxTimeStamp@{m\_maxTimeStamp}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{m\_maxTimeStamp}{m\_maxTimeStamp}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Bone\+Key\+Frames\+::m\+\_\+max\+Time\+Stamp = 0.\+0f}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a66eb1fa146f108bc3880f8b5ca3acc61}\label{struct_uni_engine_1_1_bone_key_frames_a66eb1fa146f108bc3880f8b5ca3acc61}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!m\_positions@{m\_positions}}
+\index{m\_positions@{m\_positions}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{m\_positions}{m\_positions}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{struct_uni_engine_1_1_bone_position}{Bone\+Position}}$>$ Uni\+Engine\+::\+Bone\+Key\+Frames\+::m\+\_\+positions}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_ab65c5666bc60c76a386cc187edbe1b27}\label{struct_uni_engine_1_1_bone_key_frames_ab65c5666bc60c76a386cc187edbe1b27}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!m\_rotations@{m\_rotations}}
+\index{m\_rotations@{m\_rotations}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{m\_rotations}{m\_rotations}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{struct_uni_engine_1_1_bone_rotation}{Bone\+Rotation}}$>$ Uni\+Engine\+::\+Bone\+Key\+Frames\+::m\+\_\+rotations}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_key_frames_a4cf10695941f19724c158de10de18ed0}\label{struct_uni_engine_1_1_bone_key_frames_a4cf10695941f19724c158de10de18ed0}} 
+\index{UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}!m\_scales@{m\_scales}}
+\index{m\_scales@{m\_scales}!UniEngine::BoneKeyFrames@{UniEngine::BoneKeyFrames}}
+\doxysubsubsection{\texorpdfstring{m\_scales}{m\_scales}}
+{\footnotesize\ttfamily std\+::vector$<$\mbox{\hyperlink{struct_uni_engine_1_1_bone_scale}{Bone\+Scale}}$>$ Uni\+Engine\+::\+Bone\+Key\+Frames\+::m\+\_\+scales}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_animation_8hpp}{Animation.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_animation_8cpp}{Animation.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,96 @@
+\hypertarget{struct_uni_engine_1_1_camera_info_block}{}\doxysection{Uni\+Engine\+::Camera\+Info\+Block Struct Reference}
+\label{struct_uni_engine_1_1_camera_info_block}\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+
+
+{\ttfamily \#include $<$Camera.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_ae9b1ebe6b8622acf73df02cb0b9d2691}{Update\+Matrices}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera, glm\+::vec3 position, glm\+::quat rotation)
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a4ed22b96ece200ccf8463ef2a6a04e10}{Upload\+Matrices}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a7bd8203eeb40a210fa2dad827e0a7e2d}{m\+\_\+projection}}
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a469f883aaf938f5b52ab1d0fbde49059}{m\+\_\+view}}
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a6249f81709cc3fbf56b1f15e354dd643}{m\+\_\+inverse\+Projection}}
+\item 
+glm\+::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a91f04ae36ba7bf5e573f9dfce031791d}{m\+\_\+inverse\+View}}
+\item 
+glm\+::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a6008990ba68d469393e8e04932638698}{m\+\_\+reserved\+Parameters}}
+\item 
+glm\+::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a0e5d4e89e7636019cd8d333014624e02}{m\+\_\+clear\+Color}}
+\item 
+glm\+::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_aa7117d0d4427f55d9f8b42987429c65b}{m\+\_\+position}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_ae9b1ebe6b8622acf73df02cb0b9d2691}\label{struct_uni_engine_1_1_camera_info_block_ae9b1ebe6b8622acf73df02cb0b9d2691}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!UpdateMatrices@{UpdateMatrices}}
+\index{UpdateMatrices@{UpdateMatrices}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{UpdateMatrices()}{UpdateMatrices()}}
+{\footnotesize\ttfamily void Camera\+Info\+Block\+::\+Update\+Matrices (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera,  }\item[{glm\+::vec3}]{position,  }\item[{glm\+::quat}]{rotation }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a4ed22b96ece200ccf8463ef2a6a04e10}\label{struct_uni_engine_1_1_camera_info_block_a4ed22b96ece200ccf8463ef2a6a04e10}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!UploadMatrices@{UploadMatrices}}
+\index{UploadMatrices@{UploadMatrices}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{UploadMatrices()}{UploadMatrices()}}
+{\footnotesize\ttfamily void Camera\+Info\+Block\+::\+Upload\+Matrices (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera }\end{DoxyParamCaption}) const}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a0e5d4e89e7636019cd8d333014624e02}\label{struct_uni_engine_1_1_camera_info_block_a0e5d4e89e7636019cd8d333014624e02}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_clearColor@{m\_clearColor}}
+\index{m\_clearColor@{m\_clearColor}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_clearColor}{m\_clearColor}}
+{\footnotesize\ttfamily glm\+::vec4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+clear\+Color}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a6249f81709cc3fbf56b1f15e354dd643}\label{struct_uni_engine_1_1_camera_info_block_a6249f81709cc3fbf56b1f15e354dd643}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_inverseProjection@{m\_inverseProjection}}
+\index{m\_inverseProjection@{m\_inverseProjection}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_inverseProjection}{m\_inverseProjection}}
+{\footnotesize\ttfamily glm\+::mat4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+inverse\+Projection}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a91f04ae36ba7bf5e573f9dfce031791d}\label{struct_uni_engine_1_1_camera_info_block_a91f04ae36ba7bf5e573f9dfce031791d}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_inverseView@{m\_inverseView}}
+\index{m\_inverseView@{m\_inverseView}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_inverseView}{m\_inverseView}}
+{\footnotesize\ttfamily glm\+::mat4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+inverse\+View}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_aa7117d0d4427f55d9f8b42987429c65b}\label{struct_uni_engine_1_1_camera_info_block_aa7117d0d4427f55d9f8b42987429c65b}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_position@{m\_position}}
+\index{m\_position@{m\_position}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_position}{m\_position}}
+{\footnotesize\ttfamily glm\+::vec4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+position}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a7bd8203eeb40a210fa2dad827e0a7e2d}\label{struct_uni_engine_1_1_camera_info_block_a7bd8203eeb40a210fa2dad827e0a7e2d}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_projection@{m\_projection}}
+\index{m\_projection@{m\_projection}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_projection}{m\_projection}}
+{\footnotesize\ttfamily glm\+::mat4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+projection}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a6008990ba68d469393e8e04932638698}\label{struct_uni_engine_1_1_camera_info_block_a6008990ba68d469393e8e04932638698}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_reservedParameters@{m\_reservedParameters}}
+\index{m\_reservedParameters@{m\_reservedParameters}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_reservedParameters}{m\_reservedParameters}}
+{\footnotesize\ttfamily glm\+::vec4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+reserved\+Parameters}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_camera_info_block_a469f883aaf938f5b52ab1d0fbde49059}\label{struct_uni_engine_1_1_camera_info_block_a469f883aaf938f5b52ab1d0fbde49059}} 
+\index{UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}!m\_view@{m\_view}}
+\index{m\_view@{m\_view}!UniEngine::CameraInfoBlock@{UniEngine::CameraInfoBlock}}
+\doxysubsubsection{\texorpdfstring{m\_view}{m\_view}}
+{\footnotesize\ttfamily glm\+::mat4 Uni\+Engine\+::\+Camera\+Info\+Block\+::m\+\_\+view}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_camera_8hpp}{Camera.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_camera_8cpp}{Camera.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,25 @@
+\hypertarget{_job_manager_8hpp_source}{}\doxysection{Job\+Manager.\+hpp}
+\label{_job_manager_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/JobManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/JobManager.hpp}}
+\mbox{\hyperlink{_job_manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_singleton_8hpp}{ISingleton.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_thread_pool_8hpp}{ThreadPool.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{5 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{6 \{}
+\DoxyCodeLine{7 \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_job_manager}{JobManager}} final : \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<JobManager>}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9     \mbox{\hyperlink{class_uni_engine_1_1_thread_pool}{ThreadPool}} m\_primaryWorkers;}
+\DoxyCodeLine{10     \mbox{\hyperlink{class_uni_engine_1_1_thread_pool}{ThreadPool}} m\_secondaryWorkers;}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12   \textcolor{keyword}{public}:}
+\DoxyCodeLine{13     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_job_manager_aaccbb78ca22a0fe7f25983df8da5dfb1}{ResizePrimaryWorkers}}(\textcolor{keywordtype}{int} size);}
+\DoxyCodeLine{14     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_job_manager_aae670554b26ebfe5ee9e6dafe8fcd412}{ResizeSecondaryWorkers}}(\textcolor{keywordtype}{int} size);}
+\DoxyCodeLine{15     UNIENGINE\_API \textcolor{keyword}{static} \mbox{\hyperlink{class_uni_engine_1_1_thread_pool}{ThreadPool}} \&\mbox{\hyperlink{class_uni_engine_1_1_job_manager_aefac109eb33c353bd75eee0183ce6b58}{PrimaryWorkers}}();}
+\DoxyCodeLine{16     UNIENGINE\_API \textcolor{keyword}{static} \mbox{\hyperlink{class_uni_engine_1_1_thread_pool}{ThreadPool}} \&\mbox{\hyperlink{class_uni_engine_1_1_job_manager_a73ff4a043f6e3351b28c040dc8ee3e6b}{SecondaryWorkers}}();}
+\DoxyCodeLine{17     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_job_manager_a76269710b2989dad0e6c53314b67d1f0}{Init}}();}
+\DoxyCodeLine{18 \};}
+\DoxyCodeLine{19 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

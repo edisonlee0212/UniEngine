@@ -1,0 +1,74 @@
+\hypertarget{class_uni_engine_1_1_asset_registry}{}\doxysection{Uni\+Engine\+::Asset\+Registry Class Reference}
+\label{class_uni_engine_1_1_asset_registry}\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+
+
+{\ttfamily \#include $<$Project\+Manager.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_a8adcacd97f96a597d7144353619c4127}{Reset\+File\+Path}} (\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} handle, const std\+::filesystem\+::path \&new\+File\+Path)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_aca3459b80a4be3df854557e6a8fa4b87}{Add\+Or\+Reset\+File}} (\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} handle, const \mbox{\hyperlink{struct_uni_engine_1_1_file_record}{File\+Record}} \&new\+File\+Record)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_a86b952975667a98670a2b8e611c4159a}{Remove\+File}} (\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} handle)
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_acc8986dd7508b21f44a556bdd2b33ab9}{Find}} (\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} handle, \mbox{\hyperlink{struct_uni_engine_1_1_file_record}{File\+Record}} \&target)
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_a762158ad0f1ebc741cf20563ba9832ca}{Find}} (const std\+::filesystem\+::path \&new\+Relative\+Path, \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle)
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_aa71a4449613fae2f15955b82acc6f461}{Find}} (const std\+::filesystem\+::path \&new\+Relative\+Path)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_registry_a0029cd1b14dada4ce10ccb12feb044aa}{Clear}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_aca3459b80a4be3df854557e6a8fa4b87}\label{class_uni_engine_1_1_asset_registry_aca3459b80a4be3df854557e6a8fa4b87}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!AddOrResetFile@{AddOrResetFile}}
+\index{AddOrResetFile@{AddOrResetFile}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{AddOrResetFile()}{AddOrResetFile()}}
+{\footnotesize\ttfamily void Asset\+Registry\+::\+Add\+Or\+Reset\+File (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}}]{handle,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_file_record}{File\+Record}} \&}]{new\+File\+Record }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_a0029cd1b14dada4ce10ccb12feb044aa}\label{class_uni_engine_1_1_asset_registry_a0029cd1b14dada4ce10ccb12feb044aa}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!Clear@{Clear}}
+\index{Clear@{Clear}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{Clear()}{Clear()}}
+{\footnotesize\ttfamily void Asset\+Registry\+::\+Clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_aa71a4449613fae2f15955b82acc6f461}\label{class_uni_engine_1_1_asset_registry_aa71a4449613fae2f15955b82acc6f461}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!Find@{Find}}
+\index{Find@{Find}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{Find()}{Find()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily bool Asset\+Registry\+::\+Find (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{new\+Relative\+Path }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_a762158ad0f1ebc741cf20563ba9832ca}\label{class_uni_engine_1_1_asset_registry_a762158ad0f1ebc741cf20563ba9832ca}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!Find@{Find}}
+\index{Find@{Find}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{Find()}{Find()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily bool Asset\+Registry\+::\+Find (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{new\+Relative\+Path,  }\item[{\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&}]{handle }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_acc8986dd7508b21f44a556bdd2b33ab9}\label{class_uni_engine_1_1_asset_registry_acc8986dd7508b21f44a556bdd2b33ab9}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!Find@{Find}}
+\index{Find@{Find}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{Find()}{Find()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily bool Asset\+Registry\+::\+Find (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}}]{handle,  }\item[{\mbox{\hyperlink{struct_uni_engine_1_1_file_record}{File\+Record}} \&}]{target }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_a86b952975667a98670a2b8e611c4159a}\label{class_uni_engine_1_1_asset_registry_a86b952975667a98670a2b8e611c4159a}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!RemoveFile@{RemoveFile}}
+\index{RemoveFile@{RemoveFile}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{RemoveFile()}{RemoveFile()}}
+{\footnotesize\ttfamily void Asset\+Registry\+::\+Remove\+File (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}}]{handle }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_registry_a8adcacd97f96a597d7144353619c4127}\label{class_uni_engine_1_1_asset_registry_a8adcacd97f96a597d7144353619c4127}} 
+\index{UniEngine::AssetRegistry@{UniEngine::AssetRegistry}!ResetFilePath@{ResetFilePath}}
+\index{ResetFilePath@{ResetFilePath}!UniEngine::AssetRegistry@{UniEngine::AssetRegistry}}
+\doxysubsubsection{\texorpdfstring{ResetFilePath()}{ResetFilePath()}}
+{\footnotesize\ttfamily void Asset\+Registry\+::\+Reset\+File\+Path (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}}]{handle,  }\item[{const std\+::filesystem\+::path \&}]{new\+File\+Path }\end{DoxyParamCaption})}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_project_manager_8hpp}{Project\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_asset_manager_8cpp}{Asset\+Manager.\+cpp}}\end{DoxyCompactItemize}

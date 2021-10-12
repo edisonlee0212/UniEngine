@@ -1,0 +1,140 @@
+\hypertarget{class_uni_engine_1_1_bloom}{}\doxysection{Uni\+Engine\+::Bloom Class Reference}
+\label{class_uni_engine_1_1_bloom}\index{UniEngine::Bloom@{UniEngine::Bloom}}
+
+
+{\ttfamily \#include $<$Post\+Processing.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Bloom\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_bloom}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_bloom_a753c678183535a9d7234b263ac3af57d}{Bloom}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_bloom_ada3a243f762196ca0312aa8442c3e5cc}{Resize\+Resolution}} (int x, int y) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_bloom_a527e0fa268140e809e2df4284b1e5f95}{Process}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, \mbox{\hyperlink{class_uni_engine_1_1_render_target}{Render\+Target}} \&render\+Target) const override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_bloom_a59c565ff8798346dfe8e4203e9e54a06}{On\+Inspect}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_bloom_a6aa3e23b868a1e07b823731a71e7ed0e}{m\+\_\+intensity}} = 1.\+0f
+\item 
+int \mbox{\hyperlink{class_uni_engine_1_1_bloom_a472b8a9ce1fb299f8423e128cbd371f2}{m\+\_\+diffusion}} = 8
+\item 
+int \mbox{\hyperlink{class_uni_engine_1_1_bloom_aac522f96fa25bf73eb0d8439c695677e}{m\+\_\+sample\+Step}} = 1
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}} \mbox{\hyperlink{class_uni_engine_1_1_bloom_a2799c7c0fbfe08d01bd1cb7b2ad4f899}{m\+\_\+graph}}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_bloom_a3238a41a1f93878cfdee942c57670dcc}{m\+\_\+threshold}} = 1.\+0f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_bloom_a92cbc03e813272563349d566e4451f4e}{m\+\_\+clamp}} = 0.\+0f
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_bloom_a55ba8a10748d222a2f6fe9a16c071998}{Default\+Resources}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a753c678183535a9d7234b263ac3af57d}\label{class_uni_engine_1_1_bloom_a753c678183535a9d7234b263ac3af57d}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!Bloom@{Bloom}}
+\index{Bloom@{Bloom}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{Bloom()}{Bloom()}}
+{\footnotesize\ttfamily Bloom\+::\+Bloom (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a59c565ff8798346dfe8e4203e9e54a06}\label{class_uni_engine_1_1_bloom_a59c565ff8798346dfe8e4203e9e54a06}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Bloom\+::\+On\+Inspect (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_aacc22bc7d707d083454abfd6bb5a4504}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a527e0fa268140e809e2df4284b1e5f95}\label{class_uni_engine_1_1_bloom_a527e0fa268140e809e2df4284b1e5f95}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!Process@{Process}}
+\index{Process@{Process}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{Process()}{Process()}}
+{\footnotesize\ttfamily void Bloom\+::\+Process (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{\mbox{\hyperlink{class_uni_engine_1_1_render_target}{Render\+Target}} \&}]{render\+Target }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_a60a9805a905563d1bea9ecc73862853d}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_ada3a243f762196ca0312aa8442c3e5cc}\label{class_uni_engine_1_1_bloom_ada3a243f762196ca0312aa8442c3e5cc}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!ResizeResolution@{ResizeResolution}}
+\index{ResizeResolution@{ResizeResolution}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{ResizeResolution()}{ResizeResolution()}}
+{\footnotesize\ttfamily void Bloom\+::\+Resize\+Resolution (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_a94a1cce159364ef5317390a074adf04d}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a55ba8a10748d222a2f6fe9a16c071998}\label{class_uni_engine_1_1_bloom_a55ba8a10748d222a2f6fe9a16c071998}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!DefaultResources@{DefaultResources}}
+\index{DefaultResources@{DefaultResources}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{DefaultResources}{DefaultResources}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_default_resources}{Default\+Resources}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a92cbc03e813272563349d566e4451f4e}\label{class_uni_engine_1_1_bloom_a92cbc03e813272563349d566e4451f4e}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_clamp@{m\_clamp}}
+\index{m\_clamp@{m\_clamp}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_clamp}{m\_clamp}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Bloom\+::m\+\_\+clamp = 0.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a472b8a9ce1fb299f8423e128cbd371f2}\label{class_uni_engine_1_1_bloom_a472b8a9ce1fb299f8423e128cbd371f2}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_diffusion@{m\_diffusion}}
+\index{m\_diffusion@{m\_diffusion}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_diffusion}{m\_diffusion}}
+{\footnotesize\ttfamily int Uni\+Engine\+::\+Bloom\+::m\+\_\+diffusion = 8}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a2799c7c0fbfe08d01bd1cb7b2ad4f899}\label{class_uni_engine_1_1_bloom_a2799c7c0fbfe08d01bd1cb7b2ad4f899}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_graph@{m\_graph}}
+\index{m\_graph@{m\_graph}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_graph}{m\_graph}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}} Uni\+Engine\+::\+Bloom\+::m\+\_\+graph}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a6aa3e23b868a1e07b823731a71e7ed0e}\label{class_uni_engine_1_1_bloom_a6aa3e23b868a1e07b823731a71e7ed0e}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_intensity@{m\_intensity}}
+\index{m\_intensity@{m\_intensity}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_intensity}{m\_intensity}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Bloom\+::m\+\_\+intensity = 1.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_aac522f96fa25bf73eb0d8439c695677e}\label{class_uni_engine_1_1_bloom_aac522f96fa25bf73eb0d8439c695677e}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_sampleStep@{m\_sampleStep}}
+\index{m\_sampleStep@{m\_sampleStep}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_sampleStep}{m\_sampleStep}}
+{\footnotesize\ttfamily int Uni\+Engine\+::\+Bloom\+::m\+\_\+sample\+Step = 1}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_bloom_a3238a41a1f93878cfdee942c57670dcc}\label{class_uni_engine_1_1_bloom_a3238a41a1f93878cfdee942c57670dcc}} 
+\index{UniEngine::Bloom@{UniEngine::Bloom}!m\_threshold@{m\_threshold}}
+\index{m\_threshold@{m\_threshold}!UniEngine::Bloom@{UniEngine::Bloom}}
+\doxysubsubsection{\texorpdfstring{m\_threshold}{m\_threshold}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Bloom\+::m\+\_\+threshold = 1.\+0f}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_post_processing_8hpp}{Post\+Processing.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_post_processing_8cpp}{Post\+Processing.\+cpp}}\end{DoxyCompactItemize}

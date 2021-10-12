@@ -1,0 +1,1228 @@
+\hypertarget{_tinyply_8hpp_source}{}\doxysection{Tinyply.\+hpp}
+\label{_tinyply_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Utilities/Tinyply.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Utilities/Tinyply.hpp}}
+\mbox{\hyperlink{_tinyply_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*}}
+\DoxyCodeLine{2 \textcolor{comment}{ * tinyply 2.3.3 (https://github.com/ddiakopoulos/tinyply)}}
+\DoxyCodeLine{3 \textcolor{comment}{ *}}
+\DoxyCodeLine{4 \textcolor{comment}{ * A single-\/header, zero-\/dependency (except the C++ STL) public domain implementation}}
+\DoxyCodeLine{5 \textcolor{comment}{ * of the PLY mesh file format. Requires C++11; errors are handled through exceptions.}}
+\DoxyCodeLine{6 \textcolor{comment}{ *}}
+\DoxyCodeLine{7 \textcolor{comment}{ * This software is in the public domain. Where that dedication is not}}
+\DoxyCodeLine{8 \textcolor{comment}{ * recognized, you are granted a perpetual, irrevocable license to copy,}}
+\DoxyCodeLine{9 \textcolor{comment}{ * distribute, and modify this file as you see fit.}}
+\DoxyCodeLine{10 \textcolor{comment}{ *}}
+\DoxyCodeLine{11 \textcolor{comment}{ * Authored by Dimitri Diakopoulos (http://www.dimitridiakopoulos.com)}}
+\DoxyCodeLine{12 \textcolor{comment}{ *}}
+\DoxyCodeLine{13 \textcolor{comment}{ * tinyply.h may be included in many files, however in a single compiled file,}}
+\DoxyCodeLine{14 \textcolor{comment}{ * the implementation must be created with the following defined prior to header inclusion}}
+\DoxyCodeLine{15 \textcolor{comment}{ * \#define TINYPLY\_IMPLEMENTATION}}
+\DoxyCodeLine{16 \textcolor{comment}{ *}}
+\DoxyCodeLine{17 \textcolor{comment}{ */}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{20 \textcolor{comment}{//   tinyply header   //}}
+\DoxyCodeLine{22 \textcolor{comment}{}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#ifndef tinyply\_h}}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#define tinyply\_h}}
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#include <algorithm>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#include <cstddef>}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#include <functional>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{\#include <map>}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#include <memory>}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#include <sstream>}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{32 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{33 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{34 \textcolor{preprocessor}{\#include <unordered\_map>}}
+\DoxyCodeLine{35 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespacetinyply}{tinyply}}}
+\DoxyCodeLine{38 \{}
+\DoxyCodeLine{39 \textcolor{keyword}{enum class} UNIENGINE\_API  \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} : uint8\_t}
+\DoxyCodeLine{40 \{}
+\DoxyCodeLine{41     INVALID,}
+\DoxyCodeLine{42     \mbox{\hyperlink{namespacetinyply_a92a6740b5b1e91c8ec8cacf31fd2bc23}{INT8}},}
+\DoxyCodeLine{43     \mbox{\hyperlink{namespacetinyply_a62b691f256d8a84178d7321777cdab88}{UINT8}},}
+\DoxyCodeLine{44     \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{INT16}},}
+\DoxyCodeLine{45     \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{UINT16}},}
+\DoxyCodeLine{46     \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{INT32}},}
+\DoxyCodeLine{47     \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{UINT32}},}
+\DoxyCodeLine{48     \mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{FLOAT32}},}
+\DoxyCodeLine{49     \mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{FLOAT64}}}
+\DoxyCodeLine{50 \};}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{structtinyply_1_1_property_info}{PropertyInfo}}}
+\DoxyCodeLine{53 \{}
+\DoxyCodeLine{54     \mbox{\hyperlink{structtinyply_1_1_property_info_aa23e5a5eb1ea2dd0bd28aae71c8ebfc8}{PropertyInfo}}()\{\};}
+\DoxyCodeLine{55     \mbox{\hyperlink{structtinyply_1_1_property_info_ac00866c47ca763fbab0798a4b450654c}{PropertyInfo}}(\textcolor{keywordtype}{int} stride, std::string str) : stride(stride), str(str)}
+\DoxyCodeLine{56     \{}
+\DoxyCodeLine{57     \}}
+\DoxyCodeLine{58     \textcolor{keywordtype}{int} stride\{0\};}
+\DoxyCodeLine{59     std::string \mbox{\hyperlink{structtinyply_1_1_property_info_aed415bc5e8cee0e0c18856d0f2cb8797}{str}};}
+\DoxyCodeLine{60 \};}
+\DoxyCodeLine{61 }
+\DoxyCodeLine{62 \textcolor{keyword}{static} std::map<Type, PropertyInfo> PropertyTable\{}
+\DoxyCodeLine{63     \{\mbox{\hyperlink{namespacetinyply_a92a6740b5b1e91c8ec8cacf31fd2bc23}{Type::INT8}}, \mbox{\hyperlink{structtinyply_1_1_property_info}{PropertyInfo}}(1, std::string(\textcolor{stringliteral}{"{}char"{}}))\},}
+\DoxyCodeLine{64     \{\mbox{\hyperlink{namespacetinyply_a62b691f256d8a84178d7321777cdab88}{Type::UINT8}}, PropertyInfo(1, std::string(\textcolor{stringliteral}{"{}uchar"{}}))\},}
+\DoxyCodeLine{65     \{\mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}}, PropertyInfo(2, std::string(\textcolor{stringliteral}{"{}short"{}}))\},}
+\DoxyCodeLine{66     \{\mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}}, PropertyInfo(2, std::string(\textcolor{stringliteral}{"{}ushort"{}}))\},}
+\DoxyCodeLine{67     \{\mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}}, PropertyInfo(4, std::string(\textcolor{stringliteral}{"{}int"{}}))\},}
+\DoxyCodeLine{68     \{\mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}}, PropertyInfo(4, std::string(\textcolor{stringliteral}{"{}uint"{}}))\},}
+\DoxyCodeLine{69     \{\mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{Type::FLOAT32}}, PropertyInfo(4, std::string(\textcolor{stringliteral}{"{}float"{}}))\},}
+\DoxyCodeLine{70     \{\mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{Type::FLOAT64}}, PropertyInfo(8, std::string(\textcolor{stringliteral}{"{}double"{}}))\},}
+\DoxyCodeLine{71     \{Type::INVALID, PropertyInfo(0, std::string(\textcolor{stringliteral}{"{}INVALID"{}}))\}\};}
+\DoxyCodeLine{72 }
+\DoxyCodeLine{73 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{classtinyply_1_1_buffer}{Buffer}}}
+\DoxyCodeLine{74 \{}
+\DoxyCodeLine{75     uint8\_t *alias\{\textcolor{keyword}{nullptr}\};}
+\DoxyCodeLine{76     \textcolor{keyword}{struct }delete\_array}
+\DoxyCodeLine{77     \{}
+\DoxyCodeLine{78         \textcolor{keywordtype}{void} operator()(uint8\_t *p)}
+\DoxyCodeLine{79         \{}
+\DoxyCodeLine{80             \textcolor{keyword}{delete}[] p;}
+\DoxyCodeLine{81         \}}
+\DoxyCodeLine{82     \};}
+\DoxyCodeLine{83     std::unique\_ptr<uint8\_t, \textcolor{keyword}{decltype}(Buffer::delete\_array())> data;}
+\DoxyCodeLine{84     \textcolor{keywordtype}{size\_t} size\{0\};}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86   \textcolor{keyword}{public}:}
+\DoxyCodeLine{87     \mbox{\hyperlink{classtinyply_1_1_buffer_a487eb6c180e0030fcf80084000c398fb}{Buffer}}()\{\};}
+\DoxyCodeLine{88     \mbox{\hyperlink{classtinyply_1_1_buffer_a0b98d6f2f190fab3e1c8712375bc9f08}{Buffer}}(\textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} size) : data(new uint8\_t[size], delete\_array()), size(size)}
+\DoxyCodeLine{89     \{}
+\DoxyCodeLine{90         alias = data.get();}
+\DoxyCodeLine{91     \} \textcolor{comment}{// allocating}}
+\DoxyCodeLine{92     \mbox{\hyperlink{classtinyply_1_1_buffer_a8be38c34ff77f3a7adc97ef8998083c5}{Buffer}}(\textcolor{keyword}{const} uint8\_t *ptr) : alias(const\_cast<uint8\_t *>(ptr))}
+\DoxyCodeLine{93     \{}
+\DoxyCodeLine{94     \} \textcolor{comment}{// non-\/allocating, todo: set size?}}
+\DoxyCodeLine{95     uint8\_t *\mbox{\hyperlink{classtinyply_1_1_buffer_ac0841dd7a5bf839a22065331230ca4c9}{get}}()}
+\DoxyCodeLine{96     \{}
+\DoxyCodeLine{97         \textcolor{keywordflow}{return} alias;}
+\DoxyCodeLine{98     \}}
+\DoxyCodeLine{99     \textcolor{keyword}{const} uint8\_t *\mbox{\hyperlink{classtinyply_1_1_buffer_af4bb1a1e4fd51cd3a63c1b3d6b7d9a7c}{get\_const}}()}
+\DoxyCodeLine{100     \{}
+\DoxyCodeLine{101         \textcolor{keywordflow}{return} \textcolor{keyword}{const\_cast<}\textcolor{keyword}{const }uint8\_t *\textcolor{keyword}{>}(alias);}
+\DoxyCodeLine{102     \}}
+\DoxyCodeLine{103     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{classtinyply_1_1_buffer_af0f3b9c2357966aaa8d84d41bf506287}{size\_bytes}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{104 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{105         \textcolor{keywordflow}{return} size;}
+\DoxyCodeLine{106     \}}
+\DoxyCodeLine{107 \};}
+\DoxyCodeLine{108 }
+\DoxyCodeLine{109 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{structtinyply_1_1_ply_data}{PlyData}}}
+\DoxyCodeLine{110 \{}
+\DoxyCodeLine{111     \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} \mbox{\hyperlink{structtinyply_1_1_ply_data_a055f98713e3b443526ce7639e857d5d2}{t}};}
+\DoxyCodeLine{112     \mbox{\hyperlink{classtinyply_1_1_buffer}{Buffer}} \mbox{\hyperlink{structtinyply_1_1_ply_data_ab5bba932362f423e70eaa451592c8b2c}{buffer}};}
+\DoxyCodeLine{113     \textcolor{keywordtype}{size\_t} count\{0\};}
+\DoxyCodeLine{114     \textcolor{keywordtype}{bool} isList\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{115 \};}
+\DoxyCodeLine{116 }
+\DoxyCodeLine{117 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{structtinyply_1_1_ply_property}{PlyProperty}}}
+\DoxyCodeLine{118 \{}
+\DoxyCodeLine{119     \mbox{\hyperlink{structtinyply_1_1_ply_property_ac027e11a7df78e9db1c73cace08de5bb}{PlyProperty}}(std::istream \&is);}
+\DoxyCodeLine{120     \mbox{\hyperlink{structtinyply_1_1_ply_property_a09f3468bec410252ddf5a800e41238dd}{PlyProperty}}(\mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} type, std::string \&\_name) : name(\_name), propertyType(type)}
+\DoxyCodeLine{121     \{}
+\DoxyCodeLine{122     \}}
+\DoxyCodeLine{123     \mbox{\hyperlink{structtinyply_1_1_ply_property_ac78d68bf15c50be6a06118e2140c29eb}{PlyProperty}}(\mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} list\_type, \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} prop\_type, std::string \&\_name, \textcolor{keywordtype}{size\_t} list\_count)}
+\DoxyCodeLine{124         : name(\_name), propertyType(prop\_type), isList(true), listType(list\_type), listCount(list\_count)}
+\DoxyCodeLine{125     \{}
+\DoxyCodeLine{126     \}}
+\DoxyCodeLine{127     std::string \mbox{\hyperlink{structtinyply_1_1_ply_property_a559fbd4a46f6d1c8f277ea15e357c283}{name}};}
+\DoxyCodeLine{128     \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} propertyType\{Type::INVALID\};}
+\DoxyCodeLine{129     \textcolor{keywordtype}{bool} isList\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{130     \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} listType\{Type::INVALID\};}
+\DoxyCodeLine{131     \textcolor{keywordtype}{size\_t} listCount\{0\};}
+\DoxyCodeLine{132 \};}
+\DoxyCodeLine{133 }
+\DoxyCodeLine{134 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{structtinyply_1_1_ply_element}{PlyElement}}}
+\DoxyCodeLine{135 \{}
+\DoxyCodeLine{136     \mbox{\hyperlink{structtinyply_1_1_ply_element_aac090e3b5ff542a9555b23c000e1fba8}{PlyElement}}(std::istream \&istream);}
+\DoxyCodeLine{137     \mbox{\hyperlink{structtinyply_1_1_ply_element_a2aad69dcf5d9b4860df05805f48af0bd}{PlyElement}}(\textcolor{keyword}{const} std::string \&\_name, \textcolor{keywordtype}{size\_t} count) : name(\_name), size(count)}
+\DoxyCodeLine{138     \{}
+\DoxyCodeLine{139     \}}
+\DoxyCodeLine{140     std::string \mbox{\hyperlink{structtinyply_1_1_ply_element_a77373141ceba9ee4362191509044bf05}{name}};}
+\DoxyCodeLine{141     \textcolor{keywordtype}{size\_t} size\{0\};}
+\DoxyCodeLine{142     std::vector<PlyProperty> \mbox{\hyperlink{structtinyply_1_1_ply_element_ab62275fcd83984ccdb1d86ffbe2d2f07}{properties}};}
+\DoxyCodeLine{143 \};}
+\DoxyCodeLine{144 }
+\DoxyCodeLine{145 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{structtinyply_1_1_ply_file}{PlyFile}}}
+\DoxyCodeLine{146 \{}
+\DoxyCodeLine{147     \textcolor{keyword}{struct }PlyFileImpl;}
+\DoxyCodeLine{148     std::unique\_ptr<PlyFileImpl> \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}};}
+\DoxyCodeLine{149 }
+\DoxyCodeLine{150     \mbox{\hyperlink{structtinyply_1_1_ply_file_ae2ae6a9a5ae4c15d531dc7fdd335ae7a}{PlyFile}}();}
+\DoxyCodeLine{151     \mbox{\hyperlink{structtinyply_1_1_ply_file_ae8d300efd98bd1d5f6d6623c3a9c42ef}{\string~PlyFile}}();}
+\DoxyCodeLine{152 }
+\DoxyCodeLine{153     \textcolor{comment}{/*}}
+\DoxyCodeLine{154 \textcolor{comment}{     * The ply format requires an ascii header. This can be used to determine at}}
+\DoxyCodeLine{155 \textcolor{comment}{     * runtime which properties or elements exist in the file. Limited validation of the}}
+\DoxyCodeLine{156 \textcolor{comment}{     * header is performed; it is assumed the header correctly reflects the contents of the}}
+\DoxyCodeLine{157 \textcolor{comment}{     * payload. This function may throw. Returns true on success, false on failure.}}
+\DoxyCodeLine{158 \textcolor{comment}{     */}}
+\DoxyCodeLine{159     \textcolor{keywordtype}{bool} \mbox{\hyperlink{structtinyply_1_1_ply_file_a6ff92d4d989b33cbe0622f6e44b38f2e}{parse\_header}}(std::istream \&is);}
+\DoxyCodeLine{160 }
+\DoxyCodeLine{161     \textcolor{comment}{/*}}
+\DoxyCodeLine{162 \textcolor{comment}{     * Execute a read operation. Data must be requested via `request\_properties\_from\_element(...)`}}
+\DoxyCodeLine{163 \textcolor{comment}{     * prior to calling this function.}}
+\DoxyCodeLine{164 \textcolor{comment}{     */}}
+\DoxyCodeLine{165     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_a4d6777d1ba2621ef18e8d861dac6ff7a}{read}}(std::istream \&is);}
+\DoxyCodeLine{166 }
+\DoxyCodeLine{167     \textcolor{comment}{/*}}
+\DoxyCodeLine{168 \textcolor{comment}{     * `write` performs no validation and assumes that the data passed into}}
+\DoxyCodeLine{169 \textcolor{comment}{     * `add\_properties\_to\_element` is well-\/formed.}}
+\DoxyCodeLine{170 \textcolor{comment}{     */}}
+\DoxyCodeLine{171     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_aa250cd4ce08254ba069d465fb545be32}{write}}(std::ostream \&os, \textcolor{keywordtype}{bool} isBinary);}
+\DoxyCodeLine{172 }
+\DoxyCodeLine{173     \textcolor{comment}{/*}}
+\DoxyCodeLine{174 \textcolor{comment}{     * These functions are valid after a call to `parse\_header(...)`. In the case of}}
+\DoxyCodeLine{175 \textcolor{comment}{     * writing, get\_comments() reference may also be used to add new comments to the ply header.}}
+\DoxyCodeLine{176 \textcolor{comment}{     */}}
+\DoxyCodeLine{177     std::vector<PlyElement> \mbox{\hyperlink{structtinyply_1_1_ply_file_aeecfe720753c10bede1dbd5c3b9a8149}{get\_elements}}() \textcolor{keyword}{const};}
+\DoxyCodeLine{178     std::vector<std::string> \mbox{\hyperlink{structtinyply_1_1_ply_file_aa3bace14177c4ca70a91bc201a07443c}{get\_info}}() \textcolor{keyword}{const};}
+\DoxyCodeLine{179     std::vector<std::string> \&\mbox{\hyperlink{structtinyply_1_1_ply_file_a60e9515fe19971e55e6076c5830815c3}{get\_comments}}();}
+\DoxyCodeLine{180     \textcolor{keywordtype}{bool} \mbox{\hyperlink{structtinyply_1_1_ply_file_adf3038e3217767495d29f1c11ff2b7ca}{is\_binary\_file}}() \textcolor{keyword}{const};}
+\DoxyCodeLine{181 }
+\DoxyCodeLine{182     \textcolor{comment}{/*}}
+\DoxyCodeLine{183 \textcolor{comment}{     * In the general case where |list\_size\_hint| is zero, `read` performs a two-\/pass}}
+\DoxyCodeLine{184 \textcolor{comment}{     * parse to support variable length lists. The most general use of the}}
+\DoxyCodeLine{185 \textcolor{comment}{     * ply format is storing triangle meshes. When this fact is known a-\/priori, we can pass}}
+\DoxyCodeLine{186 \textcolor{comment}{     * an expected list length that will apply to this element. Doing so results in an up-\/front}}
+\DoxyCodeLine{187 \textcolor{comment}{     * memory allocation and a single-\/pass import, a 2x performance optimization.}}
+\DoxyCodeLine{188 \textcolor{comment}{     */}}
+\DoxyCodeLine{189     std::shared\_ptr<PlyData> \mbox{\hyperlink{structtinyply_1_1_ply_file_a371510299580ac6a606b58bdb177b047}{request\_properties\_from\_element}}(}
+\DoxyCodeLine{190         \textcolor{keyword}{const} std::string \&elementKey, \textcolor{keyword}{const} std::vector<std::string> propertyKeys, \textcolor{keyword}{const} uint32\_t list\_size\_hint = 0);}
+\DoxyCodeLine{191 }
+\DoxyCodeLine{192     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_af1fc4b2bbf41595bbfe329ff39f84cf8}{add\_properties\_to\_element}}(}
+\DoxyCodeLine{193         \textcolor{keyword}{const} std::string \&elementKey,}
+\DoxyCodeLine{194         \textcolor{keyword}{const} std::vector<std::string> propertyKeys,}
+\DoxyCodeLine{195         \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} type,}
+\DoxyCodeLine{196         \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} count,}
+\DoxyCodeLine{197         \textcolor{keyword}{const} uint8\_t *data,}
+\DoxyCodeLine{198         \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} listType,}
+\DoxyCodeLine{199         \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} listCount);}
+\DoxyCodeLine{200 \};}
+\DoxyCodeLine{201 }
+\DoxyCodeLine{202 \} \textcolor{comment}{// end namespace tinyply}}
+\DoxyCodeLine{203 }
+\DoxyCodeLine{204 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// end tinyply\_h}}
+\DoxyCodeLine{205 }
+\DoxyCodeLine{207 \textcolor{comment}{//   tinyply implementation   //}}
+\DoxyCodeLine{209 \textcolor{comment}{}}
+\DoxyCodeLine{210 \textcolor{preprocessor}{\#ifdef TINYPLY\_IMPLEMENTATION}}
+\DoxyCodeLine{211 }
+\DoxyCodeLine{212 \textcolor{preprocessor}{\#include <algorithm>}}
+\DoxyCodeLine{213 \textcolor{preprocessor}{\#include <cstring>}}
+\DoxyCodeLine{214 \textcolor{preprocessor}{\#include <functional>}}
+\DoxyCodeLine{215 \textcolor{preprocessor}{\#include <iostream>}}
+\DoxyCodeLine{216 \textcolor{preprocessor}{\#include <type\_traits>}}
+\DoxyCodeLine{217 }
+\DoxyCodeLine{218 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespacetinyply}{tinyply}}}
+\DoxyCodeLine{219 \{}
+\DoxyCodeLine{220 }
+\DoxyCodeLine{221 \textcolor{keyword}{using namespace }\mbox{\hyperlink{namespacestd}{std}};}
+\DoxyCodeLine{222 }
+\DoxyCodeLine{223 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T, \textcolor{keyword}{typename} T2> \textcolor{keyword}{inline} T2 endian\_swap(\textcolor{keyword}{const} T \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{224 \{}
+\DoxyCodeLine{225     \textcolor{keywordflow}{return} v;}
+\DoxyCodeLine{226 \}}
+\DoxyCodeLine{227 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} uint16\_t endian\_swap<uint16\_t, uint16\_t>(\textcolor{keyword}{const} uint16\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{228 \{}
+\DoxyCodeLine{229     \textcolor{keywordflow}{return} (v << 8) | (v >> 8);}
+\DoxyCodeLine{230 \}}
+\DoxyCodeLine{231 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} uint32\_t endian\_swap<uint32\_t, uint32\_t>(\textcolor{keyword}{const} uint32\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{232 \{}
+\DoxyCodeLine{233     \textcolor{keywordflow}{return} (v << 24) | ((v << 8) \& 0x00ff0000) | ((v >> 8) \& 0x0000ff00) | (v >> 24);}
+\DoxyCodeLine{234 \}}
+\DoxyCodeLine{235 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} uint64\_t endian\_swap<uint64\_t, uint64\_t>(\textcolor{keyword}{const} uint64\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{236 \{}
+\DoxyCodeLine{237     \textcolor{keywordflow}{return} (}
+\DoxyCodeLine{238         ((v \& 0x00000000000000ffLL) << 56) | ((v \& 0x000000000000ff00LL) << 40) | ((v \& 0x0000000000ff0000LL) << 24) |}
+\DoxyCodeLine{239         ((v \& 0x00000000ff000000LL) << 8) | ((v \& 0x000000ff00000000LL) >> 8) | ((v \& 0x0000ff0000000000LL) >> 24) |}
+\DoxyCodeLine{240         ((v \& 0x00ff000000000000LL) >> 40) | ((v \& 0xff00000000000000LL) >> 56));}
+\DoxyCodeLine{241 \}}
+\DoxyCodeLine{242 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} int16\_t endian\_swap<int16\_t, int16\_t>(\textcolor{keyword}{const} int16\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{243 \{}
+\DoxyCodeLine{244     uint16\_t r = endian\_swap<uint16\_t, uint16\_t>(*(uint16\_t *)\&v);}
+\DoxyCodeLine{245     \textcolor{keywordflow}{return} *(int16\_t *)\&r;}
+\DoxyCodeLine{246 \}}
+\DoxyCodeLine{247 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} int32\_t endian\_swap<int32\_t, int32\_t>(\textcolor{keyword}{const} int32\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{248 \{}
+\DoxyCodeLine{249     uint32\_t r = endian\_swap<uint32\_t, uint32\_t>(*(uint32\_t *)\&v);}
+\DoxyCodeLine{250     \textcolor{keywordflow}{return} *(int32\_t *)\&r;}
+\DoxyCodeLine{251 \}}
+\DoxyCodeLine{252 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} int64\_t endian\_swap<int64\_t, int64\_t>(\textcolor{keyword}{const} int64\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{253 \{}
+\DoxyCodeLine{254     uint64\_t r = endian\_swap<uint64\_t, uint64\_t>(*(uint64\_t *)\&v);}
+\DoxyCodeLine{255     \textcolor{keywordflow}{return} *(int64\_t *)\&r;}
+\DoxyCodeLine{256 \}}
+\DoxyCodeLine{257 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} \textcolor{keywordtype}{float} endian\_swap<uint32\_t, float>(\textcolor{keyword}{const} uint32\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{258 \{}
+\DoxyCodeLine{259     \textcolor{keyword}{union }\{}
+\DoxyCodeLine{260         \textcolor{keywordtype}{float} f;}
+\DoxyCodeLine{261         uint32\_t i;}
+\DoxyCodeLine{262     \};}
+\DoxyCodeLine{263     i = endian\_swap<uint32\_t, uint32\_t>(v);}
+\DoxyCodeLine{264     \textcolor{keywordflow}{return} f;}
+\DoxyCodeLine{265 \}}
+\DoxyCodeLine{266 \textcolor{keyword}{template} <> \textcolor{keyword}{inline} \textcolor{keywordtype}{double} endian\_swap<uint64\_t, double>(\textcolor{keyword}{const} uint64\_t \&v) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{267 \{}
+\DoxyCodeLine{268     \textcolor{keyword}{union }\{}
+\DoxyCodeLine{269         \textcolor{keywordtype}{double} d;}
+\DoxyCodeLine{270         uint64\_t i;}
+\DoxyCodeLine{271     \};}
+\DoxyCodeLine{272     i = endian\_swap<uint64\_t, uint64\_t>(v);}
+\DoxyCodeLine{273     \textcolor{keywordflow}{return} d;}
+\DoxyCodeLine{274 \}}
+\DoxyCodeLine{275 }
+\DoxyCodeLine{276 \textcolor{keyword}{inline} uint32\_t hash\_fnv1a(\textcolor{keyword}{const} std::string \&str) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{277 \{}
+\DoxyCodeLine{278     \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t fnv1aBase32 = 0x811C9DC5u;}
+\DoxyCodeLine{279     \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t fnv1aPrime32 = 0x01000193u;}
+\DoxyCodeLine{280     uint32\_t result = fnv1aBase32;}
+\DoxyCodeLine{281     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&c : str)}
+\DoxyCodeLine{282     \{}
+\DoxyCodeLine{283         result \string^= \textcolor{keyword}{static\_cast<}uint32\_t\textcolor{keyword}{>}(c);}
+\DoxyCodeLine{284         result *= fnv1aPrime32;}
+\DoxyCodeLine{285     \}}
+\DoxyCodeLine{286     \textcolor{keywordflow}{return} result;}
+\DoxyCodeLine{287 \}}
+\DoxyCodeLine{288 }
+\DoxyCodeLine{289 \textcolor{keyword}{inline} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} property\_type\_from\_string(\textcolor{keyword}{const} std::string \&t) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{290 \{}
+\DoxyCodeLine{291     \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}int8"{}} || t == \textcolor{stringliteral}{"{}char"{}})}
+\DoxyCodeLine{292         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a92a6740b5b1e91c8ec8cacf31fd2bc23}{Type::INT8}};}
+\DoxyCodeLine{293     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}uint8"{}} || t == \textcolor{stringliteral}{"{}uchar"{}})}
+\DoxyCodeLine{294         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a62b691f256d8a84178d7321777cdab88}{Type::UINT8}};}
+\DoxyCodeLine{295     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}int16"{}} || t == \textcolor{stringliteral}{"{}short"{}})}
+\DoxyCodeLine{296         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}};}
+\DoxyCodeLine{297     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}uint16"{}} || t == \textcolor{stringliteral}{"{}ushort"{}})}
+\DoxyCodeLine{298         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}};}
+\DoxyCodeLine{299     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}int32"{}} || t == \textcolor{stringliteral}{"{}int"{}})}
+\DoxyCodeLine{300         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}};}
+\DoxyCodeLine{301     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}uint32"{}} || t == \textcolor{stringliteral}{"{}uint"{}})}
+\DoxyCodeLine{302         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}};}
+\DoxyCodeLine{303     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}float32"{}} || t == \textcolor{stringliteral}{"{}float"{}})}
+\DoxyCodeLine{304         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{Type::FLOAT32}};}
+\DoxyCodeLine{305     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (t == \textcolor{stringliteral}{"{}float64"{}} || t == \textcolor{stringliteral}{"{}double"{}})}
+\DoxyCodeLine{306         \textcolor{keywordflow}{return} \mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{Type::FLOAT64}};}
+\DoxyCodeLine{307     \textcolor{keywordflow}{return} Type::INVALID;}
+\DoxyCodeLine{308 \}}
+\DoxyCodeLine{309 }
+\DoxyCodeLine{310 \textcolor{keyword}{struct }PlyFile::PlyFileImpl}
+\DoxyCodeLine{311 \{}
+\DoxyCodeLine{312     \textcolor{keyword}{struct }PlyDataCursor}
+\DoxyCodeLine{313     \{}
+\DoxyCodeLine{314         \textcolor{keywordtype}{size\_t} byteOffset\{0\};}
+\DoxyCodeLine{315         \textcolor{keywordtype}{size\_t} totalSizeBytes\{0\};}
+\DoxyCodeLine{316     \};}
+\DoxyCodeLine{317 }
+\DoxyCodeLine{318     \textcolor{keyword}{struct }ParsingHelper}
+\DoxyCodeLine{319     \{}
+\DoxyCodeLine{320         std::shared\_ptr<PlyData> data;}
+\DoxyCodeLine{321         std::shared\_ptr<PlyDataCursor> cursor;}
+\DoxyCodeLine{322         uint32\_t list\_size\_hint;}
+\DoxyCodeLine{323     \};}
+\DoxyCodeLine{324 }
+\DoxyCodeLine{325     \textcolor{keyword}{struct }PropertyLookup}
+\DoxyCodeLine{326     \{}
+\DoxyCodeLine{327         ParsingHelper *helper\{\textcolor{keyword}{nullptr}\};}
+\DoxyCodeLine{328         \textcolor{keywordtype}{bool} skip\{\textcolor{keyword}{false}\};}
+\DoxyCodeLine{329         \textcolor{keywordtype}{size\_t} prop\_stride\{0\}; \textcolor{comment}{// precomputed}}
+\DoxyCodeLine{330         \textcolor{keywordtype}{size\_t} list\_stride\{0\}; \textcolor{comment}{// precomputed}}
+\DoxyCodeLine{331     \};}
+\DoxyCodeLine{332 }
+\DoxyCodeLine{333     std::unordered\_map<uint32\_t, ParsingHelper> userData;}
+\DoxyCodeLine{334 }
+\DoxyCodeLine{335     \textcolor{keywordtype}{bool} isBinary = \textcolor{keyword}{false};}
+\DoxyCodeLine{336     \textcolor{keywordtype}{bool} isBigEndian = \textcolor{keyword}{false};}
+\DoxyCodeLine{337     std::vector<PlyElement> elements;}
+\DoxyCodeLine{338     std::vector<std::string> comments;}
+\DoxyCodeLine{339     std::vector<std::string> objInfo;}
+\DoxyCodeLine{340     uint8\_t scratch[64]; \textcolor{comment}{// large enough for max list size}}
+\DoxyCodeLine{341 }
+\DoxyCodeLine{342     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_a4d6777d1ba2621ef18e8d861dac6ff7a}{read}}(std::istream \&is);}
+\DoxyCodeLine{343     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_aa250cd4ce08254ba069d465fb545be32}{write}}(std::ostream \&os, \textcolor{keywordtype}{bool} isBinary);}
+\DoxyCodeLine{344 }
+\DoxyCodeLine{345     std::shared\_ptr<PlyData> \mbox{\hyperlink{structtinyply_1_1_ply_file_a371510299580ac6a606b58bdb177b047}{request\_properties\_from\_element}}(}
+\DoxyCodeLine{346         \textcolor{keyword}{const} std::string \&elementKey, \textcolor{keyword}{const} std::vector<std::string> propertyKeys, \textcolor{keyword}{const} uint32\_t list\_size\_hint);}
+\DoxyCodeLine{347 }
+\DoxyCodeLine{348     \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_af1fc4b2bbf41595bbfe329ff39f84cf8}{add\_properties\_to\_element}}(}
+\DoxyCodeLine{349         \textcolor{keyword}{const} std::string \&elementKey,}
+\DoxyCodeLine{350         \textcolor{keyword}{const} std::vector<std::string> propertyKeys,}
+\DoxyCodeLine{351         \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} type,}
+\DoxyCodeLine{352         \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} count,}
+\DoxyCodeLine{353         \textcolor{keyword}{const} uint8\_t *data,}
+\DoxyCodeLine{354         \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} listType,}
+\DoxyCodeLine{355         \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} listCount);}
+\DoxyCodeLine{356 }
+\DoxyCodeLine{357     \textcolor{keywordtype}{size\_t} read\_property\_binary(\textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride, \textcolor{keywordtype}{void} *dest, \textcolor{keywordtype}{size\_t} \&destOffset, std::istream \&is) \textcolor{keyword}{noexcept};}
+\DoxyCodeLine{358     \textcolor{keywordtype}{size\_t} read\_property\_ascii(\textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} \&t, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride, \textcolor{keywordtype}{void} *dest, \textcolor{keywordtype}{size\_t} \&destOffset, std::istream \&is);}
+\DoxyCodeLine{359 }
+\DoxyCodeLine{360     std::vector<std::vector<PropertyLookup>> make\_property\_lookup\_table();}
+\DoxyCodeLine{361 }
+\DoxyCodeLine{362     \textcolor{keywordtype}{bool} \mbox{\hyperlink{structtinyply_1_1_ply_file_a6ff92d4d989b33cbe0622f6e44b38f2e}{parse\_header}}(std::istream \&is);}
+\DoxyCodeLine{363     \textcolor{keywordtype}{void} parse\_data(std::istream \&is, \textcolor{keywordtype}{bool} firstPass);}
+\DoxyCodeLine{364     \textcolor{keywordtype}{void} read\_header\_format(std::istream \&is);}
+\DoxyCodeLine{365     \textcolor{keywordtype}{void} read\_header\_element(std::istream \&is);}
+\DoxyCodeLine{366     \textcolor{keywordtype}{void} read\_header\_property(std::istream \&is);}
+\DoxyCodeLine{367     \textcolor{keywordtype}{void} read\_header\_text(std::string line, std::vector<std::string> \&place, \textcolor{keywordtype}{int} erase = 0);}
+\DoxyCodeLine{368 }
+\DoxyCodeLine{369     \textcolor{keywordtype}{void} write\_header(std::ostream \&os) \textcolor{keyword}{noexcept};}
+\DoxyCodeLine{370     \textcolor{keywordtype}{void} write\_ascii\_internal(std::ostream \&os) \textcolor{keyword}{noexcept};}
+\DoxyCodeLine{371     \textcolor{keywordtype}{void} write\_binary\_internal(std::ostream \&os) \textcolor{keyword}{noexcept};}
+\DoxyCodeLine{372     \textcolor{keywordtype}{void} write\_property\_ascii(\mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} t, std::ostream \&os, \textcolor{keyword}{const} uint8\_t *src, \textcolor{keywordtype}{size\_t} \&srcOffset);}
+\DoxyCodeLine{373     \textcolor{keywordtype}{void} write\_property\_binary(std::ostream \&os, \textcolor{keyword}{const} uint8\_t *src, \textcolor{keywordtype}{size\_t} \&srcOffset, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride) \textcolor{keyword}{noexcept};}
+\DoxyCodeLine{374 \};}
+\DoxyCodeLine{375 }
+\DoxyCodeLine{376 \mbox{\hyperlink{structtinyply_1_1_ply_property_ac027e11a7df78e9db1c73cace08de5bb}{PlyProperty::PlyProperty}}(std::istream \&is) : isList(false)}
+\DoxyCodeLine{377 \{}
+\DoxyCodeLine{378     std::string type;}
+\DoxyCodeLine{379     is >> type;}
+\DoxyCodeLine{380     \textcolor{keywordflow}{if} (type == \textcolor{stringliteral}{"{}list"{}})}
+\DoxyCodeLine{381     \{}
+\DoxyCodeLine{382         std::string countType;}
+\DoxyCodeLine{383         is >> countType >> type;}
+\DoxyCodeLine{384         listType = property\_type\_from\_string(countType);}
+\DoxyCodeLine{385         isList = \textcolor{keyword}{true};}
+\DoxyCodeLine{386     \}}
+\DoxyCodeLine{387     propertyType = property\_type\_from\_string(type);}
+\DoxyCodeLine{388     is >> name;}
+\DoxyCodeLine{389 \}}
+\DoxyCodeLine{390 }
+\DoxyCodeLine{391 \mbox{\hyperlink{structtinyply_1_1_ply_element_aac090e3b5ff542a9555b23c000e1fba8}{PlyElement::PlyElement}}(std::istream \&is)}
+\DoxyCodeLine{392 \{}
+\DoxyCodeLine{393     is >> \mbox{\hyperlink{structtinyply_1_1_ply_element_a77373141ceba9ee4362191509044bf05}{name}} >> \mbox{\hyperlink{structtinyply_1_1_ply_element_abde85200689b94df12cdb90ee2720214}{size}};}
+\DoxyCodeLine{394 \}}
+\DoxyCodeLine{395 }
+\DoxyCodeLine{396 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{inline} T ply\_read\_ascii(std::istream \&is)}
+\DoxyCodeLine{397 \{}
+\DoxyCodeLine{398     T data;}
+\DoxyCodeLine{399     is >> data;}
+\DoxyCodeLine{400     \textcolor{keywordflow}{return} data;}
+\DoxyCodeLine{401 \}}
+\DoxyCodeLine{402 }
+\DoxyCodeLine{403 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T, \textcolor{keyword}{typename} T2>}
+\DoxyCodeLine{404 \textcolor{keyword}{inline} \textcolor{keywordtype}{void} endian\_swap\_buffer(uint8\_t *data\_ptr, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} num\_bytes, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} stride)}
+\DoxyCodeLine{405 \{}
+\DoxyCodeLine{406     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} count = 0; count < num\_bytes; count += stride)}
+\DoxyCodeLine{407     \{}
+\DoxyCodeLine{408         *(\textcolor{keyword}{reinterpret\_cast<}T2 *\textcolor{keyword}{>}(data\_ptr)) = endian\_swap<T, T2>(*(\textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const }T *\textcolor{keyword}{>}(data\_ptr)));}
+\DoxyCodeLine{409         data\_ptr += stride;}
+\DoxyCodeLine{410     \}}
+\DoxyCodeLine{411 \}}
+\DoxyCodeLine{412 }
+\DoxyCodeLine{413 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} ply\_cast\_ascii(\textcolor{keywordtype}{void} *dest, std::istream \&is)}
+\DoxyCodeLine{414 \{}
+\DoxyCodeLine{415     *(\textcolor{keyword}{static\_cast<}T *\textcolor{keyword}{>}(dest)) = ply\_read\_ascii<T>(is);}
+\DoxyCodeLine{416 \}}
+\DoxyCodeLine{417 }
+\DoxyCodeLine{418 int64\_t find\_element(\textcolor{keyword}{const} std::string \&key, \textcolor{keyword}{const} std::vector<PlyElement> \&list)}
+\DoxyCodeLine{419 \{}
+\DoxyCodeLine{420     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < list.size(); i++)}
+\DoxyCodeLine{421         \textcolor{keywordflow}{if} (list[i].name == key)}
+\DoxyCodeLine{422             \textcolor{keywordflow}{return} i;}
+\DoxyCodeLine{423     \textcolor{keywordflow}{return} -\/1;}
+\DoxyCodeLine{424 \}}
+\DoxyCodeLine{425 }
+\DoxyCodeLine{426 int64\_t find\_property(\textcolor{keyword}{const} std::string \&key, \textcolor{keyword}{const} std::vector<PlyProperty> \&list)}
+\DoxyCodeLine{427 \{}
+\DoxyCodeLine{428     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < list.size(); ++i)}
+\DoxyCodeLine{429         \textcolor{keywordflow}{if} (list[i].name == key)}
+\DoxyCodeLine{430             \textcolor{keywordflow}{return} i;}
+\DoxyCodeLine{431     \textcolor{keywordflow}{return} -\/1;}
+\DoxyCodeLine{432 \}}
+\DoxyCodeLine{433 }
+\DoxyCodeLine{434 \textcolor{comment}{// The `userData` table is an easy data structure for capturing what data the}}
+\DoxyCodeLine{435 \textcolor{comment}{// user would like out of the ply file, but an inner-\/loop hash lookup is non-\/ideal.}}
+\DoxyCodeLine{436 \textcolor{comment}{// The property lookup table flattens the table down into a 2D array optimized}}
+\DoxyCodeLine{437 \textcolor{comment}{// for parsing. The first index is the element, and the second index is the property.}}
+\DoxyCodeLine{438 std::vector<std::vector<PlyFile::PlyFileImpl::PropertyLookup>> PlyFile::PlyFileImpl::make\_property\_lookup\_table()}
+\DoxyCodeLine{439 \{}
+\DoxyCodeLine{440     std::vector<std::vector<PropertyLookup>> element\_property\_lookup;}
+\DoxyCodeLine{441 }
+\DoxyCodeLine{442     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&element : elements)}
+\DoxyCodeLine{443     \{}
+\DoxyCodeLine{444         std::vector<PropertyLookup> lookups;}
+\DoxyCodeLine{445 }
+\DoxyCodeLine{446         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&property : element.properties)}
+\DoxyCodeLine{447         \{}
+\DoxyCodeLine{448             PropertyLookup f;}
+\DoxyCodeLine{449 }
+\DoxyCodeLine{450             \textcolor{keyword}{auto} cursorIt = userData.find(hash\_fnv1a(element.name + property.name));}
+\DoxyCodeLine{451             \textcolor{keywordflow}{if} (cursorIt != userData.end())}
+\DoxyCodeLine{452                 f.helper = \&cursorIt-\/>second;}
+\DoxyCodeLine{453             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{454                 f.skip = \textcolor{keyword}{true};}
+\DoxyCodeLine{455 }
+\DoxyCodeLine{456             f.prop\_stride = PropertyTable[\textcolor{keyword}{property}.propertyType].stride;}
+\DoxyCodeLine{457             \textcolor{keywordflow}{if} (property.isList)}
+\DoxyCodeLine{458                 f.list\_stride = PropertyTable[\textcolor{keyword}{property}.listType].stride;}
+\DoxyCodeLine{459 }
+\DoxyCodeLine{460             lookups.push\_back(f);}
+\DoxyCodeLine{461         \}}
+\DoxyCodeLine{462 }
+\DoxyCodeLine{463         element\_property\_lookup.push\_back(lookups);}
+\DoxyCodeLine{464     \}}
+\DoxyCodeLine{465 }
+\DoxyCodeLine{466     \textcolor{keywordflow}{return} element\_property\_lookup;}
+\DoxyCodeLine{467 \}}
+\DoxyCodeLine{468 }
+\DoxyCodeLine{469 \textcolor{keywordtype}{bool} PlyFile::PlyFileImpl::parse\_header(std::istream \&is)}
+\DoxyCodeLine{470 \{}
+\DoxyCodeLine{471     std::string line;}
+\DoxyCodeLine{472     \textcolor{keywordtype}{bool} success = \textcolor{keyword}{true};}
+\DoxyCodeLine{473     \textcolor{keywordflow}{while} (std::getline(is, line))}
+\DoxyCodeLine{474     \{}
+\DoxyCodeLine{475         std::istringstream ls(line);}
+\DoxyCodeLine{476         std::string token;}
+\DoxyCodeLine{477         ls >> token;}
+\DoxyCodeLine{478         \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}ply"{}} || token == \textcolor{stringliteral}{"{}PLY"{}} || token == \textcolor{stringliteral}{"{}"{}})}
+\DoxyCodeLine{479             \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{480         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}comment"{}})}
+\DoxyCodeLine{481             read\_header\_text(line, comments, 8);}
+\DoxyCodeLine{482         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}format"{}})}
+\DoxyCodeLine{483             read\_header\_format(ls);}
+\DoxyCodeLine{484         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}element"{}})}
+\DoxyCodeLine{485             read\_header\_element(ls);}
+\DoxyCodeLine{486         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}property"{}})}
+\DoxyCodeLine{487             read\_header\_property(ls);}
+\DoxyCodeLine{488         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}obj\_info"{}})}
+\DoxyCodeLine{489             read\_header\_text(line, objInfo, 9);}
+\DoxyCodeLine{490         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (token == \textcolor{stringliteral}{"{}end\_header"{}})}
+\DoxyCodeLine{491             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{492         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{493             success = \textcolor{keyword}{false}; \textcolor{comment}{// unexpected header field}}
+\DoxyCodeLine{494     \}}
+\DoxyCodeLine{495     \textcolor{keywordflow}{return} success;}
+\DoxyCodeLine{496 \}}
+\DoxyCodeLine{497 }
+\DoxyCodeLine{498 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::read\_header\_text(std::string line, std::vector<std::string> \&place, \textcolor{keywordtype}{int} erase)}
+\DoxyCodeLine{499 \{}
+\DoxyCodeLine{500     place.push\_back((erase > 0) ? line.erase(0, erase) : line);}
+\DoxyCodeLine{501 \}}
+\DoxyCodeLine{502 }
+\DoxyCodeLine{503 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::read\_header\_format(std::istream \&is)}
+\DoxyCodeLine{504 \{}
+\DoxyCodeLine{505     std::string s;}
+\DoxyCodeLine{506     (is >> s);}
+\DoxyCodeLine{507     \textcolor{keywordflow}{if} (s == \textcolor{stringliteral}{"{}binary\_little\_endian"{}})}
+\DoxyCodeLine{508         isBinary = \textcolor{keyword}{true};}
+\DoxyCodeLine{509     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if} (s == \textcolor{stringliteral}{"{}binary\_big\_endian"{}})}
+\DoxyCodeLine{510         isBinary = isBigEndian = \textcolor{keyword}{true};}
+\DoxyCodeLine{511 \}}
+\DoxyCodeLine{512 }
+\DoxyCodeLine{513 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::read\_header\_element(std::istream \&is)}
+\DoxyCodeLine{514 \{}
+\DoxyCodeLine{515     elements.emplace\_back(is);}
+\DoxyCodeLine{516 \}}
+\DoxyCodeLine{517 }
+\DoxyCodeLine{518 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::read\_header\_property(std::istream \&is)}
+\DoxyCodeLine{519 \{}
+\DoxyCodeLine{520     \textcolor{keywordflow}{if} (!elements.size())}
+\DoxyCodeLine{521         \textcolor{keywordflow}{throw} std::runtime\_error(\textcolor{stringliteral}{"{}no elements defined; file is malformed"{}});}
+\DoxyCodeLine{522     elements.back().properties.emplace\_back(is);}
+\DoxyCodeLine{523 \}}
+\DoxyCodeLine{524 }
+\DoxyCodeLine{525 \textcolor{keywordtype}{size\_t} PlyFile::PlyFileImpl::read\_property\_binary(}
+\DoxyCodeLine{526     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride, \textcolor{keywordtype}{void} *dest, \textcolor{keywordtype}{size\_t} \&destOffset, std::istream \&is) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{527 \{}
+\DoxyCodeLine{528     destOffset += stride;}
+\DoxyCodeLine{529     is.read((\textcolor{keywordtype}{char} *)dest, stride);}
+\DoxyCodeLine{530     \textcolor{keywordflow}{return} stride;}
+\DoxyCodeLine{531 \}}
+\DoxyCodeLine{532 }
+\DoxyCodeLine{533 \textcolor{keywordtype}{size\_t} PlyFile::PlyFileImpl::read\_property\_ascii(}
+\DoxyCodeLine{534     \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} \&t, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride, \textcolor{keywordtype}{void} *dest, \textcolor{keywordtype}{size\_t} \&destOffset, std::istream \&is)}
+\DoxyCodeLine{535 \{}
+\DoxyCodeLine{536     destOffset += stride;}
+\DoxyCodeLine{537     \textcolor{keywordflow}{switch} (t)}
+\DoxyCodeLine{538     \{}
+\DoxyCodeLine{539     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a92a6740b5b1e91c8ec8cacf31fd2bc23}{Type::INT8}}:}
+\DoxyCodeLine{540         *((int8\_t *)dest) = \textcolor{keyword}{static\_cast<}int8\_t\textcolor{keyword}{>}(ply\_read\_ascii<int32\_t>(is));}
+\DoxyCodeLine{541         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{542     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a62b691f256d8a84178d7321777cdab88}{Type::UINT8}}:}
+\DoxyCodeLine{543         *((uint8\_t *)dest) = \textcolor{keyword}{static\_cast<}uint8\_t\textcolor{keyword}{>}(ply\_read\_ascii<uint32\_t>(is));}
+\DoxyCodeLine{544         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{545     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}}:}
+\DoxyCodeLine{546         ply\_cast\_ascii<int16\_t>(dest, is);}
+\DoxyCodeLine{547         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{548     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}}:}
+\DoxyCodeLine{549         ply\_cast\_ascii<uint16\_t>(dest, is);}
+\DoxyCodeLine{550         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{551     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}}:}
+\DoxyCodeLine{552         ply\_cast\_ascii<int32\_t>(dest, is);}
+\DoxyCodeLine{553         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{554     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}}:}
+\DoxyCodeLine{555         ply\_cast\_ascii<uint32\_t>(dest, is);}
+\DoxyCodeLine{556         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{557     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{Type::FLOAT32}}:}
+\DoxyCodeLine{558         ply\_cast\_ascii<float>(dest, is);}
+\DoxyCodeLine{559         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{560     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{Type::FLOAT64}}:}
+\DoxyCodeLine{561         ply\_cast\_ascii<double>(dest, is);}
+\DoxyCodeLine{562         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{563     \textcolor{keywordflow}{case} Type::INVALID:}
+\DoxyCodeLine{564         \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}invalid ply property"{}});}
+\DoxyCodeLine{565     \}}
+\DoxyCodeLine{566     \textcolor{keywordflow}{return} stride;}
+\DoxyCodeLine{567 \}}
+\DoxyCodeLine{568 }
+\DoxyCodeLine{569 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write\_property\_ascii(\mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} t, std::ostream \&os, \textcolor{keyword}{const} uint8\_t *src, \textcolor{keywordtype}{size\_t} \&srcOffset)}
+\DoxyCodeLine{570 \{}
+\DoxyCodeLine{571     \textcolor{keywordflow}{switch} (t)}
+\DoxyCodeLine{572     \{}
+\DoxyCodeLine{573     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a92a6740b5b1e91c8ec8cacf31fd2bc23}{Type::INT8}}:}
+\DoxyCodeLine{574         os << static\_cast<int32\_t>(*\textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const }int8\_t *\textcolor{keyword}{>}(src));}
+\DoxyCodeLine{575         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{576     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a62b691f256d8a84178d7321777cdab88}{Type::UINT8}}:}
+\DoxyCodeLine{577         os << static\_cast<uint32\_t>(*\textcolor{keyword}{reinterpret\_cast<}\textcolor{keyword}{const }uint8\_t *\textcolor{keyword}{>}(src));}
+\DoxyCodeLine{578         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{579     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}}:}
+\DoxyCodeLine{580         os << *reinterpret\_cast<const int16\_t *>(src);}
+\DoxyCodeLine{581         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{582     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}}:}
+\DoxyCodeLine{583         os << *reinterpret\_cast<const uint16\_t *>(src);}
+\DoxyCodeLine{584         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{585     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}}:}
+\DoxyCodeLine{586         os << *reinterpret\_cast<const int32\_t *>(src);}
+\DoxyCodeLine{587         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{588     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}}:}
+\DoxyCodeLine{589         os << *reinterpret\_cast<const uint32\_t *>(src);}
+\DoxyCodeLine{590         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{591     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{Type::FLOAT32}}:}
+\DoxyCodeLine{592         os << *reinterpret\_cast<const float *>(src);}
+\DoxyCodeLine{593         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{594     \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{Type::FLOAT64}}:}
+\DoxyCodeLine{595         os << *reinterpret\_cast<const double *>(src);}
+\DoxyCodeLine{596         \textcolor{keywordflow}{break};}
+\DoxyCodeLine{597     \textcolor{keywordflow}{case} Type::INVALID:}
+\DoxyCodeLine{598         \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}invalid ply property"{}});}
+\DoxyCodeLine{599     \}}
+\DoxyCodeLine{600     os << \textcolor{stringliteral}{"{} "{}};}
+\DoxyCodeLine{601     srcOffset += PropertyTable[t].stride;}
+\DoxyCodeLine{602 \}}
+\DoxyCodeLine{603 }
+\DoxyCodeLine{604 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write\_property\_binary(}
+\DoxyCodeLine{605     std::ostream \&os, \textcolor{keyword}{const} uint8\_t *src, \textcolor{keywordtype}{size\_t} \&srcOffset, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{606 \{}
+\DoxyCodeLine{607     os.write((\textcolor{keywordtype}{char} *)src, stride);}
+\DoxyCodeLine{608     srcOffset += stride;}
+\DoxyCodeLine{609 \}}
+\DoxyCodeLine{610 }
+\DoxyCodeLine{611 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::read(std::istream \&is)}
+\DoxyCodeLine{612 \{}
+\DoxyCodeLine{613     std::vector<std::shared\_ptr<PlyData>> buffers;}
+\DoxyCodeLine{614     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&entry : userData)}
+\DoxyCodeLine{615         buffers.push\_back(entry.second.data);}
+\DoxyCodeLine{616 }
+\DoxyCodeLine{617     \textcolor{comment}{// Discover if we can allocate up front without parsing the file twice}}
+\DoxyCodeLine{618     uint32\_t list\_hints = 0;}
+\DoxyCodeLine{619     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&b : buffers)}
+\DoxyCodeLine{620         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&entry : userData)}
+\DoxyCodeLine{621         \{}
+\DoxyCodeLine{622             list\_hints += entry.second.list\_size\_hint;}
+\DoxyCodeLine{623             (void)b;}
+\DoxyCodeLine{624         \}}
+\DoxyCodeLine{625 }
+\DoxyCodeLine{626     \textcolor{comment}{// No list hints? Then we need to calculate how much memory to allocate}}
+\DoxyCodeLine{627     \textcolor{keywordflow}{if} (list\_hints == 0)}
+\DoxyCodeLine{628     \{}
+\DoxyCodeLine{629         parse\_data(is, \textcolor{keyword}{true});}
+\DoxyCodeLine{630     \}}
+\DoxyCodeLine{631 }
+\DoxyCodeLine{632     \textcolor{comment}{// Count the number of properties (required for allocation)}}
+\DoxyCodeLine{633     \textcolor{comment}{// e.g. if we have properties x y and z requested, we ensure}}
+\DoxyCodeLine{634     \textcolor{comment}{// that their buffer points to the same PlyData}}
+\DoxyCodeLine{635     std::unordered\_map<PlyData *, int32\_t> unique\_data\_count;}
+\DoxyCodeLine{636     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&ptr : buffers)}
+\DoxyCodeLine{637         unique\_data\_count[ptr.get()] += 1;}
+\DoxyCodeLine{638 }
+\DoxyCodeLine{639     \textcolor{comment}{// Since group-\/requested properties share the same cursor,}}
+\DoxyCodeLine{640     \textcolor{comment}{// we need to find unique cursors so we only allocate once}}
+\DoxyCodeLine{641     std::sort(buffers.begin(), buffers.end());}
+\DoxyCodeLine{642     buffers.erase(std::unique(buffers.begin(), buffers.end()), buffers.end());}
+\DoxyCodeLine{643 }
+\DoxyCodeLine{644     \textcolor{comment}{// We sorted by ptrs on PlyData, need to remap back onto its cursor in the userData table}}
+\DoxyCodeLine{645     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&b : buffers)}
+\DoxyCodeLine{646     \{}
+\DoxyCodeLine{647         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&entry : userData)}
+\DoxyCodeLine{648         \{}
+\DoxyCodeLine{649             \textcolor{keywordflow}{if} (entry.second.data == b \&\& b-\/>buffer.get() == \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{650             \{}
+\DoxyCodeLine{651                 \textcolor{comment}{// If we didn't receive any list hints, it means we did two passes over the}}
+\DoxyCodeLine{652                 \textcolor{comment}{// file to compute the total length of all (potentially) variable-\/length lists}}
+\DoxyCodeLine{653                 \textcolor{keywordflow}{if} (list\_hints == 0)}
+\DoxyCodeLine{654                 \{}
+\DoxyCodeLine{655                     b-\/>buffer = Buffer(entry.second.cursor-\/>totalSizeBytes);}
+\DoxyCodeLine{656                 \}}
+\DoxyCodeLine{657                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{658                 \{}
+\DoxyCodeLine{659                     \textcolor{comment}{// otherwise, we can allocate up front, skipping the first pass.}}
+\DoxyCodeLine{660                     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} list\_size\_multiplier = (entry.second.data-\/>isList ? entry.second.list\_size\_hint : 1);}
+\DoxyCodeLine{661                     \textcolor{keyword}{auto} bytes\_per\_property =}
+\DoxyCodeLine{662                         entry.second.data-\/>count * PropertyTable[entry.second.data-\/>t].stride * list\_size\_multiplier;}
+\DoxyCodeLine{663                     bytes\_per\_property *= unique\_data\_count[b.get()];}
+\DoxyCodeLine{664                     b-\/>buffer = Buffer(bytes\_per\_property);}
+\DoxyCodeLine{665                 \}}
+\DoxyCodeLine{666             \}}
+\DoxyCodeLine{667         \}}
+\DoxyCodeLine{668     \}}
+\DoxyCodeLine{669 }
+\DoxyCodeLine{670     \textcolor{comment}{// Populate the data}}
+\DoxyCodeLine{671     parse\_data(is, \textcolor{keyword}{false});}
+\DoxyCodeLine{672 }
+\DoxyCodeLine{673     \textcolor{comment}{// In-\/place big-\/endian to little-\/endian swapping if required}}
+\DoxyCodeLine{674     \textcolor{keywordflow}{if} (isBigEndian)}
+\DoxyCodeLine{675     \{}
+\DoxyCodeLine{676         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&b : buffers)}
+\DoxyCodeLine{677         \{}
+\DoxyCodeLine{678             uint8\_t *data\_ptr = b-\/>buffer.get();}
+\DoxyCodeLine{679             \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} stride = PropertyTable[b-\/>t].stride;}
+\DoxyCodeLine{680             \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} buffer\_size\_bytes = b-\/>buffer.size\_bytes();}
+\DoxyCodeLine{681 }
+\DoxyCodeLine{682             \textcolor{keywordflow}{switch} (b-\/>t)}
+\DoxyCodeLine{683             \{}
+\DoxyCodeLine{684             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}}:}
+\DoxyCodeLine{685                 endian\_swap\_buffer<int16\_t, int16\_t>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{686                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{687             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}}:}
+\DoxyCodeLine{688                 endian\_swap\_buffer<uint16\_t, uint16\_t>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{689                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{690             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}}:}
+\DoxyCodeLine{691                 endian\_swap\_buffer<int32\_t, int32\_t>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{692                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{693             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}}:}
+\DoxyCodeLine{694                 endian\_swap\_buffer<uint32\_t, uint32\_t>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{695                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{696             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a3a40b11156b743d81657dcca2539646e}{Type::FLOAT32}}:}
+\DoxyCodeLine{697                 endian\_swap\_buffer<uint32\_t, float>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{698                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{699             \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a704e5bd67902fe3ad2b3fb57cbf63a6c}{Type::FLOAT64}}:}
+\DoxyCodeLine{700                 endian\_swap\_buffer<uint64\_t, double>(data\_ptr, buffer\_size\_bytes, stride);}
+\DoxyCodeLine{701                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{702             \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{703                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{704             \}}
+\DoxyCodeLine{705         \}}
+\DoxyCodeLine{706     \}}
+\DoxyCodeLine{707 \}}
+\DoxyCodeLine{708 }
+\DoxyCodeLine{709 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write(std::ostream \&os, \textcolor{keywordtype}{bool} \_isBinary)}
+\DoxyCodeLine{710 \{}
+\DoxyCodeLine{711     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&d : userData)}
+\DoxyCodeLine{712     \{}
+\DoxyCodeLine{713         d.second.cursor-\/>byteOffset = 0;}
+\DoxyCodeLine{714     \}}
+\DoxyCodeLine{715     \textcolor{keywordflow}{if} (\_isBinary)}
+\DoxyCodeLine{716     \{}
+\DoxyCodeLine{717         isBinary = \textcolor{keyword}{true};}
+\DoxyCodeLine{718         isBigEndian = \textcolor{keyword}{false};}
+\DoxyCodeLine{719         write\_binary\_internal(os);}
+\DoxyCodeLine{720     \}}
+\DoxyCodeLine{721     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{722     \{}
+\DoxyCodeLine{723         isBinary = \textcolor{keyword}{false};}
+\DoxyCodeLine{724         isBigEndian = \textcolor{keyword}{false};}
+\DoxyCodeLine{725         write\_ascii\_internal(os);}
+\DoxyCodeLine{726     \}}
+\DoxyCodeLine{727 \}}
+\DoxyCodeLine{728 }
+\DoxyCodeLine{729 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write\_binary\_internal(std::ostream \&os) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{730 \{}
+\DoxyCodeLine{731     isBinary = \textcolor{keyword}{true};}
+\DoxyCodeLine{732 }
+\DoxyCodeLine{733     write\_header(os);}
+\DoxyCodeLine{734 }
+\DoxyCodeLine{735     uint8\_t listSize[4] = \{0, 0, 0, 0\};}
+\DoxyCodeLine{736     \textcolor{keywordtype}{size\_t} dummyCount = 0;}
+\DoxyCodeLine{737 }
+\DoxyCodeLine{738     \textcolor{keyword}{auto} element\_property\_lookup = make\_property\_lookup\_table();}
+\DoxyCodeLine{739 }
+\DoxyCodeLine{740     \textcolor{keywordtype}{size\_t} element\_idx = 0;}
+\DoxyCodeLine{741     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&e : elements)}
+\DoxyCodeLine{742     \{}
+\DoxyCodeLine{743         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < e.size; ++i)}
+\DoxyCodeLine{744         \{}
+\DoxyCodeLine{745             \textcolor{keywordtype}{size\_t} property\_index = 0;}
+\DoxyCodeLine{746             \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&p : e.properties)}
+\DoxyCodeLine{747             \{}
+\DoxyCodeLine{748                 \textcolor{keyword}{auto} \&f = element\_property\_lookup[element\_idx][property\_index];}
+\DoxyCodeLine{749                 \textcolor{keyword}{auto} *helper = f.helper;}
+\DoxyCodeLine{750                 \textcolor{keywordflow}{if} (f.skip || helper == \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{751                     \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{752 }
+\DoxyCodeLine{753                 \textcolor{keywordflow}{if} (p.isList)}
+\DoxyCodeLine{754                 \{}
+\DoxyCodeLine{755                     std::memcpy(listSize, \&p.listCount, \textcolor{keyword}{sizeof}(uint32\_t));}
+\DoxyCodeLine{756                     write\_property\_binary(os, listSize, dummyCount, f.list\_stride);}
+\DoxyCodeLine{757                     write\_property\_binary(}
+\DoxyCodeLine{758                         os,}
+\DoxyCodeLine{759                         (helper-\/>data-\/>buffer.get\_const() + helper-\/>cursor-\/>byteOffset),}
+\DoxyCodeLine{760                         helper-\/>cursor-\/>byteOffset,}
+\DoxyCodeLine{761                         f.prop\_stride * p.listCount);}
+\DoxyCodeLine{762                 \}}
+\DoxyCodeLine{763                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{764                 \{}
+\DoxyCodeLine{765                     write\_property\_binary(}
+\DoxyCodeLine{766                         os,}
+\DoxyCodeLine{767                         (helper-\/>data-\/>buffer.get\_const() + helper-\/>cursor-\/>byteOffset),}
+\DoxyCodeLine{768                         helper-\/>cursor-\/>byteOffset,}
+\DoxyCodeLine{769                         f.prop\_stride);}
+\DoxyCodeLine{770                 \}}
+\DoxyCodeLine{771                 property\_index++;}
+\DoxyCodeLine{772             \}}
+\DoxyCodeLine{773         \}}
+\DoxyCodeLine{774         element\_idx++;}
+\DoxyCodeLine{775     \}}
+\DoxyCodeLine{776 \}}
+\DoxyCodeLine{777 }
+\DoxyCodeLine{778 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write\_ascii\_internal(std::ostream \&os) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{779 \{}
+\DoxyCodeLine{780     write\_header(os);}
+\DoxyCodeLine{781 }
+\DoxyCodeLine{782     \textcolor{keyword}{auto} element\_property\_lookup = make\_property\_lookup\_table();}
+\DoxyCodeLine{783 }
+\DoxyCodeLine{784     \textcolor{keywordtype}{size\_t} element\_idx = 0;}
+\DoxyCodeLine{785     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&e : elements)}
+\DoxyCodeLine{786     \{}
+\DoxyCodeLine{787         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < e.size; ++i)}
+\DoxyCodeLine{788         \{}
+\DoxyCodeLine{789             \textcolor{keywordtype}{size\_t} property\_index = 0;}
+\DoxyCodeLine{790             \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&p : e.properties)}
+\DoxyCodeLine{791             \{}
+\DoxyCodeLine{792                 \textcolor{keyword}{auto} \&f = element\_property\_lookup[element\_idx][property\_index];}
+\DoxyCodeLine{793                 \textcolor{keyword}{auto} *helper = f.helper;}
+\DoxyCodeLine{794                 \textcolor{keywordflow}{if} (f.skip || helper == \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{795                     \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{796 }
+\DoxyCodeLine{797                 \textcolor{keywordflow}{if} (p.isList)}
+\DoxyCodeLine{798                 \{}
+\DoxyCodeLine{799                     os << p.listCount << \textcolor{stringliteral}{"{} "{}};}
+\DoxyCodeLine{800                     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} j = 0; j < p.listCount; ++j)}
+\DoxyCodeLine{801                     \{}
+\DoxyCodeLine{802                         write\_property\_ascii(}
+\DoxyCodeLine{803                             p.propertyType,}
+\DoxyCodeLine{804                             os,}
+\DoxyCodeLine{805                             (helper-\/>data-\/>buffer.get() + helper-\/>cursor-\/>byteOffset),}
+\DoxyCodeLine{806                             helper-\/>cursor-\/>byteOffset);}
+\DoxyCodeLine{807                     \}}
+\DoxyCodeLine{808                 \}}
+\DoxyCodeLine{809                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{810                 \{}
+\DoxyCodeLine{811                     write\_property\_ascii(}
+\DoxyCodeLine{812                         p.propertyType,}
+\DoxyCodeLine{813                         os,}
+\DoxyCodeLine{814                         (helper-\/>data-\/>buffer.get() + helper-\/>cursor-\/>byteOffset),}
+\DoxyCodeLine{815                         helper-\/>cursor-\/>byteOffset);}
+\DoxyCodeLine{816                 \}}
+\DoxyCodeLine{817                 property\_index++;}
+\DoxyCodeLine{818             \}}
+\DoxyCodeLine{819             os << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{820         \}}
+\DoxyCodeLine{821         element\_idx++;}
+\DoxyCodeLine{822     \}}
+\DoxyCodeLine{823 \}}
+\DoxyCodeLine{824 }
+\DoxyCodeLine{825 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::write\_header(std::ostream \&os) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{826 \{}
+\DoxyCodeLine{827     \textcolor{keyword}{const} std::locale \&fixLoc = std::locale(\textcolor{stringliteral}{"{}C"{}});}
+\DoxyCodeLine{828     os.imbue(fixLoc);}
+\DoxyCodeLine{829 }
+\DoxyCodeLine{830     os << \textcolor{stringliteral}{"{}ply\(\backslash\)n"{}};}
+\DoxyCodeLine{831     \textcolor{keywordflow}{if} (isBinary)}
+\DoxyCodeLine{832         os << ((isBigEndian) ? \textcolor{stringliteral}{"{}format binary\_big\_endian 1.0"{}} : \textcolor{stringliteral}{"{}format binary\_little\_endian 1.0"{}}) << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{833     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{834         os << \textcolor{stringliteral}{"{}format ascii 1.0\(\backslash\)n"{}};}
+\DoxyCodeLine{835 }
+\DoxyCodeLine{836     \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&comment : comments)}
+\DoxyCodeLine{837         os << \textcolor{stringliteral}{"{}comment "{}} << comment << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{838 }
+\DoxyCodeLine{839     \textcolor{keyword}{auto} property\_lookup = make\_property\_lookup\_table();}
+\DoxyCodeLine{840 }
+\DoxyCodeLine{841     \textcolor{keywordtype}{size\_t} element\_idx = 0;}
+\DoxyCodeLine{842     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&e : elements)}
+\DoxyCodeLine{843     \{}
+\DoxyCodeLine{844         os << \textcolor{stringliteral}{"{}element "{}} << e.name << \textcolor{stringliteral}{"{} "{}} << e.size << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{845         \textcolor{keywordtype}{size\_t} property\_idx = 0;}
+\DoxyCodeLine{846         \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&p : e.properties)}
+\DoxyCodeLine{847         \{}
+\DoxyCodeLine{848             PropertyLookup \&lookup = property\_lookup[element\_idx][property\_idx];}
+\DoxyCodeLine{849 }
+\DoxyCodeLine{850             \textcolor{keywordflow}{if} (!lookup.skip)}
+\DoxyCodeLine{851             \{}
+\DoxyCodeLine{852                 \textcolor{keywordflow}{if} (p.isList)}
+\DoxyCodeLine{853                 \{}
+\DoxyCodeLine{854                     os << \textcolor{stringliteral}{"{}property list "{}} << PropertyTable[p.listType].str << \textcolor{stringliteral}{"{} "{}} << PropertyTable[p.propertyType].str}
+\DoxyCodeLine{855                        << \textcolor{stringliteral}{"{} "{}} << p.name << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{856                 \}}
+\DoxyCodeLine{857                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{858                 \{}
+\DoxyCodeLine{859                     os << \textcolor{stringliteral}{"{}property "{}} << PropertyTable[p.propertyType].str << \textcolor{stringliteral}{"{} "{}} << p.name << \textcolor{stringliteral}{"{}\(\backslash\)n"{}};}
+\DoxyCodeLine{860                 \}}
+\DoxyCodeLine{861             \}}
+\DoxyCodeLine{862             property\_idx++;}
+\DoxyCodeLine{863         \}}
+\DoxyCodeLine{864         element\_idx++;}
+\DoxyCodeLine{865     \}}
+\DoxyCodeLine{866     os << \textcolor{stringliteral}{"{}end\_header\(\backslash\)n"{}};}
+\DoxyCodeLine{867 \}}
+\DoxyCodeLine{868 }
+\DoxyCodeLine{869 std::shared\_ptr<PlyData> PlyFile::PlyFileImpl::request\_properties\_from\_element(}
+\DoxyCodeLine{870     \textcolor{keyword}{const} std::string \&elementKey, \textcolor{keyword}{const} std::vector<std::string> propertyKeys, \textcolor{keyword}{const} uint32\_t list\_size\_hint)}
+\DoxyCodeLine{871 \{}
+\DoxyCodeLine{872     \textcolor{keywordflow}{if} (elements.empty())}
+\DoxyCodeLine{873         \textcolor{keywordflow}{throw} std::runtime\_error(\textcolor{stringliteral}{"{}header had no elements defined. malformed file?"{}});}
+\DoxyCodeLine{874     \textcolor{keywordflow}{if} (elementKey.empty())}
+\DoxyCodeLine{875         \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}`elementKey` argument is empty"{}});}
+\DoxyCodeLine{876     \textcolor{keywordflow}{if} (propertyKeys.empty())}
+\DoxyCodeLine{877         \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}`propertyKeys` argument is empty"{}});}
+\DoxyCodeLine{878 }
+\DoxyCodeLine{879     std::shared\_ptr<PlyData> out\_data = std::make\_shared<PlyData>();}
+\DoxyCodeLine{880 }
+\DoxyCodeLine{881     \textcolor{keyword}{const} int64\_t elementIndex = find\_element(elementKey, elements);}
+\DoxyCodeLine{882 }
+\DoxyCodeLine{883     std::vector<std::string> keys\_not\_found;}
+\DoxyCodeLine{884 }
+\DoxyCodeLine{885     \textcolor{comment}{// Sanity check if the user requested element is in the pre-\/parsed header}}
+\DoxyCodeLine{886     \textcolor{keywordflow}{if} (elementIndex >= 0)}
+\DoxyCodeLine{887     \{}
+\DoxyCodeLine{888         \textcolor{comment}{// We found the element}}
+\DoxyCodeLine{889         \textcolor{keyword}{const} PlyElement \&element = elements[elementIndex];}
+\DoxyCodeLine{890 }
+\DoxyCodeLine{891         \textcolor{comment}{// Each key in `propertyKey` gets an entry into the userData map (keyed by a hash of}}
+\DoxyCodeLine{892         \textcolor{comment}{// element name and property name), but groups of properties (requested from the}}
+\DoxyCodeLine{893         \textcolor{comment}{// public api through this function) all share the same `ParsingHelper`. When it comes}}
+\DoxyCodeLine{894         \textcolor{comment}{// time to .read(), we check the number of unique PlyData shared pointers}}
+\DoxyCodeLine{895         \textcolor{comment}{// and allocate a single buffer that will be used by each property key group.}}
+\DoxyCodeLine{896         \textcolor{comment}{// That way, properties like, \{"{}x"{}, "{}y"{}, "{}z"{}\} will all be put into the same buffer.}}
+\DoxyCodeLine{897 }
+\DoxyCodeLine{898         ParsingHelper helper;}
+\DoxyCodeLine{899         helper.data = out\_data;}
+\DoxyCodeLine{900         helper.data-\/>count = element.size; \textcolor{comment}{// how many items are in the element?}}
+\DoxyCodeLine{901         helper.data-\/>isList = \textcolor{keyword}{false};}
+\DoxyCodeLine{902         helper.data-\/>t = Type::INVALID;}
+\DoxyCodeLine{903         helper.cursor = std::make\_shared<PlyDataCursor>();}
+\DoxyCodeLine{904         helper.list\_size\_hint = list\_size\_hint;}
+\DoxyCodeLine{905 }
+\DoxyCodeLine{906         \textcolor{comment}{// Find each of the keys}}
+\DoxyCodeLine{907         \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&key : propertyKeys)}
+\DoxyCodeLine{908         \{}
+\DoxyCodeLine{909             \textcolor{keyword}{const} int64\_t propertyIndex = find\_property(key, element.properties);}
+\DoxyCodeLine{910             \textcolor{keywordflow}{if} (propertyIndex < 0)}
+\DoxyCodeLine{911                 keys\_not\_found.push\_back(key);}
+\DoxyCodeLine{912         \}}
+\DoxyCodeLine{913 }
+\DoxyCodeLine{914         \textcolor{keywordflow}{if} (keys\_not\_found.size())}
+\DoxyCodeLine{915         \{}
+\DoxyCodeLine{916             std::stringstream ss;}
+\DoxyCodeLine{917             \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&str : keys\_not\_found)}
+\DoxyCodeLine{918                 ss << str << \textcolor{stringliteral}{"{}, "{}};}
+\DoxyCodeLine{919             \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}the following property keys were not found in the header: "{}} + ss.str());}
+\DoxyCodeLine{920         \}}
+\DoxyCodeLine{921 }
+\DoxyCodeLine{922         \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&key : propertyKeys)}
+\DoxyCodeLine{923         \{}
+\DoxyCodeLine{924             \textcolor{keyword}{const} int64\_t propertyIndex = find\_property(key, element.properties);}
+\DoxyCodeLine{925             \textcolor{keyword}{const} PlyProperty \&\textcolor{keyword}{property} = element.properties[propertyIndex];}
+\DoxyCodeLine{926             helper.data-\/>t = \textcolor{keyword}{property}.propertyType;}
+\DoxyCodeLine{927             helper.data-\/>isList = \textcolor{keyword}{property}.isList;}
+\DoxyCodeLine{928             \textcolor{keyword}{auto} result =}
+\DoxyCodeLine{929                 userData.insert(std::pair<uint32\_t, ParsingHelper>(hash\_fnv1a(element.name + property.name), helper));}
+\DoxyCodeLine{930             \textcolor{keywordflow}{if} (result.second == \textcolor{keyword}{false})}
+\DoxyCodeLine{931             \{}
+\DoxyCodeLine{932                 \textcolor{keywordflow}{throw} std::invalid\_argument(}
+\DoxyCodeLine{933                     \textcolor{stringliteral}{"{}element-\/property key has already been requested: "{}} + element.name + \textcolor{stringliteral}{"{} "{}} + property.name);}
+\DoxyCodeLine{934             \}}
+\DoxyCodeLine{935         \}}
+\DoxyCodeLine{936 }
+\DoxyCodeLine{937         \textcolor{comment}{// Sanity check that all properties share the same type}}
+\DoxyCodeLine{938         std::vector<Type> propertyTypes;}
+\DoxyCodeLine{939         \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&key : propertyKeys)}
+\DoxyCodeLine{940         \{}
+\DoxyCodeLine{941             \textcolor{keyword}{const} int64\_t propertyIndex = find\_property(key, element.properties);}
+\DoxyCodeLine{942             \textcolor{keyword}{const} PlyProperty \&\textcolor{keyword}{property} = element.properties[propertyIndex];}
+\DoxyCodeLine{943             propertyTypes.push\_back(property.propertyType);}
+\DoxyCodeLine{944         \}}
+\DoxyCodeLine{945 }
+\DoxyCodeLine{946         \textcolor{keywordflow}{if} (std::adjacent\_find(propertyTypes.begin(), propertyTypes.end(), std::not\_equal\_to<Type>()) !=}
+\DoxyCodeLine{947             propertyTypes.end())}
+\DoxyCodeLine{948         \{}
+\DoxyCodeLine{949             \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}all requested properties must share the same type."{}});}
+\DoxyCodeLine{950         \}}
+\DoxyCodeLine{951     \}}
+\DoxyCodeLine{952     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{953         \textcolor{keywordflow}{throw} std::invalid\_argument(\textcolor{stringliteral}{"{}the element key was not found in the header: "{}} + elementKey);}
+\DoxyCodeLine{954 }
+\DoxyCodeLine{955     \textcolor{keywordflow}{return} out\_data;}
+\DoxyCodeLine{956 \}}
+\DoxyCodeLine{957 }
+\DoxyCodeLine{958 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::add\_properties\_to\_element(}
+\DoxyCodeLine{959     \textcolor{keyword}{const} std::string \&elementKey,}
+\DoxyCodeLine{960     \textcolor{keyword}{const} std::vector<std::string> propertyKeys,}
+\DoxyCodeLine{961     \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} type,}
+\DoxyCodeLine{962     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} count,}
+\DoxyCodeLine{963     \textcolor{keyword}{const} uint8\_t *data,}
+\DoxyCodeLine{964     \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} listType,}
+\DoxyCodeLine{965     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} listCount)}
+\DoxyCodeLine{966 \{}
+\DoxyCodeLine{967     ParsingHelper helper;}
+\DoxyCodeLine{968     helper.data = std::make\_shared<PlyData>();}
+\DoxyCodeLine{969     helper.data-\/>count = count;}
+\DoxyCodeLine{970     helper.data-\/>t = type;}
+\DoxyCodeLine{971     helper.data-\/>buffer = Buffer(data); \textcolor{comment}{// we should also set size for safety reasons}}
+\DoxyCodeLine{972     helper.cursor = std::make\_shared<PlyDataCursor>();}
+\DoxyCodeLine{973 }
+\DoxyCodeLine{974     \textcolor{keyword}{auto} create\_property\_on\_element = [\&](PlyElement \&e) \{}
+\DoxyCodeLine{975         \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} key : propertyKeys)}
+\DoxyCodeLine{976         \{}
+\DoxyCodeLine{977             PlyProperty newProp =}
+\DoxyCodeLine{978                 (listType == Type::INVALID) ? PlyProperty(type, key) : PlyProperty(listType, type, key, listCount);}
+\DoxyCodeLine{979             userData.insert(std::pair<uint32\_t, ParsingHelper>(hash\_fnv1a(elementKey + key), helper));}
+\DoxyCodeLine{980             e.properties.push\_back(newProp);}
+\DoxyCodeLine{981         \}}
+\DoxyCodeLine{982     \};}
+\DoxyCodeLine{983 }
+\DoxyCodeLine{984     \textcolor{keyword}{const} int64\_t idx = find\_element(elementKey, elements);}
+\DoxyCodeLine{985     \textcolor{keywordflow}{if} (idx >= 0)}
+\DoxyCodeLine{986     \{}
+\DoxyCodeLine{987         PlyElement \&e = elements[idx];}
+\DoxyCodeLine{988         create\_property\_on\_element(e);}
+\DoxyCodeLine{989     \}}
+\DoxyCodeLine{990     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{991     \{}
+\DoxyCodeLine{992         PlyElement newElement =}
+\DoxyCodeLine{993             (listType == Type::INVALID) ? PlyElement(elementKey, count) : PlyElement(elementKey, count);}
+\DoxyCodeLine{994         create\_property\_on\_element(newElement);}
+\DoxyCodeLine{995         elements.push\_back(newElement);}
+\DoxyCodeLine{996     \}}
+\DoxyCodeLine{997 \}}
+\DoxyCodeLine{998 }
+\DoxyCodeLine{999 \textcolor{keywordtype}{void} PlyFile::PlyFileImpl::parse\_data(std::istream \&is, \textcolor{keywordtype}{bool} firstPass)}
+\DoxyCodeLine{1000 \{}
+\DoxyCodeLine{1001     std::function<void(PropertyLookup \& f, \textcolor{keyword}{const} PlyProperty \&p, uint8\_t *dest, \textcolor{keywordtype}{size\_t} \&destOffset, std::istream \&is)>}
+\DoxyCodeLine{1002         read;}
+\DoxyCodeLine{1003     std::function<size\_t(PropertyLookup \& f, \textcolor{keyword}{const} PlyProperty \&p, std::istream \&is)> skip;}
+\DoxyCodeLine{1004 }
+\DoxyCodeLine{1005     \textcolor{keyword}{const} \textcolor{keyword}{auto} start = is.tellg();}
+\DoxyCodeLine{1006 }
+\DoxyCodeLine{1007     uint32\_t listSize = 0;}
+\DoxyCodeLine{1008     \textcolor{keywordtype}{size\_t} dummyCount = 0;}
+\DoxyCodeLine{1009     std::string skip\_ascii\_buffer;}
+\DoxyCodeLine{1010 }
+\DoxyCodeLine{1011     \textcolor{comment}{// Special case mirroring read\_property\_binary but for list types; this}}
+\DoxyCodeLine{1012     \textcolor{comment}{// has an additional big endian check to flip the data in place immediately}}
+\DoxyCodeLine{1013     \textcolor{comment}{// after reading. We do this as a performance optimization; endian flipping is}}
+\DoxyCodeLine{1014     \textcolor{comment}{// done on regular properties as a post-\/process after reading (also for optimization)}}
+\DoxyCodeLine{1015     \textcolor{comment}{// but we need the correct little-\/endian list count as we read the file.}}
+\DoxyCodeLine{1016     \textcolor{keyword}{auto} read\_list\_binary =}
+\DoxyCodeLine{1017         [\textcolor{keyword}{this}](\textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} \&t, \textcolor{keywordtype}{void} *dst, \textcolor{keywordtype}{size\_t} \&destOffset, \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} \&stride, std::istream \&\_is) \textcolor{keyword}{noexcept} \{}
+\DoxyCodeLine{1018             destOffset += stride;}
+\DoxyCodeLine{1019             \_is.read((\textcolor{keywordtype}{char} *)dst, stride);}
+\DoxyCodeLine{1020 }
+\DoxyCodeLine{1021             \textcolor{keywordflow}{if} (isBigEndian)}
+\DoxyCodeLine{1022             \{}
+\DoxyCodeLine{1023                 \textcolor{keywordflow}{switch} (t)}
+\DoxyCodeLine{1024                 \{}
+\DoxyCodeLine{1025                 \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a39f5e1c860eecbebe1859716a677f75b}{Type::INT16}}:}
+\DoxyCodeLine{1026                     *(int16\_t *)dst = endian\_swap<int16\_t, int16\_t>(*(int16\_t *)dst);}
+\DoxyCodeLine{1027                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{1028                 \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_ab41cd11498671f9982cbef9c11d9664a}{Type::UINT16}}:}
+\DoxyCodeLine{1029                     *(uint16\_t *)dst = endian\_swap<uint16\_t, uint16\_t>(*(uint16\_t *)dst);}
+\DoxyCodeLine{1030                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{1031                 \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a89d4f045e28d7c3225241d9a92e1073f}{Type::INT32}}:}
+\DoxyCodeLine{1032                     *(int32\_t *)dst = endian\_swap<int32\_t, int32\_t>(*(int32\_t *)dst);}
+\DoxyCodeLine{1033                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{1034                 \textcolor{keywordflow}{case} \mbox{\hyperlink{namespacetinyply_a0087a96a24a048e940cbcec5ffd4d0bd}{Type::UINT32}}:}
+\DoxyCodeLine{1035                     *(uint32\_t *)dst = endian\_swap<uint32\_t, uint32\_t>(*(uint32\_t *)dst);}
+\DoxyCodeLine{1036                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{1037                 \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{1038                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{1039                 \}}
+\DoxyCodeLine{1040             \}}
+\DoxyCodeLine{1041 }
+\DoxyCodeLine{1042             \textcolor{keywordflow}{return} stride;}
+\DoxyCodeLine{1043         \};}
+\DoxyCodeLine{1044 }
+\DoxyCodeLine{1045     \textcolor{keywordflow}{if} (isBinary)}
+\DoxyCodeLine{1046     \{}
+\DoxyCodeLine{1047         read = [\textcolor{keyword}{this}, \&listSize, \&dummyCount, \&read\_list\_binary](}
+\DoxyCodeLine{1048                    PropertyLookup \&f,}
+\DoxyCodeLine{1049                    \textcolor{keyword}{const} PlyProperty \&p,}
+\DoxyCodeLine{1050                    uint8\_t *dest,}
+\DoxyCodeLine{1051                    \textcolor{keywordtype}{size\_t} \&destOffset,}
+\DoxyCodeLine{1052                    std::istream \&\_is) \textcolor{keyword}{noexcept} \{}
+\DoxyCodeLine{1053             \textcolor{keywordflow}{if} (!p.isList)}
+\DoxyCodeLine{1054             \{}
+\DoxyCodeLine{1055                 \textcolor{keywordflow}{return} read\_property\_binary(f.prop\_stride, dest + destOffset, destOffset, \_is);}
+\DoxyCodeLine{1056             \}}
+\DoxyCodeLine{1057             read\_list\_binary(p.listType, \&listSize, dummyCount, f.list\_stride, \_is); \textcolor{comment}{// the list size}}
+\DoxyCodeLine{1058             \textcolor{keywordflow}{return} read\_property\_binary(}
+\DoxyCodeLine{1059                 f.prop\_stride * listSize, dest + destOffset, destOffset, \_is); \textcolor{comment}{// properties in list}}
+\DoxyCodeLine{1060         \};}
+\DoxyCodeLine{1061         skip = [\textcolor{keyword}{this}, \&listSize, \&dummyCount, \&read\_list\_binary](}
+\DoxyCodeLine{1062                    PropertyLookup \&f, \textcolor{keyword}{const} PlyProperty \&p, std::istream \&\_is) \textcolor{keyword}{noexcept} \{}
+\DoxyCodeLine{1063             \textcolor{keywordflow}{if} (!p.isList)}
+\DoxyCodeLine{1064             \{}
+\DoxyCodeLine{1065                 \_is.read((\textcolor{keywordtype}{char} *)scratch, f.prop\_stride);}
+\DoxyCodeLine{1066                 \textcolor{keywordflow}{return} f.prop\_stride;}
+\DoxyCodeLine{1067             \}}
+\DoxyCodeLine{1068             read\_list\_binary(}
+\DoxyCodeLine{1069                 p.listType,}
+\DoxyCodeLine{1070                 \&listSize,}
+\DoxyCodeLine{1071                 dummyCount,}
+\DoxyCodeLine{1072                 f.list\_stride,}
+\DoxyCodeLine{1073                 \_is); \textcolor{comment}{// the list size (does not count for memory alloc)}}
+\DoxyCodeLine{1074             \textcolor{keyword}{auto} bytes\_to\_skip = f.prop\_stride * listSize;}
+\DoxyCodeLine{1075             \_is.ignore(bytes\_to\_skip);}
+\DoxyCodeLine{1076             \textcolor{keywordflow}{return} bytes\_to\_skip;}
+\DoxyCodeLine{1077         \};}
+\DoxyCodeLine{1078     \}}
+\DoxyCodeLine{1079     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{1080     \{}
+\DoxyCodeLine{1081         read = [\textcolor{keyword}{this}, \&listSize, \&dummyCount](}
+\DoxyCodeLine{1082                    PropertyLookup \&f,}
+\DoxyCodeLine{1083                    \textcolor{keyword}{const} PlyProperty \&p,}
+\DoxyCodeLine{1084                    uint8\_t *dest,}
+\DoxyCodeLine{1085                    \textcolor{keywordtype}{size\_t} \&destOffset,}
+\DoxyCodeLine{1086                    std::istream \&\_is) \textcolor{keyword}{noexcept} \{}
+\DoxyCodeLine{1087             \textcolor{keywordflow}{if} (!p.isList)}
+\DoxyCodeLine{1088             \{}
+\DoxyCodeLine{1089                 read\_property\_ascii(p.propertyType, f.prop\_stride, dest + destOffset, destOffset, \_is);}
+\DoxyCodeLine{1090             \}}
+\DoxyCodeLine{1091             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{1092             \{}
+\DoxyCodeLine{1093                 read\_property\_ascii(p.listType, f.list\_stride, \&listSize, dummyCount, \_is); \textcolor{comment}{// the list size}}
+\DoxyCodeLine{1094                 \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < listSize; ++i)}
+\DoxyCodeLine{1095                 \{}
+\DoxyCodeLine{1096                     read\_property\_ascii(p.propertyType, f.prop\_stride, dest + destOffset, destOffset, \_is);}
+\DoxyCodeLine{1097                 \}}
+\DoxyCodeLine{1098             \}}
+\DoxyCodeLine{1099         \};}
+\DoxyCodeLine{1100         skip = [\textcolor{keyword}{this}, \&listSize, \&dummyCount, \&skip\_ascii\_buffer](}
+\DoxyCodeLine{1101                    PropertyLookup \&f, \textcolor{keyword}{const} PlyProperty \&p, std::istream \&\_is) \textcolor{keyword}{noexcept} \{}
+\DoxyCodeLine{1102             skip\_ascii\_buffer.clear();}
+\DoxyCodeLine{1103             \textcolor{keywordflow}{if} (p.isList)}
+\DoxyCodeLine{1104             \{}
+\DoxyCodeLine{1105                 read\_property\_ascii(}
+\DoxyCodeLine{1106                     p.listType,}
+\DoxyCodeLine{1107                     f.list\_stride,}
+\DoxyCodeLine{1108                     \&listSize,}
+\DoxyCodeLine{1109                     dummyCount,}
+\DoxyCodeLine{1110                     \_is); \textcolor{comment}{// the list size (does not count for memory alloc)}}
+\DoxyCodeLine{1111                 \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} i = 0; i < listSize; ++i)}
+\DoxyCodeLine{1112                     \_is >> skip\_ascii\_buffer; \textcolor{comment}{// properties in list}}
+\DoxyCodeLine{1113                 \textcolor{keywordflow}{return} listSize * f.prop\_stride;}
+\DoxyCodeLine{1114             \}}
+\DoxyCodeLine{1115             \_is >> skip\_ascii\_buffer;}
+\DoxyCodeLine{1116             \textcolor{keywordflow}{return} f.prop\_stride;}
+\DoxyCodeLine{1117         \};}
+\DoxyCodeLine{1118     \}}
+\DoxyCodeLine{1119 }
+\DoxyCodeLine{1120     std::vector<std::vector<PropertyLookup>> element\_property\_lookup = make\_property\_lookup\_table();}
+\DoxyCodeLine{1121     \textcolor{keywordtype}{size\_t} element\_idx = 0;}
+\DoxyCodeLine{1122     \textcolor{keywordtype}{size\_t} property\_idx = 0;}
+\DoxyCodeLine{1123     ParsingHelper *helper\{\textcolor{keyword}{nullptr}\};}
+\DoxyCodeLine{1124 }
+\DoxyCodeLine{1125     \textcolor{comment}{// This is the inner import loop}}
+\DoxyCodeLine{1126     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&element : elements)}
+\DoxyCodeLine{1127     \{}
+\DoxyCodeLine{1128         \textcolor{keywordflow}{for} (\textcolor{keywordtype}{size\_t} count = 0; count < element.size; ++count)}
+\DoxyCodeLine{1129         \{}
+\DoxyCodeLine{1130             property\_idx = 0;}
+\DoxyCodeLine{1131             \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&property : element.properties)}
+\DoxyCodeLine{1132             \{}
+\DoxyCodeLine{1133                 PropertyLookup \&lookup = element\_property\_lookup[element\_idx][property\_idx];}
+\DoxyCodeLine{1134 }
+\DoxyCodeLine{1135                 \textcolor{keywordflow}{if} (!lookup.skip)}
+\DoxyCodeLine{1136                 \{}
+\DoxyCodeLine{1137                     helper = lookup.helper;}
+\DoxyCodeLine{1138                     \textcolor{keywordflow}{if} (firstPass)}
+\DoxyCodeLine{1139                     \{}
+\DoxyCodeLine{1140                         helper-\/>cursor-\/>totalSizeBytes += skip(lookup, property, is);}
+\DoxyCodeLine{1141 }
+\DoxyCodeLine{1142                         \textcolor{comment}{// These lines will be changed when tinyply supports}}
+\DoxyCodeLine{1143                         \textcolor{comment}{// variable length lists. We add it here so our header data structure}}
+\DoxyCodeLine{1144                         \textcolor{comment}{// contains enough info to write it back out again (e.g. transcoding).}}
+\DoxyCodeLine{1145                         \textcolor{keywordflow}{if} (property.listCount == 0)}
+\DoxyCodeLine{1146                             \textcolor{keyword}{property}.listCount = listSize;}
+\DoxyCodeLine{1147                         \textcolor{keywordflow}{if} (property.listCount != listSize)}
+\DoxyCodeLine{1148                             \textcolor{keywordflow}{throw} std::runtime\_error(\textcolor{stringliteral}{"{}variable length lists are not supported yet."{}});}
+\DoxyCodeLine{1149                     \}}
+\DoxyCodeLine{1150                     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{1151                     \{}
+\DoxyCodeLine{1152                         read(lookup, property, helper-\/>data-\/>buffer.get(), helper-\/>cursor-\/>byteOffset, is);}
+\DoxyCodeLine{1153                     \}}
+\DoxyCodeLine{1154                 \}}
+\DoxyCodeLine{1155                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{1156                 \{}
+\DoxyCodeLine{1157                     skip(lookup, property, is);}
+\DoxyCodeLine{1158                 \}}
+\DoxyCodeLine{1159                 property\_idx++;}
+\DoxyCodeLine{1160             \}}
+\DoxyCodeLine{1161         \}}
+\DoxyCodeLine{1162         element\_idx++;}
+\DoxyCodeLine{1163     \}}
+\DoxyCodeLine{1164 }
+\DoxyCodeLine{1165     \textcolor{comment}{// Reset istream position to the start of the data}}
+\DoxyCodeLine{1166     \textcolor{keywordflow}{if} (firstPass)}
+\DoxyCodeLine{1167         is.seekg(start, is.beg);}
+\DoxyCodeLine{1168 \}}
+\DoxyCodeLine{1169 }
+\DoxyCodeLine{1170 \textcolor{comment}{// Wrap the public interface:}}
+\DoxyCodeLine{1171 }
+\DoxyCodeLine{1172 \mbox{\hyperlink{structtinyply_1_1_ply_file_ae2ae6a9a5ae4c15d531dc7fdd335ae7a}{PlyFile::PlyFile}}()}
+\DoxyCodeLine{1173 \{}
+\DoxyCodeLine{1174     \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}.reset(\textcolor{keyword}{new} PlyFileImpl());}
+\DoxyCodeLine{1175 \}}
+\DoxyCodeLine{1176 \mbox{\hyperlink{structtinyply_1_1_ply_file_ae8d300efd98bd1d5f6d6623c3a9c42ef}{PlyFile::\string~PlyFile}}()}
+\DoxyCodeLine{1177 \{}
+\DoxyCodeLine{1178 \}}
+\DoxyCodeLine{1179 \textcolor{keywordtype}{bool} \mbox{\hyperlink{structtinyply_1_1_ply_file_a6ff92d4d989b33cbe0622f6e44b38f2e}{PlyFile::parse\_header}}(std::istream \&is)}
+\DoxyCodeLine{1180 \{}
+\DoxyCodeLine{1181     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>parse\_header(is);}
+\DoxyCodeLine{1182 \}}
+\DoxyCodeLine{1183 \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_a4d6777d1ba2621ef18e8d861dac6ff7a}{PlyFile::read}}(std::istream \&is)}
+\DoxyCodeLine{1184 \{}
+\DoxyCodeLine{1185     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>read(is);}
+\DoxyCodeLine{1186 \}}
+\DoxyCodeLine{1187 \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_aa250cd4ce08254ba069d465fb545be32}{PlyFile::write}}(std::ostream \&os, \textcolor{keywordtype}{bool} isBinary)}
+\DoxyCodeLine{1188 \{}
+\DoxyCodeLine{1189     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>write(os, isBinary);}
+\DoxyCodeLine{1190 \}}
+\DoxyCodeLine{1191 std::vector<PlyElement> \mbox{\hyperlink{structtinyply_1_1_ply_file_aeecfe720753c10bede1dbd5c3b9a8149}{PlyFile::get\_elements}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{1192 \textcolor{keyword}{}\{}
+\DoxyCodeLine{1193     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>elements;}
+\DoxyCodeLine{1194 \}}
+\DoxyCodeLine{1195 std::vector<std::string> \&\mbox{\hyperlink{structtinyply_1_1_ply_file_a60e9515fe19971e55e6076c5830815c3}{PlyFile::get\_comments}}()}
+\DoxyCodeLine{1196 \{}
+\DoxyCodeLine{1197     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>comments;}
+\DoxyCodeLine{1198 \}}
+\DoxyCodeLine{1199 std::vector<std::string> \mbox{\hyperlink{structtinyply_1_1_ply_file_aa3bace14177c4ca70a91bc201a07443c}{PlyFile::get\_info}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{1200 \textcolor{keyword}{}\{}
+\DoxyCodeLine{1201     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>objInfo;}
+\DoxyCodeLine{1202 \}}
+\DoxyCodeLine{1203 \textcolor{keywordtype}{bool} \mbox{\hyperlink{structtinyply_1_1_ply_file_adf3038e3217767495d29f1c11ff2b7ca}{PlyFile::is\_binary\_file}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{1204 \textcolor{keyword}{}\{}
+\DoxyCodeLine{1205     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>isBinary;}
+\DoxyCodeLine{1206 \}}
+\DoxyCodeLine{1207 std::shared\_ptr<PlyData> \mbox{\hyperlink{structtinyply_1_1_ply_file_a371510299580ac6a606b58bdb177b047}{PlyFile::request\_properties\_from\_element}}(}
+\DoxyCodeLine{1208     \textcolor{keyword}{const} std::string \&elementKey, \textcolor{keyword}{const} std::vector<std::string> propertyKeys, \textcolor{keyword}{const} uint32\_t list\_size\_hint)}
+\DoxyCodeLine{1209 \{}
+\DoxyCodeLine{1210     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>request\_properties\_from\_element(elementKey, propertyKeys, list\_size\_hint);}
+\DoxyCodeLine{1211 \}}
+\DoxyCodeLine{1212 \textcolor{keywordtype}{void} \mbox{\hyperlink{structtinyply_1_1_ply_file_af1fc4b2bbf41595bbfe329ff39f84cf8}{PlyFile::add\_properties\_to\_element}}(}
+\DoxyCodeLine{1213     \textcolor{keyword}{const} std::string \&elementKey,}
+\DoxyCodeLine{1214     \textcolor{keyword}{const} std::vector<std::string> propertyKeys,}
+\DoxyCodeLine{1215     \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} type,}
+\DoxyCodeLine{1216     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} count,}
+\DoxyCodeLine{1217     \textcolor{keyword}{const} uint8\_t *data,}
+\DoxyCodeLine{1218     \textcolor{keyword}{const} \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}} listType,}
+\DoxyCodeLine{1219     \textcolor{keyword}{const} \textcolor{keywordtype}{size\_t} listCount)}
+\DoxyCodeLine{1220 \{}
+\DoxyCodeLine{1221     \textcolor{keywordflow}{return} \mbox{\hyperlink{structtinyply_1_1_ply_file_a97f1fc1106ac605bef3b00681d7492e3}{impl}}-\/>add\_properties\_to\_element(elementKey, propertyKeys, type, count, data, listType, listCount);}
+\DoxyCodeLine{1222 \}}
+\DoxyCodeLine{1223 }
+\DoxyCodeLine{1224 \} \textcolor{comment}{// end namespace tinyply}}
+\DoxyCodeLine{1225 }
+\DoxyCodeLine{1226 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// end TINYPLY\_IMPLEMENTATION}}
+
+\end{DoxyCode}

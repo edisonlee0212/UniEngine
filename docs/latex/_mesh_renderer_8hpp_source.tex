@@ -1,0 +1,31 @@
+\hypertarget{_mesh_renderer_8hpp_source}{}\doxysection{Mesh\+Renderer.\+hpp}
+\label{_mesh_renderer_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/MeshRenderer.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/MeshRenderer.hpp}}
+\mbox{\hyperlink{_mesh_renderer_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_material_8hpp}{Material.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_mesh_8hpp}{Mesh.hpp}}>}}
+\DoxyCodeLine{4 }
+\DoxyCodeLine{5 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{6 \{}
+\DoxyCodeLine{7 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer}{MeshRenderer}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{10     \textcolor{keywordtype}{void} RenderBound(glm::vec4 \&color);}
+\DoxyCodeLine{11   \textcolor{keyword}{public}:}
+\DoxyCodeLine{12     \textcolor{keywordtype}{bool} m\_forwardRendering = \textcolor{keyword}{false};}
+\DoxyCodeLine{13     \textcolor{keywordtype}{bool} m\_castShadow = \textcolor{keyword}{true};}
+\DoxyCodeLine{14     \textcolor{keywordtype}{bool} m\_receiveShadow = \textcolor{keyword}{true};}
+\DoxyCodeLine{15     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a919626246d9c216e260f85c7d1992cbd}{m\_mesh}};}
+\DoxyCodeLine{16     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a6c85c5c66b7f49aeb001fd2a74f5882e}{m\_material}};}
+\DoxyCodeLine{17     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{18     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{19     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{20     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} CollectAssetRef(std::vector<AssetRef> \&list) \textcolor{keyword}{override};}
+\DoxyCodeLine{23     \textcolor{keywordtype}{void} PostCloneAction(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent>\& target) \textcolor{keyword}{override};}
+\DoxyCodeLine{24 \};}
+\DoxyCodeLine{25 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

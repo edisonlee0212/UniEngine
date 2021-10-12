@@ -1,0 +1,96 @@
+\hypertarget{struct_uni_engine_1_1_bone}{}\doxysection{Uni\+Engine\+::Bone Struct Reference}
+\label{struct_uni_engine_1_1_bone}\index{UniEngine::Bone@{UniEngine::Bone}}
+
+
+{\ttfamily \#include $<$Animation.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_aad2a227c20058fee4c5055501f99f59e}{Animate}} (const std\+::string \&name, const float \&animation\+Time, const glm\+::mat4 \&parent\+Transform, const glm\+::mat4 \&root\+Transform, std\+::vector$<$ glm\+::mat4 $>$ \&results)
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_abdc8a2a8387572dc0ceb0573ea343b4b}{On\+Inspect}} ()
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_a1bf0f361efeca5989f7a53b698c3b0ce}{Serialize}} (YAML\+::\+Emitter \&out) const
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_bone_ae71c92abc9f493494e55f055ef93986e}{Deserialize}} (const YAML\+::\+Node \&in)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ std\+::string, \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames}{Bone\+Key\+Frames}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_ad39f1da7693ca8b4aaa17b094908f0c0}{m\+\_\+animations}}
+\item 
+std\+::string \mbox{\hyperlink{struct_uni_engine_1_1_bone_a573ebce2e0b77809a6349f623620128e}{m\+\_\+name}}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} \mbox{\hyperlink{struct_uni_engine_1_1_bone_ac6bbea1e2f347643f9dc1b751770ea68}{m\+\_\+offset\+Matrix}} = \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}}()
+\item 
+size\+\_\+t \mbox{\hyperlink{struct_uni_engine_1_1_bone_aef5b9e329d2eeab64d0b411757880484}{m\+\_\+index}}
+\item 
+std\+::vector$<$ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}} $>$ $>$ \mbox{\hyperlink{struct_uni_engine_1_1_bone_a68e324924067743851131075a483aa8b}{m\+\_\+children}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_aad2a227c20058fee4c5055501f99f59e}\label{struct_uni_engine_1_1_bone_aad2a227c20058fee4c5055501f99f59e}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!Animate@{Animate}}
+\index{Animate@{Animate}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{Animate()}{Animate()}}
+{\footnotesize\ttfamily void Bone\+::\+Animate (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const float \&}]{animation\+Time,  }\item[{const glm\+::mat4 \&}]{parent\+Transform,  }\item[{const glm\+::mat4 \&}]{root\+Transform,  }\item[{std\+::vector$<$ glm\+::mat4 $>$ \&}]{results }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_ae71c92abc9f493494e55f055ef93986e}\label{struct_uni_engine_1_1_bone_ae71c92abc9f493494e55f055ef93986e}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Bone\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_abdc8a2a8387572dc0ceb0573ea343b4b}\label{struct_uni_engine_1_1_bone_abdc8a2a8387572dc0ceb0573ea343b4b}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Bone\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_a1bf0f361efeca5989f7a53b698c3b0ce}\label{struct_uni_engine_1_1_bone_a1bf0f361efeca5989f7a53b698c3b0ce}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Bone\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption}) const}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_ad39f1da7693ca8b4aaa17b094908f0c0}\label{struct_uni_engine_1_1_bone_ad39f1da7693ca8b4aaa17b094908f0c0}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!m\_animations@{m\_animations}}
+\index{m\_animations@{m\_animations}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{m\_animations}{m\_animations}}
+{\footnotesize\ttfamily std\+::map$<$std\+::string, \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames}{Bone\+Key\+Frames}}$>$ Uni\+Engine\+::\+Bone\+::m\+\_\+animations}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_a68e324924067743851131075a483aa8b}\label{struct_uni_engine_1_1_bone_a68e324924067743851131075a483aa8b}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!m\_children@{m\_children}}
+\index{m\_children@{m\_children}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{m\_children}{m\_children}}
+{\footnotesize\ttfamily std\+::vector$<$std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}}$>$ $>$ Uni\+Engine\+::\+Bone\+::m\+\_\+children}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_aef5b9e329d2eeab64d0b411757880484}\label{struct_uni_engine_1_1_bone_aef5b9e329d2eeab64d0b411757880484}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!m\_index@{m\_index}}
+\index{m\_index@{m\_index}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{m\_index}{m\_index}}
+{\footnotesize\ttfamily size\+\_\+t Uni\+Engine\+::\+Bone\+::m\+\_\+index}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_a573ebce2e0b77809a6349f623620128e}\label{struct_uni_engine_1_1_bone_a573ebce2e0b77809a6349f623620128e}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!m\_name@{m\_name}}
+\index{m\_name@{m\_name}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{m\_name}{m\_name}}
+{\footnotesize\ttfamily std\+::string Uni\+Engine\+::\+Bone\+::m\+\_\+name}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_bone_ac6bbea1e2f347643f9dc1b751770ea68}\label{struct_uni_engine_1_1_bone_ac6bbea1e2f347643f9dc1b751770ea68}} 
+\index{UniEngine::Bone@{UniEngine::Bone}!m\_offsetMatrix@{m\_offsetMatrix}}
+\index{m\_offsetMatrix@{m\_offsetMatrix}!UniEngine::Bone@{UniEngine::Bone}}
+\doxysubsubsection{\texorpdfstring{m\_offsetMatrix}{m\_offsetMatrix}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} Uni\+Engine\+::\+Bone\+::m\+\_\+offset\+Matrix = \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}}()}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_animation_8hpp}{Animation.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_animation_8cpp}{Animation.\+cpp}}\end{DoxyCompactItemize}

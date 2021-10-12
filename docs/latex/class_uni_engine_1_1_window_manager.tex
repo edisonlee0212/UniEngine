@@ -1,0 +1,97 @@
+\hypertarget{class_uni_engine_1_1_window_manager}{}\doxysection{Uni\+Engine\+::Window\+Manager Class Reference}
+\label{class_uni_engine_1_1_window_manager}\index{UniEngine::WindowManager@{UniEngine::WindowManager}}
+
+
+{\ttfamily \#include $<$Window\+Manager.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Window\+Manager\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_window_manager}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_a5d091a7c6697e0beb1c0791f615402a7}{Late\+Update}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_aaf9ebc2351cbfce321a7bd994377fd5f}{Init}} (std\+::string name, bool full\+Screen=false)
+\item 
+static GLFWwindow $\ast$ \mbox{\hyperlink{class_uni_engine_1_1_window_manager_a5bb9859b2d3a1443ee4d4da888b2a50d}{Get\+Window}} ()
+\item 
+static GLFWmonitor $\ast$ \mbox{\hyperlink{class_uni_engine_1_1_window_manager_af75907bcafc2902e40a732aa08bdffac}{Primary\+Monitor}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_adfd8d6c9b1389f4a815ad0eaa706566d}{Pre\+Update}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_a09ea27914cf81401252ca748a1d629d4}{Draw\+Texture}} (\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d}{Open\+GLUtils\+::\+GLTexture2D}} $\ast$texture)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_aa051f24ca5d21d4c22b5532d0295c6f6}{Resize\+Callback}} (GLFWwindow $\ast$, int, int)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_a6e182e5a3f95c5e6b567376ad2482062}{Set\+Monitor\+Callback}} (GLFWmonitor $\ast$monitor, int event)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_window_manager_a1a55db7f6abd501431a8e0031b83cb87}{Window\+Focus\+Callback}} (GLFWwindow $\ast$window, int focused)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_a09ea27914cf81401252ca748a1d629d4}\label{class_uni_engine_1_1_window_manager_a09ea27914cf81401252ca748a1d629d4}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!DrawTexture@{DrawTexture}}
+\index{DrawTexture@{DrawTexture}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{DrawTexture()}{DrawTexture()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Draw\+Texture (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d}{Open\+GLUtils\+::\+GLTexture2D}} $\ast$}]{texture }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_a5bb9859b2d3a1443ee4d4da888b2a50d}\label{class_uni_engine_1_1_window_manager_a5bb9859b2d3a1443ee4d4da888b2a50d}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!GetWindow@{GetWindow}}
+\index{GetWindow@{GetWindow}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{GetWindow()}{GetWindow()}}
+{\footnotesize\ttfamily GLFWwindow $\ast$ Window\+Manager\+::\+Get\+Window (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_aaf9ebc2351cbfce321a7bd994377fd5f}\label{class_uni_engine_1_1_window_manager_aaf9ebc2351cbfce321a7bd994377fd5f}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!Init@{Init}}
+\index{Init@{Init}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{Init()}{Init()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Init (\begin{DoxyParamCaption}\item[{std\+::string}]{name,  }\item[{bool}]{full\+Screen = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_a5d091a7c6697e0beb1c0791f615402a7}\label{class_uni_engine_1_1_window_manager_a5d091a7c6697e0beb1c0791f615402a7}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!LateUpdate@{LateUpdate}}
+\index{LateUpdate@{LateUpdate}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{LateUpdate()}{LateUpdate()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Late\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_adfd8d6c9b1389f4a815ad0eaa706566d}\label{class_uni_engine_1_1_window_manager_adfd8d6c9b1389f4a815ad0eaa706566d}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!PreUpdate@{PreUpdate}}
+\index{PreUpdate@{PreUpdate}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{PreUpdate()}{PreUpdate()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Pre\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_af75907bcafc2902e40a732aa08bdffac}\label{class_uni_engine_1_1_window_manager_af75907bcafc2902e40a732aa08bdffac}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!PrimaryMonitor@{PrimaryMonitor}}
+\index{PrimaryMonitor@{PrimaryMonitor}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{PrimaryMonitor()}{PrimaryMonitor()}}
+{\footnotesize\ttfamily GLFWmonitor $\ast$ Window\+Manager\+::\+Primary\+Monitor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_aa051f24ca5d21d4c22b5532d0295c6f6}\label{class_uni_engine_1_1_window_manager_aa051f24ca5d21d4c22b5532d0295c6f6}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!ResizeCallback@{ResizeCallback}}
+\index{ResizeCallback@{ResizeCallback}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{ResizeCallback()}{ResizeCallback()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Resize\+Callback (\begin{DoxyParamCaption}\item[{GLFWwindow $\ast$}]{window,  }\item[{int}]{width,  }\item[{int}]{height }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_a6e182e5a3f95c5e6b567376ad2482062}\label{class_uni_engine_1_1_window_manager_a6e182e5a3f95c5e6b567376ad2482062}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!SetMonitorCallback@{SetMonitorCallback}}
+\index{SetMonitorCallback@{SetMonitorCallback}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{SetMonitorCallback()}{SetMonitorCallback()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Set\+Monitor\+Callback (\begin{DoxyParamCaption}\item[{GLFWmonitor $\ast$}]{monitor,  }\item[{int}]{event }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_window_manager_a1a55db7f6abd501431a8e0031b83cb87}\label{class_uni_engine_1_1_window_manager_a1a55db7f6abd501431a8e0031b83cb87}} 
+\index{UniEngine::WindowManager@{UniEngine::WindowManager}!WindowFocusCallback@{WindowFocusCallback}}
+\index{WindowFocusCallback@{WindowFocusCallback}!UniEngine::WindowManager@{UniEngine::WindowManager}}
+\doxysubsubsection{\texorpdfstring{WindowFocusCallback()}{WindowFocusCallback()}}
+{\footnotesize\ttfamily void Window\+Manager\+::\+Window\+Focus\+Callback (\begin{DoxyParamCaption}\item[{GLFWwindow $\ast$}]{window,  }\item[{int}]{focused }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_window_manager_8hpp}{Window\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_window_manager_8cpp}{Window\+Manager.\+cpp}}\end{DoxyCompactItemize}

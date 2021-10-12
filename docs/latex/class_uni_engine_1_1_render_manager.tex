@@ -1,0 +1,389 @@
+\hypertarget{class_uni_engine_1_1_render_manager}{}\doxysection{Uni\+Engine\+::Render\+Manager Class Reference}
+\label{class_uni_engine_1_1_render_manager}\index{UniEngine::RenderManager@{UniEngine::RenderManager}}
+
+
+{\ttfamily \#include $<$Render\+Manager.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Render\+Manager\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_render_manager}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_af9d0cfdce4becb56c5302b96465bd2eb}{Set\+Split\+Ratio}} (const float \&r1, const float \&r2, const float \&r3, const float \&r4)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aa5803399a7d571451f8ae87f4b6fb3e3}{Set\+Directional\+Light\+Shadow\+Map\+Resolution}} (const size\+\_\+t \&value)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ad990007d32d83eb235766493cab1d71a}{Set\+Point\+Light\+Shadow\+Map\+Resolution}} (const size\+\_\+t \&value)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aac7c70d166771f56f5f276d0b4593ac4}{Set\+Spot\+Light\+Shadow\+Map\+Resolution}} (const size\+\_\+t \&value)
+\item 
+static glm\+::vec3 \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a6975fc816dc21dc86d081c1e80d9af1d}{Closest\+Point\+On\+Line}} (const glm\+::vec3 \&point, const glm\+::vec3 \&a, const glm\+::vec3 \&b)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ad1fe7eea3f4dfde3dc28279193f9233e}{Draw\+Gizmo\+Mesh}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const glm\+::vec4 \&color=glm\+::vec4(1.\+0f), const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a9258d3cfa815f6950850ff8cc301cb7b}{Draw\+Gizmo\+Mesh\+Instanced}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const glm\+::vec4 \&color, const std\+::vector$<$ glm\+::mat4 $>$ \&matrices, const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a19b3e1ecc575f3cd2d9cc51e14adfef8}{Draw\+Gizmo\+Mesh\+Instanced\+Colored}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::vector$<$ glm\+::vec4 $>$ \&colors, const std\+::vector$<$ glm\+::mat4 $>$ \&matrices, const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_acdef93d815c52963e1706fc7338d9899}{Draw\+Gizmo\+Mesh}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color=glm\+::vec4(1.\+0f), const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a9cc21569176b134015d5374c8aaaa11d}{Draw\+Gizmo\+Mesh\+Instanced}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color, const std\+::vector$<$ glm\+::mat4 $>$ \&matrices, const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aa05f02fa54bd3c662c2f82403983aef0}{Draw\+Gizmo\+Mesh\+Instanced\+Colored}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const std\+::vector$<$ glm\+::vec4 $>$ \&colors, const std\+::vector$<$ glm\+::mat4 $>$ \&matrices, const glm\+::mat4 \&model=glm\+::mat4(1.\+0f), const float \&size=1.\+0f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a63027ca128ef663fe8d073f53d5b6f37}{Draw\+Gizmo\+Ray}} (const glm\+::vec4 \&color, const glm\+::vec3 \&start, const glm\+::vec3 \&end, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aebea187e960287b8ca5870c084df6342}{Draw\+Gizmo\+Rays}} (const glm\+::vec4 \&color, const std\+::vector$<$ std\+::pair$<$ glm\+::vec3, glm\+::vec3 $>$ $>$ \&connections, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_acae3ab94de372ecd6bf6ba9c632724ae}{Draw\+Gizmo\+Rays}} (const glm\+::vec4 \&color, const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ \&rays, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a494fabd9cd8080dec5688f8e2eecaa4d}{Draw\+Gizmo\+Ray}} (const glm\+::vec4 \&color, const \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} \&ray, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a4ebc53e2ca6a87b989cfddcb4730b9d5}{Draw\+Gizmo\+Ray}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color, const glm\+::vec3 \&start, const glm\+::vec3 \&end, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a59e7db65625d04bb5b2fb5ff401a0981}{Draw\+Gizmo\+Rays}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color, const std\+::vector$<$ std\+::pair$<$ glm\+::vec3, glm\+::vec3 $>$ $>$ \&connections, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ab3a583dd8551acc7b433a9d1df416f5b}{Draw\+Gizmo\+Rays}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color, const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ \&rays, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a77d5083c28308ed176bbdda8f76200da}{Draw\+Gizmo\+Ray}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const glm\+::vec3 \&camera\+Position, const glm\+::quat \&camera\+Rotation, const glm\+::vec4 \&color, const \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} \&ray, const float \&width=0.\+01f)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a52294594bab3a84053fc2c2248d6c187}{Draw\+Mesh}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&material, const glm\+::mat4 \&model, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const bool \&receive\+Shadow=true, const bool \&cast\+Shadow=true)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a8247fe24d038b5198f05abd5c6ed6a94}{Draw\+Mesh\+Instanced}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&mesh, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&material, const glm\+::mat4 \&model, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}} $>$ \&matrices, const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, const bool \&receive\+Shadow=true, const bool \&cast\+Shadow=true)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a1bfc7469535a9b7b69322b6a5303eb13}{On\+Inspect}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a37e7c25d37eaa9cb8cc1e570c18b4d89}{Pre\+Update}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a3bd40e9493898cbc90e6dc165fb4d1eb}{Late\+Update}} ()
+\item 
+static size\+\_\+t \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a42d4ba45cc2d3d12b800bced15cc85e6}{Triangles}} ()
+\item 
+static size\+\_\+t \mbox{\hyperlink{class_uni_engine_1_1_render_manager_af791d202788a74f99b1549be5d60aa7a}{Draw\+Call}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a3098510c4525b254c1312e3513c4b339}{Render\+Manager\+::\+Dispatch\+Render\+Commands}} (const \mbox{\hyperlink{struct_uni_engine_1_1_render_commands}{Render\+Commands}} \&render\+Commands, const std\+::function$<$ void(const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&, const \mbox{\hyperlink{struct_uni_engine_1_1_render_command}{Render\+Command}} \&render\+Command)$>$ \&func, const bool \&set\+Material)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a088d739ad38ce3555d4a056d60963e1d}{Init}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_light_settings_block}{Light\+Settings\+Block}} \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ac84c7437f8adf47ae15917f69eb0881e}{m\+\_\+light\+Settings}}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a28f384f4794eec1ed033bca408fe152b}{m\+\_\+stable\+Fit}} = true
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ad5b6535a17b1b34e700280f353e24fce}{m\+\_\+max\+Shadow\+Distance}} = 300
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a994c1ef5a113b11ce1b8a5eab2dc73ae}{m\+\_\+shadow\+Cascade\+Split}} \mbox{[}\mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_shader_includes_a738bfddd41ec1c2f97383070e6b0701d}{Default\+Resources\+::\+Shader\+Includes\+::\+Shadow\+Cascade\+Amount}}\mbox{]} = \{0.\+075f, 0.\+15f, 0.\+3f, 1.\+0f\}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aa5afc6f82b7b587ed5ada4d227ce32aa}{Render\+Target}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a55ba8a10748d222a2f6fe9a16c071998}{Default\+Resources}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_ab4a07d61ba268f3670d11194a067ede4}{Editor\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aa17324d5a9fdeecbf5fc0ab253da1197}{Light\+Probe}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a5dabf0ae2f2e588bc540cae29cbab3d6}{Reflection\+Probe}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a848afdc471aca4977a499a86aca55399}{Environmental\+Map}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_a9ddca07aaca12b907f4c33c70588a9ca}{Cubemap}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_render_manager_aafe72876a584aedb5a5546d4fe7746fb}{Asset\+Manager}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a6975fc816dc21dc86d081c1e80d9af1d}\label{class_uni_engine_1_1_render_manager_a6975fc816dc21dc86d081c1e80d9af1d}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!ClosestPointOnLine@{ClosestPointOnLine}}
+\index{ClosestPointOnLine@{ClosestPointOnLine}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{ClosestPointOnLine()}{ClosestPointOnLine()}}
+{\footnotesize\ttfamily glm\+::vec3 Render\+Manager\+::\+Closest\+Point\+On\+Line (\begin{DoxyParamCaption}\item[{const glm\+::vec3 \&}]{point,  }\item[{const glm\+::vec3 \&}]{a,  }\item[{const glm\+::vec3 \&}]{b }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_af791d202788a74f99b1549be5d60aa7a}\label{class_uni_engine_1_1_render_manager_af791d202788a74f99b1549be5d60aa7a}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawCall@{DrawCall}}
+\index{DrawCall@{DrawCall}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawCall()}{DrawCall()}}
+{\footnotesize\ttfamily size\+\_\+t Render\+Manager\+::\+Draw\+Call (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ad1fe7eea3f4dfde3dc28279193f9233e}\label{class_uni_engine_1_1_render_manager_ad1fe7eea3f4dfde3dc28279193f9233e}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMesh@{DrawGizmoMesh}}
+\index{DrawGizmoMesh@{DrawGizmoMesh}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMesh()}{DrawGizmoMesh()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const glm\+::vec4 \&}]{color = {\ttfamily glm\+:\+:vec4(1.0f)},  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_acdef93d815c52963e1706fc7338d9899}\label{class_uni_engine_1_1_render_manager_acdef93d815c52963e1706fc7338d9899}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMesh@{DrawGizmoMesh}}
+\index{DrawGizmoMesh@{DrawGizmoMesh}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMesh()}{DrawGizmoMesh()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color = {\ttfamily glm\+:\+:vec4(1.0f)},  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a9258d3cfa815f6950850ff8cc301cb7b}\label{class_uni_engine_1_1_render_manager_a9258d3cfa815f6950850ff8cc301cb7b}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMeshInstanced@{DrawGizmoMeshInstanced}}
+\index{DrawGizmoMeshInstanced@{DrawGizmoMeshInstanced}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMeshInstanced()}{DrawGizmoMeshInstanced()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices,  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a9cc21569176b134015d5374c8aaaa11d}\label{class_uni_engine_1_1_render_manager_a9cc21569176b134015d5374c8aaaa11d}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMeshInstanced@{DrawGizmoMeshInstanced}}
+\index{DrawGizmoMeshInstanced@{DrawGizmoMeshInstanced}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMeshInstanced()}{DrawGizmoMeshInstanced()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices,  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aa05f02fa54bd3c662c2f82403983aef0}\label{class_uni_engine_1_1_render_manager_aa05f02fa54bd3c662c2f82403983aef0}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMeshInstancedColored@{DrawGizmoMeshInstancedColored}}
+\index{DrawGizmoMeshInstancedColored@{DrawGizmoMeshInstancedColored}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMeshInstancedColored()}{DrawGizmoMeshInstancedColored()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh\+Instanced\+Colored (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const std\+::vector$<$ glm\+::vec4 $>$ \&}]{colors,  }\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices,  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a19b3e1ecc575f3cd2d9cc51e14adfef8}\label{class_uni_engine_1_1_render_manager_a19b3e1ecc575f3cd2d9cc51e14adfef8}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoMeshInstancedColored@{DrawGizmoMeshInstancedColored}}
+\index{DrawGizmoMeshInstancedColored@{DrawGizmoMeshInstancedColored}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoMeshInstancedColored()}{DrawGizmoMeshInstancedColored()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Mesh\+Instanced\+Colored (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::vector$<$ glm\+::vec4 $>$ \&}]{colors,  }\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices,  }\item[{const glm\+::mat4 \&}]{model = {\ttfamily glm\+:\+:mat4(1.0f)},  }\item[{const float \&}]{size = {\ttfamily 1.0f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a63027ca128ef663fe8d073f53d5b6f37}\label{class_uni_engine_1_1_render_manager_a63027ca128ef663fe8d073f53d5b6f37}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRay@{DrawGizmoRay}}
+\index{DrawGizmoRay@{DrawGizmoRay}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRay()}{DrawGizmoRay()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Ray (\begin{DoxyParamCaption}\item[{const glm\+::vec4 \&}]{color,  }\item[{const glm\+::vec3 \&}]{start,  }\item[{const glm\+::vec3 \&}]{end,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a494fabd9cd8080dec5688f8e2eecaa4d}\label{class_uni_engine_1_1_render_manager_a494fabd9cd8080dec5688f8e2eecaa4d}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRay@{DrawGizmoRay}}
+\index{DrawGizmoRay@{DrawGizmoRay}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRay()}{DrawGizmoRay()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Ray (\begin{DoxyParamCaption}\item[{const glm\+::vec4 \&}]{color,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} \&}]{ray,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a4ebc53e2ca6a87b989cfddcb4730b9d5}\label{class_uni_engine_1_1_render_manager_a4ebc53e2ca6a87b989cfddcb4730b9d5}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRay@{DrawGizmoRay}}
+\index{DrawGizmoRay@{DrawGizmoRay}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRay()}{DrawGizmoRay()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Ray (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const glm\+::vec3 \&}]{start,  }\item[{const glm\+::vec3 \&}]{end,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a77d5083c28308ed176bbdda8f76200da}\label{class_uni_engine_1_1_render_manager_a77d5083c28308ed176bbdda8f76200da}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRay@{DrawGizmoRay}}
+\index{DrawGizmoRay@{DrawGizmoRay}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRay()}{DrawGizmoRay()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Ray (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} \&}]{ray,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_acae3ab94de372ecd6bf6ba9c632724ae}\label{class_uni_engine_1_1_render_manager_acae3ab94de372ecd6bf6ba9c632724ae}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRays@{DrawGizmoRays}}
+\index{DrawGizmoRays@{DrawGizmoRays}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRays()}{DrawGizmoRays()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Rays (\begin{DoxyParamCaption}\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ \&}]{rays,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aebea187e960287b8ca5870c084df6342}\label{class_uni_engine_1_1_render_manager_aebea187e960287b8ca5870c084df6342}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRays@{DrawGizmoRays}}
+\index{DrawGizmoRays@{DrawGizmoRays}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRays()}{DrawGizmoRays()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Rays (\begin{DoxyParamCaption}\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ std\+::pair$<$ glm\+::vec3, glm\+::vec3 $>$ $>$ \&}]{connections,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ab3a583dd8551acc7b433a9d1df416f5b}\label{class_uni_engine_1_1_render_manager_ab3a583dd8551acc7b433a9d1df416f5b}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRays@{DrawGizmoRays}}
+\index{DrawGizmoRays@{DrawGizmoRays}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRays()}{DrawGizmoRays()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Rays (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ \&}]{rays,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a59e7db65625d04bb5b2fb5ff401a0981}\label{class_uni_engine_1_1_render_manager_a59e7db65625d04bb5b2fb5ff401a0981}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawGizmoRays@{DrawGizmoRays}}
+\index{DrawGizmoRays@{DrawGizmoRays}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawGizmoRays()}{DrawGizmoRays()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Gizmo\+Rays (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const glm\+::vec3 \&}]{camera\+Position,  }\item[{const glm\+::quat \&}]{camera\+Rotation,  }\item[{const glm\+::vec4 \&}]{color,  }\item[{const std\+::vector$<$ std\+::pair$<$ glm\+::vec3, glm\+::vec3 $>$ $>$ \&}]{connections,  }\item[{const float \&}]{width = {\ttfamily 0.01f} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a52294594bab3a84053fc2c2248d6c187}\label{class_uni_engine_1_1_render_manager_a52294594bab3a84053fc2c2248d6c187}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawMesh@{DrawMesh}}
+\index{DrawMesh@{DrawMesh}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawMesh()}{DrawMesh()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Mesh (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&}]{material,  }\item[{const glm\+::mat4 \&}]{model,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const bool \&}]{receive\+Shadow = {\ttfamily true},  }\item[{const bool \&}]{cast\+Shadow = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Draw\+Mesh draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be affected by Projectors -\/ just like it was part of some game object. 
+\begin{DoxyParams}{Parameters}
+{\em mesh} & The \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} to draw. \\
+\hline
+{\em material} & The material to use. \\
+\hline
+{\em model} & The transform of the mesh \\
+\hline
+{\em camera\+Component} & The target camera to draw the mesh. \\
+\hline
+{\em receive\+Shadow} & Determines whether the mesh can receive shadows. \\
+\hline
+{\em cast\+Shadow} & Determines whether the mesh can cast shadows. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a8247fe24d038b5198f05abd5c6ed6a94}\label{class_uni_engine_1_1_render_manager_a8247fe24d038b5198f05abd5c6ed6a94}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DrawMeshInstanced@{DrawMeshInstanced}}
+\index{DrawMeshInstanced@{DrawMeshInstanced}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DrawMeshInstanced()}{DrawMeshInstanced()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Draw\+Mesh\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \&}]{mesh,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&}]{material,  }\item[{const glm\+::mat4 \&}]{model,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}} $>$ \&}]{matrices,  }\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{const bool \&}]{receive\+Shadow = {\ttfamily true},  }\item[{const bool \&}]{cast\+Shadow = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Draws the same mesh multiple times using GPU instancing. Use this function in situations where you want to draw the same mesh for a particular amount of times using an instanced shader. 
+\begin{DoxyParams}{Parameters}
+{\em mesh} & The \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} to draw. \\
+\hline
+{\em material} & The material to use. The program should contain instanced shader. \\
+\hline
+{\em model} & The transform of the group \\
+\hline
+{\em matrices} & The transform the each individual instances \\
+\hline
+{\em camera\+Component} & The target camera to draw the mesh. \\
+\hline
+{\em receive\+Shadow} & Determines whether the mesh can receive shadows. \\
+\hline
+{\em cast\+Shadow} & Determines whether the mesh can cast shadows. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a088d739ad38ce3555d4a056d60963e1d}\label{class_uni_engine_1_1_render_manager_a088d739ad38ce3555d4a056d60963e1d}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!Init@{Init}}
+\index{Init@{Init}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{Init()}{Init()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Init (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a3bd40e9493898cbc90e6dc165fb4d1eb}\label{class_uni_engine_1_1_render_manager_a3bd40e9493898cbc90e6dc165fb4d1eb}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!LateUpdate@{LateUpdate}}
+\index{LateUpdate@{LateUpdate}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{LateUpdate()}{LateUpdate()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Late\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a1bfc7469535a9b7b69322b6a5303eb13}\label{class_uni_engine_1_1_render_manager_a1bfc7469535a9b7b69322b6a5303eb13}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a37e7c25d37eaa9cb8cc1e570c18b4d89}\label{class_uni_engine_1_1_render_manager_a37e7c25d37eaa9cb8cc1e570c18b4d89}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!PreUpdate@{PreUpdate}}
+\index{PreUpdate@{PreUpdate}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{PreUpdate()}{PreUpdate()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Pre\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a3098510c4525b254c1312e3513c4b339}\label{class_uni_engine_1_1_render_manager_a3098510c4525b254c1312e3513c4b339}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!RenderManager::DispatchRenderCommands@{RenderManager::DispatchRenderCommands}}
+\index{RenderManager::DispatchRenderCommands@{RenderManager::DispatchRenderCommands}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{RenderManager::DispatchRenderCommands()}{RenderManager::DispatchRenderCommands()}}
+{\footnotesize\ttfamily static void Uni\+Engine\+::\+Render\+Manager\+::\+Render\+Manager\+::\+Dispatch\+Render\+Commands (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_render_commands}{Render\+Commands}} \&}]{render\+Commands,  }\item[{const std\+::function$<$ void(const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \&, const \mbox{\hyperlink{struct_uni_engine_1_1_render_command}{Render\+Command}} \&render\+Command)$>$ \&}]{func,  }\item[{const bool \&}]{set\+Material }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aa5803399a7d571451f8ae87f4b6fb3e3}\label{class_uni_engine_1_1_render_manager_aa5803399a7d571451f8ae87f4b6fb3e3}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!SetDirectionalLightShadowMapResolution@{SetDirectionalLightShadowMapResolution}}
+\index{SetDirectionalLightShadowMapResolution@{SetDirectionalLightShadowMapResolution}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{SetDirectionalLightShadowMapResolution()}{SetDirectionalLightShadowMapResolution()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Set\+Directional\+Light\+Shadow\+Map\+Resolution (\begin{DoxyParamCaption}\item[{const size\+\_\+t \&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ad990007d32d83eb235766493cab1d71a}\label{class_uni_engine_1_1_render_manager_ad990007d32d83eb235766493cab1d71a}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!SetPointLightShadowMapResolution@{SetPointLightShadowMapResolution}}
+\index{SetPointLightShadowMapResolution@{SetPointLightShadowMapResolution}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{SetPointLightShadowMapResolution()}{SetPointLightShadowMapResolution()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Set\+Point\+Light\+Shadow\+Map\+Resolution (\begin{DoxyParamCaption}\item[{const size\+\_\+t \&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_af9d0cfdce4becb56c5302b96465bd2eb}\label{class_uni_engine_1_1_render_manager_af9d0cfdce4becb56c5302b96465bd2eb}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!SetSplitRatio@{SetSplitRatio}}
+\index{SetSplitRatio@{SetSplitRatio}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{SetSplitRatio()}{SetSplitRatio()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Set\+Split\+Ratio (\begin{DoxyParamCaption}\item[{const float \&}]{r1,  }\item[{const float \&}]{r2,  }\item[{const float \&}]{r3,  }\item[{const float \&}]{r4 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aac7c70d166771f56f5f276d0b4593ac4}\label{class_uni_engine_1_1_render_manager_aac7c70d166771f56f5f276d0b4593ac4}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!SetSpotLightShadowMapResolution@{SetSpotLightShadowMapResolution}}
+\index{SetSpotLightShadowMapResolution@{SetSpotLightShadowMapResolution}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{SetSpotLightShadowMapResolution()}{SetSpotLightShadowMapResolution()}}
+{\footnotesize\ttfamily void Render\+Manager\+::\+Set\+Spot\+Light\+Shadow\+Map\+Resolution (\begin{DoxyParamCaption}\item[{const size\+\_\+t \&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a42d4ba45cc2d3d12b800bced15cc85e6}\label{class_uni_engine_1_1_render_manager_a42d4ba45cc2d3d12b800bced15cc85e6}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!Triangles@{Triangles}}
+\index{Triangles@{Triangles}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{Triangles()}{Triangles()}}
+{\footnotesize\ttfamily size\+\_\+t Render\+Manager\+::\+Triangles (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aafe72876a584aedb5a5546d4fe7746fb}\label{class_uni_engine_1_1_render_manager_aafe72876a584aedb5a5546d4fe7746fb}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!AssetManager@{AssetManager}}
+\index{AssetManager@{AssetManager}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{AssetManager}{AssetManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{Asset\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a9ddca07aaca12b907f4c33c70588a9ca}\label{class_uni_engine_1_1_render_manager_a9ddca07aaca12b907f4c33c70588a9ca}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!Cubemap@{Cubemap}}
+\index{Cubemap@{Cubemap}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{Cubemap}{Cubemap}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a55ba8a10748d222a2f6fe9a16c071998}\label{class_uni_engine_1_1_render_manager_a55ba8a10748d222a2f6fe9a16c071998}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!DefaultResources@{DefaultResources}}
+\index{DefaultResources@{DefaultResources}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{DefaultResources}{DefaultResources}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_default_resources}{Default\+Resources}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ab4a07d61ba268f3670d11194a067ede4}\label{class_uni_engine_1_1_render_manager_ab4a07d61ba268f3670d11194a067ede4}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!EditorManager@{EditorManager}}
+\index{EditorManager@{EditorManager}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{EditorManager}{EditorManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{Editor\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a848afdc471aca4977a499a86aca55399}\label{class_uni_engine_1_1_render_manager_a848afdc471aca4977a499a86aca55399}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!EnvironmentalMap@{EnvironmentalMap}}
+\index{EnvironmentalMap@{EnvironmentalMap}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{EnvironmentalMap}{EnvironmentalMap}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_environmental_map}{Environmental\+Map}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aa17324d5a9fdeecbf5fc0ab253da1197}\label{class_uni_engine_1_1_render_manager_aa17324d5a9fdeecbf5fc0ab253da1197}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!LightProbe@{LightProbe}}
+\index{LightProbe@{LightProbe}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{LightProbe}{LightProbe}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_light_probe}{Light\+Probe}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a5dabf0ae2f2e588bc540cae29cbab3d6}\label{class_uni_engine_1_1_render_manager_a5dabf0ae2f2e588bc540cae29cbab3d6}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!ReflectionProbe@{ReflectionProbe}}
+\index{ReflectionProbe@{ReflectionProbe}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{ReflectionProbe}{ReflectionProbe}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_reflection_probe}{Reflection\+Probe}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_aa5afc6f82b7b587ed5ada4d227ce32aa}\label{class_uni_engine_1_1_render_manager_aa5afc6f82b7b587ed5ada4d227ce32aa}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!RenderTarget@{RenderTarget}}
+\index{RenderTarget@{RenderTarget}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{RenderTarget}{RenderTarget}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_render_target}{Render\+Target}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ac84c7437f8adf47ae15917f69eb0881e}\label{class_uni_engine_1_1_render_manager_ac84c7437f8adf47ae15917f69eb0881e}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!m\_lightSettings@{m\_lightSettings}}
+\index{m\_lightSettings@{m\_lightSettings}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{m\_lightSettings}{m\_lightSettings}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_light_settings_block}{Light\+Settings\+Block}} Uni\+Engine\+::\+Render\+Manager\+::m\+\_\+light\+Settings}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_ad5b6535a17b1b34e700280f353e24fce}\label{class_uni_engine_1_1_render_manager_ad5b6535a17b1b34e700280f353e24fce}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!m\_maxShadowDistance@{m\_maxShadowDistance}}
+\index{m\_maxShadowDistance@{m\_maxShadowDistance}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{m\_maxShadowDistance}{m\_maxShadowDistance}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Render\+Manager\+::m\+\_\+max\+Shadow\+Distance = 300}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a994c1ef5a113b11ce1b8a5eab2dc73ae}\label{class_uni_engine_1_1_render_manager_a994c1ef5a113b11ce1b8a5eab2dc73ae}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!m\_shadowCascadeSplit@{m\_shadowCascadeSplit}}
+\index{m\_shadowCascadeSplit@{m\_shadowCascadeSplit}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{m\_shadowCascadeSplit}{m\_shadowCascadeSplit}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Render\+Manager\+::m\+\_\+shadow\+Cascade\+Split\mbox{[}\mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_shader_includes_a738bfddd41ec1c2f97383070e6b0701d}{Default\+Resources\+::\+Shader\+Includes\+::\+Shadow\+Cascade\+Amount}}\mbox{]} = \{0.\+075f, 0.\+15f, 0.\+3f, 1.\+0f\}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_render_manager_a28f384f4794eec1ed033bca408fe152b}\label{class_uni_engine_1_1_render_manager_a28f384f4794eec1ed033bca408fe152b}} 
+\index{UniEngine::RenderManager@{UniEngine::RenderManager}!m\_stableFit@{m\_stableFit}}
+\index{m\_stableFit@{m\_stableFit}!UniEngine::RenderManager@{UniEngine::RenderManager}}
+\doxysubsubsection{\texorpdfstring{m\_stableFit}{m\_stableFit}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Render\+Manager\+::m\+\_\+stable\+Fit = true}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_render_manager_8hpp}{Render\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_render_manager_8cpp}{Render\+Manager.\+cpp}}\end{DoxyCompactItemize}

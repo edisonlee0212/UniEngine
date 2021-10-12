@@ -1,0 +1,97 @@
+\hypertarget{struct_uni_engine_1_1_render_command}{}\doxysection{Uni\+Engine\+::Render\+Command Struct Reference}
+\label{struct_uni_engine_1_1_render_command}\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+
+
+{\ttfamily \#include $<$Render\+Manager.\+hpp$>$}
+
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespace_uni_engine_ab250b9f0bccc025e017ac3c614b1dcd9}{Render\+Command\+Type}} \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a1c5a8336d215d2328f9773d3d6e56139}{m\+\_\+command\+Type}} = \mbox{\hyperlink{namespace_uni_engine_ab250b9f0bccc025e017ac3c614b1dcd9a868d28d3d39642b1df6bcf83f6b02f1e}{Render\+Command\+Type\+::\+From\+Renderer}}
+\item 
+\mbox{\hyperlink{namespace_uni_engine_a822beb51a5ea61700f3eb34f915863ca}{Render\+Command\+Mesh\+Type}} \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a38ac47a0b65d85692dfb9fe1766b2dcb}{m\+\_\+mesh\+Type}} = \mbox{\hyperlink{namespace_uni_engine_a822beb51a5ea61700f3eb34f915863caa7a1920d61156abc05a60135aefe8bc67}{Render\+Command\+Mesh\+Type\+::\+Default}}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a15cb61dd44f718f476efb874b8ef7a8e}{m\+\_\+owner}} = \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}()
+\item 
+std\+::weak\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a5409c59f04ad981f77b9aafd7d20991e}{m\+\_\+mesh}}
+\item 
+std\+::weak\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh}{Skinned\+Mesh}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_render_command_abf6bf11d98c88d2661c73208a08b2f28}{m\+\_\+skinned\+Mesh}}
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a872a152ca4dd9b0153dff447f8677c8a}{m\+\_\+cast\+Shadow}} = true
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_render_command_ae3af405692c34a88ced7777476af05d9}{m\+\_\+receive\+Shadow}} = true
+\item 
+std\+::weak\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a62d3e1ef973be884089f870b1c41ce40}{m\+\_\+matrices}}
+\item 
+std\+::weak\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_bone_matrices}{Bone\+Matrices}} $>$ \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a7a5ad196ef125cbeac3459c9ecfa0ea4}{m\+\_\+bone\+Matrices}}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} \mbox{\hyperlink{struct_uni_engine_1_1_render_command_a5971e2dd602684cfbb02ef56bf0e3e7d}{m\+\_\+global\+Transform}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a7a5ad196ef125cbeac3459c9ecfa0ea4}\label{struct_uni_engine_1_1_render_command_a7a5ad196ef125cbeac3459c9ecfa0ea4}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_boneMatrices@{m\_boneMatrices}}
+\index{m\_boneMatrices@{m\_boneMatrices}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_boneMatrices}{m\_boneMatrices}}
+{\footnotesize\ttfamily std\+::weak\+\_\+ptr$<$\mbox{\hyperlink{class_uni_engine_1_1_bone_matrices}{Bone\+Matrices}}$>$ Uni\+Engine\+::\+Render\+Command\+::m\+\_\+bone\+Matrices}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a872a152ca4dd9b0153dff447f8677c8a}\label{struct_uni_engine_1_1_render_command_a872a152ca4dd9b0153dff447f8677c8a}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_castShadow@{m\_castShadow}}
+\index{m\_castShadow@{m\_castShadow}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_castShadow}{m\_castShadow}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Render\+Command\+::m\+\_\+cast\+Shadow = true}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a1c5a8336d215d2328f9773d3d6e56139}\label{struct_uni_engine_1_1_render_command_a1c5a8336d215d2328f9773d3d6e56139}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_commandType@{m\_commandType}}
+\index{m\_commandType@{m\_commandType}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_commandType}{m\_commandType}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespace_uni_engine_ab250b9f0bccc025e017ac3c614b1dcd9}{Render\+Command\+Type}} Uni\+Engine\+::\+Render\+Command\+::m\+\_\+command\+Type = \mbox{\hyperlink{namespace_uni_engine_ab250b9f0bccc025e017ac3c614b1dcd9a868d28d3d39642b1df6bcf83f6b02f1e}{Render\+Command\+Type\+::\+From\+Renderer}}}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a5971e2dd602684cfbb02ef56bf0e3e7d}\label{struct_uni_engine_1_1_render_command_a5971e2dd602684cfbb02ef56bf0e3e7d}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_globalTransform@{m\_globalTransform}}
+\index{m\_globalTransform@{m\_globalTransform}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_globalTransform}{m\_globalTransform}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} Uni\+Engine\+::\+Render\+Command\+::m\+\_\+global\+Transform}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a62d3e1ef973be884089f870b1c41ce40}\label{struct_uni_engine_1_1_render_command_a62d3e1ef973be884089f870b1c41ce40}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_matrices@{m\_matrices}}
+\index{m\_matrices@{m\_matrices}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_matrices}{m\_matrices}}
+{\footnotesize\ttfamily std\+::weak\+\_\+ptr$<$\mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}}$>$ Uni\+Engine\+::\+Render\+Command\+::m\+\_\+matrices}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a5409c59f04ad981f77b9aafd7d20991e}\label{struct_uni_engine_1_1_render_command_a5409c59f04ad981f77b9aafd7d20991e}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_mesh@{m\_mesh}}
+\index{m\_mesh@{m\_mesh}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_mesh}{m\_mesh}}
+{\footnotesize\ttfamily std\+::weak\+\_\+ptr$<$\mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}}$>$ Uni\+Engine\+::\+Render\+Command\+::m\+\_\+mesh}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a38ac47a0b65d85692dfb9fe1766b2dcb}\label{struct_uni_engine_1_1_render_command_a38ac47a0b65d85692dfb9fe1766b2dcb}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_meshType@{m\_meshType}}
+\index{m\_meshType@{m\_meshType}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_meshType}{m\_meshType}}
+{\footnotesize\ttfamily \mbox{\hyperlink{namespace_uni_engine_a822beb51a5ea61700f3eb34f915863ca}{Render\+Command\+Mesh\+Type}} Uni\+Engine\+::\+Render\+Command\+::m\+\_\+mesh\+Type = \mbox{\hyperlink{namespace_uni_engine_a822beb51a5ea61700f3eb34f915863caa7a1920d61156abc05a60135aefe8bc67}{Render\+Command\+Mesh\+Type\+::\+Default}}}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_a15cb61dd44f718f476efb874b8ef7a8e}\label{struct_uni_engine_1_1_render_command_a15cb61dd44f718f476efb874b8ef7a8e}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_owner@{m\_owner}}
+\index{m\_owner@{m\_owner}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_owner}{m\_owner}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} Uni\+Engine\+::\+Render\+Command\+::m\+\_\+owner = \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}()}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_ae3af405692c34a88ced7777476af05d9}\label{struct_uni_engine_1_1_render_command_ae3af405692c34a88ced7777476af05d9}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_receiveShadow@{m\_receiveShadow}}
+\index{m\_receiveShadow@{m\_receiveShadow}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_receiveShadow}{m\_receiveShadow}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Render\+Command\+::m\+\_\+receive\+Shadow = true}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_render_command_abf6bf11d98c88d2661c73208a08b2f28}\label{struct_uni_engine_1_1_render_command_abf6bf11d98c88d2661c73208a08b2f28}} 
+\index{UniEngine::RenderCommand@{UniEngine::RenderCommand}!m\_skinnedMesh@{m\_skinnedMesh}}
+\index{m\_skinnedMesh@{m\_skinnedMesh}!UniEngine::RenderCommand@{UniEngine::RenderCommand}}
+\doxysubsubsection{\texorpdfstring{m\_skinnedMesh}{m\_skinnedMesh}}
+{\footnotesize\ttfamily std\+::weak\+\_\+ptr$<$\mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh}{Skinned\+Mesh}}$>$ Uni\+Engine\+::\+Render\+Command\+::m\+\_\+skinned\+Mesh}
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_render_manager_8hpp}{Render\+Manager.\+hpp}}\end{DoxyCompactItemize}

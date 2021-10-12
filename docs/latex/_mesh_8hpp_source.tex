@@ -1,0 +1,90 @@
+\hypertarget{_mesh_8hpp_source}{}\doxysection{Mesh.\+hpp}
+\label{_mesh_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Mesh.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Mesh.hpp}}
+\mbox{\hyperlink{_mesh_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{Core/OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_scene_8hpp}{Scene.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_transform_8hpp}{Transform.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{7 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_vertex}{Vertex}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_vertex_ae2be54b8febcb016f769682fcd5e1769}{m\_position}};}
+\DoxyCodeLine{12     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_vertex_a5a72430fd9c8c45a49c1493c252cc34c}{m\_normal}};}
+\DoxyCodeLine{13     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_vertex_a7737ceff0e160b63e487dca5494d0c64}{m\_tangent}};}
+\DoxyCodeLine{14     glm::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_vertex_a561f2ecf3fcb19ae72d75f5bd1a1ff28}{m\_color}};}
+\DoxyCodeLine{15     glm::vec2 \mbox{\hyperlink{struct_uni_engine_1_1_vertex_aecc5fa0404309d7796bac814dbe3a3ab}{m\_texCoords}};}
+\DoxyCodeLine{16 \};}
+\DoxyCodeLine{17 \textcolor{keyword}{enum class} UNIENGINE\_API VertexAttribute}
+\DoxyCodeLine{18 \{}
+\DoxyCodeLine{19     \mbox{\hyperlink{_mesh_8hpp_ab91b34ae619fcdfcba4522b4f335bf83}{Position}} = 1,}
+\DoxyCodeLine{20     \mbox{\hyperlink{_mesh_8hpp_abb5b863a4c7a7cc7d18a288c908b9f0b}{Normal}} = 1 << 1, \textcolor{comment}{// 2}}
+\DoxyCodeLine{21     \mbox{\hyperlink{_mesh_8hpp_ac4dd11e70f52bc3737051f31ef05faf4}{Tangent}} = 1 << 2,}
+\DoxyCodeLine{22     \mbox{\hyperlink{_mesh_8hpp_ab87bacfdad76e61b9412d7124be44c1c}{Color}} = 1 << 3,    \textcolor{comment}{// 8}}
+\DoxyCodeLine{23     \mbox{\hyperlink{_mesh_8hpp_af9b43a2e8107531cd2dcef21c0dad037}{TexCoord}} = 1 << 4, \textcolor{comment}{// 16}}
+\DoxyCodeLine{24 \};}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_a0b574bb406aa5b18735cde6b108efd03}{MeshStoreType}}\{}
+\DoxyCodeLine{27     \textcolor{comment}{//Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.}}
+\DoxyCodeLine{28     \mbox{\hyperlink{namespace_uni_engine_a0b574bb406aa5b18735cde6b108efd03a5fe7b9358c9cb1b9eaa8d5aec000def4}{Persistent}},}
+\DoxyCodeLine{29     \textcolor{comment}{//Meshes here will have it's own VAO. It's relatively more lightweight to make changes here.}}
+\DoxyCodeLine{30     \mbox{\hyperlink{namespace_uni_engine_a0b574bb406aa5b18735cde6b108efd03a19e45fa0a4406497759dbf0dd423cc83}{Temporal}}}
+\DoxyCodeLine{31 \};}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_mesh_storage}{MeshStorage}}\{}
+\DoxyCodeLine{34     std::unique\_ptr<OpenGLUtils::GLVAO> m\_persistentMeshesVAO;}
+\DoxyCodeLine{35 \};}
+\DoxyCodeLine{36 \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{ParticleMatrices}};}
+\DoxyCodeLine{37 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{38 \{}
+\DoxyCodeLine{39     \textcolor{keyword}{static} std::unique\_ptr<OpenGLUtils::GLVBO> m\_matricesBuffer;}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{41     std::shared\_ptr<OpenGLUtils::GLVAO> m\_vao;}
+\DoxyCodeLine{42     \textcolor{keywordtype}{size\_t} m\_offset = 0;}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44     \textcolor{keywordtype}{unsigned} m\_mask = 0;}
+\DoxyCodeLine{45     \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} m\_bound;}
+\DoxyCodeLine{46     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{47     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer}{MeshRenderer}};}
+\DoxyCodeLine{48     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_particles}{Particles}};}
+\DoxyCodeLine{49     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{50     \textcolor{keywordtype}{size\_t} m\_version = 0;}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     std::vector<Vertex> m\_vertices;}
+\DoxyCodeLine{53     std::vector<glm::uvec3> m\_triangles;}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{56     \textcolor{keywordtype}{bool} SaveInternal(\textcolor{keyword}{const} std::filesystem::path \&path) \textcolor{keyword}{override};}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58   \textcolor{keyword}{public}:}
+\DoxyCodeLine{59     \textcolor{keywordtype}{void} Draw() \textcolor{keyword}{const};}
+\DoxyCodeLine{60     \textcolor{keywordtype}{void} DrawInstanced(\textcolor{keyword}{const} std::vector<glm::mat4>\& matrices) \textcolor{keyword}{const};}
+\DoxyCodeLine{61     \textcolor{keywordtype}{void} DrawInstanced(\textcolor{keyword}{const} std::shared\_ptr<ParticleMatrices>\& particleMatrices) \textcolor{keyword}{const};}
+\DoxyCodeLine{62     \textcolor{keywordtype}{void} DrawInstanced(\textcolor{keyword}{const} std::vector<GlobalTransform>\& matrices) \textcolor{keyword}{const};}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{65     [[nodiscard]] glm::vec3 GetCenter() \textcolor{keyword}{const};}
+\DoxyCodeLine{66     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} GetBound() \textcolor{keyword}{const};}
+\DoxyCodeLine{67     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{68     \textcolor{keywordtype}{void} Upload();}
+\DoxyCodeLine{69     \textcolor{keywordtype}{void} SetVertices(\textcolor{keyword}{const} \textcolor{keywordtype}{unsigned} \&mask, std::vector<Vertex> \&vertices, std::vector<unsigned> \&indices);}
+\DoxyCodeLine{70     \textcolor{keywordtype}{void} SetVertices(\textcolor{keyword}{const} \textcolor{keywordtype}{unsigned} \&mask, std::vector<Vertex> \&vertices, std::vector<glm::uvec3> \&triangles);}
+\DoxyCodeLine{71     [[nodiscard]] \textcolor{keywordtype}{size\_t} GetVerticesAmount() \textcolor{keyword}{const};}
+\DoxyCodeLine{72     [[nodiscard]] \textcolor{keywordtype}{size\_t} GetTriangleAmount() \textcolor{keyword}{const};}
+\DoxyCodeLine{73     \textcolor{keywordtype}{void} RecalculateNormal();}
+\DoxyCodeLine{74     \textcolor{keywordtype}{void} RecalculateTangent();}
+\DoxyCodeLine{75     [[nodiscard]] std::shared\_ptr<OpenGLUtils::GLVAO> Vao() \textcolor{keyword}{const};}
+\DoxyCodeLine{76     \textcolor{keywordtype}{void} Enable() \textcolor{keyword}{const};}
+\DoxyCodeLine{77     [[nodiscard]] \textcolor{keywordtype}{size\_t} \&GetVersion();}
+\DoxyCodeLine{78     [[nodiscard]] std::vector<Vertex> \&UnsafeGetVertices();}
+\DoxyCodeLine{79     [[nodiscard]] std::vector<glm::uvec3> \&UnsafeGetTriangles();}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{82     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{83 \};}
+\DoxyCodeLine{84 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

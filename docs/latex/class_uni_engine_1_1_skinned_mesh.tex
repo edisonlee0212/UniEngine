@@ -1,0 +1,340 @@
+\hypertarget{class_uni_engine_1_1_skinned_mesh}{}\doxysection{Uni\+Engine\+::Skinned\+Mesh Class Reference}
+\label{class_uni_engine_1_1_skinned_mesh}\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+
+
+{\ttfamily \#include $<$Skinned\+Mesh.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Skinned\+Mesh\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_skinned_mesh}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a78deb757d7c94789aae634b24756aef0}{Draw}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a6710eb29b492a37aa1904cd9e85b316e}{Draw\+Instanced}} (const std\+::vector$<$ glm\+::mat4 $>$ \&matrices) const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_abf8c8b1ba5ec993680629bb79479ef47}{Draw\+Instanced}} (const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} $>$ \&matrices) const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_acc31d6d0f6271907b9b6b6a9da8b7594}{Draw\+Instanced}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}} $>$ \&matrices) const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a801433f611ea4410e565b463d4d398e0}{On\+Create}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_abbf17627e4724097228ab901cdb29d99}{Fetch\+Indices}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ace3ad89a354ba1667c7a804c0ae867c9}{On\+Inspect}} () override
+\item 
+glm\+::vec3 \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_abfc829677cfa499968d25a31ca11cfdb}{Get\+Center}} () const
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_af3b9e286f06e853c4b3488e60fc5d1d2}{Get\+Bound}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a3434a422f1280759ef874c5ee51772c7}{Upload}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a5e375703210d32c90ffdb695260d3ea2}{Set\+Vertices}} (const unsigned \&mask, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \&skinned\+Vertices, std\+::vector$<$ unsigned $>$ \&indices)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a0166abc7212ebeec3410b1d17ac84c1a}{Set\+Vertices}} (const unsigned \&mask, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \&skinned\+Vertices, std\+::vector$<$ glm\+::uvec3 $>$ \&triangles)
+\item 
+size\+\_\+t \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_adee5bcff6c15a35b554ddfd093d51332}{Get\+Skinned\+Vertices\+Amount}} () const
+\item 
+size\+\_\+t \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a9c58e30f0d77dfeae56e83d15d857148}{Get\+Triangle\+Amount}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_aa6b0f7b8fc40b5074625bc6097a868e0}{Recalculate\+Normal}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ac587eed1aeb88aafd17e88e00bb647d9}{Recalculate\+Tangent}} ()
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o}{Open\+GLUtils\+::\+GLVAO}} $>$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_aeb6ca67a1503ffe336d5269a0d999f32}{Vao}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ab036a59e8ef2db553879a9792c25613b}{Enable}} () const
+\item 
+size\+\_\+t \& \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ade035f77d67447388575be95125b01eb}{Get\+Version}} ()
+\item 
+std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \& \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a4d079df78b607b559b846a987a9dd79f}{Unsafe\+Get\+Skinned\+Vertices}} ()
+\item 
+std\+::vector$<$ glm\+::uvec3 $>$ \& \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a67527d4a90263cfdd67185ca43932de7}{Unsafe\+Get\+Triangles}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a6dd077ae1f339bceb612709c76e1a74e}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a957c0769bc7092250563ca728c66a093}{Deserialize}} (const YAML\+::\+Node \&in) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a4763e82dbb06071334c39056d9069b43}{Generate\+Matrices}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a66c75f94aa7ff7413083a4b009ce7869}{Upload\+Bones}} (const std\+::vector$<$ glm\+::mat4 $>$ \&matrices)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ unsigned $>$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ae80302bc1944a7b8319cbfaf46e2d09d}{m\+\_\+bone\+Animator\+Indices}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_adf6963edc07e2eb21d7d00e873560f84}{Save\+Internal}} (const std\+::filesystem\+::path \&path) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ab1ea7091a50c9aabc6a21ed842f92477}{Skinned\+Mesh\+Renderer}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a9cc532af9d7a592861f96afd594d7db0}{Particles}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ac2f8d8a30258c4e46c827c1a7ebb5db9}{Render\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ab4a07d61ba268f3670d11194a067ede4}{Editor\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_aafe72876a584aedb5a5546d4fe7746fb}{Asset\+Manager}}
+\item 
+struct \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_ad772c23a2c5f3cd7f685d72533ac54a7}{Skinned\+Mesh\+Bones\+Block}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_a3b30df5376ee3debefc95100be808d9b}{Prefab}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a957c0769bc7092250563ca728c66a093}\label{class_uni_engine_1_1_skinned_mesh_a957c0769bc7092250563ca728c66a093}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a78deb757d7c94789aae634b24756aef0}\label{class_uni_engine_1_1_skinned_mesh_a78deb757d7c94789aae634b24756aef0}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Draw@{Draw}}
+\index{Draw@{Draw}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Draw()}{Draw()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Draw (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_acc31d6d0f6271907b9b6b6a9da8b7594}\label{class_uni_engine_1_1_skinned_mesh_acc31d6d0f6271907b9b6b6a9da8b7594}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!DrawInstanced@{DrawInstanced}}
+\index{DrawInstanced@{DrawInstanced}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{DrawInstanced()}{DrawInstanced()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Draw\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_particle_matrices}{Particle\+Matrices}} $>$ \&}]{matrices }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a6710eb29b492a37aa1904cd9e85b316e}\label{class_uni_engine_1_1_skinned_mesh_a6710eb29b492a37aa1904cd9e85b316e}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!DrawInstanced@{DrawInstanced}}
+\index{DrawInstanced@{DrawInstanced}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{DrawInstanced()}{DrawInstanced()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Draw\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_abf8c8b1ba5ec993680629bb79479ef47}\label{class_uni_engine_1_1_skinned_mesh_abf8c8b1ba5ec993680629bb79479ef47}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!DrawInstanced@{DrawInstanced}}
+\index{DrawInstanced@{DrawInstanced}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{DrawInstanced()}{DrawInstanced()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Draw\+Instanced (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} $>$ \&}]{matrices }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ab036a59e8ef2db553879a9792c25613b}\label{class_uni_engine_1_1_skinned_mesh_ab036a59e8ef2db553879a9792c25613b}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Enable@{Enable}}
+\index{Enable@{Enable}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Enable()}{Enable()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Enable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_abbf17627e4724097228ab901cdb29d99}\label{class_uni_engine_1_1_skinned_mesh_abbf17627e4724097228ab901cdb29d99}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!FetchIndices@{FetchIndices}}
+\index{FetchIndices@{FetchIndices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{FetchIndices()}{FetchIndices()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Fetch\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a4763e82dbb06071334c39056d9069b43}\label{class_uni_engine_1_1_skinned_mesh_a4763e82dbb06071334c39056d9069b43}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GenerateMatrices@{GenerateMatrices}}
+\index{GenerateMatrices@{GenerateMatrices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GenerateMatrices()}{GenerateMatrices()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Generate\+Matrices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_af3b9e286f06e853c4b3488e60fc5d1d2}\label{class_uni_engine_1_1_skinned_mesh_af3b9e286f06e853c4b3488e60fc5d1d2}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GetBound@{GetBound}}
+\index{GetBound@{GetBound}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GetBound()}{GetBound()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} Skinned\+Mesh\+::\+Get\+Bound (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_abfc829677cfa499968d25a31ca11cfdb}\label{class_uni_engine_1_1_skinned_mesh_abfc829677cfa499968d25a31ca11cfdb}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GetCenter@{GetCenter}}
+\index{GetCenter@{GetCenter}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GetCenter()}{GetCenter()}}
+{\footnotesize\ttfamily glm\+::vec3 Skinned\+Mesh\+::\+Get\+Center (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_adee5bcff6c15a35b554ddfd093d51332}\label{class_uni_engine_1_1_skinned_mesh_adee5bcff6c15a35b554ddfd093d51332}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GetSkinnedVerticesAmount@{GetSkinnedVerticesAmount}}
+\index{GetSkinnedVerticesAmount@{GetSkinnedVerticesAmount}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GetSkinnedVerticesAmount()}{GetSkinnedVerticesAmount()}}
+{\footnotesize\ttfamily size\+\_\+t Skinned\+Mesh\+::\+Get\+Skinned\+Vertices\+Amount (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a9c58e30f0d77dfeae56e83d15d857148}\label{class_uni_engine_1_1_skinned_mesh_a9c58e30f0d77dfeae56e83d15d857148}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GetTriangleAmount@{GetTriangleAmount}}
+\index{GetTriangleAmount@{GetTriangleAmount}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GetTriangleAmount()}{GetTriangleAmount()}}
+{\footnotesize\ttfamily size\+\_\+t Skinned\+Mesh\+::\+Get\+Triangle\+Amount (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ade035f77d67447388575be95125b01eb}\label{class_uni_engine_1_1_skinned_mesh_ade035f77d67447388575be95125b01eb}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!GetVersion@{GetVersion}}
+\index{GetVersion@{GetVersion}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{GetVersion()}{GetVersion()}}
+{\footnotesize\ttfamily size\+\_\+t \& Skinned\+Mesh\+::\+Get\+Version (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a801433f611ea4410e565b463d4d398e0}\label{class_uni_engine_1_1_skinned_mesh_a801433f611ea4410e565b463d4d398e0}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Whether the asset is saved or not. Function will be invoked right after asset creation. 
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a9b0ccb0972704b9ee6f963f32ddcfc47}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ace3ad89a354ba1667c7a804c0ae867c9}\label{class_uni_engine_1_1_skinned_mesh_ace3ad89a354ba1667c7a804c0ae867c9}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+The GUI of the asset when inspected in the editor. 
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_acb99c8791b1f38cc459270f4e4939d01}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_aa6b0f7b8fc40b5074625bc6097a868e0}\label{class_uni_engine_1_1_skinned_mesh_aa6b0f7b8fc40b5074625bc6097a868e0}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!RecalculateNormal@{RecalculateNormal}}
+\index{RecalculateNormal@{RecalculateNormal}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{RecalculateNormal()}{RecalculateNormal()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Recalculate\+Normal (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ac587eed1aeb88aafd17e88e00bb647d9}\label{class_uni_engine_1_1_skinned_mesh_ac587eed1aeb88aafd17e88e00bb647d9}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!RecalculateTangent@{RecalculateTangent}}
+\index{RecalculateTangent@{RecalculateTangent}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{RecalculateTangent()}{RecalculateTangent()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Recalculate\+Tangent (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_adf6963edc07e2eb21d7d00e873560f84}\label{class_uni_engine_1_1_skinned_mesh_adf6963edc07e2eb21d7d00e873560f84}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!SaveInternal@{SaveInternal}}
+\index{SaveInternal@{SaveInternal}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{SaveInternal()}{SaveInternal()}}
+{\footnotesize\ttfamily bool Skinned\+Mesh\+::\+Save\+Internal (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+The function that handles serialization. May be invoked by \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_adf6963edc07e2eb21d7d00e873560f84}{Save\+Internal()}} or Asset\+Manager/\+Project\+Manager. Function is virtual so user can define their own serialization procedure. 
+\begin{DoxyParams}{Parameters}
+{\em path} & The file path for saving the asset, may or may not be the local stored path. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a78e5222124f0551601f1897a2d3151d5}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a6dd077ae1f339bceb612709c76e1a74e}\label{class_uni_engine_1_1_skinned_mesh_a6dd077ae1f339bceb612709c76e1a74e}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a0166abc7212ebeec3410b1d17ac84c1a}\label{class_uni_engine_1_1_skinned_mesh_a0166abc7212ebeec3410b1d17ac84c1a}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!SetVertices@{SetVertices}}
+\index{SetVertices@{SetVertices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{SetVertices()}{SetVertices()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Set\+Vertices (\begin{DoxyParamCaption}\item[{const unsigned \&}]{mask,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \&}]{skinned\+Vertices,  }\item[{std\+::vector$<$ glm\+::uvec3 $>$ \&}]{triangles }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a5e375703210d32c90ffdb695260d3ea2}\label{class_uni_engine_1_1_skinned_mesh_a5e375703210d32c90ffdb695260d3ea2}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!SetVertices@{SetVertices}}
+\index{SetVertices@{SetVertices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{SetVertices()}{SetVertices()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Set\+Vertices (\begin{DoxyParamCaption}\item[{const unsigned \&}]{mask,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \&}]{skinned\+Vertices,  }\item[{std\+::vector$<$ unsigned $>$ \&}]{indices }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a4d079df78b607b559b846a987a9dd79f}\label{class_uni_engine_1_1_skinned_mesh_a4d079df78b607b559b846a987a9dd79f}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!UnsafeGetSkinnedVertices@{UnsafeGetSkinnedVertices}}
+\index{UnsafeGetSkinnedVertices@{UnsafeGetSkinnedVertices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{UnsafeGetSkinnedVertices()}{UnsafeGetSkinnedVertices()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_skinned_vertex}{Skinned\+Vertex}} $>$ \& Skinned\+Mesh\+::\+Unsafe\+Get\+Skinned\+Vertices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a67527d4a90263cfdd67185ca43932de7}\label{class_uni_engine_1_1_skinned_mesh_a67527d4a90263cfdd67185ca43932de7}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!UnsafeGetTriangles@{UnsafeGetTriangles}}
+\index{UnsafeGetTriangles@{UnsafeGetTriangles}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{UnsafeGetTriangles()}{UnsafeGetTriangles()}}
+{\footnotesize\ttfamily std\+::vector$<$ glm\+::uvec3 $>$ \& Skinned\+Mesh\+::\+Unsafe\+Get\+Triangles (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a3434a422f1280759ef874c5ee51772c7}\label{class_uni_engine_1_1_skinned_mesh_a3434a422f1280759ef874c5ee51772c7}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Upload@{Upload}}
+\index{Upload@{Upload}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Upload()}{Upload()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Upload (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a66c75f94aa7ff7413083a4b009ce7869}\label{class_uni_engine_1_1_skinned_mesh_a66c75f94aa7ff7413083a4b009ce7869}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!UploadBones@{UploadBones}}
+\index{UploadBones@{UploadBones}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{UploadBones()}{UploadBones()}}
+{\footnotesize\ttfamily void Skinned\+Mesh\+::\+Upload\+Bones (\begin{DoxyParamCaption}\item[{const std\+::vector$<$ glm\+::mat4 $>$ \&}]{matrices }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_aeb6ca67a1503ffe336d5269a0d999f32}\label{class_uni_engine_1_1_skinned_mesh_aeb6ca67a1503ffe336d5269a0d999f32}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Vao@{Vao}}
+\index{Vao@{Vao}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Vao()}{Vao()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o}{Open\+GLUtils\+::\+GLVAO}} $>$ Skinned\+Mesh\+::\+Vao (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_aafe72876a584aedb5a5546d4fe7746fb}\label{class_uni_engine_1_1_skinned_mesh_aafe72876a584aedb5a5546d4fe7746fb}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!AssetManager@{AssetManager}}
+\index{AssetManager@{AssetManager}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{AssetManager}{AssetManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{Asset\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ab4a07d61ba268f3670d11194a067ede4}\label{class_uni_engine_1_1_skinned_mesh_ab4a07d61ba268f3670d11194a067ede4}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!EditorManager@{EditorManager}}
+\index{EditorManager@{EditorManager}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{EditorManager}{EditorManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{Editor\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a9cc532af9d7a592861f96afd594d7db0}\label{class_uni_engine_1_1_skinned_mesh_a9cc532af9d7a592861f96afd594d7db0}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Particles@{Particles}}
+\index{Particles@{Particles}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Particles}{Particles}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_particles}{Particles}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_a3b30df5376ee3debefc95100be808d9b}\label{class_uni_engine_1_1_skinned_mesh_a3b30df5376ee3debefc95100be808d9b}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!Prefab@{Prefab}}
+\index{Prefab@{Prefab}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{Prefab}{Prefab}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ac2f8d8a30258c4e46c827c1a7ebb5db9}\label{class_uni_engine_1_1_skinned_mesh_ac2f8d8a30258c4e46c827c1a7ebb5db9}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!RenderManager@{RenderManager}}
+\index{RenderManager@{RenderManager}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{RenderManager}{RenderManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_render_manager}{Render\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ad772c23a2c5f3cd7f685d72533ac54a7}\label{class_uni_engine_1_1_skinned_mesh_ad772c23a2c5f3cd7f685d72533ac54a7}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!SkinnedMeshBonesBlock@{SkinnedMeshBonesBlock}}
+\index{SkinnedMeshBonesBlock@{SkinnedMeshBonesBlock}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{SkinnedMeshBonesBlock}{SkinnedMeshBonesBlock}}
+{\footnotesize\ttfamily friend struct Skinned\+Mesh\+Bones\+Block\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ab1ea7091a50c9aabc6a21ed842f92477}\label{class_uni_engine_1_1_skinned_mesh_ab1ea7091a50c9aabc6a21ed842f92477}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!SkinnedMeshRenderer@{SkinnedMeshRenderer}}
+\index{SkinnedMeshRenderer@{SkinnedMeshRenderer}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{SkinnedMeshRenderer}{SkinnedMeshRenderer}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{Skinned\+Mesh\+Renderer}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_skinned_mesh_ae80302bc1944a7b8319cbfaf46e2d09d}\label{class_uni_engine_1_1_skinned_mesh_ae80302bc1944a7b8319cbfaf46e2d09d}} 
+\index{UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}!m\_boneAnimatorIndices@{m\_boneAnimatorIndices}}
+\index{m\_boneAnimatorIndices@{m\_boneAnimatorIndices}!UniEngine::SkinnedMesh@{UniEngine::SkinnedMesh}}
+\doxysubsubsection{\texorpdfstring{m\_boneAnimatorIndices}{m\_boneAnimatorIndices}}
+{\footnotesize\ttfamily std\+::vector$<$unsigned$>$ Uni\+Engine\+::\+Skinned\+Mesh\+::m\+\_\+bone\+Animator\+Indices}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_skinned_mesh_8hpp}{Skinned\+Mesh.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_skinned_mesh_8cpp}{Skinned\+Mesh.\+cpp}}\end{DoxyCompactItemize}

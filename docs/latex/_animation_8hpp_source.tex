@@ -1,0 +1,109 @@
+\hypertarget{_animation_8hpp_source}{}\doxysection{Animation.\+hpp}
+\label{_animation_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Animation.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Animation.hpp}}
+\mbox{\hyperlink{_animation_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{Core/OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_scene_8hpp}{Scene.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_transform_8hpp}{Transform.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#pragma region Bone}}
+\DoxyCodeLine{9 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bone_position}{BonePosition}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_bone_position_a697acf7529ceeb2e519e06a6dcd998c4}{m\_value}};}
+\DoxyCodeLine{12     \textcolor{keywordtype}{float} \mbox{\hyperlink{struct_uni_engine_1_1_bone_position_a59666acbfcb6c54707b986063e619731}{m\_timeStamp}};}
+\DoxyCodeLine{13 \};}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bone_rotation}{BoneRotation}}}
+\DoxyCodeLine{16 \{}
+\DoxyCodeLine{17     glm::quat \mbox{\hyperlink{struct_uni_engine_1_1_bone_rotation_ae8b2507d57903ea57e86a18037b4a837}{m\_value}};}
+\DoxyCodeLine{18     \textcolor{keywordtype}{float} \mbox{\hyperlink{struct_uni_engine_1_1_bone_rotation_a91df77ab0f589adad6dd2717df0c4c75}{m\_timeStamp}};}
+\DoxyCodeLine{19 \};}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{21 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bone_scale}{BoneScale}}}
+\DoxyCodeLine{22 \{}
+\DoxyCodeLine{23     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_bone_scale_aaf1d0eeb86db2d653c7a178d4a984155}{m\_value}};}
+\DoxyCodeLine{24     \textcolor{keywordtype}{float} \mbox{\hyperlink{struct_uni_engine_1_1_bone_scale_a3d15e521021db06ffc5856456b9713ee}{m\_timeStamp}};}
+\DoxyCodeLine{25 \};}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames}{BoneKeyFrames}}}
+\DoxyCodeLine{28 \{}
+\DoxyCodeLine{29     std::vector<BonePosition> \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a66eb1fa146f108bc3880f8b5ca3acc61}{m\_positions}};}
+\DoxyCodeLine{30     std::vector<BoneRotation> \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_ab65c5666bc60c76a386cc187edbe1b27}{m\_rotations}};}
+\DoxyCodeLine{31     std::vector<BoneScale> \mbox{\hyperlink{struct_uni_engine_1_1_bone_key_frames_a4cf10695941f19724c158de10de18ed0}{m\_scales}};}
+\DoxyCodeLine{32     \textcolor{keywordtype}{float} m\_maxTimeStamp = 0.0f;}
+\DoxyCodeLine{33     \textcolor{comment}{/* Gets the current index on mKeyPositions to interpolate to based on the current}}
+\DoxyCodeLine{34 \textcolor{comment}{    animation time */}}
+\DoxyCodeLine{35     \textcolor{keywordtype}{int} GetPositionIndex(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{comment}{/* Gets the current index on mKeyRotations to interpolate to based on the current}}
+\DoxyCodeLine{38 \textcolor{comment}{    animation time */}}
+\DoxyCodeLine{39     \textcolor{keywordtype}{int} GetRotationIndex(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{41     \textcolor{comment}{/* Gets the current index on mKeyScalings to interpolate to based on the current}}
+\DoxyCodeLine{42 \textcolor{comment}{    animation time */}}
+\DoxyCodeLine{43     \textcolor{keywordtype}{int} GetScaleIndex(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{44 }
+\DoxyCodeLine{45     \textcolor{comment}{/* Gets normalized value for Lerp \& Slerp*/}}
+\DoxyCodeLine{46     \textcolor{keyword}{static} \textcolor{keywordtype}{float} GetScaleFactor(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&lastTimeStamp, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&nextTimeStamp, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48     \textcolor{comment}{/* figures out which position keys to interpolate b/w and performs the interpolation}}
+\DoxyCodeLine{49 \textcolor{comment}{    and returns the translation matrix */}}
+\DoxyCodeLine{50     glm::mat4 InterpolatePosition(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     \textcolor{comment}{/* figures out which rotations keys to interpolate b/w and performs the interpolation}}
+\DoxyCodeLine{53 \textcolor{comment}{    and returns the rotation matrix */}}
+\DoxyCodeLine{54     glm::mat4 InterpolateRotation(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56     \textcolor{comment}{/* figures out which scaling keys to interpolate b/w and performs the interpolation}}
+\DoxyCodeLine{57 \textcolor{comment}{    and returns the scale matrix */}}
+\DoxyCodeLine{58     glm::mat4 InterpolateScaling(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime);}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{const};}
+\DoxyCodeLine{61     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in);}
+\DoxyCodeLine{62 \};}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}}}
+\DoxyCodeLine{65 \{}
+\DoxyCodeLine{66     std::map<std::string, BoneKeyFrames> \mbox{\hyperlink{struct_uni_engine_1_1_bone_ad39f1da7693ca8b4aaa17b094908f0c0}{m\_animations}};}
+\DoxyCodeLine{67     std::string \mbox{\hyperlink{struct_uni_engine_1_1_bone_a573ebce2e0b77809a6349f623620128e}{m\_name}};}
+\DoxyCodeLine{68     \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} m\_offsetMatrix = \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}}();}
+\DoxyCodeLine{69     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{struct_uni_engine_1_1_bone_aef5b9e329d2eeab64d0b411757880484}{m\_index}};}
+\DoxyCodeLine{70     std::vector<std::shared\_ptr<Bone>> \mbox{\hyperlink{struct_uni_engine_1_1_bone_a68e324924067743851131075a483aa8b}{m\_children}};}
+\DoxyCodeLine{71     \textcolor{comment}{/* Interpolates b/w positions,rotations \& scaling keys based on the current time of the}}
+\DoxyCodeLine{72 \textcolor{comment}{    animation and prepares the local transformation matrix by combining all keys transformations */}}
+\DoxyCodeLine{73     \textcolor{keywordtype}{void} Animate(}
+\DoxyCodeLine{74         \textcolor{keyword}{const} std::string \&name,}
+\DoxyCodeLine{75         \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime,}
+\DoxyCodeLine{76         \textcolor{keyword}{const} glm::mat4 \&parentTransform,}
+\DoxyCodeLine{77         \textcolor{keyword}{const} glm::mat4 \&rootTransform,}
+\DoxyCodeLine{78         std::vector<glm::mat4> \&results);}
+\DoxyCodeLine{79     \textcolor{keywordtype}{void} OnInspect();}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{const};}
+\DoxyCodeLine{82     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in);}
+\DoxyCodeLine{83 \};}
+\DoxyCodeLine{84 }
+\DoxyCodeLine{85 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{86 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{87 \{}
+\DoxyCodeLine{88   \textcolor{keyword}{public}:}
+\DoxyCodeLine{89     std::map<std::string, float> \mbox{\hyperlink{class_uni_engine_1_1_animation_a600b276ef61372edab4500477b584402}{m\_animationNameAndLength}};}
+\DoxyCodeLine{90     std::shared\_ptr<Bone> \mbox{\hyperlink{class_uni_engine_1_1_animation_a47071f6d33891e64d92deffeeeaad876}{m\_rootBone}};}
+\DoxyCodeLine{91     \textcolor{keywordtype}{size\_t} m\_boneSize = 0;}
+\DoxyCodeLine{92     [[nodiscard]] std::shared\_ptr<Bone> \&UnsafeGetRootBone();}
+\DoxyCodeLine{93     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{94     \textcolor{keywordtype}{void} Animate(}
+\DoxyCodeLine{95         \textcolor{keyword}{const} std::string \&name,}
+\DoxyCodeLine{96         \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&animationTime,}
+\DoxyCodeLine{97         \textcolor{keyword}{const} glm::mat4 \&rootTransform,}
+\DoxyCodeLine{98         std::vector<glm::mat4> \&results);}
+\DoxyCodeLine{99 }
+\DoxyCodeLine{100     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{101     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{102 \};}
+\DoxyCodeLine{103 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

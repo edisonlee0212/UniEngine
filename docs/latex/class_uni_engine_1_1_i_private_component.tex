@@ -1,0 +1,262 @@
+\hypertarget{class_uni_engine_1_1_i_private_component}{}\doxysection{Uni\+Engine\+::IPrivate\+Component Class Reference}
+\label{class_uni_engine_1_1_i_private_component}\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+
+
+{\ttfamily \#include $<$IPrivate\+Component.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::IPrivate\+Component\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{class_uni_engine_1_1_i_private_component}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a89d43b8864cb6535a3f44b5c0d6359c7}{Get\+Owner}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a6a2cd59d7533c094acb1cfbd6d17a038}{Set\+Enabled}} (const bool \&value)
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_ab17cda887c860791ed3fa00740af12a6}{Is\+Enabled}} () const
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_ad1d8702c784ce1cd6d7938f772e7346a}{Started}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{On\+Inspect}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a8d4293f3b5a693ec64c979b007085e16}{Fixed\+Update}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a1d8b410b9afe59a76bcc52acb6a7de26}{Pre\+Update}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a831636ba56cbb97cddbc2c9c7dbe2988}{Update}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af59ce3b6edaaa6cb13c05f9c792e5e20}{Late\+Update}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}{On\+Create}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a25ecb93b06b2d9c88c3bfd329f2f4217}{Start}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a5693a5923205e96d148c5a775dd40ece}{On\+Enable}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a47fa0614be9f39a6a809ba6db5c5f799}{On\+Disable}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_adc1c5d287d14d28ebab5bb2ae8932c19}{On\+Entity\+Enable}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_ab91e7e1e3f7a963dcd1a62509affc950}{On\+Entity\+Disable}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a85ae47977264483c805e5a0e664250f7}{On\+Destroy}} ()
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}{Collect\+Asset\+Ref}} (std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&list)
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a391ebdd24c326b294953ce436cf27e67}{Relink}} (const std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}, \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} $>$ \&map, const \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&new\+Scene\+Handle)
+\item 
+virtual void \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{Post\+Clone\+Action}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&target)
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a6f579cda6059d102e9074e11a27e0282}{Entity\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_ab4a07d61ba268f3670d11194a067ede4}{Editor\+Manager}}
+\item 
+struct \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a4a680d6576fd9784ffe76548b100de1d}{Private\+Component\+Element}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a0da2f7b33b8c8e7c95605b9f36c38255}{Serialization\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a032858ae1fe02d2d1170981c2af2d67c}{Scene}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a3b30df5376ee3debefc95100be808d9b}{Prefab}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}\label{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!CollectAssetRef@{CollectAssetRef}}
+\index{CollectAssetRef@{CollectAssetRef}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{CollectAssetRef()}{CollectAssetRef()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Collect\+Asset\+Ref (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&}]{list }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_rigid_body_adab5370e7b95da4cc3ed7861bc89d1a4}{Uni\+Engine\+::\+Rigid\+Body}}, \mbox{\hyperlink{class_uni_engine_1_1_animator_ab3bdc7147fbcb63fa83a206b40cd01c2}{Uni\+Engine\+::\+Animator}}, \mbox{\hyperlink{class_uni_engine_1_1_camera_a065f3c863fe63e05cbd4287b67bca0bc}{Uni\+Engine\+::\+Camera}}, \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a4f59cd51f5aef39cd538210e4241b4bb}{Uni\+Engine\+::\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_particles_a466e99cc913bdfd6d5a650da1192c091}{Uni\+Engine\+::\+Particles}}, and \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_ae01e7fc4637c82b73fc6b930249c232e}{Uni\+Engine\+::\+Skinned\+Mesh\+Renderer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a8d4293f3b5a693ec64c979b007085e16}\label{class_uni_engine_1_1_i_private_component_a8d4293f3b5a693ec64c979b007085e16}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!FixedUpdate@{FixedUpdate}}
+\index{FixedUpdate@{FixedUpdate}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{FixedUpdate()}{FixedUpdate()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Fixed\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a89d43b8864cb6535a3f44b5c0d6359c7}\label{class_uni_engine_1_1_i_private_component_a89d43b8864cb6535a3f44b5c0d6359c7}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!GetOwner@{GetOwner}}
+\index{GetOwner@{GetOwner}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{GetOwner()}{GetOwner()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} IPrivate\+Component\+::\+Get\+Owner (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_ab17cda887c860791ed3fa00740af12a6}\label{class_uni_engine_1_1_i_private_component_ab17cda887c860791ed3fa00740af12a6}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!IsEnabled@{IsEnabled}}
+\index{IsEnabled@{IsEnabled}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{IsEnabled()}{IsEnabled()}}
+{\footnotesize\ttfamily bool IPrivate\+Component\+::\+Is\+Enabled (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_af59ce3b6edaaa6cb13c05f9c792e5e20}\label{class_uni_engine_1_1_i_private_component_af59ce3b6edaaa6cb13c05f9c792e5e20}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!LateUpdate@{LateUpdate}}
+\index{LateUpdate@{LateUpdate}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{LateUpdate()}{LateUpdate()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Late\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_player_controller_a7a54c7dd18378e82fea7e9ba9f6e32d9}{Uni\+Engine\+::\+Player\+Controller}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}\label{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_joint_a02f03d4572c77e63afdb585092805288}{Uni\+Engine\+::\+Joint}}, \mbox{\hyperlink{class_uni_engine_1_1_rigid_body_a5788e72a932b7b010e3d4a81d14d39a6}{Uni\+Engine\+::\+Rigid\+Body}}, \mbox{\hyperlink{class_uni_engine_1_1_camera_ac0b5dd317d458bff5dee6eee63eb737a}{Uni\+Engine\+::\+Camera}}, \mbox{\hyperlink{class_uni_engine_1_1_directional_light_a8ce209be19220b69e322f4d9766daa1e}{Uni\+Engine\+::\+Directional\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_point_light_a74d6bb1e882f4a992ec35a5eaed5011d}{Uni\+Engine\+::\+Point\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_spot_light_adc1a6b59d47a914e5e69897abd4758df}{Uni\+Engine\+::\+Spot\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_ae77b641a0236107d987c1598a04e2947}{Uni\+Engine\+::\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_particles_a5a35a1ce2507ee406145cab6992e02d2}{Uni\+Engine\+::\+Particles}}, \mbox{\hyperlink{class_uni_engine_1_1_post_processing_a603915b3c20dc26d75a2c359dfb7225e}{Uni\+Engine\+::\+Post\+Processing}}, \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a096b971635fdcde153e4bdfee578990a}{Uni\+Engine\+::\+Skinned\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_player_controller_aede7ff926a7396e590c814d6c9d77dc5}{Uni\+Engine\+::\+Player\+Controller}}, and \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a033c8de6c6915c21738b97f3337e3448}{Uni\+Engine\+::\+Point\+Cloud}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a85ae47977264483c805e5a0e664250f7}\label{class_uni_engine_1_1_i_private_component_a85ae47977264483c805e5a0e664250f7}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnDestroy@{OnDestroy}}
+\index{OnDestroy@{OnDestroy}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnDestroy()}{OnDestroy()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Destroy (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_joint_a700b283af15459a117bfede279474bfd}{Uni\+Engine\+::\+Joint}}, \mbox{\hyperlink{class_uni_engine_1_1_rigid_body_a54ebd077d60b44ef10e44a596523ee83}{Uni\+Engine\+::\+Rigid\+Body}}, and \mbox{\hyperlink{class_uni_engine_1_1_camera_a7c65ee43d1fa50ff0526a0d7e0a35ff4}{Uni\+Engine\+::\+Camera}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a47fa0614be9f39a6a809ba6db5c5f799}\label{class_uni_engine_1_1_i_private_component_a47fa0614be9f39a6a809ba6db5c5f799}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnDisable@{OnDisable}}
+\index{OnDisable@{OnDisable}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnDisable()}{OnDisable()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Disable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a5693a5923205e96d148c5a775dd40ece}\label{class_uni_engine_1_1_i_private_component_a5693a5923205e96d148c5a775dd40ece}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnEnable@{OnEnable}}
+\index{OnEnable@{OnEnable}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnEnable()}{OnEnable()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Enable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_ab91e7e1e3f7a963dcd1a62509affc950}\label{class_uni_engine_1_1_i_private_component_ab91e7e1e3f7a963dcd1a62509affc950}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnEntityDisable@{OnEntityDisable}}
+\index{OnEntityDisable@{OnEntityDisable}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnEntityDisable()}{OnEntityDisable()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Entity\+Disable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_adc1c5d287d14d28ebab5bb2ae8932c19}\label{class_uni_engine_1_1_i_private_component_adc1c5d287d14d28ebab5bb2ae8932c19}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnEntityEnable@{OnEntityEnable}}
+\index{OnEntityEnable@{OnEntityEnable}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnEntityEnable()}{OnEntityEnable()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Entity\+Enable (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}\label{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_joint_acec1fcc0d597629ecd39c932bed26bdc}{Uni\+Engine\+::\+Joint}}, \mbox{\hyperlink{class_uni_engine_1_1_rigid_body_a7fe758c39f40d6516052de5928c3ea78}{Uni\+Engine\+::\+Rigid\+Body}}, \mbox{\hyperlink{class_uni_engine_1_1_animator_a4b2c9c138de6389ff091b33e9926c270}{Uni\+Engine\+::\+Animator}}, \mbox{\hyperlink{class_uni_engine_1_1_camera_a1dcc49b3783fa9935fc9d68a0c1d478c}{Uni\+Engine\+::\+Camera}}, \mbox{\hyperlink{class_uni_engine_1_1_directional_light_a9b3b8265efe9e92061725031df9ebb3f}{Uni\+Engine\+::\+Directional\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_point_light_a6de98c151e66294f0ae58dce7d019316}{Uni\+Engine\+::\+Point\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a1542943e40c651549b536e23e7d4e303}{Uni\+Engine\+::\+Spot\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_aed88f523710a1d2591b612bd12300036}{Uni\+Engine\+::\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_particles_a3cda416b814b56cc57827bf76b633e84}{Uni\+Engine\+::\+Particles}}, \mbox{\hyperlink{class_uni_engine_1_1_post_processing_a21d39c0bb1faa6ddfe53bee8757693ad}{Uni\+Engine\+::\+Post\+Processing}}, \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a1be13959a7d01f7fde259e715bd24197}{Uni\+Engine\+::\+Skinned\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_player_controller_a7d0b17e761e8eae105d828a649341c45}{Uni\+Engine\+::\+Player\+Controller}}, \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ae4cd2ef1035f083e07ef1dd4d4569cf4}{Uni\+Engine\+::\+Point\+Cloud}}, and \mbox{\hyperlink{class_uni_engine_1_1_unknown_private_component_aabb547a41e2f17612d4d07e3bb588ad8}{Uni\+Engine\+::\+Unknown\+Private\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}\label{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!PostCloneAction@{PostCloneAction}}
+\index{PostCloneAction@{PostCloneAction}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{PostCloneAction()}{PostCloneAction()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Post\+Clone\+Action (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_joint_a4378fc903a66144a870b876cbede64f5}{Uni\+Engine\+::\+Joint}}, \mbox{\hyperlink{class_uni_engine_1_1_rigid_body_a1143c3d13f38c438c0e131ebc21029c4}{Uni\+Engine\+::\+Rigid\+Body}}, \mbox{\hyperlink{class_uni_engine_1_1_animator_a4ecafca9481b67572b5851b9ea0874e2}{Uni\+Engine\+::\+Animator}}, \mbox{\hyperlink{class_uni_engine_1_1_camera_a4b241221f075c687076a2705f007bf08}{Uni\+Engine\+::\+Camera}}, \mbox{\hyperlink{class_uni_engine_1_1_directional_light_add756a195b2ea04e5101301c71cab7d8}{Uni\+Engine\+::\+Directional\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_point_light_a458a7282678a3dd1be2b7b80b2393bd9}{Uni\+Engine\+::\+Point\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_spot_light_a026ea7c5bfe6419073e59cc6f3dc2b73}{Uni\+Engine\+::\+Spot\+Light}}, \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer_a239fdaeced38d5bdc89219a22e758211}{Uni\+Engine\+::\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_particles_a06b25ebe945bfd83264ba4dd21b41d77}{Uni\+Engine\+::\+Particles}}, \mbox{\hyperlink{class_uni_engine_1_1_post_processing_a5c28076f719bf8459d896acc206755c6}{Uni\+Engine\+::\+Post\+Processing}}, \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a6e6b2c7d51412b2d77507955871d30b9}{Uni\+Engine\+::\+Skinned\+Mesh\+Renderer}}, \mbox{\hyperlink{class_uni_engine_1_1_player_controller_a6e04cc3b4d7bce9b6c85d9aedaa8564e}{Uni\+Engine\+::\+Player\+Controller}}, \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a53acec8bccc9a3438c18f5d273d12ad2}{Uni\+Engine\+::\+Point\+Cloud}}, and \mbox{\hyperlink{class_uni_engine_1_1_unknown_private_component_acb440c3b88093f3efaed1ad9e1f4bdaa}{Uni\+Engine\+::\+Unknown\+Private\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a1d8b410b9afe59a76bcc52acb6a7de26}\label{class_uni_engine_1_1_i_private_component_a1d8b410b9afe59a76bcc52acb6a7de26}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!PreUpdate@{PreUpdate}}
+\index{PreUpdate@{PreUpdate}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{PreUpdate()}{PreUpdate()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Pre\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a391ebdd24c326b294953ce436cf27e67}\label{class_uni_engine_1_1_i_private_component_a391ebdd24c326b294953ce436cf27e67}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Relink@{Relink}}
+\index{Relink@{Relink}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Relink()}{Relink()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Relink (\begin{DoxyParamCaption}\item[{const std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}, \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} $>$ \&}]{map,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&}]{new\+Scene\+Handle }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_joint_a630d523c22d6ad6e41c06e1cc444e15c}{Uni\+Engine\+::\+Joint}}, and \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a5b410899ca444389064af52cb844d792}{Uni\+Engine\+::\+Skinned\+Mesh\+Renderer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a6a2cd59d7533c094acb1cfbd6d17a038}\label{class_uni_engine_1_1_i_private_component_a6a2cd59d7533c094acb1cfbd6d17a038}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!SetEnabled@{SetEnabled}}
+\index{SetEnabled@{SetEnabled}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{SetEnabled()}{SetEnabled()}}
+{\footnotesize\ttfamily void IPrivate\+Component\+::\+Set\+Enabled (\begin{DoxyParamCaption}\item[{const bool \&}]{value }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a25ecb93b06b2d9c88c3bfd329f2f4217}\label{class_uni_engine_1_1_i_private_component_a25ecb93b06b2d9c88c3bfd329f2f4217}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Start@{Start}}
+\index{Start@{Start}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Start()}{Start()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Start (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{class_uni_engine_1_1_camera_ad1e1e6737506ba97eece8b71a3862db7}{Uni\+Engine\+::\+Camera}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_ad1d8702c784ce1cd6d7938f772e7346a}\label{class_uni_engine_1_1_i_private_component_ad1d8702c784ce1cd6d7938f772e7346a}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Started@{Started}}
+\index{Started@{Started}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Started()}{Started()}}
+{\footnotesize\ttfamily bool IPrivate\+Component\+::\+Started (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a831636ba56cbb97cddbc2c9c7dbe2988}\label{class_uni_engine_1_1_i_private_component_a831636ba56cbb97cddbc2c9c7dbe2988}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Update@{Update}}
+\index{Update@{Update}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Update()}{Update()}}
+{\footnotesize\ttfamily virtual void Uni\+Engine\+::\+IPrivate\+Component\+::\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_ab4a07d61ba268f3670d11194a067ede4}\label{class_uni_engine_1_1_i_private_component_ab4a07d61ba268f3670d11194a067ede4}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!EditorManager@{EditorManager}}
+\index{EditorManager@{EditorManager}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{EditorManager}{EditorManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{Editor\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a6f579cda6059d102e9074e11a27e0282}\label{class_uni_engine_1_1_i_private_component_a6f579cda6059d102e9074e11a27e0282}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!EntityManager@{EntityManager}}
+\index{EntityManager@{EntityManager}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{EntityManager}{EntityManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_entity_manager}{Entity\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a3b30df5376ee3debefc95100be808d9b}\label{class_uni_engine_1_1_i_private_component_a3b30df5376ee3debefc95100be808d9b}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Prefab@{Prefab}}
+\index{Prefab@{Prefab}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Prefab}{Prefab}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a4a680d6576fd9784ffe76548b100de1d}\label{class_uni_engine_1_1_i_private_component_a4a680d6576fd9784ffe76548b100de1d}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!PrivateComponentElement@{PrivateComponentElement}}
+\index{PrivateComponentElement@{PrivateComponentElement}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{PrivateComponentElement}{PrivateComponentElement}}
+{\footnotesize\ttfamily friend struct \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element}{Private\+Component\+Element}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a032858ae1fe02d2d1170981c2af2d67c}\label{class_uni_engine_1_1_i_private_component_a032858ae1fe02d2d1170981c2af2d67c}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!Scene@{Scene}}
+\index{Scene@{Scene}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{Scene}{Scene}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_i_private_component_a0da2f7b33b8c8e7c95605b9f36c38255}\label{class_uni_engine_1_1_i_private_component_a0da2f7b33b8c8e7c95605b9f36c38255}} 
+\index{UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}!SerializationManager@{SerializationManager}}
+\index{SerializationManager@{SerializationManager}!UniEngine::IPrivateComponent@{UniEngine::IPrivateComponent}}
+\doxysubsubsection{\texorpdfstring{SerializationManager}{SerializationManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{Serialization\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+ECS/\mbox{\hyperlink{_i_private_component_8hpp}{IPrivate\+Component.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_i_private_component_8cpp}{IPrivate\+Component.\+cpp}}\end{DoxyCompactItemize}

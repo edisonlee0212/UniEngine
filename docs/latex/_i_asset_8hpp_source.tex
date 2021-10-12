@@ -1,0 +1,138 @@
+\hypertarget{_i_asset_8hpp_source}{}\doxysection{IAsset.\+hpp}
+\label{_i_asset_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Core/IAsset.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Core/IAsset.hpp}}
+\mbox{\hyperlink{_i_asset_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_handle_8hpp}{IHandle.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_serializable_8hpp}{ISerializable.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_serialization_manager_8hpp}{SerializationManager.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8 \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_texture2_d}{Texture2D}};}
+\DoxyCodeLine{9 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{12     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{13     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{14     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_registry}{AssetRegistry}};}
+\DoxyCodeLine{15     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_project_manager}{ProjectManager}};}
+\DoxyCodeLine{16     std::filesystem::path \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a4ee02e2b59229ba679f1466280e5c34a}{m\_projectRelativePath}};}
+\DoxyCodeLine{17 }
+\DoxyCodeLine{22     \textcolor{keyword}{virtual} \textcolor{keywordtype}{bool} SaveInternal(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{27     \textcolor{keyword}{virtual} \textcolor{keywordtype}{bool} LoadInternal(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{31   \textcolor{keyword}{public}:}
+\DoxyCodeLine{35     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} OnCreate();}
+\DoxyCodeLine{39     std::string \mbox{\hyperlink{class_uni_engine_1_1_i_asset_af65adf02b4bf376fd878653cb656f046}{m\_name}};}
+\DoxyCodeLine{44     [[nodiscard]] std::filesystem::path \mbox{\hyperlink{class_uni_engine_1_1_i_asset_af1a3002773d329640cfa0d07a2cb1cac}{GetPath}}()\{}
+\DoxyCodeLine{45         \textcolor{keywordflow}{return} m\_projectRelativePath;}
+\DoxyCodeLine{46     \}}
+\DoxyCodeLine{51     \textcolor{keywordtype}{void} SetPath(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{55     \textcolor{keywordtype}{bool} Save();}
+\DoxyCodeLine{59     \textcolor{keywordtype}{bool} Load();}
+\DoxyCodeLine{65     \textcolor{keywordtype}{bool} Export(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{70     \textcolor{keywordtype}{bool} SetPathAndSave(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{75     \textcolor{keywordtype}{bool} SetPathAndLoad(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{80     \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{\string~IAsset}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{84     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_asset_acb99c8791b1f38cc459270f4e4939d01}{OnInspect}}() \{\};}
+\DoxyCodeLine{89     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a785716f6c4a461a2fbfd428a3b89ef71}{CollectAssetRef}}(std::vector<AssetRef> \&list)\{\};}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91     \textcolor{keywordtype}{bool} m\_saved = \textcolor{keyword}{false};}
+\DoxyCodeLine{92 \};}
+\DoxyCodeLine{93 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{94 \{}
+\DoxyCodeLine{95     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{96     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_project}{Project}};}
+\DoxyCodeLine{97     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{98     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{AssetManager}};}
+\DoxyCodeLine{99     std::shared\_ptr<IAsset> m\_value;}
+\DoxyCodeLine{100     \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} m\_assetHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{101     std::string m\_assetTypeName;}
+\DoxyCodeLine{102     \textcolor{keywordtype}{bool} Update();}
+\DoxyCodeLine{103   \textcolor{keyword}{public}:}
+\DoxyCodeLine{104     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a321ae8a000ab463270fe651d68047af9}{Serialize}}(YAML::Emitter \&out)\textcolor{keyword}{ override}}
+\DoxyCodeLine{105 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{106       out << YAML::Key << \textcolor{stringliteral}{"{}m\_assetHandle"{}} << YAML::Value << m\_assetHandle;}
+\DoxyCodeLine{107       out << YAML::Key << \textcolor{stringliteral}{"{}m\_assetTypeName"{}} << YAML::Value << m\_assetTypeName;}
+\DoxyCodeLine{108     \}}
+\DoxyCodeLine{109     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a9362d54905fa047702bc7142f21480ff}{Deserialize}}(\textcolor{keyword}{const} YAML::Node \&in)\textcolor{keyword}{ override}}
+\DoxyCodeLine{110 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{111       m\_assetHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(in[\textcolor{stringliteral}{"{}m\_assetHandle"{}}].as<uint64\_t>());}
+\DoxyCodeLine{112       m\_assetTypeName = in[\textcolor{stringliteral}{"{}m\_assetTypeName"{}}].as<std::string>();}
+\DoxyCodeLine{113       Update();}
+\DoxyCodeLine{114     \}}
+\DoxyCodeLine{115     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ae2b16dbf21b0d10e74cc57b6f4d18484}{AssetRef}}()\{}
+\DoxyCodeLine{116         m\_assetHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{117         m\_assetTypeName = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{118         m\_value = \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{119     \}}
+\DoxyCodeLine{120     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset>}
+\DoxyCodeLine{121     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a47f8d17024a2cfe566e7ea2a0d91802d}{AssetRef}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)\{}
+\DoxyCodeLine{122         Set(other);}
+\DoxyCodeLine{123     \}}
+\DoxyCodeLine{124     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_aa2e14463014dc5fc5b1cc033acd4368e}{operator=}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)}
+\DoxyCodeLine{125     \{}
+\DoxyCodeLine{126         Set(other);}
+\DoxyCodeLine{127         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{128     \}}
+\DoxyCodeLine{129     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a02f12afef2ca12f9cd4a489520d21216}{operator=}}(std::shared\_ptr<T> \&\&other) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{130     \{}
+\DoxyCodeLine{131         Set(other);}
+\DoxyCodeLine{132         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{133     \}}
+\DoxyCodeLine{134     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a6052b94d8362f289b4ee1d190a20e59c}{operator==}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{135 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{136         \textcolor{keywordflow}{return} m\_assetHandle == rhs.m\_assetHandle;}
+\DoxyCodeLine{137     \}}
+\DoxyCodeLine{138     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a0fff62193145ea4c026f2e34c2c62100}{operator!=}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{139 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{140         \textcolor{keywordflow}{return} m\_assetHandle != rhs.m\_assetHandle;}
+\DoxyCodeLine{141     \}}
+\DoxyCodeLine{142 }
+\DoxyCodeLine{143     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> [[nodiscard]] std::shared\_ptr<T> \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8756974a2165e46af41729a4cdaa389}{Get}}()}
+\DoxyCodeLine{144     \{}
+\DoxyCodeLine{145         \textcolor{keywordflow}{if} (Update())}
+\DoxyCodeLine{146         \{}
+\DoxyCodeLine{147             \textcolor{keywordflow}{return} std::static\_pointer\_cast<T>(m\_value);}
+\DoxyCodeLine{148         \}}
+\DoxyCodeLine{149         \textcolor{keywordflow}{return} \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{150     \}}
+\DoxyCodeLine{151     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a341f67f26eac7fb928d8b6d67863fd93}{Set}}(std::shared\_ptr<T> target)}
+\DoxyCodeLine{152     \{}
+\DoxyCodeLine{153         \textcolor{keywordflow}{if} (target)}
+\DoxyCodeLine{154         \{}
+\DoxyCodeLine{155             \textcolor{keyword}{auto} asset = std::dynamic\_pointer\_cast<IAsset>(target);}
+\DoxyCodeLine{156             m\_assetTypeName = asset-\/>GetTypeName();}
+\DoxyCodeLine{157             m\_assetHandle = asset-\/>GetHandle();}
+\DoxyCodeLine{158             m\_value = asset;}
+\DoxyCodeLine{159         \}}
+\DoxyCodeLine{160         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{161         \{}
+\DoxyCodeLine{162             m\_assetHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{163             m\_value.reset();}
+\DoxyCodeLine{164         \}}
+\DoxyCodeLine{165     \}}
+\DoxyCodeLine{166     \textcolor{keywordtype}{void} Set(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \& target);}
+\DoxyCodeLine{167     \textcolor{keywordtype}{void} Clear();}
+\DoxyCodeLine{168     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a7649b3778437028c8052241ff4d2ef5c}{GetAssetHandle}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{169 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{170         \textcolor{keywordflow}{return} m\_assetHandle;}
+\DoxyCodeLine{171     \}}
+\DoxyCodeLine{172 }
+\DoxyCodeLine{173     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a379b76b7e3336d613d0d9ebd4fb5e02b}{Save}}(\textcolor{keyword}{const} std::string\& name, YAML::Emitter \&out)\{}
+\DoxyCodeLine{174         out << YAML::Key << name << YAML::Value << YAML::BeginMap;}
+\DoxyCodeLine{175         Serialize(out);}
+\DoxyCodeLine{176         out << YAML::EndMap;}
+\DoxyCodeLine{177     \}}
+\DoxyCodeLine{178     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_aaf47a39c54b364e1414935c46d997663}{Load}}(\textcolor{keyword}{const} std::string\& name, \textcolor{keyword}{const} YAML::Node \&in)\{}
+\DoxyCodeLine{179         \textcolor{keywordflow}{if}(in[name])}
+\DoxyCodeLine{180         \{}
+\DoxyCodeLine{181             Deserialize(in[name]);}
+\DoxyCodeLine{182             Update();}
+\DoxyCodeLine{183         \}}
+\DoxyCodeLine{184     \}}
+\DoxyCodeLine{185 \};}
+\DoxyCodeLine{186 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

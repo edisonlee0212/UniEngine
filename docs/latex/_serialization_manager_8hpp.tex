@@ -1,0 +1,65 @@
+\hypertarget{_serialization_manager_8hpp}{}\doxysection{C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\+Serialization\+Manager.hpp File Reference}
+\label{_serialization_manager_8hpp}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/SerializationManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/SerializationManager.hpp}}
+{\ttfamily \#include $<$Console\+Manager.\+hpp$>$}\newline
+{\ttfamily \#include $<$IData\+Component.\+hpp$>$}\newline
+{\ttfamily \#include $<$IPrivate\+Component.\+hpp$>$}\newline
+{\ttfamily \#include $<$ISerializable.\+hpp$>$}\newline
+{\ttfamily \#include $<$ISingleton.\+hpp$>$}\newline
+{\ttfamily \#include \char`\"{}ISystem.\+hpp\char`\"{}}\newline
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{struct_y_a_m_l_1_1convert_3_01glm_1_1vec2_01_4}{YAML\+::convert$<$ glm\+::vec2 $>$}}
+\item 
+struct \mbox{\hyperlink{struct_y_a_m_l_1_1convert_3_01glm_1_1vec3_01_4}{YAML\+::convert$<$ glm\+::vec3 $>$}}
+\item 
+struct \mbox{\hyperlink{struct_y_a_m_l_1_1convert_3_01glm_1_1vec4_01_4}{YAML\+::convert$<$ glm\+::vec4 $>$}}
+\item 
+struct \mbox{\hyperlink{struct_y_a_m_l_1_1convert_3_01glm_1_1quat_01_4}{YAML\+::convert$<$ glm\+::quat $>$}}
+\item 
+struct \mbox{\hyperlink{struct_y_a_m_l_1_1convert_3_01glm_1_1mat4_01_4}{YAML\+::convert$<$ glm\+::mat4 $>$}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{Uni\+Engine\+::\+Serialization\+Manager}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespace_y_a_m_l}{YAML}}
+\item 
+namespace \mbox{\hyperlink{namespace_uni_engine}{Uni\+Engine}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_serialization_manager_8hpp_a5331c2566c3d93c3f07fea159dd5c892}{EXPORT\+\_\+\+PARAM}}(x,  y)~(x) $<$$<$ \char`\"{}\{\char`\"{} $<$$<$ (y) $<$$<$ \char`\"{}\}\char`\"{}
+\item 
+\#define \mbox{\hyperlink{_serialization_manager_8hpp_a39c957b0aa6bf6d574415cd85af6684f}{IMPORT\+\_\+\+PARAM}}(x,  y,  temp)~(x) $>$$>$ (temp) $>$$>$ (y) $>$$>$ (temp)
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+UNIENGINE\+\_\+\+API YAML\+::\+Emitter \& \mbox{\hyperlink{namespace_uni_engine_a926a79102031979130d31cfcf80997cd}{Uni\+Engine\+::operator$<$$<$}} (YAML\+::\+Emitter \&out, const glm\+::vec2 \&v)
+\item 
+UNIENGINE\+\_\+\+API YAML\+::\+Emitter \& \mbox{\hyperlink{namespace_uni_engine_a1e534e3f853f9d5a2aa23a2c6f93f5d5}{Uni\+Engine\+::operator$<$$<$}} (YAML\+::\+Emitter \&out, const glm\+::vec3 \&v)
+\item 
+UNIENGINE\+\_\+\+API YAML\+::\+Emitter \& \mbox{\hyperlink{namespace_uni_engine_a9aabb9e27be9a917f59271fba32d77a8}{Uni\+Engine\+::operator$<$$<$}} (YAML\+::\+Emitter \&out, const glm\+::vec4 \&v)
+\item 
+UNIENGINE\+\_\+\+API YAML\+::\+Emitter \& \mbox{\hyperlink{namespace_uni_engine_a97d3c5150344c4da8dbb4cc962c00a87}{Uni\+Engine\+::operator$<$$<$}} (YAML\+::\+Emitter \&out, const glm\+::quat \&v)
+\item 
+UNIENGINE\+\_\+\+API YAML\+::\+Emitter \& \mbox{\hyperlink{namespace_uni_engine_a052ca9367dd50c227ad38e8dc7917838}{Uni\+Engine\+::operator$<$$<$}} (YAML\+::\+Emitter \&out, const glm\+::mat4 \&v)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{_serialization_manager_8hpp_a5331c2566c3d93c3f07fea159dd5c892}\label{_serialization_manager_8hpp_a5331c2566c3d93c3f07fea159dd5c892}} 
+\index{SerializationManager.hpp@{SerializationManager.hpp}!EXPORT\_PARAM@{EXPORT\_PARAM}}
+\index{EXPORT\_PARAM@{EXPORT\_PARAM}!SerializationManager.hpp@{SerializationManager.hpp}}
+\doxysubsubsection{\texorpdfstring{EXPORT\_PARAM}{EXPORT\_PARAM}}
+{\footnotesize\ttfamily \#define EXPORT\+\_\+\+PARAM(\begin{DoxyParamCaption}\item[{}]{x,  }\item[{}]{y }\end{DoxyParamCaption})~(x) $<$$<$ \char`\"{}\{\char`\"{} $<$$<$ (y) $<$$<$ \char`\"{}\}\char`\"{}}
+
+\mbox{\Hypertarget{_serialization_manager_8hpp_a39c957b0aa6bf6d574415cd85af6684f}\label{_serialization_manager_8hpp_a39c957b0aa6bf6d574415cd85af6684f}} 
+\index{SerializationManager.hpp@{SerializationManager.hpp}!IMPORT\_PARAM@{IMPORT\_PARAM}}
+\index{IMPORT\_PARAM@{IMPORT\_PARAM}!SerializationManager.hpp@{SerializationManager.hpp}}
+\doxysubsubsection{\texorpdfstring{IMPORT\_PARAM}{IMPORT\_PARAM}}
+{\footnotesize\ttfamily \#define IMPORT\+\_\+\+PARAM(\begin{DoxyParamCaption}\item[{}]{x,  }\item[{}]{y,  }\item[{}]{temp }\end{DoxyParamCaption})~(x) $>$$>$ (temp) $>$$>$ (y) $>$$>$ (temp)}
+

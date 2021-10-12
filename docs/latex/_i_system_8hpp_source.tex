@@ -1,0 +1,152 @@
+\hypertarget{_i_system_8hpp_source}{}\doxysection{ISystem.\+hpp}
+\label{_i_system_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/ISystem.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/ISystem.hpp}}
+\mbox{\hyperlink{_i_system_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_serializable_8hpp}{ISerializable.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 \textcolor{keyword}{class }ThreadPool;}
+\DoxyCodeLine{7 \textcolor{keyword}{class }Scene;}
+\DoxyCodeLine{8 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_i_system}{ISystem}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{9 \{}
+\DoxyCodeLine{10     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}};}
+\DoxyCodeLine{11     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_entity_manager}{EntityManager}};}
+\DoxyCodeLine{12     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{SerializationManager}};}
+\DoxyCodeLine{13     \textcolor{keywordtype}{bool} m\_enabled;}
+\DoxyCodeLine{14     \textcolor{keywordtype}{float} m\_rank = 0.0f;}
+\DoxyCodeLine{15     \textcolor{keywordtype}{bool} m\_started = \textcolor{keyword}{false};}
+\DoxyCodeLine{16   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{17     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_acfb4639a49af33c2d4bcc6552e5f3211}{OnEnable}}()\{\};}
+\DoxyCodeLine{18     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_a62a92ba844e3e4a974cd59982f857844}{OnDisable}}()\{\};}
+\DoxyCodeLine{19   \textcolor{keyword}{public}:}
+\DoxyCodeLine{20     [[nodiscard]] \textcolor{keywordtype}{float} GetRank();}
+\DoxyCodeLine{21     \mbox{\hyperlink{class_uni_engine_1_1_i_system}{ISystem}}();}
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} Enable();}
+\DoxyCodeLine{23     \textcolor{keywordtype}{void} Disable();}
+\DoxyCodeLine{24     [[nodiscard]] \textcolor{keywordtype}{bool} Enabled() \textcolor{keyword}{const};}
+\DoxyCodeLine{25     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_a57727398219f3f51228c343f3aa1f5ff}{OnCreate}}()\{\};}
+\DoxyCodeLine{26     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_aae0a6e9dc894442335a29880afd9c248}{Start}}()\{\};}
+\DoxyCodeLine{27     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_a0dc9d2ac77b0228e63ce28f9cc751ae2}{OnDestroy}}()\{\};}
+\DoxyCodeLine{28     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_ad9b6398c978f6ede9c61b524b73ad70b}{PreUpdate}}()\{\};}
+\DoxyCodeLine{29     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_a404da45b038a8d40dd93380f729fc1ea}{Update}}()\{\};}
+\DoxyCodeLine{30     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_afd5288dc5be7d7689fa5b52b8bd72644}{FixedUpdate}}()\{\};}
+\DoxyCodeLine{31     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_aec775fa684e4b1dfb762d2fa35576e74}{LateUpdate}}()\{\};}
+\DoxyCodeLine{32     \textcolor{comment}{// Will only exec when editor is enabled, and no matter application is running or not.}}
+\DoxyCodeLine{33     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_aea25b9986fec723637494a6c3da98e4b}{OnInspect}}()\{\};}
+\DoxyCodeLine{34     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_aa4baeac61f490b5e281efe1a9fbec2f0}{CollectAssetRef}}(std::vector<AssetRef> \&list)\{\};}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_system_afd19dc1f6356bdc43854c02fdf052ead}{PostCloneAction}}(\textcolor{keyword}{const} std::shared\_ptr<ISystem>\& target)\{\};}
+\DoxyCodeLine{37 \};}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{40 \{}
+\DoxyCodeLine{41     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{42     std::optional<std::weak\_ptr<ISystem>> m\_value;}
+\DoxyCodeLine{43     \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{44     std::string m\_systemTypeName;}
+\DoxyCodeLine{45     \textcolor{keywordtype}{bool} Update();}
+\DoxyCodeLine{46 }
+\DoxyCodeLine{47   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{48     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a31bc9983ea568eab155592d77f9a474d}{Serialize}}(YAML::Emitter \&out)\textcolor{keyword}{ override}}
+\DoxyCodeLine{49 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{50         out << YAML::Key << \textcolor{stringliteral}{"{}m\_systemHandle"{}} << YAML::Value << m\_systemHandle;}
+\DoxyCodeLine{51         out << YAML::Key << \textcolor{stringliteral}{"{}m\_systemTypeName"{}} << YAML::Value << m\_systemTypeName;}
+\DoxyCodeLine{52     \}}
+\DoxyCodeLine{53     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_afd3a5b82aaa5721380bbd809f7fff9b0}{Deserialize}}(\textcolor{keyword}{const} YAML::Node \&in)\textcolor{keyword}{ override}}
+\DoxyCodeLine{54 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{55         m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(in[\textcolor{stringliteral}{"{}m\_systemHandle"{}}].as<uint64\_t>());}
+\DoxyCodeLine{56         m\_systemTypeName = in[\textcolor{stringliteral}{"{}m\_systemTypeName"{}}].as<std::string>();}
+\DoxyCodeLine{57         Update();}
+\DoxyCodeLine{58     \}}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60   \textcolor{keyword}{public}:}
+\DoxyCodeLine{61     \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a3cce1c2ba921d0d6fc022e33a441921b}{SystemRef}}()}
+\DoxyCodeLine{62     \{}
+\DoxyCodeLine{63         m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{64         m\_systemTypeName = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{65     \}}
+\DoxyCodeLine{66     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a035b077cf834ab60268a730395c97f1c}{SystemRef}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)}
+\DoxyCodeLine{67     \{}
+\DoxyCodeLine{68         Set(other);}
+\DoxyCodeLine{69     \}}
+\DoxyCodeLine{70     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_system_ref_aeae83c692f43c7f70daaeeb3e86b2593}{operator=}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)}
+\DoxyCodeLine{71     \{}
+\DoxyCodeLine{72         Set(other);}
+\DoxyCodeLine{73         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{74     \}}
+\DoxyCodeLine{75     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_system_ref_a11c6a6dc92f24b5b274f795ac54f2a3d}{operator=}}(std::shared\_ptr<T> \&\&other) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{76     \{}
+\DoxyCodeLine{77         Set(other);}
+\DoxyCodeLine{78         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{79     \}}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a900ba49343a80c00c6ba481cae0ffd8f}{operator==}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{82 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{83         \textcolor{keywordflow}{return} m\_systemHandle == rhs.m\_systemHandle;}
+\DoxyCodeLine{84     \}}
+\DoxyCodeLine{85     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_ae056f25289a51968b40d0664d2c1b15f}{operator!=}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{86 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{87         \textcolor{keywordflow}{return} m\_systemHandle != rhs.m\_systemHandle;}
+\DoxyCodeLine{88     \}}
+\DoxyCodeLine{89 }
+\DoxyCodeLine{90     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_af80ec440ca921dcf25238526f4b8f5e7}{Relink}}(\textcolor{keyword}{const} std::unordered\_map<Handle, Handle> \&map)}
+\DoxyCodeLine{91     \{}
+\DoxyCodeLine{92         \textcolor{keyword}{auto} search = map.find(m\_systemHandle);}
+\DoxyCodeLine{93         \textcolor{keywordflow}{if} (search != map.end())}
+\DoxyCodeLine{94             m\_systemHandle = search-\/>second;}
+\DoxyCodeLine{95         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{96             m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{97         m\_value.reset();}
+\DoxyCodeLine{98     \};}
+\DoxyCodeLine{99 }
+\DoxyCodeLine{100     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> [[nodiscard]] std::shared\_ptr<T> \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a7098c12743450c7f1f42bce9add33840}{Get}}()}
+\DoxyCodeLine{101     \{}
+\DoxyCodeLine{102         \textcolor{keywordflow}{if} (Update())}
+\DoxyCodeLine{103         \{}
+\DoxyCodeLine{104             \textcolor{keywordflow}{return} std::static\_pointer\_cast<T>(m\_value.value().lock());}
+\DoxyCodeLine{105         \}}
+\DoxyCodeLine{106         \textcolor{keywordflow}{return} \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{107     \}}
+\DoxyCodeLine{108     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a6e46d69879a34338ffecc732ace42464}{Set}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&target)}
+\DoxyCodeLine{109     \{}
+\DoxyCodeLine{110         \textcolor{keywordflow}{if} (target)}
+\DoxyCodeLine{111         \{}
+\DoxyCodeLine{112             \textcolor{keyword}{auto} system = std::dynamic\_pointer\_cast<ISystem>(target);}
+\DoxyCodeLine{113             m\_systemTypeName = system-\/>GetTypeName();}
+\DoxyCodeLine{114             m\_systemHandle = system-\/>GetHandle();}
+\DoxyCodeLine{115             m\_value = system;}
+\DoxyCodeLine{116         \}}
+\DoxyCodeLine{117         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{118         \{}
+\DoxyCodeLine{119             m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{120             m\_value.reset();}
+\DoxyCodeLine{121         \}}
+\DoxyCodeLine{122     \}}
+\DoxyCodeLine{123 }
+\DoxyCodeLine{124     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a20266d7a8f7afed4789a5b3f5376c4c0}{Clear}}()}
+\DoxyCodeLine{125     \{}
+\DoxyCodeLine{126         m\_value.reset();}
+\DoxyCodeLine{127         m\_systemHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{128     \}}
+\DoxyCodeLine{129 }
+\DoxyCodeLine{130     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a4247f91dbfae1094e3209787f3822f40}{GetEntityHandle}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{131 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{132         \textcolor{keywordflow}{return} m\_systemHandle;}
+\DoxyCodeLine{133     \}}
+\DoxyCodeLine{134 }
+\DoxyCodeLine{135     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_ad1079113ea8392b5a3a6788f4678a119}{Save}}(\textcolor{keyword}{const} std::string \&name, YAML::Emitter \&out)}
+\DoxyCodeLine{136     \{}
+\DoxyCodeLine{137         out << YAML::Key << name << YAML::Value << YAML::BeginMap;}
+\DoxyCodeLine{138         Serialize(out);}
+\DoxyCodeLine{139         out << YAML::EndMap;}
+\DoxyCodeLine{140     \}}
+\DoxyCodeLine{141     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_addd9cc93244654d48a6fedaa762c9e12}{Load}}(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} YAML::Node \&in)}
+\DoxyCodeLine{142     \{}
+\DoxyCodeLine{143         Deserialize(in[name]);}
+\DoxyCodeLine{144     \}}
+\DoxyCodeLine{145 \};}
+\DoxyCodeLine{146 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

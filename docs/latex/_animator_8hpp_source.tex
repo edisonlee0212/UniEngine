@@ -1,0 +1,51 @@
+\hypertarget{_animator_8hpp_source}{}\doxysection{Animator.\+hpp}
+\label{_animator_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Animator.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Animator.hpp}}
+\mbox{\hyperlink{_animator_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_animation_8hpp}{Animation.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{Core/OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_scene_8hpp}{Scene.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_transform_8hpp}{Transform.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{7 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_animator}{Animator}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11     std::vector<std::shared\_ptr<Bone>> m\_bones;}
+\DoxyCodeLine{12     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{SkinnedMeshRenderer}};}
+\DoxyCodeLine{13     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_animation_manager}{AnimationManager}};}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15     std::vector<glm::mat4> m\_transformChain;}
+\DoxyCodeLine{16     std::vector<glm::mat4> m\_offsetMatrices;}
+\DoxyCodeLine{17     std::vector<std::string> m\_names;}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_animation;}
+\DoxyCodeLine{20     \textcolor{keywordtype}{bool} m\_needAnimationSetup = \textcolor{keyword}{true};}
+\DoxyCodeLine{21     \textcolor{keywordtype}{size\_t} m\_boneSize = 0;}
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} BoneSetter(\textcolor{keyword}{const} std::shared\_ptr<Bone> \&boneWalker);}
+\DoxyCodeLine{23     \textcolor{keywordtype}{void} Setup();}
+\DoxyCodeLine{24     \textcolor{keywordtype}{bool} m\_animatedCurrentFrame = \textcolor{keyword}{false};}
+\DoxyCodeLine{25   \textcolor{keyword}{public}:}
+\DoxyCodeLine{26     \textcolor{keywordtype}{bool} m\_needAnimate = \textcolor{keyword}{true};}
+\DoxyCodeLine{32     \textcolor{keywordtype}{void} Setup(std::vector<std::string> \&name, std::vector<glm::mat4> \&offsetMatrices);}
+\DoxyCodeLine{33     \textcolor{keywordtype}{void} ApplyOffsetMatrices();}
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35     glm::mat4 GetReverseTransform(\textcolor{keyword}{const} \textcolor{keywordtype}{int} \&index, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}\& entity);}
+\DoxyCodeLine{36     \textcolor{keywordtype}{bool} m\_autoPlay = \textcolor{keyword}{false};}
+\DoxyCodeLine{37     std::string \mbox{\hyperlink{class_uni_engine_1_1_animator_a35b8d39af3ddeb323e26f06990900af8}{m\_currentActivatedAnimation}};}
+\DoxyCodeLine{38     \textcolor{keywordtype}{float} \mbox{\hyperlink{class_uni_engine_1_1_animator_a527314506068368c61c4d5754ac773be}{m\_currentAnimationTime}};}
+\DoxyCodeLine{39     \textcolor{keywordtype}{void} AutoPlay();}
+\DoxyCodeLine{40     \textcolor{keywordtype}{bool} AnimatedCurrentFrame();}
+\DoxyCodeLine{41     \textcolor{keywordtype}{void} Setup(\textcolor{keyword}{const} std::shared\_ptr<Animation> \&targetAnimation);}
+\DoxyCodeLine{42     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{43     \textcolor{keywordtype}{void} Animate();}
+\DoxyCodeLine{44     \textcolor{keywordtype}{void} PostCloneAction(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent>\& target) \textcolor{keyword}{override};}
+\DoxyCodeLine{45     std::shared\_ptr<Animation> GetAnimation();}
+\DoxyCodeLine{46     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{47     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{48     \textcolor{keywordtype}{void} CollectAssetRef(std::vector<AssetRef> \&list) \textcolor{keyword}{override};}
+\DoxyCodeLine{49 \};}
+\DoxyCodeLine{50 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

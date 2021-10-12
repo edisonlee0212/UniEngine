@@ -1,0 +1,108 @@
+\hypertarget{_utilities_8hpp_source}{}\doxysection{Utilities.\+hpp}
+\label{_utilities_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Utilities/Utilities.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Utilities/Utilities.hpp}}
+\mbox{\hyperlink{_utilities_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_file_utils}{FileUtils}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10   \textcolor{keyword}{public}:}
+\DoxyCodeLine{11     \textcolor{keyword}{static} std::string LoadFileAsString(\textcolor{keyword}{const} std::filesystem::path \&path = \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{12     \textcolor{keyword}{static} \textcolor{keywordtype}{void} OpenFile(}
+\DoxyCodeLine{13         \textcolor{keyword}{const} std::string \&dialogTitle,}
+\DoxyCodeLine{14         \textcolor{keyword}{const} std::string \&fileType,}
+\DoxyCodeLine{15         \textcolor{keyword}{const} std::vector<std::string> \&extensions,}
+\DoxyCodeLine{16         \textcolor{keyword}{const} std::function<\textcolor{keywordtype}{void}(\textcolor{keyword}{const} std::filesystem::path \&path)> \&func, \textcolor{keywordtype}{bool} projectDirCheck = \textcolor{keyword}{true});}
+\DoxyCodeLine{17     \textcolor{keyword}{static} \textcolor{keywordtype}{void} SaveFile(}
+\DoxyCodeLine{18         \textcolor{keyword}{const} std::string \&dialogTitle,}
+\DoxyCodeLine{19         \textcolor{keyword}{const} std::string \&fileType,}
+\DoxyCodeLine{20         \textcolor{keyword}{const} std::vector<std::string> \&extensions,}
+\DoxyCodeLine{21         \textcolor{keyword}{const} std::function<\textcolor{keywordtype}{void}(\textcolor{keyword}{const} std::filesystem::path \&path)> \&func, \textcolor{keywordtype}{bool} projectDirCheck = \textcolor{keyword}{true});}
+\DoxyCodeLine{22     \textcolor{keyword}{static} std::pair<bool, uint32\_t> DirectoryTreeViewRecursive(}
+\DoxyCodeLine{23         \textcolor{keyword}{const} std::filesystem::path \&path, uint32\_t *count, \textcolor{keywordtype}{int} *selection\_mask);}
+\DoxyCodeLine{24 \};}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}}}
+\DoxyCodeLine{27 \{}
+\DoxyCodeLine{28     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_bound_af1f836465f219ee46ec3702bb4e943c2}{m\_min}};}
+\DoxyCodeLine{29     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_bound_a3c1133a784e008b4af2d91e2d66fb231}{m\_max}};}
+\DoxyCodeLine{30     \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}}();}
+\DoxyCodeLine{31     [[nodiscard]] glm::vec3 Size() \textcolor{keyword}{const};}
+\DoxyCodeLine{32     [[nodiscard]] glm::vec3 Center() \textcolor{keyword}{const};}
+\DoxyCodeLine{33     [[nodiscard]] \textcolor{keywordtype}{bool} InBound(\textcolor{keyword}{const} glm::vec3 \&position) \textcolor{keyword}{const};}
+\DoxyCodeLine{34     \textcolor{keywordtype}{void} ApplyTransform(\textcolor{keyword}{const} glm::mat4 \&transform);}
+\DoxyCodeLine{35     \textcolor{keywordtype}{void} PopulateCorners(std::vector<glm::vec3> \&corners) \textcolor{keyword}{const};}
+\DoxyCodeLine{36 \};}
+\DoxyCodeLine{37 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} : \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}}}
+\DoxyCodeLine{38 \{}
+\DoxyCodeLine{39     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_ray_aa9381b46b6032b82599d5d4bacf34b0a}{m\_start}};}
+\DoxyCodeLine{40     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_ray_ad803e686f0a0fb9b0db23959e6490e6e}{m\_direction}};}
+\DoxyCodeLine{41     \textcolor{keywordtype}{float} \mbox{\hyperlink{struct_uni_engine_1_1_ray_aa529e78493be333739cd8f421d24e947}{m\_length}};}
+\DoxyCodeLine{42     \mbox{\hyperlink{struct_uni_engine_1_1_ray_a744409623bb6984e4e65f441c4e2f082}{Ray}}() = \textcolor{keywordflow}{default};}
+\DoxyCodeLine{43     \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}}(glm::vec3 start, glm::vec3 end);}
+\DoxyCodeLine{44     \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}}(glm::vec3 start, glm::vec3 direction, \textcolor{keywordtype}{float} length);}
+\DoxyCodeLine{45     [[nodiscard]] \textcolor{keywordtype}{bool} Intersect(\textcolor{keyword}{const} glm::vec3 \&position, \textcolor{keywordtype}{float} radius) \textcolor{keyword}{const};}
+\DoxyCodeLine{46     [[nodiscard]] \textcolor{keywordtype}{bool} Intersect(\textcolor{keyword}{const} glm::mat4 \&transform, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} \&bound) \textcolor{keyword}{const};}
+\DoxyCodeLine{47     [[nodiscard]] glm::vec3 GetEnd() \textcolor{keyword}{const};}
+\DoxyCodeLine{48 \};}
+\DoxyCodeLine{49 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}}}
+\DoxyCodeLine{50 \{}
+\DoxyCodeLine{51     \textcolor{keywordtype}{bool} m\_fixed = \textcolor{keyword}{true};}
+\DoxyCodeLine{52     glm::vec2 m\_controlPoints[4];}
+\DoxyCodeLine{53     \mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}}();}
+\DoxyCodeLine{54     [[nodiscard]] glm::vec2 GetPoint(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&t) \textcolor{keyword}{const};}
+\DoxyCodeLine{55     \textcolor{keywordtype}{bool} DrawGraph(\textcolor{keyword}{const} std::string \&label);}
+\DoxyCodeLine{56 \};}
+\DoxyCodeLine{57 \textcolor{keyword}{enum class} UNIENGINE\_API CurveEditorFlags}
+\DoxyCodeLine{58 \{}
+\DoxyCodeLine{59     \mbox{\hyperlink{_utilities_8hpp_add2f3ada79544647060a0d86c677ce4c}{SHOW\_GRID}} = 1 << 1,}
+\DoxyCodeLine{60     \mbox{\hyperlink{_utilities_8hpp_a9ff7864fc985c930282c647afb6d4a17}{RESET}} = 1 << 2,}
+\DoxyCodeLine{61     \mbox{\hyperlink{_utilities_8hpp_a0ca6a5cf933fb47e608c02c045e6410e}{ALLOW\_RESIZE}} = 1 << 3,}
+\DoxyCodeLine{62     ALLOW\_REMOVE\_SIDES = 1 << 4}
+\DoxyCodeLine{63 \};}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_curve}{Curve}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{66 \{}
+\DoxyCodeLine{67     \textcolor{keywordtype}{bool} m\_tangent;}
+\DoxyCodeLine{68     std::vector<glm::vec2> m\_values;}
+\DoxyCodeLine{69     glm::vec2 m\_min;}
+\DoxyCodeLine{70     glm::vec2 m\_max;}
+\DoxyCodeLine{71 }
+\DoxyCodeLine{72   \textcolor{keyword}{public}:}
+\DoxyCodeLine{73     \mbox{\hyperlink{class_uni_engine_1_1_curve}{Curve}}(\textcolor{keyword}{const} glm::vec2 \&min = \{0, -\/1\}, \textcolor{keyword}{const} glm::vec2 \&max = \{1, 1\}, \textcolor{keywordtype}{bool} tangent = \textcolor{keyword}{true});}
+\DoxyCodeLine{74     \mbox{\hyperlink{class_uni_engine_1_1_curve}{Curve}}(\textcolor{keywordtype}{float} start, \textcolor{keywordtype}{float} end, \textcolor{keyword}{const} glm::vec2 \&min = \{0, -\/1\}, \textcolor{keyword}{const} glm::vec2 \&max = \{1, 1\}, \textcolor{keywordtype}{bool} tangent = \textcolor{keyword}{true});}
+\DoxyCodeLine{75     \textcolor{keywordtype}{void} Clear();}
+\DoxyCodeLine{76     [[nodiscard]] std::vector<glm::vec2> \&UnsafeGetValues();}
+\DoxyCodeLine{77     \textcolor{keywordtype}{void} SetTangent(\textcolor{keywordtype}{bool} value);}
+\DoxyCodeLine{78     \textcolor{keywordtype}{void} SetStart(\textcolor{keywordtype}{float} value);}
+\DoxyCodeLine{79     \textcolor{keywordtype}{void} SetEnd(\textcolor{keywordtype}{float} value);}
+\DoxyCodeLine{80     [[nodiscard]] \textcolor{keywordtype}{bool} IsTangent();}
+\DoxyCodeLine{81     \textcolor{keywordtype}{bool} CurveEditor(}
+\DoxyCodeLine{82         \textcolor{keyword}{const} std::string \&label,}
+\DoxyCodeLine{83         \textcolor{keyword}{const} ImVec2 \&editor\_size = ImVec2(-\/1, -\/1),}
+\DoxyCodeLine{84         \textcolor{keywordtype}{unsigned} flags = (\textcolor{keywordtype}{unsigned})\mbox{\hyperlink{_utilities_8hpp_a0ca6a5cf933fb47e608c02c045e6410e}{CurveEditorFlags::ALLOW\_RESIZE}} | (\textcolor{keywordtype}{unsigned})\mbox{\hyperlink{_utilities_8hpp_add2f3ada79544647060a0d86c677ce4c}{CurveEditorFlags::SHOW\_GRID}});}
+\DoxyCodeLine{85     \textcolor{keywordtype}{float} GetValue(\textcolor{keywordtype}{float} x);}
+\DoxyCodeLine{86 }
+\DoxyCodeLine{87     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out);}
+\DoxyCodeLine{88     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in);}
+\DoxyCodeLine{89 \};}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91 \} \textcolor{comment}{// namespace UniEngine}}
+\DoxyCodeLine{92 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_im_gui}{ImGui}}}
+\DoxyCodeLine{93 \{}
+\DoxyCodeLine{94 IMGUI\_API \textcolor{keywordtype}{bool} \mbox{\hyperlink{namespace_im_gui_a959abae4f6c766539c0c12fdb9aef752}{Splitter}}(}
+\DoxyCodeLine{95     \textcolor{keywordtype}{bool} split\_vertically,}
+\DoxyCodeLine{96     \textcolor{keywordtype}{float} thickness,}
+\DoxyCodeLine{97     \textcolor{keywordtype}{float} \&size1,}
+\DoxyCodeLine{98     \textcolor{keywordtype}{float} \&size2,}
+\DoxyCodeLine{99     \textcolor{keywordtype}{float} min\_size1,}
+\DoxyCodeLine{100     \textcolor{keywordtype}{float} min\_size2,}
+\DoxyCodeLine{101     \textcolor{keywordtype}{float} splitter\_long\_axis\_size = -\/1.0f);}
+\DoxyCodeLine{102 \}}
+
+\end{DoxyCode}

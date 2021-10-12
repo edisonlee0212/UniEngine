@@ -1,0 +1,80 @@
+\hypertarget{struct_uni_engine_1_1_environment_settings}{}\doxysection{Uni\+Engine\+::Environment\+Settings Struct Reference}
+\label{struct_uni_engine_1_1_environment_settings}\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+
+
+{\ttfamily \#include $<$Scene.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_af3eaf067237919319cefa3c886f73064}{Serialize}} (YAML\+::\+Emitter \&out)
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a6e308097053d34b5fa192fd97aa78a82}{Deserialize}} (const YAML\+::\+Node \&in)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a01a0084bf36d9204daa82d8a7749f1a9}{m\+\_\+environmental\+Map}}
+\item 
+glm\+::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a8e55b16a30acab1678c2b3d762dfdd76}{m\+\_\+background\+Color}} = glm\+::vec3(1.\+0f, 1.\+0f, 1.\+0f)
+\item 
+float \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a97e1c1df2c6d53d317be48a4a7382797}{m\+\_\+environment\+Gamma}} = 1.\+0f
+\item 
+float \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a8027b25d6a9ed104a82edb00c10230ab}{m\+\_\+ambient\+Light\+Intensity}} = 0.\+8f
+\item 
+Environment\+Type \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a3eb02ead1eaf3d1c29cef1e473937f0a}{m\+\_\+environment\+Type}} = \mbox{\hyperlink{_scene_8hpp_aa533475891ccd8536de0cf9a88a1ca82}{Environment\+Type\+::\+Environmental\+Map}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a6e308097053d34b5fa192fd97aa78a82}\label{struct_uni_engine_1_1_environment_settings_a6e308097053d34b5fa192fd97aa78a82}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Environment\+Settings\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_af3eaf067237919319cefa3c886f73064}\label{struct_uni_engine_1_1_environment_settings_af3eaf067237919319cefa3c886f73064}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Environment\+Settings\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a8027b25d6a9ed104a82edb00c10230ab}\label{struct_uni_engine_1_1_environment_settings_a8027b25d6a9ed104a82edb00c10230ab}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!m\_ambientLightIntensity@{m\_ambientLightIntensity}}
+\index{m\_ambientLightIntensity@{m\_ambientLightIntensity}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{m\_ambientLightIntensity}{m\_ambientLightIntensity}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Environment\+Settings\+::m\+\_\+ambient\+Light\+Intensity = 0.\+8f}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a8e55b16a30acab1678c2b3d762dfdd76}\label{struct_uni_engine_1_1_environment_settings_a8e55b16a30acab1678c2b3d762dfdd76}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!m\_backgroundColor@{m\_backgroundColor}}
+\index{m\_backgroundColor@{m\_backgroundColor}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{m\_backgroundColor}{m\_backgroundColor}}
+{\footnotesize\ttfamily glm\+::vec3 Uni\+Engine\+::\+Environment\+Settings\+::m\+\_\+background\+Color = glm\+::vec3(1.\+0f, 1.\+0f, 1.\+0f)}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a01a0084bf36d9204daa82d8a7749f1a9}\label{struct_uni_engine_1_1_environment_settings_a01a0084bf36d9204daa82d8a7749f1a9}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!m\_environmentalMap@{m\_environmentalMap}}
+\index{m\_environmentalMap@{m\_environmentalMap}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{m\_environmentalMap}{m\_environmentalMap}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} Uni\+Engine\+::\+Environment\+Settings\+::m\+\_\+environmental\+Map}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a97e1c1df2c6d53d317be48a4a7382797}\label{struct_uni_engine_1_1_environment_settings_a97e1c1df2c6d53d317be48a4a7382797}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!m\_environmentGamma@{m\_environmentGamma}}
+\index{m\_environmentGamma@{m\_environmentGamma}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{m\_environmentGamma}{m\_environmentGamma}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Environment\+Settings\+::m\+\_\+environment\+Gamma = 1.\+0f}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_environment_settings_a3eb02ead1eaf3d1c29cef1e473937f0a}\label{struct_uni_engine_1_1_environment_settings_a3eb02ead1eaf3d1c29cef1e473937f0a}} 
+\index{UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}!m\_environmentType@{m\_environmentType}}
+\index{m\_environmentType@{m\_environmentType}!UniEngine::EnvironmentSettings@{UniEngine::EnvironmentSettings}}
+\doxysubsubsection{\texorpdfstring{m\_environmentType}{m\_environmentType}}
+{\footnotesize\ttfamily Environment\+Type Uni\+Engine\+::\+Environment\+Settings\+::m\+\_\+environment\+Type = \mbox{\hyperlink{_scene_8hpp_aa533475891ccd8536de0cf9a88a1ca82}{Environment\+Type\+::\+Environmental\+Map}}}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+ECS/\mbox{\hyperlink{_scene_8hpp}{Scene.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_scene_8cpp}{Scene.\+cpp}}\end{DoxyCompactItemize}

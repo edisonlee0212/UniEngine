@@ -1,0 +1,139 @@
+\hypertarget{_asset_manager_8hpp_source}{}\doxysection{Asset\+Manager.\+hpp}
+\label{_asset_manager_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/AssetManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/AssetManager.hpp}}
+\mbox{\hyperlink{_asset_manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_cubemap_8hpp}{Cubemap.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_manager_8hpp}{EntityManager.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_environmental_map_8hpp}{EnvironmentalMap.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_light_probe_8hpp}{LightProbe.hpp}}>}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_prefab_8hpp}{Prefab.hpp}}>}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_project_manager_8hpp}{ProjectManager.hpp}}>}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_reflection_probe_8hpp}{ReflectionProbe.hpp}}>}}
+\DoxyCodeLine{11 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{12 \{}
+\DoxyCodeLine{13 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_asset_create_helper}{AssetCreateHelper}}}
+\DoxyCodeLine{14 \{}
+\DoxyCodeLine{15     std::string \mbox{\hyperlink{struct_uni_engine_1_1_asset_create_helper_ae63d4b65ff7aff4f8e779144ca612189}{m\_typeName}};}
+\DoxyCodeLine{16     \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{struct_uni_engine_1_1_asset_create_helper_ad52950bd64bdb101fa55597a65a50abf}{m\_handle}};}
+\DoxyCodeLine{17     std::string \mbox{\hyperlink{struct_uni_engine_1_1_asset_create_helper_a5012938988ee1d107dadfd5a555fc139}{m\_name}};}
+\DoxyCodeLine{18 \};}
+\DoxyCodeLine{19 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{AssetManager}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<AssetManager>}
+\DoxyCodeLine{20 \{}
+\DoxyCodeLine{21     \textcolor{keywordtype}{bool} m\_enableAssetMenu = \textcolor{keyword}{false};}
+\DoxyCodeLine{22     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_class_registry}{ClassRegistry}};}
+\DoxyCodeLine{23     std::map<std::string, std::unordered\_map<Handle, std::shared\_ptr<IAsset>>> m\_sharedAssets;}
+\DoxyCodeLine{24     std::unordered\_map<Handle, std::weak\_ptr<IAsset>> m\_assets;}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26     std::unordered\_map<std::string, std::vector<std::string>> m\_defaultExtensions;}
+\DoxyCodeLine{27     std::unordered\_map<std::string, std::string> m\_typeNames;}
+\DoxyCodeLine{28     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{29     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_registry}{AssetRegistry}};}
+\DoxyCodeLine{30     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_project_manager}{ProjectManager}};}
+\DoxyCodeLine{31     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{32     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}};}
+\DoxyCodeLine{33     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}};}
+\DoxyCodeLine{34     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{35     \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterAsset(std::shared\_ptr<IAsset> resource);}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} std::shared\_ptr<T> CreateAsset(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle, \textcolor{keyword}{const} std::string \&name);}
+\DoxyCodeLine{38     \textcolor{keyword}{static} std::shared\_ptr<IAsset> CreateAsset(}
+\DoxyCodeLine{39         \textcolor{keyword}{const} std::string \&typeName, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle, \textcolor{keyword}{const} std::string \&name);}
+\DoxyCodeLine{40     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterAssetType(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} std::string \&extension);}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42   \textcolor{keyword}{public}:}
+\DoxyCodeLine{43     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} IsAsset(\textcolor{keyword}{const} std::string \&typeName);}
+\DoxyCodeLine{44     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} std::shared\_ptr<T> Import(\textcolor{keyword}{const} std::filesystem::path \&path);}
+\DoxyCodeLine{47     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} \textcolor{keywordtype}{void} Share(std::shared\_ptr<T> resource);}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} std::shared\_ptr<T> CreateAsset(\textcolor{keyword}{const} std::string \&name = \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} std::shared\_ptr<T> Get(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle);}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53     \textcolor{keyword}{static} std::shared\_ptr<IAsset> Get(\textcolor{keyword}{const} std::string \&typeName, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle);}
+\DoxyCodeLine{54     \textcolor{keyword}{static} std::shared\_ptr<IAsset> Get(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle);}
+\DoxyCodeLine{55     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RemoveFromShared(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle);}
+\DoxyCodeLine{56     \textcolor{keyword}{static} \textcolor{keywordtype}{void} RemoveFromShared(\textcolor{keyword}{const} std::string \&typeName, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle);}
+\DoxyCodeLine{57 \textcolor{preprocessor}{\#pragma region Loaders}}
+\DoxyCodeLine{58     \textcolor{keyword}{static} std::shared\_ptr<Material> LoadMaterial(\textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLProgram> \&program);}
+\DoxyCodeLine{59     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> LoadProgram(}
+\DoxyCodeLine{60         \textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLShader> \&vertex, \textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLShader> \&fragment);}
+\DoxyCodeLine{61     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> LoadProgram(}
+\DoxyCodeLine{62         \textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLShader> \&vertex,}
+\DoxyCodeLine{63         \textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLShader> \&geometry,}
+\DoxyCodeLine{64         \textcolor{keyword}{const} std::shared\_ptr<OpenGLUtils::GLShader> \&fragment);}
+\DoxyCodeLine{65 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{66     \textcolor{keyword}{static} \textcolor{keywordtype}{void} OnInspect();}
+\DoxyCodeLine{67 \textcolor{preprocessor}{\#pragma region ToEntity}}
+\DoxyCodeLine{68     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} ToEntity(\mbox{\hyperlink{struct_uni_engine_1_1_entity_archetype}{EntityArchetype}} archetype, std::shared\_ptr<Texture2D> texture);}
+\DoxyCodeLine{69 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{70     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Init();}
+\DoxyCodeLine{71     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \textcolor{keyword}{static} std::vector<std::string> GetExtension();}
+\DoxyCodeLine{72     \textcolor{keyword}{static} std::vector<std::string> GetExtension(\textcolor{keyword}{const} std::string \&typeName);}
+\DoxyCodeLine{73 \};}
+\DoxyCodeLine{74 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> std::shared\_ptr<T> \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a70148588fb6b7ef0b145ca641d6a8909}{AssetManager::Import}}(\textcolor{keyword}{const} std::filesystem::path \&path)}
+\DoxyCodeLine{75 \{}
+\DoxyCodeLine{76     \textcolor{keyword}{auto} asset = CreateAsset<T>(path.filename().string());}
+\DoxyCodeLine{77     std::dynamic\_pointer\_cast<IAsset>(asset)-\/>SetPathAndLoad(path);}
+\DoxyCodeLine{78     \textcolor{keywordflow}{return} asset;}
+\DoxyCodeLine{79 \}}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> std::vector<std::string> \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a7c7c3ccef58468cabe244e78e52104ba}{AssetManager::GetExtension}}()}
+\DoxyCodeLine{82 \{}
+\DoxyCodeLine{83     \textcolor{keywordflow}{return} \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_defaultExtensions[SerializationManager::GetSerializableTypeName<T>()];}
+\DoxyCodeLine{84 \}}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_ad899b0a20f0f81de550a454a80322c90}{AssetManager::Share}}(std::shared\_ptr<T> resource)}
+\DoxyCodeLine{87 \{}
+\DoxyCodeLine{88     \textcolor{keyword}{auto} ptr = std::dynamic\_pointer\_cast<IAsset>(resource);}
+\DoxyCodeLine{89     \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_sharedAssets[ptr-\/>GetTypeName()][ptr-\/>GetHandle()] = std::dynamic\_pointer\_cast<IAsset>(resource);}
+\DoxyCodeLine{90 \}}
+\DoxyCodeLine{91 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> std::shared\_ptr<T> \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a2a65c6d14e17518105c8fe10484d76fd}{AssetManager::Get}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle)}
+\DoxyCodeLine{92 \{}
+\DoxyCodeLine{93     \textcolor{keywordflow}{return} std::dynamic\_pointer\_cast<T>(\mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a2a65c6d14e17518105c8fe10484d76fd}{Get}}(SerializationManager::GetSerializableTypeName<T>(), handle));}
+\DoxyCodeLine{94 \}}
+\DoxyCodeLine{95 }
+\DoxyCodeLine{96 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} AssetManager::RegisterAssetType(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} std::string \&extension)}
+\DoxyCodeLine{97 \{}
+\DoxyCodeLine{98     \textcolor{keyword}{auto} \&resourceManager = \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}();}
+\DoxyCodeLine{99     SerializationManager::RegisterSerializableType<T>(name);}
+\DoxyCodeLine{100     resourceManager.m\_sharedAssets[name] = std::unordered\_map<Handle, std::shared\_ptr<IAsset>>();}
+\DoxyCodeLine{101     resourceManager.m\_defaultExtensions[name].insert(resourceManager.m\_defaultExtensions[name].begin(), extension);}
+\DoxyCodeLine{102     resourceManager.m\_typeNames[extension] = name;}
+\DoxyCodeLine{103 \}}
+\DoxyCodeLine{104 }
+\DoxyCodeLine{105 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a5e2240f18e1132747a1ca728d6c926f9}{AssetManager::RegisterExternalAssetTypeExtensions}}(std::vector<std::string> extensions)}
+\DoxyCodeLine{106 \{}
+\DoxyCodeLine{107     \textcolor{keyword}{auto} \&resourceManager = \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}();}
+\DoxyCodeLine{108     \textcolor{keyword}{auto} name = SerializationManager::GetSerializableTypeName<T>();}
+\DoxyCodeLine{109     resourceManager.m\_defaultExtensions[name].insert(}
+\DoxyCodeLine{110         resourceManager.m\_defaultExtensions[name].end(), extensions.begin(), extensions.end());}
+\DoxyCodeLine{111     \textcolor{keywordflow}{for} (\textcolor{keyword}{const} \textcolor{keyword}{auto} \&extension : extensions)}
+\DoxyCodeLine{112     \{}
+\DoxyCodeLine{113         resourceManager.m\_typeNames[extension] = name;}
+\DoxyCodeLine{114     \}}
+\DoxyCodeLine{115 \}}
+\DoxyCodeLine{116 }
+\DoxyCodeLine{117 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> std::shared\_ptr<T> AssetManager::CreateAsset(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{118 \{}
+\DoxyCodeLine{119     \textcolor{keywordflow}{return} CreateAsset<T>(\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(), name);}
+\DoxyCodeLine{120 \}}
+\DoxyCodeLine{121 }
+\DoxyCodeLine{122 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> std::shared\_ptr<T> AssetManager::CreateAsset(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle, \textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{123 \{}
+\DoxyCodeLine{124     \textcolor{keywordflow}{return} std::dynamic\_pointer\_cast<T>(CreateAsset(SerializationManager::GetSerializableTypeName<T>(), handle, name));}
+\DoxyCodeLine{125 \}}
+\DoxyCodeLine{126 }
+\DoxyCodeLine{127 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_asset_manager_a18b7a7e34984d4edd912781ec92dca2c}{AssetManager::RemoveFromShared}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&handle)}
+\DoxyCodeLine{128 \{}
+\DoxyCodeLine{129     assert(handle != 0);}
+\DoxyCodeLine{130     \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_sharedAssets[SerializationManager::GetSerializableTypeName<T>()].erase(handle);}
+\DoxyCodeLine{131 \}}
+\DoxyCodeLine{132 }
+\DoxyCodeLine{133 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

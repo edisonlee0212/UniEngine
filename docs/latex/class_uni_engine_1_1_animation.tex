@@ -1,0 +1,107 @@
+\hypertarget{class_uni_engine_1_1_animation}{}\doxysection{Uni\+Engine\+::Animation Class Reference}
+\label{class_uni_engine_1_1_animation}\index{UniEngine::Animation@{UniEngine::Animation}}
+
+
+{\ttfamily \#include $<$Animation.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Animation\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_animation}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}} $>$ \& \mbox{\hyperlink{class_uni_engine_1_1_animation_a2702d4e49cb81d99c63c64288c4293c4}{Unsafe\+Get\+Root\+Bone}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animation_ad6228356551cf03a87ba5582653af9bc}{On\+Inspect}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animation_a10c6e2532695a56e2c700e3fcbbf1ad8}{Animate}} (const std\+::string \&name, const float \&animation\+Time, const glm\+::mat4 \&root\+Transform, std\+::vector$<$ glm\+::mat4 $>$ \&results)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animation_a3ee8ec2dffabeb413ed5bf19f1607110}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animation_af8610ac0c599bbd3915ebb5e492451f6}{Deserialize}} (const YAML\+::\+Node \&in) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::map$<$ std\+::string, float $>$ \mbox{\hyperlink{class_uni_engine_1_1_animation_a600b276ef61372edab4500477b584402}{m\+\_\+animation\+Name\+And\+Length}}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}} $>$ \mbox{\hyperlink{class_uni_engine_1_1_animation_a47071f6d33891e64d92deffeeeaad876}{m\+\_\+root\+Bone}}
+\item 
+size\+\_\+t \mbox{\hyperlink{class_uni_engine_1_1_animation_ae9bf7fa04f3559a3b6aeb0c06b0cdfaa}{m\+\_\+bone\+Size}} = 0
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_a10c6e2532695a56e2c700e3fcbbf1ad8}\label{class_uni_engine_1_1_animation_a10c6e2532695a56e2c700e3fcbbf1ad8}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!Animate@{Animate}}
+\index{Animate@{Animate}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{Animate()}{Animate()}}
+{\footnotesize\ttfamily void Animation\+::\+Animate (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const float \&}]{animation\+Time,  }\item[{const glm\+::mat4 \&}]{root\+Transform,  }\item[{std\+::vector$<$ glm\+::mat4 $>$ \&}]{results }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_af8610ac0c599bbd3915ebb5e492451f6}\label{class_uni_engine_1_1_animation_af8610ac0c599bbd3915ebb5e492451f6}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Animation\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_ad6228356551cf03a87ba5582653af9bc}\label{class_uni_engine_1_1_animation_ad6228356551cf03a87ba5582653af9bc}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Animation\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+The GUI of the asset when inspected in the editor. 
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_acb99c8791b1f38cc459270f4e4939d01}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_a3ee8ec2dffabeb413ed5bf19f1607110}\label{class_uni_engine_1_1_animation_a3ee8ec2dffabeb413ed5bf19f1607110}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Animation\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_a2702d4e49cb81d99c63c64288c4293c4}\label{class_uni_engine_1_1_animation_a2702d4e49cb81d99c63c64288c4293c4}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!UnsafeGetRootBone@{UnsafeGetRootBone}}
+\index{UnsafeGetRootBone@{UnsafeGetRootBone}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{UnsafeGetRootBone()}{UnsafeGetRootBone()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}} $>$ \& Animation\+::\+Unsafe\+Get\+Root\+Bone (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_a600b276ef61372edab4500477b584402}\label{class_uni_engine_1_1_animation_a600b276ef61372edab4500477b584402}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!m\_animationNameAndLength@{m\_animationNameAndLength}}
+\index{m\_animationNameAndLength@{m\_animationNameAndLength}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{m\_animationNameAndLength}{m\_animationNameAndLength}}
+{\footnotesize\ttfamily std\+::map$<$std\+::string, float$>$ Uni\+Engine\+::\+Animation\+::m\+\_\+animation\+Name\+And\+Length}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_ae9bf7fa04f3559a3b6aeb0c06b0cdfaa}\label{class_uni_engine_1_1_animation_ae9bf7fa04f3559a3b6aeb0c06b0cdfaa}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!m\_boneSize@{m\_boneSize}}
+\index{m\_boneSize@{m\_boneSize}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{m\_boneSize}{m\_boneSize}}
+{\footnotesize\ttfamily size\+\_\+t Uni\+Engine\+::\+Animation\+::m\+\_\+bone\+Size = 0}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animation_a47071f6d33891e64d92deffeeeaad876}\label{class_uni_engine_1_1_animation_a47071f6d33891e64d92deffeeeaad876}} 
+\index{UniEngine::Animation@{UniEngine::Animation}!m\_rootBone@{m\_rootBone}}
+\index{m\_rootBone@{m\_rootBone}!UniEngine::Animation@{UniEngine::Animation}}
+\doxysubsubsection{\texorpdfstring{m\_rootBone}{m\_rootBone}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$\mbox{\hyperlink{struct_uni_engine_1_1_bone}{Bone}}$>$ Uni\+Engine\+::\+Animation\+::m\+\_\+root\+Bone}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_animation_8hpp}{Animation.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_animation_8cpp}{Animation.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,323 @@
+\hypertarget{_class_registry_8cpp}{}\doxysection{C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\+Class\+Registry.cpp File Reference}
+\label{_class_registry_8cpp}\index{C:/Users/lllll/Documents/GitHub/UniEngine/src/lib/ClassRegistry.cpp@{C:/Users/lllll/Documents/GitHub/UniEngine/src/lib/ClassRegistry.cpp}}
+{\ttfamily \#include $<$Camera.\+hpp$>$}\newline
+{\ttfamily \#include $<$Class\+Registry.\+hpp$>$}\newline
+{\ttfamily \#include $<$Mesh\+Renderer.\+hpp$>$}\newline
+{\ttfamily \#include $<$Physics\+Manager.\+hpp$>$}\newline
+{\ttfamily \#include $<$Player\+Controller.\+hpp$>$}\newline
+{\ttfamily \#include $<$Post\+Processing.\+hpp$>$}\newline
+{\ttfamily \#include $<$Render\+Manager.\+hpp$>$}\newline
+{\ttfamily \#include $<$Asset\+Manager.\+hpp$>$}\newline
+{\ttfamily \#include $<$Entity\+Manager.\+hpp$>$}\newline
+{\ttfamily \#include $<$Point\+Cloud.\+hpp$>$}\newline
+{\ttfamily \#include $<$Unknown\+Private\+Component.\+hpp$>$}\newline
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a922d49bc43106b9989e17ccac674c7df}{Transform\+Registry}} (\char`\"{}Transform\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a84a45caa8230a5fe4ab1df6955b07884}{Global\+Transform\+Registry}} (\char`\"{}Global\+Transform\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_update_flag}{Global\+Transform\+Update\+Flag}} $>$ \mbox{\hyperlink{_class_registry_8cpp_ac855c629c7b2b5fcc2da313016655355}{Global\+Transform\+Update\+Flag\+Registry}} (\char`\"{}Global\+Transform\+Update\+Flag\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a9bfc46044b68721273c6303c228f6d33}{Ray\+Registry}} (\char`\"{}Ray\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_animator}{Animator}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a3a3de1496cb8163f001bb59a2b46eebe}{Animator\+Registry}} (\char`\"{}Animator\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_joint}{Joint}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a58561610e9371af0e29b07b060ea5ee4}{Joint\+Registry}} (\char`\"{}Joint\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_rigid_body}{Rigid\+Body}} $>$ \mbox{\hyperlink{_class_registry_8cpp_ae5d913a445afe9995c13200ebf2e23b5}{Rigid\+Body\+Registry}} (\char`\"{}Rigid\+Body\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_spot_light}{Spot\+Light}} $>$ \mbox{\hyperlink{_class_registry_8cpp_aac2290a2c6255d6601755361cb44b787}{Spot\+Light\+Registry}} (\char`\"{}Spot\+Light\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_point_light}{Point\+Light}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a2587d33496eb1f26dd5355016e71549d}{Point\+Light\+Registry}} (\char`\"{}Point\+Light\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_directional_light}{Directional\+Light}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a2d55d54f4a250859252be7f414682774}{Directional\+Light\+Registry}} (\char`\"{}Directional\+Light\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \mbox{\hyperlink{_class_registry_8cpp_ac63958f5310a7f73c5c804ee0f299f00}{Camera\+Registry}} (\char`\"{}Camera\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_player_controller}{Player\+Controller}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a4fb9dfaf42faae13d8cdb49395f06363}{Player\+Controller\+Registry}} (\char`\"{}Player\+Controller\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_particles}{Particles}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a6156d0b68890797be2421e459e66a2b6}{Particles\+Registry}} (\char`\"{}Particles\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer}{Mesh\+Renderer}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a3b7d4ca46cf77d2dc9c2899987b0f204}{Mesh\+Renderer\+Registry}} (\char`\"{}Mesh\+Renderer\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_post_processing}{Post\+Processing}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a88a704247743567dc659ac128ed86429}{Post\+Processing\+Registry}} (\char`\"{}Post\+Processing\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{Skinned\+Mesh\+Renderer}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a4ee28f3e5a202c7d936f60b60f3c8566}{Skinned\+Mesh\+Renderer\+Registry}} (\char`\"{}Skinned\+Mesh\+Renderer\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_point_cloud}{Point\+Cloud}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a67ded00cf122021e0b1738d1b39d3db6}{Point\+Cloud\+Registry}} (\char`\"{}Point\+Cloud\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_unknown_private_component}{Unknown\+Private\+Component}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a1c8120b79ca5ef8afcbf9a7cf2e7a5fd}{Unknown\+Private\+Component\+Registry}} (\char`\"{}Unknown\+Private\+Component\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_system_registration}{System\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_system}{Physics\+System}} $>$ \mbox{\hyperlink{_class_registry_8cpp_adcc33027e8b999e12219fd848c474124}{Physics\+System\+Registry}} (\char`\"{}Physics\+System\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a57eceb80d2771eba7bcdbd6f1028b58b}{Material\+Registry}} (\char`\"{}Material\char`\"{}, \char`\"{}.uemat\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a6aa51a79f36f7fa76d2f284668874bac}{Mesh\+Registry}} (\char`\"{}Mesh\char`\"{}, \char`\"{}.uemesh\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_texture2_d}{Texture2D}} $>$ \mbox{\hyperlink{_class_registry_8cpp_aff8c006cabd7bfc31ed6e0a41370ff69}{Texture2\+DReg}} (\char`\"{}Texture2D\char`\"{}, \char`\"{}.uetexture2d\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a77962db6b7332880580ba2ef2eee72e4}{Cubemap\+Reg}} (\char`\"{}Cubemap\char`\"{}, \char`\"{}.uecubemap\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_light_probe}{Light\+Probe}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a9d04f6a1875960cf561a6ab4f478a77a}{Light\+Probe\+Reg}} (\char`\"{}Light\+Probe\char`\"{}, \char`\"{}.uelightprobe\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_reflection_probe}{Reflection\+Probe}} $>$ \mbox{\hyperlink{_class_registry_8cpp_ae64e52eb6e7f5dc41d1471bc3bfb6935}{Reflection\+Probe\+Reg}} (\char`\"{}Reflection\+Probe\char`\"{}, \char`\"{}.uereflecprobe\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program}{Open\+GLUtils\+::\+GLProgram}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a81bcdc2848ff57091f8420267744ec6e}{GLProgram\+Reg}} (\char`\"{}GLProgram\char`\"{}, \char`\"{}.ueglprogram\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader}{Open\+GLUtils\+::\+GLShader}} $>$ \mbox{\hyperlink{_class_registry_8cpp_aa0a2afbd031ad8aebf46c588e4aa1dd8}{GLShader\+Reg}} (\char`\"{}GLShader\char`\"{}, \char`\"{}.ueglshader\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_environmental_map}{Environmental\+Map}} $>$ \mbox{\hyperlink{_class_registry_8cpp_ad805b0b3cbfda2134f103fa6eac6c0f1}{Environmental\+Map\+Reg}} (\char`\"{}Environmental\+Map\char`\"{}, \char`\"{}.ueenvirmap\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a8e0c7ac1d80adcb6d709b640aefa626d}{Animation\+Reg}} (\char`\"{}Animation\char`\"{}, \char`\"{}.ueanimation\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh}{Skinned\+Mesh}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a6695c361b77cee0bbf6783072cb12138}{Skinned\+Mesh\+Reg}} (\char`\"{}Skinned\+Mesh\char`\"{}, \char`\"{}ueskinnedmesh\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{Physics\+Material}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a9125e4a6be8d80b9b47f748d775e9d18}{Physics\+Material\+Reg}} (\char`\"{}Physics\+Material\char`\"{}, \char`\"{}uephysmat\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_collider}{Collider}} $>$ \mbox{\hyperlink{_class_registry_8cpp_adfa8ba775d2b81e4cc83bd4a80fd0d25}{Collider\+Reg}} (\char`\"{}Collider\char`\"{}, \char`\"{}uecollider\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a3463a7893e8beaf2ea949ca44148a9ae}{Prefab\+Reg}} (\char`\"{}Prefab\char`\"{}, \char`\"{}.ueprefab\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a7d0597f91bc17a67beaf8626e8bf267a}{Scene\+Reg}} (\char`\"{}Scene\char`\"{}, \char`\"{}.uescene\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_project}{Project}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a962700e5a1f2264946e2a8b29888d12f}{Project\+Registry\+Reg}} (\char`\"{}Project\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_entity_ref}{Entity\+Ref}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a229cd502c25402a562d2c853d9890f29}{Entity\+Ref\+Reg}} (\char`\"{}Entity\+Ref\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a60b9c7a6625f47641029a51d5f4df32a}{Asset\+Ref\+Reg}} (\char`\"{}Asset\+Ref\char`\"{})
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{Private\+Component\+Ref}} $>$ \mbox{\hyperlink{_class_registry_8cpp_a98c0fb478dbbf5a0f6dde33361c74285}{Private\+Component\+Ref\+Reg}} (\char`\"{}Private\+Component\+Ref\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{_class_registry_8cpp_a8e0c7ac1d80adcb6d709b640aefa626d}\label{_class_registry_8cpp_a8e0c7ac1d80adcb6d709b640aefa626d}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!AnimationReg@{AnimationReg}}
+\index{AnimationReg@{AnimationReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{AnimationReg}{AnimationReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ Animation\+Reg(\char`\"{}Animation\char`\"{}, \char`\"{}.ueanimation\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Animation\char`\"{}}]{,  }\item[{\char`\"{}.ueanimation\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a3a3de1496cb8163f001bb59a2b46eebe}\label{_class_registry_8cpp_a3a3de1496cb8163f001bb59a2b46eebe}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!AnimatorRegistry@{AnimatorRegistry}}
+\index{AnimatorRegistry@{AnimatorRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{AnimatorRegistry}{AnimatorRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_animator}{Animator}} $>$ Animator\+Registry(\char`\"{}Animator\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Animator\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a60b9c7a6625f47641029a51d5f4df32a}\label{_class_registry_8cpp_a60b9c7a6625f47641029a51d5f4df32a}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!AssetRefReg@{AssetRefReg}}
+\index{AssetRefReg@{AssetRefReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{AssetRefReg}{AssetRefReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ Asset\+Ref\+Reg(\char`\"{}Asset\+Ref\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Asset\+Ref\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_ac63958f5310a7f73c5c804ee0f299f00}\label{_class_registry_8cpp_ac63958f5310a7f73c5c804ee0f299f00}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!CameraRegistry@{CameraRegistry}}
+\index{CameraRegistry@{CameraRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{CameraRegistry}{CameraRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ Camera\+Registry(\char`\"{}Camera\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Camera\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_adfa8ba775d2b81e4cc83bd4a80fd0d25}\label{_class_registry_8cpp_adfa8ba775d2b81e4cc83bd4a80fd0d25}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!ColliderReg@{ColliderReg}}
+\index{ColliderReg@{ColliderReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{ColliderReg}{ColliderReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_collider}{Collider}} $>$ Collider\+Reg(\char`\"{}Collider\char`\"{}, \char`\"{}uecollider\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Collider\char`\"{}}]{,  }\item[{\char`\"{}uecollider\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a77962db6b7332880580ba2ef2eee72e4}\label{_class_registry_8cpp_a77962db6b7332880580ba2ef2eee72e4}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!CubemapReg@{CubemapReg}}
+\index{CubemapReg@{CubemapReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{CubemapReg}{CubemapReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}} $>$ Cubemap\+Reg(\char`\"{}Cubemap\char`\"{}, \char`\"{}.uecubemap\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Cubemap\char`\"{}}]{,  }\item[{\char`\"{}.uecubemap\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a2d55d54f4a250859252be7f414682774}\label{_class_registry_8cpp_a2d55d54f4a250859252be7f414682774}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!DirectionalLightRegistry@{DirectionalLightRegistry}}
+\index{DirectionalLightRegistry@{DirectionalLightRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{DirectionalLightRegistry}{DirectionalLightRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_directional_light}{Directional\+Light}} $>$ Directional\+Light\+Registry(\char`\"{}Directional\+Light\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Directional\+Light\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a229cd502c25402a562d2c853d9890f29}\label{_class_registry_8cpp_a229cd502c25402a562d2c853d9890f29}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!EntityRefReg@{EntityRefReg}}
+\index{EntityRefReg@{EntityRefReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{EntityRefReg}{EntityRefReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_entity_ref}{Entity\+Ref}} $>$ Entity\+Ref\+Reg(\char`\"{}Entity\+Ref\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Entity\+Ref\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_ad805b0b3cbfda2134f103fa6eac6c0f1}\label{_class_registry_8cpp_ad805b0b3cbfda2134f103fa6eac6c0f1}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!EnvironmentalMapReg@{EnvironmentalMapReg}}
+\index{EnvironmentalMapReg@{EnvironmentalMapReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{EnvironmentalMapReg}{EnvironmentalMapReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_environmental_map}{Environmental\+Map}} $>$ Environmental\+Map\+Reg(\char`\"{}Environmental\+Map\char`\"{}, \char`\"{}.ueenvirmap\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Environmental\+Map\char`\"{}}]{,  }\item[{\char`\"{}.ueenvirmap\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a84a45caa8230a5fe4ab1df6955b07884}\label{_class_registry_8cpp_a84a45caa8230a5fe4ab1df6955b07884}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!GlobalTransformRegistry@{GlobalTransformRegistry}}
+\index{GlobalTransformRegistry@{GlobalTransformRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{GlobalTransformRegistry}{GlobalTransformRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{Global\+Transform}} $>$ Global\+Transform\+Registry(\char`\"{}Global\+Transform\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Global\+Transform\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_ac855c629c7b2b5fcc2da313016655355}\label{_class_registry_8cpp_ac855c629c7b2b5fcc2da313016655355}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!GlobalTransformUpdateFlagRegistry@{GlobalTransformUpdateFlagRegistry}}
+\index{GlobalTransformUpdateFlagRegistry@{GlobalTransformUpdateFlagRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{GlobalTransformUpdateFlagRegistry}{GlobalTransformUpdateFlagRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_update_flag}{Global\+Transform\+Update\+Flag}} $>$ Global\+Transform\+Update\+Flag\+Registry(\char`\"{}Global\+Transform\+Update\+Flag\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Global\+Transform\+Update\+Flag\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a81bcdc2848ff57091f8420267744ec6e}\label{_class_registry_8cpp_a81bcdc2848ff57091f8420267744ec6e}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!GLProgramReg@{GLProgramReg}}
+\index{GLProgramReg@{GLProgramReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{GLProgramReg}{GLProgramReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program}{Open\+GLUtils\+::\+GLProgram}} $>$ GLProgram\+Reg(\char`\"{}GLProgram\char`\"{}, \char`\"{}.ueglprogram\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}GLProgram\char`\"{}}]{,  }\item[{\char`\"{}.ueglprogram\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_aa0a2afbd031ad8aebf46c588e4aa1dd8}\label{_class_registry_8cpp_aa0a2afbd031ad8aebf46c588e4aa1dd8}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!GLShaderReg@{GLShaderReg}}
+\index{GLShaderReg@{GLShaderReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{GLShaderReg}{GLShaderReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader}{Open\+GLUtils\+::\+GLShader}} $>$ GLShader\+Reg(\char`\"{}GLShader\char`\"{}, \char`\"{}.ueglshader\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}GLShader\char`\"{}}]{,  }\item[{\char`\"{}.ueglshader\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a58561610e9371af0e29b07b060ea5ee4}\label{_class_registry_8cpp_a58561610e9371af0e29b07b060ea5ee4}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!JointRegistry@{JointRegistry}}
+\index{JointRegistry@{JointRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{JointRegistry}{JointRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_joint}{Joint}} $>$ Joint\+Registry(\char`\"{}Joint\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Joint\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a9d04f6a1875960cf561a6ab4f478a77a}\label{_class_registry_8cpp_a9d04f6a1875960cf561a6ab4f478a77a}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!LightProbeReg@{LightProbeReg}}
+\index{LightProbeReg@{LightProbeReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{LightProbeReg}{LightProbeReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_light_probe}{Light\+Probe}} $>$ Light\+Probe\+Reg(\char`\"{}Light\+Probe\char`\"{}, \char`\"{}.uelightprobe\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Light\+Probe\char`\"{}}]{,  }\item[{\char`\"{}.uelightprobe\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a57eceb80d2771eba7bcdbd6f1028b58b}\label{_class_registry_8cpp_a57eceb80d2771eba7bcdbd6f1028b58b}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!MaterialRegistry@{MaterialRegistry}}
+\index{MaterialRegistry@{MaterialRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{MaterialRegistry}{MaterialRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_material}{Material}} $>$ Material\+Registry(\char`\"{}Material\char`\"{}, \char`\"{}.uemat\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Material\char`\"{}}]{,  }\item[{\char`\"{}.uemat\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a6aa51a79f36f7fa76d2f284668874bac}\label{_class_registry_8cpp_a6aa51a79f36f7fa76d2f284668874bac}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!MeshRegistry@{MeshRegistry}}
+\index{MeshRegistry@{MeshRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{MeshRegistry}{MeshRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh}{Mesh}} $>$ Mesh\+Registry(\char`\"{}Mesh\char`\"{}, \char`\"{}.uemesh\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Mesh\char`\"{}}]{,  }\item[{\char`\"{}.uemesh\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a3b7d4ca46cf77d2dc9c2899987b0f204}\label{_class_registry_8cpp_a3b7d4ca46cf77d2dc9c2899987b0f204}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!MeshRendererRegistry@{MeshRendererRegistry}}
+\index{MeshRendererRegistry@{MeshRendererRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{MeshRendererRegistry}{MeshRendererRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_mesh_renderer}{Mesh\+Renderer}} $>$ Mesh\+Renderer\+Registry(\char`\"{}Mesh\+Renderer\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Mesh\+Renderer\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a6156d0b68890797be2421e459e66a2b6}\label{_class_registry_8cpp_a6156d0b68890797be2421e459e66a2b6}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!ParticlesRegistry@{ParticlesRegistry}}
+\index{ParticlesRegistry@{ParticlesRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{ParticlesRegistry}{ParticlesRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_particles}{Particles}} $>$ Particles\+Registry(\char`\"{}Particles\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Particles\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a9125e4a6be8d80b9b47f748d775e9d18}\label{_class_registry_8cpp_a9125e4a6be8d80b9b47f748d775e9d18}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PhysicsMaterialReg@{PhysicsMaterialReg}}
+\index{PhysicsMaterialReg@{PhysicsMaterialReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PhysicsMaterialReg}{PhysicsMaterialReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{Physics\+Material}} $>$ Physics\+Material\+Reg(\char`\"{}Physics\+Material\char`\"{}, \char`\"{}uephysmat\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Physics\+Material\char`\"{}}]{,  }\item[{\char`\"{}uephysmat\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_adcc33027e8b999e12219fd848c474124}\label{_class_registry_8cpp_adcc33027e8b999e12219fd848c474124}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PhysicsSystemRegistry@{PhysicsSystemRegistry}}
+\index{PhysicsSystemRegistry@{PhysicsSystemRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PhysicsSystemRegistry}{PhysicsSystemRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_system_registration}{System\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_system}{Physics\+System}} $>$ Physics\+System\+Registry(\char`\"{}Physics\+System\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Physics\+System\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a4fb9dfaf42faae13d8cdb49395f06363}\label{_class_registry_8cpp_a4fb9dfaf42faae13d8cdb49395f06363}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PlayerControllerRegistry@{PlayerControllerRegistry}}
+\index{PlayerControllerRegistry@{PlayerControllerRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PlayerControllerRegistry}{PlayerControllerRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_player_controller}{Player\+Controller}} $>$ Player\+Controller\+Registry(\char`\"{}Player\+Controller\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Player\+Controller\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a67ded00cf122021e0b1738d1b39d3db6}\label{_class_registry_8cpp_a67ded00cf122021e0b1738d1b39d3db6}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PointCloudRegistry@{PointCloudRegistry}}
+\index{PointCloudRegistry@{PointCloudRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PointCloudRegistry}{PointCloudRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_point_cloud}{Point\+Cloud}} $>$ Point\+Cloud\+Registry(\char`\"{}Point\+Cloud\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Point\+Cloud\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a2587d33496eb1f26dd5355016e71549d}\label{_class_registry_8cpp_a2587d33496eb1f26dd5355016e71549d}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PointLightRegistry@{PointLightRegistry}}
+\index{PointLightRegistry@{PointLightRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PointLightRegistry}{PointLightRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_point_light}{Point\+Light}} $>$ Point\+Light\+Registry(\char`\"{}Point\+Light\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Point\+Light\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a88a704247743567dc659ac128ed86429}\label{_class_registry_8cpp_a88a704247743567dc659ac128ed86429}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PostProcessingRegistry@{PostProcessingRegistry}}
+\index{PostProcessingRegistry@{PostProcessingRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PostProcessingRegistry}{PostProcessingRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_post_processing}{Post\+Processing}} $>$ Post\+Processing\+Registry(\char`\"{}Post\+Processing\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Post\+Processing\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a3463a7893e8beaf2ea949ca44148a9ae}\label{_class_registry_8cpp_a3463a7893e8beaf2ea949ca44148a9ae}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PrefabReg@{PrefabReg}}
+\index{PrefabReg@{PrefabReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PrefabReg}{PrefabReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}} $>$ Prefab\+Reg(\char`\"{}Prefab\char`\"{}, \char`\"{}.ueprefab\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Prefab\char`\"{}}]{,  }\item[{\char`\"{}.ueprefab\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a98c0fb478dbbf5a0f6dde33361c74285}\label{_class_registry_8cpp_a98c0fb478dbbf5a0f6dde33361c74285}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!PrivateComponentRefReg@{PrivateComponentRefReg}}
+\index{PrivateComponentRefReg@{PrivateComponentRefReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{PrivateComponentRefReg}{PrivateComponentRefReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{Private\+Component\+Ref}} $>$ Private\+Component\+Ref\+Reg(\char`\"{}Private\+Component\+Ref\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Private\+Component\+Ref\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a962700e5a1f2264946e2a8b29888d12f}\label{_class_registry_8cpp_a962700e5a1f2264946e2a8b29888d12f}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!ProjectRegistryReg@{ProjectRegistryReg}}
+\index{ProjectRegistryReg@{ProjectRegistryReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{ProjectRegistryReg}{ProjectRegistryReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{Serializable\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_project}{Project}} $>$ Project\+Registry\+Reg(\char`\"{}Project\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Project\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a9bfc46044b68721273c6303c228f6d33}\label{_class_registry_8cpp_a9bfc46044b68721273c6303c228f6d33}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!RayRegistry@{RayRegistry}}
+\index{RayRegistry@{RayRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{RayRegistry}{RayRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} $>$ Ray\+Registry(\char`\"{}Ray\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Ray\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_ae64e52eb6e7f5dc41d1471bc3bfb6935}\label{_class_registry_8cpp_ae64e52eb6e7f5dc41d1471bc3bfb6935}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!ReflectionProbeReg@{ReflectionProbeReg}}
+\index{ReflectionProbeReg@{ReflectionProbeReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{ReflectionProbeReg}{ReflectionProbeReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_reflection_probe}{Reflection\+Probe}} $>$ Reflection\+Probe\+Reg(\char`\"{}Reflection\+Probe\char`\"{}, \char`\"{}.uereflecprobe\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Reflection\+Probe\char`\"{}}]{,  }\item[{\char`\"{}.uereflecprobe\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_ae5d913a445afe9995c13200ebf2e23b5}\label{_class_registry_8cpp_ae5d913a445afe9995c13200ebf2e23b5}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!RigidBodyRegistry@{RigidBodyRegistry}}
+\index{RigidBodyRegistry@{RigidBodyRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{RigidBodyRegistry}{RigidBodyRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_rigid_body}{Rigid\+Body}} $>$ Rigid\+Body\+Registry(\char`\"{}Rigid\+Body\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Rigid\+Body\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a7d0597f91bc17a67beaf8626e8bf267a}\label{_class_registry_8cpp_a7d0597f91bc17a67beaf8626e8bf267a}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!SceneReg@{SceneReg}}
+\index{SceneReg@{SceneReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{SceneReg}{SceneReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ Scene\+Reg(\char`\"{}Scene\char`\"{}, \char`\"{}.uescene\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Scene\char`\"{}}]{,  }\item[{\char`\"{}.uescene\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a6695c361b77cee0bbf6783072cb12138}\label{_class_registry_8cpp_a6695c361b77cee0bbf6783072cb12138}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!SkinnedMeshReg@{SkinnedMeshReg}}
+\index{SkinnedMeshReg@{SkinnedMeshReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{SkinnedMeshReg}{SkinnedMeshReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh}{Skinned\+Mesh}} $>$ Skinned\+Mesh\+Reg(\char`\"{}Skinned\+Mesh\char`\"{}, \char`\"{}ueskinnedmesh\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Skinned\+Mesh\char`\"{}}]{,  }\item[{\char`\"{}ueskinnedmesh\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a4ee28f3e5a202c7d936f60b60f3c8566}\label{_class_registry_8cpp_a4ee28f3e5a202c7d936f60b60f3c8566}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!SkinnedMeshRendererRegistry@{SkinnedMeshRendererRegistry}}
+\index{SkinnedMeshRendererRegistry@{SkinnedMeshRendererRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{SkinnedMeshRendererRegistry}{SkinnedMeshRendererRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{Skinned\+Mesh\+Renderer}} $>$ Skinned\+Mesh\+Renderer\+Registry(\char`\"{}Skinned\+Mesh\+Renderer\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Skinned\+Mesh\+Renderer\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_aac2290a2c6255d6601755361cb44b787}\label{_class_registry_8cpp_aac2290a2c6255d6601755361cb44b787}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!SpotLightRegistry@{SpotLightRegistry}}
+\index{SpotLightRegistry@{SpotLightRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{SpotLightRegistry}{SpotLightRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_spot_light}{Spot\+Light}} $>$ Spot\+Light\+Registry(\char`\"{}Spot\+Light\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Spot\+Light\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_aff8c006cabd7bfc31ed6e0a41370ff69}\label{_class_registry_8cpp_aff8c006cabd7bfc31ed6e0a41370ff69}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!Texture2DReg@{Texture2DReg}}
+\index{Texture2DReg@{Texture2DReg}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{Texture2DReg}{Texture2DReg}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{Asset\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_texture2_d}{Texture2D}} $>$ Texture2\+DReg(\char`\"{}Texture2D\char`\"{}, \char`\"{}.uetexture2d\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Texture2D\char`\"{}}]{,  }\item[{\char`\"{}.uetexture2d\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a922d49bc43106b9989e17ccac674c7df}\label{_class_registry_8cpp_a922d49bc43106b9989e17ccac674c7df}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!TransformRegistry@{TransformRegistry}}
+\index{TransformRegistry@{TransformRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{TransformRegistry}{TransformRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{Data\+Component\+Registration}}$<$ \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} $>$ Transform\+Registry(\char`\"{}Transform\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Transform\char`\"{}}]{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{_class_registry_8cpp_a1c8120b79ca5ef8afcbf9a7cf2e7a5fd}\label{_class_registry_8cpp_a1c8120b79ca5ef8afcbf9a7cf2e7a5fd}} 
+\index{ClassRegistry.cpp@{ClassRegistry.cpp}!UnknownPrivateComponentRegistry@{UnknownPrivateComponentRegistry}}
+\index{UnknownPrivateComponentRegistry@{UnknownPrivateComponentRegistry}!ClassRegistry.cpp@{ClassRegistry.cpp}}
+\doxysubsubsection{\texorpdfstring{UnknownPrivateComponentRegistry}{UnknownPrivateComponentRegistry}}
+{\footnotesize\ttfamily \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{Private\+Component\+Registration}}$<$ \mbox{\hyperlink{class_uni_engine_1_1_unknown_private_component}{Unknown\+Private\+Component}} $>$ Unknown\+Private\+Component\+Registry(\char`\"{}Unknown\+Private\+Component\char`\"{}) (\begin{DoxyParamCaption}\item[{\char`\"{}Unknown\+Private\+Component\char`\"{}}]{ }\end{DoxyParamCaption})}
+

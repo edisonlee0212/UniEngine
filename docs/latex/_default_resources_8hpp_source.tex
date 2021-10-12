@@ -1,0 +1,159 @@
+\hypertarget{_default_resources_8hpp_source}{}\doxysection{Default\+Resources.\+hpp}
+\label{_default_resources_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Resources/DefaultResources.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Resources/DefaultResources.hpp}}
+\mbox{\hyperlink{_default_resources_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_singleton_8hpp}{ISingleton.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_scene_8hpp}{Scene.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_post_processing_8hpp}{PostProcessing.hpp}}>}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{9 \{}
+\DoxyCodeLine{10 \textcolor{keyword}{class }\mbox{\hyperlink{_scene_8hpp_aa533475891ccd8536de0cf9a88a1ca82}{EnvironmentalMap}};}
+\DoxyCodeLine{11 \textcolor{keyword}{class }Cubemap;}
+\DoxyCodeLine{12 \textcolor{keyword}{class }Mesh;}
+\DoxyCodeLine{13 \textcolor{keyword}{class }Material;}
+\DoxyCodeLine{14 \textcolor{keyword}{class }PhysicsMaterial;}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{16 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}} : \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<DefaultResources>}
+\DoxyCodeLine{17 \{}
+\DoxyCodeLine{18     \textcolor{keyword}{static} \textcolor{keywordtype}{void} LoadShaders();}
+\DoxyCodeLine{19     \textcolor{keyword}{static} \textcolor{keywordtype}{void} LoadPrimitives();}
+\DoxyCodeLine{20     \textcolor{keyword}{static} \textcolor{keywordtype}{void} LoadIcons();}
+\DoxyCodeLine{21     \textcolor{keyword}{static} \textcolor{keywordtype}{void} LoadRenderManagerResources();}
+\DoxyCodeLine{22     \textcolor{keyword}{static} \textcolor{keywordtype}{void} LoadEditorManagerResources();}
+\DoxyCodeLine{23     \textcolor{keyword}{static} \textcolor{keywordtype}{void} PrepareBrdfLut();}
+\DoxyCodeLine{24     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{AssetManager}};}
+\DoxyCodeLine{25     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}};}
+\DoxyCodeLine{26     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{27     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{28     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_light_probe}{LightProbe}};}
+\DoxyCodeLine{29     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_reflection_probe}{ReflectionProbe}};}
+\DoxyCodeLine{30     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_environmental_map}{EnvironmentalMap}};}
+\DoxyCodeLine{31     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}};}
+\DoxyCodeLine{32     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_post_processing}{PostProcessing}};}
+\DoxyCodeLine{33     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o}{SSAO}};}
+\DoxyCodeLine{34     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_bloom}{Bloom}};}
+\DoxyCodeLine{35     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_s_s_r}{SSR}};}
+\DoxyCodeLine{36     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_window_manager}{WindowManager}};}
+\DoxyCodeLine{37     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_2DToCubemapProgram;}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39     \textcolor{keyword}{static} std::unique\_ptr<Texture2D> m\_brdfLut;}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{41     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_gBufferInstancedPrepass;}
+\DoxyCodeLine{42     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_gBufferPrepass;}
+\DoxyCodeLine{43     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_gBufferInstancedSkinnedPrepass;}
+\DoxyCodeLine{44     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_gBufferSkinnedPrepass;}
+\DoxyCodeLine{45     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_gBufferLightingPass;}
+\DoxyCodeLine{46     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_directionalLightProgram;}
+\DoxyCodeLine{47     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_directionalLightInstancedProgram;}
+\DoxyCodeLine{48     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_pointLightProgram;}
+\DoxyCodeLine{49     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_pointLightInstancedProgram;}
+\DoxyCodeLine{50     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_spotLightProgram;}
+\DoxyCodeLine{51     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_spotLightInstancedProgram;}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_directionalLightSkinnedProgram;}
+\DoxyCodeLine{54     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_directionalLightInstancedSkinnedProgram;}
+\DoxyCodeLine{55     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_pointLightSkinnedProgram;}
+\DoxyCodeLine{56     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_pointLightInstancedSkinnedProgram;}
+\DoxyCodeLine{57     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_spotLightSkinnedProgram;}
+\DoxyCodeLine{58     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_spotLightInstancedSkinnedProgram;}
+\DoxyCodeLine{59     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> GizmoProgram;}
+\DoxyCodeLine{60     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> GizmoInstancedProgram;}
+\DoxyCodeLine{61     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> GizmoInstancedColoredProgram;}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> ConvolutionProgram;}
+\DoxyCodeLine{64     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> PrefilterProgram;}
+\DoxyCodeLine{65     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> BrdfProgram;}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{67     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> ScreenProgram;}
+\DoxyCodeLine{68     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLVAO> ScreenVAO;}
+\DoxyCodeLine{69     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLVAO> SkyboxVAO;}
+\DoxyCodeLine{70     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> SkyboxProgram;}
+\DoxyCodeLine{71 }
+\DoxyCodeLine{72     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightPrePassProgram;}
+\DoxyCodeLine{73     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightSkinnedPrePassProgram;}
+\DoxyCodeLine{74     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightPrePassInstancedProgram;}
+\DoxyCodeLine{75     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightPrePassInstancedSkinnedProgram;}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{77     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightProgram;}
+\DoxyCodeLine{78     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightSkinnedProgram;}
+\DoxyCodeLine{79     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightInstancedProgram;}
+\DoxyCodeLine{80     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneHighlightInstancedSkinnedProgram;}
+\DoxyCodeLine{81 }
+\DoxyCodeLine{82     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneCameraEntityRecorderProgram;}
+\DoxyCodeLine{83     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneCameraEntitySkinnedRecorderProgram;}
+\DoxyCodeLine{84     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneCameraEntityInstancedRecorderProgram;}
+\DoxyCodeLine{85     \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> m\_sceneCameraEntityInstancedSkinnedRecorderProgram;}
+\DoxyCodeLine{86 }
+\DoxyCodeLine{87     \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} m\_currentMaxHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(1);}
+\DoxyCodeLine{88     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} GenerateNewHandle();}
+\DoxyCodeLine{89   \textcolor{keyword}{public}:}
+\DoxyCodeLine{90     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} GetMaxHandle();}
+\DoxyCodeLine{91 }
+\DoxyCodeLine{92     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_physics}{Physics}}}
+\DoxyCodeLine{93     \{}
+\DoxyCodeLine{94       \textcolor{keyword}{public}:}
+\DoxyCodeLine{95         \textcolor{keyword}{static} std::shared\_ptr<PhysicsMaterial> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_physics_a82929e0a9686246f0bd96a3641e0a303}{DefaultPhysicsMaterial}};}
+\DoxyCodeLine{96     \};}
+\DoxyCodeLine{97 }
+\DoxyCodeLine{98     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_programs}{GLPrograms}}}
+\DoxyCodeLine{99     \{}
+\DoxyCodeLine{100       \textcolor{keyword}{public}:}
+\DoxyCodeLine{101         \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_programs_ac8c2156a3a6b4b805e675f4f17859b3b}{StandardProgram}};}
+\DoxyCodeLine{102         \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_programs_a82f733e3cd7345ec40e7eade3217364e}{StandardInstancedProgram}};}
+\DoxyCodeLine{103         \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_programs_a2616e24092fcf7613ebe37f90aa8c55f}{StandardSkinnedProgram}};}
+\DoxyCodeLine{104         \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLProgram> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_programs_a63aad9c49832dde502c031565889417a}{StandardInstancedSkinnedProgram}};}
+\DoxyCodeLine{105     \};}
+\DoxyCodeLine{106 }
+\DoxyCodeLine{107     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_shaders}{GLShaders}}}
+\DoxyCodeLine{108     \{}
+\DoxyCodeLine{109       \textcolor{keyword}{public}:}
+\DoxyCodeLine{110         \textcolor{keyword}{static} std::shared\_ptr<OpenGLUtils::GLShader> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_g_l_shaders_ae6f19000c2d2f70e800c3d6f253a9aa5}{TexturePassThrough}};}
+\DoxyCodeLine{111     \};}
+\DoxyCodeLine{112 }
+\DoxyCodeLine{113     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_shader_includes}{ShaderIncludes}}}
+\DoxyCodeLine{114     \{}
+\DoxyCodeLine{115       \textcolor{keyword}{public}:}
+\DoxyCodeLine{116         \textcolor{keyword}{static} std::unique\_ptr<std::string> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_shader_includes_aba0c8f2d22af1c933a7115ce6b159633}{Uniform}};}
+\DoxyCodeLine{117         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxBonesAmount = 65536;}
+\DoxyCodeLine{118         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxMaterialsAmount = 1;}
+\DoxyCodeLine{119         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxKernelAmount = 64;}
+\DoxyCodeLine{120         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxDirectionalLightAmount = 128;}
+\DoxyCodeLine{121         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxPointLightAmount = 128;}
+\DoxyCodeLine{122         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} MaxSpotLightAmount = 128;}
+\DoxyCodeLine{123         \textcolor{keyword}{const} \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} ShadowCascadeAmount = 4;}
+\DoxyCodeLine{124     \};}
+\DoxyCodeLine{125 }
+\DoxyCodeLine{126     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_textures}{Textures}}}
+\DoxyCodeLine{127     \{}
+\DoxyCodeLine{128       \textcolor{keyword}{public}:}
+\DoxyCodeLine{129         \textcolor{keyword}{static} std::shared\_ptr<Texture2D> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_textures_af1cb8549389e17db76235fa86cc2831b}{MissingTexture}};}
+\DoxyCodeLine{130     \};}
+\DoxyCodeLine{131 }
+\DoxyCodeLine{132     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives}{Primitives}}}
+\DoxyCodeLine{133     \{}
+\DoxyCodeLine{134       \textcolor{keyword}{public}:}
+\DoxyCodeLine{135         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_a8d4a62cc0b3ab1dd2feca29464b7db9b}{Sphere}};}
+\DoxyCodeLine{136         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_a3c663fbcbe38a7d94d2dc8e668d40415}{Cube}};}
+\DoxyCodeLine{137         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_a5e42bf7de1a53536a7c7ea7c9eae2642}{Quad}};}
+\DoxyCodeLine{138         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_a5c22e0e7a3bad4cce25094b77cc17ff7}{Cylinder}};}
+\DoxyCodeLine{139         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_a2c8064ae9c014c60fe958eafa44584f8}{Cone}};}
+\DoxyCodeLine{140         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_abaf41b24438538efbb67c1079e3efcc3}{Ring}};}
+\DoxyCodeLine{141         \textcolor{keyword}{static} std::shared\_ptr<Mesh> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_primitives_ae48194fec37e7ff2794d203d5732de75}{Monkey}};}
+\DoxyCodeLine{142     \};}
+\DoxyCodeLine{143     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_environmental}{Environmental}}}
+\DoxyCodeLine{144     \{}
+\DoxyCodeLine{145       \textcolor{keyword}{public}:}
+\DoxyCodeLine{146         \textcolor{keyword}{static} std::shared\_ptr<Cubemap> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_environmental_a7eed0e7873cead3bc0183bd805601aa0}{DefaultSkybox}};}
+\DoxyCodeLine{147         \textcolor{keyword}{static} std::shared\_ptr<EnvironmentalMap> \mbox{\hyperlink{class_uni_engine_1_1_default_resources_1_1_environmental_ac5f2b5b9852391eb95f7d73ca8c611a4}{DefaultEnvironmentalMap}};}
+\DoxyCodeLine{148     \};}
+\DoxyCodeLine{149 }
+\DoxyCodeLine{150     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Load();}
+\DoxyCodeLine{151 \};}
+\DoxyCodeLine{152 }
+\DoxyCodeLine{153 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

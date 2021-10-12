@@ -1,0 +1,34 @@
+\hypertarget{_physics_material_8hpp_source}{}\doxysection{Physics\+Material.\+hpp}
+\label{_physics_material_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Physics/PhysicsMaterial.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Physics/PhysicsMaterial.hpp}}
+\mbox{\hyperlink{_physics_material_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_manager_8hpp}{EntityManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{5 \textcolor{keyword}{using namespace }physx;}
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{PhysicsMaterial}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{9 \{}
+\DoxyCodeLine{10     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_physics_manager}{PhysicsManager}};}
+\DoxyCodeLine{11     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_collider}{Collider}};}
+\DoxyCodeLine{12     PxMaterial *m\_value;}
+\DoxyCodeLine{13     \textcolor{keywordtype}{float} m\_staticFriction = 0.02f;}
+\DoxyCodeLine{14     \textcolor{keywordtype}{float} m\_dynamicFriction = 0.02f;}
+\DoxyCodeLine{15     \textcolor{keywordtype}{float} m\_restitution = 0.8f;}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17   \textcolor{keyword}{public}:}
+\DoxyCodeLine{18     \textcolor{keywordtype}{void} SetDynamicFriction(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&value);}
+\DoxyCodeLine{19     \textcolor{keywordtype}{void} SetStaticFriction(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&value);}
+\DoxyCodeLine{20     \textcolor{keywordtype}{void} SetRestitution(\textcolor{keyword}{const} \textcolor{keywordtype}{float} \&value);}
+\DoxyCodeLine{21     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} OnGui();}
+\DoxyCodeLine{23     \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{\string~PhysicsMaterial}}();}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{26     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{27 \};}
+\DoxyCodeLine{28 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

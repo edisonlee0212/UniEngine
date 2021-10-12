@@ -1,0 +1,606 @@
+\hypertarget{_transform_8hpp_source}{}\doxysection{Transform.\+hpp}
+\label{_transform_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/Transform.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/Transform.hpp}}
+\mbox{\hyperlink{_transform_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_update_flag}{GlobalTransformUpdateFlag}} : \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8     \textcolor{keywordtype}{bool} m\_value = \textcolor{keyword}{false};}
+\DoxyCodeLine{9 \};}
+\DoxyCodeLine{10 }
+\DoxyCodeLine{11 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} : \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}}}
+\DoxyCodeLine{12 \{}
+\DoxyCodeLine{13     glm::mat4 m\_value =}
+\DoxyCodeLine{14         glm::translate(glm::vec3(0.0f)) * glm::mat4\_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));}
+\DoxyCodeLine{15     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_afc571fa317ed54c36a85371be30ab9d5}{operator==}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&other)\textcolor{keyword}{ const}}
+\DoxyCodeLine{16 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{17         \textcolor{keywordflow}{return} other.\mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a1b64ef4eb3f16f4f303df5ad711a1ca9}{m\_value}} == m\_value;}
+\DoxyCodeLine{18     \}}
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#pragma region Get \&set}}
+\DoxyCodeLine{20     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a92c15a0675dad16232ad4de4d4cd2b36}{Decompose}}(glm::vec3 \&translation, glm::vec3 \&eulerAngles, glm::vec3 \&scale)\textcolor{keyword}{ const}}
+\DoxyCodeLine{21 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{22         \textcolor{keyword}{using namespace }glm;}
+\DoxyCodeLine{23         \textcolor{keyword}{using} T = float;}
+\DoxyCodeLine{24         mat4 LocalMatrix(m\_value);}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26         \textcolor{comment}{// Normalize the matrix.}}
+\DoxyCodeLine{27         \textcolor{keywordflow}{if} (epsilonEqual(LocalMatrix[3][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{28             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30         \textcolor{keywordflow}{for} (length\_t i = 0; i < 4; ++i)}
+\DoxyCodeLine{31             \textcolor{keywordflow}{for} (length\_t j = 0; j < 4; ++j)}
+\DoxyCodeLine{32                 LocalMatrix[i][j] /= LocalMatrix[3][3];}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34         \textcolor{comment}{// perspectiveMatrix is used to solve for perspective, but it also provides}}
+\DoxyCodeLine{35         \textcolor{comment}{// an easy way to test for singularity of the upper 3x3 component.}}
+\DoxyCodeLine{36         mat4 PerspectiveMatrix(LocalMatrix);}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{39             PerspectiveMatrix[i][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{40         PerspectiveMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{43         \textcolor{keywordflow}{if} (epsilonEqual(determinant(PerspectiveMatrix), \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{44             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46         \textcolor{comment}{// First, isolate perspective.  This is the messiest.}}
+\DoxyCodeLine{47         \textcolor{keywordflow}{if} (epsilonNotEqual(LocalMatrix[0][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{48             epsilonNotEqual(LocalMatrix[1][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{49             epsilonNotEqual(LocalMatrix[2][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{50         \{}
+\DoxyCodeLine{51             \textcolor{comment}{// Clear the perspective partition}}
+\DoxyCodeLine{52             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{53             LocalMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{54         \}}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56         \textcolor{comment}{// Next take care of translation (easy).}}
+\DoxyCodeLine{57         translation = vec3(LocalMatrix[3]);}
+\DoxyCodeLine{58         LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60         vec3 Row[3], Pdum3;}
+\DoxyCodeLine{61 }
+\DoxyCodeLine{62         \textcolor{comment}{// Now get scale and shear.}}
+\DoxyCodeLine{63         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; ++i)}
+\DoxyCodeLine{64             \textcolor{keywordflow}{for} (length\_t j = 0; j < 3; ++j)}
+\DoxyCodeLine{65                 Row[i][j] = LocalMatrix[i][j];}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{67         \textcolor{comment}{// Compute X scale factor and normalize first row.}}
+\DoxyCodeLine{68         scale.x = length(Row[0]); \textcolor{comment}{// v3Length(Row[0]);}}
+\DoxyCodeLine{69 }
+\DoxyCodeLine{70         Row[0] = glm::detail::scale(Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{71 }
+\DoxyCodeLine{72         \textcolor{comment}{// Compute XY shear factor and make 2nd row orthogonal to 1st.}}
+\DoxyCodeLine{73         glm::vec3 Skew;}
+\DoxyCodeLine{74         Skew.z = dot(Row[0], Row[1]);}
+\DoxyCodeLine{75         Row[1] = glm::detail::combine(Row[1], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.z);}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{77         \textcolor{comment}{// Now, compute Y scale and normalize 2nd row.}}
+\DoxyCodeLine{78         scale.y = length(Row[1]);}
+\DoxyCodeLine{79         Row[1] = glm::detail::scale(Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{80         Skew.z /= scale.y;}
+\DoxyCodeLine{81 }
+\DoxyCodeLine{82         \textcolor{comment}{// Compute XZ and YZ shears, orthogonalize 3rd row.}}
+\DoxyCodeLine{83         Skew.y = glm::dot(Row[0], Row[2]);}
+\DoxyCodeLine{84         Row[2] = glm::detail::combine(Row[2], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.y);}
+\DoxyCodeLine{85         Skew.x = glm::dot(Row[1], Row[2]);}
+\DoxyCodeLine{86         Row[2] = glm::detail::combine(Row[2], Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.x);}
+\DoxyCodeLine{87 }
+\DoxyCodeLine{88         \textcolor{comment}{// Next, get Z scale and normalize 3rd row.}}
+\DoxyCodeLine{89         scale.z = length(Row[2]);}
+\DoxyCodeLine{90         Row[2] = glm::detail::scale(Row[2], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{91         Skew.y /= scale.z;}
+\DoxyCodeLine{92         Skew.x /= scale.z;}
+\DoxyCodeLine{93 }
+\DoxyCodeLine{94         \textcolor{comment}{// At this point, the matrix (in rows[]) is orthonormal.}}
+\DoxyCodeLine{95         \textcolor{comment}{// Check for a coordinate system flip.  If the determinant}}
+\DoxyCodeLine{96         \textcolor{comment}{// is -\/1, then negate the matrix and the scaling factors.}}
+\DoxyCodeLine{97         Pdum3 = cross(Row[1], Row[2]); \textcolor{comment}{// v3Cross(row[1], row[2], Pdum3);}}
+\DoxyCodeLine{98         \textcolor{keywordflow}{if} (dot(Row[0], Pdum3) < 0)}
+\DoxyCodeLine{99         \{}
+\DoxyCodeLine{100             \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{101             \{}
+\DoxyCodeLine{102                 scale[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{103                 Row[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{104             \}}
+\DoxyCodeLine{105         \}}
+\DoxyCodeLine{106 }
+\DoxyCodeLine{107         eulerAngles.y = glm::asin(-\/Row[0][2]);}
+\DoxyCodeLine{108         \textcolor{keywordflow}{if} (glm::cos(eulerAngles.y) != 0)}
+\DoxyCodeLine{109         \{}
+\DoxyCodeLine{110             eulerAngles.x = atan2(Row[1][2], Row[2][2]);}
+\DoxyCodeLine{111             eulerAngles.z = atan2(Row[0][1], Row[0][0]);}
+\DoxyCodeLine{112         \}}
+\DoxyCodeLine{113         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{114         \{}
+\DoxyCodeLine{115             eulerAngles.x = atan2(-\/Row[2][0], Row[1][1]);}
+\DoxyCodeLine{116             eulerAngles.z = 0;}
+\DoxyCodeLine{117         \}}
+\DoxyCodeLine{118         \textcolor{keywordflow}{return} \textcolor{keyword}{true};}
+\DoxyCodeLine{119     \}}
+\DoxyCodeLine{120     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a98df69ad98e5c3dcda96aefe4ad44cca}{Decompose}}(glm::vec3 \&translation, glm::quat \&rotation, glm::vec3 \&scale)\textcolor{keyword}{ const}}
+\DoxyCodeLine{121 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{122         \textcolor{keyword}{using namespace }glm;}
+\DoxyCodeLine{123         \textcolor{keyword}{using} T = float;}
+\DoxyCodeLine{124         mat4 LocalMatrix(m\_value);}
+\DoxyCodeLine{125 }
+\DoxyCodeLine{126         \textcolor{comment}{// Normalize the matrix.}}
+\DoxyCodeLine{127         \textcolor{keywordflow}{if} (epsilonEqual(LocalMatrix[3][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{128             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{129 }
+\DoxyCodeLine{130         \textcolor{keywordflow}{for} (length\_t i = 0; i < 4; ++i)}
+\DoxyCodeLine{131             \textcolor{keywordflow}{for} (length\_t j = 0; j < 4; ++j)}
+\DoxyCodeLine{132                 LocalMatrix[i][j] /= LocalMatrix[3][3];}
+\DoxyCodeLine{133 }
+\DoxyCodeLine{134         \textcolor{comment}{// perspectiveMatrix is used to solve for perspective, but it also provides}}
+\DoxyCodeLine{135         \textcolor{comment}{// an easy way to test for singularity of the upper 3x3 component.}}
+\DoxyCodeLine{136         mat4 PerspectiveMatrix(LocalMatrix);}
+\DoxyCodeLine{137 }
+\DoxyCodeLine{138         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{139             PerspectiveMatrix[i][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{140         PerspectiveMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{141 }
+\DoxyCodeLine{143         \textcolor{keywordflow}{if} (epsilonEqual(determinant(PerspectiveMatrix), \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{144             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{145 }
+\DoxyCodeLine{146         \textcolor{comment}{// First, isolate perspective.  This is the messiest.}}
+\DoxyCodeLine{147         \textcolor{keywordflow}{if} (epsilonNotEqual(LocalMatrix[0][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{148             epsilonNotEqual(LocalMatrix[1][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{149             epsilonNotEqual(LocalMatrix[2][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{150         \{}
+\DoxyCodeLine{151             \textcolor{comment}{// Clear the perspective partition}}
+\DoxyCodeLine{152             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{153             LocalMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{154         \}}
+\DoxyCodeLine{155 }
+\DoxyCodeLine{156         \textcolor{comment}{// Next take care of translation (easy).}}
+\DoxyCodeLine{157         translation = vec3(LocalMatrix[3]);}
+\DoxyCodeLine{158         LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);}
+\DoxyCodeLine{159 }
+\DoxyCodeLine{160         vec3 Row[3], Pdum3;}
+\DoxyCodeLine{161 }
+\DoxyCodeLine{162         \textcolor{comment}{// Now get scale and shear.}}
+\DoxyCodeLine{163         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; ++i)}
+\DoxyCodeLine{164             \textcolor{keywordflow}{for} (length\_t j = 0; j < 3; ++j)}
+\DoxyCodeLine{165                 Row[i][j] = LocalMatrix[i][j];}
+\DoxyCodeLine{166 }
+\DoxyCodeLine{167         \textcolor{comment}{// Compute X scale factor and normalize first row.}}
+\DoxyCodeLine{168         scale.x = length(Row[0]); \textcolor{comment}{// v3Length(Row[0]);}}
+\DoxyCodeLine{169 }
+\DoxyCodeLine{170         Row[0] = glm::detail::scale(Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{171 }
+\DoxyCodeLine{172         \textcolor{comment}{// Compute XY shear factor and make 2nd row orthogonal to 1st.}}
+\DoxyCodeLine{173         glm::vec3 Skew;}
+\DoxyCodeLine{174         Skew.z = dot(Row[0], Row[1]);}
+\DoxyCodeLine{175         Row[1] = glm::detail::combine(Row[1], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.z);}
+\DoxyCodeLine{176 }
+\DoxyCodeLine{177         \textcolor{comment}{// Now, compute Y scale and normalize 2nd row.}}
+\DoxyCodeLine{178         scale.y = length(Row[1]);}
+\DoxyCodeLine{179         Row[1] = glm::detail::scale(Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{180         Skew.z /= scale.y;}
+\DoxyCodeLine{181 }
+\DoxyCodeLine{182         \textcolor{comment}{// Compute XZ and YZ shears, orthogonalize 3rd row.}}
+\DoxyCodeLine{183         Skew.y = glm::dot(Row[0], Row[2]);}
+\DoxyCodeLine{184         Row[2] = glm::detail::combine(Row[2], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.y);}
+\DoxyCodeLine{185         Skew.x = glm::dot(Row[1], Row[2]);}
+\DoxyCodeLine{186         Row[2] = glm::detail::combine(Row[2], Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.x);}
+\DoxyCodeLine{187 }
+\DoxyCodeLine{188         \textcolor{comment}{// Next, get Z scale and normalize 3rd row.}}
+\DoxyCodeLine{189         scale.z = length(Row[2]);}
+\DoxyCodeLine{190         Row[2] = glm::detail::scale(Row[2], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{191         Skew.y /= scale.z;}
+\DoxyCodeLine{192         Skew.x /= scale.z;}
+\DoxyCodeLine{193 }
+\DoxyCodeLine{194         \textcolor{comment}{// At this point, the matrix (in rows[]) is orthonormal.}}
+\DoxyCodeLine{195         \textcolor{comment}{// Check for a coordinate system flip.  If the determinant}}
+\DoxyCodeLine{196         \textcolor{comment}{// is -\/1, then negate the matrix and the scaling factors.}}
+\DoxyCodeLine{197         Pdum3 = cross(Row[1], Row[2]); \textcolor{comment}{// v3Cross(row[1], row[2], Pdum3);}}
+\DoxyCodeLine{198         \textcolor{keywordflow}{if} (dot(Row[0], Pdum3) < 0)}
+\DoxyCodeLine{199         \{}
+\DoxyCodeLine{200             \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{201             \{}
+\DoxyCodeLine{202                 scale[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{203                 Row[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{204             \}}
+\DoxyCodeLine{205         \}}
+\DoxyCodeLine{206         \textcolor{keywordtype}{int} i, j, k = 0;}
+\DoxyCodeLine{207         T root, trace = Row[0].x + Row[1].y + Row[2].z;}
+\DoxyCodeLine{208         \textcolor{keywordflow}{if} (trace > \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0))}
+\DoxyCodeLine{209         \{}
+\DoxyCodeLine{210             root = glm::sqrt(trace + \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1.0));}
+\DoxyCodeLine{211             rotation.w = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) * root;}
+\DoxyCodeLine{212             root = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) / root;}
+\DoxyCodeLine{213             rotation.x = root * (Row[1].z -\/ Row[2].y);}
+\DoxyCodeLine{214             rotation.y = root * (Row[2].x -\/ Row[0].z);}
+\DoxyCodeLine{215             rotation.z = root * (Row[0].y -\/ Row[1].x);}
+\DoxyCodeLine{216         \} \textcolor{comment}{// End if > 0}}
+\DoxyCodeLine{217         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{218         \{}
+\DoxyCodeLine{219             \textcolor{keyword}{static} \textcolor{keywordtype}{int} Next[3] = \{1, 2, 0\};}
+\DoxyCodeLine{220             i = 0;}
+\DoxyCodeLine{221             \textcolor{keywordflow}{if} (Row[1].y > Row[0].x)}
+\DoxyCodeLine{222                 i = 1;}
+\DoxyCodeLine{223             \textcolor{keywordflow}{if} (Row[2].z > Row[i][i])}
+\DoxyCodeLine{224                 i = 2;}
+\DoxyCodeLine{225             j = Next[i];}
+\DoxyCodeLine{226             k = Next[j];}
+\DoxyCodeLine{227 }
+\DoxyCodeLine{228             root = glm::sqrt(Row[i][i] -\/ Row[j][j] -\/ Row[k][k] + \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1.0));}
+\DoxyCodeLine{229 }
+\DoxyCodeLine{230             rotation[i] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) * root;}
+\DoxyCodeLine{231             root = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) / root;}
+\DoxyCodeLine{232             rotation[j] = root * (Row[i][j] + Row[j][i]);}
+\DoxyCodeLine{233             rotation[k] = root * (Row[i][k] + Row[k][i]);}
+\DoxyCodeLine{234             rotation.w = root * (Row[j][k] -\/ Row[k][j]);}
+\DoxyCodeLine{235         \} \textcolor{comment}{// End if <= 0}}
+\DoxyCodeLine{236 }
+\DoxyCodeLine{237         \textcolor{keywordflow}{return} \textcolor{keyword}{true};}
+\DoxyCodeLine{238     \}}
+\DoxyCodeLine{239     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_ab70dd16d565bee021dce0518cce6a4a2}{GetPosition}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{240 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{241         \textcolor{keywordflow}{return} m\_value[3];}
+\DoxyCodeLine{242     \}}
+\DoxyCodeLine{243     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a635390ede25b3767f96a232e3cfa6127}{GetScale}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{244 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{245         glm::vec3 scale;}
+\DoxyCodeLine{246         glm::vec3 trans;}
+\DoxyCodeLine{247         glm::quat rotation;}
+\DoxyCodeLine{248         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{249         \textcolor{keywordflow}{return} scale;}
+\DoxyCodeLine{250     \}}
+\DoxyCodeLine{251     glm::quat \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a2208f19c7365a5aa59f0555b4f8cfa9c}{GetRotation}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{252 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{253         glm::vec3 scale;}
+\DoxyCodeLine{254         glm::vec3 trans;}
+\DoxyCodeLine{255         glm::quat rotation;}
+\DoxyCodeLine{256         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{257         \textcolor{keywordflow}{return} rotation;}
+\DoxyCodeLine{258     \}}
+\DoxyCodeLine{259     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_ad3e18e50a0c753d773fb66a2bed493aa}{GetEulerRotation}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{260 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{261         glm::vec3 scale;}
+\DoxyCodeLine{262         glm::vec3 trans;}
+\DoxyCodeLine{263         glm::vec3 rotation;}
+\DoxyCodeLine{264         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{265         \textcolor{keywordflow}{return} rotation;}
+\DoxyCodeLine{266     \}}
+\DoxyCodeLine{267     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a075407e07c32459aa00fa8d58dab3bdc}{SetPosition}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{268     \{}
+\DoxyCodeLine{269         m\_value[3].x = value.x;}
+\DoxyCodeLine{270         m\_value[3].y = value.y;}
+\DoxyCodeLine{271         m\_value[3].z = value.z;}
+\DoxyCodeLine{272     \}}
+\DoxyCodeLine{273     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_ad239b8b0c9853245d58d939064c0e9bf}{SetScale}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{274     \{}
+\DoxyCodeLine{275         glm::vec3 scale;}
+\DoxyCodeLine{276         glm::vec3 trans;}
+\DoxyCodeLine{277         glm::quat rotation;}
+\DoxyCodeLine{278         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{279         m\_value = glm::translate(trans) * glm::mat4\_cast(rotation) * glm::scale(value);}
+\DoxyCodeLine{280     \}}
+\DoxyCodeLine{281     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_af88f8d0824c0fdba39c90586a1c97d91}{SetRotation}}(\textcolor{keyword}{const} glm::quat \&value)}
+\DoxyCodeLine{282     \{}
+\DoxyCodeLine{283         glm::vec3 scale;}
+\DoxyCodeLine{284         glm::vec3 trans;}
+\DoxyCodeLine{285         glm::quat rotation;}
+\DoxyCodeLine{286         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{287         m\_value = glm::translate(trans) * glm::mat4\_cast(value) * glm::scale(scale);}
+\DoxyCodeLine{288     \}}
+\DoxyCodeLine{289     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_a15f36e68e49ed9611de67cfd41c6a948}{SetEulerRotation}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{290     \{}
+\DoxyCodeLine{291         glm::vec3 scale;}
+\DoxyCodeLine{292         glm::vec3 trans;}
+\DoxyCodeLine{293         glm::quat rotation;}
+\DoxyCodeLine{294         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{295         m\_value = glm::translate(trans) * glm::mat4\_cast(glm::quat(value)) * glm::scale(scale);}
+\DoxyCodeLine{296     \}}
+\DoxyCodeLine{297     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_acd0cecb517e9f50937f2226558c27869}{SetValue}}(\textcolor{keyword}{const} glm::vec3 \&position, \textcolor{keyword}{const} glm::vec3 \&eulerRotation, \textcolor{keyword}{const} glm::vec3 \&scale)}
+\DoxyCodeLine{298     \{}
+\DoxyCodeLine{299         m\_value = glm::translate(position) * glm::mat4\_cast(glm::quat(eulerRotation)) * glm::scale(scale);}
+\DoxyCodeLine{300     \}}
+\DoxyCodeLine{301     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_global_transform_afa3e4e4b918f585dd9d85a9f771ebe0b}{SetValue}}(\textcolor{keyword}{const} glm::vec3 \&position, \textcolor{keyword}{const} glm::quat \&rotation, \textcolor{keyword}{const} glm::vec3 \&scale)}
+\DoxyCodeLine{302     \{}
+\DoxyCodeLine{303         m\_value = glm::translate(position) * glm::mat4\_cast(rotation) * glm::scale(scale);}
+\DoxyCodeLine{304     \}}
+\DoxyCodeLine{305 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{306 \};}
+\DoxyCodeLine{307 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} : \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}}}
+\DoxyCodeLine{308 \{}
+\DoxyCodeLine{309     glm::mat4 m\_value =}
+\DoxyCodeLine{310         glm::translate(glm::vec3(0.0f)) * glm::mat4\_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));}
+\DoxyCodeLine{311     ;}
+\DoxyCodeLine{312     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a90008ae4eae78bd0fbf3b47be40cf8a3}{operator==}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_transform}{Transform}} \&other)\textcolor{keyword}{ const}}
+\DoxyCodeLine{313 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{314         \textcolor{keywordflow}{return} other.\mbox{\hyperlink{struct_uni_engine_1_1_transform_a93284a79de539233f726eaaec1375cf5}{m\_value}} == m\_value;}
+\DoxyCodeLine{315     \}}
+\DoxyCodeLine{316 \textcolor{preprocessor}{\#pragma region Get \&set}}
+\DoxyCodeLine{317     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a9832e8a43700b6dda8a488c5bc3070ef}{Decompose}}(glm::vec3 \&translation, glm::vec3 \&eulerAngles, glm::vec3 \&scale)\textcolor{keyword}{ const}}
+\DoxyCodeLine{318 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{319         \textcolor{keyword}{using namespace }glm;}
+\DoxyCodeLine{320         \textcolor{keyword}{using} T = float;}
+\DoxyCodeLine{321         mat4 LocalMatrix(m\_value);}
+\DoxyCodeLine{322 }
+\DoxyCodeLine{323         \textcolor{comment}{// Normalize the matrix.}}
+\DoxyCodeLine{324         \textcolor{keywordflow}{if} (epsilonEqual(LocalMatrix[3][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{325             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{326 }
+\DoxyCodeLine{327         \textcolor{keywordflow}{for} (length\_t i = 0; i < 4; ++i)}
+\DoxyCodeLine{328             \textcolor{keywordflow}{for} (length\_t j = 0; j < 4; ++j)}
+\DoxyCodeLine{329                 LocalMatrix[i][j] /= LocalMatrix[3][3];}
+\DoxyCodeLine{330 }
+\DoxyCodeLine{331         \textcolor{comment}{// perspectiveMatrix is used to solve for perspective, but it also provides}}
+\DoxyCodeLine{332         \textcolor{comment}{// an easy way to test for singularity of the upper 3x3 component.}}
+\DoxyCodeLine{333         mat4 PerspectiveMatrix(LocalMatrix);}
+\DoxyCodeLine{334 }
+\DoxyCodeLine{335         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{336             PerspectiveMatrix[i][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{337         PerspectiveMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{338 }
+\DoxyCodeLine{340         \textcolor{keywordflow}{if} (epsilonEqual(determinant(PerspectiveMatrix), \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{341             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{342 }
+\DoxyCodeLine{343         \textcolor{comment}{// First, isolate perspective.  This is the messiest.}}
+\DoxyCodeLine{344         \textcolor{keywordflow}{if} (epsilonNotEqual(LocalMatrix[0][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{345             epsilonNotEqual(LocalMatrix[1][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{346             epsilonNotEqual(LocalMatrix[2][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{347         \{}
+\DoxyCodeLine{348             \textcolor{comment}{// Clear the perspective partition}}
+\DoxyCodeLine{349             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{350             LocalMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{351         \}}
+\DoxyCodeLine{352 }
+\DoxyCodeLine{353         \textcolor{comment}{// Next take care of translation (easy).}}
+\DoxyCodeLine{354         translation = vec3(LocalMatrix[3]);}
+\DoxyCodeLine{355         LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);}
+\DoxyCodeLine{356 }
+\DoxyCodeLine{357         vec3 Row[3], Pdum3;}
+\DoxyCodeLine{358 }
+\DoxyCodeLine{359         \textcolor{comment}{// Now get scale and shear.}}
+\DoxyCodeLine{360         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; ++i)}
+\DoxyCodeLine{361             \textcolor{keywordflow}{for} (length\_t j = 0; j < 3; ++j)}
+\DoxyCodeLine{362                 Row[i][j] = LocalMatrix[i][j];}
+\DoxyCodeLine{363 }
+\DoxyCodeLine{364         \textcolor{comment}{// Compute X scale factor and normalize first row.}}
+\DoxyCodeLine{365         scale.x = length(Row[0]); \textcolor{comment}{// v3Length(Row[0]);}}
+\DoxyCodeLine{366 }
+\DoxyCodeLine{367         Row[0] = glm::detail::scale(Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{368 }
+\DoxyCodeLine{369         \textcolor{comment}{// Compute XY shear factor and make 2nd row orthogonal to 1st.}}
+\DoxyCodeLine{370         glm::vec3 Skew;}
+\DoxyCodeLine{371         Skew.z = dot(Row[0], Row[1]);}
+\DoxyCodeLine{372         Row[1] = glm::detail::combine(Row[1], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.z);}
+\DoxyCodeLine{373 }
+\DoxyCodeLine{374         \textcolor{comment}{// Now, compute Y scale and normalize 2nd row.}}
+\DoxyCodeLine{375         scale.y = length(Row[1]);}
+\DoxyCodeLine{376         Row[1] = glm::detail::scale(Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{377         Skew.z /= scale.y;}
+\DoxyCodeLine{378 }
+\DoxyCodeLine{379         \textcolor{comment}{// Compute XZ and YZ shears, orthogonalize 3rd row.}}
+\DoxyCodeLine{380         Skew.y = glm::dot(Row[0], Row[2]);}
+\DoxyCodeLine{381         Row[2] = glm::detail::combine(Row[2], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.y);}
+\DoxyCodeLine{382         Skew.x = glm::dot(Row[1], Row[2]);}
+\DoxyCodeLine{383         Row[2] = glm::detail::combine(Row[2], Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.x);}
+\DoxyCodeLine{384 }
+\DoxyCodeLine{385         \textcolor{comment}{// Next, get Z scale and normalize 3rd row.}}
+\DoxyCodeLine{386         scale.z = length(Row[2]);}
+\DoxyCodeLine{387         Row[2] = glm::detail::scale(Row[2], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{388         Skew.y /= scale.z;}
+\DoxyCodeLine{389         Skew.x /= scale.z;}
+\DoxyCodeLine{390 }
+\DoxyCodeLine{391         \textcolor{comment}{// At this point, the matrix (in rows[]) is orthonormal.}}
+\DoxyCodeLine{392         \textcolor{comment}{// Check for a coordinate system flip.  If the determinant}}
+\DoxyCodeLine{393         \textcolor{comment}{// is -\/1, then negate the matrix and the scaling factors.}}
+\DoxyCodeLine{394         Pdum3 = cross(Row[1], Row[2]); \textcolor{comment}{// v3Cross(row[1], row[2], Pdum3);}}
+\DoxyCodeLine{395         \textcolor{keywordflow}{if} (dot(Row[0], Pdum3) < 0)}
+\DoxyCodeLine{396         \{}
+\DoxyCodeLine{397             \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{398             \{}
+\DoxyCodeLine{399                 scale[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{400                 Row[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{401             \}}
+\DoxyCodeLine{402         \}}
+\DoxyCodeLine{403 }
+\DoxyCodeLine{404         eulerAngles.y = glm::asin(-\/Row[0][2]);}
+\DoxyCodeLine{405         \textcolor{keywordflow}{if} (glm::cos(eulerAngles.y) != 0)}
+\DoxyCodeLine{406         \{}
+\DoxyCodeLine{407             eulerAngles.x = atan2(Row[1][2], Row[2][2]);}
+\DoxyCodeLine{408             eulerAngles.z = atan2(Row[0][1], Row[0][0]);}
+\DoxyCodeLine{409         \}}
+\DoxyCodeLine{410         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{411         \{}
+\DoxyCodeLine{412             eulerAngles.x = atan2(-\/Row[2][0], Row[1][1]);}
+\DoxyCodeLine{413             eulerAngles.z = 0;}
+\DoxyCodeLine{414         \}}
+\DoxyCodeLine{415         \textcolor{keywordflow}{return} \textcolor{keyword}{true};}
+\DoxyCodeLine{416     \}}
+\DoxyCodeLine{417     \textcolor{keywordtype}{bool} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a754017b35d14ec2ad3d2fe4d84b11aa8}{Decompose}}(glm::vec3 \&translation, glm::quat \&rotation, glm::vec3 \&scale)\textcolor{keyword}{ const}}
+\DoxyCodeLine{418 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{419         \textcolor{keyword}{using namespace }glm;}
+\DoxyCodeLine{420         \textcolor{keyword}{using} T = float;}
+\DoxyCodeLine{421         mat4 LocalMatrix(m\_value);}
+\DoxyCodeLine{422 }
+\DoxyCodeLine{423         \textcolor{comment}{// Normalize the matrix.}}
+\DoxyCodeLine{424         \textcolor{keywordflow}{if} (epsilonEqual(LocalMatrix[3][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{425             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{426 }
+\DoxyCodeLine{427         \textcolor{keywordflow}{for} (length\_t i = 0; i < 4; ++i)}
+\DoxyCodeLine{428             \textcolor{keywordflow}{for} (length\_t j = 0; j < 4; ++j)}
+\DoxyCodeLine{429                 LocalMatrix[i][j] /= LocalMatrix[3][3];}
+\DoxyCodeLine{430 }
+\DoxyCodeLine{431         \textcolor{comment}{// perspectiveMatrix is used to solve for perspective, but it also provides}}
+\DoxyCodeLine{432         \textcolor{comment}{// an easy way to test for singularity of the upper 3x3 component.}}
+\DoxyCodeLine{433         mat4 PerspectiveMatrix(LocalMatrix);}
+\DoxyCodeLine{434 }
+\DoxyCodeLine{435         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{436             PerspectiveMatrix[i][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{437         PerspectiveMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{438 }
+\DoxyCodeLine{440         \textcolor{keywordflow}{if} (epsilonEqual(determinant(PerspectiveMatrix), \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{441             \textcolor{keywordflow}{return} \textcolor{keyword}{false};}
+\DoxyCodeLine{442 }
+\DoxyCodeLine{443         \textcolor{comment}{// First, isolate perspective.  This is the messiest.}}
+\DoxyCodeLine{444         \textcolor{keywordflow}{if} (epsilonNotEqual(LocalMatrix[0][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{445             epsilonNotEqual(LocalMatrix[1][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()) ||}
+\DoxyCodeLine{446             epsilonNotEqual(LocalMatrix[2][3], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0), epsilon<T>()))}
+\DoxyCodeLine{447         \{}
+\DoxyCodeLine{448             \textcolor{comment}{// Clear the perspective partition}}
+\DoxyCodeLine{449             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{450             LocalMatrix[3][3] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1);}
+\DoxyCodeLine{451         \}}
+\DoxyCodeLine{452 }
+\DoxyCodeLine{453         \textcolor{comment}{// Next take care of translation (easy).}}
+\DoxyCodeLine{454         translation = vec3(LocalMatrix[3]);}
+\DoxyCodeLine{455         LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);}
+\DoxyCodeLine{456 }
+\DoxyCodeLine{457         vec3 Row[3], Pdum3;}
+\DoxyCodeLine{458 }
+\DoxyCodeLine{459         \textcolor{comment}{// Now get scale and shear.}}
+\DoxyCodeLine{460         \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; ++i)}
+\DoxyCodeLine{461             \textcolor{keywordflow}{for} (length\_t j = 0; j < 3; ++j)}
+\DoxyCodeLine{462                 Row[i][j] = LocalMatrix[i][j];}
+\DoxyCodeLine{463 }
+\DoxyCodeLine{464         \textcolor{comment}{// Compute X scale factor and normalize first row.}}
+\DoxyCodeLine{465         scale.x = length(Row[0]); \textcolor{comment}{// v3Length(Row[0]);}}
+\DoxyCodeLine{466 }
+\DoxyCodeLine{467         Row[0] = glm::detail::scale(Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{468 }
+\DoxyCodeLine{469         \textcolor{comment}{// Compute XY shear factor and make 2nd row orthogonal to 1st.}}
+\DoxyCodeLine{470         glm::vec3 Skew;}
+\DoxyCodeLine{471         Skew.z = dot(Row[0], Row[1]);}
+\DoxyCodeLine{472         Row[1] = glm::detail::combine(Row[1], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.z);}
+\DoxyCodeLine{473 }
+\DoxyCodeLine{474         \textcolor{comment}{// Now, compute Y scale and normalize 2nd row.}}
+\DoxyCodeLine{475         scale.y = length(Row[1]);}
+\DoxyCodeLine{476         Row[1] = glm::detail::scale(Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{477         Skew.z /= scale.y;}
+\DoxyCodeLine{478 }
+\DoxyCodeLine{479         \textcolor{comment}{// Compute XZ and YZ shears, orthogonalize 3rd row.}}
+\DoxyCodeLine{480         Skew.y = glm::dot(Row[0], Row[2]);}
+\DoxyCodeLine{481         Row[2] = glm::detail::combine(Row[2], Row[0], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.y);}
+\DoxyCodeLine{482         Skew.x = glm::dot(Row[1], Row[2]);}
+\DoxyCodeLine{483         Row[2] = glm::detail::combine(Row[2], Row[1], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1), -\/Skew.x);}
+\DoxyCodeLine{484 }
+\DoxyCodeLine{485         \textcolor{comment}{// Next, get Z scale and normalize 3rd row.}}
+\DoxyCodeLine{486         scale.z = length(Row[2]);}
+\DoxyCodeLine{487         Row[2] = glm::detail::scale(Row[2], \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1));}
+\DoxyCodeLine{488         Skew.y /= scale.z;}
+\DoxyCodeLine{489         Skew.x /= scale.z;}
+\DoxyCodeLine{490 }
+\DoxyCodeLine{491         \textcolor{comment}{// At this point, the matrix (in rows[]) is orthonormal.}}
+\DoxyCodeLine{492         \textcolor{comment}{// Check for a coordinate system flip.  If the determinant}}
+\DoxyCodeLine{493         \textcolor{comment}{// is -\/1, then negate the matrix and the scaling factors.}}
+\DoxyCodeLine{494         Pdum3 = cross(Row[1], Row[2]); \textcolor{comment}{// v3Cross(row[1], row[2], Pdum3);}}
+\DoxyCodeLine{495         \textcolor{keywordflow}{if} (dot(Row[0], Pdum3) < 0)}
+\DoxyCodeLine{496         \{}
+\DoxyCodeLine{497             \textcolor{keywordflow}{for} (length\_t i = 0; i < 3; i++)}
+\DoxyCodeLine{498             \{}
+\DoxyCodeLine{499                 scale[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{500                 Row[i] *= \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(-\/1);}
+\DoxyCodeLine{501             \}}
+\DoxyCodeLine{502         \}}
+\DoxyCodeLine{503         \textcolor{keywordtype}{int} i, j, k = 0;}
+\DoxyCodeLine{504         T root, trace = Row[0].x + Row[1].y + Row[2].z;}
+\DoxyCodeLine{505         \textcolor{keywordflow}{if} (trace > \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0))}
+\DoxyCodeLine{506         \{}
+\DoxyCodeLine{507             root = glm::sqrt(trace + \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1.0));}
+\DoxyCodeLine{508             rotation.w = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) * root;}
+\DoxyCodeLine{509             root = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) / root;}
+\DoxyCodeLine{510             rotation.x = root * (Row[1].z -\/ Row[2].y);}
+\DoxyCodeLine{511             rotation.y = root * (Row[2].x -\/ Row[0].z);}
+\DoxyCodeLine{512             rotation.z = root * (Row[0].y -\/ Row[1].x);}
+\DoxyCodeLine{513         \} \textcolor{comment}{// End if > 0}}
+\DoxyCodeLine{514         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{515         \{}
+\DoxyCodeLine{516             \textcolor{keyword}{static} \textcolor{keywordtype}{int} Next[3] = \{1, 2, 0\};}
+\DoxyCodeLine{517             i = 0;}
+\DoxyCodeLine{518             \textcolor{keywordflow}{if} (Row[1].y > Row[0].x)}
+\DoxyCodeLine{519                 i = 1;}
+\DoxyCodeLine{520             \textcolor{keywordflow}{if} (Row[2].z > Row[i][i])}
+\DoxyCodeLine{521                 i = 2;}
+\DoxyCodeLine{522             j = Next[i];}
+\DoxyCodeLine{523             k = Next[j];}
+\DoxyCodeLine{524 }
+\DoxyCodeLine{525             root = glm::sqrt(Row[i][i] -\/ Row[j][j] -\/ Row[k][k] + \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(1.0));}
+\DoxyCodeLine{526 }
+\DoxyCodeLine{527             rotation[i] = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) * root;}
+\DoxyCodeLine{528             root = \textcolor{keyword}{static\_cast<}T\textcolor{keyword}{>}(0.5) / root;}
+\DoxyCodeLine{529             rotation[j] = root * (Row[i][j] + Row[j][i]);}
+\DoxyCodeLine{530             rotation[k] = root * (Row[i][k] + Row[k][i]);}
+\DoxyCodeLine{531             rotation.w = root * (Row[j][k] -\/ Row[k][j]);}
+\DoxyCodeLine{532         \} \textcolor{comment}{// End if <= 0}}
+\DoxyCodeLine{533 }
+\DoxyCodeLine{534         \textcolor{keywordflow}{return} \textcolor{keyword}{true};}
+\DoxyCodeLine{535     \}}
+\DoxyCodeLine{536     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_transform_ad3a16d7d1fa706393040eecf48cf5688}{GetPosition}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{537 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{538         \textcolor{keywordflow}{return} m\_value[3];}
+\DoxyCodeLine{539     \}}
+\DoxyCodeLine{540     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_transform_a5925c2ca4e0b1fad03586408994f1a9d}{GetScale}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{541 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{542         glm::vec3 scale;}
+\DoxyCodeLine{543         glm::vec3 trans;}
+\DoxyCodeLine{544         glm::quat rotation;}
+\DoxyCodeLine{545         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{546         \textcolor{keywordflow}{return} scale;}
+\DoxyCodeLine{547     \}}
+\DoxyCodeLine{548     glm::quat \mbox{\hyperlink{struct_uni_engine_1_1_transform_aa6f65de159cdb8c1590a66db1daf9931}{GetRotation}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{549 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{550         glm::vec3 scale;}
+\DoxyCodeLine{551         glm::vec3 trans;}
+\DoxyCodeLine{552         glm::quat rotation;}
+\DoxyCodeLine{553         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{554         \textcolor{keywordflow}{return} rotation;}
+\DoxyCodeLine{555     \}}
+\DoxyCodeLine{556     glm::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_transform_a9bcb9f542bc62bce1cb5c44fe78116d4}{GetEulerRotation}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{557 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{558         glm::vec3 scale;}
+\DoxyCodeLine{559         glm::vec3 trans;}
+\DoxyCodeLine{560         glm::vec3 rotation;}
+\DoxyCodeLine{561         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{562         \textcolor{keywordflow}{return} rotation;}
+\DoxyCodeLine{563     \}}
+\DoxyCodeLine{564     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a8bf2f5a027c3977d298886144c205acc}{SetPosition}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{565     \{}
+\DoxyCodeLine{566         m\_value[3].x = value.x;}
+\DoxyCodeLine{567         m\_value[3].y = value.y;}
+\DoxyCodeLine{568         m\_value[3].z = value.z;}
+\DoxyCodeLine{569     \}}
+\DoxyCodeLine{570     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a416f65916a7ffd96ea25e0913f0f4976}{SetScale}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{571     \{}
+\DoxyCodeLine{572         glm::vec3 scale;}
+\DoxyCodeLine{573         glm::vec3 trans;}
+\DoxyCodeLine{574         glm::quat rotation;}
+\DoxyCodeLine{575         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{576         m\_value = glm::translate(trans) * glm::mat4\_cast(rotation) * glm::scale(value);}
+\DoxyCodeLine{577     \}}
+\DoxyCodeLine{578     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a2e31928d7d6dbb186123b42db3154e64}{SetRotation}}(\textcolor{keyword}{const} glm::quat \&value)}
+\DoxyCodeLine{579     \{}
+\DoxyCodeLine{580         glm::vec3 scale;}
+\DoxyCodeLine{581         glm::vec3 trans;}
+\DoxyCodeLine{582         glm::quat rotation;}
+\DoxyCodeLine{583         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{584         m\_value = glm::translate(trans) * glm::mat4\_cast(value) * glm::scale(scale);}
+\DoxyCodeLine{585     \}}
+\DoxyCodeLine{586     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_a39e0645c832eeda4ec85320470404fbb}{SetEulerRotation}}(\textcolor{keyword}{const} glm::vec3 \&value)}
+\DoxyCodeLine{587     \{}
+\DoxyCodeLine{588         glm::vec3 scale;}
+\DoxyCodeLine{589         glm::vec3 trans;}
+\DoxyCodeLine{590         glm::quat rotation;}
+\DoxyCodeLine{591         Decompose(trans, rotation, scale);}
+\DoxyCodeLine{592         m\_value = glm::translate(trans) * glm::mat4\_cast(glm::quat(value)) * glm::scale(scale);}
+\DoxyCodeLine{593     \}}
+\DoxyCodeLine{594     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_ac03ca5a6062721d5ae9ed9f20faae5cb}{SetValue}}(\textcolor{keyword}{const} glm::vec3 \&position, \textcolor{keyword}{const} glm::vec3 \&eulerRotation, \textcolor{keyword}{const} glm::vec3 \&scale)}
+\DoxyCodeLine{595     \{}
+\DoxyCodeLine{596         m\_value = glm::translate(position) * glm::mat4\_cast(glm::quat(eulerRotation)) * glm::scale(scale);}
+\DoxyCodeLine{597     \}}
+\DoxyCodeLine{598     \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_transform_ac532601750c1164c83721035df1e1ba4}{SetValue}}(\textcolor{keyword}{const} glm::vec3 \&position, \textcolor{keyword}{const} glm::quat \&rotation, \textcolor{keyword}{const} glm::vec3 \&scale)}
+\DoxyCodeLine{599     \{}
+\DoxyCodeLine{600         m\_value = glm::translate(position) * glm::mat4\_cast(rotation) * glm::scale(scale);}
+\DoxyCodeLine{601     \}}
+\DoxyCodeLine{602 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{603 \};}
+\DoxyCodeLine{604 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

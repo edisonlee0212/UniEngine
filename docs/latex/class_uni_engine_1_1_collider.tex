@@ -1,0 +1,143 @@
+\hypertarget{class_uni_engine_1_1_collider}{}\doxysection{Uni\+Engine\+::Collider Class Reference}
+\label{class_uni_engine_1_1_collider}\index{UniEngine::Collider@{UniEngine::Collider}}
+
+
+{\ttfamily \#include $<$Collider.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Collider\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_collider}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_a7eefad70ccf2debd981cd7ce912db4f9}{On\+Gui}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_aa6aec3217865fa504b1a84dcb10e9930}{On\+Create}} () override
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_collider_a564acde9860f875a32a6638c573d87be}{$\sim$\+Collider}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_a857e6ed6c333b0744ce8437cf4e1382e}{Set\+Shape\+Type}} (const Shape\+Type \&type)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_ac058efca651e0e7673d4a585c93923a2}{Set\+Shape\+Param}} (const glm\+::vec3 \&param)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_aecee62a0fd0dafa45810fa26811f044f}{Set\+Material}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{Physics\+Material}} $>$ \&material)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_ab8fa77dca29da4632978ed0e33e36686}{Collect\+Asset\+Ref}} (std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&list) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_a7c808ee201e9f5577f3559d30369232a}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_collider_a148c4980c3588ae67560f4aa40ba4e9c}{Deserialize}} (const YAML\+::\+Node \&in) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_collider_a139cf05ac01161b7071c8a037c841683}{Physics\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_collider_abb8b03bec6b0a8e0834c8358c93039d2}{Rigid\+Body}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a564acde9860f875a32a6638c573d87be}\label{class_uni_engine_1_1_collider_a564acde9860f875a32a6638c573d87be}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!````~Collider@{$\sim$Collider}}
+\index{````~Collider@{$\sim$Collider}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{$\sim$Collider()}{~Collider()}}
+{\footnotesize\ttfamily Collider\+::$\sim$\+Collider (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_ab8fa77dca29da4632978ed0e33e36686}\label{class_uni_engine_1_1_collider_ab8fa77dca29da4632978ed0e33e36686}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!CollectAssetRef@{CollectAssetRef}}
+\index{CollectAssetRef@{CollectAssetRef}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{CollectAssetRef()}{CollectAssetRef()}}
+{\footnotesize\ttfamily void Collider\+::\+Collect\+Asset\+Ref (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&}]{list }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+During the serialization of the prefab and scene, user should mark all the \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} member in the class so they will be serialized and correctly restored during deserialization. 
+\begin{DoxyParams}{Parameters}
+{\em list} & The list for collecting the \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} of all members. You should push all the \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} of the class members to ensure correct behaviour. \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a785716f6c4a461a2fbfd428a3b89ef71}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a148c4980c3588ae67560f4aa40ba4e9c}\label{class_uni_engine_1_1_collider_a148c4980c3588ae67560f4aa40ba4e9c}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Collider\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_aa6aec3217865fa504b1a84dcb10e9930}\label{class_uni_engine_1_1_collider_aa6aec3217865fa504b1a84dcb10e9930}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily void Collider\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+Whether the asset is saved or not. Function will be invoked right after asset creation. 
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_asset_a9b0ccb0972704b9ee6f963f32ddcfc47}{Uni\+Engine\+::\+IAsset}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a7eefad70ccf2debd981cd7ce912db4f9}\label{class_uni_engine_1_1_collider_a7eefad70ccf2debd981cd7ce912db4f9}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!OnGui@{OnGui}}
+\index{OnGui@{OnGui}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{OnGui()}{OnGui()}}
+{\footnotesize\ttfamily void Collider\+::\+On\+Gui (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a7c808ee201e9f5577f3559d30369232a}\label{class_uni_engine_1_1_collider_a7c808ee201e9f5577f3559d30369232a}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Collider\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_aecee62a0fd0dafa45810fa26811f044f}\label{class_uni_engine_1_1_collider_aecee62a0fd0dafa45810fa26811f044f}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!SetMaterial@{SetMaterial}}
+\index{SetMaterial@{SetMaterial}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{SetMaterial()}{SetMaterial()}}
+{\footnotesize\ttfamily void Collider\+::\+Set\+Material (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_physics_material}{Physics\+Material}} $>$ \&}]{material }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_ac058efca651e0e7673d4a585c93923a2}\label{class_uni_engine_1_1_collider_ac058efca651e0e7673d4a585c93923a2}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!SetShapeParam@{SetShapeParam}}
+\index{SetShapeParam@{SetShapeParam}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{SetShapeParam()}{SetShapeParam()}}
+{\footnotesize\ttfamily void Collider\+::\+Set\+Shape\+Param (\begin{DoxyParamCaption}\item[{const glm\+::vec3 \&}]{param }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a857e6ed6c333b0744ce8437cf4e1382e}\label{class_uni_engine_1_1_collider_a857e6ed6c333b0744ce8437cf4e1382e}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!SetShapeType@{SetShapeType}}
+\index{SetShapeType@{SetShapeType}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{SetShapeType()}{SetShapeType()}}
+{\footnotesize\ttfamily void Collider\+::\+Set\+Shape\+Type (\begin{DoxyParamCaption}\item[{const Shape\+Type \&}]{type }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_a139cf05ac01161b7071c8a037c841683}\label{class_uni_engine_1_1_collider_a139cf05ac01161b7071c8a037c841683}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!PhysicsManager@{PhysicsManager}}
+\index{PhysicsManager@{PhysicsManager}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{PhysicsManager}{PhysicsManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_physics_manager}{Physics\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_collider_abb8b03bec6b0a8e0834c8358c93039d2}\label{class_uni_engine_1_1_collider_abb8b03bec6b0a8e0834c8358c93039d2}} 
+\index{UniEngine::Collider@{UniEngine::Collider}!RigidBody@{RigidBody}}
+\index{RigidBody@{RigidBody}!UniEngine::Collider@{UniEngine::Collider}}
+\doxysubsubsection{\texorpdfstring{RigidBody}{RigidBody}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_rigid_body}{Rigid\+Body}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Physics/\mbox{\hyperlink{_collider_8hpp}{Collider.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_collider_8cpp}{Collider.\+cpp}}\end{DoxyCompactItemize}

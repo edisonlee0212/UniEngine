@@ -1,0 +1,60 @@
+\hypertarget{_i_private_component_8hpp_source}{}\doxysection{IPrivate\+Component.\+hpp}
+\label{_i_private_component_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/IPrivateComponent.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/IPrivateComponent.hpp}}
+\mbox{\hyperlink{_i_private_component_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_serializable_8hpp}{ISerializable.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_entity_manager}{EntityManager}};}
+\DoxyCodeLine{9     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{10     \textcolor{keyword}{friend} \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_private_component_element}{PrivateComponentElement}};}
+\DoxyCodeLine{11     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{SerializationManager}};}
+\DoxyCodeLine{12     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}};}
+\DoxyCodeLine{13     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{14     \textcolor{keywordtype}{bool} m\_enabled = \textcolor{keyword}{true};}
+\DoxyCodeLine{15     \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} m\_owner = \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}();}
+\DoxyCodeLine{16     \textcolor{keywordtype}{bool} m\_started = \textcolor{keyword}{false};}
+\DoxyCodeLine{17 }
+\DoxyCodeLine{18   \textcolor{keyword}{public}:}
+\DoxyCodeLine{19     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} GetOwner() \textcolor{keyword}{const};}
+\DoxyCodeLine{20     \textcolor{keywordtype}{void} SetEnabled(\textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&value);}
+\DoxyCodeLine{21     [[nodiscard]] \textcolor{keywordtype}{bool} IsEnabled() \textcolor{keyword}{const};}
+\DoxyCodeLine{22     \textcolor{keywordtype}{bool} Started();}
+\DoxyCodeLine{23     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{OnInspect}}()\{\};}
+\DoxyCodeLine{24     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a8d4293f3b5a693ec64c979b007085e16}{FixedUpdate}}()\{\};}
+\DoxyCodeLine{25     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a1d8b410b9afe59a76bcc52acb6a7de26}{PreUpdate}}()\{\};}
+\DoxyCodeLine{26     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a831636ba56cbb97cddbc2c9c7dbe2988}{Update}}()\{\};}
+\DoxyCodeLine{27     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af59ce3b6edaaa6cb13c05f9c792e5e20}{LateUpdate}}()\{\};}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}{OnCreate}}()\{\};}
+\DoxyCodeLine{30     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a25ecb93b06b2d9c88c3bfd329f2f4217}{Start}}()\{\};}
+\DoxyCodeLine{31     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a5693a5923205e96d148c5a775dd40ece}{OnEnable}}()\{\};}
+\DoxyCodeLine{32     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a47fa0614be9f39a6a809ba6db5c5f799}{OnDisable}}()\{\};}
+\DoxyCodeLine{33     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_adc1c5d287d14d28ebab5bb2ae8932c19}{OnEntityEnable}}()\{\};}
+\DoxyCodeLine{34     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_ab91e7e1e3f7a963dcd1a62509affc950}{OnEntityDisable}}()\{\};}
+\DoxyCodeLine{35     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a85ae47977264483c805e5a0e664250f7}{OnDestroy}}()\{\};}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}{CollectAssetRef}}(std::vector<AssetRef> \&list)\{\};}
+\DoxyCodeLine{38     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a391ebdd24c326b294953ce436cf27e67}{Relink}}(\textcolor{keyword}{const} std::unordered\_map<Handle, Handle> \&map, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}\& newSceneHandle)\{\};}
+\DoxyCodeLine{39     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{PostCloneAction}}(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent> \&target) \{\};}
+\DoxyCodeLine{40 \};}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42 \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_private_component_element}{PrivateComponentElement}}}
+\DoxyCodeLine{43 \{}
+\DoxyCodeLine{44     \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_a901aa2e5636c9100a64b3b017a4885b8}{m\_typeId}};}
+\DoxyCodeLine{45     std::shared\_ptr<IPrivateComponent> \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_ababdb335734584512096893b1369a306}{m\_privateComponentData}};}
+\DoxyCodeLine{46     UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_a0b1e17a65fac89bb33942257b33ea371}{PrivateComponentElement}}() = \textcolor{keywordflow}{default};}
+\DoxyCodeLine{47     UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_a0b1e17a65fac89bb33942257b33ea371}{PrivateComponentElement}}(}
+\DoxyCodeLine{48         \textcolor{keywordtype}{size\_t} \textcolor{keywordtype}{id}, \textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent> \&data, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&owner);}
+\DoxyCodeLine{49     UNIENGINE\_API \textcolor{keywordtype}{void} \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_a7d4a5256fd683ccef2d7d80df425b347}{ResetOwner}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&newOwner) \textcolor{keyword}{const};}
+\DoxyCodeLine{50     \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element}{PrivateComponentElement}}\& \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element_a5b195cfb359e2c808536feabda48c0ec}{operator=}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_private_component_element}{PrivateComponentElement}}\& source);}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52 \};}
+\DoxyCodeLine{53 }
+\DoxyCodeLine{54 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

@@ -1,0 +1,177 @@
+\hypertarget{class_uni_engine_1_1_system_ref}{}\doxysection{Uni\+Engine\+::System\+Ref Class Reference}
+\label{class_uni_engine_1_1_system_ref}\index{UniEngine::SystemRef@{UniEngine::SystemRef}}
+
+
+{\ttfamily \#include $<$ISystem.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::System\+Ref\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_uni_engine_1_1_system_ref}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_system_ref_a3cce1c2ba921d0d6fc022e33a441921b}{System\+Ref}} ()
+\item 
+{\footnotesize template$<$typename T  = ISystem$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_system_ref_a035b077cf834ab60268a730395c97f1c}{System\+Ref}} (const std\+::shared\+\_\+ptr$<$ T $>$ \&other)
+\item 
+{\footnotesize template$<$typename T  = ISystem$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \& \mbox{\hyperlink{class_uni_engine_1_1_system_ref_aeae83c692f43c7f70daaeeb3e86b2593}{operator=}} (const std\+::shared\+\_\+ptr$<$ T $>$ \&other)
+\item 
+{\footnotesize template$<$typename T  = ISystem$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \& \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a11c6a6dc92f24b5b274f795ac54f2a3d}{operator=}} (std\+::shared\+\_\+ptr$<$ T $>$ \&\&other) noexcept
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a900ba49343a80c00c6ba481cae0ffd8f}{operator==}} (const \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \&rhs) const
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_system_ref_ae056f25289a51968b40d0664d2c1b15f}{operator!=}} (const \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \&rhs) const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_af80ec440ca921dcf25238526f4b8f5e7}{Relink}} (const std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}, \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} $>$ \&map)
+\item 
+{\footnotesize template$<$typename T  = ISystem$>$ }\\std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a7098c12743450c7f1f42bce9add33840}{Get}} ()
+\item 
+{\footnotesize template$<$typename T  = ISystem$>$ }\\void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a6e46d69879a34338ffecc732ace42464}{Set}} (const std\+::shared\+\_\+ptr$<$ T $>$ \&target)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a20266d7a8f7afed4789a5b3f5376c4c0}{Clear}} ()
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a4247f91dbfae1094e3209787f3822f40}{Get\+Entity\+Handle}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_ad1079113ea8392b5a3a6788f4678a119}{Save}} (const std\+::string \&name, YAML\+::\+Emitter \&out)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_addd9cc93244654d48a6fedaa762c9e12}{Load}} (const std\+::string \&name, const YAML\+::\+Node \&in)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a31bc9983ea568eab155592d77f9a474d}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_system_ref_afd3a5b82aaa5721380bbd809f7fff9b0}{Deserialize}} (const YAML\+::\+Node \&in) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_system_ref_a3b30df5376ee3debefc95100be808d9b}{Prefab}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a3cce1c2ba921d0d6fc022e33a441921b}\label{class_uni_engine_1_1_system_ref_a3cce1c2ba921d0d6fc022e33a441921b}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!SystemRef@{SystemRef}}
+\index{SystemRef@{SystemRef}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{SystemRef()}{SystemRef()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Uni\+Engine\+::\+System\+Ref\+::\+System\+Ref (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a035b077cf834ab60268a730395c97f1c}\label{class_uni_engine_1_1_system_ref_a035b077cf834ab60268a730395c97f1c}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!SystemRef@{SystemRef}}
+\index{SystemRef@{SystemRef}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{SystemRef()}{SystemRef()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T  = ISystem$>$ \\
+Uni\+Engine\+::\+System\+Ref\+::\+System\+Ref (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ T $>$ \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a20266d7a8f7afed4789a5b3f5376c4c0}\label{class_uni_engine_1_1_system_ref_a20266d7a8f7afed4789a5b3f5376c4c0}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Clear@{Clear}}
+\index{Clear@{Clear}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Clear()}{Clear()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_afd3a5b82aaa5721380bbd809f7fff9b0}\label{class_uni_engine_1_1_system_ref_afd3a5b82aaa5721380bbd809f7fff9b0}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a7098c12743450c7f1f42bce9add33840}\label{class_uni_engine_1_1_system_ref_a7098c12743450c7f1f42bce9add33840}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Get@{Get}}
+\index{Get@{Get}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Get()}{Get()}}
+{\footnotesize\ttfamily template$<$typename T  = ISystem$>$ \\
+std\+::shared\+\_\+ptr$<$ T $>$ Uni\+Engine\+::\+System\+Ref\+::\+Get (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a4247f91dbfae1094e3209787f3822f40}\label{class_uni_engine_1_1_system_ref_a4247f91dbfae1094e3209787f3822f40}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!GetEntityHandle@{GetEntityHandle}}
+\index{GetEntityHandle@{GetEntityHandle}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{GetEntityHandle()}{GetEntityHandle()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} Uni\+Engine\+::\+System\+Ref\+::\+Get\+Entity\+Handle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_addd9cc93244654d48a6fedaa762c9e12}\label{class_uni_engine_1_1_system_ref_addd9cc93244654d48a6fedaa762c9e12}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Load@{Load}}
+\index{Load@{Load}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Load()}{Load()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Load (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_ae056f25289a51968b40d0664d2c1b15f}\label{class_uni_engine_1_1_system_ref_ae056f25289a51968b40d0664d2c1b15f}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{operator"!=()}{operator!=()}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+System\+Ref\+::operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \&}]{rhs }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_aeae83c692f43c7f70daaeeb3e86b2593}\label{class_uni_engine_1_1_system_ref_aeae83c692f43c7f70daaeeb3e86b2593}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!operator=@{operator=}}
+\index{operator=@{operator=}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T  = ISystem$>$ \\
+\mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \& Uni\+Engine\+::\+System\+Ref\+::operator= (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ T $>$ \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a11c6a6dc92f24b5b274f795ac54f2a3d}\label{class_uni_engine_1_1_system_ref_a11c6a6dc92f24b5b274f795ac54f2a3d}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!operator=@{operator=}}
+\index{operator=@{operator=}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T  = ISystem$>$ \\
+\mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \& Uni\+Engine\+::\+System\+Ref\+::operator= (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ T $>$ \&\&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a900ba49343a80c00c6ba481cae0ffd8f}\label{class_uni_engine_1_1_system_ref_a900ba49343a80c00c6ba481cae0ffd8f}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!operator==@{operator==}}
+\index{operator==@{operator==}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+System\+Ref\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_uni_engine_1_1_system_ref}{System\+Ref}} \&}]{rhs }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_af80ec440ca921dcf25238526f4b8f5e7}\label{class_uni_engine_1_1_system_ref_af80ec440ca921dcf25238526f4b8f5e7}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Relink@{Relink}}
+\index{Relink@{Relink}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Relink()}{Relink()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Relink (\begin{DoxyParamCaption}\item[{const std\+::unordered\+\_\+map$<$ \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}, \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} $>$ \&}]{map }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_ad1079113ea8392b5a3a6788f4678a119}\label{class_uni_engine_1_1_system_ref_ad1079113ea8392b5a3a6788f4678a119}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Save@{Save}}
+\index{Save@{Save}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Save()}{Save()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Save (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a31bc9983ea568eab155592d77f9a474d}\label{class_uni_engine_1_1_system_ref_a31bc9983ea568eab155592d77f9a474d}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+System\+Ref\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a6e46d69879a34338ffecc732ace42464}\label{class_uni_engine_1_1_system_ref_a6e46d69879a34338ffecc732ace42464}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Set@{Set}}
+\index{Set@{Set}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Set()}{Set()}}
+{\footnotesize\ttfamily template$<$typename T  = ISystem$>$ \\
+void Uni\+Engine\+::\+System\+Ref\+::\+Set (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ T $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_system_ref_a3b30df5376ee3debefc95100be808d9b}\label{class_uni_engine_1_1_system_ref_a3b30df5376ee3debefc95100be808d9b}} 
+\index{UniEngine::SystemRef@{UniEngine::SystemRef}!Prefab@{Prefab}}
+\index{Prefab@{Prefab}!UniEngine::SystemRef@{UniEngine::SystemRef}}
+\doxysubsubsection{\texorpdfstring{Prefab}{Prefab}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+ECS/\mbox{\hyperlink{_i_system_8hpp}{ISystem.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_i_system_8cpp}{ISystem.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,512 @@
+\hypertarget{_open_g_l_utils_8hpp_source}{}\doxysection{Open\+GLUtils.\+hpp}
+\label{_open_g_l_utils_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Core/OpenGLUtils.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Core/OpenGLUtils.hpp}}
+\mbox{\hyperlink{_open_g_l_utils_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_singleton_8hpp}{ISingleton.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{5 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{6 \{}
+\DoxyCodeLine{7 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}} : \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<OpenGLUtils>}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{10     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{11   \textcolor{keyword}{public}:}
+\DoxyCodeLine{12     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Init();}
+\DoxyCodeLine{13     \textcolor{keyword}{static} \textcolor{keywordtype}{void} PreUpdate();}
+\DoxyCodeLine{14 \textcolor{preprocessor}{\#pragma region Sub classes}}
+\DoxyCodeLine{15     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{16     \{}
+\DoxyCodeLine{17       \textcolor{keyword}{protected}:}
+\DoxyCodeLine{18         GLuint m\_id = 0;}
+\DoxyCodeLine{19       \textcolor{keyword}{public}:}
+\DoxyCodeLine{20         [[nodiscard]] GLuint Id() \textcolor{keyword}{const};}
+\DoxyCodeLine{21         \textcolor{keyword}{virtual} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object_ac61f5d6d239ca9338ab5c1db24d88f0d}{\string~GLObject}}() = \textcolor{keywordflow}{default};}
+\DoxyCodeLine{22     \};}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{25     \{}
+\DoxyCodeLine{26         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{27       \textcolor{keyword}{protected}:}
+\DoxyCodeLine{28         GLenum \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer_a8da12f65fe0588de2625a1a7102f4bd8}{m\_target}};}
+\DoxyCodeLine{29         \textcolor{keyword}{static} std::map<GLenum, GLuint> \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer_adebede6e1af26d33c8a33522c3a9d43b}{m\_boundBuffers}};}
+\DoxyCodeLine{30       \textcolor{keyword}{public}:}
+\DoxyCodeLine{31         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}(GLenum target);}
+\DoxyCodeLine{32         \textcolor{keywordtype}{void} Bind() \textcolor{keyword}{const};}
+\DoxyCodeLine{33         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLsizei \&length, \textcolor{keyword}{const} GLvoid *data, \textcolor{keyword}{const} GLenum \&usage) \textcolor{keyword}{const};}
+\DoxyCodeLine{34         \textcolor{keywordtype}{void} SubData(\textcolor{keyword}{const} GLintptr \&offset, \textcolor{keyword}{const} GLsizeiptr \&size, \textcolor{keyword}{const} GLvoid *data) \textcolor{keyword}{const};}
+\DoxyCodeLine{35         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{\string~GLBuffer}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{36     \};}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_s_s_b_o}{GLSSBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{39     \{}
+\DoxyCodeLine{40       \textcolor{keyword}{public}:}
+\DoxyCodeLine{41         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_s_s_b_o}{GLSSBO}}();}
+\DoxyCodeLine{42         \textcolor{keywordtype}{void} SetBase(\textcolor{keyword}{const} GLuint \&index) \textcolor{keyword}{const};}
+\DoxyCodeLine{43         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{44     \};}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_p_p_b_o}{GLPPBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{47     \{}
+\DoxyCodeLine{48       \textcolor{keyword}{public}:}
+\DoxyCodeLine{49         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_p_p_b_o}{GLPPBO}}();}
+\DoxyCodeLine{50         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{51     \};}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_p_u_b_o}{GLPUBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{54     \{}
+\DoxyCodeLine{55       \textcolor{keyword}{public}:}
+\DoxyCodeLine{56         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_p_u_b_o}{GLPUBO}}();}
+\DoxyCodeLine{57         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{58     \};}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_e_b_o}{GLEBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{61     \{}
+\DoxyCodeLine{62       \textcolor{keyword}{public}:}
+\DoxyCodeLine{63         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_e_b_o}{GLEBO}}();}
+\DoxyCodeLine{64         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{65     \};}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{67     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_b_o}{GLVBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{68     \{}
+\DoxyCodeLine{69       \textcolor{keyword}{public}:}
+\DoxyCodeLine{70         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_b_o}{GLVBO}}();}
+\DoxyCodeLine{71         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{72     \};}
+\DoxyCodeLine{73 }
+\DoxyCodeLine{74     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_u_b_o}{GLUBO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_buffer}{GLBuffer}}}
+\DoxyCodeLine{75     \{}
+\DoxyCodeLine{76       \textcolor{keyword}{public}:}
+\DoxyCodeLine{77         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_u_b_o}{GLUBO}}();}
+\DoxyCodeLine{78         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{79         \textcolor{keywordtype}{void} SetBase(\textcolor{keyword}{const} GLuint \&index) \textcolor{keyword}{const};}
+\DoxyCodeLine{80         \textcolor{keywordtype}{void} SetRange(\textcolor{keyword}{const} GLuint \&index, \textcolor{keyword}{const} GLintptr \&offset, \textcolor{keyword}{const} GLsizeiptr \&size) \textcolor{keyword}{const};}
+\DoxyCodeLine{81     \};}
+\DoxyCodeLine{82 }
+\DoxyCodeLine{83     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o}{GLVAO}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{84     \{}
+\DoxyCodeLine{85         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{86         \textcolor{keyword}{static} GLuint m\_boundVAO;}
+\DoxyCodeLine{87       \textcolor{keyword}{protected}:}
+\DoxyCodeLine{88         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_b_o}{GLVBO}} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o_a579169d616ec6dde368eb715c607e14f}{m\_vbo}};}
+\DoxyCodeLine{89         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_e_b_o}{GLEBO}} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o_a3bafd484b0207329878206ab18fe55d0}{m\_ebo}};}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91       \textcolor{keyword}{public}:}
+\DoxyCodeLine{92         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o}{\string~GLVAO}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{93         \textcolor{keywordtype}{void} Bind() \textcolor{keyword}{const};}
+\DoxyCodeLine{94         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{95         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o}{GLVAO}}();}
+\DoxyCodeLine{96         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_b_o}{GLVBO}} *Vbo();}
+\DoxyCodeLine{97         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_e_b_o}{GLEBO}} *Ebo();}
+\DoxyCodeLine{98         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLsizei \&length, \textcolor{keyword}{const} GLvoid *data, \textcolor{keyword}{const} GLenum \&usage) \textcolor{keyword}{const};}
+\DoxyCodeLine{99         \textcolor{keywordtype}{void} SubData(\textcolor{keyword}{const} GLintptr \&offset, \textcolor{keyword}{const} GLsizeiptr \&size, \textcolor{keyword}{const} GLvoid *data) \textcolor{keyword}{const};}
+\DoxyCodeLine{100         \textcolor{keywordtype}{void} EnableAttributeArray(\textcolor{keyword}{const} GLuint \&index);}
+\DoxyCodeLine{101         \textcolor{keywordtype}{void} DisableAttributeArray(\textcolor{keyword}{const} GLuint \&index);}
+\DoxyCodeLine{102         \textcolor{keywordtype}{void} SetAttributePointer(}
+\DoxyCodeLine{103             \textcolor{keyword}{const} GLuint \&index,}
+\DoxyCodeLine{104             \textcolor{keyword}{const} GLint \&size,}
+\DoxyCodeLine{105             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{106             \textcolor{keyword}{const} GLboolean \&normalized,}
+\DoxyCodeLine{107             \textcolor{keyword}{const} GLsizei \&stride,}
+\DoxyCodeLine{108             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pointer) \textcolor{keyword}{const};}
+\DoxyCodeLine{109 }
+\DoxyCodeLine{110         \textcolor{keywordtype}{void} SetAttributeIntPointer(}
+\DoxyCodeLine{111             \textcolor{keyword}{const} GLuint \&index,}
+\DoxyCodeLine{112             \textcolor{keyword}{const} GLint \&size,}
+\DoxyCodeLine{113             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{114             \textcolor{keyword}{const} GLsizei \&stride,}
+\DoxyCodeLine{115             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pointer) \textcolor{keyword}{const};}
+\DoxyCodeLine{116 }
+\DoxyCodeLine{117         \textcolor{keywordtype}{void} SetAttributeDivisor(\textcolor{keyword}{const} GLuint \&index, \textcolor{keyword}{const} GLuint \&divisor) \textcolor{keyword}{const};}
+\DoxyCodeLine{118     \};}
+\DoxyCodeLine{119 }
+\DoxyCodeLine{120     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_render_buffer}{GLRenderBuffer}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{121     \{}
+\DoxyCodeLine{122         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{123         \textcolor{keyword}{static} GLuint m\_boundRenderBuffer;}
+\DoxyCodeLine{124       \textcolor{keyword}{public}:}
+\DoxyCodeLine{125         \textcolor{keywordtype}{void} Bind();}
+\DoxyCodeLine{126         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{127         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_render_buffer}{GLRenderBuffer}}();}
+\DoxyCodeLine{128         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_render_buffer}{\string~GLRenderBuffer}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{129         \textcolor{keywordtype}{void} AllocateStorage(GLenum internalFormat, GLsizei width, GLsizei height);}
+\DoxyCodeLine{130     \};}
+\DoxyCodeLine{131 }
+\DoxyCodeLine{132     \textcolor{keyword}{enum class} UNIENGINE\_API CubeMapIndex}
+\DoxyCodeLine{133     \{}
+\DoxyCodeLine{134         \mbox{\hyperlink{_open_g_l_utils_8hpp_ac4045552edd57ff22466556de3970b5c}{PositiveX}},}
+\DoxyCodeLine{135         \mbox{\hyperlink{_open_g_l_utils_8hpp_a0c945f872afcb108122f25ee700993bf}{NegativeX}},}
+\DoxyCodeLine{136         \mbox{\hyperlink{_open_g_l_utils_8hpp_a40d4ccfb3eec0c87812b30326c16f37d}{PositiveY}},}
+\DoxyCodeLine{137         \mbox{\hyperlink{_open_g_l_utils_8hpp_a4d558b29f8f4a38d230e8f213b6ab574}{NegativeY}},}
+\DoxyCodeLine{138         \mbox{\hyperlink{_open_g_l_utils_8hpp_a27f63132be463c5309771aadb599dfac}{PositiveZ}},}
+\DoxyCodeLine{139         \mbox{\hyperlink{_open_g_l_utils_8hpp_a9be408ffea09db97ef87581fe7a43eb8}{NegativeZ}},}
+\DoxyCodeLine{140     \};}
+\DoxyCodeLine{141 }
+\DoxyCodeLine{142     \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding}{TextureBinding}}}
+\DoxyCodeLine{143     \{}
+\DoxyCodeLine{144         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_acf64d30c5159c43f213d6375e087bf23}{m\_1d}};}
+\DoxyCodeLine{145         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a2641951cf94cd1cdac2d618da9192246}{m\_2d}};}
+\DoxyCodeLine{146         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a9006c121bf2636e5162d5f7775328959}{m\_3d}};}
+\DoxyCodeLine{147         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a0627ee6f7aca12177b0bd42873beacfe}{m\_rectangle}};}
+\DoxyCodeLine{148         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a89cc49c95abc516872cfcf96ac72be6d}{m\_buffer}};}
+\DoxyCodeLine{149         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a6aaf659c768328b4a0fb897b6fa039c3}{m\_cubeMap}};}
+\DoxyCodeLine{150         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a9cfe1ec2f7f067a3d6810b94a2e83f4e}{m\_1dArray}};}
+\DoxyCodeLine{151         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a38b4c2f372e111dc35ad580bd1668628}{m\_2dArray}};}
+\DoxyCodeLine{152         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_af9624d58b36db669c74148ac2b9f1f26}{m\_cubeMapArray}};}
+\DoxyCodeLine{153         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_adbe40b3a46d26a9565065f64b43048ba}{m\_2dMS}};}
+\DoxyCodeLine{154         GLuint \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding_a24e9b9a2268dc9ff0ee1ba95a5475f28}{m\_2dMSArray}};}
+\DoxyCodeLine{155         \mbox{\hyperlink{struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding}{TextureBinding}}();}
+\DoxyCodeLine{156     \};}
+\DoxyCodeLine{157 }
+\DoxyCodeLine{158     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{159     \{}
+\DoxyCodeLine{160         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{161         \textcolor{keyword}{static} GLint m\_maxAllowedTexture;}
+\DoxyCodeLine{162         \textcolor{keyword}{static} std::vector<std::pair<GLenum, GLuint>> m\_currentBoundTextures;}
+\DoxyCodeLine{163 }
+\DoxyCodeLine{164       \textcolor{keyword}{protected}:}
+\DoxyCodeLine{165         GLenum \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_a9056051e7fde19841bcd47f14cd62c25}{m\_type}};}
+\DoxyCodeLine{166         GLenum \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_a6af375367ada3cdafbda6389ee1d39be}{m\_format}};}
+\DoxyCodeLine{167       \textcolor{keyword}{public}:}
+\DoxyCodeLine{168         \textcolor{keyword}{static} GLint GetMaxAllowedTexture();}
+\DoxyCodeLine{169         \textcolor{keywordtype}{void} Clear(\textcolor{keyword}{const} GLint \&level) \textcolor{keyword}{const};}
+\DoxyCodeLine{170         \textcolor{keywordtype}{void} SetInt(\textcolor{keyword}{const} GLenum \&paramName, \textcolor{keyword}{const} GLint \&param);}
+\DoxyCodeLine{171         \textcolor{keywordtype}{void} SetFloat(\textcolor{keyword}{const} GLenum \&paramName, \textcolor{keyword}{const} GLfloat \&param);}
+\DoxyCodeLine{172         \textcolor{keywordtype}{void} SetFloat4(\textcolor{keyword}{const} GLenum \&paramName, \textcolor{keyword}{const} GLfloat *params);}
+\DoxyCodeLine{173         \textcolor{keywordtype}{void} GenerateMipMap() \textcolor{keyword}{const};}
+\DoxyCodeLine{174         \textcolor{keywordtype}{void} Bind(\textcolor{keyword}{const} GLenum \&activate) \textcolor{keyword}{const};}
+\DoxyCodeLine{175         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}(\textcolor{keyword}{const} GLenum \&target, \textcolor{keyword}{const} GLenum \&format);}
+\DoxyCodeLine{176         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{\string~GLTexture}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{177     \};}
+\DoxyCodeLine{178 }
+\DoxyCodeLine{179     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d}{GLTexture1D}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{180     \{}
+\DoxyCodeLine{181         GLsizei m\_width = 0;}
+\DoxyCodeLine{182 }
+\DoxyCodeLine{183       \textcolor{keyword}{public}:}
+\DoxyCodeLine{184         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d}{GLTexture1D}}(}
+\DoxyCodeLine{185             \textcolor{keyword}{const} GLsizei \&levels, \textcolor{keyword}{const} GLenum \&internalFormat, \textcolor{keyword}{const} GLsizei \&width, \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&immutable = \textcolor{keyword}{true});}
+\DoxyCodeLine{186         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLint \&level, \textcolor{keyword}{const} GLenum \&type, \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{187         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{188             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{189             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{190             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{191             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{192             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{193     \};}
+\DoxyCodeLine{194 }
+\DoxyCodeLine{195     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d}{GLTexture2D}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{196     \{}
+\DoxyCodeLine{197         GLsizei m\_width = 0;}
+\DoxyCodeLine{198         GLsizei m\_height = 0;}
+\DoxyCodeLine{199         \textcolor{keywordtype}{bool} m\_immutable;}
+\DoxyCodeLine{200         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_texture2_d}{Texture2D}};}
+\DoxyCodeLine{201 }
+\DoxyCodeLine{202       \textcolor{keyword}{public}:}
+\DoxyCodeLine{203         [[nodiscard]] glm::ivec2 GetSize() \textcolor{keyword}{const};}
+\DoxyCodeLine{204 }
+\DoxyCodeLine{205         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d}{GLTexture2D}}(}
+\DoxyCodeLine{206             \textcolor{keyword}{const} GLsizei \&levels,}
+\DoxyCodeLine{207             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{208             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{209             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{210             \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&immutable = \textcolor{keyword}{true});}
+\DoxyCodeLine{211 }
+\DoxyCodeLine{212         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLint \&level, \textcolor{keyword}{const} GLenum \&format, \textcolor{keyword}{const} GLenum \&type, \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{213 }
+\DoxyCodeLine{214         \textcolor{keywordtype}{void} ReSize(}
+\DoxyCodeLine{215             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{216             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{217             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{218             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{219             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels,}
+\DoxyCodeLine{220             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{221             \textcolor{keyword}{const} GLsizei \&height);}
+\DoxyCodeLine{222 }
+\DoxyCodeLine{223         \textcolor{keywordtype}{void} SetData(}
+\DoxyCodeLine{224             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{225             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{226             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{227             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{228             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{229 }
+\DoxyCodeLine{230         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{231             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{232             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{233             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{234             \textcolor{keyword}{const} GLint \&yOffset,}
+\DoxyCodeLine{235             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{236             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{237             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{238             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{239     \};}
+\DoxyCodeLine{240 }
+\DoxyCodeLine{241     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d}{GLTexture3D}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{242     \{}
+\DoxyCodeLine{243         GLsizei m\_width = 0;}
+\DoxyCodeLine{244         GLsizei m\_height = 0;}
+\DoxyCodeLine{245         GLsizei m\_depth = 0;}
+\DoxyCodeLine{246 }
+\DoxyCodeLine{247       \textcolor{keyword}{public}:}
+\DoxyCodeLine{248         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d}{GLTexture3D}}(}
+\DoxyCodeLine{249             \textcolor{keyword}{const} GLsizei \&levels,}
+\DoxyCodeLine{250             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{251             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{252             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{253             \textcolor{keyword}{const} GLsizei \&depth,}
+\DoxyCodeLine{254             \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&immutable = \textcolor{keyword}{true});}
+\DoxyCodeLine{255         ;}
+\DoxyCodeLine{256 }
+\DoxyCodeLine{257         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLint \&level, \textcolor{keyword}{const} GLenum \&format, \textcolor{keyword}{const} GLenum \&type, \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{258 }
+\DoxyCodeLine{259         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{260             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{261             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{262             \textcolor{keyword}{const} GLint \&yOffset,}
+\DoxyCodeLine{263             \textcolor{keyword}{const} GLint \&zOffset,}
+\DoxyCodeLine{264             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{265             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{266             \textcolor{keyword}{const} GLsizei \&depth,}
+\DoxyCodeLine{267             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{268             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{269             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{270     \};}
+\DoxyCodeLine{271 }
+\DoxyCodeLine{272     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map}{GLTextureCubeMap}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{273     \{}
+\DoxyCodeLine{274         GLsizei m\_width = 0;}
+\DoxyCodeLine{275         GLsizei m\_height = 0;}
+\DoxyCodeLine{276 }
+\DoxyCodeLine{277       \textcolor{keyword}{public}:}
+\DoxyCodeLine{278         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map}{GLTextureCubeMap}}(}
+\DoxyCodeLine{279             \textcolor{keyword}{const} GLsizei \&levels,}
+\DoxyCodeLine{280             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{281             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{282             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{283             \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&immutable = \textcolor{keyword}{true});}
+\DoxyCodeLine{284 }
+\DoxyCodeLine{285         \textcolor{keywordtype}{void} SetData(}
+\DoxyCodeLine{286             \textcolor{keyword}{const} CubeMapIndex \&index,}
+\DoxyCodeLine{287             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{288             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{289             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{290             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{291 }
+\DoxyCodeLine{292         \textcolor{keywordtype}{void} SetData(}
+\DoxyCodeLine{293             \textcolor{keyword}{const} CubeMapIndex \&index,}
+\DoxyCodeLine{294             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{295             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{296             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{297             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{298             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{299 }
+\DoxyCodeLine{300         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{301             \textcolor{keyword}{const} CubeMapIndex \&index,}
+\DoxyCodeLine{302             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{303             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{304             \textcolor{keyword}{const} GLint \&yOffset,}
+\DoxyCodeLine{305             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{306             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{307             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{308             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{309             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{310     \};}
+\DoxyCodeLine{311 }
+\DoxyCodeLine{312     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d_array}{GLTexture1DArray}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{313     \{}
+\DoxyCodeLine{314         GLsizei m\_width = 0;}
+\DoxyCodeLine{315         GLsizei m\_layers = 0;}
+\DoxyCodeLine{316 }
+\DoxyCodeLine{317       \textcolor{keyword}{public}:}
+\DoxyCodeLine{318         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture1_d_array}{GLTexture1DArray}}(}
+\DoxyCodeLine{319             \textcolor{keyword}{const} GLsizei \&levels, \textcolor{keyword}{const} GLenum \&internalFormat, \textcolor{keyword}{const} GLsizei \&width, \textcolor{keyword}{const} GLsizei \&layers);}
+\DoxyCodeLine{320 }
+\DoxyCodeLine{321         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLint \&level, \textcolor{keyword}{const} GLenum \&format, \textcolor{keyword}{const} GLenum \&type, \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{322 }
+\DoxyCodeLine{323         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{324             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{325             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{326             \textcolor{keyword}{const} GLint \&layer,}
+\DoxyCodeLine{327             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{328             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{329             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{330             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{331     \};}
+\DoxyCodeLine{332 }
+\DoxyCodeLine{333     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d_array}{GLTexture2DArray}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{334     \{}
+\DoxyCodeLine{335         GLsizei m\_width = 0;}
+\DoxyCodeLine{336         GLsizei m\_height = 0;}
+\DoxyCodeLine{337         GLsizei m\_layers = 0;}
+\DoxyCodeLine{338 }
+\DoxyCodeLine{339       \textcolor{keyword}{public}:}
+\DoxyCodeLine{340         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d_array}{GLTexture2DArray}}(}
+\DoxyCodeLine{341             \textcolor{keyword}{const} GLsizei \&levels,}
+\DoxyCodeLine{342             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{343             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{344             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{345             \textcolor{keyword}{const} GLsizei \&layers);}
+\DoxyCodeLine{346         ;}
+\DoxyCodeLine{347 }
+\DoxyCodeLine{348         \textcolor{keywordtype}{void} SetData(\textcolor{keyword}{const} GLint \&level, \textcolor{keyword}{const} GLenum \&format, \textcolor{keyword}{const} GLenum \&type, \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{349 }
+\DoxyCodeLine{350         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{351             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{352             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{353             \textcolor{keyword}{const} GLint \&yOffset,}
+\DoxyCodeLine{354             \textcolor{keyword}{const} GLsizei \&layer,}
+\DoxyCodeLine{355             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{356             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{357             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{358             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{359             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{360     \};}
+\DoxyCodeLine{361 }
+\DoxyCodeLine{362     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map_array}{GLTextureCubeMapArray}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}}}
+\DoxyCodeLine{363     \{}
+\DoxyCodeLine{364         GLsizei m\_width = 0;}
+\DoxyCodeLine{365         GLsizei m\_height = 0;}
+\DoxyCodeLine{366         GLsizei m\_layers = 0;}
+\DoxyCodeLine{367 }
+\DoxyCodeLine{368       \textcolor{keyword}{public}:}
+\DoxyCodeLine{369         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture_cube_map_array}{GLTextureCubeMapArray}}(}
+\DoxyCodeLine{370             \textcolor{keyword}{const} GLsizei \&levels,}
+\DoxyCodeLine{371             \textcolor{keyword}{const} GLenum \&internalFormat,}
+\DoxyCodeLine{372             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{373             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{374             \textcolor{keyword}{const} GLsizei \&layers);}
+\DoxyCodeLine{375 }
+\DoxyCodeLine{376         \textcolor{keywordtype}{void} SetData(}
+\DoxyCodeLine{377             \textcolor{keyword}{const} CubeMapIndex \&index,}
+\DoxyCodeLine{378             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{379             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{380             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{381             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{382 }
+\DoxyCodeLine{383         \textcolor{keywordtype}{void} SubData(}
+\DoxyCodeLine{384             \textcolor{keyword}{const} CubeMapIndex \&index,}
+\DoxyCodeLine{385             \textcolor{keyword}{const} GLint \&level,}
+\DoxyCodeLine{386             \textcolor{keyword}{const} GLint \&xOffset,}
+\DoxyCodeLine{387             \textcolor{keyword}{const} GLint \&yOffset,}
+\DoxyCodeLine{388             \textcolor{keyword}{const} GLsizei \&layer,}
+\DoxyCodeLine{389             \textcolor{keyword}{const} GLsizei \&width,}
+\DoxyCodeLine{390             \textcolor{keyword}{const} GLsizei \&height,}
+\DoxyCodeLine{391             \textcolor{keyword}{const} GLenum \&format,}
+\DoxyCodeLine{392             \textcolor{keyword}{const} GLenum \&type,}
+\DoxyCodeLine{393             \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pixels) \textcolor{keyword}{const};}
+\DoxyCodeLine{394     \};}
+\DoxyCodeLine{395 }
+\DoxyCodeLine{396     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer}{GLFrameBuffer}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}}
+\DoxyCodeLine{397     \{}
+\DoxyCodeLine{398         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{399         \textcolor{keywordtype}{bool} m\_color;}
+\DoxyCodeLine{400         \textcolor{keywordtype}{bool} m\_depth;}
+\DoxyCodeLine{401         \textcolor{keywordtype}{bool} m\_stencil;}
+\DoxyCodeLine{402         \textcolor{keyword}{static} GLuint m\_boundFrameBuffer;}
+\DoxyCodeLine{403       \textcolor{keyword}{public}:}
+\DoxyCodeLine{404         \textcolor{keyword}{static} \textcolor{keywordtype}{void} Enable(\textcolor{keyword}{const} GLenum \&cap);}
+\DoxyCodeLine{405         \textcolor{keyword}{static} \textcolor{keywordtype}{void} Disable(\textcolor{keyword}{const} GLenum \&cap);}
+\DoxyCodeLine{406         \textcolor{keywordtype}{void} Bind() \textcolor{keyword}{const};}
+\DoxyCodeLine{407         \textcolor{keywordtype}{void} ClearColor(\textcolor{keyword}{const} glm::vec4 \&value) \textcolor{keyword}{const};}
+\DoxyCodeLine{408         \textcolor{keywordtype}{void} ViewPort(\textcolor{keyword}{const} glm::ivec4 \&value) \textcolor{keyword}{const};}
+\DoxyCodeLine{409         \textcolor{keywordtype}{void} ViewPort(\textcolor{keywordtype}{size\_t} x, \textcolor{keywordtype}{size\_t} y) \textcolor{keyword}{const};}
+\DoxyCodeLine{410         \textcolor{keywordtype}{void} Check() \textcolor{keyword}{const};}
+\DoxyCodeLine{411         \textcolor{keywordtype}{void} DrawBuffer(\textcolor{keyword}{const} GLenum \&buffer) \textcolor{keyword}{const};}
+\DoxyCodeLine{412         \textcolor{keywordtype}{void} DrawBuffers(\textcolor{keyword}{const} GLsizei \&n, \textcolor{keyword}{const} GLenum *buffers) \textcolor{keyword}{const};}
+\DoxyCodeLine{413         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{414         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer}{GLFrameBuffer}}();}
+\DoxyCodeLine{415         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer}{\string~GLFrameBuffer}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{416         \textcolor{keywordtype}{bool} \mbox{\hyperlink{_mesh_8hpp_ab87bacfdad76e61b9412d7124be44c1c}{Color}}() \textcolor{keyword}{const};}
+\DoxyCodeLine{417         \textcolor{keywordtype}{bool} Depth() \textcolor{keyword}{const};}
+\DoxyCodeLine{418         \textcolor{keywordtype}{bool} Stencil() \textcolor{keyword}{const};}
+\DoxyCodeLine{419         \textcolor{keywordtype}{void} AttachRenderBuffer(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_render_buffer}{GLRenderBuffer}} *buffer, \textcolor{keyword}{const} GLenum \&attachPoint);}
+\DoxyCodeLine{420         \textcolor{keywordtype}{void} AttachTexture(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}} *texture, \textcolor{keyword}{const} GLenum \&attachPoint);}
+\DoxyCodeLine{421         \textcolor{keywordtype}{void} AttachTextureLayer(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}} *texture, \textcolor{keyword}{const} GLenum \&attachPoint, \textcolor{keyword}{const} GLint \&layer);}
+\DoxyCodeLine{422         \textcolor{keywordtype}{void} AttachTexture2D(}
+\DoxyCodeLine{423             \textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture}{GLTexture}} *texture, \textcolor{keyword}{const} GLenum \&attachPoint, \textcolor{keyword}{const} GLenum \&texTarget, \textcolor{keyword}{const} GLint \&level = 0);}
+\DoxyCodeLine{424         \textcolor{keywordtype}{void} Clear();}
+\DoxyCodeLine{425     \};}
+\DoxyCodeLine{426     \textcolor{keyword}{enum class} UNIENGINE\_API ShaderType}
+\DoxyCodeLine{427     \{}
+\DoxyCodeLine{428         \mbox{\hyperlink{_open_g_l_utils_8hpp_a415c3cd989100b6103f20f995624cba1}{Vertex}},}
+\DoxyCodeLine{429         \mbox{\hyperlink{_open_g_l_utils_8hpp_a607f1e863dec93b85c88f47d76025b65}{Tessellation}},}
+\DoxyCodeLine{430         \mbox{\hyperlink{_open_g_l_utils_8hpp_a5047b3c22ba65d974596c2729dcf1409}{Geometry}},}
+\DoxyCodeLine{431         \mbox{\hyperlink{_open_g_l_utils_8hpp_a02db2bde67db0cee6704064a541c67f8}{Fragment}},}
+\DoxyCodeLine{432         Compute}
+\DoxyCodeLine{433     \};}
+\DoxyCodeLine{434 }
+\DoxyCodeLine{435     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader}{GLShader}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}, \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{436     \{}
+\DoxyCodeLine{437         std::string m\_code;}
+\DoxyCodeLine{438         ShaderType m\_type;}
+\DoxyCodeLine{439         \textcolor{keywordtype}{bool} m\_compiled;}
+\DoxyCodeLine{440       \textcolor{keyword}{public}:}
+\DoxyCodeLine{441         [[nodiscard]] std::string GetCode() \textcolor{keyword}{const};}
+\DoxyCodeLine{442         \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{443         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader}{\string~GLShader}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{444         [[nodiscard]] ShaderType \mbox{\hyperlink{namespacetinyply_acc2416ab715bb9179b5562500055e491}{Type}}() \textcolor{keyword}{const};}
+\DoxyCodeLine{445         [[nodiscard]] \textcolor{keywordtype}{bool} Compiled() \textcolor{keyword}{const};}
+\DoxyCodeLine{446         \textcolor{keywordtype}{void} Compile();}
+\DoxyCodeLine{447         \textcolor{keywordtype}{void} Set(ShaderType type, \textcolor{keyword}{const} std::string \&code);}
+\DoxyCodeLine{448         \textcolor{keywordtype}{void} Attach(GLuint programID);}
+\DoxyCodeLine{449         \textcolor{keywordtype}{void} Detach(GLuint programID) \textcolor{keyword}{const};}
+\DoxyCodeLine{450 }
+\DoxyCodeLine{451         \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{452         \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{453         \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{454     \};}
+\DoxyCodeLine{455 }
+\DoxyCodeLine{456     \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program}{GLProgram}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_object}{GLObject}}, \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{457     \{}
+\DoxyCodeLine{458         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils}{OpenGLUtils}};}
+\DoxyCodeLine{459         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{AssetManager}};}
+\DoxyCodeLine{460 }
+\DoxyCodeLine{461         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_vertexShader;}
+\DoxyCodeLine{462         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_tessellationShader;}
+\DoxyCodeLine{463         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_geometryShader;}
+\DoxyCodeLine{464         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_fragmentShader;}
+\DoxyCodeLine{465         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} m\_computeShader;}
+\DoxyCodeLine{466 }
+\DoxyCodeLine{467         \textcolor{keyword}{static} GLuint m\_boundProgram;}
+\DoxyCodeLine{468         \textcolor{keywordtype}{bool} m\_linked = \textcolor{keyword}{false};}
+\DoxyCodeLine{469       \textcolor{keyword}{public}:}
+\DoxyCodeLine{470         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program}{GLProgram}}();}
+\DoxyCodeLine{471         \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{472         \mbox{\hyperlink{class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program}{\string~GLProgram}}() \textcolor{keyword}{override};}
+\DoxyCodeLine{473         std::shared\_ptr<GLShader> GetShader(ShaderType type);}
+\DoxyCodeLine{474         \textcolor{keywordtype}{bool} HasShader(ShaderType type);}
+\DoxyCodeLine{475         \textcolor{keywordtype}{void} Bind();}
+\DoxyCodeLine{476         \textcolor{keyword}{static} \textcolor{keywordtype}{void} BindDefault();}
+\DoxyCodeLine{477         \textcolor{keywordtype}{void} Link();}
+\DoxyCodeLine{478         \textcolor{keywordtype}{void} Link(\textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader1, \textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader2);}
+\DoxyCodeLine{479         \textcolor{keywordtype}{void} Link(}
+\DoxyCodeLine{480             \textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader1,}
+\DoxyCodeLine{481             \textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader2,}
+\DoxyCodeLine{482             \textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader3);}
+\DoxyCodeLine{483         \textcolor{keywordtype}{void} Attach(\textcolor{keyword}{const} std::shared\_ptr<GLShader> \&shader);}
+\DoxyCodeLine{484         \textcolor{keywordtype}{void} Detach(ShaderType type);}
+\DoxyCodeLine{485         \textcolor{keywordtype}{void} SetBool(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{bool} value);}
+\DoxyCodeLine{486         \textcolor{keywordtype}{void} SetInt(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{int} value);}
+\DoxyCodeLine{487         \textcolor{keywordtype}{void} SetFloat(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{float} value);}
+\DoxyCodeLine{488         \textcolor{keywordtype}{void} SetFloat2(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::vec2 \&value);}
+\DoxyCodeLine{489         \textcolor{keywordtype}{void} SetFloat2(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{float} x, \textcolor{keywordtype}{float} y);}
+\DoxyCodeLine{490         \textcolor{keywordtype}{void} SetFloat3(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::vec3 \&value);}
+\DoxyCodeLine{491         \textcolor{keywordtype}{void} SetFloat3(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{float} x, \textcolor{keywordtype}{float} y, \textcolor{keywordtype}{float} z);}
+\DoxyCodeLine{492         \textcolor{keywordtype}{void} SetFloat4(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::vec4 \&value);}
+\DoxyCodeLine{493         \textcolor{keywordtype}{void} SetFloat4(\textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{float} x, \textcolor{keywordtype}{float} y, \textcolor{keywordtype}{float} z, \textcolor{keywordtype}{float} w);}
+\DoxyCodeLine{494         \textcolor{keywordtype}{void} SetFloat2x2(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::mat2 \&mat);}
+\DoxyCodeLine{495         \textcolor{keywordtype}{void} SetFloat3x3(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::mat3 \&mat);}
+\DoxyCodeLine{496         \textcolor{keywordtype}{void} SetFloat4x4(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} glm::mat4 \&mat);}
+\DoxyCodeLine{497 }
+\DoxyCodeLine{498         \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{499         \textcolor{keywordtype}{void} CollectAssetRef(std::vector<AssetRef> \&list) \textcolor{keyword}{override};}
+\DoxyCodeLine{500         \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{501         \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{502     \};}
+\DoxyCodeLine{503 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{504 \};}
+\DoxyCodeLine{505 }
+\DoxyCodeLine{506 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

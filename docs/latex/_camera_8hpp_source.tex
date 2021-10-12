@@ -1,0 +1,110 @@
+\hypertarget{_camera_8hpp_source}{}\doxysection{Camera.\+hpp}
+\label{_camera_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Camera.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Camera.hpp}}
+\mbox{\hyperlink{_camera_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_manager_8hpp}{EntityManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_environmental_map_8hpp}{EnvironmentalMap.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_render_target_8hpp}{RenderTarget.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{6 \{}
+\DoxyCodeLine{7 \textcolor{keyword}{class }Camera;}
+\DoxyCodeLine{8 \textcolor{keyword}{struct }GlobalTransform;}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_plane}{Plane}}}
+\DoxyCodeLine{11 \{}
+\DoxyCodeLine{12     \textcolor{keywordtype}{float} \mbox{\hyperlink{struct_uni_engine_1_1_plane_a808d597245ef909f376dae953cb0958b}{m\_a}}, m\_b, m\_c, m\_d;}
+\DoxyCodeLine{13     \mbox{\hyperlink{struct_uni_engine_1_1_plane}{Plane}}();}
+\DoxyCodeLine{14     \textcolor{keywordtype}{void} Normalize();}
+\DoxyCodeLine{15 \};}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{keyword}{struct }UNIENGINE\_API  \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block}{CameraInfoBlock}}}
+\DoxyCodeLine{18 \{}
+\DoxyCodeLine{19     glm::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a7bd8203eeb40a210fa2dad827e0a7e2d}{m\_projection}};}
+\DoxyCodeLine{20     glm::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a469f883aaf938f5b52ab1d0fbde49059}{m\_view}};}
+\DoxyCodeLine{21     glm::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a6249f81709cc3fbf56b1f15e354dd643}{m\_inverseProjection}};}
+\DoxyCodeLine{22     glm::mat4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a91f04ae36ba7bf5e573f9dfce031791d}{m\_inverseView}};}
+\DoxyCodeLine{23     glm::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a6008990ba68d469393e8e04932638698}{m\_reservedParameters}};}
+\DoxyCodeLine{24     glm::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_a0e5d4e89e7636019cd8d333014624e02}{m\_clearColor}};}
+\DoxyCodeLine{25     glm::vec4 \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block_aa7117d0d4427f55d9f8b42987429c65b}{m\_position}};}
+\DoxyCodeLine{26     \textcolor{keywordtype}{void} UpdateMatrices(\textcolor{keyword}{const} std::shared\_ptr<Camera> \&camera, glm::vec3 position, glm::quat rotation);}
+\DoxyCodeLine{27     \textcolor{keywordtype}{void} UploadMatrices(\textcolor{keyword}{const} std::shared\_ptr<Camera> \&camera) \textcolor{keyword}{const};}
+\DoxyCodeLine{28 \};}
+\DoxyCodeLine{29 \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}};}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{31 \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}};}
+\DoxyCodeLine{32 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} final : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}, \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_render_target}{RenderTarget}}}
+\DoxyCodeLine{33 \{}
+\DoxyCodeLine{34     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{35     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{36     \textcolor{keyword}{friend} \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block}{CameraInfoBlock}};}
+\DoxyCodeLine{37     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_post_processing}{PostProcessing}};}
+\DoxyCodeLine{38     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_bloom}{Bloom}};}
+\DoxyCodeLine{39     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o}{SSAO}};}
+\DoxyCodeLine{40     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_s_s_r}{SSR}};}
+\DoxyCodeLine{41     std::shared\_ptr<Texture2D> m\_colorTexture;}
+\DoxyCodeLine{42     std::shared\_ptr<Texture2D> m\_depthStencilTexture;}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44     \textcolor{comment}{//Deferred shading GBuffer}}
+\DoxyCodeLine{45     std::unique\_ptr<RenderTarget> m\_gBuffer;}
+\DoxyCodeLine{46     std::unique\_ptr<OpenGLUtils::GLTexture2D> m\_gBufferDepth;}
+\DoxyCodeLine{47     std::unique\_ptr<OpenGLUtils::GLTexture2D> m\_gBufferNormal;}
+\DoxyCodeLine{48     std::unique\_ptr<OpenGLUtils::GLTexture2D> m\_gBufferAlbedo;}
+\DoxyCodeLine{49     std::unique\_ptr<OpenGLUtils::GLTexture2D> m\_gBufferMetallicRoughnessEmissionAmbient;}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51     \textcolor{keyword}{static} std::unique\_ptr<OpenGLUtils::GLUBO> m\_cameraUniformBufferBlock;}
+\DoxyCodeLine{52     \textcolor{keywordtype}{size\_t} m\_frameCount = 0;}
+\DoxyCodeLine{53   \textcolor{keyword}{public}:}
+\DoxyCodeLine{54     \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}}\& operator=(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}}\& source);}
+\DoxyCodeLine{55     \textcolor{keywordtype}{void} PostCloneAction(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent>\& target) \textcolor{keyword}{override};}
+\DoxyCodeLine{56 }
+\DoxyCodeLine{57     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_camera_info_block}{CameraInfoBlock}} \mbox{\hyperlink{class_uni_engine_1_1_camera_a0c1d8445b674921e492b558416e87157}{m\_cameraInfoBlock}};}
+\DoxyCodeLine{58     \textcolor{keywordtype}{bool} m\_allowAutoResize = \textcolor{keyword}{true};}
+\DoxyCodeLine{59     \textcolor{keywordtype}{float} m\_nearDistance = 0.1f;}
+\DoxyCodeLine{60     \textcolor{keywordtype}{float} m\_farDistance = 500.0f;}
+\DoxyCodeLine{61     \textcolor{keywordtype}{float} m\_fov = 120;}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CalculatePlanes(std::vector<Plane> \&planes, glm::mat4 projection, glm::mat4 view);}
+\DoxyCodeLine{64     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CalculateFrustumPoints(}
+\DoxyCodeLine{65         \textcolor{keyword}{const} std::shared\_ptr<Camera> \&cameraComponrnt,}
+\DoxyCodeLine{66         \textcolor{keywordtype}{float} nearPlane,}
+\DoxyCodeLine{67         \textcolor{keywordtype}{float} farPlane,}
+\DoxyCodeLine{68         glm::vec3 cameraPos,}
+\DoxyCodeLine{69         glm::quat cameraRot,}
+\DoxyCodeLine{70         glm::vec3 *points);}
+\DoxyCodeLine{71     \textcolor{keyword}{static} glm::quat ProcessMouseMovement(\textcolor{keywordtype}{float} yawAngle, \textcolor{keywordtype}{float} pitchAngle, \textcolor{keywordtype}{bool} constrainPitch = \textcolor{keyword}{true});}
+\DoxyCodeLine{72     \textcolor{keyword}{static} \textcolor{keywordtype}{void} ReverseAngle(}
+\DoxyCodeLine{73         \textcolor{keyword}{const} glm::quat \&rotation, \textcolor{keywordtype}{float} \&pitchAngle, \textcolor{keywordtype}{float} \&yawAngle, \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&constrainPitch = \textcolor{keyword}{true});}
+\DoxyCodeLine{74     [[nodiscard]] std::shared\_ptr<Texture2D> GetTexture() \textcolor{keyword}{const};}
+\DoxyCodeLine{75     [[nodiscard]] std::shared\_ptr<Texture2D> GetDepthStencil() \textcolor{keyword}{const};}
+\DoxyCodeLine{76     [[nodiscard]] glm::mat4 GetProjection() \textcolor{keyword}{const};}
+\DoxyCodeLine{77     \textcolor{keyword}{static} glm::vec3 \mbox{\hyperlink{class_uni_engine_1_1_project}{Project}}(\mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&ltw, glm::vec3 position);}
+\DoxyCodeLine{78 }
+\DoxyCodeLine{79     glm::vec3 UnProject(\mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&ltw, glm::vec3 position) \textcolor{keyword}{const};}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81     glm::vec3 GetMouseWorldPoint(\mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&ltw, glm::vec2 mousePosition) \textcolor{keyword}{const};}
+\DoxyCodeLine{82     \textcolor{keywordtype}{void} SetClearColor(glm::vec3 color) \textcolor{keyword}{const};}
+\DoxyCodeLine{83     \mbox{\hyperlink{struct_uni_engine_1_1_ray}{Ray}} ScreenPointToRay(\mbox{\hyperlink{struct_uni_engine_1_1_global_transform}{GlobalTransform}} \&ltw, glm::vec2 mousePosition) \textcolor{keyword}{const};}
+\DoxyCodeLine{84     \textcolor{keyword}{static} \textcolor{keywordtype}{void} GenerateMatrices();}
+\DoxyCodeLine{85     \textcolor{keywordtype}{void} ResizeResolution(\textcolor{keywordtype}{int} x, \textcolor{keywordtype}{int} y);}
+\DoxyCodeLine{86     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{87     \textcolor{keywordtype}{void} Start() \textcolor{keyword}{override};}
+\DoxyCodeLine{88     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{89     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{90     \textcolor{keywordtype}{void} OnDestroy() \textcolor{keyword}{override};}
+\DoxyCodeLine{91     \textcolor{keywordtype}{bool} m\_useClearColor = \textcolor{keyword}{false};}
+\DoxyCodeLine{92     glm::vec3 m\_clearColor = glm::vec3(0.0f);}
+\DoxyCodeLine{93     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{class_uni_engine_1_1_camera_a98254ce8cd92f000ef355630411d92a6}{m\_skybox}};}
+\DoxyCodeLine{94     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{95     \textcolor{keywordtype}{void} CollectAssetRef(std::vector<AssetRef> \&list) \textcolor{keyword}{override};}
+\DoxyCodeLine{96 }
+\DoxyCodeLine{97 }
+\DoxyCodeLine{98     [[nodiscard]] std::unique\_ptr<OpenGLUtils::GLTexture2D>\& UnsafeGetGBufferDepth();}
+\DoxyCodeLine{99     [[nodiscard]] std::unique\_ptr<OpenGLUtils::GLTexture2D>\& UnsafeGetGBufferNormal();}
+\DoxyCodeLine{100     [[nodiscard]] std::unique\_ptr<OpenGLUtils::GLTexture2D>\& UnsafeGetGBufferAlbedo();}
+\DoxyCodeLine{101     [[nodiscard]] std::unique\_ptr<OpenGLUtils::GLTexture2D>\& UnsafeGetGBufferMetallicRoughnessEmissionAmbient();}
+\DoxyCodeLine{102 \};}
+\DoxyCodeLine{103 }
+\DoxyCodeLine{104 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

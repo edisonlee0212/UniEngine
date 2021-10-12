@@ -1,0 +1,83 @@
+\hypertarget{class_uni_engine_1_1_console_manager}{}\doxysection{Uni\+Engine\+::Console\+Manager Class Reference}
+\label{class_uni_engine_1_1_console_manager}\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+
+
+{\ttfamily \#include $<$Console\+Manager.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Console\+Manager\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_console_manager}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static UNIENGINE\+\_\+\+API void \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a523efe387ac6190c5140d27bc35ce6e6}{Log}} (const std\+::string \&msg)
+\item 
+static UNIENGINE\+\_\+\+API void \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a0062aeae16426ce23541d770520177c9}{Error}} (const std\+::string \&msg)
+\item 
+static UNIENGINE\+\_\+\+API void \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a3a0c933529967b55d7404fce9111ef52}{Warning}} (const std\+::string \&msg)
+\item 
+static UNIENGINE\+\_\+\+API std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_console_message}{Console\+Message}} $>$ \& \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a4e0b734cdac5a0c2c73b3d37c15439f4}{Get\+Console\+Messages}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a10b2673df6c2233af9fb8149669b7a56}{On\+Inspect}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_console_manager_a0062aeae16426ce23541d770520177c9}\label{class_uni_engine_1_1_console_manager_a0062aeae16426ce23541d770520177c9}} 
+\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}!Error@{Error}}
+\index{Error@{Error}!UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+\doxysubsubsection{\texorpdfstring{Error()}{Error()}}
+{\footnotesize\ttfamily void Console\+Manager\+::\+Error (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Push error to the console 
+\begin{DoxyParams}{Parameters}
+{\em msg} & The message to print. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_uni_engine_1_1_console_manager_a4e0b734cdac5a0c2c73b3d37c15439f4}\label{class_uni_engine_1_1_console_manager_a4e0b734cdac5a0c2c73b3d37c15439f4}} 
+\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}!GetConsoleMessages@{GetConsoleMessages}}
+\index{GetConsoleMessages@{GetConsoleMessages}!UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+\doxysubsubsection{\texorpdfstring{GetConsoleMessages()}{GetConsoleMessages()}}
+{\footnotesize\ttfamily std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_console_message}{Console\+Message}} $>$ \& Console\+Manager\+::\+Get\+Console\+Messages (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Retrieve current stored messages. \begin{DoxyReturn}{Returns}
+The list of message stored. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_uni_engine_1_1_console_manager_a523efe387ac6190c5140d27bc35ce6e6}\label{class_uni_engine_1_1_console_manager_a523efe387ac6190c5140d27bc35ce6e6}} 
+\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}!Log@{Log}}
+\index{Log@{Log}!UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+\doxysubsubsection{\texorpdfstring{Log()}{Log()}}
+{\footnotesize\ttfamily void Console\+Manager\+::\+Log (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Push log to the console 
+\begin{DoxyParams}{Parameters}
+{\em msg} & The message to print. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_uni_engine_1_1_console_manager_a10b2673df6c2233af9fb8149669b7a56}\label{class_uni_engine_1_1_console_manager_a10b2673df6c2233af9fb8149669b7a56}} 
+\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Console\+Manager\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_console_manager_a3a0c933529967b55d7404fce9111ef52}\label{class_uni_engine_1_1_console_manager_a3a0c933529967b55d7404fce9111ef52}} 
+\index{UniEngine::ConsoleManager@{UniEngine::ConsoleManager}!Warning@{Warning}}
+\index{Warning@{Warning}!UniEngine::ConsoleManager@{UniEngine::ConsoleManager}}
+\doxysubsubsection{\texorpdfstring{Warning()}{Warning()}}
+{\footnotesize\ttfamily void Console\+Manager\+::\+Warning (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+Push warning to the console 
+\begin{DoxyParams}{Parameters}
+{\em msg} & The message to print. \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_console_manager_8hpp}{Console\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_console_manager_8cpp}{Console\+Manager.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,105 @@
+\hypertarget{struct_uni_engine_1_1_ray}{}\doxysection{Uni\+Engine\+::Ray Struct Reference}
+\label{struct_uni_engine_1_1_ray}\index{UniEngine::Ray@{UniEngine::Ray}}
+
+
+{\ttfamily \#include $<$Utilities.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Ray\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{struct_uni_engine_1_1_ray}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_ray_a744409623bb6984e4e65f441c4e2f082}{Ray}} ()=default
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_ray_a3282228e2fa87ce1c99ca31a7b8d35d6}{Ray}} (glm\+::vec3 start, glm\+::vec3 end)
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_ray_a191f53c9baf32ac8bcfc2b9fd9ef3b5b}{Ray}} (glm\+::vec3 start, glm\+::vec3 direction, float length)
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_ray_a9fc0b0286d3b8928ebe39a828d0cd782}{Intersect}} (const glm\+::vec3 \&position, float radius) const
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_ray_ae97284cecc4f1e660027c1920d520456}{Intersect}} (const glm\+::mat4 \&transform, const \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} \&bound) const
+\item 
+glm\+::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_ray_abfacfa0253a8ac7595c444a54deaeb33}{Get\+End}} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_ray_aa9381b46b6032b82599d5d4bacf34b0a}{m\+\_\+start}}
+\item 
+glm\+::vec3 \mbox{\hyperlink{struct_uni_engine_1_1_ray_ad803e686f0a0fb9b0db23959e6490e6e}{m\+\_\+direction}}
+\item 
+float \mbox{\hyperlink{struct_uni_engine_1_1_ray_aa529e78493be333739cd8f421d24e947}{m\+\_\+length}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_a744409623bb6984e4e65f441c4e2f082}\label{struct_uni_engine_1_1_ray_a744409623bb6984e4e65f441c4e2f082}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!Ray@{Ray}}
+\index{Ray@{Ray}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{Ray()}{Ray()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily Uni\+Engine\+::\+Ray\+::\+Ray (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [default]}}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_a3282228e2fa87ce1c99ca31a7b8d35d6}\label{struct_uni_engine_1_1_ray_a3282228e2fa87ce1c99ca31a7b8d35d6}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!Ray@{Ray}}
+\index{Ray@{Ray}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{Ray()}{Ray()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily Ray\+::\+Ray (\begin{DoxyParamCaption}\item[{glm\+::vec3}]{start,  }\item[{glm\+::vec3}]{end }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_a191f53c9baf32ac8bcfc2b9fd9ef3b5b}\label{struct_uni_engine_1_1_ray_a191f53c9baf32ac8bcfc2b9fd9ef3b5b}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!Ray@{Ray}}
+\index{Ray@{Ray}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{Ray()}{Ray()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily Ray\+::\+Ray (\begin{DoxyParamCaption}\item[{glm\+::vec3}]{start,  }\item[{glm\+::vec3}]{direction,  }\item[{float}]{length }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_abfacfa0253a8ac7595c444a54deaeb33}\label{struct_uni_engine_1_1_ray_abfacfa0253a8ac7595c444a54deaeb33}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!GetEnd@{GetEnd}}
+\index{GetEnd@{GetEnd}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{GetEnd()}{GetEnd()}}
+{\footnotesize\ttfamily glm\+::vec3 Ray\+::\+Get\+End (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_ae97284cecc4f1e660027c1920d520456}\label{struct_uni_engine_1_1_ray_ae97284cecc4f1e660027c1920d520456}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!Intersect@{Intersect}}
+\index{Intersect@{Intersect}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{Intersect()}{Intersect()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool Ray\+::\+Intersect (\begin{DoxyParamCaption}\item[{const glm\+::mat4 \&}]{transform,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} \&}]{bound }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_a9fc0b0286d3b8928ebe39a828d0cd782}\label{struct_uni_engine_1_1_ray_a9fc0b0286d3b8928ebe39a828d0cd782}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!Intersect@{Intersect}}
+\index{Intersect@{Intersect}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{Intersect()}{Intersect()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool Ray\+::\+Intersect (\begin{DoxyParamCaption}\item[{const glm\+::vec3 \&}]{position,  }\item[{float}]{radius }\end{DoxyParamCaption}) const}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_ad803e686f0a0fb9b0db23959e6490e6e}\label{struct_uni_engine_1_1_ray_ad803e686f0a0fb9b0db23959e6490e6e}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!m\_direction@{m\_direction}}
+\index{m\_direction@{m\_direction}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{m\_direction}{m\_direction}}
+{\footnotesize\ttfamily glm\+::vec3 Uni\+Engine\+::\+Ray\+::m\+\_\+direction}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_aa529e78493be333739cd8f421d24e947}\label{struct_uni_engine_1_1_ray_aa529e78493be333739cd8f421d24e947}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!m\_length@{m\_length}}
+\index{m\_length@{m\_length}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{m\_length}{m\_length}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Ray\+::m\+\_\+length}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_ray_aa9381b46b6032b82599d5d4bacf34b0a}\label{struct_uni_engine_1_1_ray_aa9381b46b6032b82599d5d4bacf34b0a}} 
+\index{UniEngine::Ray@{UniEngine::Ray}!m\_start@{m\_start}}
+\index{m\_start@{m\_start}!UniEngine::Ray@{UniEngine::Ray}}
+\doxysubsubsection{\texorpdfstring{m\_start}{m\_start}}
+{\footnotesize\ttfamily glm\+::vec3 Uni\+Engine\+::\+Ray\+::m\+\_\+start}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Utilities/\mbox{\hyperlink{_utilities_8hpp}{Utilities.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_utilities_8cpp}{Utilities.\+cpp}}\end{DoxyCompactItemize}

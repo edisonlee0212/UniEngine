@@ -1,0 +1,64 @@
+\hypertarget{_skinned_mesh_renderer_8hpp_source}{}\doxysection{Skinned\+Mesh\+Renderer.\+hpp}
+\label{_skinned_mesh_renderer_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/SkinnedMeshRenderer.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/SkinnedMeshRenderer.hpp}}
+\mbox{\hyperlink{_skinned_mesh_renderer_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_animator_8hpp}{Animator.hpp}}"{}}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_material_8hpp}{Material.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_skinned_mesh_8hpp}{SkinnedMesh.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_private_component_ref_8hpp}{PrivateComponentRef.hpp}}"{}}}
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_bone_matrices}{BoneMatrices}}}
+\DoxyCodeLine{9 \{}
+\DoxyCodeLine{10   \textcolor{keyword}{public}:}
+\DoxyCodeLine{11     std::vector<glm::mat4> \mbox{\hyperlink{class_uni_engine_1_1_bone_matrices_a459ef18ec942ff70050060ddb0c7404b}{m\_value}};}
+\DoxyCodeLine{12     \textcolor{keywordtype}{void} UploadBones(\textcolor{keyword}{const} std::shared\_ptr<SkinnedMesh> \&skinnedMesh) \textcolor{keyword}{const};}
+\DoxyCodeLine{13 \};}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{SkinnedMeshRenderer}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}}
+\DoxyCodeLine{16 \{}
+\DoxyCodeLine{17     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{18     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_animator}{Animator}};}
+\DoxyCodeLine{19     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_animation_manager}{AnimationManager}};}
+\DoxyCodeLine{20     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{21     \textcolor{keywordtype}{void} RenderBound(glm::vec4 \&color);}
+\DoxyCodeLine{22     \textcolor{keywordtype}{void} GetBoneMatrices();}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26     \textcolor{keywordtype}{bool} m\_ragDoll = \textcolor{keyword}{false};}
+\DoxyCodeLine{27 }
+\DoxyCodeLine{28     std::vector<glm::mat4> m\_ragDollTransformChain;}
+\DoxyCodeLine{29     std::vector<EntityRef> m\_boundEntities;}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{31     \textcolor{keywordtype}{void} DebugBoneRender(\textcolor{keyword}{const} glm::vec4 \&color, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&size);}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33   \textcolor{keyword}{public}:}
+\DoxyCodeLine{34     \textcolor{keywordtype}{bool} m\_ragDollFreeze = \textcolor{keyword}{false};}
+\DoxyCodeLine{35     \textcolor{keywordtype}{bool} RagDoll() \textcolor{keyword}{const};}
+\DoxyCodeLine{36     \textcolor{keywordtype}{void} SetRagDoll(\textcolor{keywordtype}{bool} value);}
+\DoxyCodeLine{37     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_ae4631d8b7bd57a7582d62cf991ffd9d4}{m\_animator}};}
+\DoxyCodeLine{38     std::shared\_ptr<BoneMatrices> \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a67af06384b68dcb3955dd38b3107973f}{m\_finalResults}};}
+\DoxyCodeLine{39     \textcolor{keywordtype}{bool} m\_forwardRendering = \textcolor{keyword}{false};}
+\DoxyCodeLine{40     \textcolor{keywordtype}{bool} m\_castShadow = \textcolor{keyword}{true};}
+\DoxyCodeLine{41     \textcolor{keywordtype}{bool} m\_receiveShadow = \textcolor{keyword}{true};}
+\DoxyCodeLine{42     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_aa3c8a48c36e83865e3aa8a7924183d13}{m\_skinnedMesh}};}
+\DoxyCodeLine{43     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer_a8b606cbe2712fbd633ca4ce5e9549977}{m\_material}};}
+\DoxyCodeLine{44     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{45     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{46     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{47     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{48     \textcolor{keywordtype}{void} Relink(\textcolor{keyword}{const} std::unordered\_map<Handle, Handle> \&map, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}\& newSceneHandle) \textcolor{keyword}{override};}
+\DoxyCodeLine{49     \textcolor{keywordtype}{void} CollectAssetRef(std::vector<AssetRef> \&list) \textcolor{keyword}{override};}
+\DoxyCodeLine{50     \textcolor{keywordtype}{void} PostCloneAction(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent> \&target) \textcolor{keyword}{override};}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     \textcolor{keywordtype}{size\_t} GetRagDollBoneSize() \textcolor{keyword}{const};}
+\DoxyCodeLine{53     \textcolor{keywordtype}{void} SetRagDollBoundEntity(\textcolor{keywordtype}{int} index, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}\& entity, \textcolor{keywordtype}{bool} resetTransform = \textcolor{keyword}{true});}
+\DoxyCodeLine{54     \textcolor{keywordtype}{void} SetRagDollBoundEntities(\textcolor{keyword}{const} std::vector<Entity>\& entities, \textcolor{keywordtype}{bool} resetTransform = \textcolor{keyword}{true});}
+\DoxyCodeLine{55 \};}
+\DoxyCodeLine{56 }
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

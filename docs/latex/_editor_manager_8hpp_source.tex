@@ -1,0 +1,405 @@
+\hypertarget{_editor_manager_8hpp_source}{}\doxysection{Editor\+Manager.\+hpp}
+\label{_editor_manager_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/EditorManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/EditorManager.hpp}}
+\mbox{\hyperlink{_editor_manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_asset_manager_8hpp}{AssetManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_camera_8hpp}{Camera.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{Core/OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_gui_8hpp}{Gui.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_singleton_8hpp}{ISingleton.hpp}}>}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_render_target_8hpp}{RenderTarget.hpp}}>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_rigid_body_8hpp}{RigidBody.hpp}}>}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_texture2_d_8hpp}{Texture2D.hpp}}>}}
+\DoxyCodeLine{10 }
+\DoxyCodeLine{11 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{12 \{}
+\DoxyCodeLine{13 \textcolor{keyword}{struct }Transform;}
+\DoxyCodeLine{14 \textcolor{keyword}{enum} \mbox{\hyperlink{namespace_uni_engine_a33a9965c4cf225ea3c8eea58dab3b6e1}{EntityEditorSystemConfigFlags}}}
+\DoxyCodeLine{15 \{}
+\DoxyCodeLine{16     \mbox{\hyperlink{namespace_uni_engine_a33a9965c4cf225ea3c8eea58dab3b6e1a776dbb658657e86e51c05ee56c7b69f3}{EntityEditorSystem\_None}} = 0,}
+\DoxyCodeLine{17     \mbox{\hyperlink{namespace_uni_engine_a33a9965c4cf225ea3c8eea58dab3b6e1a8d550483a4af9e4f9aefd5671c5cc1e2}{EntityEditorSystem\_EnableEntityHierarchy}} = 1 << 0,}
+\DoxyCodeLine{18     \mbox{\hyperlink{namespace_uni_engine_a33a9965c4cf225ea3c8eea58dab3b6e1a05ae3f56c1e876457202ecbd64c8f0aa}{EntityEditorSystem\_EnableEntityInspector}} = 1 << 1}
+\DoxyCodeLine{19 \};}
+\DoxyCodeLine{20 \textcolor{keyword}{class }Folder;}
+\DoxyCodeLine{21 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<EditorManager>}
+\DoxyCodeLine{22 \{}
+\DoxyCodeLine{23     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_class_registry}{ClassRegistry}};}
+\DoxyCodeLine{24     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{25     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_project_manager}{ProjectManager}};}
+\DoxyCodeLine{26     std::map<std::string, std::shared\_ptr<Texture2D>> m\_assetsIcons;}
+\DoxyCodeLine{27     \mbox{\hyperlink{struct_uni_engine_1_1_entity_archetype}{EntityArchetype}} m\_basicEntityArchetype;}
+\DoxyCodeLine{28     \textcolor{keywordtype}{bool} m\_enabled = \textcolor{keyword}{false};}
+\DoxyCodeLine{29     std::map<size\_t, std::function<void(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}} *data, \textcolor{keywordtype}{bool} isRoot)>> m\_componentDataInspectorMap;}
+\DoxyCodeLine{30     std::vector<std::pair<size\_t, std::function<void(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} owner)>>> m\_privateComponentMenuList;}
+\DoxyCodeLine{31     std::vector<std::pair<size\_t, std::function<void(\textcolor{keywordtype}{float} rank)>>> m\_systemMenuList;}
+\DoxyCodeLine{32     std::vector<std::pair<size\_t, std::function<void(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} owner)>>> m\_componentDataMenuList;}
+\DoxyCodeLine{33     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} m\_configFlags = 0;}
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35     \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} m\_selectedEntity;}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     glm::vec3 m\_previouslyStoredPosition;}
+\DoxyCodeLine{38     glm::vec3 m\_previouslyStoredRotation;}
+\DoxyCodeLine{39     glm::vec3 m\_previouslyStoredScale;}
+\DoxyCodeLine{40     \textcolor{keywordtype}{bool} m\_localPositionSelected = \textcolor{keyword}{true};}
+\DoxyCodeLine{41     \textcolor{keywordtype}{bool} m\_localRotationSelected = \textcolor{keyword}{false};}
+\DoxyCodeLine{42     \textcolor{keywordtype}{bool} m\_localScaleSelected = \textcolor{keyword}{false};}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44     \textcolor{keywordtype}{bool} m\_sceneCameraWindowFocused = \textcolor{keyword}{false};}
+\DoxyCodeLine{45     \textcolor{keywordtype}{bool} m\_mainCameraWindowFocused = \textcolor{keyword}{false};}
+\DoxyCodeLine{46 \textcolor{preprocessor}{\#pragma region Transfer}}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48     glm::quat m\_previousRotation;}
+\DoxyCodeLine{49     glm::vec3 m\_previousPosition;}
+\DoxyCodeLine{50     glm::quat m\_targetRotation;}
+\DoxyCodeLine{51     glm::vec3 m\_targetPosition;}
+\DoxyCodeLine{52     \textcolor{keywordtype}{float} m\_transitionTime;}
+\DoxyCodeLine{53     \textcolor{keywordtype}{float} m\_transitionTimer;}
+\DoxyCodeLine{54 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56 \textcolor{preprocessor}{\#pragma region Scene Camera}}
+\DoxyCodeLine{57     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{58     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_input_manager}{InputManager}};}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     std::unique\_ptr<RenderTarget> m\_sceneCameraEntityRecorder;}
+\DoxyCodeLine{61     std::unique\_ptr<OpenGLUtils::GLTexture2D> m\_sceneCameraEntityRecorderTexture;}
+\DoxyCodeLine{62     std::unique\_ptr<OpenGLUtils::GLRenderBuffer> m\_sceneCameraEntityRecorderRenderBuffer;}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64     std::vector<Entity> m\_selectedEntityHierarchyList;}
+\DoxyCodeLine{65 }
+\DoxyCodeLine{66     \textcolor{keywordtype}{int} m\_sceneCameraResolutionX = 1;}
+\DoxyCodeLine{67     \textcolor{keywordtype}{int} m\_sceneCameraResolutionY = 1;}
+\DoxyCodeLine{68     \textcolor{keywordtype}{float} m\_lastX = 0;}
+\DoxyCodeLine{69     \textcolor{keywordtype}{float} m\_lastY = 0;}
+\DoxyCodeLine{70     \textcolor{keywordtype}{float} m\_lastScrollY = 0;}
+\DoxyCodeLine{71     \textcolor{keywordtype}{bool} m\_startMouse = \textcolor{keyword}{false};}
+\DoxyCodeLine{72     \textcolor{keywordtype}{bool} m\_startScroll = \textcolor{keyword}{false};}
+\DoxyCodeLine{73     \textcolor{keywordtype}{bool} m\_leftMouseButtonHold = \textcolor{keyword}{false};}
+\DoxyCodeLine{74     \textcolor{keywordtype}{bool} m\_rightMouseButtonHold = \textcolor{keyword}{false};}
+\DoxyCodeLine{75 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{76     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DrawEntityMenu(\textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&enabled, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity);}
+\DoxyCodeLine{77     \textcolor{keyword}{static} \textcolor{keywordtype}{void} DrawEntityNode(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity, \textcolor{keyword}{const} \textcolor{keywordtype}{unsigned} \&hierarchyLevel);}
+\DoxyCodeLine{78     \textcolor{keyword}{static} \textcolor{keywordtype}{void} InspectComponentData(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}} *data, \mbox{\hyperlink{struct_uni_engine_1_1_data_component_type}{DataComponentType}} type, \textcolor{keywordtype}{bool} isRoot);}
+\DoxyCodeLine{79     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} MouseEntitySelection(\textcolor{keyword}{const} glm::vec2 \&mousePosition);}
+\DoxyCodeLine{80     \textcolor{keyword}{static} \textcolor{keywordtype}{void} HighLightEntityPrePassHelper(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity);}
+\DoxyCodeLine{81     \textcolor{keyword}{static} \textcolor{keywordtype}{void} HighLightEntityHelper(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity);}
+\DoxyCodeLine{82     \textcolor{keyword}{static} \textcolor{keywordtype}{void} FolderHierarchyHelper(\textcolor{keyword}{const} std::shared\_ptr<Folder>\& folder);}
+\DoxyCodeLine{83     \textcolor{keyword}{static} \textcolor{keywordtype}{void} SceneCameraWindow();}
+\DoxyCodeLine{84     \textcolor{keyword}{static} \textcolor{keywordtype}{void} MainCameraWindow();}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86     \textcolor{keyword}{static} \textcolor{keywordtype}{void} CameraWindowDragAndDrop();}
+\DoxyCodeLine{87     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T1 = IPrivateComponent> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterPrivateComponent();}
+\DoxyCodeLine{88     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T1 = ISystem> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterSystem();}
+\DoxyCodeLine{89     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T1 = IDataComponent> \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterDataComponent();}
+\DoxyCodeLine{90     \textcolor{keyword}{friend} \textcolor{keyword}{class }Application;}
+\DoxyCodeLine{91     \textcolor{keyword}{static} \textcolor{keywordtype}{void} InitImGui();}
+\DoxyCodeLine{92     \textcolor{keyword}{static} \textcolor{keywordtype}{void} ImGuiPreUpdate();}
+\DoxyCodeLine{93     \textcolor{keyword}{static} \textcolor{keywordtype}{void} ImGuiLateUpdate();}
+\DoxyCodeLine{94   \textcolor{keyword}{public}:}
+\DoxyCodeLine{95     \textcolor{keywordtype}{int} m\_selectedHierarchyDisplayMode = 1;}
+\DoxyCodeLine{96     \textcolor{keyword}{static} \textcolor{keywordtype}{void} MoveCamera(}
+\DoxyCodeLine{97         \textcolor{keyword}{const} glm::quat \&targetRotation, \textcolor{keyword}{const} glm::vec3 \&targetPosition, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&transitionTime = 1.0f);}
+\DoxyCodeLine{98 }
+\DoxyCodeLine{99     \textcolor{keywordtype}{float} m\_sceneCameraYawAngle = -\/90;}
+\DoxyCodeLine{100     \textcolor{keywordtype}{float} m\_sceneCameraPitchAngle = 0;}
+\DoxyCodeLine{101     \textcolor{keywordtype}{float} m\_velocity = 20.0f;}
+\DoxyCodeLine{102     \textcolor{keywordtype}{float} m\_sensitivity = 0.1f;}
+\DoxyCodeLine{103     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a261073d5e49e145bad0ca01f4c4db9c6}{m\_lockCamera}};}
+\DoxyCodeLine{104     std::weak\_ptr<IAsset> \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a44be9173329bedbd218962eaf6fed953}{m\_inspectingAsset}};}
+\DoxyCodeLine{105     std::shared\_ptr<Camera> \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_af0c49b3e6e24a760e372b2ab026060ae}{m\_sceneCamera}};}
+\DoxyCodeLine{106     glm::quat m\_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));}
+\DoxyCodeLine{107     glm::vec3 m\_sceneCameraPosition = glm::vec3(0, 5, 20);}
+\DoxyCodeLine{108     glm::quat m\_defaultSceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));}
+\DoxyCodeLine{109     glm::vec3 m\_defaultSceneCameraPosition = glm::vec3(0, 5, 20);}
+\DoxyCodeLine{110     \textcolor{keyword}{static} \textcolor{keywordtype}{void} HighLightEntity(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity, \textcolor{keyword}{const} glm::vec4 \&color);}
+\DoxyCodeLine{111     \textcolor{keyword}{static} \textcolor{keywordtype}{void} OnInspect();}
+\DoxyCodeLine{112     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T1 = IDataComponent>}
+\DoxyCodeLine{113     \textcolor{keyword}{static} \textcolor{keywordtype}{void} RegisterComponentDataInspector(}
+\DoxyCodeLine{114         \textcolor{keyword}{const} std::function<\textcolor{keywordtype}{void}(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}} *data, \textcolor{keywordtype}{bool} isRoot)> \&func);}
+\DoxyCodeLine{115 }
+\DoxyCodeLine{116     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Init();}
+\DoxyCodeLine{117     \textcolor{keyword}{static} \textcolor{keywordtype}{void} Destroy();}
+\DoxyCodeLine{118     \textcolor{keyword}{static} \textcolor{keywordtype}{void} PreUpdate();}
+\DoxyCodeLine{119     \textcolor{keyword}{static} \textcolor{keywordtype}{void} RenderToSceneCamera();}
+\DoxyCodeLine{120     \textcolor{keyword}{static} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} GetSelectedEntity();}
+\DoxyCodeLine{121     \textcolor{keyword}{static} \textcolor{keywordtype}{void} SetSelectedEntity(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity, \textcolor{keywordtype}{bool} openMenu = \textcolor{keyword}{true});}
+\DoxyCodeLine{122     \textcolor{keyword}{static} std::weak\_ptr<Camera> GetSceneCamera();}
+\DoxyCodeLine{123 }
+\DoxyCodeLine{124     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(}
+\DoxyCodeLine{125         \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&target,}
+\DoxyCodeLine{126         \textcolor{keyword}{const} std::string \&name,}
+\DoxyCodeLine{127         \textcolor{keyword}{const} std::vector<std::string> \&acceptableTypeNames,}
+\DoxyCodeLine{128         \textcolor{keywordtype}{bool} removable = \textcolor{keyword}{true});}
+\DoxyCodeLine{129     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(}
+\DoxyCodeLine{130         \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&target,}
+\DoxyCodeLine{131         \textcolor{keyword}{const} std::string \&name,}
+\DoxyCodeLine{132         \textcolor{keyword}{const} std::vector<std::string> \&acceptableTypeNames,}
+\DoxyCodeLine{133         \textcolor{keywordtype}{bool} removable = \textcolor{keyword}{true});}
+\DoxyCodeLine{134 }
+\DoxyCodeLine{135     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset>}
+\DoxyCodeLine{136     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&target, \textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{bool} removable = \textcolor{keyword}{true});}
+\DoxyCodeLine{137     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent>}
+\DoxyCodeLine{138     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&target, \textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{bool} removable = \textcolor{keyword}{true});}
+\DoxyCodeLine{139     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(\mbox{\hyperlink{class_uni_engine_1_1_entity_ref}{EntityRef}} \&entityRef, \textcolor{keyword}{const} std::string \&name);}
+\DoxyCodeLine{140     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} DragAndDropButton(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity);}
+\DoxyCodeLine{141 }
+\DoxyCodeLine{142     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \textcolor{keyword}{static} \textcolor{keywordtype}{void} DraggableAsset(std::shared\_ptr<T> \&target);}
+\DoxyCodeLine{143     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \textcolor{keyword}{static} \textcolor{keywordtype}{void} DraggablePrivateComponent(std::shared\_ptr<T> \&target);}
+\DoxyCodeLine{144     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} MainCameraWindowFocused();}
+\DoxyCodeLine{145     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} SceneCameraWindowFocused();}
+\DoxyCodeLine{146 \};}
+\DoxyCodeLine{147 }
+\DoxyCodeLine{148 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T1>}
+\DoxyCodeLine{149 \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a7e2e0f8e2aae8360a1b2efe6f672f77c}{EditorManager::RegisterComponentDataInspector}}(}
+\DoxyCodeLine{150     \textcolor{keyword}{const} std::function<\textcolor{keywordtype}{void}(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} entity, \mbox{\hyperlink{struct_uni_engine_1_1_i_data_component}{IDataComponent}} *data, \textcolor{keywordtype}{bool} isRoot)> \&func)}
+\DoxyCodeLine{151 \{}
+\DoxyCodeLine{152     \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_componentDataInspectorMap.insert\_or\_assign(\textcolor{keyword}{typeid}(T1).hash\_code(), func);}
+\DoxyCodeLine{153 \}}
+\DoxyCodeLine{154 }
+\DoxyCodeLine{155 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} EditorManager::RegisterSystem()}
+\DoxyCodeLine{156 \{}
+\DoxyCodeLine{157     \textcolor{keyword}{auto} \&editorManager = \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}();}
+\DoxyCodeLine{158     \textcolor{keyword}{auto} func = [\&](\textcolor{keywordtype}{float} rank) \{}
+\DoxyCodeLine{159         \textcolor{keywordflow}{if} (EntityManager::GetSystem<T>(\mbox{\hyperlink{class_uni_engine_1_1_entity_manager_a7224da131783cd41e49e6f1225316c01}{EntityManager::GetCurrentScene}}()))}
+\DoxyCodeLine{160             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{161         \textcolor{keyword}{auto} systemName = SerializationManager::GetSerializableTypeName<T>();}
+\DoxyCodeLine{162         \textcolor{keywordflow}{if} (ImGui::Button(systemName.c\_str()))}
+\DoxyCodeLine{163         \{}
+\DoxyCodeLine{164             \mbox{\hyperlink{class_uni_engine_1_1_entity_manager_a0c2e01d4b6d775269ddd533388e9a792}{EntityManager::GetOrCreateSystem}}(systemName, \mbox{\hyperlink{class_uni_engine_1_1_entity_manager_a7224da131783cd41e49e6f1225316c01}{EntityManager::GetCurrentScene}}(), rank);}
+\DoxyCodeLine{165         \}}
+\DoxyCodeLine{166     \};}
+\DoxyCodeLine{167     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < editorManager.m\_systemMenuList.size(); i++)}
+\DoxyCodeLine{168     \{}
+\DoxyCodeLine{169         \textcolor{keywordflow}{if} (editorManager.m\_systemMenuList[i].first == \textcolor{keyword}{typeid}(T).hash\_code())}
+\DoxyCodeLine{170         \{}
+\DoxyCodeLine{171             editorManager.m\_systemMenuList[i].second = func;}
+\DoxyCodeLine{172             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{173         \}}
+\DoxyCodeLine{174     \}}
+\DoxyCodeLine{175     editorManager.m\_systemMenuList.emplace\_back(\textcolor{keyword}{typeid}(T).hash\_code(), func);}
+\DoxyCodeLine{176 \}}
+\DoxyCodeLine{177 }
+\DoxyCodeLine{178 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} EditorManager::RegisterPrivateComponent()}
+\DoxyCodeLine{179 \{}
+\DoxyCodeLine{180     \textcolor{keyword}{auto} \&editorManager = \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}();}
+\DoxyCodeLine{181     \textcolor{keyword}{auto} func = [\&](Entity owner) \{}
+\DoxyCodeLine{182         \textcolor{keywordflow}{if} (owner.HasPrivateComponent<T>())}
+\DoxyCodeLine{183             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{184         \textcolor{keywordflow}{if} (ImGui::Button(SerializationManager::GetSerializableTypeName<T>().c\_str()))}
+\DoxyCodeLine{185         \{}
+\DoxyCodeLine{186             owner.GetOrSetPrivateComponent<T>();}
+\DoxyCodeLine{187         \}}
+\DoxyCodeLine{188     \};}
+\DoxyCodeLine{189     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < editorManager.m\_privateComponentMenuList.size(); i++)}
+\DoxyCodeLine{190     \{}
+\DoxyCodeLine{191         \textcolor{keywordflow}{if} (editorManager.m\_privateComponentMenuList[i].first == \textcolor{keyword}{typeid}(T).hash\_code())}
+\DoxyCodeLine{192         \{}
+\DoxyCodeLine{193             editorManager.m\_privateComponentMenuList[i].second = func;}
+\DoxyCodeLine{194             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{195         \}}
+\DoxyCodeLine{196     \}}
+\DoxyCodeLine{197     editorManager.m\_privateComponentMenuList.emplace\_back(\textcolor{keyword}{typeid}(T).hash\_code(), func);}
+\DoxyCodeLine{198 \}}
+\DoxyCodeLine{199 }
+\DoxyCodeLine{200 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} EditorManager::RegisterDataComponent()}
+\DoxyCodeLine{201 \{}
+\DoxyCodeLine{202     \textcolor{keyword}{auto} \textcolor{keywordtype}{id} = \textcolor{keyword}{typeid}(T).hash\_code();}
+\DoxyCodeLine{203     \textcolor{keywordflow}{if} (\textcolor{keywordtype}{id} == \textcolor{keyword}{typeid}(Transform).hash\_code() || \textcolor{keywordtype}{id} == \textcolor{keyword}{typeid}(GlobalTransform).hash\_code() ||}
+\DoxyCodeLine{204         \textcolor{keywordtype}{id} == \textcolor{keyword}{typeid}(GlobalTransformUpdateFlag).hash\_code())}
+\DoxyCodeLine{205         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{206     \textcolor{keyword}{auto} func = [](Entity owner) \{}
+\DoxyCodeLine{207         \textcolor{keywordflow}{if} (owner.HasDataComponent<T>())}
+\DoxyCodeLine{208             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{209         \textcolor{keywordflow}{if} (ImGui::Button(SerializationManager::GetDataComponentTypeName<T>().c\_str()))}
+\DoxyCodeLine{210         \{}
+\DoxyCodeLine{211             EntityManager::AddDataComponent<T>(\mbox{\hyperlink{class_uni_engine_1_1_entity_manager_a7224da131783cd41e49e6f1225316c01}{EntityManager::GetCurrentScene}}(), owner, T());}
+\DoxyCodeLine{212         \}}
+\DoxyCodeLine{213     \};}
+\DoxyCodeLine{214     \textcolor{keywordflow}{for} (\textcolor{keywordtype}{int} i = 0; i < \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_componentDataMenuList.size(); i++)}
+\DoxyCodeLine{215     \{}
+\DoxyCodeLine{216         \textcolor{keywordflow}{if} (\mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_componentDataMenuList[i].first == \textcolor{keyword}{typeid}(T).hash\_code())}
+\DoxyCodeLine{217         \{}
+\DoxyCodeLine{218             \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_componentDataMenuList[i].second = func;}
+\DoxyCodeLine{219             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{220         \}}
+\DoxyCodeLine{221     \}}
+\DoxyCodeLine{222     \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().m\_componentDataMenuList.emplace\_back(\textcolor{keyword}{typeid}(T).hash\_code(), func);}
+\DoxyCodeLine{223 \}}
+\DoxyCodeLine{224 }
+\DoxyCodeLine{225 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a80768d2353d6468ed8832cc727238a74}{EditorManager::DragAndDropButton}}(\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \&target, \textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{bool} removable)}
+\DoxyCodeLine{226 \{}
+\DoxyCodeLine{227     ImGui::Text(name.c\_str());}
+\DoxyCodeLine{228     ImGui::SameLine();}
+\DoxyCodeLine{229     \textcolor{keyword}{const} std::shared\_ptr<IAsset> ptr = target.\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8756974a2165e46af41729a4cdaa389}{Get}}<\mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}>();}
+\DoxyCodeLine{230     \textcolor{keywordtype}{bool} statusChanged = \textcolor{keyword}{false};}
+\DoxyCodeLine{231     ImGui::Button(ptr ? ptr-\/>m\_name.c\_str() : \textcolor{stringliteral}{"{}none"{}});}
+\DoxyCodeLine{232     \textcolor{keyword}{const} std::string type = SerializationManager::GetSerializableTypeName<T>();}
+\DoxyCodeLine{233     \textcolor{keywordflow}{if} (ptr)}
+\DoxyCodeLine{234     \{}
+\DoxyCodeLine{235         \textcolor{keywordflow}{if} (ImGui::IsItemHovered() \&\& ImGui::IsMouseDoubleClicked(0))}
+\DoxyCodeLine{236         \{}
+\DoxyCodeLine{237             \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().\mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a44be9173329bedbd218962eaf6fed953}{m\_inspectingAsset}} = ptr;}
+\DoxyCodeLine{238         \}}
+\DoxyCodeLine{239         \textcolor{keyword}{const} std::string tag = \textcolor{stringliteral}{"{}\#\#"{}} + type + std::to\_string(ptr-\/>GetHandle());}
+\DoxyCodeLine{240         \textcolor{keywordflow}{if} (ImGui::BeginDragDropSource(ImGuiDragDropFlags\_SourceAllowNullID))}
+\DoxyCodeLine{241         \{}
+\DoxyCodeLine{242             ImGui::SetDragDropPayload(type.c\_str(), \&target.m\_assetHandle, \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}));}
+\DoxyCodeLine{243             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr-\/>m\_name + tag).c\_str());}
+\DoxyCodeLine{244             ImGui::EndDragDropSource();}
+\DoxyCodeLine{245         \}}
+\DoxyCodeLine{246         \textcolor{keywordflow}{if} (ImGui::BeginPopupContextItem(tag.c\_str()))}
+\DoxyCodeLine{247         \{}
+\DoxyCodeLine{248             \textcolor{keywordflow}{if} (ImGui::BeginMenu((\textcolor{stringliteral}{"{}Rename"{}} + tag).c\_str()))}
+\DoxyCodeLine{249             \{}
+\DoxyCodeLine{250                 \textcolor{keyword}{static} \textcolor{keywordtype}{char} newName[256];}
+\DoxyCodeLine{251                 ImGui::InputText((\textcolor{stringliteral}{"{}New name"{}} + tag).c\_str(), newName, 256);}
+\DoxyCodeLine{252                 \textcolor{keywordflow}{if} (ImGui::Button((\textcolor{stringliteral}{"{}Confirm"{}} + tag).c\_str()))}
+\DoxyCodeLine{253                     ptr-\/>m\_name = std::string(newName);}
+\DoxyCodeLine{254                 ImGui::EndMenu();}
+\DoxyCodeLine{255             \}}
+\DoxyCodeLine{256 }
+\DoxyCodeLine{257             \textcolor{keywordflow}{if} (removable)}
+\DoxyCodeLine{258             \{}
+\DoxyCodeLine{259                 \textcolor{keywordflow}{if} (ImGui::Button((\textcolor{stringliteral}{"{}Remove"{}} + tag).c\_str()))}
+\DoxyCodeLine{260                 \{}
+\DoxyCodeLine{261                     target.\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8e901b99399a25bdb4836a972332d18}{Clear}}();}
+\DoxyCodeLine{262                     statusChanged = \textcolor{keyword}{true};}
+\DoxyCodeLine{263                 \}}
+\DoxyCodeLine{264             \}}
+\DoxyCodeLine{265             ImGui::EndPopup();}
+\DoxyCodeLine{266         \}}
+\DoxyCodeLine{267     \}}
+\DoxyCodeLine{268 }
+\DoxyCodeLine{269     \textcolor{keywordflow}{if} (ImGui::BeginDragDropTarget())}
+\DoxyCodeLine{270     \{}
+\DoxyCodeLine{271         \textcolor{keywordflow}{if} (\textcolor{keyword}{const} ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c\_str()))}
+\DoxyCodeLine{272         \{}
+\DoxyCodeLine{273             IM\_ASSERT(payload-\/>DataSize == \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}));}
+\DoxyCodeLine{274             \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} payload\_n = *\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} *\textcolor{keyword}{>}(payload-\/>Data);}
+\DoxyCodeLine{275             \textcolor{keywordflow}{if} (!ptr || payload\_n.\mbox{\hyperlink{struct_uni_engine_1_1_handle_a503e5397f1caa52602e513aa5ed144b4}{GetValue}}() != target.\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a7649b3778437028c8052241ff4d2ef5c}{GetAssetHandle}}().\mbox{\hyperlink{struct_uni_engine_1_1_handle_a503e5397f1caa52602e513aa5ed144b4}{GetValue}}())}
+\DoxyCodeLine{276             \{}
+\DoxyCodeLine{277                 target.\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8e901b99399a25bdb4836a972332d18}{Clear}}();}
+\DoxyCodeLine{278                 target.m\_assetHandle = payload\_n;}
+\DoxyCodeLine{279                 target.Update();}
+\DoxyCodeLine{280                 statusChanged = \textcolor{keyword}{true};}
+\DoxyCodeLine{281             \}}
+\DoxyCodeLine{282         \}}
+\DoxyCodeLine{283         ImGui::EndDragDropTarget();}
+\DoxyCodeLine{284     \}}
+\DoxyCodeLine{285     \textcolor{keywordflow}{return} statusChanged;}
+\DoxyCodeLine{286 \}}
+\DoxyCodeLine{287 }
+\DoxyCodeLine{288 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T>}
+\DoxyCodeLine{289 \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a80768d2353d6468ed8832cc727238a74}{EditorManager::DragAndDropButton}}(\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&target, \textcolor{keyword}{const} std::string \&name, \textcolor{keywordtype}{bool} removable)}
+\DoxyCodeLine{290 \{}
+\DoxyCodeLine{291     ImGui::Text(name.c\_str());}
+\DoxyCodeLine{292     ImGui::SameLine();}
+\DoxyCodeLine{293     \textcolor{keywordtype}{bool} statusChanged = \textcolor{keyword}{false};}
+\DoxyCodeLine{294     \textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent> ptr = target.\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ad543ceef3fd7d42680cb9f4c2be9a756}{Get}}<\mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}>();}
+\DoxyCodeLine{295     ImGui::Button(ptr ? ptr-\/>GetOwner().GetName().c\_str() : \textcolor{stringliteral}{"{}none"{}});}
+\DoxyCodeLine{296     \textcolor{keyword}{const} std::string type = SerializationManager::GetSerializableTypeName<T>();}
+\DoxyCodeLine{297     \textcolor{keywordflow}{if} (ptr)}
+\DoxyCodeLine{298     \{}
+\DoxyCodeLine{299         \textcolor{keyword}{const} std::string tag = \textcolor{stringliteral}{"{}\#\#"{}} + type + std::to\_string(ptr-\/>GetHandle());}
+\DoxyCodeLine{300         \textcolor{keywordflow}{if} (ImGui::BeginDragDropSource(ImGuiDragDropFlags\_SourceAllowNullID))}
+\DoxyCodeLine{301         \{}
+\DoxyCodeLine{302             ImGui::SetDragDropPayload(type.c\_str(), \&ptr, \textcolor{keyword}{sizeof}(std::shared\_ptr<IPrivateComponent>));}
+\DoxyCodeLine{303             ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr-\/>GetOwner().GetName() + tag).c\_str());}
+\DoxyCodeLine{304             ImGui::EndDragDropSource();}
+\DoxyCodeLine{305         \}}
+\DoxyCodeLine{306         \textcolor{keywordflow}{if} (removable)}
+\DoxyCodeLine{307         \{}
+\DoxyCodeLine{308             \textcolor{keywordflow}{if} (ImGui::BeginPopupContextItem(tag.c\_str()))}
+\DoxyCodeLine{309             \{}
+\DoxyCodeLine{310 }
+\DoxyCodeLine{311                 \textcolor{keywordflow}{if} (ImGui::Button((\textcolor{stringliteral}{"{}Remove"{}} + tag).c\_str()))}
+\DoxyCodeLine{312                 \{}
+\DoxyCodeLine{313                     target.\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a4ad72753801259b76cc1fe2c622a362e}{Clear}}();}
+\DoxyCodeLine{314                     statusChanged = \textcolor{keyword}{true};}
+\DoxyCodeLine{315                 \}}
+\DoxyCodeLine{316                 ImGui::EndPopup();}
+\DoxyCodeLine{317             \}}
+\DoxyCodeLine{318         \}}
+\DoxyCodeLine{319     \}}
+\DoxyCodeLine{320     \textcolor{keywordflow}{if} (ImGui::BeginDragDropTarget())}
+\DoxyCodeLine{321     \{}
+\DoxyCodeLine{322         \textcolor{keywordflow}{if} (\textcolor{keyword}{const} ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c\_str()))}
+\DoxyCodeLine{323         \{}
+\DoxyCodeLine{324             IM\_ASSERT(payload-\/>DataSize == \textcolor{keyword}{sizeof}(std::shared\_ptr<IPrivateComponent>));}
+\DoxyCodeLine{325             std::shared\_ptr<T> payload\_n =}
+\DoxyCodeLine{326                 std::dynamic\_pointer\_cast<T>(*\textcolor{keyword}{static\_cast<}std::shared\_ptr<IPrivateComponent> *\textcolor{keyword}{>}(payload-\/>Data));}
+\DoxyCodeLine{327             \textcolor{keywordflow}{if} (!ptr || payload\_n.get() != ptr.get())}
+\DoxyCodeLine{328             \{}
+\DoxyCodeLine{329                 target = payload\_n;}
+\DoxyCodeLine{330                 statusChanged = \textcolor{keyword}{true};}
+\DoxyCodeLine{331             \}}
+\DoxyCodeLine{332         \}}
+\DoxyCodeLine{333         ImGui::EndDragDropTarget();}
+\DoxyCodeLine{334     \}}
+\DoxyCodeLine{335     \textcolor{keywordflow}{if} (ImGui::BeginDragDropTarget())}
+\DoxyCodeLine{336     \{}
+\DoxyCodeLine{337         \textcolor{keywordflow}{if} (\textcolor{keyword}{const} ImGuiPayload *payload = ImGui::AcceptDragDropPayload(\textcolor{stringliteral}{"{}Entity"{}}))}
+\DoxyCodeLine{338         \{}
+\DoxyCodeLine{339             IM\_ASSERT(payload-\/>DataSize == \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}));}
+\DoxyCodeLine{340             \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} payload\_n = *\textcolor{keyword}{static\_cast<}\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} *\textcolor{keyword}{>}(payload-\/>Data);}
+\DoxyCodeLine{341             \textcolor{keywordflow}{if} (payload\_n.\mbox{\hyperlink{struct_uni_engine_1_1_entity_ae0be31e19923d6f2f9062e91c97c9c93}{IsValid}}() \&\& payload\_n.\mbox{\hyperlink{struct_uni_engine_1_1_entity_a8e0a089a1c16d54896298ef5349ef819}{HasPrivateComponent}}<T>())}
+\DoxyCodeLine{342             \{}
+\DoxyCodeLine{343                 std::shared\_ptr<T> received = payload\_n.\mbox{\hyperlink{struct_uni_engine_1_1_entity_addb4214dfdff5d05a9c055734d6c0834}{GetOrSetPrivateComponent}}<T>().lock();}
+\DoxyCodeLine{344                 \textcolor{keywordflow}{if} (!ptr || received.get() != ptr.get())}
+\DoxyCodeLine{345                 \{}
+\DoxyCodeLine{346                     target = received;}
+\DoxyCodeLine{347                     statusChanged = \textcolor{keyword}{true};}
+\DoxyCodeLine{348                 \}}
+\DoxyCodeLine{349             \}}
+\DoxyCodeLine{350         \}}
+\DoxyCodeLine{351         ImGui::EndDragDropTarget();}
+\DoxyCodeLine{352     \}}
+\DoxyCodeLine{353     \textcolor{keywordflow}{return} statusChanged;}
+\DoxyCodeLine{354 \}}
+\DoxyCodeLine{355 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_aa749b98c22170aad8f606f7e4de70a56}{EditorManager::DraggablePrivateComponent}}(std::shared\_ptr<T> \&target)}
+\DoxyCodeLine{356 \{}
+\DoxyCodeLine{357     \textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent> ptr = std::dynamic\_pointer\_cast<IPrivateComponent>(target);}
+\DoxyCodeLine{358     \textcolor{keyword}{const} \textcolor{keyword}{auto} type = ptr-\/>GetTypeName();}
+\DoxyCodeLine{359     \textcolor{keyword}{const} std::string tag = \textcolor{stringliteral}{"{}\#\#"{}} + type + (ptr ? std::to\_string(ptr-\/>GetHandle()) : \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{360     \textcolor{keywordflow}{if} (ImGui::BeginDragDropSource(ImGuiDragDropFlags\_SourceAllowNullID))}
+\DoxyCodeLine{361     \{}
+\DoxyCodeLine{362         ImGui::SetDragDropPayload(type.c\_str(), \&ptr, \textcolor{keyword}{sizeof}(std::shared\_ptr<IPrivateComponent>));}
+\DoxyCodeLine{363         ImGui::TextColored(ImVec4(0, 0, 1, 1), (type + tag).c\_str());}
+\DoxyCodeLine{364         ImGui::EndDragDropSource();}
+\DoxyCodeLine{365     \}}
+\DoxyCodeLine{366     \textcolor{keywordflow}{return};}
+\DoxyCodeLine{367 \}}
+\DoxyCodeLine{368 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a1b0c58c4905a330ca8bdd63f49821724}{EditorManager::DraggableAsset}}(std::shared\_ptr<T> \&target)}
+\DoxyCodeLine{369 \{}
+\DoxyCodeLine{370     \textcolor{keyword}{const} std::shared\_ptr<IAsset> ptr = std::dynamic\_pointer\_cast<IAsset>(target);}
+\DoxyCodeLine{371     \textcolor{keywordflow}{if} (ImGui::IsItemHovered() \&\& ImGui::IsMouseDoubleClicked(0))}
+\DoxyCodeLine{372     \{}
+\DoxyCodeLine{373         \mbox{\hyperlink{class_uni_engine_1_1_i_singleton_a3be306028874b8da62357fe83aa7e915}{GetInstance}}().\mbox{\hyperlink{class_uni_engine_1_1_editor_manager_a44be9173329bedbd218962eaf6fed953}{m\_inspectingAsset}} = ptr;}
+\DoxyCodeLine{374     \}}
+\DoxyCodeLine{375     \textcolor{keyword}{const} \textcolor{keyword}{auto} type = ptr-\/>GetTypeName();}
+\DoxyCodeLine{376     \textcolor{keyword}{const} std::string tag = \textcolor{stringliteral}{"{}\#\#"{}} + type + (ptr ? std::to\_string(ptr-\/>GetHandle()) : \textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{377     \textcolor{keywordflow}{if} (ImGui::BeginDragDropSource(ImGuiDragDropFlags\_SourceAllowNullID))}
+\DoxyCodeLine{378     \{}
+\DoxyCodeLine{379         ImGui::SetDragDropPayload(type.c\_str(), \&ptr-\/>m\_handle, \textcolor{keyword}{sizeof}(\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}));}
+\DoxyCodeLine{380         ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr-\/>m\_name + tag).c\_str());}
+\DoxyCodeLine{381         ImGui::EndDragDropSource();}
+\DoxyCodeLine{382     \}}
+\DoxyCodeLine{383 }
+\DoxyCodeLine{384     \textcolor{keywordflow}{if} (ImGui::BeginPopupContextItem(tag.c\_str()))}
+\DoxyCodeLine{385     \{}
+\DoxyCodeLine{386         \textcolor{keywordflow}{if} (ImGui::BeginMenu((\textcolor{stringliteral}{"{}Rename"{}} + tag).c\_str()))}
+\DoxyCodeLine{387         \{}
+\DoxyCodeLine{388             \textcolor{keyword}{static} \textcolor{keywordtype}{char} newName[256];}
+\DoxyCodeLine{389             ImGui::InputText((\textcolor{stringliteral}{"{}New name"{}} + tag).c\_str(), newName, 256);}
+\DoxyCodeLine{390             \textcolor{keywordflow}{if} (ImGui::Button((\textcolor{stringliteral}{"{}Confirm"{}} + tag).c\_str()))}
+\DoxyCodeLine{391                 ptr-\/>m\_name = std::string(newName);}
+\DoxyCodeLine{392             ImGui::EndMenu();}
+\DoxyCodeLine{393         \}}
+\DoxyCodeLine{394         ImGui::EndPopup();}
+\DoxyCodeLine{395     \}}
+\DoxyCodeLine{396     \textcolor{keywordflow}{return};}
+\DoxyCodeLine{397 \}}
+\DoxyCodeLine{398 }
+\DoxyCodeLine{399 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

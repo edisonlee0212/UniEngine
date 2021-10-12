@@ -1,0 +1,156 @@
+\hypertarget{class_uni_engine_1_1_s_s_a_o}{}\doxysection{Uni\+Engine\+::SSAO Class Reference}
+\label{class_uni_engine_1_1_s_s_a_o}\index{UniEngine::SSAO@{UniEngine::SSAO}}
+
+
+{\ttfamily \#include $<$Post\+Processing.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::SSAO\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_s_s_a_o}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a83acf2f301b9b62f0d7c79d83d7c2a88}{SSAO}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_afa8875e026fe8d0e0444a206bf39165b}{Resize\+Resolution}} (int x, int y) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a1df74600ad8882c2c5b4123a000ca62f}{Process}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component, \mbox{\hyperlink{class_uni_engine_1_1_render_target}{Render\+Target}} \&render\+Target) const override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_aef3253702b8b2915b4c14d85a58ffba6}{On\+Inspect}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&camera\+Component) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_afa14d12ec36e39fe535b2b92d11fad5d}{m\+\_\+intensity}} = 1.\+0f
+\item 
+int \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a29f3cecbddfdb9f61d9b758816c84eae}{m\+\_\+diffusion}} = 8
+\item 
+int \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_affde697fbc74b8f3ad8ee746b7bc8290}{m\+\_\+sample\+Step}} = 1
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}} \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a6028a6bf3c5d1393728123cfc45041a7}{m\+\_\+graph}}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_ac1a2fa0e87a6e126e61edae55af5bfe4}{m\+\_\+kernel\+Radius}} = 1.\+0f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_acf8dbc98aaaeaa7354dd4de152ededa6}{m\+\_\+kernel\+Bias}} = 0.\+01f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_abd60d76409ecf5e35aed973f38061b63}{m\+\_\+scale}} = 1.\+0f
+\item 
+int \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a5ed12d9e61ed50e2c94dac202e0b8065}{m\+\_\+sample\+Size}} = 16
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_s_s_a_o_a55ba8a10748d222a2f6fe9a16c071998}{Default\+Resources}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a83acf2f301b9b62f0d7c79d83d7c2a88}\label{class_uni_engine_1_1_s_s_a_o_a83acf2f301b9b62f0d7c79d83d7c2a88}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!SSAO@{SSAO}}
+\index{SSAO@{SSAO}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{SSAO()}{SSAO()}}
+{\footnotesize\ttfamily SSAO\+::\+SSAO (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_aef3253702b8b2915b4c14d85a58ffba6}\label{class_uni_engine_1_1_s_s_a_o_aef3253702b8b2915b4c14d85a58ffba6}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void SSAO\+::\+On\+Inspect (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_aacc22bc7d707d083454abfd6bb5a4504}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a1df74600ad8882c2c5b4123a000ca62f}\label{class_uni_engine_1_1_s_s_a_o_a1df74600ad8882c2c5b4123a000ca62f}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!Process@{Process}}
+\index{Process@{Process}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{Process()}{Process()}}
+{\footnotesize\ttfamily void SSAO\+::\+Process (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}} $>$ \&}]{camera\+Component,  }\item[{\mbox{\hyperlink{class_uni_engine_1_1_render_target}{Render\+Target}} \&}]{render\+Target }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_a60a9805a905563d1bea9ecc73862853d}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_afa8875e026fe8d0e0444a206bf39165b}\label{class_uni_engine_1_1_s_s_a_o_afa8875e026fe8d0e0444a206bf39165b}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!ResizeResolution@{ResizeResolution}}
+\index{ResizeResolution@{ResizeResolution}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{ResizeResolution()}{ResizeResolution()}}
+{\footnotesize\ttfamily void SSAO\+::\+Resize\+Resolution (\begin{DoxyParamCaption}\item[{int}]{x,  }\item[{int}]{y }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{class_uni_engine_1_1_post_processing_layer_a94a1cce159364ef5317390a074adf04d}{Uni\+Engine\+::\+Post\+Processing\+Layer}}.
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a55ba8a10748d222a2f6fe9a16c071998}\label{class_uni_engine_1_1_s_s_a_o_a55ba8a10748d222a2f6fe9a16c071998}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!DefaultResources@{DefaultResources}}
+\index{DefaultResources@{DefaultResources}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{DefaultResources}{DefaultResources}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_default_resources}{Default\+Resources}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a29f3cecbddfdb9f61d9b758816c84eae}\label{class_uni_engine_1_1_s_s_a_o_a29f3cecbddfdb9f61d9b758816c84eae}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_diffusion@{m\_diffusion}}
+\index{m\_diffusion@{m\_diffusion}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_diffusion}{m\_diffusion}}
+{\footnotesize\ttfamily int Uni\+Engine\+::\+SSAO\+::m\+\_\+diffusion = 8}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a6028a6bf3c5d1393728123cfc45041a7}\label{class_uni_engine_1_1_s_s_a_o_a6028a6bf3c5d1393728123cfc45041a7}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_graph@{m\_graph}}
+\index{m\_graph@{m\_graph}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_graph}{m\_graph}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_bezier2_d}{Bezier2D}} Uni\+Engine\+::\+SSAO\+::m\+\_\+graph}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_afa14d12ec36e39fe535b2b92d11fad5d}\label{class_uni_engine_1_1_s_s_a_o_afa14d12ec36e39fe535b2b92d11fad5d}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_intensity@{m\_intensity}}
+\index{m\_intensity@{m\_intensity}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_intensity}{m\_intensity}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+SSAO\+::m\+\_\+intensity = 1.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_acf8dbc98aaaeaa7354dd4de152ededa6}\label{class_uni_engine_1_1_s_s_a_o_acf8dbc98aaaeaa7354dd4de152ededa6}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_kernelBias@{m\_kernelBias}}
+\index{m\_kernelBias@{m\_kernelBias}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_kernelBias}{m\_kernelBias}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+SSAO\+::m\+\_\+kernel\+Bias = 0.\+01f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_ac1a2fa0e87a6e126e61edae55af5bfe4}\label{class_uni_engine_1_1_s_s_a_o_ac1a2fa0e87a6e126e61edae55af5bfe4}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_kernelRadius@{m\_kernelRadius}}
+\index{m\_kernelRadius@{m\_kernelRadius}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_kernelRadius}{m\_kernelRadius}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+SSAO\+::m\+\_\+kernel\+Radius = 1.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_a5ed12d9e61ed50e2c94dac202e0b8065}\label{class_uni_engine_1_1_s_s_a_o_a5ed12d9e61ed50e2c94dac202e0b8065}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_sampleSize@{m\_sampleSize}}
+\index{m\_sampleSize@{m\_sampleSize}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_sampleSize}{m\_sampleSize}}
+{\footnotesize\ttfamily int Uni\+Engine\+::\+SSAO\+::m\+\_\+sample\+Size = 16}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_affde697fbc74b8f3ad8ee746b7bc8290}\label{class_uni_engine_1_1_s_s_a_o_affde697fbc74b8f3ad8ee746b7bc8290}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_sampleStep@{m\_sampleStep}}
+\index{m\_sampleStep@{m\_sampleStep}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_sampleStep}{m\_sampleStep}}
+{\footnotesize\ttfamily int Uni\+Engine\+::\+SSAO\+::m\+\_\+sample\+Step = 1}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_s_s_a_o_abd60d76409ecf5e35aed973f38061b63}\label{class_uni_engine_1_1_s_s_a_o_abd60d76409ecf5e35aed973f38061b63}} 
+\index{UniEngine::SSAO@{UniEngine::SSAO}!m\_scale@{m\_scale}}
+\index{m\_scale@{m\_scale}!UniEngine::SSAO@{UniEngine::SSAO}}
+\doxysubsubsection{\texorpdfstring{m\_scale}{m\_scale}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+SSAO\+::m\+\_\+scale = 1.\+0f}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_post_processing_8hpp}{Post\+Processing.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_post_processing_8cpp}{Post\+Processing.\+cpp}}\end{DoxyCompactItemize}

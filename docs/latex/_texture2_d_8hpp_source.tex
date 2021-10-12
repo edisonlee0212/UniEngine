@@ -1,0 +1,53 @@
+\hypertarget{_texture2_d_8hpp_source}{}\doxysection{Texture2\+D.\+hpp}
+\label{_texture2_d_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Texture2D.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/Texture2D.hpp}}
+\mbox{\hyperlink{_texture2_d_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_open_g_l_utils_8hpp}{Core/OpenGLUtils.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{4 \{}
+\DoxyCodeLine{5 \textcolor{keyword}{enum class} UNIENGINE\_API TextureType}
+\DoxyCodeLine{6 \{}
+\DoxyCodeLine{7     \mbox{\hyperlink{_texture2_d_8hpp_a3d873c155136450db28563a091a80aca}{Albedo}},}
+\DoxyCodeLine{8     \mbox{\hyperlink{_texture2_d_8hpp_abb5b863a4c7a7cc7d18a288c908b9f0b}{Normal}},}
+\DoxyCodeLine{9     \mbox{\hyperlink{_texture2_d_8hpp_a5dec019a6638418cb904aba973a45c05}{Metallic}},}
+\DoxyCodeLine{10     \mbox{\hyperlink{_texture2_d_8hpp_a4197e74dddc43f5a7a6c9fe75c2303d6}{Roughness}},}
+\DoxyCodeLine{11     \mbox{\hyperlink{_texture2_d_8hpp_a075efb1b63831a1b4ea0c09bac7e8271}{AO}},}
+\DoxyCodeLine{12 \};}
+\DoxyCodeLine{13 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_texture2_d}{Texture2D}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{14 \{}
+\DoxyCodeLine{15     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_material}{Material}};}
+\DoxyCodeLine{16     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_render_manager}{RenderManager}};}
+\DoxyCodeLine{17     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_bloom}{Bloom}};}
+\DoxyCodeLine{18     std::shared\_ptr<OpenGLUtils::GLTexture2D> m\_texture;}
+\DoxyCodeLine{19     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{AssetManager}};}
+\DoxyCodeLine{20     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_camera}{Camera}};}
+\DoxyCodeLine{21     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_default_resources}{DefaultResources}};}
+\DoxyCodeLine{22 }
+\DoxyCodeLine{23     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_light_probe}{LightProbe}};}
+\DoxyCodeLine{24     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_reflection_probe}{ReflectionProbe}};}
+\DoxyCodeLine{25     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_environmental_map}{EnvironmentalMap}};}
+\DoxyCodeLine{26     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_cubemap}{Cubemap}};}
+\DoxyCodeLine{27 }
+\DoxyCodeLine{28   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{29     \textcolor{keywordtype}{bool} SaveInternal(\textcolor{keyword}{const} std::filesystem::path \&path) \textcolor{keyword}{override};}
+\DoxyCodeLine{30     \textcolor{keywordtype}{bool} LoadInternal(\textcolor{keyword}{const} std::filesystem::path \& path) \textcolor{keyword}{override};}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32   \textcolor{keyword}{public}:}
+\DoxyCodeLine{33     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{34     \textcolor{keywordtype}{float} m\_gamma = 1.0f;}
+\DoxyCodeLine{35     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{36     [[nodiscard]] glm::vec2 GetResolution() \textcolor{keyword}{const};}
+\DoxyCodeLine{37     \textcolor{keywordtype}{void} StoreToPng(}
+\DoxyCodeLine{38         \textcolor{keyword}{const} std::string \&path,}
+\DoxyCodeLine{39         \textcolor{keywordtype}{int} resizeX = -\/1,}
+\DoxyCodeLine{40         \textcolor{keywordtype}{int} resizeY = -\/1,}
+\DoxyCodeLine{41         \textcolor{keywordtype}{bool} alphaChannel = \textcolor{keyword}{false},}
+\DoxyCodeLine{42         \textcolor{keywordtype}{unsigned} compressionLevel = 8) \textcolor{keyword}{const};}
+\DoxyCodeLine{43     \textcolor{keywordtype}{void} StoreToJpg(\textcolor{keyword}{const} std::string \&path, \textcolor{keywordtype}{int} resizeX = -\/1, \textcolor{keywordtype}{int} resizeY = -\/1, \textcolor{keywordtype}{unsigned} quality = 100) \textcolor{keyword}{const};}
+\DoxyCodeLine{44     [[nodiscard]] std::shared\_ptr<OpenGLUtils::GLTexture2D>\& UnsafeGetGLTexture();}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46 \};}
+\DoxyCodeLine{47 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

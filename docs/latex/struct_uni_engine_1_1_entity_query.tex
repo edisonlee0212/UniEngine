@@ -1,0 +1,196 @@
+\hypertarget{struct_uni_engine_1_1_entity_query}{}\doxysection{Uni\+Engine\+::Entity\+Query Struct Reference}
+\label{struct_uni_engine_1_1_entity_query}\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+
+
+{\ttfamily \#include $<$Entity.\+hpp$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+size\+\_\+t \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a2c76e825cf372a2c397bb77e7c1b7564}{Get\+Index}} ()
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a41f6686eb26261c40712d41d5647764a}{operator==}} (const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&other) const
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a1ab02adb8a884e55d8d8464745e0ebaf}{operator!=}} (const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&other) const
+\item 
+size\+\_\+t \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a0887bc58364d5b6a8799f034c084d3b8}{operator()}} (const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&key) const
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a46a11fdf2ab89d7d4e999ca8824df6b0}{Is\+Null}} () const
+\item 
+bool \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_ae4869830693acd358bdd8520952b89ba}{Is\+Valid}} () const
+\item 
+{\footnotesize template$<$typename T  = IData\+Component, typename... Ts$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_aa9915fb92973f8481aeff698bfc52a22}{Set\+All\+Filters}} (T arg, Ts... args)
+\item 
+{\footnotesize template$<$typename T  = IData\+Component, typename... Ts$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_aacdc50a2a29846cfec00265f71478ace}{Set\+Any\+Filters}} (T arg, Ts... args)
+\item 
+{\footnotesize template$<$typename T  = IData\+Component, typename... Ts$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_aae04996ff23749374a02acb5b97304f3}{Set\+None\+Filters}} (T arg, Ts... args)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a2c0732418f88510833053309d1408789}{To\+Component\+Data\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ T1 $>$ \&container, bool check\+Enable=true)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component, typename T2  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a8dedff2614f2791119f14b3f946bae58}{To\+Component\+Data\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ T1 $>$ \&container, const std\+::function$<$ bool(const T2 \&)$>$ \&filter\+Func, bool check\+Enable=true)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component, typename T2  = IData\+Component, typename T3  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_adf60bd421e6fee9426065c1846c150f3}{To\+Component\+Data\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ T1 $>$ \&container, const std\+::function$<$ bool(const T2 \&, const T3 \&)$>$ \&filter\+Func, bool check\+Enable=true)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component, typename T2  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_afde958a6a9b6401d8d9c32debe2258f3}{To\+Component\+Data\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, const T1 \&filter, std\+::vector$<$ T2 $>$ \&container, bool check\+Enable=true)
+\item 
+void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_adcd3e98a548bb9ef9790fd5c3eeaab89}{To\+Entity\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&container, bool check\+Enable=true) const
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_ae3b561ae1ff06a953c977bd5ee6a891f}{To\+Entity\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, const T1 \&filter, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&container, bool check\+Enable=true)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_ae8f62b1e919059e06838598947ee2266}{To\+Entity\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&container, const std\+::function$<$ bool(const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&, const T1 \&)$>$ \&filter\+Func, bool check\+Enable=true)
+\item 
+{\footnotesize template$<$typename T1  = IData\+Component, typename T2  = IData\+Component$>$ }\\void \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a1c6f162187e6ad72b8b587dcca4485a4}{To\+Entity\+Array}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&container, const std\+::function$<$ bool(const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&, const T1 \&, const T2 \&)$>$ \&filter\+Func, bool check\+Enable=true)
+\item 
+size\+\_\+t \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a94492c5e1c0923ccf9963a9d6843b009}{Get\+Entity\+Amount}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&scene, bool check\+Enable=true) const
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a6f579cda6059d102e9074e11a27e0282}{Entity\+Manager}}
+\item 
+class \mbox{\hyperlink{struct_uni_engine_1_1_entity_query_a0da2f7b33b8c8e7c95605b9f36c38255}{Serialization\+Manager}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a94492c5e1c0923ccf9963a9d6843b009}\label{struct_uni_engine_1_1_entity_query_a94492c5e1c0923ccf9963a9d6843b009}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!GetEntityAmount@{GetEntityAmount}}
+\index{GetEntityAmount@{GetEntityAmount}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{GetEntityAmount()}{GetEntityAmount()}}
+{\footnotesize\ttfamily size\+\_\+t Entity\+Query\+::\+Get\+Entity\+Amount (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a2c76e825cf372a2c397bb77e7c1b7564}\label{struct_uni_engine_1_1_entity_query_a2c76e825cf372a2c397bb77e7c1b7564}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!GetIndex@{GetIndex}}
+\index{GetIndex@{GetIndex}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{GetIndex()}{GetIndex()}}
+{\footnotesize\ttfamily size\+\_\+t Entity\+Query\+::\+Get\+Index (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a46a11fdf2ab89d7d4e999ca8824df6b0}\label{struct_uni_engine_1_1_entity_query_a46a11fdf2ab89d7d4e999ca8824df6b0}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!IsNull@{IsNull}}
+\index{IsNull@{IsNull}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{IsNull()}{IsNull()}}
+{\footnotesize\ttfamily bool Entity\+Query\+::\+Is\+Null (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_ae4869830693acd358bdd8520952b89ba}\label{struct_uni_engine_1_1_entity_query_ae4869830693acd358bdd8520952b89ba}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!IsValid@{IsValid}}
+\index{IsValid@{IsValid}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{IsValid()}{IsValid()}}
+{\footnotesize\ttfamily bool Entity\+Query\+::\+Is\+Valid (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a1ab02adb8a884e55d8d8464745e0ebaf}\label{struct_uni_engine_1_1_entity_query_a1ab02adb8a884e55d8d8464745e0ebaf}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{operator"!=()}{operator!=()}}
+{\footnotesize\ttfamily bool Entity\+Query\+::operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&}]{other }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a0887bc58364d5b6a8799f034c084d3b8}\label{struct_uni_engine_1_1_entity_query_a0887bc58364d5b6a8799f034c084d3b8}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!operator()@{operator()}}
+\index{operator()@{operator()}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{operator()()}{operator()()}}
+{\footnotesize\ttfamily size\+\_\+t Entity\+Query\+::operator() (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&}]{key }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a41f6686eb26261c40712d41d5647764a}\label{struct_uni_engine_1_1_entity_query_a41f6686eb26261c40712d41d5647764a}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!operator==@{operator==}}
+\index{operator==@{operator==}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily bool Entity\+Query\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_entity_query}{Entity\+Query}} \&}]{other }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_aa9915fb92973f8481aeff698bfc52a22}\label{struct_uni_engine_1_1_entity_query_aa9915fb92973f8481aeff698bfc52a22}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!SetAllFilters@{SetAllFilters}}
+\index{SetAllFilters@{SetAllFilters}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{SetAllFilters()}{SetAllFilters()}}
+{\footnotesize\ttfamily template$<$typename T , typename... Ts$>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+Set\+All\+Filters (\begin{DoxyParamCaption}\item[{T}]{arg,  }\item[{Ts...}]{args }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_aacdc50a2a29846cfec00265f71478ace}\label{struct_uni_engine_1_1_entity_query_aacdc50a2a29846cfec00265f71478ace}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!SetAnyFilters@{SetAnyFilters}}
+\index{SetAnyFilters@{SetAnyFilters}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{SetAnyFilters()}{SetAnyFilters()}}
+{\footnotesize\ttfamily template$<$typename T , typename... Ts$>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+Set\+Any\+Filters (\begin{DoxyParamCaption}\item[{T}]{arg,  }\item[{Ts...}]{args }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_aae04996ff23749374a02acb5b97304f3}\label{struct_uni_engine_1_1_entity_query_aae04996ff23749374a02acb5b97304f3}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!SetNoneFilters@{SetNoneFilters}}
+\index{SetNoneFilters@{SetNoneFilters}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{SetNoneFilters()}{SetNoneFilters()}}
+{\footnotesize\ttfamily template$<$typename T , typename... Ts$>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+Set\+None\+Filters (\begin{DoxyParamCaption}\item[{T}]{arg,  }\item[{Ts...}]{args }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_afde958a6a9b6401d8d9c32debe2258f3}\label{struct_uni_engine_1_1_entity_query_afde958a6a9b6401d8d9c32debe2258f3}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToComponentDataArray@{ToComponentDataArray}}
+\index{ToComponentDataArray@{ToComponentDataArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToComponentDataArray()}{ToComponentDataArray()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename T1 , typename T2 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Component\+Data\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{const T1 \&}]{filter,  }\item[{std\+::vector$<$ T2 $>$ \&}]{container,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a2c0732418f88510833053309d1408789}\label{struct_uni_engine_1_1_entity_query_a2c0732418f88510833053309d1408789}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToComponentDataArray@{ToComponentDataArray}}
+\index{ToComponentDataArray@{ToComponentDataArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToComponentDataArray()}{ToComponentDataArray()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily template$<$typename T1 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Component\+Data\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ T1 $>$ \&}]{container,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a8dedff2614f2791119f14b3f946bae58}\label{struct_uni_engine_1_1_entity_query_a8dedff2614f2791119f14b3f946bae58}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToComponentDataArray@{ToComponentDataArray}}
+\index{ToComponentDataArray@{ToComponentDataArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToComponentDataArray()}{ToComponentDataArray()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily template$<$typename T1 , typename T2 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Component\+Data\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ T1 $>$ \&}]{container,  }\item[{const std\+::function$<$ bool(const T2 \&)$>$ \&}]{filter\+Func,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_adf60bd421e6fee9426065c1846c150f3}\label{struct_uni_engine_1_1_entity_query_adf60bd421e6fee9426065c1846c150f3}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToComponentDataArray@{ToComponentDataArray}}
+\index{ToComponentDataArray@{ToComponentDataArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToComponentDataArray()}{ToComponentDataArray()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily template$<$typename T1 , typename T2 , typename T3 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Component\+Data\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ T1 $>$ \&}]{container,  }\item[{const std\+::function$<$ bool(const T2 \&, const T3 \&)$>$ \&}]{filter\+Func,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_ae3b561ae1ff06a953c977bd5ee6a891f}\label{struct_uni_engine_1_1_entity_query_ae3b561ae1ff06a953c977bd5ee6a891f}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToEntityArray@{ToEntityArray}}
+\index{ToEntityArray@{ToEntityArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToEntityArray()}{ToEntityArray()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename T1 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Entity\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{const T1 \&}]{filter,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&}]{container,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_adcd3e98a548bb9ef9790fd5c3eeaab89}\label{struct_uni_engine_1_1_entity_query_adcd3e98a548bb9ef9790fd5c3eeaab89}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToEntityArray@{ToEntityArray}}
+\index{ToEntityArray@{ToEntityArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToEntityArray()}{ToEntityArray()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily void Entity\+Query\+::\+To\+Entity\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&}]{container,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption}) const}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_ae8f62b1e919059e06838598947ee2266}\label{struct_uni_engine_1_1_entity_query_ae8f62b1e919059e06838598947ee2266}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToEntityArray@{ToEntityArray}}
+\index{ToEntityArray@{ToEntityArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToEntityArray()}{ToEntityArray()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily template$<$typename T1 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Entity\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&}]{container,  }\item[{const std\+::function$<$ bool(const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&, const T1 \&)$>$ \&}]{filter\+Func,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a1c6f162187e6ad72b8b587dcca4485a4}\label{struct_uni_engine_1_1_entity_query_a1c6f162187e6ad72b8b587dcca4485a4}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!ToEntityArray@{ToEntityArray}}
+\index{ToEntityArray@{ToEntityArray}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{ToEntityArray()}{ToEntityArray()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily template$<$typename T1 , typename T2 $>$ \\
+void Uni\+Engine\+::\+Entity\+Query\+::\+To\+Entity\+Array (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} $>$ \&}]{scene,  }\item[{std\+::vector$<$ \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} $>$ \&}]{container,  }\item[{const std\+::function$<$ bool(const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&, const T1 \&, const T2 \&)$>$ \&}]{filter\+Func,  }\item[{bool}]{check\+Enable = {\ttfamily true} }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a6f579cda6059d102e9074e11a27e0282}\label{struct_uni_engine_1_1_entity_query_a6f579cda6059d102e9074e11a27e0282}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!EntityManager@{EntityManager}}
+\index{EntityManager@{EntityManager}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{EntityManager}{EntityManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_entity_manager}{Entity\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{struct_uni_engine_1_1_entity_query_a0da2f7b33b8c8e7c95605b9f36c38255}\label{struct_uni_engine_1_1_entity_query_a0da2f7b33b8c8e7c95605b9f36c38255}} 
+\index{UniEngine::EntityQuery@{UniEngine::EntityQuery}!SerializationManager@{SerializationManager}}
+\index{SerializationManager@{SerializationManager}!UniEngine::EntityQuery@{UniEngine::EntityQuery}}
+\doxysubsubsection{\texorpdfstring{SerializationManager}{SerializationManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{Serialization\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+ECS/\mbox{\hyperlink{_entity_8hpp}{Entity.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_entity_manager_8hpp}{Entity\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_entity_8cpp}{Entity.\+cpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_entity_manager_8cpp}{Entity\+Manager.\+cpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,215 @@
+\hypertarget{class_uni_engine_1_1_animator}{}\doxysection{Uni\+Engine\+::Animator Class Reference}
+\label{class_uni_engine_1_1_animator}\index{UniEngine::Animator@{UniEngine::Animator}}
+
+
+{\ttfamily \#include $<$Animator.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Animator\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_animator}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a20e3e4f6326227ac0972b8742ed2a051}{Setup}} (std\+::vector$<$ std\+::string $>$ \&name, std\+::vector$<$ glm\+::mat4 $>$ \&offset\+Matrices)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a2ac4cf4918e595e8aedf0fea4af5fdbd}{Apply\+Offset\+Matrices}} ()
+\item 
+glm\+::mat4 \mbox{\hyperlink{class_uni_engine_1_1_animator_a4b3117b014baf6c2f1f706afb2063517}{Get\+Reverse\+Transform}} (const int \&index, const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&entity)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a0a48913fe904641b2165016246d4316b}{Auto\+Play}} ()
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_animator_a7b59108679032dfee9766dc2a294877f}{Animated\+Current\+Frame}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a70350e8b92098f08448445fafe8cfa2d}{Setup}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ \&target\+Animation)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a4b2c9c138de6389ff091b33e9926c270}{On\+Inspect}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a38e97cb1a3e767ee153a257f550b19f8}{Animate}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a4ecafca9481b67572b5851b9ea0874e2}{Post\+Clone\+Action}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&target) override
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ \mbox{\hyperlink{class_uni_engine_1_1_animator_aa3e7eb722b20321f8ea7134047117bad}{Get\+Animation}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_aecf3c83f58cd1105dd2087c70ee0a40d}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_a19f6646662fbc4d0b55972f63f7cbcf2}{Deserialize}} (const YAML\+::\+Node \&in) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_animator_ab3bdc7147fbcb63fa83a206b40cd01c2}{Collect\+Asset\+Ref}} (std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&list) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_animator_a9021e2c468ea4687bc413de3d825c4a2}{m\+\_\+need\+Animate}} = true
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_animator_abbb7bb4865025f4c3eeb3d52daa631cc}{m\+\_\+auto\+Play}} = false
+\item 
+std\+::string \mbox{\hyperlink{class_uni_engine_1_1_animator_a35b8d39af3ddeb323e26f06990900af8}{m\+\_\+current\+Activated\+Animation}}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_animator_a527314506068368c61c4d5754ac773be}{m\+\_\+current\+Animation\+Time}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_animator_ab1ea7091a50c9aabc6a21ed842f92477}{Skinned\+Mesh\+Renderer}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_animator_a00b7f00c1e25e81e518e5faa334dbe66}{Animation\+Manager}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a38e97cb1a3e767ee153a257f550b19f8}\label{class_uni_engine_1_1_animator_a38e97cb1a3e767ee153a257f550b19f8}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!Animate@{Animate}}
+\index{Animate@{Animate}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{Animate()}{Animate()}}
+{\footnotesize\ttfamily void Animator\+::\+Animate (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a7b59108679032dfee9766dc2a294877f}\label{class_uni_engine_1_1_animator_a7b59108679032dfee9766dc2a294877f}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!AnimatedCurrentFrame@{AnimatedCurrentFrame}}
+\index{AnimatedCurrentFrame@{AnimatedCurrentFrame}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{AnimatedCurrentFrame()}{AnimatedCurrentFrame()}}
+{\footnotesize\ttfamily bool Animator\+::\+Animated\+Current\+Frame (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a2ac4cf4918e595e8aedf0fea4af5fdbd}\label{class_uni_engine_1_1_animator_a2ac4cf4918e595e8aedf0fea4af5fdbd}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!ApplyOffsetMatrices@{ApplyOffsetMatrices}}
+\index{ApplyOffsetMatrices@{ApplyOffsetMatrices}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{ApplyOffsetMatrices()}{ApplyOffsetMatrices()}}
+{\footnotesize\ttfamily void Animator\+::\+Apply\+Offset\+Matrices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a0a48913fe904641b2165016246d4316b}\label{class_uni_engine_1_1_animator_a0a48913fe904641b2165016246d4316b}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!AutoPlay@{AutoPlay}}
+\index{AutoPlay@{AutoPlay}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{AutoPlay()}{AutoPlay()}}
+{\footnotesize\ttfamily void Animator\+::\+Auto\+Play (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_ab3bdc7147fbcb63fa83a206b40cd01c2}\label{class_uni_engine_1_1_animator_ab3bdc7147fbcb63fa83a206b40cd01c2}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!CollectAssetRef@{CollectAssetRef}}
+\index{CollectAssetRef@{CollectAssetRef}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{CollectAssetRef()}{CollectAssetRef()}}
+{\footnotesize\ttfamily void Animator\+::\+Collect\+Asset\+Ref (\begin{DoxyParamCaption}\item[{std\+::vector$<$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} $>$ \&}]{list }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a655a17ca00fa89a9e60e78af267f3446}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a19f6646662fbc4d0b55972f63f7cbcf2}\label{class_uni_engine_1_1_animator_a19f6646662fbc4d0b55972f63f7cbcf2}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Animator\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_aa3e7eb722b20321f8ea7134047117bad}\label{class_uni_engine_1_1_animator_aa3e7eb722b20321f8ea7134047117bad}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!GetAnimation@{GetAnimation}}
+\index{GetAnimation@{GetAnimation}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{GetAnimation()}{GetAnimation()}}
+{\footnotesize\ttfamily std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ Animator\+::\+Get\+Animation (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a4b3117b014baf6c2f1f706afb2063517}\label{class_uni_engine_1_1_animator_a4b3117b014baf6c2f1f706afb2063517}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!GetReverseTransform@{GetReverseTransform}}
+\index{GetReverseTransform@{GetReverseTransform}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{GetReverseTransform()}{GetReverseTransform()}}
+{\footnotesize\ttfamily glm\+::mat4 Animator\+::\+Get\+Reverse\+Transform (\begin{DoxyParamCaption}\item[{const int \&}]{index,  }\item[{const \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&}]{entity }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a4b2c9c138de6389ff091b33e9926c270}\label{class_uni_engine_1_1_animator_a4b2c9c138de6389ff091b33e9926c270}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Animator\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a4ecafca9481b67572b5851b9ea0874e2}\label{class_uni_engine_1_1_animator_a4ecafca9481b67572b5851b9ea0874e2}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!PostCloneAction@{PostCloneAction}}
+\index{PostCloneAction@{PostCloneAction}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{PostCloneAction()}{PostCloneAction()}}
+{\footnotesize\ttfamily void Animator\+::\+Post\+Clone\+Action (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_aecf3c83f58cd1105dd2087c70ee0a40d}\label{class_uni_engine_1_1_animator_aecf3c83f58cd1105dd2087c70ee0a40d}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Animator\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a70350e8b92098f08448445fafe8cfa2d}\label{class_uni_engine_1_1_animator_a70350e8b92098f08448445fafe8cfa2d}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!Setup@{Setup}}
+\index{Setup@{Setup}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{Setup()}{Setup()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Animator\+::\+Setup (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_animation}{Animation}} $>$ \&}]{target\+Animation }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a20e3e4f6326227ac0972b8742ed2a051}\label{class_uni_engine_1_1_animator_a20e3e4f6326227ac0972b8742ed2a051}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!Setup@{Setup}}
+\index{Setup@{Setup}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{Setup()}{Setup()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void Animator\+::\+Setup (\begin{DoxyParamCaption}\item[{std\+::vector$<$ std\+::string $>$ \&}]{name,  }\item[{std\+::vector$<$ glm\+::mat4 $>$ \&}]{offset\+Matrices }\end{DoxyParamCaption})}
+
+Only set offset matrices, so the animator can be used as rag\+Doll. 
+\begin{DoxyParams}{Parameters}
+{\em name} & Name of the bones \\
+\hline
+{\em offset\+Matrices} & The collection of offset matrices. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a00b7f00c1e25e81e518e5faa334dbe66}\label{class_uni_engine_1_1_animator_a00b7f00c1e25e81e518e5faa334dbe66}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!AnimationManager@{AnimationManager}}
+\index{AnimationManager@{AnimationManager}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{AnimationManager}{AnimationManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_animation_manager}{Animation\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_ab1ea7091a50c9aabc6a21ed842f92477}\label{class_uni_engine_1_1_animator_ab1ea7091a50c9aabc6a21ed842f92477}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!SkinnedMeshRenderer@{SkinnedMeshRenderer}}
+\index{SkinnedMeshRenderer@{SkinnedMeshRenderer}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{SkinnedMeshRenderer}{SkinnedMeshRenderer}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_skinned_mesh_renderer}{Skinned\+Mesh\+Renderer}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_abbb7bb4865025f4c3eeb3d52daa631cc}\label{class_uni_engine_1_1_animator_abbb7bb4865025f4c3eeb3d52daa631cc}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!m\_autoPlay@{m\_autoPlay}}
+\index{m\_autoPlay@{m\_autoPlay}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{m\_autoPlay}{m\_autoPlay}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Animator\+::m\+\_\+auto\+Play = false}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a35b8d39af3ddeb323e26f06990900af8}\label{class_uni_engine_1_1_animator_a35b8d39af3ddeb323e26f06990900af8}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!m\_currentActivatedAnimation@{m\_currentActivatedAnimation}}
+\index{m\_currentActivatedAnimation@{m\_currentActivatedAnimation}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{m\_currentActivatedAnimation}{m\_currentActivatedAnimation}}
+{\footnotesize\ttfamily std\+::string Uni\+Engine\+::\+Animator\+::m\+\_\+current\+Activated\+Animation}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a527314506068368c61c4d5754ac773be}\label{class_uni_engine_1_1_animator_a527314506068368c61c4d5754ac773be}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!m\_currentAnimationTime@{m\_currentAnimationTime}}
+\index{m\_currentAnimationTime@{m\_currentAnimationTime}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{m\_currentAnimationTime}{m\_currentAnimationTime}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Animator\+::m\+\_\+current\+Animation\+Time}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_animator_a9021e2c468ea4687bc413de3d825c4a2}\label{class_uni_engine_1_1_animator_a9021e2c468ea4687bc413de3d825c4a2}} 
+\index{UniEngine::Animator@{UniEngine::Animator}!m\_needAnimate@{m\_needAnimate}}
+\index{m\_needAnimate@{m\_needAnimate}!UniEngine::Animator@{UniEngine::Animator}}
+\doxysubsubsection{\texorpdfstring{m\_needAnimate}{m\_needAnimate}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Animator\+::m\+\_\+need\+Animate = true}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Rendering/\mbox{\hyperlink{_animator_8hpp}{Animator.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_animator_8cpp}{Animator.\+cpp}}\end{DoxyCompactItemize}

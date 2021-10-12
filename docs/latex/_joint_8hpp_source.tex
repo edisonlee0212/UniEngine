@@ -1,0 +1,126 @@
+\hypertarget{_joint_8hpp_source}{}\doxysection{Joint.\+hpp}
+\label{_joint_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Physics/Joint.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Physics/Joint.hpp}}
+\mbox{\hyperlink{_joint_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_manager_8hpp}{EntityManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_rigid_body_8hpp}{RigidBody.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_private_component_ref_8hpp}{PrivateComponentRef.hpp}}"{}}}
+\DoxyCodeLine{6 \textcolor{keyword}{using namespace }physx;}
+\DoxyCodeLine{7 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4d}{JointType}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11     \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4da4457d440870ad6d42bab9082d9bf9b61}{Fixed}} = 0,}
+\DoxyCodeLine{12     \textcolor{comment}{/*}}
+\DoxyCodeLine{13 \textcolor{comment}{    Distance,}}
+\DoxyCodeLine{14 \textcolor{comment}{    Spherical,}}
+\DoxyCodeLine{15 \textcolor{comment}{    Revolute,}}
+\DoxyCodeLine{16 \textcolor{comment}{    Prismatic,}}
+\DoxyCodeLine{17 \textcolor{comment}{     */}}
+\DoxyCodeLine{18     \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4dae06ae0fa0b466d7a0d9696a11fc3246a}{D6}} = 1}
+\DoxyCodeLine{19 \};}
+\DoxyCodeLine{20 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46}{MotionAxis}}\{}
+\DoxyCodeLine{21     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46a02129bb861061d1a052c592e2dc6b383}{X}} = 0,}
+\DoxyCodeLine{22     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46a57cec4137b614c87cb4e24a3d003a3e0}{Y}} = 1,}
+\DoxyCodeLine{23     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46a21c2e59531c8710156d34a3c30ac81d5}{Z}} = 2,}
+\DoxyCodeLine{24     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46a1827402be2f9296e2723908d3c226001}{TwistX}} = 3,}
+\DoxyCodeLine{25     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46ab666adc634013471010da3f0ba355f7a}{SwingY}} = 4,}
+\DoxyCodeLine{26     \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46af16415466db7f66767adf8546255762a}{SwingZ}} = 5}
+\DoxyCodeLine{27 \};}
+\DoxyCodeLine{28 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_a0d4aeb247cad89e9d0cb1a2de0464650}{MotionType}}\{}
+\DoxyCodeLine{29     \mbox{\hyperlink{namespace_uni_engine_a0d4aeb247cad89e9d0cb1a2de0464650ad0f2e5376298c880665077b565ffd7dd}{Locked}} = 0,}
+\DoxyCodeLine{30     \mbox{\hyperlink{namespace_uni_engine_a0d4aeb247cad89e9d0cb1a2de0464650a7c2131ec78876ce749c2dadd24d47065}{Limited}} = 1,}
+\DoxyCodeLine{31     \mbox{\hyperlink{namespace_uni_engine_a0d4aeb247cad89e9d0cb1a2de0464650ab24ce0cd392a5b0b8dedc66c25213594}{Free}} = 2}
+\DoxyCodeLine{32 \};}
+\DoxyCodeLine{33 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92}{DriveType}}\{}
+\DoxyCodeLine{34     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92a02129bb861061d1a052c592e2dc6b383}{X}} = 0,}
+\DoxyCodeLine{35     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92a57cec4137b614c87cb4e24a3d003a3e0}{Y}} = 1,}
+\DoxyCodeLine{36     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92a21c2e59531c8710156d34a3c30ac81d5}{Z}} = 2,}
+\DoxyCodeLine{37     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92a198b44a40aa77f2256886010c7526c0b}{Swing}} = 3,}
+\DoxyCodeLine{38     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92aa80d865c12c4d5d9986c33ae4390e1f6}{Twist}} = 4,}
+\DoxyCodeLine{39     \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92abf68bb447fd52e1404334ac5e434ce11}{Slerp}} = 5}
+\DoxyCodeLine{40 \};}
+\DoxyCodeLine{41 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_joint}{Joint}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivateComponent}}}
+\DoxyCodeLine{42 \{}
+\DoxyCodeLine{43     \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4d}{JointType}} m\_jointType = \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4da4457d440870ad6d42bab9082d9bf9b61}{JointType::Fixed}};}
+\DoxyCodeLine{44     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_physics_manager}{PhysicsManager}};}
+\DoxyCodeLine{45     PxJoint *m\_joint;}
+\DoxyCodeLine{46     glm::vec3 m\_localPosition1;}
+\DoxyCodeLine{47     glm::vec3 m\_localPosition2;}
+\DoxyCodeLine{48     glm::quat m\_localRotation1;}
+\DoxyCodeLine{49     glm::quat m\_localRotation2;}
+\DoxyCodeLine{50     \textcolor{keywordtype}{bool} m\_linked = \textcolor{keyword}{false};}
+\DoxyCodeLine{51 \textcolor{preprocessor}{\#pragma region Fixed}}
+\DoxyCodeLine{52     \textcolor{keywordtype}{void} FixedGui();}
+\DoxyCodeLine{53 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{54     \textcolor{comment}{/*}}
+\DoxyCodeLine{55 \textcolor{comment}{\#pragma region Distance}}
+\DoxyCodeLine{56 \textcolor{comment}{    float m\_maxDistance = FLT\_MIN;}}
+\DoxyCodeLine{57 \textcolor{comment}{    float m\_minDistance = FLT\_MAX;}}
+\DoxyCodeLine{58 \textcolor{comment}{    bool m\_maxDistanceEnabled = false;}}
+\DoxyCodeLine{59 \textcolor{comment}{    bool m\_minDistanceEnabled = false;}}
+\DoxyCodeLine{60 \textcolor{comment}{    float m\_stiffness = 0;}}
+\DoxyCodeLine{61 \textcolor{comment}{    float m\_damping = 0;}}
+\DoxyCodeLine{62 \textcolor{comment}{    void SetMax(const float \&value, const bool \&enabled);}}
+\DoxyCodeLine{63 \textcolor{comment}{    void SetMin(const float \&value, const bool \&enabled);}}
+\DoxyCodeLine{64 \textcolor{comment}{    void SetStiffness(const float \&value);}}
+\DoxyCodeLine{65 \textcolor{comment}{    void SetDamping(const float \&value);}}
+\DoxyCodeLine{66 \textcolor{comment}{    void DistanceGui();}}
+\DoxyCodeLine{67 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{68 \textcolor{comment}{\#pragma region Spherical}}
+\DoxyCodeLine{69 \textcolor{comment}{    void SphericalGui();}}
+\DoxyCodeLine{70 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{71 \textcolor{comment}{\#pragma region Revolute}}
+\DoxyCodeLine{72 \textcolor{comment}{    void RevoluteGui();}}
+\DoxyCodeLine{73 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{74 \textcolor{comment}{\#pragma region Prismatic}}
+\DoxyCodeLine{75 \textcolor{comment}{    void PrismaticGui();}}
+\DoxyCodeLine{76 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{77 \textcolor{comment}{     */}}
+\DoxyCodeLine{78 \textcolor{preprocessor}{\#pragma region D6}}
+\DoxyCodeLine{79     PxD6Motion::Enum m\_motionTypes[6] = \{ PxD6Motion::Enum::eLOCKED \};}
+\DoxyCodeLine{80     PxD6JointDrive m\_drives[6] = \{ PxD6JointDrive() \};}
+\DoxyCodeLine{81     \textcolor{keywordtype}{void} D6Gui();}
+\DoxyCodeLine{82 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{83     \textcolor{keywordtype}{bool} TypeCheck(\textcolor{keyword}{const} \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4d}{JointType}} \&type);}
+\DoxyCodeLine{84 }
+\DoxyCodeLine{85   \textcolor{keyword}{public}:}
+\DoxyCodeLine{86     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \mbox{\hyperlink{class_uni_engine_1_1_joint_a7c7de39b82648c65f5a56568434b51c3}{m\_rigidBody1}};}
+\DoxyCodeLine{87     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \mbox{\hyperlink{class_uni_engine_1_1_joint_a40230663eefb2222b46993c1cf4b7ee2}{m\_rigidBody2}};}
+\DoxyCodeLine{88 \textcolor{comment}{/*}}
+\DoxyCodeLine{89 \textcolor{comment}{\#pragma region Fixed}}
+\DoxyCodeLine{90 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{91 \textcolor{comment}{\#pragma region Distance}}
+\DoxyCodeLine{92 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{93 \textcolor{comment}{\#pragma region Spherical}}
+\DoxyCodeLine{94 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{95 \textcolor{comment}{\#pragma region Revolute}}
+\DoxyCodeLine{96 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{97 \textcolor{comment}{\#pragma region Prismatic}}
+\DoxyCodeLine{98 \textcolor{comment}{\#pragma endregion}}
+\DoxyCodeLine{99 \textcolor{comment}{ */}}
+\DoxyCodeLine{100 \textcolor{preprocessor}{\#pragma region D6}}
+\DoxyCodeLine{101     \textcolor{keywordtype}{void} SetMotion(\textcolor{keyword}{const} \mbox{\hyperlink{namespace_uni_engine_a3148f037a193cc565081a885180ccf46}{MotionAxis}}\& axis, \textcolor{keyword}{const} \mbox{\hyperlink{namespace_uni_engine_a0d4aeb247cad89e9d0cb1a2de0464650}{MotionType}}\& type);}
+\DoxyCodeLine{102     \textcolor{keywordtype}{void} SetDistanceLimit(\textcolor{keyword}{const} \textcolor{keywordtype}{float}\& toleranceLength, \textcolor{keyword}{const} \textcolor{keywordtype}{float}\& toleranceSpeed, \textcolor{keyword}{const} \textcolor{keywordtype}{float}\& extent, \textcolor{keyword}{const} \textcolor{keywordtype}{float}\& contactDist = -\/1.0f);}
+\DoxyCodeLine{103     \textcolor{keywordtype}{void} SetDrive(\textcolor{keyword}{const} \mbox{\hyperlink{namespace_uni_engine_aee8a0720188bb5d0dfba11ac4b89ff92}{DriveType}}\& type, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&stiffness, \textcolor{keyword}{const} \textcolor{keywordtype}{float} \&damping, \textcolor{keyword}{const} \textcolor{keywordtype}{bool} \&isAcceleration = \textcolor{keyword}{true});}
+\DoxyCodeLine{104 \textcolor{preprocessor}{\#pragma endregion}}
+\DoxyCodeLine{105     \textcolor{keywordtype}{void} SetType(\textcolor{keyword}{const} \mbox{\hyperlink{namespace_uni_engine_a7f252e848bc7972d07219600d3410e4d}{JointType}} \&type);}
+\DoxyCodeLine{106     \textcolor{keywordtype}{void} Unlink();}
+\DoxyCodeLine{107     \textcolor{keywordtype}{bool} Linked();}
+\DoxyCodeLine{108     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{109 }
+\DoxyCodeLine{110     \textcolor{keywordtype}{void} Link(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}}\& entity);}
+\DoxyCodeLine{111     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{112     \textcolor{keywordtype}{void} OnDestroy() \textcolor{keyword}{override};}
+\DoxyCodeLine{113 }
+\DoxyCodeLine{114     \textcolor{keywordtype}{void} Relink(\textcolor{keyword}{const} std::unordered\_map<Handle, Handle> \&map, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}\& newSceneHandle) \textcolor{keyword}{override};}
+\DoxyCodeLine{115     \textcolor{keywordtype}{void} PostCloneAction(\textcolor{keyword}{const} std::shared\_ptr<IPrivateComponent>\& target) \textcolor{keyword}{override};}
+\DoxyCodeLine{116 }
+\DoxyCodeLine{117     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{118     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{119 \};}
+\DoxyCodeLine{120 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

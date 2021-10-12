@@ -1,0 +1,140 @@
+\hypertarget{_private_component_ref_8hpp_source}{}\doxysection{Private\+Component\+Ref.\+hpp}
+\label{_private_component_ref_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/PrivateComponentRef.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/PrivateComponentRef.hpp}}
+\mbox{\hyperlink{_private_component_ref_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_serializable_8hpp}{ISerializable.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_private_component_8hpp}{IPrivateComponent.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{_serialization_manager_8hpp}{SerializationManager.hpp}}"{}}}
+\DoxyCodeLine{7 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_serializable}{ISerializable}}}
+\DoxyCodeLine{10 \{}
+\DoxyCodeLine{11     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{12     std::optional<std::weak\_ptr<IPrivateComponent>> m\_value;}
+\DoxyCodeLine{13     \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} m\_entityHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{14     std::string m\_privateComponentTypeName;}
+\DoxyCodeLine{15     \textcolor{keywordtype}{bool} Update();}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17   \textcolor{keyword}{public}:}
+\DoxyCodeLine{18     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&operator=(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&other);}
+\DoxyCodeLine{19     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a766dcc75a5c5050a98ec356dad4f1b6a}{Serialize}}(YAML::Emitter \&out)\textcolor{keyword}{ override}}
+\DoxyCodeLine{20 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{21         out << YAML::Key << \textcolor{stringliteral}{"{}m\_entityHandle"{}} << YAML::Value << m\_entityHandle;}
+\DoxyCodeLine{22         out << YAML::Key << \textcolor{stringliteral}{"{}m\_privateComponentTypeName"{}} << YAML::Value << m\_privateComponentTypeName;}
+\DoxyCodeLine{23     \}}
+\DoxyCodeLine{24     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a11a267236f5073cb7685774f61046126}{Deserialize}}(\textcolor{keyword}{const} YAML::Node \&in)\textcolor{keyword}{ override}}
+\DoxyCodeLine{25 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{26         m\_entityHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(in[\textcolor{stringliteral}{"{}m\_entityHandle"{}}].as<uint64\_t>());}
+\DoxyCodeLine{27         m\_privateComponentTypeName = in[\textcolor{stringliteral}{"{}m\_privateComponentTypeName"{}}].as<std::string>();}
+\DoxyCodeLine{28     \}}
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_aacda9d3372cd39059426b49ae8e965d8}{PrivateComponentRef}}()}
+\DoxyCodeLine{31     \{}
+\DoxyCodeLine{32         m\_entityHandle = \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}}(0);}
+\DoxyCodeLine{33         m\_privateComponentTypeName = \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{34     \}}
+\DoxyCodeLine{35     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ace39b91aad1b7e394d9de6c0022b4b32}{PrivateComponentRef}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)}
+\DoxyCodeLine{36     \{}
+\DoxyCodeLine{37         Set(other);}
+\DoxyCodeLine{38     \}}
+\DoxyCodeLine{39     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ab18f196eda66493b518fcc284dbff6e3}{operator=}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&other)}
+\DoxyCodeLine{40     \{}
+\DoxyCodeLine{41         Set(other);}
+\DoxyCodeLine{42         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{43     \}}
+\DoxyCodeLine{44     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&\mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a9a8cdc9091a495ecefb98234b5571169}{operator=}}(std::shared\_ptr<T> \&\&other) \textcolor{keyword}{noexcept}}
+\DoxyCodeLine{45     \{}
+\DoxyCodeLine{46         Set(other);}
+\DoxyCodeLine{47         \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{48     \}}
+\DoxyCodeLine{49 }
+\DoxyCodeLine{50     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a8dfec57a7658ff88da8438d573671128}{operator==}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{51 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{52         \textcolor{keywordflow}{return} m\_entityHandle == rhs.m\_entityHandle;}
+\DoxyCodeLine{53     \}}
+\DoxyCodeLine{54     \textcolor{keywordtype}{bool} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a59a5953dd224b8982bea8640430da932}{operator!=}}(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \&rhs)\textcolor{keyword}{ const}}
+\DoxyCodeLine{55 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{56         \textcolor{keywordflow}{return} m\_entityHandle != rhs.m\_entityHandle;}
+\DoxyCodeLine{57     \}}
+\DoxyCodeLine{58 }
+\DoxyCodeLine{59     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ade2a7e9ff5e42fa29b37a260402e11bb}{Relink}}(\textcolor{keyword}{const} std::unordered\_map<Handle, Handle> \&map, \textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \&newSceneHandle)}
+\DoxyCodeLine{60     \{}
+\DoxyCodeLine{61         \textcolor{keyword}{auto} search = map.find(m\_entityHandle);}
+\DoxyCodeLine{62         \textcolor{keywordflow}{if} (search != map.end())}
+\DoxyCodeLine{63         \{}
+\DoxyCodeLine{64             m\_entityHandle = search-\/>second;}
+\DoxyCodeLine{65             m\_value.reset();}
+\DoxyCodeLine{66         \}}
+\DoxyCodeLine{67         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{68             Clear();}
+\DoxyCodeLine{69     \};}
+\DoxyCodeLine{70 }
+\DoxyCodeLine{71     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> [[nodiscard]] std::shared\_ptr<T> \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ad543ceef3fd7d42680cb9f4c2be9a756}{Get}}()}
+\DoxyCodeLine{72     \{}
+\DoxyCodeLine{73         \textcolor{keywordflow}{if} (Update())}
+\DoxyCodeLine{74         \{}
+\DoxyCodeLine{75             \textcolor{keywordflow}{return} std::static\_pointer\_cast<T>(m\_value.value().lock());}
+\DoxyCodeLine{76         \}}
+\DoxyCodeLine{77         \textcolor{keywordflow}{return} \textcolor{keyword}{nullptr};}
+\DoxyCodeLine{78     \}}
+\DoxyCodeLine{79     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a7b7379242eb200c3ba00c528859b64d6}{Set}}(\textcolor{keyword}{const} std::shared\_ptr<T> \&target)}
+\DoxyCodeLine{80     \{}
+\DoxyCodeLine{81         \textcolor{keywordflow}{if} (target)}
+\DoxyCodeLine{82         \{}
+\DoxyCodeLine{83             \textcolor{keyword}{auto} privateComponent = std::dynamic\_pointer\_cast<IPrivateComponent>(target);}
+\DoxyCodeLine{84             m\_privateComponentTypeName = privateComponent-\/>GetTypeName();}
+\DoxyCodeLine{85             m\_entityHandle = privateComponent-\/>GetOwner().GetHandle();}
+\DoxyCodeLine{86             m\_value = privateComponent;}
+\DoxyCodeLine{87         \}}
+\DoxyCodeLine{88         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{89         \{}
+\DoxyCodeLine{90             Clear();}
+\DoxyCodeLine{91         \}}
+\DoxyCodeLine{92     \}}
+\DoxyCodeLine{93 }
+\DoxyCodeLine{94     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_aeb27e80a07eefbe39c2689846352ff1a}{Set}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}} \&target)}
+\DoxyCodeLine{95     \{}
+\DoxyCodeLine{96         \textcolor{keywordflow}{if} (!target.\mbox{\hyperlink{struct_uni_engine_1_1_entity_ae0be31e19923d6f2f9062e91c97c9c93}{IsValid}}())}
+\DoxyCodeLine{97         \{}
+\DoxyCodeLine{98             UNIENGINE\_WARNING(\textcolor{stringliteral}{"{}Entity invalid!"{}});}
+\DoxyCodeLine{99             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{100         \}}
+\DoxyCodeLine{101         \textcolor{keywordflow}{if} (target.\mbox{\hyperlink{struct_uni_engine_1_1_entity_a8e0a089a1c16d54896298ef5349ef819}{HasPrivateComponent}}<T>())}
+\DoxyCodeLine{102         \{}
+\DoxyCodeLine{103             \textcolor{keyword}{auto} pc = target.\mbox{\hyperlink{struct_uni_engine_1_1_entity_addb4214dfdff5d05a9c055734d6c0834}{GetOrSetPrivateComponent}}<T>().lock();}
+\DoxyCodeLine{104             m\_privateComponentTypeName = pc-\/>GetTypeName();}
+\DoxyCodeLine{105             \textcolor{keyword}{auto} entity = std::dynamic\_pointer\_cast<IPrivateComponent>(pc)-\/>GetOwner();}
+\DoxyCodeLine{106             m\_entityHandle = entity.GetHandle();}
+\DoxyCodeLine{107             m\_value = pc;}
+\DoxyCodeLine{108         \}}
+\DoxyCodeLine{109         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{110         \{}
+\DoxyCodeLine{111             UNIENGINE\_WARNING(\textcolor{stringliteral}{"{}Entity doesn't contain "{}} + SerializationManager::GetSerializableTypeName<T>() + \textcolor{stringliteral}{"{}!"{}});}
+\DoxyCodeLine{112             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{113         \}}
+\DoxyCodeLine{114     \}}
+\DoxyCodeLine{115 }
+\DoxyCodeLine{116     \textcolor{keywordtype}{void} Clear();}
+\DoxyCodeLine{117 }
+\DoxyCodeLine{118     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_ad43a0ca022948bdb6e4589aa2e69a2d1}{GetEntityHandle}}()\textcolor{keyword}{ const}}
+\DoxyCodeLine{119 \textcolor{keyword}{    }\{}
+\DoxyCodeLine{120         \textcolor{keywordflow}{return} m\_entityHandle;}
+\DoxyCodeLine{121     \}}
+\DoxyCodeLine{122 }
+\DoxyCodeLine{123     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_adf84cf920b0b1de250174d6b315aa965}{Save}}(\textcolor{keyword}{const} std::string \&name, YAML::Emitter \&out)}
+\DoxyCodeLine{124     \{}
+\DoxyCodeLine{125         out << YAML::Key << name << YAML::Value << YAML::BeginMap;}
+\DoxyCodeLine{126         Serialize(out);}
+\DoxyCodeLine{127         out << YAML::EndMap;}
+\DoxyCodeLine{128     \}}
+\DoxyCodeLine{129     \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref_a2e809c405f0a547d9cab14eac0f282b6}{Load}}(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} YAML::Node \&in)}
+\DoxyCodeLine{130     \{}
+\DoxyCodeLine{131         Deserialize(in[name]);}
+\DoxyCodeLine{132     \}}
+\DoxyCodeLine{133 \};}
+\DoxyCodeLine{134 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

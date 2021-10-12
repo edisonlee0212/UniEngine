@@ -1,0 +1,178 @@
+\hypertarget{class_uni_engine_1_1_point_cloud}{}\doxysection{Uni\+Engine\+::Point\+Cloud Class Reference}
+\label{class_uni_engine_1_1_point_cloud}\index{UniEngine::PointCloud@{UniEngine::PointCloud}}
+
+
+{\ttfamily \#include $<$Point\+Cloud.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Point\+Cloud\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_uni_engine_1_1_point_cloud}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a033c8de6c6915c21738b97f3337e3448}{On\+Create}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ac8f32b095591fd4bf03a5ed74771268e}{Load}} (const std\+::filesystem\+::path \&path)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ab398927726daa3a1205db15ca4190f95}{Save}} (const std\+::filesystem\+::path \&path)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a53acec8bccc9a3438c18f5d273d12ad2}{Post\+Clone\+Action}} (const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&target) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ae4cd2ef1035f083e07ef1dd4d4569cf4}{On\+Inspect}} () override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a9f99a2b717a172f72f09b4629846d870}{Compress}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a90454821dbe687afc95bed106db952b3}{Apply\+Compressed}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_aae1c3667bd698db9510dfe5a928b8e33}{Apply\+Original}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a1d4aea0403707548ab536217d9ebf9ec}{Recalculate\+Bounding\+Box}} ()
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ab1cba6e207a92dd9d4d3595111927789}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a7cb471bb7393200d0444dd76e4f78419}{Deserialize}} (const YAML\+::\+Node \&in) override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::vector$<$ glm\+::vec3 $>$ \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ae295f51bbfe6dbfbcb95d71955b324e3}{m\+\_\+compressed}}
+\item 
+std\+::vector$<$ glm\+::vec3 $>$ \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ad05e3024a3a36a80c49519909c4731af}{m\+\_\+points}}
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a79d75ee20da97eaf66afee973b390ddc}{m\+\_\+point\+Size}} = 1.\+0f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_ae9991e7ed745bbc772cfd0e4cb37f8ac}{m\+\_\+compress\+Factor}} = 50.\+0f
+\item 
+float \mbox{\hyperlink{class_uni_engine_1_1_point_cloud_a190b542e4f13fc13c004e5cabde81231}{m\+\_\+scale}} = 1.\+0f
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a90454821dbe687afc95bed106db952b3}\label{class_uni_engine_1_1_point_cloud_a90454821dbe687afc95bed106db952b3}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!ApplyCompressed@{ApplyCompressed}}
+\index{ApplyCompressed@{ApplyCompressed}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{ApplyCompressed()}{ApplyCompressed()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Apply\+Compressed (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_aae1c3667bd698db9510dfe5a928b8e33}\label{class_uni_engine_1_1_point_cloud_aae1c3667bd698db9510dfe5a928b8e33}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!ApplyOriginal@{ApplyOriginal}}
+\index{ApplyOriginal@{ApplyOriginal}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{ApplyOriginal()}{ApplyOriginal()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Apply\+Original (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a9f99a2b717a172f72f09b4629846d870}\label{class_uni_engine_1_1_point_cloud_a9f99a2b717a172f72f09b4629846d870}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!Compress@{Compress}}
+\index{Compress@{Compress}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{Compress()}{Compress()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Compress (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a7cb471bb7393200d0444dd76e4f78419}\label{class_uni_engine_1_1_point_cloud_a7cb471bb7393200d0444dd76e4f78419}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ac8f32b095591fd4bf03a5ed74771268e}\label{class_uni_engine_1_1_point_cloud_ac8f32b095591fd4bf03a5ed74771268e}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!Load@{Load}}
+\index{Load@{Load}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{Load()}{Load()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Load (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a033c8de6c6915c21738b97f3337e3448}\label{class_uni_engine_1_1_point_cloud_a033c8de6c6915c21738b97f3337e3448}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!OnCreate@{OnCreate}}
+\index{OnCreate@{OnCreate}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{OnCreate()}{OnCreate()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+On\+Create (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a21962b7394ee220e0d31c15d80ddbc9f}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ae4cd2ef1035f083e07ef1dd4d4569cf4}\label{class_uni_engine_1_1_point_cloud_ae4cd2ef1035f083e07ef1dd4d4569cf4}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_af37201693011cdbc13453aa9cb500092}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a53acec8bccc9a3438c18f5d273d12ad2}\label{class_uni_engine_1_1_point_cloud_a53acec8bccc9a3438c18f5d273d12ad2}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!PostCloneAction@{PostCloneAction}}
+\index{PostCloneAction@{PostCloneAction}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{PostCloneAction()}{PostCloneAction()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Post\+Clone\+Action (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_uni_engine_1_1_i_private_component}{IPrivate\+Component}} $>$ \&}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_private_component_a81bc12b5a6dc8cd50e7969330baeca0b}{Uni\+Engine\+::\+IPrivate\+Component}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a1d4aea0403707548ab536217d9ebf9ec}\label{class_uni_engine_1_1_point_cloud_a1d4aea0403707548ab536217d9ebf9ec}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!RecalculateBoundingBox@{RecalculateBoundingBox}}
+\index{RecalculateBoundingBox@{RecalculateBoundingBox}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{RecalculateBoundingBox()}{RecalculateBoundingBox()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Recalculate\+Bounding\+Box (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ab398927726daa3a1205db15ca4190f95}\label{class_uni_engine_1_1_point_cloud_ab398927726daa3a1205db15ca4190f95}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!Save@{Save}}
+\index{Save@{Save}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{Save()}{Save()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Save (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ab1cba6e207a92dd9d4d3595111927789}\label{class_uni_engine_1_1_point_cloud_ab1cba6e207a92dd9d4d3595111927789}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Point\+Cloud\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ae295f51bbfe6dbfbcb95d71955b324e3}\label{class_uni_engine_1_1_point_cloud_ae295f51bbfe6dbfbcb95d71955b324e3}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!m\_compressed@{m\_compressed}}
+\index{m\_compressed@{m\_compressed}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{m\_compressed}{m\_compressed}}
+{\footnotesize\ttfamily std\+::vector$<$glm\+::vec3$>$ Uni\+Engine\+::\+Point\+Cloud\+::m\+\_\+compressed}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ae9991e7ed745bbc772cfd0e4cb37f8ac}\label{class_uni_engine_1_1_point_cloud_ae9991e7ed745bbc772cfd0e4cb37f8ac}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!m\_compressFactor@{m\_compressFactor}}
+\index{m\_compressFactor@{m\_compressFactor}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{m\_compressFactor}{m\_compressFactor}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Point\+Cloud\+::m\+\_\+compress\+Factor = 50.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_ad05e3024a3a36a80c49519909c4731af}\label{class_uni_engine_1_1_point_cloud_ad05e3024a3a36a80c49519909c4731af}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!m\_points@{m\_points}}
+\index{m\_points@{m\_points}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{m\_points}{m\_points}}
+{\footnotesize\ttfamily std\+::vector$<$glm\+::vec3$>$ Uni\+Engine\+::\+Point\+Cloud\+::m\+\_\+points}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a79d75ee20da97eaf66afee973b390ddc}\label{class_uni_engine_1_1_point_cloud_a79d75ee20da97eaf66afee973b390ddc}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!m\_pointSize@{m\_pointSize}}
+\index{m\_pointSize@{m\_pointSize}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{m\_pointSize}{m\_pointSize}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Point\+Cloud\+::m\+\_\+point\+Size = 1.\+0f}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_point_cloud_a190b542e4f13fc13c004e5cabde81231}\label{class_uni_engine_1_1_point_cloud_a190b542e4f13fc13c004e5cabde81231}} 
+\index{UniEngine::PointCloud@{UniEngine::PointCloud}!m\_scale@{m\_scale}}
+\index{m\_scale@{m\_scale}!UniEngine::PointCloud@{UniEngine::PointCloud}}
+\doxysubsubsection{\texorpdfstring{m\_scale}{m\_scale}}
+{\footnotesize\ttfamily float Uni\+Engine\+::\+Point\+Cloud\+::m\+\_\+scale = 1.\+0f}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Utilities/\mbox{\hyperlink{_point_cloud_8hpp}{Point\+Cloud.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_point_cloud_8cpp}{Point\+Cloud.\+cpp}}\end{DoxyCompactItemize}

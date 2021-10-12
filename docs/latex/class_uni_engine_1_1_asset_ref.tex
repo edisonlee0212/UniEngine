@@ -1,0 +1,198 @@
+\hypertarget{class_uni_engine_1_1_asset_ref}{}\doxysection{Uni\+Engine\+::Asset\+Ref Class Reference}
+\label{class_uni_engine_1_1_asset_ref}\index{UniEngine::AssetRef@{UniEngine::AssetRef}}
+
+
+{\ttfamily \#include $<$IAsset.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Asset\+Ref\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_uni_engine_1_1_asset_ref}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a321ae8a000ab463270fe651d68047af9}{Serialize}} (YAML\+::\+Emitter \&out) override
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a9362d54905fa047702bc7142f21480ff}{Deserialize}} (const YAML\+::\+Node \&in) override
+\item 
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ae2b16dbf21b0d10e74cc57b6f4d18484}{Asset\+Ref}} ()
+\item 
+{\footnotesize template$<$typename T  = IAsset$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a47f8d17024a2cfe566e7ea2a0d91802d}{Asset\+Ref}} (const std\+::shared\+\_\+ptr$<$ T $>$ \&other)
+\item 
+{\footnotesize template$<$typename T  = IAsset$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \& \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_aa2e14463014dc5fc5b1cc033acd4368e}{operator=}} (const std\+::shared\+\_\+ptr$<$ T $>$ \&other)
+\item 
+{\footnotesize template$<$typename T  = IAsset$>$ }\\\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \& \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a02f12afef2ca12f9cd4a489520d21216}{operator=}} (std\+::shared\+\_\+ptr$<$ T $>$ \&\&other) noexcept
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a6052b94d8362f289b4ee1d190a20e59c}{operator==}} (const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&rhs) const
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a0fff62193145ea4c026f2e34c2c62100}{operator!=}} (const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&rhs) const
+\item 
+{\footnotesize template$<$typename T  = IAsset$>$ }\\std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8756974a2165e46af41729a4cdaa389}{Get}} ()
+\item 
+{\footnotesize template$<$typename T  = IAsset$>$ }\\void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a341f67f26eac7fb928d8b6d67863fd93}{Set}} (std\+::shared\+\_\+ptr$<$ T $>$ target)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_abecb73417f1355f3e1056680f0ea6a98}{Set}} (const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&target)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ad8e901b99399a25bdb4836a972332d18}{Clear}} ()
+\item 
+\mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a7649b3778437028c8052241ff4d2ef5c}{Get\+Asset\+Handle}} () const
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a379b76b7e3336d613d0d9ebd4fb5e02b}{Save}} (const std\+::string \&name, YAML\+::\+Emitter \&out)
+\item 
+void \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_aaf47a39c54b364e1414935c46d997663}{Load}} (const std\+::string \&name, const YAML\+::\+Node \&in)
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a3b30df5376ee3debefc95100be808d9b}{Prefab}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_a7aa96bc4f81b0d0c023b6d0cbf31f944}{Project}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_ab4a07d61ba268f3670d11194a067ede4}{Editor\+Manager}}
+\item 
+class \mbox{\hyperlink{class_uni_engine_1_1_asset_ref_aafe72876a584aedb5a5546d4fe7746fb}{Asset\+Manager}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_ae2b16dbf21b0d10e74cc57b6f4d18484}\label{class_uni_engine_1_1_asset_ref_ae2b16dbf21b0d10e74cc57b6f4d18484}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!AssetRef@{AssetRef}}
+\index{AssetRef@{AssetRef}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{AssetRef()}{AssetRef()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily Uni\+Engine\+::\+Asset\+Ref\+::\+Asset\+Ref (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a47f8d17024a2cfe566e7ea2a0d91802d}\label{class_uni_engine_1_1_asset_ref_a47f8d17024a2cfe566e7ea2a0d91802d}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!AssetRef@{AssetRef}}
+\index{AssetRef@{AssetRef}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{AssetRef()}{AssetRef()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T  = IAsset$>$ \\
+Uni\+Engine\+::\+Asset\+Ref\+::\+Asset\+Ref (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ T $>$ \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_ad8e901b99399a25bdb4836a972332d18}\label{class_uni_engine_1_1_asset_ref_ad8e901b99399a25bdb4836a972332d18}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Clear@{Clear}}
+\index{Clear@{Clear}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Clear()}{Clear()}}
+{\footnotesize\ttfamily void Asset\+Ref\+::\+Clear (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a9362d54905fa047702bc7142f21480ff}\label{class_uni_engine_1_1_asset_ref_a9362d54905fa047702bc7142f21480ff}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Deserialize@{Deserialize}}
+\index{Deserialize@{Deserialize}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Deserialize()}{Deserialize()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Asset\+Ref\+::\+Deserialize (\begin{DoxyParamCaption}\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a5a8dabaa62e5b7db33ade2999b7cd7bd}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_ad8756974a2165e46af41729a4cdaa389}\label{class_uni_engine_1_1_asset_ref_ad8756974a2165e46af41729a4cdaa389}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Get@{Get}}
+\index{Get@{Get}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Get()}{Get()}}
+{\footnotesize\ttfamily template$<$typename T  = IAsset$>$ \\
+std\+::shared\+\_\+ptr$<$ T $>$ Uni\+Engine\+::\+Asset\+Ref\+::\+Get (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a7649b3778437028c8052241ff4d2ef5c}\label{class_uni_engine_1_1_asset_ref_a7649b3778437028c8052241ff4d2ef5c}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!GetAssetHandle@{GetAssetHandle}}
+\index{GetAssetHandle@{GetAssetHandle}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{GetAssetHandle()}{GetAssetHandle()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_uni_engine_1_1_handle}{Handle}} Uni\+Engine\+::\+Asset\+Ref\+::\+Get\+Asset\+Handle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_aaf47a39c54b364e1414935c46d997663}\label{class_uni_engine_1_1_asset_ref_aaf47a39c54b364e1414935c46d997663}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Load@{Load}}
+\index{Load@{Load}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Load()}{Load()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Asset\+Ref\+::\+Load (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{const YAML\+::\+Node \&}]{in }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a0fff62193145ea4c026f2e34c2c62100}\label{class_uni_engine_1_1_asset_ref_a0fff62193145ea4c026f2e34c2c62100}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!operator"!=@{operator"!=}}
+\index{operator"!=@{operator"!=}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{operator"!=()}{operator!=()}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Asset\+Ref\+::operator!= (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&}]{rhs }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_aa2e14463014dc5fc5b1cc033acd4368e}\label{class_uni_engine_1_1_asset_ref_aa2e14463014dc5fc5b1cc033acd4368e}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!operator=@{operator=}}
+\index{operator=@{operator=}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename T  = IAsset$>$ \\
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \& Uni\+Engine\+::\+Asset\+Ref\+::operator= (\begin{DoxyParamCaption}\item[{const std\+::shared\+\_\+ptr$<$ T $>$ \&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a02f12afef2ca12f9cd4a489520d21216}\label{class_uni_engine_1_1_asset_ref_a02f12afef2ca12f9cd4a489520d21216}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!operator=@{operator=}}
+\index{operator=@{operator=}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{operator=()}{operator=()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T  = IAsset$>$ \\
+\mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \& Uni\+Engine\+::\+Asset\+Ref\+::operator= (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ T $>$ \&\&}]{other }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [noexcept]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a6052b94d8362f289b4ee1d190a20e59c}\label{class_uni_engine_1_1_asset_ref_a6052b94d8362f289b4ee1d190a20e59c}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!operator==@{operator==}}
+\index{operator==@{operator==}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Asset\+Ref\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&}]{rhs }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a379b76b7e3336d613d0d9ebd4fb5e02b}\label{class_uni_engine_1_1_asset_ref_a379b76b7e3336d613d0d9ebd4fb5e02b}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Save@{Save}}
+\index{Save@{Save}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Save()}{Save()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Asset\+Ref\+::\+Save (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name,  }\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a321ae8a000ab463270fe651d68047af9}\label{class_uni_engine_1_1_asset_ref_a321ae8a000ab463270fe651d68047af9}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Serialize@{Serialize}}
+\index{Serialize@{Serialize}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Serialize()}{Serialize()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Asset\+Ref\+::\+Serialize (\begin{DoxyParamCaption}\item[{YAML\+::\+Emitter \&}]{out }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_uni_engine_1_1_i_serializable_a2e43cca0b15f1c143b32e9007fb12335}{Uni\+Engine\+::\+ISerializable}}.
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_abecb73417f1355f3e1056680f0ea6a98}\label{class_uni_engine_1_1_asset_ref_abecb73417f1355f3e1056680f0ea6a98}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Set@{Set}}
+\index{Set@{Set}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Set()}{Set()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void Asset\+Ref\+::\+Set (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{Asset\+Ref}} \&}]{target }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a341f67f26eac7fb928d8b6d67863fd93}\label{class_uni_engine_1_1_asset_ref_a341f67f26eac7fb928d8b6d67863fd93}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Set@{Set}}
+\index{Set@{Set}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Set()}{Set()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename T  = IAsset$>$ \\
+void Uni\+Engine\+::\+Asset\+Ref\+::\+Set (\begin{DoxyParamCaption}\item[{std\+::shared\+\_\+ptr$<$ T $>$}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_aafe72876a584aedb5a5546d4fe7746fb}\label{class_uni_engine_1_1_asset_ref_aafe72876a584aedb5a5546d4fe7746fb}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!AssetManager@{AssetManager}}
+\index{AssetManager@{AssetManager}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{AssetManager}{AssetManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_asset_manager}{Asset\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_ab4a07d61ba268f3670d11194a067ede4}\label{class_uni_engine_1_1_asset_ref_ab4a07d61ba268f3670d11194a067ede4}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!EditorManager@{EditorManager}}
+\index{EditorManager@{EditorManager}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{EditorManager}{EditorManager}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{Editor\+Manager}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a3b30df5376ee3debefc95100be808d9b}\label{class_uni_engine_1_1_asset_ref_a3b30df5376ee3debefc95100be808d9b}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Prefab@{Prefab}}
+\index{Prefab@{Prefab}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Prefab}{Prefab}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_asset_ref_a7aa96bc4f81b0d0c023b6d0cbf31f944}\label{class_uni_engine_1_1_asset_ref_a7aa96bc4f81b0d0c023b6d0cbf31f944}} 
+\index{UniEngine::AssetRef@{UniEngine::AssetRef}!Project@{Project}}
+\index{Project@{Project}!UniEngine::AssetRef@{UniEngine::AssetRef}}
+\doxysubsubsection{\texorpdfstring{Project}{Project}}
+{\footnotesize\ttfamily friend class \mbox{\hyperlink{class_uni_engine_1_1_project}{Project}}\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Core/\mbox{\hyperlink{_i_asset_8hpp}{IAsset.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_i_asset_8cpp}{IAsset.\+cpp}}\end{DoxyCompactItemize}

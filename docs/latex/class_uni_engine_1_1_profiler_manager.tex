@@ -1,0 +1,97 @@
+\hypertarget{class_uni_engine_1_1_profiler_manager}{}\doxysection{Uni\+Engine\+::Profiler\+Manager Class Reference}
+\label{class_uni_engine_1_1_profiler_manager}\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+
+
+{\ttfamily \#include $<$Profiler\+Manager.\+hpp$>$}
+
+Inheritance diagram for Uni\+Engine\+::Profiler\+Manager\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_uni_engine_1_1_profiler_manager}
+\end{center}
+\end{figure}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$class T  = IProfiler$>$ }\\static std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_ade4b94039e2332c79faf57faff343449}{Get\+Or\+Create\+Profiler}} (const std\+::string \&name)
+\item 
+{\footnotesize template$<$class T  = IProfiler$>$ }\\static std\+::shared\+\_\+ptr$<$ T $>$ \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_ab2ab726bd5c0911d302553e063e97717}{Get\+Profiler}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_a476d6cf4dbfc26aa4062dc0a96f27bb4}{Pre\+Update}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_aed6b5c023fd68d89542790ff673f45c7}{Late\+Update}} ()
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_a7d9db0edf12f8472f2c584ced3fe772b}{Start\+Event}} (const std\+::string \&name)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_a5114704d19fed4ff416a831978e32be0}{End\+Event}} (const std\+::string \&name)
+\item 
+static void \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_abb49c125a65676844a213b00321f66e2}{On\+Inspect}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{class_uni_engine_1_1_profiler_manager_a2347cfd1ff80084d0843985b9c5dcd48}{m\+\_\+gui}} = true
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_a5114704d19fed4ff416a831978e32be0}\label{class_uni_engine_1_1_profiler_manager_a5114704d19fed4ff416a831978e32be0}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!EndEvent@{EndEvent}}
+\index{EndEvent@{EndEvent}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{EndEvent()}{EndEvent()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Profiler\+Manager\+::\+End\+Event (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_ade4b94039e2332c79faf57faff343449}\label{class_uni_engine_1_1_profiler_manager_ade4b94039e2332c79faf57faff343449}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!GetOrCreateProfiler@{GetOrCreateProfiler}}
+\index{GetOrCreateProfiler@{GetOrCreateProfiler}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{GetOrCreateProfiler()}{GetOrCreateProfiler()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+std\+::shared\+\_\+ptr$<$ T $>$ Uni\+Engine\+::\+Profiler\+Manager\+::\+Get\+Or\+Create\+Profiler (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_ab2ab726bd5c0911d302553e063e97717}\label{class_uni_engine_1_1_profiler_manager_ab2ab726bd5c0911d302553e063e97717}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!GetProfiler@{GetProfiler}}
+\index{GetProfiler@{GetProfiler}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{GetProfiler()}{GetProfiler()}}
+{\footnotesize\ttfamily template$<$class T $>$ \\
+std\+::shared\+\_\+ptr$<$ T $>$ Uni\+Engine\+::\+Profiler\+Manager\+::\+Get\+Profiler\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_aed6b5c023fd68d89542790ff673f45c7}\label{class_uni_engine_1_1_profiler_manager_aed6b5c023fd68d89542790ff673f45c7}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!LateUpdate@{LateUpdate}}
+\index{LateUpdate@{LateUpdate}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{LateUpdate()}{LateUpdate()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Profiler\+Manager\+::\+Late\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_abb49c125a65676844a213b00321f66e2}\label{class_uni_engine_1_1_profiler_manager_abb49c125a65676844a213b00321f66e2}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!OnInspect@{OnInspect}}
+\index{OnInspect@{OnInspect}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{OnInspect()}{OnInspect()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Profiler\+Manager\+::\+On\+Inspect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_a476d6cf4dbfc26aa4062dc0a96f27bb4}\label{class_uni_engine_1_1_profiler_manager_a476d6cf4dbfc26aa4062dc0a96f27bb4}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!PreUpdate@{PreUpdate}}
+\index{PreUpdate@{PreUpdate}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{PreUpdate()}{PreUpdate()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Profiler\+Manager\+::\+Pre\+Update (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_a7d9db0edf12f8472f2c584ced3fe772b}\label{class_uni_engine_1_1_profiler_manager_a7d9db0edf12f8472f2c584ced3fe772b}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!StartEvent@{StartEvent}}
+\index{StartEvent@{StartEvent}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{StartEvent()}{StartEvent()}}
+{\footnotesize\ttfamily void Uni\+Engine\+::\+Profiler\+Manager\+::\+Start\+Event (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{class_uni_engine_1_1_profiler_manager_a2347cfd1ff80084d0843985b9c5dcd48}\label{class_uni_engine_1_1_profiler_manager_a2347cfd1ff80084d0843985b9c5dcd48}} 
+\index{UniEngine::ProfilerManager@{UniEngine::ProfilerManager}!m\_gui@{m\_gui}}
+\index{m\_gui@{m\_gui}!UniEngine::ProfilerManager@{UniEngine::ProfilerManager}}
+\doxysubsubsection{\texorpdfstring{m\_gui}{m\_gui}}
+{\footnotesize\ttfamily bool Uni\+Engine\+::\+Profiler\+Manager\+::m\+\_\+gui = true}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Managers/\mbox{\hyperlink{_profiler_manager_8hpp}{Profiler\+Manager.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_profiler_manager_8cpp}{Profiler\+Manager.\+cpp}}\end{DoxyCompactItemize}

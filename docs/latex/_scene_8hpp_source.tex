@@ -1,0 +1,111 @@
+\hypertarget{_scene_8hpp_source}{}\doxysection{Scene.\+hpp}
+\label{_scene_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/Scene.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/Scene.hpp}}
+\mbox{\hyperlink{_scene_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_metadata_8hpp}{EntityMetadata.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_asset_8hpp}{IAsset.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_private_component_8hpp}{IPrivateComponent.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_system_8hpp}{ISystem.hpp}}>}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_private_component_storage_8hpp}{PrivateComponentStorage.hpp}}>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_utilities_8hpp}{Utilities.hpp}}>}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_private_component_ref_8hpp}{PrivateComponentRef.hpp}}>}}
+\DoxyCodeLine{10 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{11 \{}
+\DoxyCodeLine{12 }
+\DoxyCodeLine{13 \textcolor{keyword}{enum} UNIENGINE\_API SystemGroup}
+\DoxyCodeLine{14 \{}
+\DoxyCodeLine{15     \mbox{\hyperlink{_scene_8hpp_a5e9be71cabcb00c3771c063a64b49a75}{PreparationSystemGroup}} = 0,}
+\DoxyCodeLine{16     \mbox{\hyperlink{_scene_8hpp_af655ccb1b70ddf5c3ab493d1d07968a2}{SimulationSystemGroup}} = 1,}
+\DoxyCodeLine{17     PresentationSystemGroup = 2}
+\DoxyCodeLine{18 \};}
+\DoxyCodeLine{19 }
+\DoxyCodeLine{20 \textcolor{keyword}{enum class} UNIENGINE\_API EnvironmentType}
+\DoxyCodeLine{21 \{}
+\DoxyCodeLine{22     \mbox{\hyperlink{_scene_8hpp_aa533475891ccd8536de0cf9a88a1ca82}{EnvironmentalMap}},}
+\DoxyCodeLine{23     \mbox{\hyperlink{_mesh_8hpp_ab87bacfdad76e61b9412d7124be44c1c}{Color}}}
+\DoxyCodeLine{24 \};}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{keyword}{struct }UNIENGINE\_API \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings}{EnvironmentSettings}}}
+\DoxyCodeLine{27 \{}
+\DoxyCodeLine{28     \mbox{\hyperlink{class_uni_engine_1_1_asset_ref}{AssetRef}} \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings_a01a0084bf36d9204daa82d8a7749f1a9}{m\_environmentalMap}};}
+\DoxyCodeLine{29     glm::vec3 m\_backgroundColor = glm::vec3(1.0f, 1.0f, 1.0f);}
+\DoxyCodeLine{30     \textcolor{keywordtype}{float} m\_environmentGamma = 1.0f;}
+\DoxyCodeLine{31     \textcolor{keywordtype}{float} m\_ambientLightIntensity = 0.8f;}
+\DoxyCodeLine{32     EnvironmentType m\_environmentType = \mbox{\hyperlink{_scene_8hpp_aa533475891ccd8536de0cf9a88a1ca82}{EnvironmentType::EnvironmentalMap}};}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out);}
+\DoxyCodeLine{35     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in);}
+\DoxyCodeLine{36 \};}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38 \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage}{SceneDataStorage}}}
+\DoxyCodeLine{39 \{}
+\DoxyCodeLine{40     std::vector<Entity> \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_a8478de29e1855491939460f090bf757f}{m\_entities}};}
+\DoxyCodeLine{41     std::vector<EntityMetadata> \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_aabfce923bf576872fb1fac829b6be321}{m\_entityInfos}};}
+\DoxyCodeLine{42     std::vector<DataComponentStorage> \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_a1337b46cf4e94ea2e2279102426d0162}{m\_dataComponentStorages}};}
+\DoxyCodeLine{43     std::unordered\_map<Handle, Entity> \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_a05d0d33b73fe04242f25c982ab37c497}{m\_entityMap}};}
+\DoxyCodeLine{44     \mbox{\hyperlink{class_uni_engine_1_1_private_component_storage}{PrivateComponentStorage}} \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_a79216ced085dd67c2ed8515573bccc59}{m\_entityPrivateComponentStorage}};}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46     \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage}{SceneDataStorage}} \&\mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage_a4cd4657e858f44b0155ce19521b13a0e}{operator=}}(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage}{SceneDataStorage}} \&source);}
+\DoxyCodeLine{47 \};}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_asset}{IAsset}}}
+\DoxyCodeLine{50 \{}
+\DoxyCodeLine{51     \textcolor{keyword}{friend} \textcolor{keyword}{class }Application;}
+\DoxyCodeLine{52     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_entity_manager}{EntityManager}};}
+\DoxyCodeLine{53     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_editor_manager}{EditorManager}};}
+\DoxyCodeLine{54     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_serialization_manager}{SerializationManager}};}
+\DoxyCodeLine{55     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_system_ref}{SystemRef}};}
+\DoxyCodeLine{56     \textcolor{keyword}{friend} \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_entity}{Entity}};}
+\DoxyCodeLine{57     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_prefab}{Prefab}};}
+\DoxyCodeLine{58     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_transform_manager}{TransformManager}};}
+\DoxyCodeLine{59     \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_private_component_storage}{PrivateComponentStorage}};}
+\DoxyCodeLine{60     \mbox{\hyperlink{struct_uni_engine_1_1_scene_data_storage}{SceneDataStorage}} m\_sceneDataStorage;}
+\DoxyCodeLine{61     std::multimap<float, std::shared\_ptr<ISystem>> m\_systems;}
+\DoxyCodeLine{62     std::map<size\_t, std::shared\_ptr<ISystem>> m\_indexedSystems;}
+\DoxyCodeLine{63     std::map<Handle, std::shared\_ptr<ISystem>> m\_mappedSystems;}
+\DoxyCodeLine{64     \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} m\_worldBound;}
+\DoxyCodeLine{65     \textcolor{keywordtype}{void} SerializeDataComponentStorage(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_data_component_storage}{DataComponentStorage}} \&storage, YAML::Emitter \&out);}
+\DoxyCodeLine{66     \textcolor{keywordtype}{void} SerializeSystem(\textcolor{keyword}{const} std::shared\_ptr<ISystem> \&system, YAML::Emitter \&out);}
+\DoxyCodeLine{67 }
+\DoxyCodeLine{68   \textcolor{keyword}{protected}:}
+\DoxyCodeLine{69     \textcolor{keywordtype}{bool} LoadInternal(\textcolor{keyword}{const} std::filesystem::path \&path) \textcolor{keyword}{override};}
+\DoxyCodeLine{70 }
+\DoxyCodeLine{71   \textcolor{keyword}{public}:}
+\DoxyCodeLine{72     \mbox{\hyperlink{struct_uni_engine_1_1_environment_settings}{EnvironmentSettings}} \mbox{\hyperlink{class_uni_engine_1_1_scene_aada577eba61388fa665e7bc558ccaea0}{m\_environmentSettings}};}
+\DoxyCodeLine{73     \mbox{\hyperlink{class_uni_engine_1_1_private_component_ref}{PrivateComponentRef}} \mbox{\hyperlink{class_uni_engine_1_1_scene_a3217836bc43a0f66693af8d2ed170472}{m\_mainCamera}};}
+\DoxyCodeLine{74     \textcolor{keywordtype}{void} Purge();}
+\DoxyCodeLine{75     \textcolor{keywordtype}{void} OnCreate() \textcolor{keyword}{override};}
+\DoxyCodeLine{76     \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} \&operator=(\textcolor{keyword}{const} \mbox{\hyperlink{class_uni_engine_1_1_scene}{Scene}} \&source);}
+\DoxyCodeLine{77     [[nodiscard]] \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} GetBound() \textcolor{keyword}{const};}
+\DoxyCodeLine{78     \textcolor{keywordtype}{void} SetBound(\textcolor{keyword}{const} \mbox{\hyperlink{struct_uni_engine_1_1_bound}{Bound}} \&value);}
+\DoxyCodeLine{79     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \textcolor{keywordtype}{void} DestroySystem();}
+\DoxyCodeLine{80     \mbox{\hyperlink{class_uni_engine_1_1_scene}{\string~Scene}}();}
+\DoxyCodeLine{81     \textcolor{keywordtype}{void} FixedUpdate();}
+\DoxyCodeLine{82     \textcolor{keywordtype}{void} PreUpdate();}
+\DoxyCodeLine{83     \textcolor{keywordtype}{void} Update();}
+\DoxyCodeLine{84     \textcolor{keywordtype}{void} LateUpdate();}
+\DoxyCodeLine{85     \textcolor{keywordtype}{void} OnInspect() \textcolor{keyword}{override};}
+\DoxyCodeLine{86     \textcolor{keywordtype}{void} Serialize(YAML::Emitter \&out) \textcolor{keyword}{override};}
+\DoxyCodeLine{87     \textcolor{keywordtype}{void} Deserialize(\textcolor{keyword}{const} YAML::Node \&in) \textcolor{keyword}{override};}
+\DoxyCodeLine{88 \};}
+\DoxyCodeLine{89 }
+\DoxyCodeLine{90 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_scene_ab5d5ee6d35c4b24888d964602e98d859}{Scene::DestroySystem}}()}
+\DoxyCodeLine{91 \{}
+\DoxyCodeLine{92     \textcolor{keyword}{auto} system = GetSystem<T>();}
+\DoxyCodeLine{93     \textcolor{keywordflow}{if} (system != \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{94         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{95     m\_indexedSystems.erase(\textcolor{keyword}{typeid}(T).hash\_code());}
+\DoxyCodeLine{96     \textcolor{keywordflow}{for} (\textcolor{keyword}{auto} \&i : m\_systems)}
+\DoxyCodeLine{97     \{}
+\DoxyCodeLine{98         \textcolor{keywordflow}{if} (i.second.get() == system.get())}
+\DoxyCodeLine{99         \{}
+\DoxyCodeLine{100             m\_systems.erase(i.first);}
+\DoxyCodeLine{101             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{102         \}}
+\DoxyCodeLine{103     \}}
+\DoxyCodeLine{104 \}}
+\DoxyCodeLine{105 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

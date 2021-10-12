@@ -1,0 +1,91 @@
+\hypertarget{_class_registry_8hpp_source}{}\doxysection{Class\+Registry.\+hpp}
+\label{_class_registry_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/ClassRegistry.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/ClassRegistry.hpp}}
+\mbox{\hyperlink{_class_registry_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_asset_manager_8hpp}{AssetManager.hpp}}>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_editor_manager_8hpp}{EditorManager.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_entity_8hpp}{Entity.hpp}}>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_serialization_manager_8hpp}{SerializationManager.hpp}}>}}
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{7 \{}
+\DoxyCodeLine{8 \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_class_registry}{ClassRegistry}}}
+\DoxyCodeLine{9 \{}
+\DoxyCodeLine{10   \textcolor{keyword}{public}:}
+\DoxyCodeLine{11     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IAsset> \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_class_registry_ada3a10def9829e2c8416707b8fb08ea0}{RegisterAsset}}(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} std::string\& extension)}
+\DoxyCodeLine{12     \{}
+\DoxyCodeLine{13         AssetManager::RegisterAssetType<T>(name, extension);}
+\DoxyCodeLine{14     \}}
+\DoxyCodeLine{15     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IDataComponent> \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_class_registry_ac2c15ba3e6c42e85de278511808b799a}{RegisterDataComponent}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{16     \{}
+\DoxyCodeLine{17         SerializationManager::RegisterDataComponentType<T>(name);}
+\DoxyCodeLine{18         EditorManager::RegisterDataComponent<T>();}
+\DoxyCodeLine{19     \}}
+\DoxyCodeLine{20     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = IPrivateComponent> \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_class_registry_ab0ee4b97d7e732f478a671f22a4768d4}{RegisterPrivateComponent}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{21     \{}
+\DoxyCodeLine{22         SerializationManager::RegisterSerializableType<T>(name);}
+\DoxyCodeLine{23         SerializationManager::RegisterPrivateComponentType<T>(name);}
+\DoxyCodeLine{24         EditorManager::RegisterPrivateComponent<T>();}
+\DoxyCodeLine{25     \}}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISystem> \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_class_registry_a479d26c7d79d2af8039a0d8214839d97}{RegisterSystem}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{28     \{}
+\DoxyCodeLine{29         SerializationManager::RegisterSerializableType<T>(name);}
+\DoxyCodeLine{30         SerializationManager::RegisterSystemType<T>(name);}
+\DoxyCodeLine{31         EditorManager::RegisterSystem<T>();}
+\DoxyCodeLine{32     \}}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     \textcolor{keyword}{template} <\textcolor{keyword}{typename} T = ISerializable> \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_class_registry_a6f5a80d84bb7a176bc3ba0287bbb9a02}{RegisterSerializable}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{35     \{}
+\DoxyCodeLine{36         SerializationManager::RegisterSerializableType<T>(name);}
+\DoxyCodeLine{37     \}}
+\DoxyCodeLine{38 \};}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration}{DataComponentRegistration}}}
+\DoxyCodeLine{41 \{}
+\DoxyCodeLine{42   \textcolor{keyword}{public}:}
+\DoxyCodeLine{43     \mbox{\hyperlink{class_uni_engine_1_1_data_component_registration_a2a943b5ec7907b92702beb6c40f306db}{DataComponentRegistration}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{44     \{}
+\DoxyCodeLine{45         ClassRegistry::RegisterDataComponent<T>(name);}
+\DoxyCodeLine{46     \}}
+\DoxyCodeLine{47 \};}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_asset_registration}{AssetRegistration}}}
+\DoxyCodeLine{50 \{}
+\DoxyCodeLine{51   \textcolor{keyword}{public}:}
+\DoxyCodeLine{52     \mbox{\hyperlink{class_uni_engine_1_1_asset_registration_a1dbaa87c0b59b84e63b23d900a71c93e}{AssetRegistration}}(\textcolor{keyword}{const} std::string \&name, \textcolor{keyword}{const} std::string\& extension)}
+\DoxyCodeLine{53     \{}
+\DoxyCodeLine{54         ClassRegistry::RegisterAsset<T>(name, extension);}
+\DoxyCodeLine{55     \}}
+\DoxyCodeLine{56 \};}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration}{PrivateComponentRegistration}}}
+\DoxyCodeLine{59 \{}
+\DoxyCodeLine{60   \textcolor{keyword}{public}:}
+\DoxyCodeLine{61     \mbox{\hyperlink{class_uni_engine_1_1_private_component_registration_a944d0b75155623e029eb81cd3f70e944}{PrivateComponentRegistration}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{62     \{}
+\DoxyCodeLine{63         ClassRegistry::RegisterPrivateComponent<T>(name);}
+\DoxyCodeLine{64     \}}
+\DoxyCodeLine{65 \};}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{67 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_system_registration}{SystemRegistration}}}
+\DoxyCodeLine{68 \{}
+\DoxyCodeLine{69   \textcolor{keyword}{public}:}
+\DoxyCodeLine{70     \mbox{\hyperlink{class_uni_engine_1_1_system_registration_ad81f12b2d0fcee26079e8b63dd0a3791}{SystemRegistration}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{71     \{}
+\DoxyCodeLine{72         ClassRegistry::RegisterSystem<T>(name);}
+\DoxyCodeLine{73     \}}
+\DoxyCodeLine{74 \};}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76 \textcolor{keyword}{template} <\textcolor{keyword}{typename} T> \textcolor{keyword}{class }UNIENGINE\_API \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration}{SerializableRegistration}}}
+\DoxyCodeLine{77 \{}
+\DoxyCodeLine{78   \textcolor{keyword}{public}:}
+\DoxyCodeLine{79     \mbox{\hyperlink{class_uni_engine_1_1_serializable_registration_a2a7f9247b486fec6ad11d244eb03324f}{SerializableRegistration}}(\textcolor{keyword}{const} std::string \&name)}
+\DoxyCodeLine{80     \{}
+\DoxyCodeLine{81         ClassRegistry::RegisterSerializable<T>(name);}
+\DoxyCodeLine{82     \}}
+\DoxyCodeLine{83 \};}
+\DoxyCodeLine{84 }
+\DoxyCodeLine{85 \} \textcolor{comment}{// namespace UniEngine}}
+
+\end{DoxyCode}

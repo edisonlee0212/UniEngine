@@ -1,0 +1,62 @@
+\hypertarget{_console_manager_8hpp_source}{}\doxysection{Console\+Manager.\+hpp}
+\label{_console_manager_8hpp_source}\index{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/ConsoleManager.hpp@{C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/ConsoleManager.hpp}}
+\mbox{\hyperlink{_console_manager_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#include <uniengine\_export.h>}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <\mbox{\hyperlink{_i_singleton_8hpp}{ISingleton.hpp}}>}}
+\DoxyCodeLine{4 \textcolor{keyword}{namespace }\mbox{\hyperlink{namespace_uni_engine}{UniEngine}}}
+\DoxyCodeLine{5 \{}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{keyword}{enum class} \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73ec}{ConsoleMessageType}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9     \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73ecace0be71e33226e4c1db2bcea5959f16b}{Log}},}
+\DoxyCodeLine{10     \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73eca0eaadb4fcb48a0a0ed7bc9868be9fbaa}{Warning}},}
+\DoxyCodeLine{11     \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73eca902b0d55fddef6f8d651fe1035b7d4bd}{Error}}}
+\DoxyCodeLine{12 \};}
+\DoxyCodeLine{13 \textcolor{keyword}{struct }\mbox{\hyperlink{struct_uni_engine_1_1_console_message}{ConsoleMessage}}}
+\DoxyCodeLine{14 \{}
+\DoxyCodeLine{15     \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73ec}{ConsoleMessageType}} \mbox{\hyperlink{struct_uni_engine_1_1_console_message_a1eb252e0dc64d051af71f8182c9a7614}{m\_type}} = \mbox{\hyperlink{namespace_uni_engine_a0b92097fc68e4d8405fd318f01fc73ecace0be71e33226e4c1db2bcea5959f16b}{ConsoleMessageType::Log}};}
+\DoxyCodeLine{16     std::string \mbox{\hyperlink{struct_uni_engine_1_1_console_message_a9dfa0705a577b9de9ea9475ffef9049d}{m\_value}};}
+\DoxyCodeLine{17     \textcolor{keywordtype}{double} \mbox{\hyperlink{struct_uni_engine_1_1_console_message_a812ec2a39fc86559a77dac7ad57c5b0b}{m\_time}} = 0;}
+\DoxyCodeLine{18 \};}
+\DoxyCodeLine{19 \textcolor{keyword}{class }\mbox{\hyperlink{class_uni_engine_1_1_console_manager}{ConsoleManager}} : \textcolor{keyword}{public} \mbox{\hyperlink{class_uni_engine_1_1_i_singleton}{ISingleton}}<ConsoleManager>}
+\DoxyCodeLine{20 \{}
+\DoxyCodeLine{21     std::vector<ConsoleMessage> m\_consoleMessages;}
+\DoxyCodeLine{22     std::mutex m\_consoleMessageMutex;}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24     \textcolor{keywordtype}{bool} m\_enableConsole = \textcolor{keyword}{true};}
+\DoxyCodeLine{25     \textcolor{keywordtype}{bool} m\_enableConsoleLogs = \textcolor{keyword}{false};}
+\DoxyCodeLine{26     \textcolor{keywordtype}{bool} m\_enableConsoleErrors = \textcolor{keyword}{true};}
+\DoxyCodeLine{27     \textcolor{keywordtype}{bool} m\_enableConsoleWarnings = \textcolor{keyword}{false};}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30   \textcolor{keyword}{public}:}
+\DoxyCodeLine{35     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a523efe387ac6190c5140d27bc35ce6e6}{Log}}(\textcolor{keyword}{const} std::string \&msg);}
+\DoxyCodeLine{40     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a0062aeae16426ce23541d770520177c9}{Error}}(\textcolor{keyword}{const} std::string \&msg);}
+\DoxyCodeLine{45     UNIENGINE\_API \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a3a0c933529967b55d7404fce9111ef52}{Warning}}(\textcolor{keyword}{const} std::string \&msg);}
+\DoxyCodeLine{50     UNIENGINE\_API \textcolor{keyword}{static} std::vector<ConsoleMessage> \&\mbox{\hyperlink{class_uni_engine_1_1_console_manager_a4e0b734cdac5a0c2c73b3d37c15439f4}{GetConsoleMessages}}();}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52     \textcolor{keyword}{static} \textcolor{keywordtype}{void} \mbox{\hyperlink{class_uni_engine_1_1_console_manager_a10b2673df6c2233af9fb8149669b7a56}{OnInspect}}();}
+\DoxyCodeLine{53 \};}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55 \} \textcolor{comment}{// namespace UniEngine}}
+\DoxyCodeLine{56 }
+\DoxyCodeLine{61 \textcolor{preprocessor}{\#define UNIENGINE\_LOG(msg)                                                                                             \(\backslash\)}}
+\DoxyCodeLine{62 \textcolor{preprocessor}{    \{                                                                                                                  \(\backslash\)}}
+\DoxyCodeLine{63 \textcolor{preprocessor}{        UniEngine::ConsoleManager::Log(msg);                                                                                    \(\backslash\)}}
+\DoxyCodeLine{64 \textcolor{preprocessor}{        std::cout << "{}(UniEngine)Log: "{}} << msg << "{} ("{} << \_\_FILE\_\_ << "{}: line "{} << \_\_LINE\_\_ << "{})"{} << std::endl;       \(\backslash\)}
+\DoxyCodeLine{65     \}}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{71 \textcolor{preprocessor}{\#define UNIENGINE\_ERROR(msg)                                                                                           \(\backslash\)}}
+\DoxyCodeLine{72 \textcolor{preprocessor}{    \{                                                                                                                  \(\backslash\)}}
+\DoxyCodeLine{73 \textcolor{preprocessor}{        UniEngine::ConsoleManager::Error(msg);                                                                                  \(\backslash\)}}
+\DoxyCodeLine{74 \textcolor{preprocessor}{        std::cerr << "{}(UniEngine)Error: "{}} << msg << "{} ("{} << \_\_FILE\_\_ << "{}: line "{} << \_\_LINE\_\_ << "{})"{} << std::endl;     \(\backslash\)}
+\DoxyCodeLine{75     \}}
+\DoxyCodeLine{80 \textcolor{preprocessor}{\#define UNIENGINE\_WARNING(msg)                                                                                         \(\backslash\)}}
+\DoxyCodeLine{81 \textcolor{preprocessor}{    \{                                                                                                                  \(\backslash\)}}
+\DoxyCodeLine{82 \textcolor{preprocessor}{        UniEngine::ConsoleManager::Warning(msg);                                                                                \(\backslash\)}}
+\DoxyCodeLine{83 \textcolor{preprocessor}{        std::cout << "{}(UniEngine)Warning: "{}} << msg << "{} ("{} << \_\_FILE\_\_ << "{}: line "{} << \_\_LINE\_\_ << "{})"{} << std::endl;   \(\backslash\)}
+\DoxyCodeLine{84     \}}
+
+\end{DoxyCode}

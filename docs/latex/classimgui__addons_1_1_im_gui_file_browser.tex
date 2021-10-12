@@ -1,0 +1,106 @@
+\hypertarget{classimgui__addons_1_1_im_gui_file_browser}{}\doxysection{imgui\+\_\+addons\+::Im\+Gui\+File\+Browser Class Reference}
+\label{classimgui__addons_1_1_im_gui_file_browser}\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+
+
+{\ttfamily \#include $<$Im\+Gui\+File\+Browser.\+hpp$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+enum class \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}{Dialog\+Mode}} \{ \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3a63225f19fccb18e7c709f1fa11bc738e}{SELECT}}
+, \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3aa38bd5138bf35514df41a1795ebbf5c3}{OPEN}}
+, \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3af5cf47ab06d0d98b0d16d10c82d87953}{SAVE}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a4d584194f01763d88d219db666cb2513}{Im\+Gui\+File\+Browser}} ()
+\item 
+\mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a3b079260a0c11ab7abb5c1d5740497ee}{$\sim$\+Im\+Gui\+File\+Browser}} ()
+\item 
+bool \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_ad407e63cde02112e4abf010662ca1102}{show\+File\+Dialog}} (const std\+::string \&label, const \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}{Dialog\+Mode}} mode, const Im\+Vec2 \&sz\+\_\+xy=Im\+Vec2(0, 0), const std\+::string \&valid\+\_\+types=\char`\"{}$\ast$.$\ast$\char`\"{})
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+std\+::string \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a7a06d70ff15e3bd44808920192766504}{selected\+\_\+fn}}
+\item 
+std\+::string \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a301654aba31cb888901dce779b6a9ce6}{selected\+\_\+path}}
+\item 
+std\+::string \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a7d2d0f9e7f067b3ab60ea4fb75cb8e23}{ext}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Enumeration Documentation}
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}\label{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!DialogMode@{DialogMode}}
+\index{DialogMode@{DialogMode}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{DialogMode}{DialogMode}}
+{\footnotesize\ttfamily enum class \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}{imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::\+Dialog\+Mode}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SELECT@{SELECT}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!SELECT@{SELECT}}}\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3a63225f19fccb18e7c709f1fa11bc738e}\label{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3a63225f19fccb18e7c709f1fa11bc738e}} 
+SELECT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OPEN@{OPEN}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!OPEN@{OPEN}}}\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3aa38bd5138bf35514df41a1795ebbf5c3}\label{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3aa38bd5138bf35514df41a1795ebbf5c3}} 
+OPEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{SAVE@{SAVE}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!SAVE@{SAVE}}}\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3af5cf47ab06d0d98b0d16d10c82d87953}\label{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3af5cf47ab06d0d98b0d16d10c82d87953}} 
+SAVE&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a4d584194f01763d88d219db666cb2513}\label{classimgui__addons_1_1_im_gui_file_browser_a4d584194f01763d88d219db666cb2513}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!ImGuiFileBrowser@{ImGuiFileBrowser}}
+\index{ImGuiFileBrowser@{ImGuiFileBrowser}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{ImGuiFileBrowser()}{ImGuiFileBrowser()}}
+{\footnotesize\ttfamily imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::\+Im\+Gui\+File\+Browser (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a3b079260a0c11ab7abb5c1d5740497ee}\label{classimgui__addons_1_1_im_gui_file_browser_a3b079260a0c11ab7abb5c1d5740497ee}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!````~ImGuiFileBrowser@{$\sim$ImGuiFileBrowser}}
+\index{````~ImGuiFileBrowser@{$\sim$ImGuiFileBrowser}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{$\sim$ImGuiFileBrowser()}{~ImGuiFileBrowser()}}
+{\footnotesize\ttfamily imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::$\sim$\+Im\+Gui\+File\+Browser (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_ad407e63cde02112e4abf010662ca1102}\label{classimgui__addons_1_1_im_gui_file_browser_ad407e63cde02112e4abf010662ca1102}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!showFileDialog@{showFileDialog}}
+\index{showFileDialog@{showFileDialog}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{showFileDialog()}{showFileDialog()}}
+{\footnotesize\ttfamily bool imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::show\+File\+Dialog (\begin{DoxyParamCaption}\item[{const std\+::string \&}]{label,  }\item[{const \mbox{\hyperlink{classimgui__addons_1_1_im_gui_file_browser_a0a36e769b25fd4e23da12931a503ffb3}{Dialog\+Mode}}}]{mode,  }\item[{const Im\+Vec2 \&}]{sz\+\_\+xy = {\ttfamily ImVec2(0,~0)},  }\item[{const std\+::string \&}]{valid\+\_\+types = {\ttfamily \char`\"{}$\ast$.$\ast$\char`\"{}} }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Data Documentation}
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a7d2d0f9e7f067b3ab60ea4fb75cb8e23}\label{classimgui__addons_1_1_im_gui_file_browser_a7d2d0f9e7f067b3ab60ea4fb75cb8e23}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!ext@{ext}}
+\index{ext@{ext}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{ext}{ext}}
+{\footnotesize\ttfamily std\+::string imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::ext}
+
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a7a06d70ff15e3bd44808920192766504}\label{classimgui__addons_1_1_im_gui_file_browser_a7a06d70ff15e3bd44808920192766504}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!selected\_fn@{selected\_fn}}
+\index{selected\_fn@{selected\_fn}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{selected\_fn}{selected\_fn}}
+{\footnotesize\ttfamily std\+::string imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::selected\+\_\+fn}
+
+\mbox{\Hypertarget{classimgui__addons_1_1_im_gui_file_browser_a301654aba31cb888901dce779b6a9ce6}\label{classimgui__addons_1_1_im_gui_file_browser_a301654aba31cb888901dce779b6a9ce6}} 
+\index{imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}!selected\_path@{selected\_path}}
+\index{selected\_path@{selected\_path}!imgui\_addons::ImGuiFileBrowser@{imgui\_addons::ImGuiFileBrowser}}
+\doxysubsubsection{\texorpdfstring{selected\_path}{selected\_path}}
+{\footnotesize\ttfamily std\+::string imgui\+\_\+addons\+::\+Im\+Gui\+File\+Browser\+::selected\+\_\+path}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/include/lib/\+Engine/\+Editor/\mbox{\hyperlink{_im_gui_file_browser_8hpp}{Im\+Gui\+File\+Browser.\+hpp}}\item 
+C\+:/\+Users/lllll/\+Documents/\+Git\+Hub/\+Uni\+Engine/src/lib/\mbox{\hyperlink{_im_gui_file_browser_8cpp}{Im\+Gui\+File\+Browser.\+cpp}}\end{DoxyCompactItemize}
