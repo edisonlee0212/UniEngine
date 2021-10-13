@@ -10,7 +10,6 @@
 
 namespace UniEngine
 {
-#ifdef USE_ASSIMP
 struct UNIENGINE_API AssimpNode
 {
     aiNode *m_correspondingNode = nullptr;
@@ -26,7 +25,6 @@ struct UNIENGINE_API AssimpNode
     void AttachToAnimator(std::shared_ptr<Animation> &animation, size_t &index);
     void AttachChild(std::shared_ptr<Bone> &parent, size_t &index);
 };
-#endif
 struct UNIENGINE_API DataComponentHolder
 {
     DataComponentType m_type;
@@ -56,7 +54,7 @@ class UNIENGINE_API Prefab : public IAsset
         const std::string &directory,
         const std::string &path,
         std::map<std::string, std::shared_ptr<Texture2D>> &loadedTextures);
-#ifdef USE_ASSIMP
+
     void ApplyBoneIndices(Prefab *node);
     void ReadAnimations(
         const aiScene *importerScene,
@@ -81,13 +79,6 @@ class UNIENGINE_API Prefab : public IAsset
     std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
     std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(
         std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
-#else
-    static void ProcessNode(
-        const std::string &directory,
-        std::map<int, std::vector<Vertex>> &meshMaterials,
-        const tinyobj::shape_t &shape,
-        const tinyobj::attrib_t &attribute);
-#endif
     void AttachChildren(
         const std::shared_ptr<Prefab> &modelNode,
         Entity parentEntity,
@@ -120,8 +111,8 @@ class UNIENGINE_API Prefab : public IAsset
 
     void FromEntity(const Entity &entity);
     void CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &map);
-    void Serialize(YAML::Emitter &out);
-    void Deserialize(const YAML::Node &in);
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
