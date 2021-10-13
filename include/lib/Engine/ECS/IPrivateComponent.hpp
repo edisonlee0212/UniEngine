@@ -1,5 +1,6 @@
 #pragma once
 #include <Entity.hpp>
+#include <AssetRef.hpp>
 #include <ISerializable.hpp>
 namespace UniEngine
 {

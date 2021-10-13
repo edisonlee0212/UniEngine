@@ -101,7 +101,7 @@ class UNIENGINE_API EntityRef : public ISerializable
         m_entityHandle = Handle(0);
         m_value = Entity();
     }
-    template <typename T = IAsset> EntityRef(const Entity &other)
+    EntityRef(const Entity &other)
     {
         Set(other);
     }

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <IAsset.hpp>
+#include <AssetRef.hpp>
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
 namespace UniEngine
