@@ -523,6 +523,12 @@ void FileUtils::OpenFile(
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
+    std::string filters;
+    for(int i = 0; i < extensions.size(); i++)
+    {
+        filters += extensions[i];
+        if(i < extensions.size() - 1) filters += ",";
+    }
     if (file_dialog.showFileDialog(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), filters))
     {
@@ -672,6 +678,12 @@ void FileUtils::SaveFile(
     if (ImGui::Button(dialogTitle.c_str()))
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
+    std::string filters;
+    for(int i = 0; i < extensions.size(); i++)
+    {
+        filters += extensions[i];
+        if(i < extensions.size() - 1) filters += ",";
+    }
     if (file_dialog.showFileDialog(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), filters))
     {
