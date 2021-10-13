@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
+#include <Texture2D.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API Cubemap : public IAsset
