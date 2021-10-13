@@ -74,7 +74,6 @@ class UNIENGINE_API Application final : ISingleton<Application>
 
     std::shared_ptr<Scene> m_scene;
 
-    static bool RequestProjectPath(std::filesystem::path& path);
   public:
     static bool IsPlaying();
     static void Reset();
