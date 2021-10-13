@@ -254,7 +254,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     static void LateUpdate();
     static size_t Triangles();
     static size_t DrawCall();
-    static void RenderManager::DispatchRenderCommands(
+    static void DispatchRenderCommands(
         const RenderCommands &renderCommands,
         const std::function<void(const std::shared_ptr<Material> &, const RenderCommand &renderCommand)> &func,
         const bool &setMaterial);
