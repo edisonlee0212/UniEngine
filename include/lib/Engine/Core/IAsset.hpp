@@ -4,6 +4,7 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
+class AssetRef;
 class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
