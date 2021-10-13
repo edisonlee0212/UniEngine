@@ -6,6 +6,7 @@ namespace UniEngine
 {
 #pragma region EntityManager
 #pragma region Entity
+class Scene;
 struct UNIENGINE_API DataComponentType final
 {
     std::string m_name;
@@ -33,6 +34,7 @@ struct UNIENGINE_API EntityArchetype final
     void SetName(const std::string &name) const;
 };
 class IPrivateComponent;
+
 struct UNIENGINE_API Entity final
 {
   private:
