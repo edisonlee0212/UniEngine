@@ -89,10 +89,17 @@ set(UNIENGINE_INTERNALS_DEF UNIENGINE_INTERNALS_FOLDER=\"${UNIENGINE_INTERNALS_D
 
 set(UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/Resources/TestingProject/)
 set(UNIENGINE_DEFAULT_PROJECT_DEF UNIENGINE_DEFAULT_PROJECT_FOLDER=\"${UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL}\")
+
+if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    set(UNIENGINE_DEBUG_STATUS NDEBUG)
+elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    set(UNIENGINE_DEBUG_STATUS _DEBUG)
+endif ()
 target_compile_definitions(uniengine
         PRIVATE
         ${UNIENGINE_INTERNALS_DEF}
         ${UNIENGINE_DEFAULT_PROJECT_DEF}
+        ${UNIENGINE_DEBUG_STATUS}
         GLAD_GLAPI_EXPORT
         GLAD_GLAPI_EXPORT_BUILD
         )
@@ -164,7 +171,6 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
     # Activate all clang warnings except those that don't really affect much
     #target_compile_options(uniengine PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-newline-eof -Wno-padded -Wno-exit-time-destructors -Wno-global-constructors -Wno-constant-conversion)
 endif ()
-
 
 
 # ------------------------------------------------------------------
@@ -360,12 +366,12 @@ if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         message("Doxygen build started")
 
         # note the option ALL which allows to build the docs together with the application
-        add_custom_target( doc_doxygen ALL
+        add_custom_target(doc_doxygen ALL
                 COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 COMMENT "Generating API documentation with Doxygen"
-                VERBATIM )
+                VERBATIM)
     else (DOXYGEN_FOUND)
         message("Doxygen need to be installed to generate the doxygen documentation")
     endif (DOXYGEN_FOUND)
-endif()
+endif ()
