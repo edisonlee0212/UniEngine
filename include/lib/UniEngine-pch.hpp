@@ -52,4 +52,12 @@
 
 #include <yaml-cpp/yaml.h>
 
+#ifdef _DEBUG
+#undef _DEBUG
+#define DEBUG_WAS_DEFINED
+#endif
 #include <PxPhysicsAPI.h>
+#ifdef DEBUG_WAS_DEFINED
+#undef DEBUG_WAS_DEFINED
+#define _DEBUG
+#endif
