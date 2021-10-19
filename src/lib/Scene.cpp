@@ -613,8 +613,13 @@ void Scene::Clone(const std::shared_ptr<Scene> &source)
         SerializationManager::CloneSystem(system, i.second);
     }
 
-    auto mainCameraEntity = source->m_mainCamera.Get()->GetOwner();
-    m_mainCamera = EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(m_handle), mainCameraEntity).lock();
+    auto mainCamera = source->m_mainCamera.Get();
+    if(mainCamera)
+    {
+        m_mainCamera =
+            EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(m_handle), mainCamera->GetOwner())
+                .lock();
+    }
 }
 
 void EnvironmentSettings::Serialize(YAML::Emitter &out)
