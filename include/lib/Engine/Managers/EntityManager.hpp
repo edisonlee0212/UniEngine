@@ -54,7 +54,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma endregion
 #pragma region Helpers
     static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
-    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId);
+
     template <typename T = IDataComponent> static bool CheckDataComponentTypes(T arg);
     template <typename T = IDataComponent, typename... Ts> static bool CheckDataComponentTypes(T arg, Ts... args);
     template <typename T = IDataComponent>
@@ -270,6 +270,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma endregion
   public:
 #pragma region Entity methods
+    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId);
     // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
     // entity.
     static void SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
