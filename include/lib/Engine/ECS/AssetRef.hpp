@@ -5,7 +5,7 @@
 #include <IAsset.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API AssetRef : public ISerializable
+class UNIENGINE_API AssetRef
 {
     friend class Prefab;
     friend class Project;
@@ -17,12 +17,12 @@ class UNIENGINE_API AssetRef : public ISerializable
     bool Update();
 
   public:
-    void Serialize(YAML::Emitter &out) override
+    void Serialize(YAML::Emitter &out)
     {
         out << YAML::Key << "m_assetHandle" << YAML::Value << m_assetHandle;
         out << YAML::Key << "m_assetTypeName" << YAML::Value << m_assetTypeName;
     }
-    void Deserialize(const YAML::Node &in) override
+    void Deserialize(const YAML::Node &in)
     {
         m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
         m_assetTypeName = in["m_assetTypeName"].as<std::string>();

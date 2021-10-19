@@ -3,6 +3,7 @@
 //
 
 #include "EntityMetadata.hpp"
+#include "SerializationManager.hpp"
 using namespace UniEngine;
 void EntityMetadata::Deserialize(const YAML::Node &in)
 {
@@ -61,7 +62,8 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
     }
     out << YAML::EndMap;
 }
-EntityMetadata &EntityMetadata::operator=(const EntityMetadata &source)
+
+void EntityMetadata::Clone(const EntityMetadata &source, const std::shared_ptr<Scene> &scene)
 {
     m_handle = source.m_handle;
     m_name = source.m_name;
@@ -72,6 +74,16 @@ EntityMetadata &EntityMetadata::operator=(const EntityMetadata &source)
     m_chunkArrayIndex = source.m_chunkArrayIndex;
     m_children = source.m_children;
     m_privateComponentElements.resize(source.m_privateComponentElements.size());
-    for(int i = 0; i < m_privateComponentElements.size(); i++) m_privateComponentElements[i] = source.m_privateComponentElements[i];
-    return *this;
+    for(int i = 0; i < m_privateComponentElements.size(); i++)
+    {
+        m_privateComponentElements[i].m_privateComponentData =
+            std::dynamic_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(
+                source.m_privateComponentElements[i].m_privateComponentData->GetTypeName(),
+                m_privateComponentElements[i].m_typeId));
+        m_privateComponentElements[i].m_privateComponentData->m_scene = scene;
+        m_privateComponentElements[i].m_privateComponentData->OnCreate();
+        SerializationManager::ClonePrivateComponent(
+            m_privateComponentElements[i].m_privateComponentData,
+            source.m_privateComponentElements[i].m_privateComponentData);
+    }
 }

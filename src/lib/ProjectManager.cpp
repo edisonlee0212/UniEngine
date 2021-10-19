@@ -372,7 +372,7 @@ void ProjectManager::GenerateNewDefaultScene()
     mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
 
-    EntityManager::GetOrCreateSystem<PhysicsSystem>(scene, SystemGroup::SimulationSystemGroup);
+    scene->GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
 }
 std::filesystem::path ProjectManager::GenerateNewPath(const std::string &filestem, const std::string &extension)
 {

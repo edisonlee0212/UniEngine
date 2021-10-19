@@ -188,7 +188,7 @@ void SkinnedMeshRenderer::Deserialize(const YAML::Node &in)
     m_castShadow = in["m_castShadow"].as<bool>();
     m_receiveShadow = in["m_receiveShadow"].as<bool>();
 
-    m_animator.Load("m_animator", in);
+    m_animator.Load("m_animator", in, GetScene());
     m_skinnedMesh.Load("m_skinnedMesh", in);
     m_material.Load("m_material", in);
 
@@ -220,12 +220,12 @@ void SkinnedMeshRenderer::OnCreate()
 void SkinnedMeshRenderer::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {
 }
-void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
+void SkinnedMeshRenderer::Relink(const std::unordered_map<Handle, Handle> &map, const std::shared_ptr<Scene> &scene)
 {
-    m_animator.Relink(map, newSceneHandle);
+    m_animator.Relink(map, scene);
     for (auto &i : m_boundEntities)
     {
-        i.Relink(map, newSceneHandle);
+        i.Relink(map);
     }
 }
 void SkinnedMeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)

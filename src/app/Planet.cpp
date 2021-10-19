@@ -45,7 +45,7 @@ void LoadScene(){
     borderTexture->SetPathAndLoad("Textures/border.png");
     surfaceMaterial->m_albedoTexture = borderTexture;
 
-    auto pts = EntityManager::GetOrCreateSystem<PlanetTerrainSystem>(EntityManager::GetCurrentScene(), SystemGroup::SimulationSystemGroup);
+    auto pts = EntityManager::GetCurrentScene()->GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
 
     pts->Enable();
 

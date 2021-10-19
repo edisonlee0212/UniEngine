@@ -245,10 +245,10 @@ void Joint::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
     m_joint = nullptr;
     m_linked = false;
 }
-void Joint::Relink(const std::unordered_map<Handle, Handle> &map, const Handle& newSceneHandle)
+void Joint::Relink(const std::unordered_map<Handle, Handle> &map, const std::shared_ptr<Scene> &scene)
 {
-    m_rigidBody1.Relink(map, newSceneHandle);
-    m_rigidBody2.Relink(map, newSceneHandle);
+    m_rigidBody1.Relink(map, scene);
+    m_rigidBody2.Relink(map, scene);
 }
 
 void Joint::Serialize(YAML::Emitter &out)
@@ -314,8 +314,8 @@ void Joint::Deserialize(const YAML::Node &in)
     m_localRotation1 = in["m_localRotation1"].as<glm::quat>();
     m_localRotation2 = in["m_localRotation2"].as<glm::quat>();
 
-    m_rigidBody1.Load("m_rigidBody1", in);
-    m_rigidBody2.Load("m_rigidBody2", in);
+    m_rigidBody1.Load("m_rigidBody1", in, GetScene());
+    m_rigidBody2.Load("m_rigidBody2", in, GetScene());
 
     switch (m_jointType)
     {

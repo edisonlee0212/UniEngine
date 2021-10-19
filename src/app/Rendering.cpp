@@ -13,7 +13,7 @@ int main()
      */
     const std::filesystem::path resourceFolderPath("../Resources");
     ProjectManager::SetScenePostLoadActions([](){
-        LoadScene();
+        //LoadScene();
     });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Rendering/Rendering.ueproj";

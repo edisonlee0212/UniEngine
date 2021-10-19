@@ -24,7 +24,10 @@ void ISystem::Disable()
         OnDisable();
     }
 }
-
+std::shared_ptr<Scene> ISystem::GetScene() const
+{
+    return m_scene.lock();
+}
 bool ISystem::Enabled() const
 {
     return m_enabled;

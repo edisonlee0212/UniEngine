@@ -4,6 +4,7 @@
 #include <Entity.hpp>
 namespace UniEngine
 {
+class Scene;
 struct EntityMetadata : public ISerializable
 {
     std::string m_name;
@@ -16,8 +17,7 @@ struct EntityMetadata : public ISerializable
     size_t m_chunkArrayIndex = 0;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
-    EntityMetadata &operator=(const EntityMetadata &source);
+    void Clone(const EntityMetadata &source, const std::shared_ptr<Scene> &scene);
 };
 
 } // namespace UniEngine

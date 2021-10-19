@@ -179,7 +179,8 @@ void Scene::FixedUpdate()
 static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
-    if(this == EntityManager::GetCurrentScene().get()) EditorManager::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
+    if (this == EntityManager::GetCurrentScene().get())
+        EditorManager::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
@@ -204,6 +205,23 @@ void Scene::OnInspect()
         ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f);
     }
 }
+
+std::shared_ptr<ISystem> Scene::GetOrCreateSystem(const std::string &systemName, float order)
+{
+    size_t typeId;
+    auto ptr = SerializationManager::ProduceSerializable(systemName, typeId);
+    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
+    system->m_handle = Handle();
+    system->m_rank = order;
+    m_systems.insert({order, system});
+    m_indexedSystems[typeId] = system;
+    m_mappedSystems[system->m_handle] = system;
+    system->m_started = false;
+    system->OnCreate();
+    m_saved = false;
+    return std::dynamic_pointer_cast<ISystem>(ptr);
+}
+
 void Scene::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "Scene" << YAML::Value << m_name;
@@ -381,7 +399,7 @@ void Scene::Deserialize(const YAML::Node &in)
         sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
         entityIndex++;
     }
-    m_mainCamera.Load("m_mainCamera", in);
+    m_mainCamera.Load("m_mainCamera", in, self);
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
     auto inLocalAssets = in["LocalAssets"];
@@ -436,7 +454,7 @@ void Scene::Deserialize(const YAML::Node &in)
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
                 else
                 {
@@ -445,7 +463,7 @@ void Scene::Deserialize(const YAML::Node &in)
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
+                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
             }
         }
@@ -469,6 +487,7 @@ void Scene::Deserialize(const YAML::Node &in)
         m_indexedSystems.insert({hashCode, ptr});
         m_mappedSystems[ptr->m_handle] = ptr;
         systems.push_back(ptr);
+        ptr->m_scene = self;
         ptr->OnCreate();
     }
 #pragma endregion
@@ -571,17 +590,16 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 
     return true;
 }
-Scene &Scene::operator=(const Scene &source)
+void Scene::Clone(const std::shared_ptr<Scene> &source)
 {
-    m_name = source.m_name;
-    m_environmentSettings = source.m_environmentSettings;
-    m_projectRelativePath = source.m_projectRelativePath;
-    m_saved = source.m_saved;
-    m_mainCamera = source.m_mainCamera;
-    m_worldBound = source.m_worldBound;
-    m_sceneDataStorage = source.m_sceneDataStorage;
+    m_name = source->m_name;
+    m_environmentSettings = source->m_environmentSettings;
+    m_projectRelativePath = source->m_projectRelativePath;
+    m_saved = source->m_saved;
+    m_worldBound = source->m_worldBound;
+    m_sceneDataStorage.Clone(source->m_sceneDataStorage, source);
     m_projectRelativePath.clear();
-    for (const auto &i : source.m_systems)
+    for (const auto &i : source->m_systems)
     {
         auto systemName = i.second->GetTypeName();
         size_t hashCode;
@@ -590,13 +608,14 @@ Scene &Scene::operator=(const Scene &source)
         m_systems.insert({i.first, system});
         m_indexedSystems[hashCode] = system;
         m_mappedSystems[i.second->GetHandle()] = system;
-
+        system->m_scene = source;
         system->OnCreate();
         SerializationManager::CloneSystem(system, i.second);
     }
-    return *this;
-}
 
+    auto mainCameraEntity = source->m_mainCamera.Get()->GetOwner();
+    m_mainCamera = EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(m_handle), mainCameraEntity).lock();
+}
 
 void EnvironmentSettings::Serialize(YAML::Emitter &out)
 {
@@ -618,14 +637,15 @@ void EnvironmentSettings::Deserialize(const YAML::Node &in)
         m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
     m_environmentalMap.Load("m_environmentSettings", in);
 }
-SceneDataStorage &SceneDataStorage::operator=(const SceneDataStorage &source)
+void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &scene)
 {
     m_entities = source.m_entities;
     m_entityInfos.resize(source.m_entityInfos.size());
-    for(int i = 0; i < m_entityInfos.size(); i++) m_entityInfos[i] = source.m_entityInfos[i];
+    for (int i = 0; i < m_entityInfos.size(); i++)
+        m_entityInfos[i].Clone(source.m_entityInfos[i], scene);
     m_dataComponentStorages.resize(source.m_dataComponentStorages.size());
-    for(int i = 0; i < m_dataComponentStorages.size(); i++) m_dataComponentStorages[i] = source.m_dataComponentStorages[i];
+    for (int i = 0; i < m_dataComponentStorages.size(); i++)
+        m_dataComponentStorages[i] = source.m_dataComponentStorages[i];
     m_entityMap = source.m_entityMap;
     m_entityPrivateComponentStorage = source.m_entityPrivateComponentStorage;
-    return *this;
 }

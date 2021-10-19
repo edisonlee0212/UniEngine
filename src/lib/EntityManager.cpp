@@ -1041,7 +1041,7 @@ void EntityManager::SetPrivateComponent(
                 element.m_privateComponentData->OnDestroy();
             }
             element.m_privateComponentData = ptr;
-            element.ResetOwner(entity);
+            element.ResetOwner(entity, scene);
             element.m_privateComponentData->OnCreate();
         }
         i++;
@@ -1050,7 +1050,7 @@ void EntityManager::SetPrivateComponent(
     {
         auto id = SerializationManager::GetSerializableTypeId(typeName);
         scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
-        elements.emplace_back(id, ptr, entity);
+        elements.emplace_back(id, ptr, entity, scene);
     }
     entityManager.m_scene->m_saved = false;
 }
@@ -1483,21 +1483,15 @@ std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDa
     }
     return queriedStorage;
 }
-std::shared_ptr<ISystem> EntityManager::GetOrCreateSystem(
-    const std::string &systemName, std::shared_ptr<Scene> scene, float order)
+bool EntityManager::IsEntityValid(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
-    size_t typeId;
-    auto ptr = SerializationManager::ProduceSerializable(systemName, typeId);
-    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
-    system->m_handle = Handle();
-    system->m_rank = order;
-    scene->m_systems.insert({order, system});
-    scene->m_indexedSystems[typeId] = system;
-    scene->m_mappedSystems[system->m_handle] = system;
-    system->m_started = false;
-    system->OnCreate();
-    scene->m_saved = false;
-    return std::dynamic_pointer_cast<ISystem>(ptr);
+    auto& storage = scene->m_sceneDataStorage.m_entities;
+    return entity.m_index != 0 && entity.m_version != 0 && entity.m_index < storage.size() && storage.at(entity.m_index).m_version == entity.m_version;
+}
+bool EntityManager::IsEntityEnabled(const std::shared_ptr<Scene> &scene, const Entity &entity)
+{
+    assert(IsEntityValid(scene, entity));
+    return scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled;
 }
 
 size_t EntityQuery::GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnabled) const

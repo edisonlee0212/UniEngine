@@ -14,10 +14,12 @@ class UNIENGINE_API ISystem : public ISerializable
     bool m_enabled;
     float m_rank = 0.0f;
     bool m_started = false;
+    std::weak_ptr<Scene> m_scene;
   protected:
     virtual void OnEnable(){};
     virtual void OnDisable(){};
   public:
+    std::shared_ptr<Scene> GetScene() const;
     [[nodiscard]] float GetRank();
     ISystem();
     void Enable();

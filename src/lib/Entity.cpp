@@ -42,7 +42,7 @@ size_t Entity::operator()(Entity const &key) const
 bool Entity::IsEnabled() const
 {
     assert(IsValid());
-    return EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(m_index).m_enabled;
+    return EntityManager::IsEntityEnabled(EntityManager::GetCurrentScene(), *this);
 }
 
 void Entity::SetEnabled(const bool &value) const
@@ -62,8 +62,7 @@ bool Entity::IsNull() const
 
 bool Entity::IsValid() const
 {
-    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entities;
-    return m_index != 0 && m_version != 0 && m_index < storage.size() && storage.at(m_index).m_version == m_version;
+    return EntityManager::IsEntityValid(EntityManager::GetCurrentScene(), *this);
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const

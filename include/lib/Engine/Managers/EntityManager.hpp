@@ -53,6 +53,8 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     std::shared_ptr<Scene> m_scene;
 #pragma endregion
 #pragma region Helpers
+    static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
+    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId);
     template <typename T = IDataComponent> static bool CheckDataComponentTypes(T arg);
     template <typename T = IDataComponent, typename... Ts> static bool CheckDataComponentTypes(T arg, Ts... args);
     template <typename T = IDataComponent>
@@ -200,56 +202,6 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         bool checkEnable = true);
 
 #pragma endregion
-#pragma region Entity methods
-    // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
-    // entity.
-    static void SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
-
-    static Entity GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static std::string GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static void SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name);
-    static void SetParent(
-        const std::shared_ptr<Scene> &scene,
-        const Entity &entity,
-        const Entity &parent,
-        const bool &recalculateTransform);
-    static Entity GetParent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static std::vector<Entity> GetChildren(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static Entity GetChild(const std::shared_ptr<Scene> &scene, const Entity &entity, int index);
-    static size_t GetChildrenAmount(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static void ForEachChild(
-        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func);
-    static void RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent);
-    static std::vector<Entity> GetDescendants(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static void ForEachDescendant(
-        const std::shared_ptr<Scene> &scene,
-        const Entity &target,
-        const std::function<void(const std::shared_ptr<Scene> &scene, const Entity &entity)> &func,
-        const bool &fromRoot = true);
-
-    template <typename T = IDataComponent>
-    static void AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
-    template <typename T = IDataComponent>
-    static void RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    template <typename T = IDataComponent>
-    static void SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
-    template <typename T = IDataComponent>
-    static T GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    template <typename T = IDataComponent>
-    static bool HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-
-    template <typename T = IPrivateComponent>
-    static std::weak_ptr<T> GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(
-        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
-
-    template <typename T = IPrivateComponent>
-    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    template <typename T = IPrivateComponent>
-    static bool HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
-    static bool HasPrivateComponent(
-        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
-#pragma endregion
 #pragma region EntityArchetype Methods
     static std::string GetEntityArchetypeName(const EntityArchetype &entityArchetype);
     static void SetEntityArchetypeName(const EntityArchetype &entityArchetype, const std::string &name);
@@ -317,17 +269,88 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static size_t GetEntityAmount(const std::shared_ptr<Scene> &scene, EntityQuery entityQuery, bool checkEnable);
 #pragma endregion
   public:
+#pragma region Entity methods
+    // Enable or Disable an Entity. Note that the disable action will recursively disable the children of current
+    // entity.
+    static void SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
+    static bool IsEntityValid(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static bool IsEntityEnabled(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static Entity GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::string GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static void SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name);
+    static void SetParent(
+        const std::shared_ptr<Scene> &scene,
+        const Entity &entity,
+        const Entity &parent,
+        const bool &recalculateTransform);
+    static Entity GetParent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::vector<Entity> GetChildren(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static Entity GetChild(const std::shared_ptr<Scene> &scene, const Entity &entity, int index);
+    static size_t GetChildrenAmount(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static void ForEachChild(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func);
+    static void RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent);
+    static std::vector<Entity> GetDescendants(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static void ForEachDescendant(
+        const std::shared_ptr<Scene> &scene,
+        const Entity &target,
+        const std::function<void(const std::shared_ptr<Scene> &scene, const Entity &entity)> &func,
+        const bool &fromRoot = true);
+
+    template <typename T = IDataComponent>
+    static void AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
+    template <typename T = IDataComponent>
+    static void RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IDataComponent>
+    static void SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value);
+    template <typename T = IDataComponent>
+    static T GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IDataComponent>
+    static bool HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+
+    template <typename T = IPrivateComponent>
+    static std::weak_ptr<T> GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static std::weak_ptr<IPrivateComponent> GetPrivateComponent(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
+
+    template <typename T = IPrivateComponent>
+    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    template <typename T = IPrivateComponent>
+    static bool HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static bool HasPrivateComponent(
+        const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &typeName);
+#pragma endregion
+#pragma region Entity Management
+    static Entity CreateEntity(const std::shared_ptr<Scene> &scene, const std::string &name = "New Entity");
+    static Entity CreateEntity(
+        const std::shared_ptr<Scene> &scene,
+        const EntityArchetype &archetype,
+        const std::string &name = "New Entity",
+        const Handle &handle = Handle());
+    static std::vector<Entity> CreateEntities(
+        const std::shared_ptr<Scene> &scene,
+        const EntityArchetype &archetype,
+        const size_t &amount,
+        const std::string &name = "New Entity");
+    static std::vector<Entity> CreateEntities(
+        const std::shared_ptr<Scene> &scene, const size_t &amount, const std::string &name = "New Entity");
+    static void DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const Handle &handle);
+    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const size_t &index);
+    template <typename T> static std::vector<Entity> GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene);
+    static void ForEachPrivateComponent(
+        const std::shared_ptr<Scene> &scene,
+        const Entity &entity,
+        const std::function<void(PrivateComponentElement &data)> &func);
+    static void GetAllEntities(const std::shared_ptr<Scene> &scene, std::vector<Entity> &target);
+    static void ForAllEntities(
+        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity)> &func);
+#pragma endregion
     static std::vector<std::reference_wrapper<DataComponentStorage>> QueryDataComponentStorages(
         const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery);
     static std::optional<std::pair<std::reference_wrapper<DataComponentStorage>, unsigned>> GetDataComponentStorage(
         const std::shared_ptr<Scene> &scene, const EntityArchetype &entityArchetype);
-
-    static void RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, size_t typeId);
-
-    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const Handle &handle);
-
     static EntityArchetype GetDefaultEntityArchetype();
-
 #pragma region Unsafe
     // Unsafe zone, allow directly manipulation of entity data, which may result in data corruption.
     /**
@@ -358,32 +381,9 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 #pragma endregion
     static size_t GetArchetypeChunkSize();
     static EntityArchetypeInfo GetArchetypeInfo(const EntityArchetype &entityArchetype);
-    static Entity GetEntity(const std::shared_ptr<Scene> &scene, const size_t &index);
-    template <typename T> static std::vector<Entity> GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene);
-    static void ForEachPrivateComponent(
-        const std::shared_ptr<Scene> &scene,
-        const Entity &entity,
-        const std::function<void(PrivateComponentElement &data)> &func);
-    static void GetAllEntities(const std::shared_ptr<Scene> &scene, std::vector<Entity> &target);
     static void Attach(const std::shared_ptr<Scene> &scene);
-    static EntityArchetype CreateEntityArchetypeHelper(const EntityArchetypeInfo &info);
-
     template <typename T = IDataComponent, typename... Ts>
     static EntityArchetype CreateEntityArchetype(const std::string &name, T arg, Ts... args);
-    static Entity CreateEntity(const std::shared_ptr<Scene> &scene, const std::string &name = "New Entity");
-    static Entity CreateEntity(
-        const std::shared_ptr<Scene> &scene,
-        const EntityArchetype &archetype,
-        const std::string &name = "New Entity",
-        const Handle &handle = Handle());
-    static std::vector<Entity> CreateEntities(
-        const std::shared_ptr<Scene> &scene,
-        const EntityArchetype &archetype,
-        const size_t &amount,
-        const std::string &name = "New Entity");
-    static std::vector<Entity> CreateEntities(
-        const std::shared_ptr<Scene> &scene, const size_t &amount, const std::string &name = "New Entity");
-    static void DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static EntityQuery CreateEntityQuery();
 #pragma region For Each
     template <typename T1 = IDataComponent>
@@ -614,48 +614,15 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
         const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func);
 
 #pragma endregion
-    static void ForAllEntities(
-        const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity)> &func);
     static std::shared_ptr<Scene> GetCurrentScene();
-
     static void Init();
-
-    template <typename T = ISystem>
-    static std::shared_ptr<T> GetOrCreateSystem(std::shared_ptr<Scene> scene, float order);
-    template <typename T = ISystem> static std::shared_ptr<T> GetSystem(std::shared_ptr<Scene> scene);
-
-    static std::shared_ptr<ISystem> GetOrCreateSystem(
-        const std::string &systemName, std::shared_ptr<Scene> scene, float order);
 };
+
 
 #pragma endregion
 
 #pragma region Functions
-template <typename T> std::shared_ptr<T> EntityManager::GetSystem(std::shared_ptr<Scene> scene)
-{
-    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
-    if (search != scene->m_indexedSystems.end())
-        return std::dynamic_pointer_cast<T>(search->second);
-    return nullptr;
-}
 
-template <typename T> std::shared_ptr<T> EntityManager::GetOrCreateSystem(std::shared_ptr<Scene> scene, float rank)
-{
-    const auto search = scene->m_indexedSystems.find(typeid(T).hash_code());
-    if (search != scene->m_indexedSystems.end())
-        return std::dynamic_pointer_cast<T>(search->second);
-    auto ptr = SerializationManager::ProduceSerializable<T>();
-    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
-    system->m_handle = Handle();
-    system->m_rank = rank;
-    scene->m_systems.insert({rank, system});
-    scene->m_indexedSystems[typeid(T).hash_code()] = system;
-    scene->m_mappedSystems[system->m_handle] = system;
-    system->m_started = false;
-    system->OnCreate();
-    scene->m_saved = false;
-    return ptr;
-}
 
 #pragma region Collectors
 
@@ -2073,7 +2040,7 @@ std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const std::shared_ptr<S
     }
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent<T>(entity);
     auto ptr = SerializationManager::ProduceSerializable<T>();
-    elements.emplace_back(typeid(T).hash_code(), ptr, entity);
+    elements.emplace_back(typeid(T).hash_code(), ptr, entity, scene);
     entityManager.m_scene->m_saved = false;
     return std::move(ptr);
 }

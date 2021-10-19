@@ -77,7 +77,25 @@ template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesys
     std::dynamic_pointer_cast<IAsset>(asset)->SetPathAndLoad(path);
     return asset;
 }
-
+template <typename T> std::shared_ptr<T> Scene::GetOrCreateSystem(float rank)
+{
+    const auto search = m_indexedSystems.find(typeid(T).hash_code());
+    if (search != m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    auto self = AssetManager::Get<Scene>(m_handle);
+    auto ptr = SerializationManager::ProduceSerializable<T>();
+    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
+    system->m_scene = self;
+    system->m_handle = Handle();
+    system->m_rank = rank;
+    m_systems.insert({rank, system});
+    m_indexedSystems[typeid(T).hash_code()] = system;
+    m_mappedSystems[system->m_handle] = system;
+    system->m_started = false;
+    system->OnCreate();
+    m_saved = false;
+    return ptr;
+}
 template <typename T> std::vector<std::string> AssetManager::GetExtension()
 {
     return GetInstance().m_defaultExtensions[SerializationManager::GetSerializableTypeName<T>()];

@@ -45,6 +45,7 @@ Entity Prefab::ToEntity() const
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         SerializationManager::ClonePrivateComponent(ptr, i.m_data);
+        ptr->m_scene = EntityManager::GetCurrentScene();
         EntityManager::SetPrivateComponent(EntityManager::GetCurrentScene(), entity, ptr);
     }
     for (const auto &i : m_children)
@@ -108,6 +109,7 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
         SerializationManager::ClonePrivateComponent(ptr, i.m_data);
+        ptr->m_scene = EntityManager::GetCurrentScene();
         EntityManager::SetPrivateComponent(EntityManager::GetCurrentScene(), entity, ptr);
     }
     int index = 0;
@@ -931,7 +933,7 @@ void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map
 {
     auto currentScene = EntityManager::GetCurrentScene();
     EntityManager::ForEachPrivateComponent(EntityManager::GetCurrentScene(), parentEntity, [&](PrivateComponentElement &data) {
-            data.m_privateComponentData->Relink(map, currentScene->GetHandle());
+            data.m_privateComponentData->Relink(map, currentScene);
         });
     EntityManager::ForEachChild(EntityManager::GetCurrentScene(), parentEntity, [&](const std::shared_ptr<Scene> &scene, Entity child) { RelinkChildren(child, map); });
 }

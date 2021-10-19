@@ -6,31 +6,34 @@
 #include "SerializationManager.hpp"
 namespace UniEngine
 {
-class UNIENGINE_API PrivateComponentRef : public ISerializable
+class UNIENGINE_API PrivateComponentRef
 {
     friend class Prefab;
     std::optional<std::weak_ptr<IPrivateComponent>> m_value;
     Handle m_entityHandle = Handle(0);
+    std::weak_ptr<Scene> m_scene;
     std::string m_privateComponentTypeName;
     bool Update();
 
   public:
     PrivateComponentRef &operator=(const PrivateComponentRef &other);
-    void Serialize(YAML::Emitter &out) override
+    void Serialize(YAML::Emitter &out)
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
         out << YAML::Key << "m_privateComponentTypeName" << YAML::Value << m_privateComponentTypeName;
     }
-    void Deserialize(const YAML::Node &in) override
+    void Deserialize(const YAML::Node &in, const std::shared_ptr<Scene> &scene)
     {
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
         m_privateComponentTypeName = in["m_privateComponentTypeName"].as<std::string>();
+        m_scene = scene;
     }
 
     PrivateComponentRef()
     {
         m_entityHandle = Handle(0);
         m_privateComponentTypeName = "";
+        m_scene.reset();
     }
     template <typename T = IPrivateComponent> PrivateComponentRef(const std::shared_ptr<T> &other)
     {
@@ -56,13 +59,14 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         return m_entityHandle != rhs.m_entityHandle;
     }
 
-    void Relink(const std::unordered_map<Handle, Handle> &map, const Handle &newSceneHandle)
+    void Relink(const std::unordered_map<Handle, Handle> &map, const std::shared_ptr<Scene> &scene)
     {
         auto search = map.find(m_entityHandle);
         if (search != map.end())
         {
             m_entityHandle = search->second;
             m_value.reset();
+            m_scene = scene;
         }
         else
             Clear();
@@ -84,6 +88,7 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
             m_privateComponentTypeName = privateComponent->GetTypeName();
             m_entityHandle = privateComponent->GetOwner().GetHandle();
             m_value = privateComponent;
+            m_scene = privateComponent->GetScene();
         }
         else
         {
@@ -126,9 +131,9 @@ class UNIENGINE_API PrivateComponentRef : public ISerializable
         Serialize(out);
         out << YAML::EndMap;
     }
-    void Load(const std::string &name, const YAML::Node &in)
+    void Load(const std::string &name, const YAML::Node &in, const std::shared_ptr<Scene> &scene)
     {
-        Deserialize(in[name]);
+        Deserialize(in[name], scene);
     }
 };
 } // namespace UniEngine

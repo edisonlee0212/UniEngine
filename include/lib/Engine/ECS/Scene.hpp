@@ -43,7 +43,7 @@ struct SceneDataStorage
     std::unordered_map<Handle, Entity> m_entityMap;
     PrivateComponentStorage m_entityPrivateComponentStorage;
 
-    SceneDataStorage &operator=(const SceneDataStorage &source);
+    void Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &scene);
 };
 
 class UNIENGINE_API Scene : public IAsset
@@ -69,11 +69,18 @@ class UNIENGINE_API Scene : public IAsset
     bool LoadInternal(const std::filesystem::path &path) override;
 
   public:
+    template <typename T = ISystem>
+    std::shared_ptr<T> GetOrCreateSystem(float order);
+    template <typename T = ISystem> std::shared_ptr<T> GetSystem();
+    template <typename T = ISystem> bool HasSystem();
+    std::shared_ptr<ISystem> GetOrCreateSystem(
+        const std::string &systemName, float order);
+
     EnvironmentSettings m_environmentSettings;
     PrivateComponentRef m_mainCamera;
     void Purge();
     void OnCreate() override;
-    Scene &operator=(const Scene &source);
+    void Clone(const std::shared_ptr<Scene> &source);
     [[nodiscard]] Bound GetBound() const;
     void SetBound(const Bound &value);
     template <typename T = ISystem> void DestroySystem();
@@ -86,6 +93,20 @@ class UNIENGINE_API Scene : public IAsset
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };
+template <typename T> std::shared_ptr<T> Scene::GetSystem()
+{
+    const auto search = m_indexedSystems.find(typeid(T).hash_code());
+    if (search != m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    return nullptr;
+}
+template <typename T> bool Scene::HasSystem()
+{
+    const auto search = m_indexedSystems.find(typeid(T).hash_code());
+    if (search != m_indexedSystems.end())
+        return true;
+    return false;
+}
 
 template <typename T> void Scene::DestroySystem()
 {

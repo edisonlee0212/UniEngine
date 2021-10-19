@@ -45,7 +45,7 @@ void LoadScene(){
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma region Star System
     auto starClusterSystem =
-        EntityManager::GetOrCreateSystem<StarClusterSystem>(EntityManager::GetCurrentScene(), SystemGroup::SimulationSystemGroup);
+        EntityManager::GetCurrentScene()->GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto postProcessing =
         mainCamera->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();

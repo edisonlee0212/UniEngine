@@ -81,18 +81,18 @@ struct UNIENGINE_API Entity final
 };
 #pragma region Storage
 
-class UNIENGINE_API EntityRef : public ISerializable
+class UNIENGINE_API EntityRef
 {
     Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);
     void Update();
 
   public:
-    void Serialize(YAML::Emitter &out) override
+    void Serialize(YAML::Emitter &out)
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
     }
-    void Deserialize(const YAML::Node &in) override
+    void Deserialize(const YAML::Node &in)
     {
         m_entityHandle = Handle(in["m_entityHandle"].as<uint64_t>());
     }
@@ -117,7 +117,7 @@ class UNIENGINE_API EntityRef : public ISerializable
         return *this;
     }
 
-    void Relink(const std::unordered_map<Handle, Handle> &map, const Handle &newSceneHandle)
+    void Relink(const std::unordered_map<Handle, Handle> &map)
     {
         if (m_entityHandle.GetValue() == 0)
             return;

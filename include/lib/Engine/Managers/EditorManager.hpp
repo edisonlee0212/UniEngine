@@ -156,12 +156,12 @@ template <typename T> void EditorManager::RegisterSystem()
 {
     auto &editorManager = GetInstance();
     auto func = [&](float rank) {
-        if (EntityManager::GetSystem<T>(EntityManager::GetCurrentScene()))
+        if (EntityManager::GetCurrentScene()->GetSystem<T>())
             return;
         auto systemName = SerializationManager::GetSerializableTypeName<T>();
         if (ImGui::Button(systemName.c_str()))
         {
-            EntityManager::GetOrCreateSystem(systemName, EntityManager::GetCurrentScene(), rank);
+            EntityManager::GetCurrentScene()->GetOrCreateSystem(systemName, rank);
         }
     };
     for (int i = 0; i < editorManager.m_systemMenuList.size(); i++)
