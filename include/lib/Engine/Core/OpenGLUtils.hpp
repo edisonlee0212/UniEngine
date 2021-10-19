@@ -4,13 +4,28 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
+
+enum class OpenGLCapability{
+    DepthTest,
+    ScissorTest,
+    StencilTest,
+    Blend,
+    CullFace
+};
 class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
     friend class DefaultResources;
     friend class RenderManager;
+
+    bool m_depthTest = true;
+    bool m_scissorTest = true;
+    bool m_stencilTest = true;
+    bool m_blend = true;
+    bool m_cullFace = true;
   public:
     static void Init();
     static void PreUpdate();
+    static void SetEnable(OpenGLCapability capability, bool enable);
 #pragma region Sub classes
     class UNIENGINE_API GLObject
     {

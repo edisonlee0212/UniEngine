@@ -1,6 +1,6 @@
 ﻿#include <ConsoleManager.hpp>
-#include <OpenGLUtils.hpp>
 #include <EditorManager.hpp>
+#include <OpenGLUtils.hpp>
 using namespace UniEngine;
 
 void APIENTRY glDebugOutput(
@@ -59,6 +59,74 @@ void OpenGLUtils::PreUpdate()
     GLProgram::m_boundProgram = 0;
     GLFrameBuffer::m_boundFrameBuffer = 0;
     GLRenderBuffer::m_boundRenderBuffer = 0;
+
+    auto& utils = GetInstance();
+    utils.m_depthTest = false;
+    utils.m_scissorTest = false;
+    utils.m_stencilTest = false;
+    utils.m_blend = false;
+    utils.m_cullFace = false;
+    SetEnable(OpenGLCapability::DepthTest, true);
+    SetEnable(OpenGLCapability::ScissorTest, false);
+    SetEnable(OpenGLCapability::StencilTest, true);
+    SetEnable(OpenGLCapability::Blend, true);
+    SetEnable(OpenGLCapability::CullFace, true);
+}
+void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
+{
+    auto& utils = GetInstance();
+    switch(capability){
+    case OpenGLCapability::DepthTest:
+        if(utils.m_depthTest != enable){
+            if(enable){
+                glEnable(GL_DEPTH_TEST);
+            }else{
+                glDisable(GL_DEPTH_TEST);
+            }
+        }
+        utils.m_depthTest = enable;
+        break;
+    case OpenGLCapability::ScissorTest:
+        if(utils.m_scissorTest != enable){
+            if(enable){
+                glEnable(GL_SCISSOR_TEST);
+            }else{
+                glDisable(GL_SCISSOR_TEST);
+            }
+        }
+        utils.m_scissorTest = enable;
+        break;
+    case OpenGLCapability::StencilTest:
+        if(utils.m_stencilTest != enable){
+            if(enable){
+                glEnable(GL_STENCIL_TEST);
+            }else{
+                glDisable(GL_STENCIL_TEST);
+            }
+        }
+        utils.m_stencilTest = enable;
+        break;
+    case OpenGLCapability::Blend:
+        if(utils.m_blend != enable){
+            if(enable){
+                glEnable(GL_BLEND);
+            }else{
+                glDisable(GL_BLEND);
+            }
+        }
+        utils.m_blend = enable;
+        break;
+    case OpenGLCapability::CullFace:
+        if(utils.m_cullFace != enable){
+            if(enable){
+                glEnable(GL_CULL_FACE);
+            }else{
+                glDisable(GL_CULL_FACE);
+            }
+        }
+        utils.m_cullFace = enable;
+        break;
+    }
 }
 
 GLuint OpenGLUtils::GLObject::Id() const

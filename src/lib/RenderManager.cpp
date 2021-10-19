@@ -70,7 +70,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     RenderShadows(sceneBound, cameraComponent, cameraModel);
     ApplyShadowMapSettings();
     ApplyEnvironmentalSettings(cameraComponent);
-    glEnable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     cameraComponent->m_gBuffer->Bind();
     unsigned int attachments[4] = {
         GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
@@ -131,10 +131,10 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
             }
         },
         true);
-    glDisable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
 #pragma region Copy Depth Buffer back to camera
     auto res = cameraComponent->GetResolution();
     glBindFramebuffer(GL_READ_FRAMEBUFFER, cameraComponent->m_gBuffer->GetFrameBuffer()->Id());
@@ -164,7 +164,7 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
     DefaultResources::ScreenVAO->Bind();
     glDrawArrays(GL_TRIANGLES, 0, 6);
 #pragma endregion
-    glEnable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
 #pragma region Forward rendering
     DispatchRenderCommands(
         renderManager.m_forwardRenderInstances[cameraComponent],
@@ -1211,9 +1211,9 @@ void RenderManager::ShadowMapPrePass(
 void RenderManager::RenderShadows(
     Bound &worldBound, const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel)
 {
-    glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     auto &renderManager = GetInstance();
 #pragma region Shadow
@@ -1746,19 +1746,19 @@ void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &mate
     switch (material->m_cullingMode)
     {
     case MaterialCullingMode::Off:
-        glDisable(GL_CULL_FACE);
+        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
         break;
     case MaterialCullingMode::Front:
-        glEnable(GL_CULL_FACE);
+        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
         glCullFace(GL_FRONT);
         break;
     case MaterialCullingMode::Back:
-        glEnable(GL_CULL_FACE);
+        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
         glCullFace(GL_BACK);
         break;
     }
     if (disableBlending)
-        glDisable(GL_BLEND);
+        OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
     else
     {
         switch (material->m_blendingMode)
@@ -1766,12 +1766,12 @@ void RenderManager::MaterialPropertySetter(const std::shared_ptr<Material> &mate
         case MaterialBlendingMode::Off:
             break;
         case MaterialBlendingMode::OneMinusSrcAlpha:
-            glEnable(GL_BLEND);
+            OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             break;
         }
     }
-    glEnable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
 }
 
 void RenderManager::ApplyMaterialSettings(const std::shared_ptr<Material> &material)
@@ -2064,14 +2064,14 @@ void RenderManager::DrawGizmoMeshInstanced(
 {
     if (mesh == nullptr || matrices.empty())
         return;
-    glEnable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
     glCullFace(GL_BACK);
     if (!depthTest)
-        glDisable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
-        glEnable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_BLEND);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mesh->Enable();
     DefaultResources::GizmoInstancedProgram->Bind();
@@ -2093,14 +2093,14 @@ void RenderManager::DrawGizmoMeshInstancedColored(
 {
     if (mesh == nullptr || matrices.empty() || colors.empty() || matrices.size() != colors.size())
         return;
-    glEnable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
     glCullFace(GL_BACK);
     if (!depthTest)
-        glDisable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
-        glEnable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_BLEND);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mesh->Enable();
     const auto vao = mesh->Vao();
@@ -2128,14 +2128,14 @@ void RenderManager::DrawGizmoMesh(
 {
     if (mesh == nullptr)
         return;
-    glEnable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
     glCullFace(GL_BACK);
     if (!depthTest)
-        glDisable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
-        glEnable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_BLEND);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     DefaultResources::GizmoProgram->Bind();

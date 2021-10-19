@@ -210,12 +210,12 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
         manager.m_sceneCamera, manager.m_sceneCameraPosition, manager.m_sceneCameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(manager.m_sceneCamera);
     manager.m_sceneCamera->Bind();
-    glEnable(GL_STENCIL_TEST);
-    glEnable(GL_BLEND);
+    OpenGLUtils::SetEnable(OpenGLCapability::StencilTest, true);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
@@ -234,7 +234,7 @@ void EditorManager::HighLightEntity(const Entity &entity, const glm::vec4 &color
     HighLightEntityHelper(entity);
     glStencilMask(0xFF);
     glStencilFunc(GL_ALWAYS, 0, 0xFF);
-    glEnable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
 }
 
 void EditorManager::Init()
@@ -519,10 +519,10 @@ void EditorManager::RenderToSceneCamera()
             editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition, editorManager.m_sceneCameraRotation);
         Camera::m_cameraInfoBlock.UploadMatrices(editorManager.m_sceneCamera);
 #pragma region For entity selection
-        glEnable(GL_DEPTH_TEST);
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDisable(GL_BLEND);
-        glDisable(GL_CULL_FACE);
+        OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
         editorManager.m_sceneCameraEntityRecorder->Bind();
         for (auto &i : renderManager.m_deferredRenderInstances)
         {
