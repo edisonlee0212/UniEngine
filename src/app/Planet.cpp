@@ -21,7 +21,7 @@ int main()
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Planet/Planet.ueproj";
 
     ProjectManager::SetScenePostLoadActions([](){
-        //LoadScene();
+        LoadScene();
     });
 
     Application::Init(applicationConfigs);

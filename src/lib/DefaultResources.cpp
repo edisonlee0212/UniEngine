@@ -84,6 +84,7 @@ std::shared_ptr<Mesh> DefaultResources::Primitives::Cone;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Ring;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Cylinder;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Monkey;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Capsule;
 
 std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultSkybox;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::DefaultEnvironmentalMap;
@@ -263,77 +264,46 @@ void DefaultResources::LoadPrimitives()
 {
 #pragma region Models &Primitives
 
-    if(false){
-        auto model = AssetManager::CreateAsset<Prefab>("quad");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
+    {
         Primitives::Quad = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Quad");
-        Primitives::Quad->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Quad->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/quad.uemesh");
         AssetManager::Share(Primitives::Quad);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("sphere");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/sphere.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Sphere = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Sphere");
-        Primitives::Sphere->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Sphere->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/sphere.uemesh");
         AssetManager::Share(Primitives::Sphere);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("cube");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cube.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cube = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cube");
-        Primitives::Cube->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Cube->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cube.uemesh");
         AssetManager::Share(Primitives::Cube);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("cone");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cone.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cone = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cone");
-        Primitives::Cone->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Cone->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cone.uemesh");
         AssetManager::Share(Primitives::Cone);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("cylinder");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Cylinder = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Cylinder");
-        Primitives::Cylinder->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Cylinder->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.uemesh");
         AssetManager::Share(Primitives::Cylinder);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("ring");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/ring.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
-        Primitives::Ring = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Ring");
-        Primitives::Ring->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Ring = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "ring");
+        Primitives::Ring->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/ring.uemesh");
         AssetManager::Share(Primitives::Ring);
     }
     {
-        auto model = AssetManager::CreateAsset<Prefab>("monkey");
-        model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/monkey.obj");
-        auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()
-                        ? model->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>()
-                        : model->m_children[0]->m_children[0]->GetPrivateComponent<MeshRenderer>()->m_mesh.Get<Mesh>();
         Primitives::Monkey = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Monkey");
-        Primitives::Monkey->SetVertices(19, mesh->UnsafeGetVertices(), mesh->UnsafeGetTriangles());
+        Primitives::Monkey->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/monkey.uemesh");
         AssetManager::Share(Primitives::Monkey);
     }
-
+    {
+        Primitives::Capsule = AssetManager::CreateAsset<Mesh>(GenerateNewHandle(), "Capsule");
+        Primitives::Capsule->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/capsule.uemesh");
+        AssetManager::Share(Primitives::Capsule);
+    }
 #pragma endregion
 }
 void DefaultResources::Load()
