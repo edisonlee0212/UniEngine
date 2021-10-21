@@ -110,6 +110,7 @@ class UNIENGINE_API PrivateComponentRef
             auto entity = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner();
             m_entityHandle = entity.GetHandle();
             m_value = pc;
+            m_scene = pc->GetScene();
         }
         else
         {

@@ -255,7 +255,7 @@ void PhysicsManager::UploadJointLinks(
         bool shouldRegister = EntityManager::IsEntityValid(scene, entity) &&
                               EntityManager::IsEntityEnabled(scene, entity) && joint->IsEnabled() &&
                               (rigidBody1 && rigidBody2);
-        if (joint->m_linked == false && shouldRegister)
+        if (!joint->m_linked && shouldRegister)
         {
             PxTransform localFrame1;
             auto ownerGT = EntityManager::GetDataComponent<GlobalTransform>(scene, rigidBody1->GetOwner());
@@ -386,7 +386,7 @@ void PhysicsManager::UploadJointLinks(
             }
             joint->m_linked = true;
         }
-        else if (joint->m_linked == true && !shouldRegister)
+        else if (joint->m_linked && !shouldRegister)
         {
             joint->Unlink();
         }
