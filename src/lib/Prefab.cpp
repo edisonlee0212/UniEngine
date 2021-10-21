@@ -323,49 +323,52 @@ std::shared_ptr<Material> Prefab::ReadMaterial(
     aiMaterial *importerMaterial)
 {
     auto targetMaterial = AssetManager::LoadMaterial(glProgram);
-
-    // PBR
-    if (importerMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+    if(importerMaterial)
     {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &str);
-        targetMaterial->SetTexture(TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-        targetMaterial->SetTexture(TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
-        targetMaterial->SetTexture(TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_METALNESS, 0, &str);
-        targetMaterial->SetTexture(TextureType::Metallic, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &str);
-        targetMaterial->SetTexture(TextureType::Roughness, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &str);
-        targetMaterial->SetTexture(TextureType::AO, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
-    }
-    if (importerMaterial->GetTextureCount(aiTextureType_HEIGHT) > 0)
-    {
-        aiString str;
-        importerMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
-        targetMaterial->SetTexture(TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        // PBR
+        if (importerMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &str);
+            targetMaterial->SetTexture(TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
+            targetMaterial->SetTexture(TextureType::Albedo, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &str);
+            targetMaterial->SetTexture(TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_METALNESS) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_METALNESS, 0, &str);
+            targetMaterial->SetTexture(TextureType::Metallic, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &str);
+            targetMaterial->SetTexture(
+                TextureType::Roughness, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &str);
+            targetMaterial->SetTexture(TextureType::AO, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        if (importerMaterial->GetTextureCount(aiTextureType_HEIGHT) > 0)
+        {
+            aiString str;
+            importerMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
+            targetMaterial->SetTexture(TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
     }
     return targetMaterial;
 }
@@ -390,11 +393,12 @@ bool Prefab::ProcessNode(
             continue;
         auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerMesh->mName.C_Str()));
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
-        bool isSkinnedMesh = importerMesh->HasBones();
+        bool isSkinnedMesh = importerMesh->mNumBones != 0xffffffff && importerMesh->mBones;
         std::shared_ptr<Material> material;
         if (search == loadedMaterials.end())
         {
-            aiMaterial *importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
+            aiMaterial *importerMaterial = nullptr;
+            if(importerMesh->mMaterialIndex != 0xffffffff && importerMesh->mMaterialIndex < importerScene->mNumMaterials) importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
             material = ReadMaterial(
                 directory,
                 isSkinnedMesh ? DefaultResources::GLPrograms::StandardSkinnedProgram
@@ -407,7 +411,7 @@ bool Prefab::ProcessNode(
             material = search->second;
         }
 
-        if (importerMesh->HasBones())
+        if (isSkinnedMesh)
         {
             auto skinnedMeshRenderer = SerializationManager::ProduceSerializable<SkinnedMeshRenderer>();
             skinnedMeshRenderer->m_material.Set<Material>(material);

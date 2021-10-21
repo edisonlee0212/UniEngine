@@ -79,6 +79,7 @@ set(UNIENGINE_INCLUDES_LOCAL
         ${CMAKE_CURRENT_BINARY_DIR}
         )
 
+include_directories(3rdParty/physx/include)
 target_include_directories(uniengine
         PRIVATE
         ${UNIENGINE_INCLUDES_LOCAL}
@@ -136,10 +137,10 @@ if (WIN32)
 elseif (UNIX AND NOT APPLE)
     # Linker and compiler settings for Linux platform
     if (${CMAKE_BUILD_TYPE} STREQUAL Release)
-        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/release/*.so")
+        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/release/*.a")
         set(CMAKE_CXX_FLAGS_RELEASE "-O3")
     elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/debug/*.so")
+        file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/debug/*.a")
         set(CMAKE_CXX_FLAGS_DEBUG "-g")
     endif ()
     target_link_libraries(uniengine
@@ -152,6 +153,7 @@ elseif (UNIX AND NOT APPLE)
             Xi
             dl
             assimp
+            cuda
             ${PHYSX_LIBS}
             )
 elseif (APPLE)
@@ -299,42 +301,36 @@ add_custom_command(TARGET uniengine POST_BUILD
 if (WIN32)
     if (${CMAKE_BUILD_TYPE} STREQUAL Release)
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc142.mt/release/*.dll")
-        add_custom_command(
-                TARGET uniengine
-                POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${3RD_PARTY_DIR}/assimp/assimp-vc142-mt.dll
-                ${CMAKE_BINARY_DIR}
-        )
-        foreach (PHYSX_DLL ${PHYSX_DLLS})
-            add_custom_command(
-                    TARGET uniengine
-                    POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy
-                    ${PHYSX_DLL}
-                    ${CMAKE_BINARY_DIR}
-            )
-        endforeach ()
+        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mt.dll)
     elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc142.mt/debug/*.dll")
-        add_custom_command(
-                TARGET uniengine
-                POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy
-                ${3RD_PARTY_DIR}/assimp/assimp-vc142-mtd.dll
-                ${CMAKE_BINARY_DIR}
-        )
-        foreach (PHYSX_DLL ${PHYSX_DLLS})
-            add_custom_command(
-                    TARGET uniengine
-                    POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy
-                    ${PHYSX_DLL}
-                    ${CMAKE_BINARY_DIR}
-            )
-        endforeach ()
+        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mtd.dll)
+    endif ()
+    add_custom_command(
+            TARGET uniengine
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${ASSIMP_DLL}
+            ${CMAKE_BINARY_DIR}
+    )
+elseif (UNIX AND NOT APPLE)
+    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+        file(GLOB PHYSX_DLLS "3rdParty/physx/linux.clang/release/*.so")
+    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+        file(GLOB PHYSX_DLLS "3rdParty/physx/linux.clang/debug/*.so")
     endif ()
 endif ()
+
+foreach (PHYSX_DLL ${PHYSX_DLLS})
+    add_custom_command(
+            TARGET uniengine
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${PHYSX_DLL}
+            ${CMAKE_BINARY_DIR}
+    )
+endforeach ()
+
 if (NOT ${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR})
     if (WIN32)
         add_custom_command(

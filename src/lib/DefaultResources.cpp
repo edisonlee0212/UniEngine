@@ -263,7 +263,7 @@ void DefaultResources::LoadPrimitives()
 {
 #pragma region Models &Primitives
 
-    {
+    if(false){
         auto model = AssetManager::CreateAsset<Prefab>("quad");
         model->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/quad.obj");
         auto mesh = model->m_children[0]->GetPrivateComponent<MeshRenderer>().get()

@@ -333,7 +333,7 @@ void Application::Pause()
     if(application.m_gameStatus != GameStatus::Playing) return;
     application.m_gameStatus = GameStatus::Pause;
 }
-GameStatus Application::GameStatus()
+GameStatus Application::GetGameStatus()
 {
     return GetInstance().m_gameStatus;
 }

@@ -82,7 +82,7 @@ class UNIENGINE_API Application final : ISingleton<Application>
     static void Step();
     static void Stop();
     static void Pause();
-    static GameStatus GameStatus();
+    static GameStatus GetGameStatus();
     // You are only allowed to create entity after this.
     static bool IsInitialized();
     static void Init(const ApplicationConfigs& applicationConfigs);
