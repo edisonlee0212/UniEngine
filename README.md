@@ -6,22 +6,22 @@ Here lists the features that already exists in the UniEngine.
     - Cache-friendly data component, similiar to the ComponentData in Unity Engine) 
     - Customizable private component, similiar to Component in Unity Engine. 
     - The ECS is intensively used in my other private research projects. It's designed and implemented to imitate the DOTS framework in Unity Engine.
- - Immature Job System for multi-thread support. 
+ - Multi-threading
     - The Job System is designed and closely combined with ECS to provide ability to operate concurrently on multiple data components.
- - Fully featured viewer and editor applications
+ - Editor
     - Gizmo
     - Scene hierarchy viewing, editing
     - Entity create/delete/rename/set-parent
     - Resource/Asset drag-and-drop
     - GUI registry for Entity Inspector for view/editing for both data component and private component defined by user
     - Profiler
- - High-fidelity Physically-Based 3D rendering
+ - PBR + IBL + PCSS
     - Support for both deferred (RenderSystem) and forward rendering (RenderSystem/native rendering API).
     - Lighting and Shadows
        - Splitting: CSM
        - Warping: CSSM
        - Soft shadow: PCSS
-       - Multiple types of light
+       - Spot/Point/Directional light support
     - Post-processing
        - Bloom
        - SSAO
@@ -32,27 +32,26 @@ Here lists the features that already exists in the UniEngine.
     - Instanced rendering
     - High-level rendering API - You can issue a complete render command with no glXXX command involved at all!
        - Similiar to https://docs.unity3d.com/ScriptReference/Graphics.DrawMesh.html
- - 3D Animations
+ - Animation
  - Cross-platform support for Linux, Windows
  - Native high-level rendering API support (Please visit RenderManager for further details)
  - Exportable as shared library (For my own research purposes, I'm using the UniEngine as the underlying rendering framework for my other research projects. Those are private.)
  - AssetManager, ProjectManager
-    - Asset import and management
+    - Asset I/O
        - Texture
        - 3D Model
        - 3D Animated Model
-    - Scene serialization
+       - Internal file system, Project folder management, Asset Registry
+    - Scene I/O
        - Default/Local/Global asset serialization
        - Entity/DataComponent/PrivateComponent/System serialization
     - Prefabs
        - Auto construct prefab from entity, instanciate entity from prefab
        - Drag and drop
-    - AssetRegistry
  - Physics
     - Integrated PhysX for 3D physics (Incomplete and in development)
        - RigidBody with colliders
        - Joints
-       - Articulations
  - Documentation
        - https://codedocs.xyz/edisonlee0212/UniEngine/
 ## Upcoming features
@@ -68,7 +67,7 @@ E.g. For Linux, the command may be :
  - bash build.sh (build in default settings)
  - bash build.sh --clean release (clean and build in release mode)
  - Video demo: 
- - [![Procedural Sorghum](https://img.youtube.com/vi/fw8UUDWaMaU/0.jpg)](https://www.youtube.com/watch?v=fw8UUDWaMaU)
+ - [![UniEngineOnLinux](https://img.youtube.com/vi/fw8UUDWaMaU/0.jpg)](https://www.youtube.com/watch?v=fw8UUDWaMaU)
 Please visit script for further details.
 ## Examples
 - Rendering
