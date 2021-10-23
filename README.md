@@ -1,5 +1,5 @@
 # UniEngine
-UniEngine is an early-stage, cross-platform interactive application and rendering engine for Windows, Linux, and MacOS (Upcoming). 
+UniEngine is an early-stage, cross-platform interactive application and rendering engine for Windows and Linux (MacOS I'm truly sorry, but nah). 
 ## Main features
 Here lists the features that already exists in the UniEngine.
  - Complete Entity Component System (ECS) 
