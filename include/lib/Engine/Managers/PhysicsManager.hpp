@@ -126,7 +126,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
     static void UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *rigidBodyEntities);
     static void UploadJointLinks(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *jointEntities);
   public:
-    static void UploadTransforms(const bool& updateAll, const bool& freeze = false);
+    static void UploadTransforms(const std::shared_ptr<Scene>& scene, const bool& updateAll, const bool& freeze = false);
     static void UploadRigidBodyShapes(const std::shared_ptr<Scene>& scene);
     static void UploadJointLinks(const std::shared_ptr<Scene> &scene);
     static void UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody);

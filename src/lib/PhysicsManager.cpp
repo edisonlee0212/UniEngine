@@ -58,7 +58,7 @@ void PhysicsManager::PreUpdate()
     const bool playing = Application::IsPlaying();
     auto activeScene = EntityManager::GetCurrentScene();
     UploadRigidBodyShapes(activeScene);
-    UploadTransforms(!playing);
+    UploadTransforms(activeScene, !playing);
     UploadJointLinks(activeScene);
 }
 
@@ -100,10 +100,11 @@ void PhysicsManager::Destroy()
 
     // PX_RELEASE(physicsManager.m_physicsFoundation);
 }
-void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
+void PhysicsManager::UploadTransforms(const std::shared_ptr<Scene> &scene, const bool &updateAll, const bool &freeze)
 {
-    if (const std::vector<Entity> *entities =
-            EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+    if (!scene)
+        return;
+    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
         entities != nullptr)
     {
         for (auto entity : *entities)
@@ -130,10 +131,16 @@ void PhysicsManager::UploadTransforms(const bool &updateAll, const bool &freeze)
                 else if (updateAll)
                 {
                     rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+                    PxRigidBody *rigidBodyP = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
                     if (freeze)
                     {
                         rigidBody->SetLinearVelocity(glm::vec3(0.0f));
                         rigidBody->SetAngularVelocity(glm::vec3(0.0f));
+                    }
+                    else
+                    {
+                        rigidBodyP->setLinearVelocity(rigidBody->m_linearVelocity);
+                        rigidBodyP->setAngularVelocity(rigidBody->m_angularVelocity);
                     }
                 }
             }
@@ -217,6 +224,8 @@ void PhysicsManager::UploadRigidBodyShapes(
 }
 void PhysicsManager::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
 {
+    if (!scene)
+        return;
     auto physicsManager = GetInstance();
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
@@ -230,6 +239,8 @@ void PhysicsManager::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
 }
 void PhysicsManager::UploadJointLinks(const std::shared_ptr<Scene> &scene)
 {
+    if (!scene)
+        return;
     auto physicsManager = GetInstance();
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
