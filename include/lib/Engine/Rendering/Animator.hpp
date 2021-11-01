@@ -21,7 +21,6 @@ class UNIENGINE_API Animator : public IPrivateComponent
     size_t m_boneSize = 0;
     void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
     void Setup();
-    bool m_animatedCurrentFrame = false;
   public:
     bool m_needAnimate = true;
     /**
@@ -37,7 +36,6 @@ class UNIENGINE_API Animator : public IPrivateComponent
     std::string m_currentActivatedAnimation;
     float m_currentAnimationTime;
     void AutoPlay();
-    bool AnimatedCurrentFrame();
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
     void OnInspect() override;
     void Animate();

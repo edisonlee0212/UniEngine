@@ -7,6 +7,7 @@
 #include <RenderManager.hpp>
 #include <Scene.hpp>
 #include <ClassRegistry.hpp>
+#include <ILayer.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API ApplicationTime

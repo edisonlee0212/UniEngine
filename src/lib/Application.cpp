@@ -182,7 +182,6 @@ void Application::LateUpdateInternal()
 
     // Post-processing happens here
     RenderManager::LateUpdate();
-    AnimationManager::LateUpdate();
     // Manager settings
     OnInspect();
     InputManager::OnInspect();

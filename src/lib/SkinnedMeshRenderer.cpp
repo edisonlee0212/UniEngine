@@ -52,7 +52,7 @@ void SkinnedMeshRenderer::GetBoneMatrices()
     else
     {
         auto skinnedMesh = m_skinnedMesh.Get<SkinnedMesh>();
-        if (!animator->m_animatedCurrentFrame || animator->m_boneSize == 0)
+        if (animator->m_boneSize == 0)
             return;
         m_finalResults->m_value.resize(skinnedMesh->m_boneAnimatorIndices.size());
         for (int i = 0; i < skinnedMesh->m_boneAnimatorIndices.size(); i++)
