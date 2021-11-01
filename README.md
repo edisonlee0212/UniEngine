@@ -92,3 +92,6 @@ Please visit script for further details.
   - Screenshot: ![StarClusterProjectScreenshot](/Resources/GitHub/StarClusterProjectScreenshot.png?raw=true "StarClusterProjectScreenshot")
 
 ## Plans
+- Python binding with pybind11
+- Application Layers (Previously managers with singleton pattern, I decided that this is not a good design particularly when I want to add new managers from external projects like RayTracerFacility. Switching to a layered design instead of using singleton will help better structure the engine)
+- Event system with Event Bus (Pub/sub design pattern)
