@@ -32,6 +32,7 @@ class Cubemap;
 class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 {
     friend class RenderManager;
+    friend class RenderLayer;
     friend class EditorManager;
     friend struct CameraInfoBlock;
     friend class PostProcessing;

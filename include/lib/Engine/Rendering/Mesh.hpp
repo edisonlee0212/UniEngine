@@ -44,6 +44,7 @@ class UNIENGINE_API Mesh : public IAsset
     unsigned m_mask = 0;
     Bound m_bound;
     friend class RenderManager;
+    friend class RenderLayer;
     friend class MeshRenderer;
     friend class Particles;
     friend class EditorManager;

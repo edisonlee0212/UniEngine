@@ -1,7 +1,7 @@
 //
 // Created by lllll on 11/2/2021.
 //
-
+#include "RenderLayer.hpp"
 #include "EditorLayer.hpp"
 #include "EditorManager.hpp"
 #include <Application.hpp>
@@ -236,9 +236,8 @@ void EditorLayer::PreUpdate()
         */
         ImGui::EndMainMenuBar();
     }
-    auto &renderManager = RenderManager::GetInstance();
-    if (renderManager.m_frameIndex != 0)
-        RenderToSceneCamera();
+
+    RenderToSceneCamera();
 }
 void EditorLayer::LateUpdate()
 {
@@ -464,8 +463,9 @@ static const char *HierarchyDisplayMode[]{"Archetype", "Hierarchy"};
 
 void EditorLayer::RenderToSceneCamera()
 {
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if(!renderLayer || !renderLayer->IsEnabled()) return;
     ProfilerLayer::StartEvent("RenderToSceneCamera");
-    auto &renderManager = RenderManager::GetInstance();
 
     const auto resolution = m_sceneCamera->UnsafeGetGBuffer()->GetResolution();
     if (m_sceneCameraResolutionX != 0 && m_sceneCameraResolutionY != 0 &&
@@ -522,10 +522,10 @@ void EditorLayer::RenderToSceneCamera()
         OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
         OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
         m_sceneCameraEntityRecorder->Bind();
-        for (auto &i : renderManager.m_deferredRenderInstances)
+        for (auto &i : renderLayer->m_deferredRenderInstances)
         {
             const auto &cameraComponent = i.first;
-            RenderManager::DispatchRenderCommands(
+            renderLayer->DispatchRenderCommands(
                 i.second,
                 [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                     switch (renderCommand.m_meshType)
@@ -553,9 +553,9 @@ void EditorLayer::RenderToSceneCamera()
                 },
                 false);
         }
-        for (auto &i : renderManager.m_deferredInstancedRenderInstances)
+        for (auto &i : renderLayer->m_deferredInstancedRenderInstances)
         {
-            RenderManager::DispatchRenderCommands(
+            renderLayer->DispatchRenderCommands(
                 i.second,
                 [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                     switch (renderCommand.m_meshType)
@@ -577,9 +577,9 @@ void EditorLayer::RenderToSceneCamera()
                 },
                 false);
         }
-        for (auto &i : renderManager.m_forwardRenderInstances)
+        for (auto &i : renderLayer->m_forwardRenderInstances)
         {
-            RenderManager::DispatchRenderCommands(
+            renderLayer->DispatchRenderCommands(
                 i.second,
                 [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                     switch (renderCommand.m_meshType)
@@ -607,9 +607,9 @@ void EditorLayer::RenderToSceneCamera()
                 },
                 false);
         }
-        for (auto &i : renderManager.m_forwardInstancedRenderInstances)
+        for (auto &i : renderLayer->m_forwardInstancedRenderInstances)
         {
-            RenderManager::DispatchRenderCommands(
+            renderLayer->DispatchRenderCommands(
                 i.second,
                 [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                     switch (renderCommand.m_meshType)
@@ -632,12 +632,12 @@ void EditorLayer::RenderToSceneCamera()
                 false);
         }
 #pragma endregion
-        RenderManager::ApplyShadowMapSettings();
-        RenderManager::ApplyEnvironmentalSettings(m_sceneCamera);
+        renderLayer->ApplyShadowMapSettings();
+        renderLayer->ApplyEnvironmentalSettings(m_sceneCamera);
         GlobalTransform sceneCameraGT;
         sceneCameraGT.SetValue(
             m_sceneCameraPosition, m_sceneCameraRotation, glm::vec3(1.0f));
-        RenderManager::RenderToCamera(m_sceneCamera, sceneCameraGT);
+        renderLayer->RenderToCamera(m_sceneCamera, sceneCameraGT);
     }
     else
     {
@@ -1676,7 +1676,9 @@ void EditorLayer::SceneCameraWindow()
 }
 void EditorLayer::MainCameraWindow()
 {
-    auto &renderManager = RenderManager::GetInstance();
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if(!renderLayer || !renderLayer->IsEnabled()) return;
+
     auto scene = EntityManager::GetCurrentScene();
 #pragma region Window
     ImVec2 viewPortSize;
@@ -1694,7 +1696,7 @@ void EditorLayer::MainCameraWindow()
                 if (ImGui::BeginMenu("Settings"))
                 {
 #pragma region Menu
-                    ImGui::Checkbox("Display info", &renderManager.m_enableInfoWindow);
+                    ImGui::Checkbox("Display info", &renderLayer->m_enableInfoWindow);
 #pragma endregion
                     ImGui::EndMenu();
                 }
@@ -1705,8 +1707,8 @@ void EditorLayer::MainCameraWindow()
             viewPortSize.y -= 20;
             if (viewPortSize.y < 0)
                 viewPortSize.y = 0;
-            renderManager.m_mainCameraResolutionX = viewPortSize.x;
-            renderManager.m_mainCameraResolutionY = viewPortSize.y;
+            renderLayer->m_mainCameraResolutionX = viewPortSize.x;
+            renderLayer->m_mainCameraResolutionY = viewPortSize.y;
             // UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
             //  Get the size of the child (i.e. the whole draw size of the windows).
             ImVec2 overlayPos = ImGui::GetWindowPos();
@@ -1732,7 +1734,7 @@ void EditorLayer::MainCameraWindow()
             ImVec2 window_pos = ImVec2(
                 (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
                 (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y) + 20);
-            if (renderManager.m_enableInfoWindow)
+            if (renderLayer->m_enableInfoWindow)
             {
                 ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
                 ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
@@ -1745,15 +1747,15 @@ void EditorLayer::MainCameraWindow()
                 {
                     ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
                     std::string trisstr = "";
-                    if (renderManager.m_triangles < 999)
-                        trisstr += std::to_string(renderManager.m_triangles);
-                    else if (renderManager.m_triangles < 999999)
-                        trisstr += std::to_string((int)(renderManager.m_triangles / 1000)) + "K";
+                    if (renderLayer->m_triangles < 999)
+                        trisstr += std::to_string(renderLayer->m_triangles);
+                    else if (renderLayer->m_triangles < 999999)
+                        trisstr += std::to_string((int)(renderLayer->m_triangles / 1000)) + "K";
                     else
-                        trisstr += std::to_string((int)(renderManager.m_triangles / 1000000)) + "M";
+                        trisstr += std::to_string((int)(renderLayer->m_triangles / 1000000)) + "M";
                     trisstr += " tris";
                     ImGui::Text(trisstr.c_str());
-                    ImGui::Text("%d drawcall", renderManager.m_drawCall);
+                    ImGui::Text("%d drawcall", renderLayer->m_drawCall);
                     ImGui::Separator();
                     if (ImGui::IsMousePosValid())
                     {
@@ -1789,7 +1791,7 @@ void EditorLayer::MainCameraWindow()
     {
         m_mainCameraWindowFocused = false;
     }
-    renderManager.m_mainCameraViewable =
+    renderLayer->m_mainCameraViewable =
         !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed);
     ImGui::End();
     ImGui::PopStyleVar();

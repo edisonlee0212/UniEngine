@@ -2,6 +2,7 @@
 #include <ConsoleManager.hpp>
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
+#include "ILayer.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API IProfiler

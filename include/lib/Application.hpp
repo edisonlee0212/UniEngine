@@ -77,7 +77,7 @@ class UNIENGINE_API Application final : public ISingleton<Application>
 
     std::vector<std::shared_ptr<ILayer>> m_layers;
   public:
-    template <typename T> 
+    template <typename T>
     static std::shared_ptr<T> PushLayer();
     template <typename T>
     static std::shared_ptr<T> GetLayer();

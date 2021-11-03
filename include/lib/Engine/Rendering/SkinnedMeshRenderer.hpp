@@ -18,6 +18,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     friend class Animator;
     friend class AnimationManager;
     friend class Prefab;
+    friend class RenderLayer;
     void RenderBound(glm::vec4 &color);
     void GetBoneMatrices();
 

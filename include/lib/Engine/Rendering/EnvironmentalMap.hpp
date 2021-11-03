@@ -10,8 +10,9 @@ namespace UniEngine
 class UNIENGINE_API EnvironmentalMap : public IAsset
 {
     friend class RenderManager;
+    friend class RenderLayer;
     friend class DefaultResources;
-
+    friend class RenderLayer;
     AssetRef m_targetCubemap;
     AssetRef m_lightProbe;
     AssetRef m_reflectionProbe;

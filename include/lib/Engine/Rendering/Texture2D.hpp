@@ -19,7 +19,7 @@ class UNIENGINE_API Texture2D : public IAsset
     friend class AssetManager;
     friend class Camera;
     friend class DefaultResources;
-
+    friend class RenderLayer;
     friend class LightProbe;
     friend class ReflectionProbe;
     friend class EnvironmentalMap;

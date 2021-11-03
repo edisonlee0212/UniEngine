@@ -15,41 +15,17 @@
 #include <WindowManager.hpp>
 #include <EditorLayer.hpp>
 #include <ProfilerLayer.hpp>
+#include "RenderLayer.hpp"
 using namespace UniEngine;
 
 void Application::Init(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-
-    PushLayer<ProfilerLayer>();
-    PushLayer<EditorLayer>();
-
-    application.m_applicationConfigs = applicationConfigs;
-
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
-    InputManager::Init();
-    JobManager::Init();
     OpenGLUtils::Init();
-    PhysicsManager::Init();
-    AssetManager::Init();
-    EntityManager::Init();
-    EditorManager::InitImGui();
-    RenderManager::Init();
-
-    TransformManager::Init();
-
-    for (auto &i : application.m_layers)
-    {
-        i->OnCreate();
-    }
-    application.m_applicationStatus = ApplicationStatus::Uninitialized;
-    if (!application.m_applicationConfigs.m_projectPath.empty())
-    {
-        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
-        application.m_applicationStatus = ApplicationStatus::Initialized;
-    }
-    application.m_gameStatus = GameStatus::Stop;
+    application.m_applicationConfigs = applicationConfigs;
 }
+
 void ApplicationTime::OnInspect()
 {
     if (ImGui::CollapsingHeader("Time Settings"))
@@ -117,7 +93,6 @@ void Application::PreUpdateInternal()
         {
             i->PreUpdate();
         }
-        RenderManager::PreUpdate();
         InputManager::PreUpdate();
         PhysicsManager::PreUpdate();
         TransformManager::PreUpdate();
@@ -183,12 +158,10 @@ void Application::LateUpdateInternal()
             i->OnInspect();
         }
         // Post-processing happens here
-        RenderManager::LateUpdate();
         // Manager settings
         OnInspect();
         InputManager::OnInspect();
         AssetManager::OnInspect();
-        RenderManager::OnInspect();
         ConsoleManager::OnInspect();
         ProjectManager::OnInspect();
 
@@ -242,7 +215,31 @@ void Application::End()
 void Application::Run()
 {
     auto &application = GetInstance();
+    PushLayer<ProfilerLayer>();
+    PushLayer<EditorLayer>();
+    PushLayer<RenderLayer>();
 
+
+    InputManager::Init();
+    JobManager::Init();
+    PhysicsManager::Init();
+    AssetManager::Init();
+    EntityManager::Init();
+    EditorManager::InitImGui();
+
+    TransformManager::Init();
+
+    for (auto &i : application.m_layers)
+    {
+        i->OnCreate();
+    }
+    application.m_applicationStatus = ApplicationStatus::Uninitialized;
+    if (!application.m_applicationConfigs.m_projectPath.empty())
+    {
+        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
+        application.m_applicationStatus = ApplicationStatus::Initialized;
+    }
+    application.m_gameStatus = GameStatus::Stop;
     while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
     {
         PreUpdateInternal();
@@ -347,6 +344,7 @@ bool Application::IsPlaying()
     auto &application = GetInstance();
     return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
 }
+
 
 void ApplicationTime::Reset()
 {
