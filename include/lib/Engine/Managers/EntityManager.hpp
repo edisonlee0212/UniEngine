@@ -34,7 +34,7 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     friend class EditorLayer;
     friend class PrefabHolder;
     friend class PrivateComponentStorage;
-    friend class TransformManager;
+    friend class TransformLayer;
     friend class EditorManager;
     friend class Scene;
     friend class SerializationManager;

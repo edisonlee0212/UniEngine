@@ -1,12 +1,13 @@
-//
-// Created by lllll on 11/1/2021.
-//
-
-#ifndef PROJECT_CPP_ANIMATIONLAYER_HPP
-#define PROJECT_CPP_ANIMATIONLAYER_HPP
-
-class AnimationLayer
+#pragma once
+#include <EntityManager.hpp>
+#include <Transform.hpp>
+#include "ILayer.hpp"
+namespace UniEngine
 {
+class UNIENGINE_API AnimationLayer : public ILayer
+{
+  private:
+    void PreUpdate() override;
+    void LateUpdate() override;
 };
-
-#endif // PROJECT_CPP_ANIMATIONLAYER_HPP
+} // namespace UniEngine

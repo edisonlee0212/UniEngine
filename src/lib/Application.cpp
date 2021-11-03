@@ -1,5 +1,8 @@
+#include "AnimationLayer.hpp"
+#include "PhysicsLayer.hpp"
 #include "RenderLayer.hpp"
-#include <AnimationManager.hpp>
+#include "TransformLayer.hpp"
+#include <AnimationLayer.hpp>
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
@@ -14,9 +17,9 @@
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <RenderManager.hpp>
-#include <TransformManager.hpp>
+#include <TransformLayer.hpp>
 #include <WindowManager.hpp>
-#include "PhysicsLayer.hpp"
+
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
@@ -95,9 +98,6 @@ void Application::PreUpdateInternal()
         {
             i->PreUpdate();
         }
-
-        TransformManager::PreUpdate();
-        AnimationManager::PreUpdate();
         auto fixedDeltaTime = application.m_time.FixedDeltaTime();
         if (fixedDeltaTime >= application.m_time.m_timeStep)
         {
@@ -115,7 +115,6 @@ void Application::PreUpdateInternal()
             application.m_time.EndFixedUpdate();
         }
     }
-
 }
 
 void Application::UpdateInternal()
@@ -219,17 +218,18 @@ void Application::Start()
 {
     auto &application = GetInstance();
     PushLayer<ProfilerLayer>();
+    PushLayer<TransformLayer>();
+    PushLayer<AnimationLayer>();
     PushLayer<EditorLayer>();
     PushLayer<RenderLayer>();
     PushLayer<PhysicsLayer>();
+
 
     InputManager::Init();
     JobManager::Init();
     AssetManager::Init();
     EntityManager::Init();
     EditorManager::InitImGui();
-
-    TransformManager::Init();
 
     for (auto &i : application.m_layers)
     {
@@ -346,7 +346,6 @@ bool Application::IsPlaying()
     auto &application = GetInstance();
     return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
 }
-
 
 void ApplicationTime::Reset()
 {

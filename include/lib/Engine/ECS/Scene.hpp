@@ -56,7 +56,7 @@ class UNIENGINE_API Scene : public IAsset
     friend class SystemRef;
     friend struct Entity;
     friend class Prefab;
-    friend class TransformManager;
+    friend class TransformLayer;
     friend class PrivateComponentStorage;
     SceneDataStorage m_sceneDataStorage;
     std::multimap<float, std::shared_ptr<ISystem>> m_systems;

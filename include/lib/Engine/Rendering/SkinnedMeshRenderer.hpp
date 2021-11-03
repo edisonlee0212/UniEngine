@@ -16,7 +16,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
 {
     friend class EditorManager;
     friend class Animator;
-    friend class AnimationManager;
+    friend class AnimationLayer;
     friend class Prefab;
     friend class RenderLayer;
     void RenderBound(glm::vec4 &color);

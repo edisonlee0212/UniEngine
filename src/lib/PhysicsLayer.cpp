@@ -1,10 +1,10 @@
+#include "DefaultResources.hpp"
 #include "Joint.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <PhysicsLayer.hpp>
 #include <RigidBody.hpp>
-#include <TransformManager.hpp>
-#include "DefaultResources.hpp"
+#include <TransformLayer.hpp>
 using namespace UniEngine;
 
 YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxVec2 &v)
@@ -184,7 +184,8 @@ void PhysicsSystem::Simulate(float time) const
         return;
     m_scene->Simulate(time);
     DownloadRigidBodyTransforms(rigidBodyEntities);
-    TransformManager::GetInstance().m_physicsSystemOverride = true;
+
+    Application::GetLayer<TransformLayer>()->m_physicsSystemOverride = true;
 }
 
 void PhysicsSystem::OnEnable()

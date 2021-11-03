@@ -3,7 +3,10 @@
 #include <Animator.hpp>
 #include <EditorManager.hpp>
 using namespace UniEngine;
-
+bool Animator::AnimatedCurrentFrame() const
+{
+    return m_animatedCurrentFrame;
+}
 void Animator::Setup()
 {
     auto animation = m_animation.Get<Animation>();
@@ -128,6 +131,7 @@ void Animator::Animate()
         }
     }
     m_needAnimate = false;
+    m_animatedCurrentFrame = false;
 }
 
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
@@ -238,7 +242,7 @@ void Animator::Deserialize(const YAML::Node &in)
             m_names.push_back(i["Name"].as<std::string>());
         }
     }
-
+    m_animatedCurrentFrame = false;
     m_needAnimate = true;
 }
 
