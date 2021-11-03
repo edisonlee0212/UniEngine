@@ -1,7 +1,7 @@
 var struct_uni_engine_1_1_entity_metadata =
 [
+    [ "Clone", "struct_uni_engine_1_1_entity_metadata.html#ae29cc14d7a0016462a47a6b5683265f1", null ],
     [ "Deserialize", "struct_uni_engine_1_1_entity_metadata.html#a5f58c5f713e6a76756e86a6c80f7ce2b", null ],
-    [ "operator=", "struct_uni_engine_1_1_entity_metadata.html#a4cb6e67092d693ccf1ee6008076c53e0", null ],
     [ "Serialize", "struct_uni_engine_1_1_entity_metadata.html#af1cd66cc176bf0d86e61a2a13a0a11f1", null ],
     [ "m_children", "struct_uni_engine_1_1_entity_metadata.html#aaa6ca27a1ac08b3d4d3a673b7b588cf2", null ],
     [ "m_chunkArrayIndex", "struct_uni_engine_1_1_entity_metadata.html#a9838e3bdf86c135ee8b80ac421c9913b", null ],

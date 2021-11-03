@@ -1,6 +1,6 @@
 # Font character oversampling for rendering from atlas textures
 
-TL,DR: Run oversample.exe on a windows machine to see the
+TL,DR: Start oversample.exe on a windows machine to see the
 benefits of oversampling. It will try to use arial.ttf from the
 Windows font directory unless you type the name of a .ttf file as
 a command-line argument.

@@ -4,7 +4,7 @@
 
 There's no GUI. Find a directory with Minecraft Anvil files (.mca).
 Copy a Minecraft "terrain.png" into that directory (do a google
-image search). Run from that directory.
+image search). Start from that directory.
 
 ### How accurate is this as a Minecraft viewer?
 

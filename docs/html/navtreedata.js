@@ -31,8 +31,7 @@ var NAVTREE =
         [ "All", "namespacemembers.html", null ],
         [ "Functions", "namespacemembers_func.html", null ],
         [ "Variables", "namespacemembers_vars.html", null ],
-        [ "Enumerations", "namespacemembers_enum.html", null ],
-        [ "Enumerator", "namespacemembers_eval.html", null ]
+        [ "Enumerations", "namespacemembers_enum.html", null ]
       ] ]
     ] ],
     [ "Classes", "annotated.html", [
@@ -61,19 +60,18 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "_animation_8cpp.html",
-"_render_manager_8cpp.html#a5fc937efb4c17c5bb18eb3103a29ae69",
-"class_uni_engine_1_1_c_p_u_time_profiler.html#a9ef84c678be9ca48fe4ed52c3a50994f",
-"class_uni_engine_1_1_editor_manager.html#a7b9273db5ec38b04602ec2668815003a",
-"class_uni_engine_1_1_i_singleton.html#a73cd4d8a05fa19e1653fb0992034743e",
-"class_uni_engine_1_1_mesh_storage.html",
-"class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture3_d.html",
-"class_uni_engine_1_1_point_light.html#aa15f1e501297ce0345318bd9191023a9",
-"class_uni_engine_1_1_rigid_body.html",
-"class_uni_engine_1_1_skinned_mesh_renderer.html#a076369f6851bd7b617c7b0adce52a4de",
-"functions_func_n.html",
-"struct_uni_engine_1_1_component_data_chunk.html#abc8f1eb1994336a874c0d24003a58e07",
-"struct_uni_engine_1_1_entity_query.html#adcd3e98a548bb9ef9790fd5c3eeaab89",
-"struct_uni_engine_1_1_plane.html#af58032976ed643984df13d117b3d9822"
+"_rigid_body_8hpp.html",
+"class_uni_engine_1_1_camera.html#a4aed9c580628d0dd1a5432067d3bba06",
+"class_uni_engine_1_1_environmental_map.html#a6e79a7cf94b092b0c385acbf22faa1f2",
+"class_uni_engine_1_1_joint.html#abbf7e230e70dea4e5ad1c290f9d10d5b",
+"class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program.html",
+"class_uni_engine_1_1_particle_matrices.html#a8c107eabd2eff7dbaadc90a71c499106",
+"class_uni_engine_1_1_private_component_ref.html#ad104436d0ae908dda66ad3e55593aca2",
+"class_uni_engine_1_1_scene.html#a8b2fa49e2cedff6ecb4e4acac6e1acc0",
+"class_uni_engine_1_1_texture2_d.html#a167fa78c9bc00d3110bb71e75334a986",
+"struct_uni_engine_1_1_bone.html",
+"struct_uni_engine_1_1_entity.html#abfdbc24951e3a7b91fb1e25b1fdf4f63",
+"struct_uni_engine_1_1_material_float_property.html#aec1f30b030fa185b07a467e27b83a40b"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

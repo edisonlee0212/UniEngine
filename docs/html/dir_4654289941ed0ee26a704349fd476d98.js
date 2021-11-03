@@ -1,5 +1,8 @@
 var dir_4654289941ed0ee26a704349fd476d98 =
 [
+    [ "AssetRef.hpp", "_asset_ref_8hpp.html", [
+      [ "UniEngine::AssetRef", "class_uni_engine_1_1_asset_ref.html", "class_uni_engine_1_1_asset_ref" ]
+    ] ],
     [ "ClassRegistry.hpp", "_class_registry_8hpp.html", [
       [ "UniEngine::ClassRegistry", "class_uni_engine_1_1_class_registry.html", null ],
       [ "UniEngine::DataComponentRegistration< T >", "class_uni_engine_1_1_data_component_registration.html", "class_uni_engine_1_1_data_component_registration" ],
@@ -25,6 +28,12 @@ var dir_4654289941ed0ee26a704349fd476d98 =
     [ "ISystem.hpp", "_i_system_8hpp.html", [
       [ "UniEngine::ISystem", "class_uni_engine_1_1_i_system.html", "class_uni_engine_1_1_i_system" ],
       [ "UniEngine::SystemRef", "class_uni_engine_1_1_system_ref.html", "class_uni_engine_1_1_system_ref" ]
+    ] ],
+    [ "Prefab.hpp", "_prefab_8hpp.html", [
+      [ "UniEngine::AssimpNode", "struct_uni_engine_1_1_assimp_node.html", "struct_uni_engine_1_1_assimp_node" ],
+      [ "UniEngine::DataComponentHolder", "struct_uni_engine_1_1_data_component_holder.html", "struct_uni_engine_1_1_data_component_holder" ],
+      [ "UniEngine::PrivateComponentHolder", "struct_uni_engine_1_1_private_component_holder.html", "struct_uni_engine_1_1_private_component_holder" ],
+      [ "UniEngine::Prefab", "class_uni_engine_1_1_prefab.html", "class_uni_engine_1_1_prefab" ]
     ] ],
     [ "PrivateComponentRef.hpp", "_private_component_ref_8hpp.html", [
       [ "UniEngine::PrivateComponentRef", "class_uni_engine_1_1_private_component_ref.html", "class_uni_engine_1_1_private_component_ref" ]

@@ -5,7 +5,7 @@
 - Depending on your configuration, in Windows you may need to run `emsdk/emsdk_env.bat` in your console to access the Emscripten command-line tools.
 - Then build using `make` while in the `example_emscripten_opengl3/` directory.
 
-## How to Run
+## How to Start
 
 To run on a local machine:
 - `make serve` will use Python3 to spawn a local webserver, you can then browse http://localhost:8000 to access your build.

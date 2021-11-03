@@ -19,7 +19,7 @@
 #include "PhysicsLayer.hpp"
 using namespace UniEngine;
 
-void Application::Init(const ApplicationConfigs &applicationConfigs)
+void Application::Create(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
@@ -215,7 +215,7 @@ void Application::End()
     // glfwTerminate();
 }
 
-void Application::Run()
+void Application::Start()
 {
     auto &application = GetInstance();
     PushLayer<ProfilerLayer>();

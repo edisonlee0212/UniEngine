@@ -107,34 +107,34 @@ $(document).ready(function(){initNavTree('_environmental_map_8hpp_source.html','
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html">   10</a></span><span class="keyword">class </span>UNIENGINE_API <a class="code hl_class" href="class_uni_engine_1_1_environmental_map.html">EnvironmentalMap</a> : <span class="keyword">public</span> <a class="code hl_class" href="class_uni_engine_1_1_i_asset.html">IAsset</a></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>{</div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#ac2f8d8a30258c4e46c827c1a7ebb5db9">   12</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_render_manager.html">RenderManager</a>;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#a55ba8a10748d222a2f6fe9a16c071998">   13</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_default_resources.html">DefaultResources</a>;</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_targetCubemap;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_lightProbe;</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_reflectionProbe;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordtype">bool</span> m_ready = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  <span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#a491630dca7355a7a97f38ad65a8cf0e3">   22</a></span>    <span class="keywordtype">float</span> m_gamma = 1.0f;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    [[nodiscard]] <span class="keywordtype">bool</span> IsReady() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordtype">void</span> OnCreate() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> ConstructFromCubemap(<span class="keyword">const</span> std::shared_ptr&lt;Cubemap&gt; &amp;targetCubemap);</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> OnInspect() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>};</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>} <span class="comment">// namespace UniEngine</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#ad16d91520dd8dbd7a2178564fce5a168">   13</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span>RenderLayer;</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#a55ba8a10748d222a2f6fe9a16c071998">   14</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span>DefaultResources;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <span class="keyword">friend</span> <span class="keyword">class </span>RenderLayer;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_targetCubemap;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_lightProbe;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <a class="code hl_class" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> m_reflectionProbe;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keywordtype">bool</span> m_ready = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_environmental_map.html#a491630dca7355a7a97f38ad65a8cf0e3">   23</a></span>    <span class="keywordtype">float</span> m_gamma = 1.0f;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    [[nodiscard]] <span class="keywordtype">bool</span> IsReady() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> OnCreate() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> ConstructFromCubemap(<span class="keyword">const</span> std::shared_ptr&lt;Cubemap&gt; &amp;targetCubemap);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">void</span> OnInspect() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>};</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>} <span class="comment">// namespace UniEngine</span></div>
 <div class="ttc" id="a_cubemap_8hpp_html"><div class="ttname"><a href="_cubemap_8hpp.html">Cubemap.hpp</a></div></div>
 <div class="ttc" id="a_light_probe_8hpp_html"><div class="ttname"><a href="_light_probe_8hpp.html">LightProbe.hpp</a></div></div>
 <div class="ttc" id="a_open_g_l_utils_8hpp_html"><div class="ttname"><a href="_open_g_l_utils_8hpp.html">OpenGLUtils.hpp</a></div></div>
 <div class="ttc" id="a_reflection_probe_8hpp_html"><div class="ttname"><a href="_reflection_probe_8hpp.html">ReflectionProbe.hpp</a></div></div>
 <div class="ttc" id="a_texture2_d_8hpp_html"><div class="ttname"><a href="_texture2_d_8hpp.html">Texture2D.hpp</a></div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_asset_ref_html"><div class="ttname"><a href="class_uni_engine_1_1_asset_ref.html">UniEngine::AssetRef</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:94</div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_default_resources_html"><div class="ttname"><a href="class_uni_engine_1_1_default_resources.html">UniEngine::DefaultResources</a></div><div class="ttdef"><b>Definition:</b> DefaultResources.hpp:17</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_asset_ref_html"><div class="ttname"><a href="class_uni_engine_1_1_asset_ref.html">UniEngine::AssetRef</a></div><div class="ttdef"><b>Definition:</b> AssetRef.hpp:9</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_environmental_map_html"><div class="ttname"><a href="class_uni_engine_1_1_environmental_map.html">UniEngine::EnvironmentalMap</a></div><div class="ttdef"><b>Definition:</b> EnvironmentalMap.hpp:11</div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_i_asset_html"><div class="ttname"><a href="class_uni_engine_1_1_i_asset.html">UniEngine::IAsset</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:10</div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_render_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_render_manager.html">UniEngine::RenderManager</a></div><div class="ttdef"><b>Definition:</b> RenderManager.hpp:86</div></div>
-<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_i_asset_html"><div class="ttname"><a href="class_uni_engine_1_1_i_asset.html">UniEngine::IAsset</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:9</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_render_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_render_manager.html">UniEngine::RenderManager</a></div><div class="ttdef"><b>Definition:</b> RenderManager.hpp:13</div></div>
+<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:6</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

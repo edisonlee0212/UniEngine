@@ -97,16 +97,16 @@ $(document).ready(function(){initNavTree('_class_registry_8cpp.html',''); initRe
   <div class="headertitle"><div class="title">ClassRegistry.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;<a class="el" href="_camera_8hpp_source.html">Camera.hpp</a>&gt;</code><br />
+<div class="textblock"><code>#include &lt;<a class="el" href="_asset_manager_8hpp_source.html">AssetManager.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="_camera_8hpp_source.html">Camera.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_class_registry_8hpp_source.html">ClassRegistry.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="_entity_manager_8hpp_source.html">EntityManager.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_mesh_renderer_8hpp_source.html">MeshRenderer.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="_physics_manager_8hpp_source.html">PhysicsLayer.hpp</a>&gt;</code><br />
+<code>#include &lt;PhysicsLayer.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="_player_controller_8hpp_source.html">PlayerController.hpp</a>&gt;</code><br />
+<code>#include &lt;<a class="el" href="_point_cloud_8hpp_source.html">PointCloud.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_post_processing_8hpp_source.html">PostProcessing.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_render_manager_8hpp_source.html">RenderManager.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="_asset_manager_8hpp_source.html">AssetManager.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="_entity_manager_8hpp_source.html">EntityManager.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="_point_cloud_8hpp_source.html">PointCloud.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_unknown_private_component_8hpp_source.html">UnknownPrivateComponent.hpp</a>&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -147,7 +147,7 @@ Variables</h2></td></tr>
 <tr class="separator:a67ded00cf122021e0b1738d1b39d3db6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c8120b79ca5ef8afcbf9a7cf2e7a5fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_private_component_registration.html">PrivateComponentRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_unknown_private_component.html">UnknownPrivateComponent</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a1c8120b79ca5ef8afcbf9a7cf2e7a5fd">UnknownPrivateComponentRegistry</a> (&quot;UnknownPrivateComponent&quot;)</td></tr>
 <tr class="separator:a1c8120b79ca5ef8afcbf9a7cf2e7a5fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcc33027e8b999e12219fd848c474124"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_system_registration.html">SystemRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_physics_system.html">PhysicsSystem</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#adcc33027e8b999e12219fd848c474124">PhysicsSystemRegistry</a> (&quot;PhysicsSystem&quot;)</td></tr>
+<tr class="memitem:adcc33027e8b999e12219fd848c474124"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_system_registration.html">SystemRegistration</a>&lt; PhysicsSystem &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#adcc33027e8b999e12219fd848c474124">PhysicsSystemRegistry</a> (&quot;PhysicsSystem&quot;)</td></tr>
 <tr class="separator:adcc33027e8b999e12219fd848c474124"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57eceb80d2771eba7bcdbd6f1028b58b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_asset_registration.html">AssetRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_material.html">Material</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a57eceb80d2771eba7bcdbd6f1028b58b">MaterialRegistry</a> (&quot;Material&quot;, &quot;.uemat&quot;)</td></tr>
 <tr class="separator:a57eceb80d2771eba7bcdbd6f1028b58b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,12 +181,6 @@ Variables</h2></td></tr>
 <tr class="separator:a7d0597f91bc17a67beaf8626e8bf267a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a962700e5a1f2264946e2a8b29888d12f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_project.html">Project</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a962700e5a1f2264946e2a8b29888d12f">ProjectRegistryReg</a> (&quot;Project&quot;)</td></tr>
 <tr class="separator:a962700e5a1f2264946e2a8b29888d12f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a229cd502c25402a562d2c853d9890f29"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_entity_ref.html">EntityRef</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a229cd502c25402a562d2c853d9890f29">EntityRefReg</a> (&quot;EntityRef&quot;)</td></tr>
-<tr class="separator:a229cd502c25402a562d2c853d9890f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60b9c7a6625f47641029a51d5f4df32a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a60b9c7a6625f47641029a51d5f4df32a">AssetRefReg</a> (&quot;AssetRef&quot;)</td></tr>
-<tr class="separator:a60b9c7a6625f47641029a51d5f4df32a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98c0fb478dbbf5a0f6dde33361c74285"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_private_component_ref.html">PrivateComponentRef</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="_class_registry_8cpp.html#a98c0fb478dbbf5a0f6dde33361c74285">PrivateComponentRefReg</a> (&quot;PrivateComponentRef&quot;)</td></tr>
-<tr class="separator:a98c0fb478dbbf5a0f6dde33361c74285"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Variable Documentation</h2>
 <a id="a8e0c7ac1d80adcb6d709b640aefa626d" name="a8e0c7ac1d80adcb6d709b640aefa626d"></a>
@@ -227,24 +221,6 @@ Variables</h2></td></tr>
           <td class="memname"><a class="el" href="class_uni_engine_1_1_private_component_registration.html">PrivateComponentRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_animator.html">Animator</a> &gt; AnimatorRegistry(&quot;Animator&quot;) </td>
           <td>(</td>
           <td class="paramtype">&quot;Animator&quot;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a60b9c7a6625f47641029a51d5f4df32a" name="a60b9c7a6625f47641029a51d5f4df32a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a60b9c7a6625f47641029a51d5f4df32a">&#9670;&nbsp;</a></span>AssetRefReg</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> &gt; AssetRefReg(&quot;AssetRef&quot;) </td>
-          <td>(</td>
-          <td class="paramtype">&quot;AssetRef&quot;&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -337,24 +313,6 @@ Variables</h2></td></tr>
           <td class="memname"><a class="el" href="class_uni_engine_1_1_private_component_registration.html">PrivateComponentRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_directional_light.html">DirectionalLight</a> &gt; DirectionalLightRegistry(&quot;DirectionalLight&quot;) </td>
           <td>(</td>
           <td class="paramtype">&quot;DirectionalLight&quot;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a229cd502c25402a562d2c853d9890f29" name="a229cd502c25402a562d2c853d9890f29"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a229cd502c25402a562d2c853d9890f29">&#9670;&nbsp;</a></span>EntityRefReg</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_entity_ref.html">EntityRef</a> &gt; EntityRefReg(&quot;EntityRef&quot;) </td>
-          <td>(</td>
-          <td class="paramtype">&quot;EntityRef&quot;&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
@@ -656,7 +614,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_system_registration.html">SystemRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_physics_system.html">PhysicsSystem</a> &gt; PhysicsSystemRegistry(&quot;PhysicsSystem&quot;) </td>
+          <td class="memname"><a class="el" href="class_uni_engine_1_1_system_registration.html">SystemRegistration</a>&lt; PhysicsSystem &gt; PhysicsSystemRegistry(&quot;PhysicsSystem&quot;) </td>
           <td>(</td>
           <td class="paramtype">&quot;PhysicsSystem&quot;&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -761,24 +719,6 @@ Variables</h2></td></tr>
           <td></td>
           <td>)</td>
           <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a98c0fb478dbbf5a0f6dde33361c74285" name="a98c0fb478dbbf5a0f6dde33361c74285"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98c0fb478dbbf5a0f6dde33361c74285">&#9670;&nbsp;</a></span>PrivateComponentRefReg</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_serializable_registration.html">SerializableRegistration</a>&lt; <a class="el" href="class_uni_engine_1_1_private_component_ref.html">PrivateComponentRef</a> &gt; PrivateComponentRefReg(&quot;PrivateComponentRef&quot;) </td>
-          <td>(</td>
-          <td class="paramtype">&quot;PrivateComponentRef&quot;&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">

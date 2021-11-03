@@ -35,7 +35,7 @@ System Requirements:
  * Works on Windows (untested), Mac OS X, and Unix
 
 
-How to Run:
+How to Start:
 -----------
   For all examples, it is assumed that cppclean resides in a directory called
   /cppclean.

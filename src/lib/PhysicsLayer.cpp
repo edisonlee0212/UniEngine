@@ -148,7 +148,9 @@ void PhysicsLayer::UploadTransforms(const std::shared_ptr<Scene> &scene, const b
 void PhysicsSystem::OnCreate()
 {
     m_scene = std::make_shared<PhysicsScene>();
-    PxPvdSceneClient *pvdClient = m_scene->m_physicsScene->getScenePvdClient();
+    auto physicsScene = m_scene->m_physicsScene;
+    if(!physicsScene) return;
+    PxPvdSceneClient *pvdClient = physicsScene->getScenePvdClient();
     if (pvdClient)
     {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
@@ -169,6 +171,7 @@ void PhysicsSystem::FixedUpdate()
 
 void PhysicsScene::Simulate(float time) const
 {
+    if(!m_physicsScene) return;
     m_physicsScene->simulate(time);
     m_physicsScene->fetchResults(true);
 }

@@ -73,7 +73,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
 };
 template <typename T> std::shared_ptr<T> AssetManager::Import(const std::filesystem::path &path)
 {
-    auto asset = UnsafeCreateAsset<T>(path.filename().string());
+    auto asset = CreateAsset<T>(path.filename().string());
     std::dynamic_pointer_cast<IAsset>(asset)->SetPathAndLoad(path);
     return asset;
 }

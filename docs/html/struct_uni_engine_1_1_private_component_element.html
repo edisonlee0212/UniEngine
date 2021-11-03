@@ -106,12 +106,10 @@ $(document).ready(function(){initNavTree('struct_uni_engine_1_1_private_componen
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0b1e17a65fac89bb33942257b33ea371"><td class="memItemLeft" align="right" valign="top">UNIENGINE_API&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a0b1e17a65fac89bb33942257b33ea371">PrivateComponentElement</a> ()=default</td></tr>
 <tr class="separator:a0b1e17a65fac89bb33942257b33ea371"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a379a844698837d1898530491fb7fde5e"><td class="memItemLeft" align="right" valign="top">UNIENGINE_API&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a379a844698837d1898530491fb7fde5e">PrivateComponentElement</a> (size_t id, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_private_component.html">IPrivateComponent</a> &gt; &amp;data, const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;owner)</td></tr>
-<tr class="separator:a379a844698837d1898530491fb7fde5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d4a5256fd683ccef2d7d80df425b347"><td class="memItemLeft" align="right" valign="top">UNIENGINE_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a7d4a5256fd683ccef2d7d80df425b347">ResetOwner</a> (const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;newOwner) const</td></tr>
-<tr class="separator:a7d4a5256fd683ccef2d7d80df425b347"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b195cfb359e2c808536feabda48c0ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_uni_engine_1_1_private_component_element.html">PrivateComponentElement</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a5b195cfb359e2c808536feabda48c0ec">operator=</a> (const <a class="el" href="struct_uni_engine_1_1_private_component_element.html">PrivateComponentElement</a> &amp;source)</td></tr>
-<tr class="separator:a5b195cfb359e2c808536feabda48c0ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71e6b006d380d12c9519585e9cb6e43f"><td class="memItemLeft" align="right" valign="top">UNIENGINE_API&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a71e6b006d380d12c9519585e9cb6e43f">PrivateComponentElement</a> (size_t id, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_private_component.html">IPrivateComponent</a> &gt; &amp;data, const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;owner, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; &amp;scene)</td></tr>
+<tr class="separator:a71e6b006d380d12c9519585e9cb6e43f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11e93beb25ac2c8b2e7c1cb65b346c6d"><td class="memItemLeft" align="right" valign="top">UNIENGINE_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_private_component_element.html#a11e93beb25ac2c8b2e7c1cb65b346c6d">ResetOwner</a> (const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;newOwner, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; &amp;scene) const</td></tr>
+<tr class="separator:a11e93beb25ac2c8b2e7c1cb65b346c6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -146,8 +144,8 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a379a844698837d1898530491fb7fde5e" name="a379a844698837d1898530491fb7fde5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a379a844698837d1898530491fb7fde5e">&#9670;&nbsp;</a></span>PrivateComponentElement() <span class="overload">[2/2]</span></h2>
+<a id="a71e6b006d380d12c9519585e9cb6e43f" name="a71e6b006d380d12c9519585e9cb6e43f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71e6b006d380d12c9519585e9cb6e43f">&#9670;&nbsp;</a></span>PrivateComponentElement() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -168,7 +166,13 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;&#160;</td>
-          <td class="paramname"><em>owner</em>&#160;</td>
+          <td class="paramname"><em>owner</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>scene</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -181,26 +185,8 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a5b195cfb359e2c808536feabda48c0ec" name="a5b195cfb359e2c808536feabda48c0ec"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b195cfb359e2c808536feabda48c0ec">&#9670;&nbsp;</a></span>operator=()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="struct_uni_engine_1_1_private_component_element.html">PrivateComponentElement</a> &amp; PrivateComponentElement::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_private_component_element.html">PrivateComponentElement</a> &amp;&#160;</td>
-          <td class="paramname"><em>source</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a7d4a5256fd683ccef2d7d80df425b347" name="a7d4a5256fd683ccef2d7d80df425b347"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d4a5256fd683ccef2d7d80df425b347">&#9670;&nbsp;</a></span>ResetOwner()</h2>
+<a id="a11e93beb25ac2c8b2e7c1cb65b346c6d" name="a11e93beb25ac2c8b2e7c1cb65b346c6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11e93beb25ac2c8b2e7c1cb65b346c6d">&#9670;&nbsp;</a></span>ResetOwner()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -209,8 +195,18 @@ Public Attributes</h2></td></tr>
           <td class="memname">void PrivateComponentElement::ResetOwner </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;&#160;</td>
-          <td class="paramname"><em>newOwner</em></td><td>)</td>
-          <td> const</td>
+          <td class="paramname"><em>newOwner</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>scene</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -30,10 +30,10 @@ int main()
     });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Star Cluster/Star Cluster.ueproj";
-    Application::Init(applicationConfigs);
+    Application::Create(applicationConfigs);
 
 #pragma region EngineLoop
-    Application::Run();
+    Application::Start();
     Application::End();
 #pragma endregion
     return 0;

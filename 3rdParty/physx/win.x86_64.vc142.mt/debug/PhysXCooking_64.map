@@ -2218,7 +2218,7 @@
  0002:00004e60       ??_C@_1EA@NFKNIFJP@?$AAR?$AAu?$AAn?$AA?9?$AAT?$AAi?$AAm?$AAe?$AA?5?$AAC?$AAh?$AAe?$AAc?$AAk?$AA?5@ 0000000180056e60     MSVCRTD:error.obj
  0002:00004ea0       ??_C@_0BB@PFFGGCJP@Unknown?5Filename@ 0000000180056ea0     MSVCRTD:error.obj
  0002:00004eb8       ??_C@_0BE@GNBOBNCK@Unknown?5Module?5Name@ 0000000180056eb8     MSVCRTD:error.obj
- 0002:00004ed0       ??_C@_0CA@IODNCDPG@Run?9Time?5Check?5Failure?5?$CD?$CFd?5?9?5?$CFs@ 0000000180056ed0     MSVCRTD:error.obj
+ 0002:00004ed0       ??_C@_0CA@IODNCDPG@Start?9Time?5Check?5Failure?5?$CD?$CFd?5?9?5?$CFs@ 0000000180056ed0     MSVCRTD:error.obj
  0002:00004ef0       ??_C@_0CG@IAFNJNEE@Stack?5corrupted?5near?5unknown?5va@ 0000000180056ef0     MSVCRTD:error.obj
  0002:00004f18       ??_C@_05MKKEDADM@?$CF?42X?5@ 0000000180056f18     MSVCRTD:error.obj
  0002:00004f20       ??_C@_0EJ@LJKNEOLN@Stack?5area?5around?5_alloca?5memor@ 0000000180056f20     MSVCRTD:error.obj
@@ -5000,7 +5000,7 @@
  0002:0000b150       .idata$6                   000000018005d150     ucrtd:ucrtbased.dll
  0003:00000560       ?_ignore@?6??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e560     Adjacencies.obj
  0003:00000561       ?_ignore@?BK@??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e561     Adjacencies.obj
- 0003:00000562       ?_ignore@?BL@??Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e562     Adjacencies.obj
+ 0003:00000562       ?_ignore@?BL@??Create@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e562     Adjacencies.obj
  0003:00000563       ?_ignore@?BM@??OnCreate@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@3@@Z@4_NA 000000018005e563     Adjacencies.obj
  0003:00000570       ?maxV3Error@_VecMathTests@aos@shdfnd@physx@@3T__m128@@B 000000018005e570     Cooking.obj
  0003:00000580       ?minFError@_VecMathTests@aos@shdfnd@physx@@3T__m128@@B 000000018005e580     Cooking.obj

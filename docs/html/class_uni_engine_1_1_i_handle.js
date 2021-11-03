@@ -4,6 +4,7 @@ var class_uni_engine_1_1_i_handle =
     [ "AssetManager", "class_uni_engine_1_1_i_handle.html#aafe72876a584aedb5a5546d4fe7746fb", null ],
     [ "AssetRef", "class_uni_engine_1_1_i_handle.html#aacadff13b18b866c449d6543b8b5d0d4", null ],
     [ "DefaultResources", "class_uni_engine_1_1_i_handle.html#a55ba8a10748d222a2f6fe9a16c071998", null ],
+    [ "EditorLayer", "class_uni_engine_1_1_i_handle.html#aeaa38e94b5b3b9ba2c53b5f6a6d70741", null ],
     [ "EditorManager", "class_uni_engine_1_1_i_handle.html#ab4a07d61ba268f3670d11194a067ede4", null ],
     [ "EntityManager", "class_uni_engine_1_1_i_handle.html#a6f579cda6059d102e9074e11a27e0282", null ],
     [ "EntityMetadata", "class_uni_engine_1_1_i_handle.html#a35c3bfab8dc6a1154407a79ac0cb14f1", null ],

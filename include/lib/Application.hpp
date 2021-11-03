@@ -81,7 +81,8 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     static std::shared_ptr<T> PushLayer();
     template <typename T>
     static std::shared_ptr<T> GetLayer();
-
+    template <typename T>
+    static void PopLayer();
     static bool IsPlaying();
     static void Reset();
     static ApplicationTime &Time();
@@ -92,9 +93,9 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     static GameStatus GetGameStatus();
     // You are only allowed to create entity after this.
     static bool IsInitialized();
-    static void Init(const ApplicationConfigs& applicationConfigs);
+    static void Create(const ApplicationConfigs& applicationConfigs);
     static void End();
-    static void Run();
+    static void Start();
     static void RegisterPreUpdateFunction(const std::function<void()> &func);
     static void RegisterUpdateFunction(const std::function<void()> &func);
     static void RegisterLateUpdateFunction(const std::function<void()> &func);
@@ -102,6 +103,11 @@ class UNIENGINE_API Application final : public ISingleton<Application>
 };
 template <typename T> std::shared_ptr<T> Application::PushLayer()
 {
+    auto& application = GetInstance();
+    if(application.m_applicationStatus != ApplicationStatus::Uninitialized){
+        UNIENGINE_ERROR("Unable to push layer! Application already started!");
+        return nullptr;
+    }
     auto test = GetLayer<T>();
     if(!test){
         test = std::make_shared<T>();
@@ -122,5 +128,17 @@ template <typename T> std::shared_ptr<T> Application::GetLayer()
         if(test) return test;
     }
     return nullptr;
+}
+template <typename T> void Application::PopLayer()
+{
+    auto& application = GetInstance();
+    int index = 0;
+    for(auto& i : application.m_layers){
+        auto test = std::dynamic_pointer_cast<T>(i);
+        if(test) {
+            std::dynamic_pointer_cast<ILayer>(i)->OnDestroy();
+            application.m_layers.erase(application.m_layers.begin() + index);
+        }
+    }
 }
 } // namespace UniEngine

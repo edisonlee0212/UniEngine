@@ -1,7 +1,6 @@
 var class_uni_engine_1_1_animator =
 [
     [ "Animate", "class_uni_engine_1_1_animator.html#a38e97cb1a3e767ee153a257f550b19f8", null ],
-    [ "AnimatedCurrentFrame", "class_uni_engine_1_1_animator.html#a7b59108679032dfee9766dc2a294877f", null ],
     [ "ApplyOffsetMatrices", "class_uni_engine_1_1_animator.html#a2ac4cf4918e595e8aedf0fea4af5fdbd", null ],
     [ "AutoPlay", "class_uni_engine_1_1_animator.html#a0a48913fe904641b2165016246d4316b", null ],
     [ "CollectAssetRef", "class_uni_engine_1_1_animator.html#ab3bdc7147fbcb63fa83a206b40cd01c2", null ],

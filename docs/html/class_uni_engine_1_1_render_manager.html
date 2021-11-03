@@ -94,8 +94,6 @@ $(document).ready(function(){initNavTree('class_uni_engine_1_1_render_manager.ht
 <div class="header">
   <div class="summary">
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#friends">Friends</a> &#124;
 <a href="class_uni_engine_1_1_render_manager-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">UniEngine::RenderManager Class Reference</div></div>
 </div><!--header-->
@@ -114,16 +112,6 @@ Inheritance diagram for UniEngine::RenderManager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:af9d0cfdce4becb56c5302b96465bd2eb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#af9d0cfdce4becb56c5302b96465bd2eb">SetSplitRatio</a> (const float &amp;r1, const float &amp;r2, const float &amp;r3, const float &amp;r4)</td></tr>
-<tr class="separator:af9d0cfdce4becb56c5302b96465bd2eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5803399a7d571451f8ae87f4b6fb3e3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#aa5803399a7d571451f8ae87f4b6fb3e3">SetDirectionalLightShadowMapResolution</a> (const size_t &amp;value)</td></tr>
-<tr class="separator:aa5803399a7d571451f8ae87f4b6fb3e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad990007d32d83eb235766493cab1d71a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#ad990007d32d83eb235766493cab1d71a">SetPointLightShadowMapResolution</a> (const size_t &amp;value)</td></tr>
-<tr class="separator:ad990007d32d83eb235766493cab1d71a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac7c70d166771f56f5f276d0b4593ac4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#aac7c70d166771f56f5f276d0b4593ac4">SetSpotLightShadowMapResolution</a> (const size_t &amp;value)</td></tr>
-<tr class="separator:aac7c70d166771f56f5f276d0b4593ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6975fc816dc21dc86d081c1e80d9af1d"><td class="memItemLeft" align="right" valign="top">static glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a6975fc816dc21dc86d081c1e80d9af1d">ClosestPointOnLine</a> (const glm::vec3 &amp;point, const glm::vec3 &amp;a, const glm::vec3 &amp;b)</td></tr>
-<tr class="separator:a6975fc816dc21dc86d081c1e80d9af1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1fe7eea3f4dfde3dc28279193f9233e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#ad1fe7eea3f4dfde3dc28279193f9233e">DrawGizmoMesh</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_mesh.html">Mesh</a> &gt; &amp;mesh, const glm::vec4 &amp;color=glm::vec4(1.0f), const glm::mat4 &amp;model=glm::mat4(1.0f), const float &amp;size=1.0f)</td></tr>
 <tr class="separator:ad1fe7eea3f4dfde3dc28279193f9233e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9258d3cfa815f6950850ff8cc301cb7b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a9258d3cfa815f6950850ff8cc301cb7b">DrawGizmoMeshInstanced</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_mesh.html">Mesh</a> &gt; &amp;mesh, const glm::vec4 &amp;color, const std::vector&lt; glm::mat4 &gt; &amp;matrices, const glm::mat4 &amp;model=glm::mat4(1.0f), const float &amp;size=1.0f)</td></tr>
@@ -156,53 +144,13 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a52294594bab3a84053fc2c2248d6c187"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8247fe24d038b5198f05abd5c6ed6a94"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a8247fe24d038b5198f05abd5c6ed6a94">DrawMeshInstanced</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_mesh.html">Mesh</a> &gt; &amp;mesh, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_material.html">Material</a> &gt; &amp;material, const glm::mat4 &amp;model, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_particle_matrices.html">ParticleMatrices</a> &gt; &amp;matrices, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;cameraComponent, const bool &amp;receiveShadow=true, const bool &amp;castShadow=true)</td></tr>
 <tr class="separator:a8247fe24d038b5198f05abd5c6ed6a94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1bfc7469535a9b7b69322b6a5303eb13"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a1bfc7469535a9b7b69322b6a5303eb13">OnInspect</a> ()</td></tr>
-<tr class="separator:a1bfc7469535a9b7b69322b6a5303eb13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37e7c25d37eaa9cb8cc1e570c18b4d89"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a37e7c25d37eaa9cb8cc1e570c18b4d89">Start</a> ()</td></tr>
-<tr class="separator:a37e7c25d37eaa9cb8cc1e570c18b4d89"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3bd40e9493898cbc90e6dc165fb4d1eb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a3bd40e9493898cbc90e6dc165fb4d1eb">LateUpdate</a> ()</td></tr>
-<tr class="separator:a3bd40e9493898cbc90e6dc165fb4d1eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42d4ba45cc2d3d12b800bced15cc85e6"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a42d4ba45cc2d3d12b800bced15cc85e6">Triangles</a> ()</td></tr>
-<tr class="separator:a42d4ba45cc2d3d12b800bced15cc85e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af791d202788a74f99b1549be5d60aa7a"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#af791d202788a74f99b1549be5d60aa7a">DrawCall</a> ()</td></tr>
-<tr class="separator:af791d202788a74f99b1549be5d60aa7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3098510c4525b254c1312e3513c4b339"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a3098510c4525b254c1312e3513c4b339">RenderManager::DispatchRenderCommands</a> (const <a class="el" href="struct_uni_engine_1_1_render_commands.html">RenderCommands</a> &amp;renderCommands, const std::function&lt; void(const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_material.html">Material</a> &gt; &amp;, const <a class="el" href="struct_uni_engine_1_1_render_command.html">RenderCommand</a> &amp;renderCommand)&gt; &amp;func, const bool &amp;setMaterial)</td></tr>
-<tr class="separator:a3098510c4525b254c1312e3513c4b339"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a088d739ad38ce3555d4a056d60963e1d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a088d739ad38ce3555d4a056d60963e1d">Init</a> ()</td></tr>
-<tr class="separator:a088d739ad38ce3555d4a056d60963e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc416564245c7bcd9d8afcb180e71ab7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#acc416564245c7bcd9d8afcb180e71ab7">RenderCube</a> ()</td></tr>
+<tr class="separator:acc416564245c7bcd9d8afcb180e71ab7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3495f3ca432e067b49c848dbf60b81be"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a3495f3ca432e067b49c848dbf60b81be">RenderQuad</a> ()</td></tr>
+<tr class="separator:a3495f3ca432e067b49c848dbf60b81be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_methods_class_uni_engine_1_1_i_singleton"><td colspan="2" onclick="javascript:toggleInherit('pub_static_methods_class_uni_engine_1_1_i_singleton')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="class_uni_engine_1_1_i_singleton.html">UniEngine::ISingleton&lt; RenderManager &gt;</a></td></tr>
 <tr class="memitem:a3be306028874b8da62357fe83aa7e915 inherit pub_static_methods_class_uni_engine_1_1_i_singleton"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="class_uni_engine_1_1_render_manager.html">RenderManager</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_singleton.html#a3be306028874b8da62357fe83aa7e915">GetInstance</a> ()</td></tr>
 <tr class="separator:a3be306028874b8da62357fe83aa7e915 inherit pub_static_methods_class_uni_engine_1_1_i_singleton"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:ac84c7437f8adf47ae15917f69eb0881e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_uni_engine_1_1_light_settings_block.html">LightSettingsBlock</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#ac84c7437f8adf47ae15917f69eb0881e">m_lightSettings</a></td></tr>
-<tr class="separator:ac84c7437f8adf47ae15917f69eb0881e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28f384f4794eec1ed033bca408fe152b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a28f384f4794eec1ed033bca408fe152b">m_stableFit</a> = true</td></tr>
-<tr class="separator:a28f384f4794eec1ed033bca408fe152b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5b6535a17b1b34e700280f353e24fce"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#ad5b6535a17b1b34e700280f353e24fce">m_maxShadowDistance</a> = 300</td></tr>
-<tr class="separator:ad5b6535a17b1b34e700280f353e24fce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a994c1ef5a113b11ce1b8a5eab2dc73ae"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a994c1ef5a113b11ce1b8a5eab2dc73ae">m_shadowCascadeSplit</a> [<a class="el" href="class_uni_engine_1_1_default_resources_1_1_shader_includes.html#a738bfddd41ec1c2f97383070e6b0701d">DefaultResources::ShaderIncludes::ShadowCascadeAmount</a>] = {0.075f, 0.15f, 0.3f, 1.0f}</td></tr>
-<tr class="separator:a994c1ef5a113b11ce1b8a5eab2dc73ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="friends" name="friends"></a>
-Friends</h2></td></tr>
-<tr class="memitem:aa5afc6f82b7b587ed5ada4d227ce32aa"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#aa5afc6f82b7b587ed5ada4d227ce32aa">RenderTarget</a></td></tr>
-<tr class="separator:aa5afc6f82b7b587ed5ada4d227ce32aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55ba8a10748d222a2f6fe9a16c071998"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a55ba8a10748d222a2f6fe9a16c071998">DefaultResources</a></td></tr>
-<tr class="separator:a55ba8a10748d222a2f6fe9a16c071998"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4a07d61ba268f3670d11194a067ede4"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#ab4a07d61ba268f3670d11194a067ede4">EditorManager</a></td></tr>
-<tr class="separator:ab4a07d61ba268f3670d11194a067ede4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa17324d5a9fdeecbf5fc0ab253da1197"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#aa17324d5a9fdeecbf5fc0ab253da1197">LightProbe</a></td></tr>
-<tr class="separator:aa17324d5a9fdeecbf5fc0ab253da1197"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5dabf0ae2f2e588bc540cae29cbab3d6"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a5dabf0ae2f2e588bc540cae29cbab3d6">ReflectionProbe</a></td></tr>
-<tr class="separator:a5dabf0ae2f2e588bc540cae29cbab3d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a848afdc471aca4977a499a86aca55399"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a848afdc471aca4977a499a86aca55399">EnvironmentalMap</a></td></tr>
-<tr class="separator:a848afdc471aca4977a499a86aca55399"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ddca07aaca12b907f4c33c70588a9ca"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#a9ddca07aaca12b907f4c33c70588a9ca">Cubemap</a></td></tr>
-<tr class="separator:a9ddca07aaca12b907f4c33c70588a9ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafe72876a584aedb5a5546d4fe7746fb"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html#aafe72876a584aedb5a5546d4fe7746fb">AssetManager</a></td></tr>
-<tr class="separator:aafe72876a584aedb5a5546d4fe7746fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -219,73 +167,6 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a0699ed4078327ee295dd1f0da76c4c1a inherit pro_methods_class_uni_engine_1_1_i_singleton"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a6975fc816dc21dc86d081c1e80d9af1d" name="a6975fc816dc21dc86d081c1e80d9af1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6975fc816dc21dc86d081c1e80d9af1d">&#9670;&nbsp;</a></span>ClosestPointOnLine()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">glm::vec3 RenderManager::ClosestPointOnLine </td>
-          <td>(</td>
-          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
-          <td class="paramname"><em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const glm::vec3 &amp;&#160;</td>
-          <td class="paramname"><em>b</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af791d202788a74f99b1549be5d60aa7a" name="af791d202788a74f99b1549be5d60aa7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af791d202788a74f99b1549be5d60aa7a">&#9670;&nbsp;</a></span>DrawCall()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t RenderManager::DrawCall </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="ad1fe7eea3f4dfde3dc28279193f9233e" name="ad1fe7eea3f4dfde3dc28279193f9233e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad1fe7eea3f4dfde3dc28279193f9233e">&#9670;&nbsp;</a></span>DrawGizmoMesh() <span class="overload">[1/2]</span></h2>
 
@@ -1221,8 +1102,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a088d739ad38ce3555d4a056d60963e1d" name="a088d739ad38ce3555d4a056d60963e1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a088d739ad38ce3555d4a056d60963e1d">&#9670;&nbsp;</a></span>Init()</h2>
+<a id="acc416564245c7bcd9d8afcb180e71ab7" name="acc416564245c7bcd9d8afcb180e71ab7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc416564245c7bcd9d8afcb180e71ab7">&#9670;&nbsp;</a></span>RenderCube()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1231,7 +1112,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void RenderManager::Init </td>
+          <td class="memname">void RenderManager::RenderCube </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1246,8 +1127,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a3bd40e9493898cbc90e6dc165fb4d1eb" name="a3bd40e9493898cbc90e6dc165fb4d1eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3bd40e9493898cbc90e6dc165fb4d1eb">&#9670;&nbsp;</a></span>LateUpdate()</h2>
+<a id="a3495f3ca432e067b49c848dbf60b81be" name="a3495f3ca432e067b49c848dbf60b81be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3495f3ca432e067b49c848dbf60b81be">&#9670;&nbsp;</a></span>RenderQuad()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1256,7 +1137,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void RenderManager::LateUpdate </td>
+          <td class="memname">void RenderManager::RenderQuad </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1267,483 +1148,6 @@ Additional Inherited Members</h2></td></tr>
 <span class="mlabels"><span class="mlabel">static</span></span>  </td>
   </tr>
 </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a1bfc7469535a9b7b69322b6a5303eb13" name="a1bfc7469535a9b7b69322b6a5303eb13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1bfc7469535a9b7b69322b6a5303eb13">&#9670;&nbsp;</a></span>OnInspect()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::OnInspect </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a37e7c25d37eaa9cb8cc1e570c18b4d89" name="a37e7c25d37eaa9cb8cc1e570c18b4d89"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37e7c25d37eaa9cb8cc1e570c18b4d89">&#9670;&nbsp;</a></span>Start()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::Start </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a3098510c4525b254c1312e3513c4b339" name="a3098510c4525b254c1312e3513c4b339"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3098510c4525b254c1312e3513c4b339">&#9670;&nbsp;</a></span>RenderManager::DispatchRenderCommands()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void UniEngine::RenderManager::RenderManager::DispatchRenderCommands </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_render_commands.html">RenderCommands</a> &amp;&#160;</td>
-          <td class="paramname"><em>renderCommands</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::function&lt; void(const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_material.html">Material</a> &gt; &amp;, const <a class="el" href="struct_uni_engine_1_1_render_command.html">RenderCommand</a> &amp;renderCommand)&gt; &amp;&#160;</td>
-          <td class="paramname"><em>func</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const bool &amp;&#160;</td>
-          <td class="paramname"><em>setMaterial</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aa5803399a7d571451f8ae87f4b6fb3e3" name="aa5803399a7d571451f8ae87f4b6fb3e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5803399a7d571451f8ae87f4b6fb3e3">&#9670;&nbsp;</a></span>SetDirectionalLightShadowMapResolution()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::SetDirectionalLightShadowMapResolution </td>
-          <td>(</td>
-          <td class="paramtype">const size_t &amp;&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad990007d32d83eb235766493cab1d71a" name="ad990007d32d83eb235766493cab1d71a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad990007d32d83eb235766493cab1d71a">&#9670;&nbsp;</a></span>SetPointLightShadowMapResolution()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::SetPointLightShadowMapResolution </td>
-          <td>(</td>
-          <td class="paramtype">const size_t &amp;&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af9d0cfdce4becb56c5302b96465bd2eb" name="af9d0cfdce4becb56c5302b96465bd2eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af9d0cfdce4becb56c5302b96465bd2eb">&#9670;&nbsp;</a></span>SetSplitRatio()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::SetSplitRatio </td>
-          <td>(</td>
-          <td class="paramtype">const float &amp;&#160;</td>
-          <td class="paramname"><em>r1</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const float &amp;&#160;</td>
-          <td class="paramname"><em>r2</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const float &amp;&#160;</td>
-          <td class="paramname"><em>r3</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const float &amp;&#160;</td>
-          <td class="paramname"><em>r4</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aac7c70d166771f56f5f276d0b4593ac4" name="aac7c70d166771f56f5f276d0b4593ac4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac7c70d166771f56f5f276d0b4593ac4">&#9670;&nbsp;</a></span>SetSpotLightShadowMapResolution()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void RenderManager::SetSpotLightShadowMapResolution </td>
-          <td>(</td>
-          <td class="paramtype">const size_t &amp;&#160;</td>
-          <td class="paramname"><em>value</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a42d4ba45cc2d3d12b800bced15cc85e6" name="a42d4ba45cc2d3d12b800bced15cc85e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42d4ba45cc2d3d12b800bced15cc85e6">&#9670;&nbsp;</a></span>Triangles()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t RenderManager::Triangles </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Friends And Related Function Documentation</h2>
-<a id="aafe72876a584aedb5a5546d4fe7746fb" name="aafe72876a584aedb5a5546d4fe7746fb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aafe72876a584aedb5a5546d4fe7746fb">&#9670;&nbsp;</a></span>AssetManager</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_asset_manager.html">AssetManager</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a9ddca07aaca12b907f4c33c70588a9ca" name="a9ddca07aaca12b907f4c33c70588a9ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ddca07aaca12b907f4c33c70588a9ca">&#9670;&nbsp;</a></span>Cubemap</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_cubemap.html">Cubemap</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a55ba8a10748d222a2f6fe9a16c071998" name="a55ba8a10748d222a2f6fe9a16c071998"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a55ba8a10748d222a2f6fe9a16c071998">&#9670;&nbsp;</a></span>DefaultResources</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_default_resources.html">DefaultResources</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ab4a07d61ba268f3670d11194a067ede4" name="ab4a07d61ba268f3670d11194a067ede4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4a07d61ba268f3670d11194a067ede4">&#9670;&nbsp;</a></span>EditorManager</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_editor_manager.html">EditorManager</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a848afdc471aca4977a499a86aca55399" name="a848afdc471aca4977a499a86aca55399"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a848afdc471aca4977a499a86aca55399">&#9670;&nbsp;</a></span>EnvironmentalMap</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_environmental_map.html">EnvironmentalMap</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aa17324d5a9fdeecbf5fc0ab253da1197" name="aa17324d5a9fdeecbf5fc0ab253da1197"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa17324d5a9fdeecbf5fc0ab253da1197">&#9670;&nbsp;</a></span>LightProbe</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_light_probe.html">LightProbe</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a5dabf0ae2f2e588bc540cae29cbab3d6" name="a5dabf0ae2f2e588bc540cae29cbab3d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5dabf0ae2f2e588bc540cae29cbab3d6">&#9670;&nbsp;</a></span>ReflectionProbe</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_reflection_probe.html">ReflectionProbe</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aa5afc6f82b7b587ed5ada4d227ce32aa" name="aa5afc6f82b7b587ed5ada4d227ce32aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5afc6f82b7b587ed5ada4d227ce32aa">&#9670;&nbsp;</a></span>RenderTarget</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="ac84c7437f8adf47ae15917f69eb0881e" name="ac84c7437f8adf47ae15917f69eb0881e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac84c7437f8adf47ae15917f69eb0881e">&#9670;&nbsp;</a></span>m_lightSettings</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="struct_uni_engine_1_1_light_settings_block.html">LightSettingsBlock</a> UniEngine::RenderManager::m_lightSettings</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad5b6535a17b1b34e700280f353e24fce" name="ad5b6535a17b1b34e700280f353e24fce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5b6535a17b1b34e700280f353e24fce">&#9670;&nbsp;</a></span>m_maxShadowDistance</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float UniEngine::RenderManager::m_maxShadowDistance = 300</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a994c1ef5a113b11ce1b8a5eab2dc73ae" name="a994c1ef5a113b11ce1b8a5eab2dc73ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a994c1ef5a113b11ce1b8a5eab2dc73ae">&#9670;&nbsp;</a></span>m_shadowCascadeSplit</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">float UniEngine::RenderManager::m_shadowCascadeSplit[<a class="el" href="class_uni_engine_1_1_default_resources_1_1_shader_includes.html#a738bfddd41ec1c2f97383070e6b0701d">DefaultResources::ShaderIncludes::ShadowCascadeAmount</a>] = {0.075f, 0.15f, 0.3f, 1.0f}</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a28f384f4794eec1ed033bca408fe152b" name="a28f384f4794eec1ed033bca408fe152b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28f384f4794eec1ed033bca408fe152b">&#9670;&nbsp;</a></span>m_stableFit</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool UniEngine::RenderManager::m_stableFit = true</td>
-        </tr>
-      </table>
 </div><div class="memdoc">
 
 </div>

@@ -151,7 +151,7 @@ class UNIENGINE_API PhysicsSystem : public ISystem
   public:
     std::shared_ptr<PhysicsScene> m_scene;
     void DownloadRigidBodyTransforms() const;
-    void OnEnable();
+    void OnEnable() override;
     void OnCreate() override;
     void OnDestroy() override;
     void FixedUpdate() override;

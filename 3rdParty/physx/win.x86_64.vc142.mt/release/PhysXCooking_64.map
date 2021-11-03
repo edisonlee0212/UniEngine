@@ -1316,7 +1316,7 @@
  0002:00002834       $unwind$?Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d834     Adjacencies.obj
  0002:00002848       $chain$2$?Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d848     Adjacencies.obj
  0002:0000285c       $chain$3$?Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d85c     Adjacencies.obj
- 0002:00002870       $chain$4$?Init@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d870     Adjacencies.obj
+ 0002:00002870       $chain$4$?Create@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d870     Adjacencies.obj
  0002:00002880       $chain$5$?OnCreate@AdjacenciesBuilder@physx@@QEAA_NAEBUADJACENCIESCREATE@2@@Z 000000018002d880     Adjacencies.obj
  0002:00002890       $unwind$??$?_UV?$ReflectionAllocator@VAdjTriangle@physx@@@shdfnd@physx@@@UserAllocated@shdfnd@physx@@SAPEAX_KV?$ReflectionAllocator@VAdjTriangle@physx@@@12@PEBDH@Z 000000018002d890     Adjacencies.obj
  0002:00002890       $unwind$??$?_UE@@YAPEAX_KV?$ReflectionAllocator@E@shdfnd@physx@@PEBDH@Z 000000018002d890     ConvexHullBuilder.obj

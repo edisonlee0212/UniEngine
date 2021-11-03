@@ -153,6 +153,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1dcc49b3783fa9935fc9d68a0c1d478c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a065f3c863fe63e05cbd4287b67bca0bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a065f3c863fe63e05cbd4287b67bca0bc">CollectAssetRef</a> (std::vector&lt; <a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> &gt; &amp;list) override</td></tr>
 <tr class="separator:a065f3c863fe63e05cbd4287b67bca0bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6513bc264746b75e17f9bfed687edd5d"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a6513bc264746b75e17f9bfed687edd5d">UnsafeGetGBuffer</a> ()</td></tr>
+<tr class="separator:a6513bc264746b75e17f9bfed687edd5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae806314d3b9136d7f49e826244201f23"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ae806314d3b9136d7f49e826244201f23">UnsafeGetGBufferDepth</a> ()</td></tr>
 <tr class="separator:ae806314d3b9136d7f49e826244201f23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ced5547f3a43b3ffd78febb0a94dff1"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a5ced5547f3a43b3ffd78febb0a94dff1">UnsafeGetGBufferNormal</a> ()</td></tr>
@@ -162,6 +164,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab759f011b7cb2ecd09656ab62cc5b652"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ab759f011b7cb2ecd09656ab62cc5b652">UnsafeGetGBufferMetallicRoughnessEmissionAmbient</a> ()</td></tr>
 <tr class="separator:ab759f011b7cb2ecd09656ab62cc5b652"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_uni_engine_1_1_i_private_component"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_uni_engine_1_1_i_private_component')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_uni_engine_1_1_i_private_component.html">UniEngine::IPrivateComponent</a></td></tr>
+<tr class="memitem:a26880ae6186b7291919ab3c32f29237a inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a26880ae6186b7291919ab3c32f29237a">GetScene</a> () const</td></tr>
+<tr class="separator:a26880ae6186b7291919ab3c32f29237a inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89d43b8864cb6535a3f44b5c0d6359c7 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a89d43b8864cb6535a3f44b5c0d6359c7">GetOwner</a> () const</td></tr>
 <tr class="separator:a89d43b8864cb6535a3f44b5c0d6359c7 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a2cd59d7533c094acb1cfbd6d17a038 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a6a2cd59d7533c094acb1cfbd6d17a038">SetEnabled</a> (const bool &amp;value)</td></tr>
@@ -172,8 +176,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ad1d8702c784ce1cd6d7938f772e7346a inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d4293f3b5a693ec64c979b007085e16 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a8d4293f3b5a693ec64c979b007085e16">FixedUpdate</a> ()</td></tr>
 <tr class="separator:a8d4293f3b5a693ec64c979b007085e16 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1d8b410b9afe59a76bcc52acb6a7de26 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a1d8b410b9afe59a76bcc52acb6a7de26">Start</a> ()</td></tr>
-<tr class="separator:a1d8b410b9afe59a76bcc52acb6a7de26 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a831636ba56cbb97cddbc2c9c7dbe2988 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a831636ba56cbb97cddbc2c9c7dbe2988">Update</a> ()</td></tr>
 <tr class="separator:a831636ba56cbb97cddbc2c9c7dbe2988 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af59ce3b6edaaa6cb13c05f9c792e5e20 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#af59ce3b6edaaa6cb13c05f9c792e5e20">LateUpdate</a> ()</td></tr>
@@ -186,8 +188,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:adc1c5d287d14d28ebab5bb2ae8932c19 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab91e7e1e3f7a963dcd1a62509affc950 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#ab91e7e1e3f7a963dcd1a62509affc950">OnEntityDisable</a> ()</td></tr>
 <tr class="separator:ab91e7e1e3f7a963dcd1a62509affc950 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a391ebdd24c326b294953ce436cf27e67 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a391ebdd24c326b294953ce436cf27e67">Relink</a> (const std::unordered_map&lt; <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a>, <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &gt; &amp;map, const <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &amp;newSceneHandle)</td></tr>
-<tr class="separator:a391ebdd24c326b294953ce436cf27e67 inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1696b6e12ec66aafa85f74148bb8293e inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_private_component.html#a1696b6e12ec66aafa85f74148bb8293e">Relink</a> (const std::unordered_map&lt; <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a>, <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &gt; &amp;map, const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; &amp;scene)</td></tr>
+<tr class="separator:a1696b6e12ec66aafa85f74148bb8293e inherit pub_methods_class_uni_engine_1_1_i_private_component"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_uni_engine_1_1_i_serializable"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_uni_engine_1_1_i_serializable')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_uni_engine_1_1_i_serializable.html">UniEngine::ISerializable</a></td></tr>
 <tr class="memitem:a4a191c1b4bdd6ea012042a8c9ce95146 inherit pub_methods_class_uni_engine_1_1_i_serializable"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_serializable.html#a4a191c1b4bdd6ea012042a8c9ce95146">GetTypeName</a> ()</td></tr>
 <tr class="separator:a4a191c1b4bdd6ea012042a8c9ce95146 inherit pub_methods_class_uni_engine_1_1_i_serializable"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -266,6 +268,8 @@ Static Public Attributes</h2></td></tr>
 Friends</h2></td></tr>
 <tr class="memitem:ac2f8d8a30258c4e46c827c1a7ebb5db9"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ac2f8d8a30258c4e46c827c1a7ebb5db9">RenderManager</a></td></tr>
 <tr class="separator:ac2f8d8a30258c4e46c827c1a7ebb5db9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a188c511d13079395cac80723a91f9544"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a188c511d13079395cac80723a91f9544">RenderLayer</a></td></tr>
+<tr class="separator:a188c511d13079395cac80723a91f9544"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4a07d61ba268f3670d11194a067ede4"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ab4a07d61ba268f3670d11194a067ede4">EditorManager</a></td></tr>
 <tr class="separator:ab4a07d61ba268f3670d11194a067ede4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8486b7aced1d9b7de0eae6d8482325d9"><td class="memItemLeft" align="right" valign="top">struct&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a8486b7aced1d9b7de0eae6d8482325d9">CameraInfoBlock</a></td></tr>
@@ -962,6 +966,23 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
+<a id="a6513bc264746b75e17f9bfed687edd5d" name="a6513bc264746b75e17f9bfed687edd5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6513bc264746b75e17f9bfed687edd5d">&#9670;&nbsp;</a></span>UnsafeGetGBuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &gt; &amp; Camera::UnsafeGetGBuffer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a1d6e756651a2c8962f1b89d8efe19303" name="a1d6e756651a2c8962f1b89d8efe19303"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1d6e756651a2c8962f1b89d8efe19303">&#9670;&nbsp;</a></span>UnsafeGetGBufferAlbedo()</h2>
 
@@ -1108,6 +1129,28 @@ Additional Inherited Members</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_post_processing.html">PostProcessing</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a188c511d13079395cac80723a91f9544" name="a188c511d13079395cac80723a91f9544"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a188c511d13079395cac80723a91f9544">&#9670;&nbsp;</a></span>RenderLayer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class RenderLayer</td>
         </tr>
       </table>
   </td>

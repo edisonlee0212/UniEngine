@@ -11,6 +11,7 @@ var class_uni_engine_1_1_rigid_body =
     [ "OnInspect", "class_uni_engine_1_1_rigid_body.html#a7fe758c39f40d6516052de5928c3ea78", null ],
     [ "PostCloneAction", "class_uni_engine_1_1_rigid_body.html#a1143c3d13f38c438c0e131ebc21029c4", null ],
     [ "RecreateBody", "class_uni_engine_1_1_rigid_body.html#a403a550ce9b0372f283178dd7d5c45bd", null ],
+    [ "Registered", "class_uni_engine_1_1_rigid_body.html#ab197eb6181a243aed898271b5f7c8dcb", null ],
     [ "Serialize", "class_uni_engine_1_1_rigid_body.html#a141717ee0e020d74b3540385a90e288b", null ],
     [ "SetAngularDamping", "class_uni_engine_1_1_rigid_body.html#a887a5fe3152d259b1fed16d96e7fb0a7", null ],
     [ "SetAngularVelocity", "class_uni_engine_1_1_rigid_body.html#a98f3a0093e1a0a3ea7320a3b5f23eece", null ],
@@ -24,7 +25,7 @@ var class_uni_engine_1_1_rigid_body =
     [ "SetStatic", "class_uni_engine_1_1_rigid_body.html#a2616e2036865b372287623936136d368", null ],
     [ "EditorManager", "class_uni_engine_1_1_rigid_body.html#ab4a07d61ba268f3670d11194a067ede4", null ],
     [ "Joint", "class_uni_engine_1_1_rigid_body.html#a2b27269e818d7b63995be0e0f812bf54", null ],
-    [ "PhysicsManager", "class_uni_engine_1_1_rigid_body.html#a139cf05ac01161b7071c8a037c841683", null ],
+    [ "PhysicsLayer", "class_uni_engine_1_1_rigid_body.html#ad276d269e84c8b4e20d9abe9e1977b68", null ],
     [ "PhysicsSystem", "class_uni_engine_1_1_rigid_body.html#a6fb7520528fab4a670001f041b872bf2", null ],
     [ "TransformManager", "class_uni_engine_1_1_rigid_body.html#a7999b6671fa3688562935ff84de182de", null ]
 ];

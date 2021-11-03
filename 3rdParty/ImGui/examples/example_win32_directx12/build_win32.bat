@@ -1,4 +1,4 @@
-@REM Build for Visual Studio compiler. Run your copy of vcvars32.bat or vcvarsall.bat to setup command-line compiler.
+@REM Build for Visual Studio compiler. Start your copy of vcvars32.bat or vcvarsall.bat to setup command-line compiler.
 @REM Important: to build on 32-bit systems, the DX12 backends needs '#define ImTextureID ImU64', so we pass it here.
 @set OUT_DIR=Debug
 @set OUT_EXE=example_win32_directx12

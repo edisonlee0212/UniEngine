@@ -1,12 +1,14 @@
 var dir_70012eaf1ef3f417ca2ed2e357acb930 =
 [
     [ "IAsset.hpp", "_i_asset_8hpp.html", [
-      [ "UniEngine::IAsset", "class_uni_engine_1_1_i_asset.html", "class_uni_engine_1_1_i_asset" ],
-      [ "UniEngine::AssetRef", "class_uni_engine_1_1_asset_ref.html", "class_uni_engine_1_1_asset_ref" ]
+      [ "UniEngine::IAsset", "class_uni_engine_1_1_i_asset.html", "class_uni_engine_1_1_i_asset" ]
     ] ],
     [ "IHandle.hpp", "_i_handle_8hpp.html", [
       [ "UniEngine::Handle", "struct_uni_engine_1_1_handle.html", "struct_uni_engine_1_1_handle" ],
       [ "UniEngine::IHandle", "class_uni_engine_1_1_i_handle.html", "class_uni_engine_1_1_i_handle" ]
+    ] ],
+    [ "ILayer.hpp", "_i_layer_8hpp.html", [
+      [ "UniEngine::ILayer", "class_uni_engine_1_1_i_layer.html", "class_uni_engine_1_1_i_layer" ]
     ] ],
     [ "ISingleton.hpp", "_i_singleton_8hpp.html", [
       [ "UniEngine::ISingleton< T >", "class_uni_engine_1_1_i_singleton.html", "class_uni_engine_1_1_i_singleton" ]
