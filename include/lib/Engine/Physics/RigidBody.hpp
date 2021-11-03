@@ -16,7 +16,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
 
     bool m_static = false;
     friend class PhysicsSystem;
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
     friend class TransformManager;
     PxRigidActor *m_rigidActor = nullptr;
 

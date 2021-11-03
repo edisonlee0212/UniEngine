@@ -107,7 +107,7 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const PxVec4 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const PxMat44 &v);
 
 class UNIENGINE_API PhysicsScene;
-class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
+class UNIENGINE_API PhysicsLayer : public ISingleton<PhysicsLayer>
 {
     PxPvdTransport *m_pvdTransport;
     PxDefaultAllocator m_allocator;
@@ -138,7 +138,7 @@ class UNIENGINE_API PhysicsManager : public ISingleton<PhysicsManager>
 class UNIENGINE_API PhysicsScene{
     PxScene *m_physicsScene = nullptr;
     friend class PhysicsSystem;
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
   public:
     void Simulate(float time) const;
     PhysicsScene();

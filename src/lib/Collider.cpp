@@ -1,12 +1,12 @@
 #include <Collider.hpp>
-#include <PhysicsManager.hpp>
-#include <RenderManager.hpp>
 #include <EditorManager.hpp>
+#include <PhysicsLayer.hpp>
+#include <RenderManager.hpp>
 using namespace UniEngine;
 void Collider::OnCreate()
 {
     if(!m_physicsMaterial.Get<PhysicsMaterial>()) m_physicsMaterial = DefaultResources::Physics::DefaultPhysicsMaterial;
-    m_shape = PhysicsManager::GetInstance().m_physics->createShape(
+    m_shape = PhysicsLayer::GetInstance().m_physics->createShape(
         PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z),
         *m_physicsMaterial.Get<PhysicsMaterial>()->m_value);
 }
@@ -66,13 +66,13 @@ void Collider::SetShapeType(const ShapeType& type)
     switch (m_shapeType)
     {
     case ShapeType::Sphere:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = PhysicsLayer::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Box:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = PhysicsLayer::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Capsule:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = PhysicsLayer::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     }
 }

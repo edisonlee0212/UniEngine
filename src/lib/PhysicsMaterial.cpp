@@ -1,11 +1,10 @@
 #include "PhysicsMaterial.hpp"
 #include "Application.hpp"
-#include <PhysicsManager.hpp>
+#include <PhysicsLayer.hpp>
 void UniEngine::PhysicsMaterial::OnCreate()
 {
     m_name = "New physics model";
-    m_value =
-        PhysicsManager::GetInstance().m_physics->createMaterial(m_staticFriction, m_dynamicFriction, m_restitution);
+    m_value = PhysicsLayer::GetInstance().m_physics->createMaterial(m_staticFriction, m_dynamicFriction, m_restitution);
 }
 UniEngine::PhysicsMaterial::~PhysicsMaterial()
 {

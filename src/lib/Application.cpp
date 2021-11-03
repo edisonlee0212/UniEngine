@@ -1,21 +1,21 @@
+#include "RenderLayer.hpp"
 #include <AnimationManager.hpp>
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
+#include <EditorLayer.hpp>
 #include <EditorManager.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <JobManager.hpp>
 #include <OpenGLUtils.hpp>
-#include <PhysicsManager.hpp>
+#include <PhysicsLayer.hpp>
+#include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <RenderManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
-#include <EditorLayer.hpp>
-#include <ProfilerLayer.hpp>
-#include "RenderLayer.hpp"
 using namespace UniEngine;
 
 void Application::Init(const ApplicationConfigs &applicationConfigs)
@@ -94,7 +94,7 @@ void Application::PreUpdateInternal()
             i->PreUpdate();
         }
         InputManager::PreUpdate();
-        PhysicsManager::PreUpdate();
+        PhysicsLayer::PreUpdate();
         TransformManager::PreUpdate();
         AnimationManager::PreUpdate();
         auto fixedDeltaTime = application.m_time.FixedDeltaTime();
@@ -208,7 +208,7 @@ bool Application::IsInitialized()
 void Application::End()
 {
     EntityManager::GetInstance().m_scene.reset();
-    PhysicsManager::Destroy();
+    PhysicsLayer::Destroy();
     // glfwTerminate();
 }
 
@@ -222,7 +222,7 @@ void Application::Run()
 
     InputManager::Init();
     JobManager::Init();
-    PhysicsManager::Init();
+    PhysicsLayer::Init();
     AssetManager::Init();
     EntityManager::Init();
     EditorManager::InitImGui();
