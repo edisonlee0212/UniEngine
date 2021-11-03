@@ -34,6 +34,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class Bloom;
     friend class SSR;
     friend class WindowManager;
+    friend class EditorLayer;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 
     static std::unique_ptr<Texture2D> m_brdfLut;

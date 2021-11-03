@@ -13,6 +13,7 @@
 #include <ReflectionProbe.hpp>
 #include <RenderManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
+#include "EditorLayer.hpp"
 using namespace UniEngine;
 #pragma region RenderCommand Dispatch
 void RenderManager::DispatchRenderCommands(
@@ -244,26 +245,23 @@ void RenderManager::RenderToCamera(const std::shared_ptr<Camera> &cameraComponen
 }
 void RenderManager::PreUpdate()
 {
-    ProfilerManager::StartEvent("RenderManager");
+    ProfilerLayer::StartEvent("RenderManager");
 
     auto &renderManager = GetInstance();
-    // if (!renderManager.m_mainCameraComponent.expired())
-    if (renderManager.m_frameIndex != 0)
-        EditorManager::RenderToSceneCamera();
 
-    ProfilerManager::StartEvent("Clear GBuffer");
+    ProfilerLayer::StartEvent("Clear GBuffer");
     renderManager.m_deferredRenderInstances.clear();
     renderManager.m_deferredInstancedRenderInstances.clear();
     renderManager.m_forwardRenderInstances.clear();
     renderManager.m_forwardInstancedRenderInstances.clear();
     renderManager.m_transparentRenderInstances.clear();
     renderManager.m_instancedTransparentRenderInstances.clear();
-    ProfilerManager::EndEvent("Clear GBuffer");
-    ProfilerManager::EndEvent("RenderManager");
+    ProfilerLayer::EndEvent("Clear GBuffer");
+    ProfilerLayer::EndEvent("RenderManager");
 }
 void RenderManager::LateUpdate()
 {
-    ProfilerManager::StartEvent("RenderManager");
+    ProfilerLayer::StartEvent("RenderManager");
     auto scene = EntityManager::GetCurrentScene();
     if (!scene)
         return;
@@ -272,14 +270,14 @@ void RenderManager::LateUpdate()
     std::shared_ptr<Camera> mainCamera = scene->m_mainCamera.Get<Camera>();
 
 #pragma region Collect RenderCommands
-    ProfilerManager::StartEvent("RenderCommand Collection");
+    ProfilerLayer::StartEvent("RenderCommand Collection");
     Bound worldBound;
     CollectRenderInstances(worldBound);
-    ProfilerManager::EndEvent("RenderCommand Collection");
+    ProfilerLayer::EndEvent("RenderCommand Collection");
     scene->SetBound(worldBound);
 #pragma endregion
 #pragma region Render to cameras
-    ProfilerManager::StartEvent("Main Rendering");
+    ProfilerLayer::StartEvent("Main Rendering");
     renderManager.m_triangles = 0;
     renderManager.m_drawCall = 0;
     if (mainCamera)
@@ -306,10 +304,10 @@ void RenderManager::LateUpdate()
             }
         }
     }
-    ProfilerManager::EndEvent("Main Rendering");
+    ProfilerLayer::EndEvent("Main Rendering");
 #pragma endregion
 #pragma region Post - processing
-    ProfilerManager::StartEvent("Post Processing");
+    ProfilerLayer::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>(EntityManager::GetCurrentScene());
     if (postProcessingEntities != nullptr)
@@ -323,10 +321,10 @@ void RenderManager::LateUpdate()
                 postProcessing->Process();
         }
     }
-    ProfilerManager::EndEvent("Post Processing");
+    ProfilerLayer::EndEvent("Post Processing");
 #pragma endregion
     renderManager.m_frameIndex++;
-    ProfilerManager::EndEvent("RenderManager");
+    ProfilerLayer::EndEvent("RenderManager");
 }
 glm::vec3 RenderManager::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
 {
@@ -477,9 +475,14 @@ void RenderManager::CollectRenderInstances(Bound &worldBound)
     auto &renderManager = GetInstance();
     auto &editorManager = EditorManager::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
-    if (editorManager.m_sceneCamera && editorManager.m_sceneCamera->IsEnabled())
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
     {
-        cameraPairs.emplace_back(editorManager.m_sceneCamera, editorManager.m_sceneCameraPosition);
+        auto& sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
+        {
+            cameraPairs.emplace_back(sceneCamera, editorLayer->m_sceneCameraPosition);
+        }
     }
     const std::vector<Entity> *cameraEntities =
         EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
@@ -2157,15 +2160,16 @@ void RenderManager::DrawGizmoMeshInstanced(
     const glm::mat4 &model,
     const float &size)
 {
-    auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-    if (EditorManager::GetInstance().m_enabled)
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
     {
-        if (sceneCamera->IsEnabled())
+        auto& sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
+                editorLayer->m_sceneCameraPosition,
+                editorLayer->m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
             DrawGizmoMeshInstanced(true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
@@ -2180,15 +2184,16 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     const glm::mat4 &model,
     const float &size)
 {
-    auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-    if (EditorManager::GetInstance().m_enabled)
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
     {
-        if (sceneCamera->IsEnabled())
+        auto& sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
+                editorLayer->m_sceneCameraPosition,
+                editorLayer->m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
             DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
@@ -2410,11 +2415,20 @@ void RenderManager::DrawMesh(
     renderCommand.m_globalTransform.m_value = model;
     GetInstance().m_forwardRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
         renderCommand);
-    GetInstance()
-        .m_forwardRenderInstances[EditorManager::GetSceneCamera()]
-        .m_value[material]
-        .m_meshes[mesh->m_vao]
-        .push_back(renderCommand);
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
+    {
+        auto &sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
+        {
+            GetInstance()
+                .m_forwardRenderInstances[sceneCamera]
+                .m_value[material]
+                .m_meshes[mesh->m_vao]
+                .push_back(renderCommand);
+        }
+    }
+
 }
 
 void RenderManager::DrawMeshInstanced(
@@ -2436,11 +2450,20 @@ void RenderManager::DrawMeshInstanced(
     renderCommand.m_globalTransform.m_value = model;
     GetInstance().m_forwardInstancedRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
         renderCommand);
-    GetInstance()
-        .m_forwardInstancedRenderInstances[EditorManager::GetSceneCamera()]
-        .m_value[material]
-        .m_meshes[mesh->m_vao]
-        .push_back(renderCommand);
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
+    {
+        auto &sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
+        {
+            GetInstance()
+                .m_forwardInstancedRenderInstances[sceneCamera]
+                .m_value[material]
+                .m_meshes[mesh->m_vao]
+                .push_back(renderCommand);
+        }
+    }
+
 }
 
 /*
@@ -2516,15 +2539,16 @@ void RenderManager::DrawTexture2D(
 void RenderManager::DrawGizmoMesh(
     const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const float &size)
 {
-    auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
-    if (EditorManager::GetInstance().m_enabled)
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if(editorLayer && editorLayer->IsEnabled())
     {
-        if (sceneCamera->IsEnabled())
+        auto& sceneCamera = editorLayer->m_sceneCamera;
+        if (sceneCamera && sceneCamera->IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
+                editorLayer->m_sceneCameraPosition,
+                editorLayer->m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera->Bind();
             DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));

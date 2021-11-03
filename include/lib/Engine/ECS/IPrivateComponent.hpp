@@ -8,6 +8,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
 {
     friend class EntityManager;
     friend class EditorManager;
+    friend class EditorLayer;
     friend struct PrivateComponentElement;
     friend class SerializationManager;
     friend class Scene;
@@ -25,7 +26,6 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     bool Started();
     virtual void OnInspect(){};
     virtual void FixedUpdate(){};
-    virtual void PreUpdate(){};
     virtual void Update(){};
     virtual void LateUpdate(){};
 

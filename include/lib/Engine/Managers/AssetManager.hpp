@@ -29,6 +29,7 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class AssetRegistry;
     friend class ProjectManager;
     friend class EditorManager;
+    friend class EditorLayer;
     friend class IAsset;
     friend class Scene;
     friend class Prefab;

@@ -42,7 +42,7 @@ Scene::~Scene()
     }
 }
 
-void Scene::PreUpdate()
+void Scene::Start()
 {
     auto entities = m_sceneDataStorage.m_entities;
     for (const auto &entity : entities)
@@ -63,7 +63,6 @@ void Scene::PreUpdate()
                     break;
                 privateComponentElement.m_privateComponentData->m_started = true;
             }
-            privateComponentElement.m_privateComponentData->PreUpdate();
             if (entityInfo.m_version != entityInfo.m_version)
                 break;
         }
@@ -73,14 +72,13 @@ void Scene::PreUpdate()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->GetTypeName());
+            ProfilerLayer::StartEvent(i.second->GetTypeName());
             if (!i.second->m_started)
             {
                 i.second->Start();
                 i.second->m_started = true;
             }
-            i.second->PreUpdate();
-            ProfilerManager::EndEvent(i.second->GetTypeName());
+            ProfilerLayer::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -109,9 +107,9 @@ void Scene::Update()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->GetTypeName());
+            ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->Update();
-            ProfilerManager::EndEvent(i.second->GetTypeName());
+            ProfilerLayer::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -140,9 +138,9 @@ void Scene::LateUpdate()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->GetTypeName());
+            ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->LateUpdate();
-            ProfilerManager::EndEvent(i.second->GetTypeName());
+            ProfilerLayer::EndEvent(i.second->GetTypeName());
         }
     }
 }
@@ -170,9 +168,9 @@ void Scene::FixedUpdate()
     {
         if (i.second->Enabled())
         {
-            ProfilerManager::StartEvent(i.second->GetTypeName());
+            ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->FixedUpdate();
-            ProfilerManager::EndEvent(i.second->GetTypeName());
+            ProfilerLayer::EndEvent(i.second->GetTypeName());
         }
     }
 }

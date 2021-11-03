@@ -28,7 +28,6 @@ class UNIENGINE_API ISystem : public ISerializable
     virtual void OnCreate(){};
     virtual void Start(){};
     virtual void OnDestroy(){};
-    virtual void PreUpdate(){};
     virtual void Update(){};
     virtual void FixedUpdate(){};
     virtual void LateUpdate(){};

@@ -3,13 +3,14 @@
 //
 #include <EditorManager.hpp>
 #include <PlayerController.hpp>
+#include "EditorLayer.hpp"
 void UniEngine::PlayerController::OnCreate()
 {
     m_startMouse = false;
 }
 void UniEngine::PlayerController::LateUpdate()
 {
-    if (EditorManager::MainCameraWindowFocused())
+    if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
 #pragma region Scene Camera Controller
         auto transform = GetOwner().GetDataComponent<Transform>();

@@ -396,7 +396,6 @@ void Galaxy::StarClusterSystem::OnEnable()
 }
 void StarClusterSystem::Start()
 {
-    EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
     if (m_rendererFront.Get().IsNull() && m_rendererBack.Get().IsNull())
     {
         m_rendererFront = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Renderer 1");

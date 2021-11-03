@@ -31,6 +31,7 @@ inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, co
 class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 {
     friend class PhysicsSystem;
+    friend class EditorLayer;
     friend class PrefabHolder;
     friend class PrivateComponentStorage;
     friend class TransformManager;

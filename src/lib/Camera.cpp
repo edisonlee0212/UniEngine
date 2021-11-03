@@ -440,6 +440,10 @@ Camera &Camera::operator=(const Camera &source)
     m_skybox = source.m_skybox;
     return *this;
 }
+std::unique_ptr<RenderTarget> &Camera::UnsafeGetGBuffer()
+{
+    return m_gBuffer;
+}
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {

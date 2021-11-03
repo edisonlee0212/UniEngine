@@ -411,3 +411,7 @@ void RigidBody::CollectAssetRef(std::vector<AssetRef> &list)
     for (const auto &i : m_colliders)
         list.push_back(i);
 }
+bool RigidBody::Registered() const
+{
+    return m_currentRegistered;
+}

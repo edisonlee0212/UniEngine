@@ -1,14 +1,14 @@
 #include <Application.hpp>
-#include <ProfilerManager.hpp>
-
-UniEngine::CPUUsageEvent::CPUUsageEvent(CPUUsageEvent *parent, const std::string &name)
+#include <ProfilerLayer.hpp>
+using namespace UniEngine;
+CPUUsageEvent::CPUUsageEvent(CPUUsageEvent *parent, const std::string &name)
 {
     m_parent = parent;
     m_name = name;
     m_timeStart = Application::Time().CurrentTime();
 }
 
-void UniEngine::CPUUsageEvent::OnInspect(const float &parentTotalTime) const
+void CPUUsageEvent::OnInspect(const float &parentTotalTime) const
 {
     const float time = m_timeEnd - m_timeStart;
     if (ImGui::TreeNode((m_name).c_str()))
@@ -21,7 +21,7 @@ void UniEngine::CPUUsageEvent::OnInspect(const float &parentTotalTime) const
     }
 }
 
-void UniEngine::CPUTimeProfiler::PreUpdate()
+void CPUTimeProfiler::PreUpdate()
 {
     if (m_currentEventPointer != &m_rootEvent)
     {
@@ -31,13 +31,13 @@ void UniEngine::CPUTimeProfiler::PreUpdate()
     m_currentEventPointer = &m_rootEvent;
 }
 
-void UniEngine::CPUTimeProfiler::StartEvent(const std::string &name)
+void CPUTimeProfiler::StartEvent(const std::string &name)
 {
     m_currentEventPointer->m_children.emplace_back(m_currentEventPointer, name);
     m_currentEventPointer = &m_currentEventPointer->m_children.back();
 }
 
-void UniEngine::CPUTimeProfiler::EndEvent(const std::string &name)
+void CPUTimeProfiler::EndEvent(const std::string &name)
 {
     if (name != m_currentEventPointer->m_name)
     {
@@ -47,51 +47,49 @@ void UniEngine::CPUTimeProfiler::EndEvent(const std::string &name)
     m_currentEventPointer = m_currentEventPointer->m_parent;
 }
 
-void UniEngine::CPUTimeProfiler::LateUpdate()
+void CPUTimeProfiler::LateUpdate()
 {
     m_currentEventPointer->m_timeEnd = Application::Time().CurrentTime();
 }
 
-void UniEngine::CPUTimeProfiler::OnInspect()
+void CPUTimeProfiler::OnInspect()
 {
     auto time = m_rootEvent.m_timeEnd - m_rootEvent.m_timeStart;
     if(time < 0.0f) ImGui::Text("No frame recorded!");
     else m_rootEvent.OnInspect(m_rootEvent.m_timeEnd - m_rootEvent.m_timeStart);
 }
 
-void UniEngine::ProfilerManager::PreUpdate()
+void ProfilerLayer::PreUpdate()
 {
-    auto &profilerManager = GetInstance();
-    profilerManager.m_record = Application::IsPlaying();
-    if (!profilerManager.m_record)
+    m_record = Application::IsPlaying();
+    if (!m_record)
         return;
-    for (auto &i : profilerManager.m_profilers)
+    for (auto &i : m_profilers)
         i.second->PreUpdate();
 }
 
-void UniEngine::ProfilerManager::OnInspect()
+void ProfilerLayer::OnInspect()
 {
-    auto &profilerManager = GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Profiler Manager", &profilerManager.m_gui);
+            ImGui::Checkbox("Profiler Manager", &m_gui);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
-    if (profilerManager.m_gui)
+    if (m_gui)
     {
         ImGui::Begin("Profiler Manager");
-        if (profilerManager.m_record)
+        if (m_record)
         {
             ImGui::Text("Pause Game to view results");
         }
         else
         {
-            for (auto &i : profilerManager.m_profilers)
+            for (auto &i : m_profilers)
             {
                 if (ImGui::CollapsingHeader(i.second->m_name.c_str()))
                 {
@@ -102,27 +100,36 @@ void UniEngine::ProfilerManager::OnInspect()
         ImGui::End();
     }
 }
-void UniEngine::ProfilerManager::StartEvent(const std::string &name)
+void ProfilerLayer::OnCreate()
 {
-    auto &profilerManager = GetInstance();
-    if (!profilerManager.m_record)
-        return;
-    for (auto &i : profilerManager.m_profilers)
-        i.second->StartEvent(name);
+    GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
 }
-void UniEngine::ProfilerManager::EndEvent(const std::string &name)
+void ProfilerLayer::StartEvent(const std::string &name)
 {
-    auto &profilerManager = GetInstance();
-    if (!profilerManager.m_record)
-        return;
-    for (auto &i : profilerManager.m_profilers)
-        i.second->EndEvent(name);
+    auto profilerLayer = Application::GetLayer<ProfilerLayer>();
+    if(profilerLayer)
+    {
+        if (!profilerLayer->m_record)
+            return;
+        for (auto &i : profilerLayer->m_profilers)
+            i.second->StartEvent(name);
+    }
 }
-void UniEngine::ProfilerManager::LateUpdate()
+void ProfilerLayer::EndEvent(const std::string &name)
 {
-    auto &profilerManager = GetInstance();
-    if (!profilerManager.m_record)
+    auto profilerLayer = Application::GetLayer<ProfilerLayer>();
+    if(profilerLayer)
+    {
+        if (!profilerLayer->m_record)
+            return;
+        for (auto &i : profilerLayer->m_profilers)
+            i.second->EndEvent(name);
+    }
+}
+void ProfilerLayer::LateUpdate()
+{
+    if (!m_record)
         return;
-    for (auto &i : profilerManager.m_profilers)
+    for (auto &i : m_profilers)
         i.second->LateUpdate();
 }

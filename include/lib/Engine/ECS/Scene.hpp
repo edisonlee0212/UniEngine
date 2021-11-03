@@ -51,6 +51,7 @@ class UNIENGINE_API Scene : public IAsset
     friend class Application;
     friend class EntityManager;
     friend class EditorManager;
+    friend class EditorLayer;
     friend class SerializationManager;
     friend class SystemRef;
     friend struct Entity;
@@ -86,7 +87,7 @@ class UNIENGINE_API Scene : public IAsset
     template <typename T = ISystem> void DestroySystem();
     ~Scene();
     void FixedUpdate();
-    void PreUpdate();
+    void Start();
     void Update();
     void LateUpdate();
     void OnInspect() override;

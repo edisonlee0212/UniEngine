@@ -131,16 +131,10 @@ void PhysicsManager::UploadTransforms(const std::shared_ptr<Scene> &scene, const
                 else if (updateAll)
                 {
                     rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-                    PxRigidBody *rigidBodyP = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
                     if (freeze)
                     {
                         rigidBody->SetLinearVelocity(glm::vec3(0.0f));
                         rigidBody->SetAngularVelocity(glm::vec3(0.0f));
-                    }
-                    else
-                    {
-                        rigidBodyP->setLinearVelocity(rigidBody->m_linearVelocity);
-                        rigidBodyP->setAngularVelocity(rigidBody->m_angularVelocity);
                     }
                 }
             }

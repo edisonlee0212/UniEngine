@@ -284,6 +284,7 @@ class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
     friend class RenderTarget;
     friend class DefaultResources;
     friend class EditorManager;
+    friend class EditorLayer;
     friend class LightProbe;
     friend class ReflectionProbe;
     friend class EnvironmentalMap;

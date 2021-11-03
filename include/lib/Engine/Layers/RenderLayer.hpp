@@ -1,12 +1,16 @@
-//
-// Created by lllll on 11/1/2021.
-//
+#pragma once
 
-#ifndef PROJECT_CPP_RENDERLAYER_HPP
-#define PROJECT_CPP_RENDERLAYER_HPP
-
-class RenderLayer
+#include <Camera.hpp>
+#include <DefaultResources.hpp>
+#include <Lights.hpp>
+#include <MeshRenderer.hpp>
+#include <Particles.hpp>
+#include <SkinnedMeshRenderer.hpp>
+#include "ILayer.hpp"
+namespace UniEngine
 {
-};
+class UNIENGINE_API RenderLayer : public ILayer
+{
 
-#endif // PROJECT_CPP_RENDERLAYER_HPP
+};
+}

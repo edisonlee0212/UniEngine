@@ -39,6 +39,7 @@ class UNIENGINE_API IHandle{
     friend class EntityManager;
     friend class EntityMetadata;
     friend class EditorManager;
+    friend class EditorLayer;
     friend class AssetManager;
     friend class DefaultResources;
     friend class SerializationManager;
