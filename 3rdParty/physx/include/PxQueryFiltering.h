@@ -62,9 +62,9 @@ struct PxQueryFlag
 
 		eDYNAMIC			= (1<<1),	//!< Traverse dynamic shapes
 
-		ePREFILTER			= (1<<2),	//!< Run the pre-intersection-test filter (see #PxQueryFilterCallback::preFilter())
+		ePREFILTER			= (1<<2),	//!< Start the pre-intersection-test filter (see #PxQueryFilterCallback::preFilter())
 
-		ePOSTFILTER			= (1<<3),	//!< Run the post-intersection-test filter (see #PxQueryFilterCallback::postFilter())
+		ePOSTFILTER			= (1<<3),	//!< Start the post-intersection-test filter (see #PxQueryFilterCallback::postFilter())
 
 		eANY_HIT			= (1<<4),	//!< Abort traversal as soon as any hit is found and return it via callback.block.
 										//!< Helps query performance. Both eTOUCH and eBLOCK hitTypes are considered hits with this flag.

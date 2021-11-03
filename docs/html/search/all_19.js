@@ -12,7 +12,6 @@ var searchData=
   ['_7eiasset_9',['~IAsset',['../class_uni_engine_1_1_i_asset.html#ae71b3e2d36adfa5fe4137ec36f80621d',1,'UniEngine::IAsset']]],
   ['_7eiserializable_10',['~ISerializable',['../class_uni_engine_1_1_i_serializable.html#a4d32302bb3eac18c2aa68631a881f2d7',1,'UniEngine::ISerializable']]],
   ['_7ephysicsmaterial_11',['~PhysicsMaterial',['../class_uni_engine_1_1_physics_material.html#adbc9a6954c9a04f178a4b215d8ecfe3e',1,'UniEngine::PhysicsMaterial']]],
-  ['_7ephysicsscene_12',['~PhysicsScene',['../class_uni_engine_1_1_physics_scene.html#ab51b08cdb9a551134f9a347e59709724',1,'UniEngine::PhysicsScene']]],
-  ['_7escene_13',['~Scene',['../class_uni_engine_1_1_scene.html#a3b8cec2e32546713915f8c6303c951f1',1,'UniEngine::Scene']]],
-  ['_7ethreadpool_14',['~ThreadPool',['../class_uni_engine_1_1_thread_pool.html#a2d231c40cebd62d470491331fd887a8e',1,'UniEngine::ThreadPool']]]
+  ['_7escene_12',['~Scene',['../class_uni_engine_1_1_scene.html#a3b8cec2e32546713915f8c6303c951f1',1,'UniEngine::Scene']]],
+  ['_7ethreadpool_13',['~ThreadPool',['../class_uni_engine_1_1_thread_pool.html#a2d231c40cebd62d470491331fd887a8e',1,'UniEngine::ThreadPool']]]
 ];

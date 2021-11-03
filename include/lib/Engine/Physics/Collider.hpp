@@ -13,7 +13,7 @@ enum class UNIENGINE_API ShapeType
 };
 class UNIENGINE_API Collider : public IAsset
 {
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
     friend class RigidBody;
     PxShape *m_shape = nullptr;
     glm::vec3 m_shapeParam = glm::vec3(1.0f);

@@ -34,6 +34,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     friend class SkinnedMeshRenderer;
     friend class Particles;
     friend class RenderManager;
+    friend class RenderLayer;
     friend class EditorManager;
     size_t m_version = 0;
     std::vector<SkinnedVertex> m_skinnedVertices;

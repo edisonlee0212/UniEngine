@@ -2343,7 +2343,7 @@ using ::testing::_;
   MockFoo foo;
   EXPECT_CALL(foo, DoThis(_, _))
       .WillOnce(...);
-      // Will execute callback->Run(5), where callback is the
+      // Will execute callback->Start(5), where callback is the
       // second argument DoThis() receives.
 ```
 
@@ -2370,7 +2370,7 @@ using ::testing::InvokeArgument;
 ...
   EXPECT_CALL(foo, DoThis(_, _))
       .WillOnce(InvokeArgument<1>(5));
-      // Will execute callback->Run(5), where callback is the
+      // Will execute callback->Start(5), where callback is the
       // second argument DoThis() receives.
 ```
 

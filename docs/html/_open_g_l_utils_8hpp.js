@@ -23,6 +23,13 @@ var _open_g_l_utils_8hpp =
     [ "UniEngine::OpenGLUtils::GLFrameBuffer", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer.html", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_frame_buffer" ],
     [ "UniEngine::OpenGLUtils::GLShader", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader.html", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_shader" ],
     [ "UniEngine::OpenGLUtils::GLProgram", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program.html", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_program" ],
+    [ "OpenGLCapability", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4d", [
+      [ "DepthTest", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4da16704bc95ff0bd3291ba157e6f06e0ee", null ],
+      [ "ScissorTest", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4da0942d76ddbe5cf23a36a17b8501324aa", null ],
+      [ "StencilTest", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4dafb91927d3dded1a83eb78dd7725d7efc", null ],
+      [ "Blend", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4da09ac609fcdb514c9adca34e7f97b4ac4", null ],
+      [ "CullFace", "_open_g_l_utils_8hpp.html#a2ddf024ca24fb51d68f386beaae1dd4da5fbf085d301b88f5c73689461c9b221b", null ]
+    ] ],
     [ "Fragment", "_open_g_l_utils_8hpp.html#a02db2bde67db0cee6704064a541c67f8", null ],
     [ "Geometry", "_open_g_l_utils_8hpp.html#a5047b3c22ba65d974596c2729dcf1409", null ],
     [ "NegativeX", "_open_g_l_utils_8hpp.html#a0c945f872afcb108122f25ee700993bf", null ],

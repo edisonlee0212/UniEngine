@@ -41,7 +41,7 @@ enum class DriveType{
 class UNIENGINE_API Joint : public IPrivateComponent
 {
     JointType m_jointType = JointType::Fixed;
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
     PxJoint *m_joint;
     glm::vec3 m_localPosition1;
     glm::vec3 m_localPosition2;

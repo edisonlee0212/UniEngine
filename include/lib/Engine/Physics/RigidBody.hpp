@@ -16,7 +16,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
 
     bool m_static = false;
     friend class PhysicsSystem;
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
     friend class TransformManager;
     PxRigidActor *m_rigidActor = nullptr;
 
@@ -36,6 +36,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     bool m_gravity = true;
 
   public:
+    [[nodiscard]] bool Registered() const;
     void AttachCollider(std::shared_ptr<Collider> &collider);
     void DetachCollider(size_t index);
     [[nodiscard]] bool IsKinematic();

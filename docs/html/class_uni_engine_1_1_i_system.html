@@ -108,14 +108,15 @@ Inheritance diagram for UniEngine::ISystem:</div>
  <div class="center">
   <img src="class_uni_engine_1_1_i_system.png" usemap="#UniEngine::ISystem_map" alt=""/>
   <map id="UniEngine::ISystem_map" name="UniEngine::ISystem_map">
-<area href="class_uni_engine_1_1_i_serializable.html" alt="UniEngine::ISerializable" shape="rect" coords="0,56,159,80"/>
-<area href="class_uni_engine_1_1_i_handle.html" alt="UniEngine::IHandle" shape="rect" coords="0,0,159,24"/>
-<area href="class_uni_engine_1_1_physics_system.html" alt="UniEngine::PhysicsSystem" shape="rect" coords="0,168,159,192"/>
+<area href="class_uni_engine_1_1_i_serializable.html" alt="UniEngine::ISerializable" shape="rect" coords="0,56,144,80"/>
+<area href="class_uni_engine_1_1_i_handle.html" alt="UniEngine::IHandle" shape="rect" coords="0,0,144,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a1160f1359f8e09ce4f60c940f5d27afa"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#a1160f1359f8e09ce4f60c940f5d27afa">GetScene</a> () const</td></tr>
+<tr class="separator:a1160f1359f8e09ce4f60c940f5d27afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2d9b30205a9fdee7912971757cc97f7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#ae2d9b30205a9fdee7912971757cc97f7">GetRank</a> ()</td></tr>
 <tr class="separator:ae2d9b30205a9fdee7912971757cc97f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5221f2e86d64e39bc8e38b3f238a639b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#a5221f2e86d64e39bc8e38b3f238a639b">ISystem</a> ()</td></tr>
@@ -132,8 +133,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aae0a6e9dc894442335a29880afd9c248"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dc9d2ac77b0228e63ce28f9cc751ae2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#a0dc9d2ac77b0228e63ce28f9cc751ae2">OnDestroy</a> ()</td></tr>
 <tr class="separator:a0dc9d2ac77b0228e63ce28f9cc751ae2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9b6398c978f6ede9c61b524b73ad70b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#ad9b6398c978f6ede9c61b524b73ad70b">PreUpdate</a> ()</td></tr>
-<tr class="separator:ad9b6398c978f6ede9c61b524b73ad70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404da45b038a8d40dd93380f729fc1ea"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#a404da45b038a8d40dd93380f729fc1ea">Update</a> ()</td></tr>
 <tr class="separator:a404da45b038a8d40dd93380f729fc1ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afd5288dc5be7d7689fa5b52b8bd72644"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_system.html#afd5288dc5be7d7689fa5b52b8bd72644">FixedUpdate</a> ()</td></tr>
@@ -294,8 +293,6 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="class_uni_engine_1_1_physics_system.html#a9c180617183374d0a1a8c7a7bfcd7fc2">UniEngine::PhysicsSystem</a>.</p>
-
 </div>
 </div>
 <a id="ae2d9b30205a9fdee7912971757cc97f7" name="ae2d9b30205a9fdee7912971757cc97f7"></a>
@@ -309,6 +306,23 @@ Friends</h2></td></tr>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1160f1359f8e09ce4f60c940f5d27afa" name="a1160f1359f8e09ce4f60c940f5d27afa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1160f1359f8e09ce4f60c940f5d27afa">&#9670;&nbsp;</a></span>GetScene()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_scene.html">Scene</a> &gt; ISystem::GetScene </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -363,8 +377,6 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="class_uni_engine_1_1_physics_system.html#a06f5d16b2dc08d8278276cce6bebe177">UniEngine::PhysicsSystem</a>.</p>
-
 </div>
 </div>
 <a id="a0dc9d2ac77b0228e63ce28f9cc751ae2" name="a0dc9d2ac77b0228e63ce28f9cc751ae2"></a>
@@ -389,8 +401,6 @@ Friends</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-
-<p>Reimplemented in <a class="el" href="class_uni_engine_1_1_physics_system.html#a8126b271de3c3f840abd17ec085bf165">UniEngine::PhysicsSystem</a>.</p>
 
 </div>
 </div>
@@ -442,8 +452,6 @@ Friends</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="class_uni_engine_1_1_physics_system.html#acf561288ed654aff610e5e529febb200">UniEngine::PhysicsSystem</a>.</p>
-
 </div>
 </div>
 <a id="aea25b9986fec723637494a6c3da98e4b" name="aea25b9986fec723637494a6c3da98e4b"></a>
@@ -485,31 +493,6 @@ Friends</h2></td></tr>
           <td>(</td>
           <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_system.html">ISystem</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>target</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad9b6398c978f6ede9c61b524b73ad70b" name="ad9b6398c978f6ede9c61b524b73ad70b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad9b6398c978f6ede9c61b524b73ad70b">&#9670;&nbsp;</a></span>PreUpdate()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void UniEngine::ISystem::PreUpdate </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>

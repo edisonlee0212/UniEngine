@@ -2,6 +2,8 @@
 #include <InputManager.hpp>
 #include <WindowManager.hpp>
 #include <RenderManager.hpp>
+#include "Application.hpp"
+#include "EditorLayer.hpp"
 using namespace UniEngine;
 
 void InputManager::Init()
@@ -11,7 +13,7 @@ void InputManager::Init()
 bool InputManager::GetKey(int key)
 {
     bool retVal = false;
-    if (EditorManager::MainCameraWindowFocused())
+    if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
         const auto state = glfwGetKey(WindowManager::GetWindow(), key);
         retVal = state == GLFW_PRESS || state == GLFW_REPEAT;
@@ -22,7 +24,7 @@ bool InputManager::GetKey(int key)
 bool InputManager::GetMouse(int button)
 {
     bool retVal = false;
-    if (EditorManager::MainCameraWindowFocused())
+    if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
         retVal = glfwGetMouseButton(WindowManager::GetWindow(), button) == GLFW_PRESS;
     }
@@ -32,7 +34,7 @@ glm::vec2 InputManager::GetMouseAbsolutePosition()
 {
     double x = FLT_MIN;
     double y = FLT_MIN;
-    if (EditorManager::MainCameraWindowFocused())
+    if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
         glfwGetCursorPos(WindowManager::GetWindow(), &x, &y);
     }
@@ -56,7 +58,7 @@ bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
 void InputManager::PreUpdate()
 {
     auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
-    if (mainCamera && EditorManager::MainCameraWindowFocused())
+    if (mainCamera && Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 
@@ -81,24 +83,6 @@ bool InputManager::GetMousePosition(glm::vec2 &pos)
 {
     pos = GetInstance().m_mousePosition;
     return GetInstance().m_mousePositionValid;
-}
-
-void InputManager::OnInspect()
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::Checkbox("Input Manager", &GetInstance().m_enableInputMenu);
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-    if (GetInstance().m_enableInputMenu)
-    {
-        ImGui::Begin("Input Manager");
-        ImGui::End();
-    }
 }
 
 bool InputManager::GetKeyInternal(int key, GLFWwindow *window)

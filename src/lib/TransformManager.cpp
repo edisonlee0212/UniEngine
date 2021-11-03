@@ -1,4 +1,4 @@
-#include <ProfilerManager.hpp>
+#include <ProfilerLayer.hpp>
 #include <RigidBody.hpp>
 #include <TransformManager.hpp>
 using namespace UniEngine;
@@ -46,7 +46,7 @@ void TransformManager::CalculateTransformGraphs(const std::shared_ptr<Scene>& sc
     if (!scene)
         return;
     auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
-    ProfilerManager::StartEvent("TransformManager");
+    ProfilerLayer::StartEvent("TransformManager");
     auto &transformManager = GetInstance();
     EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(scene,
         JobManager::PrimaryWorkers(),
@@ -70,7 +70,7 @@ void TransformManager::CalculateTransformGraphs(const std::shared_ptr<Scene>& sc
         },
         false);
     transformManager.m_physicsSystemOverride = false;
-    ProfilerManager::EndEvent("TransformManager");
+    ProfilerLayer::EndEvent("TransformManager");
 }
 void TransformManager::CalculateTransformGraphForDescendents(const std::shared_ptr<Scene>& scene, const Entity &entity)
 {

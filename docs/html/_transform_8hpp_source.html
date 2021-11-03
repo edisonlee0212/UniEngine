@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html">   11</a></span><span class="keyword">struct </span>UNIENGINE_API <a class="code hl_struct" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> : <a class="code hl_struct" href="struct_uni_engine_1_1_i_data_component.html">IDataComponent</a></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>{</div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#a1b64ef4eb3f16f4f303df5ad711a1ca9">   13</a></span>    glm::mat4 m_value =</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        glm::translate(glm::vec3(0.0f)) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#afc571fa317ed54c36a85371be30ab9d5">   15</a></span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_uni_engine_1_1_global_transform.html#afc571fa317ed54c36a85371be30ab9d5">operator==</a>(<span class="keyword">const</span> <a class="code hl_struct" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> &amp;other)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">    </span>{</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        <span class="keywordflow">return</span> other.<a class="code hl_variable" href="struct_uni_engine_1_1_global_transform.html#a1b64ef4eb3f16f4f303df5ad711a1ca9">m_value</a> == m_value;</div>
@@ -371,7 +371,7 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        m_value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(rotation) * glm::scale(value);</div>
 <div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    }</div>
 <div class="line"><a id="l00281" name="l00281"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#af88f8d0824c0fdba39c90586a1c97d91">  281</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_global_transform.html#af88f8d0824c0fdba39c90586a1c97d91">SetRotation</a>(<span class="keyword">const</span> glm::quat &amp;value)</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    {</div>
@@ -379,7 +379,7 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>        m_value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(value) * glm::scale(scale);</div>
 <div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    }</div>
 <div class="line"><a id="l00289" name="l00289"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#a15f36e68e49ed9611de67cfd41c6a948">  289</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_global_transform.html#a15f36e68e49ed9611de67cfd41c6a948">SetEulerRotation</a>(<span class="keyword">const</span> glm::vec3 &amp;value)</div>
 <div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    {</div>
@@ -387,22 +387,22 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        m_value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(value)) * glm::scale(scale);</div>
 <div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    }</div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#acd0cecb517e9f50937f2226558c27869">  297</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_global_transform.html#acd0cecb517e9f50937f2226558c27869">SetValue</a>(<span class="keyword">const</span> glm::vec3 &amp;position, <span class="keyword">const</span> glm::vec3 &amp;eulerRotation, <span class="keyword">const</span> glm::vec3 &amp;scale)</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    {</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        m_value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        m_value = glm::translate(position) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(eulerRotation)) * glm::scale(scale);</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    }</div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_global_transform.html#afa3e4e4b918f585dd9d85a9f771ebe0b">  301</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_global_transform.html#afa3e4e4b918f585dd9d85a9f771ebe0b">SetValue</a>(<span class="keyword">const</span> glm::vec3 &amp;position, <span class="keyword">const</span> glm::quat &amp;rotation, <span class="keyword">const</span> glm::vec3 &amp;scale)</div>
 <div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    {</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        m_value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        m_value = glm::translate(position) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(rotation) * glm::scale(scale);</div>
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    }</div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="preprocessor">#pragma endregion</span></div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>};</div>
 <div class="line"><a id="l00307" name="l00307"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html">  307</a></span><span class="keyword">struct </span>UNIENGINE_API <a class="code hl_struct" href="struct_uni_engine_1_1_transform.html">Transform</a> : <a class="code hl_struct" href="struct_uni_engine_1_1_i_data_component.html">IDataComponent</a></div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>{</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#a93284a79de539233f726eaaec1375cf5">  309</a></span>    glm::mat4 m_value =</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>        glm::translate(glm::vec3(0.0f)) * glm::mat4_cast(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>        glm::translate(glm::vec3(0.0f)) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(glm::vec3(0.0f))) * glm::scale(glm::vec3(1.0f));</div>
 <div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    ;</div>
 <div class="line"><a id="l00312" name="l00312"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#a90008ae4eae78bd0fbf3b47be40cf8a3">  312</a></span>    <span class="keywordtype">bool</span> <a class="code hl_function" href="struct_uni_engine_1_1_transform.html#a90008ae4eae78bd0fbf3b47be40cf8a3">operator==</a>(<span class="keyword">const</span> <a class="code hl_struct" href="struct_uni_engine_1_1_transform.html">Transform</a> &amp;other)<span class="keyword"> const</span></div>
 <div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span><span class="keyword">    </span>{</div>
@@ -666,7 +666,7 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>        m_value = glm::translate(trans) * glm::mat4_cast(rotation) * glm::scale(value);</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(rotation) * glm::scale(value);</div>
 <div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    }</div>
 <div class="line"><a id="l00578" name="l00578"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#a2e31928d7d6dbb186123b42db3154e64">  578</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_transform.html#a2e31928d7d6dbb186123b42db3154e64">SetRotation</a>(<span class="keyword">const</span> glm::quat &amp;value)</div>
 <div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    {</div>
@@ -674,7 +674,7 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>        m_value = glm::translate(trans) * glm::mat4_cast(value) * glm::scale(scale);</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(value) * glm::scale(scale);</div>
 <div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    }</div>
 <div class="line"><a id="l00586" name="l00586"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#a39e0645c832eeda4ec85320470404fbb">  586</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_transform.html#a39e0645c832eeda4ec85320470404fbb">SetEulerRotation</a>(<span class="keyword">const</span> glm::vec3 &amp;value)</div>
 <div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    {</div>
@@ -682,21 +682,22 @@ $(document).ready(function(){initNavTree('_transform_8hpp_source.html',''); init
 <div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>        glm::vec3 trans;</div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>        glm::quat rotation;</div>
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>        Decompose(trans, rotation, scale);</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>        m_value = glm::translate(trans) * glm::mat4_cast(glm::quat(value)) * glm::scale(scale);</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>        m_value = glm::translate(trans) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(value)) * glm::scale(scale);</div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>    }</div>
 <div class="line"><a id="l00594" name="l00594"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#ac03ca5a6062721d5ae9ed9f20faae5cb">  594</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_transform.html#ac03ca5a6062721d5ae9ed9f20faae5cb">SetValue</a>(<span class="keyword">const</span> glm::vec3 &amp;position, <span class="keyword">const</span> glm::vec3 &amp;eulerRotation, <span class="keyword">const</span> glm::vec3 &amp;scale)</div>
 <div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    {</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>        m_value = glm::translate(position) * glm::mat4_cast(glm::quat(eulerRotation)) * glm::scale(scale);</div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>        m_value = glm::translate(position) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(glm::quat(eulerRotation)) * glm::scale(scale);</div>
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    }</div>
 <div class="line"><a id="l00598" name="l00598"></a><span class="lineno"><a class="line" href="struct_uni_engine_1_1_transform.html#ac532601750c1164c83721035df1e1ba4">  598</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="struct_uni_engine_1_1_transform.html#ac532601750c1164c83721035df1e1ba4">SetValue</a>(<span class="keyword">const</span> glm::vec3 &amp;position, <span class="keyword">const</span> glm::quat &amp;rotation, <span class="keyword">const</span> glm::vec3 &amp;scale)</div>
 <div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>    {</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>        m_value = glm::translate(position) * glm::mat4_cast(rotation) * glm::scale(scale);</div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>        m_value = glm::translate(position) * <a class="code hl_function" href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">glm::mat4_cast</a>(rotation) * glm::scale(scale);</div>
 <div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>    }</div>
 <div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span><span class="preprocessor">#pragma endregion</span></div>
 <div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>};</div>
 <div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>} <span class="comment">// namespace UniEngine</span></div>
 <div class="ttc" id="a_entity_8hpp_html"><div class="ttname"><a href="_entity_8hpp.html">Entity.hpp</a></div></div>
-<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
+<div class="ttc" id="a_prefab_8cpp_html_aee19eeab563d3f700df83cb5f0d3bec3"><div class="ttname"><a href="_prefab_8cpp.html#aee19eeab563d3f700df83cb5f0d3bec3">mat4_cast</a></div><div class="ttdeci">glm::mat4 mat4_cast(const aiMatrix4x4 &amp;m)</div><div class="ttdef"><b>Definition:</b> Prefab.cpp:172</div></div>
+<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:6</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_global_transform_html"><div class="ttname"><a href="struct_uni_engine_1_1_global_transform.html">UniEngine::GlobalTransform</a></div><div class="ttdef"><b>Definition:</b> Transform.hpp:12</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_global_transform_html_a075407e07c32459aa00fa8d58dab3bdc"><div class="ttname"><a href="struct_uni_engine_1_1_global_transform.html#a075407e07c32459aa00fa8d58dab3bdc">UniEngine::GlobalTransform::SetPosition</a></div><div class="ttdeci">void SetPosition(const glm::vec3 &amp;value)</div><div class="ttdef"><b>Definition:</b> Transform.hpp:267</div></div>
 <div class="ttc" id="astruct_uni_engine_1_1_global_transform_html_a15f36e68e49ed9611de67cfd41c6a948"><div class="ttname"><a href="struct_uni_engine_1_1_global_transform.html#a15f36e68e49ed9611de67cfd41c6a948">UniEngine::GlobalTransform::SetEulerRotation</a></div><div class="ttdeci">void SetEulerRotation(const glm::vec3 &amp;value)</div><div class="ttdef"><b>Definition:</b> Transform.hpp:289</div></div>

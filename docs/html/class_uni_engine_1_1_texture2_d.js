@@ -17,6 +17,7 @@ var class_uni_engine_1_1_texture2_d =
     [ "LightProbe", "class_uni_engine_1_1_texture2_d.html#aa17324d5a9fdeecbf5fc0ab253da1197", null ],
     [ "Material", "class_uni_engine_1_1_texture2_d.html#aa1212b6e372a0f45d2c01f3cd203af77", null ],
     [ "ReflectionProbe", "class_uni_engine_1_1_texture2_d.html#a5dabf0ae2f2e588bc540cae29cbab3d6", null ],
+    [ "RenderLayer", "class_uni_engine_1_1_texture2_d.html#a188c511d13079395cac80723a91f9544", null ],
     [ "RenderManager", "class_uni_engine_1_1_texture2_d.html#ac2f8d8a30258c4e46c827c1a7ebb5db9", null ],
     [ "m_gamma", "class_uni_engine_1_1_texture2_d.html#a54b5521981dc07ef20c8b679aa7c7ebd", null ]
 ];

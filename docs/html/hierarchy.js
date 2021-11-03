@@ -1,8 +1,10 @@
 var hierarchy =
 [
     [ "UniEngine::AssetCreateHelper", "struct_uni_engine_1_1_asset_create_helper.html", null ],
+    [ "UniEngine::AssetRef", "class_uni_engine_1_1_asset_ref.html", null ],
     [ "UniEngine::AssetRegistration< T >", "class_uni_engine_1_1_asset_registration.html", null ],
     [ "UniEngine::AssetRegistry", "class_uni_engine_1_1_asset_registry.html", null ],
+    [ "UniEngine::AssimpNode", "struct_uni_engine_1_1_assimp_node.html", null ],
     [ "UniEngine::Bezier2D", "struct_uni_engine_1_1_bezier2_d.html", null ],
     [ "UniEngine::Bone", "struct_uni_engine_1_1_bone.html", null ],
     [ "UniEngine::BoneKeyFrames", "struct_uni_engine_1_1_bone_key_frames.html", null ],
@@ -15,7 +17,6 @@ var hierarchy =
     [ "UniEngine::ClassRegistry", "class_uni_engine_1_1_class_registry.html", null ],
     [ "UniEngine::ComponentDataChunk", "struct_uni_engine_1_1_component_data_chunk.html", null ],
     [ "UniEngine::ConsoleMessage", "struct_uni_engine_1_1_console_message.html", null ],
-    [ "UniEngine::CPUUsageEvent", "struct_uni_engine_1_1_c_p_u_usage_event.html", null ],
     [ "UniEngine::DataComponentChunkArray", "struct_uni_engine_1_1_data_component_chunk_array.html", null ],
     [ "UniEngine::DataComponentHolder", "struct_uni_engine_1_1_data_component_holder.html", null ],
     [ "UniEngine::DataComponentRegistration< T >", "class_uni_engine_1_1_data_component_registration.html", null ],
@@ -27,8 +28,7 @@ var hierarchy =
     [ "UniEngine::EntityArchetypeInfo", "struct_uni_engine_1_1_entity_archetype_info.html", null ],
     [ "UniEngine::EntityQuery", "struct_uni_engine_1_1_entity_query.html", null ],
     [ "UniEngine::EntityQueryInfo", "struct_uni_engine_1_1_entity_query_info.html", null ],
-    [ "UniEngine::DefaultResources::Environmental", "class_uni_engine_1_1_default_resources_1_1_environmental.html", null ],
-    [ "UniEngine::EnvironmentalMapSettingsBlock", "struct_uni_engine_1_1_environmental_map_settings_block.html", null ],
+    [ "UniEngine::EntityRef", "class_uni_engine_1_1_entity_ref.html", null ],
     [ "UniEngine::EnvironmentSettings", "struct_uni_engine_1_1_environment_settings.html", null ],
     [ "UniEngine::FileRecord", "struct_uni_engine_1_1_file_record.html", null ],
     [ "UniEngine::FileUtils", "class_uni_engine_1_1_file_utils.html", null ],
@@ -58,8 +58,6 @@ var hierarchy =
       ] ],
       [ "UniEngine::OpenGLUtils::GLVAO", "class_uni_engine_1_1_open_g_l_utils_1_1_g_l_v_a_o.html", null ]
     ] ],
-    [ "UniEngine::DefaultResources::GLPrograms", "class_uni_engine_1_1_default_resources_1_1_g_l_programs.html", null ],
-    [ "UniEngine::DefaultResources::GLShaders", "class_uni_engine_1_1_default_resources_1_1_g_l_shaders.html", null ],
     [ "UniEngine::Handle", "struct_uni_engine_1_1_handle.html", null ],
     [ "UniEngine::IDataComponent", "struct_uni_engine_1_1_i_data_component.html", [
       [ "UniEngine::GlobalTransform", "struct_uni_engine_1_1_global_transform.html", null ],
@@ -69,10 +67,8 @@ var hierarchy =
     ] ],
     [ "UniEngine::IHandle", "class_uni_engine_1_1_i_handle.html", [
       [ "UniEngine::ISerializable", "class_uni_engine_1_1_i_serializable.html", [
-        [ "UniEngine::AssetRef", "class_uni_engine_1_1_asset_ref.html", null ],
         [ "UniEngine::Curve", "class_uni_engine_1_1_curve.html", null ],
         [ "UniEngine::EntityMetadata", "struct_uni_engine_1_1_entity_metadata.html", null ],
-        [ "UniEngine::EntityRef", "class_uni_engine_1_1_entity_ref.html", null ],
         [ "UniEngine::IAsset", "class_uni_engine_1_1_i_asset.html", [
           [ "UniEngine::Animation", "class_uni_engine_1_1_animation.html", null ],
           [ "UniEngine::Collider", "class_uni_engine_1_1_collider.html", null ],
@@ -106,18 +102,13 @@ var hierarchy =
           [ "UniEngine::SpotLight", "class_uni_engine_1_1_spot_light.html", null ],
           [ "UniEngine::UnknownPrivateComponent", "class_uni_engine_1_1_unknown_private_component.html", null ]
         ] ],
-        [ "UniEngine::ISystem", "class_uni_engine_1_1_i_system.html", [
-          [ "UniEngine::PhysicsSystem", "class_uni_engine_1_1_physics_system.html", null ]
-        ] ],
+        [ "UniEngine::ISystem", "class_uni_engine_1_1_i_system.html", null ],
         [ "UniEngine::ParticleMatrices", "class_uni_engine_1_1_particle_matrices.html", null ],
-        [ "UniEngine::PrivateComponentRef", "class_uni_engine_1_1_private_component_ref.html", null ],
         [ "UniEngine::Project", "class_uni_engine_1_1_project.html", null ],
         [ "UniEngine::SystemRef", "class_uni_engine_1_1_system_ref.html", null ]
       ] ]
     ] ],
-    [ "UniEngine::IProfiler", "class_uni_engine_1_1_i_profiler.html", [
-      [ "UniEngine::CPUTimeProfiler", "class_uni_engine_1_1_c_p_u_time_profiler.html", null ]
-    ] ],
+    [ "UniEngine::ILayer", "class_uni_engine_1_1_i_layer.html", null ],
     [ "UniEngine::ISingleton< T >", "class_uni_engine_1_1_i_singleton.html", null ],
     [ "UniEngine::ISingleton< AnimationManager >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::AnimationManager", "class_uni_engine_1_1_animation_manager.html", null ]
@@ -127,9 +118,6 @@ var hierarchy =
     ] ],
     [ "UniEngine::ISingleton< ConsoleManager >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::ConsoleManager", "class_uni_engine_1_1_console_manager.html", null ]
-    ] ],
-    [ "UniEngine::ISingleton< DefaultResources >", "class_uni_engine_1_1_i_singleton.html", [
-      [ "UniEngine::DefaultResources", "class_uni_engine_1_1_default_resources.html", null ]
     ] ],
     [ "UniEngine::ISingleton< EditorManager >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::EditorManager", "class_uni_engine_1_1_editor_manager.html", null ]
@@ -146,12 +134,6 @@ var hierarchy =
     [ "UniEngine::ISingleton< OpenGLUtils >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::OpenGLUtils", "class_uni_engine_1_1_open_g_l_utils.html", null ]
     ] ],
-    [ "UniEngine::ISingleton< PhysicsManager >", "class_uni_engine_1_1_i_singleton.html", [
-      [ "UniEngine::PhysicsManager", "class_uni_engine_1_1_physics_manager.html", null ]
-    ] ],
-    [ "UniEngine::ISingleton< ProfilerManager >", "class_uni_engine_1_1_i_singleton.html", [
-      [ "UniEngine::ProfilerManager", "class_uni_engine_1_1_profiler_manager.html", null ]
-    ] ],
     [ "UniEngine::ISingleton< ProjectManager >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::ProjectManager", "class_uni_engine_1_1_project_manager.html", null ]
     ] ],
@@ -167,13 +149,9 @@ var hierarchy =
     [ "UniEngine::ISingleton< WindowManager >", "class_uni_engine_1_1_i_singleton.html", [
       [ "UniEngine::WindowManager", "class_uni_engine_1_1_window_manager.html", null ]
     ] ],
-    [ "UniEngine::LightSettingsBlock", "struct_uni_engine_1_1_light_settings_block.html", null ],
     [ "UniEngine::MaterialFloatProperty", "struct_uni_engine_1_1_material_float_property.html", null ],
     [ "UniEngine::MaterialMat4Property", "struct_uni_engine_1_1_material_mat4_property.html", null ],
-    [ "UniEngine::MaterialSettingsBlock", "struct_uni_engine_1_1_material_settings_block.html", null ],
     [ "UniEngine::MeshStorage", "class_uni_engine_1_1_mesh_storage.html", null ],
-    [ "UniEngine::DefaultResources::Physics", "class_uni_engine_1_1_default_resources_1_1_physics.html", null ],
-    [ "UniEngine::PhysicsScene", "class_uni_engine_1_1_physics_scene.html", null ],
     [ "UniEngine::Plane", "struct_uni_engine_1_1_plane.html", null ],
     [ "UniEngine::PointLightInfo", "struct_uni_engine_1_1_point_light_info.html", null ],
     [ "UniEngine::PostProcessingLayer", "class_uni_engine_1_1_post_processing_layer.html", [
@@ -182,14 +160,11 @@ var hierarchy =
       [ "UniEngine::SSR", "class_uni_engine_1_1_s_s_r.html", null ]
     ] ],
     [ "UniEngine::POwnersCollection", "struct_uni_engine_1_1_p_owners_collection.html", null ],
-    [ "UniEngine::DefaultResources::Primitives", "class_uni_engine_1_1_default_resources_1_1_primitives.html", null ],
     [ "UniEngine::PrivateComponentElement", "struct_uni_engine_1_1_private_component_element.html", null ],
     [ "UniEngine::PrivateComponentHolder", "struct_uni_engine_1_1_private_component_holder.html", null ],
+    [ "UniEngine::PrivateComponentRef", "class_uni_engine_1_1_private_component_ref.html", null ],
     [ "UniEngine::PrivateComponentRegistration< T >", "class_uni_engine_1_1_private_component_registration.html", null ],
     [ "UniEngine::PrivateComponentStorage", "class_uni_engine_1_1_private_component_storage.html", null ],
-    [ "UniEngine::RenderCommand", "struct_uni_engine_1_1_render_command.html", null ],
-    [ "UniEngine::RenderCommands", "struct_uni_engine_1_1_render_commands.html", null ],
-    [ "UniEngine::RenderGeometryGroup", "struct_uni_engine_1_1_render_geometry_group.html", null ],
     [ "UniEngine::RenderTarget", "class_uni_engine_1_1_render_target.html", [
       [ "UniEngine::Camera", "class_uni_engine_1_1_camera.html", null ],
       [ "UniEngine::DirectionalLightShadowMap", "class_uni_engine_1_1_directional_light_shadow_map.html", null ],
@@ -199,12 +174,10 @@ var hierarchy =
     ] ],
     [ "UniEngine::SceneDataStorage", "struct_uni_engine_1_1_scene_data_storage.html", null ],
     [ "UniEngine::SerializableRegistration< T >", "class_uni_engine_1_1_serializable_registration.html", null ],
-    [ "UniEngine::DefaultResources::ShaderIncludes", "class_uni_engine_1_1_default_resources_1_1_shader_includes.html", null ],
     [ "UniEngine::SkinnedVertex", "struct_uni_engine_1_1_skinned_vertex.html", null ],
     [ "UniEngine::SpotLightInfo", "struct_uni_engine_1_1_spot_light_info.html", null ],
     [ "UniEngine::SystemRegistration< T >", "class_uni_engine_1_1_system_registration.html", null ],
     [ "UniEngine::OpenGLUtils::TextureBinding", "struct_uni_engine_1_1_open_g_l_utils_1_1_texture_binding.html", null ],
-    [ "UniEngine::DefaultResources::Textures", "class_uni_engine_1_1_default_resources_1_1_textures.html", null ],
     [ "UniEngine::ThreadPool", "class_uni_engine_1_1_thread_pool.html", null ],
     [ "UniEngine::detail::ThreadQueue< T >", "class_uni_engine_1_1detail_1_1_thread_queue.html", null ],
     [ "UniEngine::Vertex", "struct_uni_engine_1_1_vertex.html", null ]

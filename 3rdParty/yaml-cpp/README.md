@@ -23,7 +23,7 @@ mkdir build
 cd build
 ```
 
-3. Run CMake. The basic syntax is:
+3. Start CMake. The basic syntax is:
 
 ```
 cmake [-G generator] [-DYAML_BUILD_SHARED_LIBS=ON|OFF] ..

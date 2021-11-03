@@ -113,6 +113,11 @@ Inheritance diagram for UniEngine::AssetManager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a3bd1164c56cb0170838f9685572848c4"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_asset.html">IAsset</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#a3bd1164c56cb0170838f9685572848c4">UnsafeCreateAsset</a> (const std::string &amp;typeName, const <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &amp;handle, const std::string &amp;name)</td></tr>
+<tr class="separator:a3bd1164c56cb0170838f9685572848c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9da0f152c53ce44b583ed81a5eb04e7"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa9da0f152c53ce44b583ed81a5eb04e7"><td class="memTemplItemLeft" align="right" valign="top">static std::shared_ptr&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#aa9da0f152c53ce44b583ed81a5eb04e7">UnsafeCreateAsset</a> (const <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &amp;handle, const std::string &amp;name)</td></tr>
+<tr class="separator:aa9da0f152c53ce44b583ed81a5eb04e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afafa5614674fd3bd4335305bd8ae6c4b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#afafa5614674fd3bd4335305bd8ae6c4b">IsAsset</a> (const std::string &amp;typeName)</td></tr>
 <tr class="separator:afafa5614674fd3bd4335305bd8ae6c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e2240f18e1132747a1ca728d6c926f9"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
@@ -172,6 +177,8 @@ Friends</h2></td></tr>
 <tr class="separator:aa860c957116c15c1b786357fbcd19fc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab4a07d61ba268f3670d11194a067ede4"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#ab4a07d61ba268f3670d11194a067ede4">EditorManager</a></td></tr>
 <tr class="separator:ab4a07d61ba268f3670d11194a067ede4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaa38e94b5b3b9ba2c53b5f6a6d70741"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#aeaa38e94b5b3b9ba2c53b5f6a6d70741">EditorLayer</a></td></tr>
+<tr class="separator:aeaa38e94b5b3b9ba2c53b5f6a6d70741"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae80b92461e2c1bbf8071a1e548a836ed"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#ae80b92461e2c1bbf8071a1e548a836ed">IAsset</a></td></tr>
 <tr class="separator:ae80b92461e2c1bbf8071a1e548a836ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a032858ae1fe02d2d1170981c2af2d67c"><td class="memItemLeft" align="right" valign="top">class&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_asset_manager.html#a032858ae1fe02d2d1170981c2af2d67c">Scene</a></td></tr>
@@ -726,6 +733,86 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="aa9da0f152c53ce44b583ed81a5eb04e7" name="aa9da0f152c53ce44b583ed81a5eb04e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9da0f152c53ce44b583ed81a5eb04e7">&#9670;&nbsp;</a></span>UnsafeCreateAsset() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; T &gt; UniEngine::AssetManager::UnsafeCreateAsset </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &amp;&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3bd1164c56cb0170838f9685572848c4" name="a3bd1164c56cb0170838f9685572848c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bd1164c56cb0170838f9685572848c4">&#9670;&nbsp;</a></span>UnsafeCreateAsset() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_asset.html">IAsset</a> &gt; AssetManager::UnsafeCreateAsset </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>typeName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a> &amp;&#160;</td>
+          <td class="paramname"><em>handle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
 <a id="a78622a4072c97072cc9c8136cfc23760" name="a78622a4072c97072cc9c8136cfc23760"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a78622a4072c97072cc9c8136cfc23760">&#9670;&nbsp;</a></span>AssetRegistry</h2>
@@ -781,7 +868,29 @@ template&lt;typename T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_default_resources.html">DefaultResources</a></td>
+          <td class="memname">friend class DefaultResources</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aeaa38e94b5b3b9ba2c53b5f6a6d70741" name="aeaa38e94b5b3b9ba2c53b5f6a6d70741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeaa38e94b5b3b9ba2c53b5f6a6d70741">&#9670;&nbsp;</a></span>EditorLayer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class EditorLayer</td>
         </tr>
       </table>
   </td>

@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('_input_manager_8hpp_source.html',''); 
 </div><!--header-->
 <div class="contents">
 <a href="_input_manager_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="_gui_8hpp.html">Gui.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;Gui.hpp&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;<a class="code" href="_i_singleton_8hpp.html">ISingleton.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;uniengine_export.h&gt;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_uni_engine.html">UniEngine</a></div>
@@ -105,36 +105,34 @@ $(document).ready(function(){initNavTree('_input_manager_8hpp_source.html',''); 
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>{</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#ab4a07d61ba268f3670d11194a067ede4">    9</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_editor_manager.html">EditorManager</a>;</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#a1fd123efa2221c6aedb1526364c57be7">   10</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span>Application;</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> OnInspect();</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>    <span class="keywordtype">bool</span> m_enableInputMenu;</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    <span class="keyword">friend</span> <span class="keyword">class </span>Application;</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#a956e21ab5adaed3b83928e72861e5dbe">   14</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_window_manager.html">WindowManager</a>;</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#ac2f8d8a30258c4e46c827c1a7ebb5db9">   15</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_render_manager.html">RenderManager</a>;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="keyword">friend</span> <span class="keyword">class </span>Application;</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    glm::vec2 m_mousePosition;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keywordtype">bool</span> m_mousePositionValid = <span class="keyword">false</span>;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>  <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> PreUpdate();</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &amp;pos);</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetKeyInternal(<span class="keywordtype">int</span> key, GLFWwindow *window);</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMouseInternal(<span class="keywordtype">int</span> button, GLFWwindow *window);</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keyword">static</span> glm::vec2 GetMouseAbsolutePositionInternal(GLFWwindow *window);</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> Init();</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetKey(<span class="keywordtype">int</span> key);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMouse(<span class="keywordtype">int</span> button);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keyword">static</span> glm::vec2 GetMouseAbsolutePosition();</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMousePosition(glm::vec2 &amp;pos);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>};</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>} <span class="comment">// namespace UniEngine</span></div>
-<div class="ttc" id="a_gui_8hpp_html"><div class="ttname"><a href="_gui_8hpp.html">Gui.hpp</a></div></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <span class="keywordtype">bool</span> m_enableInputMenu;</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>    <span class="keyword">friend</span> <span class="keyword">class </span>Application;</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#a956e21ab5adaed3b83928e72861e5dbe">   13</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_window_manager.html">WindowManager</a>;</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_input_manager.html#ac2f8d8a30258c4e46c827c1a7ebb5db9">   14</a></span>    <span class="keyword">friend</span> <span class="keyword">class </span><a class="code hl_class" href="class_uni_engine_1_1_render_manager.html">RenderManager</a>;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <span class="keyword">friend</span> <span class="keyword">class </span>Application;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    glm::vec2 m_mousePosition;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <span class="keywordtype">bool</span> m_mousePositionValid = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>  <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> PreUpdate();</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &amp;pos);</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetKeyInternal(<span class="keywordtype">int</span> key, GLFWwindow *window);</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMouseInternal(<span class="keywordtype">int</span> button, GLFWwindow *window);</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keyword">static</span> glm::vec2 GetMouseAbsolutePositionInternal(GLFWwindow *window);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> Init();</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetKey(<span class="keywordtype">int</span> key);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMouse(<span class="keywordtype">int</span> button);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keyword">static</span> glm::vec2 GetMouseAbsolutePosition();</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> GetMousePosition(glm::vec2 &amp;pos);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>};</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>} <span class="comment">// namespace UniEngine</span></div>
 <div class="ttc" id="a_i_singleton_8hpp_html"><div class="ttname"><a href="_i_singleton_8hpp.html">ISingleton.hpp</a></div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_editor_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_editor_manager.html">UniEngine::EditorManager</a></div><div class="ttdef"><b>Definition:</b> EditorManager.hpp:22</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_editor_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_editor_manager.html">UniEngine::EditorManager</a></div><div class="ttdef"><b>Definition:</b> EditorManager.hpp:17</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_i_singleton_html"><div class="ttname"><a href="class_uni_engine_1_1_i_singleton.html">UniEngine::ISingleton</a></div><div class="ttdef"><b>Definition:</b> ISingleton.hpp:5</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_input_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_input_manager.html">UniEngine::InputManager</a></div><div class="ttdef"><b>Definition:</b> InputManager.hpp:8</div></div>
-<div class="ttc" id="aclass_uni_engine_1_1_render_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_render_manager.html">UniEngine::RenderManager</a></div><div class="ttdef"><b>Definition:</b> RenderManager.hpp:86</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_render_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_render_manager.html">UniEngine::RenderManager</a></div><div class="ttdef"><b>Definition:</b> RenderManager.hpp:13</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_window_manager_html"><div class="ttname"><a href="class_uni_engine_1_1_window_manager.html">UniEngine::WindowManager</a></div><div class="ttdef"><b>Definition:</b> WindowManager.hpp:8</div></div>
-<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:7</div></div>
+<div class="ttc" id="anamespace_uni_engine_html"><div class="ttname"><a href="namespace_uni_engine.html">UniEngine</a></div><div class="ttdef"><b>Definition:</b> IAsset.hpp:6</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

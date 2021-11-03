@@ -104,11 +104,6 @@ void Animator::AutoPlay()
     Animate();
 }
 
-bool Animator::AnimatedCurrentFrame()
-{
-    return m_animatedCurrentFrame;
-}
-
 void Animator::Animate()
 {
     if (!m_needAnimate)
@@ -133,7 +128,6 @@ void Animator::Animate()
         }
     }
     m_needAnimate = false;
-    m_animatedCurrentFrame = true;
 }
 
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)
@@ -246,7 +240,6 @@ void Animator::Deserialize(const YAML::Node &in)
     }
 
     m_needAnimate = true;
-    m_animatedCurrentFrame = false;
 }
 
 std::shared_ptr<Animation> Animator::GetAnimation()

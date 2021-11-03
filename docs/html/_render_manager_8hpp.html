@@ -94,13 +94,12 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp.html',''); initRe
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#namespaces">Namespaces</a>  </div>
   <div class="headertitle"><div class="title">RenderManager.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;<a class="el" href="_camera_8hpp_source.html">Camera.hpp</a>&gt;</code><br />
-<code>#include &lt;<a class="el" href="_default_resources_8hpp_source.html">DefaultResources.hpp</a>&gt;</code><br />
+<code>#include &lt;DefaultResources.hpp&gt;</code><br />
 <code>#include &lt;<a class="el" href="_lights_8hpp_source.html">Lights.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_mesh_renderer_8hpp_source.html">MeshRenderer.hpp</a>&gt;</code><br />
 <code>#include &lt;<a class="el" href="_particles_8hpp_source.html">Particles.hpp</a>&gt;</code><br />
@@ -110,18 +109,6 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp.html',''); initRe
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_light_settings_block.html">UniEngine::LightSettingsBlock</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_environmental_map_settings_block.html">UniEngine::EnvironmentalMapSettingsBlock</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_material_settings_block.html">UniEngine::MaterialSettingsBlock</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_render_command.html">UniEngine::RenderCommand</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_render_geometry_group.html">UniEngine::RenderGeometryGroup</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_render_commands.html">UniEngine::RenderCommands</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_render_manager.html">UniEngine::RenderManager</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -129,18 +116,6 @@ Classes</h2></td></tr>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespace_uni_engine"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_uni_engine.html">UniEngine</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:ab250b9f0bccc025e017ac3c614b1dcd9"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_uni_engine.html#ab250b9f0bccc025e017ac3c614b1dcd9">UniEngine::RenderCommandType</a> { <a class="el" href="namespace_uni_engine.html#ab250b9f0bccc025e017ac3c614b1dcd9a868d28d3d39642b1df6bcf83f6b02f1e">UniEngine::FromRenderer</a>
-, <a class="el" href="namespace_uni_engine.html#ab250b9f0bccc025e017ac3c614b1dcd9ace0ae63e90200dce57059982411085d4">UniEngine::FromAPI</a>
-, <a class="el" href="namespace_uni_engine.html#ab250b9f0bccc025e017ac3c614b1dcd9ab135d60ad9eeb8e629a7c754f91ac62b">UniEngine::FromAPIInstanced</a>
- }</td></tr>
-<tr class="separator:ab250b9f0bccc025e017ac3c614b1dcd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a822beb51a5ea61700f3eb34f915863ca"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_uni_engine.html#a822beb51a5ea61700f3eb34f915863ca">UniEngine::RenderCommandMeshType</a> { <a class="el" href="namespace_uni_engine.html#a822beb51a5ea61700f3eb34f915863caa7a1920d61156abc05a60135aefe8bc67">UniEngine::Default</a>
-, <a class="el" href="namespace_uni_engine.html#a822beb51a5ea61700f3eb34f915863caa85537df4dc67dcb3942e0082500dc9af">UniEngine::Skinned</a>
- }</td></tr>
-<tr class="separator:a822beb51a5ea61700f3eb34f915863ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -1,48 +1,32 @@
+#include "RenderLayer.hpp"
 #include <AnimationManager.hpp>
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
+#include <EditorLayer.hpp>
 #include <EditorManager.hpp>
 #include <EntityManager.hpp>
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <JobManager.hpp>
 #include <OpenGLUtils.hpp>
-#include <PhysicsManager.hpp>
+#include <PhysicsLayer.hpp>
+#include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <RenderManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
+#include "PhysicsLayer.hpp"
 using namespace UniEngine;
 
-void Application::Init(const ApplicationConfigs &applicationConfigs)
+void Application::Create(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-    application.m_applicationConfigs = applicationConfigs;
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
-
-    InputManager::Init();
-    JobManager::Init();
     OpenGLUtils::Init();
-    PhysicsManager::Init();
-
-    AssetManager::Init();
-
-    EntityManager::Init();
-
-    EditorManager::InitImGui();
-
-    RenderManager::Init();
-    ProfilerManager::GetOrCreateProfiler<CPUTimeProfiler>("CPU Time");
-    EditorManager::Init();
-    TransformManager::Init();
-    application.m_applicationStatus = ApplicationStatus::WelcomeScreen;
-    if(!application.m_applicationConfigs.m_projectPath.empty()){
-        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
-        application.m_applicationStatus = ApplicationStatus::Initialized;
-    }
-    application.m_gameStatus = GameStatus::Stop;
+    application.m_applicationConfigs = applicationConfigs;
 }
+
 void ApplicationTime::OnInspect()
 {
     if (ImGui::CollapsingHeader("Time Settings"))
@@ -92,113 +76,122 @@ void ApplicationTime::EndFixedUpdate()
 void Application::PreUpdateInternal()
 {
     auto &application = GetInstance();
-    if (application.m_applicationStatus != ApplicationStatus::Initialized)
-        return;
-
-    EditorManager::PreUpdate();
-    ProfilerManager::PreUpdate();
-    ProfilerManager::StartEvent("PreUpdate");
-    ProfilerManager::StartEvent("Internals");
-
-    RenderManager::PreUpdate();
+    WindowManager::PreUpdate();
+    application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
+    application.m_time.m_frameStartTime = glfwGetTime();
+    EditorManager::ImGuiPreUpdate();
+    OpenGLUtils::PreUpdate();
     InputManager::PreUpdate();
-
-    ProfilerManager::EndEvent("Internals");
-    ProfilerManager::StartEvent("Externals");
-    for (const auto &i : application.m_externalPreUpdateFunctions)
-        i();
-    ProfilerManager::EndEvent("Externals");
-    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+    if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
-        ProfilerManager::StartEvent("Scene");
-        EntityManager::GetInstance().m_scene->PreUpdate();
-        ProfilerManager::EndEvent("Scene");
-    }
-    application.m_needFixedUpdate = false;
-    auto fixedDeltaTime = application.m_time.FixedDeltaTime();
-    if (fixedDeltaTime >= application.m_time.m_timeStep)
-    {
-        application.m_needFixedUpdate = true;
-    }
-    PhysicsManager::PreUpdate();
-    if (application.m_needFixedUpdate)
-    {
-        ProfilerManager::StartEvent("FixedUpdate");
-        application.m_time.StartFixedUpdate();
-        ProfilerManager::StartEvent("Externals");
-        for (const auto &i : application.m_externalFixedUpdateFunctions)
+        for (const auto &i : application.m_externalPreUpdateFunctions)
             i();
-        ProfilerManager::EndEvent("Externals");
+
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            ProfilerManager::StartEvent("Scene");
-            EntityManager::GetInstance().m_scene->FixedUpdate();
-            ProfilerManager::EndEvent("Scene");
+            EntityManager::GetInstance().m_scene->Start();
         }
-        application.m_time.EndFixedUpdate();
-        ProfilerManager::EndEvent("FixedUpdate");
+        for (auto &i : application.m_layers)
+        {
+            i->PreUpdate();
+        }
+
+        TransformManager::PreUpdate();
+        AnimationManager::PreUpdate();
+        auto fixedDeltaTime = application.m_time.FixedDeltaTime();
+        if (fixedDeltaTime >= application.m_time.m_timeStep)
+        {
+            application.m_time.StartFixedUpdate();
+            for (const auto &i : application.m_externalFixedUpdateFunctions)
+                i();
+            for (auto &i : application.m_layers)
+            {
+                i->FixedUpdate();
+            }
+            if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+            {
+                EntityManager::GetInstance().m_scene->FixedUpdate();
+            }
+            application.m_time.EndFixedUpdate();
+        }
     }
-    TransformManager::PreUpdate();
-    AnimationManager::PreUpdate();
-    ProfilerManager::EndEvent("PreUpdate");
+
 }
 
 void Application::UpdateInternal()
 {
     auto &application = GetInstance();
-    if (application.m_applicationStatus != ApplicationStatus::Initialized)
-        return;
-    ProfilerManager::StartEvent("Set");
-    ProfilerManager::StartEvent("Externals");
-    for (const auto &i : application.m_externalUpdateFunctions)
-        i();
-    ProfilerManager::EndEvent("Externals");
-    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+    if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
-        ProfilerManager::StartEvent("Scene");
-        EntityManager::GetInstance().m_scene->Update();
-        ProfilerManager::EndEvent("Scene");
+        for (const auto &i : application.m_externalUpdateFunctions)
+            i();
+
+        for (auto &i : application.m_layers)
+        {
+            i->Update();
+        }
+        if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+        {
+            EntityManager::GetInstance().m_scene->Update();
+        }
     }
-    ProfilerManager::EndEvent("Set");
 }
 
 void Application::LateUpdateInternal()
 {
     auto &application = GetInstance();
-    if (application.m_applicationStatus != ApplicationStatus::Initialized)
-        return;
-    ProfilerManager::StartEvent("LateUpdate");
-    ProfilerManager::StartEvent("Externals");
-    for (const auto &i : application.m_externalLateUpdateFunctions)
-        i();
-    ProfilerManager::EndEvent("Externals");
-    if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+    if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
-        ProfilerManager::StartEvent("Scene");
-        EntityManager::GetInstance().m_scene->LateUpdate();
-        ProfilerManager::EndEvent("Scene");
+        for (const auto &i : application.m_externalLateUpdateFunctions)
+            i();
+
+        if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
+        {
+            EntityManager::GetInstance().m_scene->LateUpdate();
+        }
+
+        for (auto &i : application.m_layers)
+        {
+            i->LateUpdate();
+        }
+        for (auto &i : application.m_layers)
+        {
+            i->OnInspect();
+        }
+        // Post-processing happens here
+        // Manager settings
+        OnInspect();
+        AssetManager::OnInspect();
+        ConsoleManager::OnInspect();
+        ProjectManager::OnInspect();
+        if (application.m_gameStatus == GameStatus::Step)
+            application.m_gameStatus = GameStatus::Pause;
     }
-    ProfilerManager::StartEvent("Internals");
-
-    // Post-processing happens here
-    RenderManager::LateUpdate();
-    AnimationManager::LateUpdate();
-    // Manager settings
-    OnInspect();
-    InputManager::OnInspect();
-    AssetManager::OnInspect();
-    RenderManager::OnInspect();
-    EditorManager::OnInspect();
-    ConsoleManager::OnInspect();
-    ProjectManager::OnInspect();
-    ProfilerManager::EndEvent("Internals");
-    // Profile
-    ProfilerManager::EndEvent("LateUpdate");
-    ProfilerManager::LateUpdate();
-    ProfilerManager::OnInspect();
-
-    if(application.m_gameStatus == GameStatus::Step)
-        application.m_gameStatus = GameStatus::Pause;
+    else
+    {
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Project"))
+            {
+                FileUtils::SaveFile(
+                    "Create or load New Project",
+                    "Project",
+                    {".ueproj"},
+                    [&](const std::filesystem::path &path) {
+                        ProjectManager::CreateOrLoadProject(path);
+                        application.m_applicationStatus = ApplicationStatus::Initialized;
+                    },
+                    false);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+    }
+    // ImGui drawing
+    EditorManager::ImGuiLateUpdate();
+    // Swap Window's framebuffer
+    WindowManager::LateUpdate();
+    application.m_time.m_lastUpdateTime = glfwGetTime();
 }
 
 ApplicationTime &Application::Time()
@@ -213,51 +206,47 @@ bool Application::IsInitialized()
 
 void Application::End()
 {
+    auto &application = GetInstance();
     EntityManager::GetInstance().m_scene.reset();
-    PhysicsManager::Destroy();
+    for (auto &i : application.m_layers)
+    {
+        i->OnDestroy();
+    }
     // glfwTerminate();
 }
 
-void Application::Run()
+void Application::Start()
 {
     auto &application = GetInstance();
+    PushLayer<ProfilerLayer>();
+    PushLayer<EditorLayer>();
+    PushLayer<RenderLayer>();
+    PushLayer<PhysicsLayer>();
 
+    InputManager::Init();
+    JobManager::Init();
+    AssetManager::Init();
+    EntityManager::Init();
+    EditorManager::InitImGui();
+
+    TransformManager::Init();
+
+    for (auto &i : application.m_layers)
+    {
+        i->OnCreate();
+    }
+    application.m_applicationStatus = ApplicationStatus::Uninitialized;
+    if (!application.m_applicationConfigs.m_projectPath.empty())
+    {
+        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
+        application.m_applicationStatus = ApplicationStatus::Initialized;
+    }
+    application.m_gameStatus = GameStatus::Stop;
     while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
     {
-        WindowManager::PreUpdate();
-        application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
-        application.m_time.m_frameStartTime = glfwGetTime();
-        EditorManager::ImGuiPreUpdate();
-        OpenGLUtils::PreUpdate();
-
-        switch (application.m_applicationStatus)
-        {
-        case ApplicationStatus::WelcomeScreen:
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("Project"))
-                {
-                    FileUtils::SaveFile("Create or load New Project", "Project", {".ueproj"}, [&](const std::filesystem::path& path){
-                            ProjectManager::CreateOrLoadProject(path);
-                            application.m_applicationStatus = ApplicationStatus::Initialized;
-                        }, false);
-                    ImGui::EndMenu();
-                }
-                ImGui::EndMainMenuBar();
-            }
-            break;
-        case ApplicationStatus::Initialized:
-            PreUpdateInternal();
-            UpdateInternal();
-            LateUpdateInternal();
-            break;
-        }
-
-        // ImGui drawing
-        EditorManager::ImGuiLateUpdate();
-        // Swap Window's framebuffer
-        WindowManager::LateUpdate();
-        application.m_time.m_lastUpdateTime = glfwGetTime();
+        PreUpdateInternal();
+        UpdateInternal();
+        LateUpdateInternal();
     }
 }
 
@@ -283,7 +272,6 @@ void Application::Reset()
 {
     auto &application = GetInstance();
     application.m_gameStatus = GameStatus::Stop;
-    application.m_needFixedUpdate = false;
     application.m_time.Reset();
 }
 void Application::OnInspect()
@@ -310,9 +298,10 @@ void Application::OnInspect()
 }
 void Application::Play()
 {
-    auto& application = GetInstance();
-    if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
-    if(application.m_gameStatus == GameStatus::Stop)
+    auto &application = GetInstance();
+    if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
+        return;
+    if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
         copiedScene->Clone(application.m_scene);
@@ -322,15 +311,17 @@ void Application::Play()
 }
 void Application::Stop()
 {
-    auto& application = GetInstance();
-    if(application.m_gameStatus == GameStatus::Stop) return;
+    auto &application = GetInstance();
+    if (application.m_gameStatus == GameStatus::Stop)
+        return;
     application.m_gameStatus = GameStatus::Stop;
     EntityManager::Attach(application.m_scene);
 }
 void Application::Pause()
 {
-    auto& application = GetInstance();
-    if(application.m_gameStatus != GameStatus::Playing) return;
+    auto &application = GetInstance();
+    if (application.m_gameStatus != GameStatus::Playing)
+        return;
     application.m_gameStatus = GameStatus::Pause;
 }
 GameStatus Application::GetGameStatus()
@@ -339,9 +330,10 @@ GameStatus Application::GetGameStatus()
 }
 void Application::Step()
 {
-    auto& application = GetInstance();
-    if(application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop) return;
-    if(application.m_gameStatus == GameStatus::Stop)
+    auto &application = GetInstance();
+    if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
+        return;
+    if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
         copiedScene->Clone(application.m_scene);
@@ -351,9 +343,10 @@ void Application::Step()
 }
 bool Application::IsPlaying()
 {
-    auto& application = GetInstance();
+    auto &application = GetInstance();
     return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
 }
+
 
 void ApplicationTime::Reset()
 {

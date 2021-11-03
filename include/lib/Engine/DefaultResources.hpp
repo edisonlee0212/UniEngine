@@ -34,6 +34,8 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class Bloom;
     friend class SSR;
     friend class WindowManager;
+    friend class EditorLayer;
+    friend class RenderLayer;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 
     static std::unique_ptr<Texture2D> m_brdfLut;
@@ -83,18 +85,10 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntitySkinnedRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;
-
     Handle m_currentMaxHandle = Handle(1);
-    static Handle GenerateNewHandle();
   public:
     static Handle GetMaxHandle();
-
-    class UNIENGINE_API Physics
-    {
-      public:
-        static std::shared_ptr<PhysicsMaterial> DefaultPhysicsMaterial;
-    };
-
+    static Handle GenerateNewHandle();
     class UNIENGINE_API GLPrograms
     {
       public:

@@ -1,7 +1,7 @@
 #include <Application.hpp>
 #include <ConsoleManager.hpp>
 #include <DefaultResources.hpp>
-#include <ProfilerManager.hpp>
+#include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <RenderTarget.hpp>
 #include <WindowManager.hpp>
@@ -97,7 +97,6 @@ void WindowManager::PreUpdate()
     glfwPollEvents();
     RenderTarget::BindDefault();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     if (glfwWindowShouldClose(WindowManager::GetWindow()))
     {
         Application::GetInstance().m_applicationStatus = ApplicationStatus::OnDestroy;

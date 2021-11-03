@@ -1,4 +1,4 @@
-@REM Build for Visual Studio compiler. Run your copy of vcvars32.bat or vcvarsall.bat to setup command-line compiler.
+@REM Build for Visual Studio compiler. Start your copy of vcvars32.bat or vcvarsall.bat to setup command-line compiler.
 
 @set OUT_EXE=example_sdl_vulkan
 @set INCLUDES=/I..\.. /I..\..\backends /I%SDL2_DIR%\include /I %VULKAN_SDK%\include

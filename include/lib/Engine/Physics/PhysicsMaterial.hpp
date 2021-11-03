@@ -7,7 +7,7 @@ namespace UniEngine
 {
 class UNIENGINE_API PhysicsMaterial : public IAsset
 {
-    friend class PhysicsManager;
+    friend class PhysicsLayer;
     friend class Collider;
     PxMaterial *m_value;
     float m_staticFriction = 0.02f;

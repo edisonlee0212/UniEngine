@@ -29,17 +29,17 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class AssetRegistry;
     friend class ProjectManager;
     friend class EditorManager;
+    friend class EditorLayer;
     friend class IAsset;
     friend class Scene;
     friend class Prefab;
     static void RegisterAsset(std::shared_ptr<IAsset> resource);
-
-    template <typename T> static std::shared_ptr<T> CreateAsset(const Handle &handle, const std::string &name);
-    static std::shared_ptr<IAsset> CreateAsset(
-        const std::string &typeName, const Handle &handle, const std::string &name);
     template <typename T> static void RegisterAssetType(const std::string &name, const std::string &extension);
-
   public:
+    static std::shared_ptr<IAsset> UnsafeCreateAsset(
+        const std::string &typeName, const Handle &handle, const std::string &name);
+    template <typename T> static std::shared_ptr<T> UnsafeCreateAsset(const Handle &handle, const std::string &name);
+
     static bool IsAsset(const std::string &typeName);
     template <typename T> static void RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);
 
@@ -134,12 +134,13 @@ template <typename T> void AssetManager::RegisterExternalAssetTypeExtensions(std
 
 template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const std::string &name)
 {
-    return CreateAsset<T>(Handle(), name);
+    return UnsafeCreateAsset<T>(Handle(), name);
 }
 
-template <typename T> std::shared_ptr<T> AssetManager::CreateAsset(const Handle &handle, const std::string &name)
+template <typename T> std::shared_ptr<T> AssetManager::UnsafeCreateAsset(const Handle &handle, const std::string &name)
 {
-    return std::dynamic_pointer_cast<T>(CreateAsset(SerializationManager::GetSerializableTypeName<T>(), handle, name));
+    return std::dynamic_pointer_cast<T>(
+        UnsafeCreateAsset(SerializationManager::GetSerializableTypeName<T>(), handle, name));
 }
 
 template <typename T> void AssetManager::RemoveFromShared(const Handle &handle)

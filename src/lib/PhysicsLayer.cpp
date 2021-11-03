@@ -1,9 +1,10 @@
 #include "Joint.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <PhysicsManager.hpp>
+#include <PhysicsLayer.hpp>
 #include <RigidBody.hpp>
 #include <TransformManager.hpp>
+#include "DefaultResources.hpp"
 using namespace UniEngine;
 
 YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxVec2 &v)
@@ -34,7 +35,7 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const PxMat44 &v)
     return out;
 }
 
-void PhysicsManager::UploadTransform(
+void PhysicsLayer::UploadTransform(
     const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody)
 {
     GlobalTransform ltw;
@@ -52,36 +53,39 @@ void PhysicsManager::UploadTransform(
     }
 }
 
-void PhysicsManager::PreUpdate()
+void PhysicsLayer::PreUpdate()
 {
-    auto physicsManager = GetInstance();
     const bool playing = Application::IsPlaying();
     auto activeScene = EntityManager::GetCurrentScene();
     UploadRigidBodyShapes(activeScene);
     UploadTransforms(activeScene, !playing);
     UploadJointLinks(activeScene);
 }
-
-void PhysicsManager::Init()
+void PhysicsLayer::OnCreate()
 {
-    auto &physicsManager = GetInstance();
-    physicsManager.m_physicsFoundation =
-        PxCreateFoundation(PX_PHYSICS_VERSION, physicsManager.m_allocator, physicsManager.m_errorCallback);
+    m_physicsFoundation =
+        PxCreateFoundation(PX_PHYSICS_VERSION, m_allocator, m_errorCallback);
 
-    physicsManager.m_pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    if (physicsManager.m_pvdTransport != NULL)
+    m_pvdTransport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    if (m_pvdTransport != NULL)
     {
-        physicsManager.m_physVisDebugger = PxCreatePvd(*physicsManager.m_physicsFoundation);
-        physicsManager.m_physVisDebugger->connect(*physicsManager.m_pvdTransport, PxPvdInstrumentationFlag::eALL);
+        m_physVisDebugger = PxCreatePvd(*m_physicsFoundation);
+        m_physVisDebugger->connect(*m_pvdTransport, PxPvdInstrumentationFlag::eALL);
     }
-    physicsManager.m_physics = PxCreatePhysics(
+    m_physics = PxCreatePhysics(
         PX_PHYSICS_VERSION,
-        *physicsManager.m_physicsFoundation,
+        *m_physicsFoundation,
         PxTolerancesScale(),
         true,
-        physicsManager.m_physVisDebugger);
-    PxInitExtensions(*physicsManager.m_physics, physicsManager.m_physVisDebugger);
-    physicsManager.m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
+        m_physVisDebugger);
+    PxInitExtensions(*m_physics, m_physVisDebugger);
+    m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::PrimaryWorkers().Size());
+
+    #pragma region Physics
+    m_defaultPhysicsMaterial =
+        AssetManager::UnsafeCreateAsset<PhysicsMaterial>(DefaultResources::GenerateNewHandle(), "Default");
+    AssetManager::Share(m_defaultPhysicsMaterial);
+#pragma endregion
 }
 
 #define PX_RELEASE(x)                                                                                                  \
@@ -90,17 +94,16 @@ void PhysicsManager::Init()
         x->release();                                                                                                  \
         x = nullptr;                                                                                                   \
     }
-void PhysicsManager::Destroy()
+void PhysicsLayer::OnDestroy()
 {
-    auto &physicsManager = GetInstance();
-    PX_RELEASE(physicsManager.m_dispatcher);
-    PX_RELEASE(physicsManager.m_physics);
-    PX_RELEASE(physicsManager.m_physVisDebugger);
-    PX_RELEASE(physicsManager.m_pvdTransport);
+    PX_RELEASE(m_dispatcher);
+    PX_RELEASE(m_physics);
+    PX_RELEASE(m_physVisDebugger);
+    PX_RELEASE(m_pvdTransport);
 
-    // PX_RELEASE(physicsManager.m_physicsFoundation);
+    // PX_RELEASE(m_physicsFoundation);
 }
-void PhysicsManager::UploadTransforms(const std::shared_ptr<Scene> &scene, const bool &updateAll, const bool &freeze)
+void PhysicsLayer::UploadTransforms(const std::shared_ptr<Scene> &scene, const bool &updateAll, const bool &freeze)
 {
     if (!scene)
         return;
@@ -131,16 +134,10 @@ void PhysicsManager::UploadTransforms(const std::shared_ptr<Scene> &scene, const
                 else if (updateAll)
                 {
                     rigidBody->m_rigidActor->setGlobalPose(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
-                    PxRigidBody *rigidBodyP = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
                     if (freeze)
                     {
                         rigidBody->SetLinearVelocity(glm::vec3(0.0f));
                         rigidBody->SetAngularVelocity(glm::vec3(0.0f));
-                    }
-                    else
-                    {
-                        rigidBodyP->setLinearVelocity(rigidBody->m_linearVelocity);
-                        rigidBodyP->setAngularVelocity(rigidBody->m_angularVelocity);
                     }
                 }
             }
@@ -151,7 +148,9 @@ void PhysicsManager::UploadTransforms(const std::shared_ptr<Scene> &scene, const
 void PhysicsSystem::OnCreate()
 {
     m_scene = std::make_shared<PhysicsScene>();
-    PxPvdSceneClient *pvdClient = m_scene->m_physicsScene->getScenePvdClient();
+    auto physicsScene = m_scene->m_physicsScene;
+    if(!physicsScene) return;
+    PxPvdSceneClient *pvdClient = physicsScene->getScenePvdClient();
     if (pvdClient)
     {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
@@ -172,6 +171,7 @@ void PhysicsSystem::FixedUpdate()
 
 void PhysicsScene::Simulate(float time) const
 {
+    if(!m_physicsScene) return;
     m_physicsScene->simulate(time);
     m_physicsScene->fetchResults(true);
 }
@@ -198,7 +198,7 @@ void PhysicsSystem::DownloadRigidBodyTransforms() const
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
 
-void PhysicsManager::UploadRigidBodyShapes(
+void PhysicsLayer::UploadRigidBodyShapes(
     const std::shared_ptr<Scene> &scene,
     const std::shared_ptr<PhysicsScene> &physicsScene,
     const std::vector<Entity> *rigidBodyEntities)
@@ -222,11 +222,10 @@ void PhysicsManager::UploadRigidBodyShapes(
     }
 #pragma endregion
 }
-void PhysicsManager::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
+void PhysicsLayer::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
 {
     if (!scene)
         return;
-    auto physicsManager = GetInstance();
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
@@ -237,11 +236,10 @@ void PhysicsManager::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
         UploadRigidBodyShapes(scene, physicsScene, rigidBodyEntities);
     }
 }
-void PhysicsManager::UploadJointLinks(const std::shared_ptr<Scene> &scene)
+void PhysicsLayer::UploadJointLinks(const std::shared_ptr<Scene> &scene)
 {
     if (!scene)
         return;
-    auto physicsManager = GetInstance();
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
@@ -252,11 +250,13 @@ void PhysicsManager::UploadJointLinks(const std::shared_ptr<Scene> &scene)
         UploadJointLinks(scene, physicsScene, jointEntities);
     }
 }
-void PhysicsManager::UploadJointLinks(
+void PhysicsLayer::UploadJointLinks(
     const std::shared_ptr<Scene> &scene,
     const std::shared_ptr<PhysicsScene> &physicsScene,
     const std::vector<Entity> *jointEntities)
 {
+    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+    if(!physicsLayer) return;
 #pragma region Update shape
     for (auto entity : *jointEntities)
     {
@@ -285,7 +285,7 @@ void PhysicsManager::UploadJointLinks(
             {
             case JointType::Fixed:
                 joint->m_joint = PxFixedJointCreate(
-                    *PhysicsManager::GetInstance().m_physics,
+                    *physicsLayer->m_physics,
                     rigidBody2->m_rigidActor,
                     PxTransform(
                         PxVec3(joint->m_localPosition1.x, joint->m_localPosition1.y, joint->m_localPosition1.z),
@@ -361,7 +361,7 @@ void PhysicsManager::UploadJointLinks(
                  */
             case JointType::D6:
                 joint->m_joint = PxD6JointCreate(
-                    *PhysicsManager::GetInstance().m_physics,
+                    *physicsLayer->m_physics,
                     rigidBody2->m_rigidActor,
                     PxTransform(
                         PxVec3(joint->m_localPosition1.x, joint->m_localPosition1.y, joint->m_localPosition1.z),
@@ -471,11 +471,13 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
 
 PhysicsScene::PhysicsScene()
 {
-    auto physics = PhysicsManager::GetInstance().m_physics;
+    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+    if(!physicsLayer) return;
+    auto physics = physicsLayer->m_physics;
     PxSceneDesc sceneDesc(physics->getTolerancesScale());
     sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
     sceneDesc.solverType = PxSolverType::eTGS;
-    sceneDesc.cpuDispatcher = PhysicsManager::GetInstance().m_dispatcher;
+    sceneDesc.cpuDispatcher = physicsLayer->m_dispatcher;
     sceneDesc.filterShader = PxDefaultSimulationFilterShader;
     m_physicsScene = physics->createScene(sceneDesc);
 }

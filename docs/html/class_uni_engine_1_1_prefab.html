@@ -126,14 +126,14 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:abc534f1c637c9385c31e91153cd37038"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4df86f8eef0d8b36a8effd1af7186daf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#a4df86f8eef0d8b36a8effd1af7186daf">LoadModel</a> (const std::filesystem::path &amp;path, bool optimize=false, unsigned flags=aiProcess_Triangulate|aiProcess_CalcTangentSpace|aiProcess_GenSmoothNormals)</td></tr>
 <tr class="separator:a4df86f8eef0d8b36a8effd1af7186daf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac223f8db5ff8b68f45b71bf400bfb034"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#ac223f8db5ff8b68f45b71bf400bfb034">FromEntity</a> (const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;entity)</td></tr>
-<tr class="separator:ac223f8db5ff8b68f45b71bf400bfb034"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a143da342247ea10256e867e1b279daa8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#a143da342247ea10256e867e1b279daa8">FromEntity</a> (const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;entity)</td></tr>
+<tr class="separator:a143da342247ea10256e867e1b279daa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace91464d54f0265cdd56848c1d04a484"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#ace91464d54f0265cdd56848c1d04a484">CollectAssets</a> (std::unordered_map&lt; <a class="el" href="struct_uni_engine_1_1_handle.html">Handle</a>, std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_asset.html">IAsset</a> &gt; &gt; &amp;map)</td></tr>
 <tr class="separator:ace91464d54f0265cdd56848c1d04a484"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a82ba839c5f4e47641425f6ed14d90b47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#a82ba839c5f4e47641425f6ed14d90b47">Serialize</a> (YAML::Emitter &amp;out)</td></tr>
-<tr class="separator:a82ba839c5f4e47641425f6ed14d90b47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab50fbc074d46a4ecc5e54d3aac726c43"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#ab50fbc074d46a4ecc5e54d3aac726c43">Deserialize</a> (const YAML::Node &amp;in)</td></tr>
-<tr class="separator:ab50fbc074d46a4ecc5e54d3aac726c43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5db87cdbfdca7d219ecbfd0a178aa27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#ab5db87cdbfdca7d219ecbfd0a178aa27">Serialize</a> (YAML::Emitter &amp;out) override</td></tr>
+<tr class="separator:ab5db87cdbfdca7d219ecbfd0a178aa27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad585b5bee64cb76388a7a924f8a67cab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_prefab.html#ad585b5bee64cb76388a7a924f8a67cab">Deserialize</a> (const YAML::Node &amp;in) override</td></tr>
+<tr class="separator:ad585b5bee64cb76388a7a924f8a67cab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_class_uni_engine_1_1_i_asset"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_class_uni_engine_1_1_i_asset')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="class_uni_engine_1_1_i_asset.html">UniEngine::IAsset</a></td></tr>
 <tr class="memitem:af1a3002773d329640cfa0d07a2cb1cac inherit pub_methods_class_uni_engine_1_1_i_asset"><td class="memItemLeft" align="right" valign="top">std::filesystem::path&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_i_asset.html#af1a3002773d329640cfa0d07a2cb1cac">GetPath</a> ()</td></tr>
 <tr class="separator:af1a3002773d329640cfa0d07a2cb1cac inherit pub_methods_class_uni_engine_1_1_i_asset"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -221,8 +221,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="ab50fbc074d46a4ecc5e54d3aac726c43" name="ab50fbc074d46a4ecc5e54d3aac726c43"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab50fbc074d46a4ecc5e54d3aac726c43">&#9670;&nbsp;</a></span>Deserialize()</h2>
+<a id="ad585b5bee64cb76388a7a924f8a67cab" name="ad585b5bee64cb76388a7a924f8a67cab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad585b5bee64cb76388a7a924f8a67cab">&#9670;&nbsp;</a></span>Deserialize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -240,7 +240,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -249,14 +249,14 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="ac223f8db5ff8b68f45b71bf400bfb034" name="ac223f8db5ff8b68f45b71bf400bfb034"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac223f8db5ff8b68f45b71bf400bfb034">&#9670;&nbsp;</a></span>FromEntity()</h2>
+<a id="a143da342247ea10256e867e1b279daa8" name="a143da342247ea10256e867e1b279daa8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a143da342247ea10256e867e1b279daa8">&#9670;&nbsp;</a></span>FromEntity()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void UniEngine::Prefab::FromEntity </td>
+          <td class="memname">void Prefab::FromEntity </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="struct_uni_engine_1_1_entity.html">Entity</a> &amp;&#160;</td>
           <td class="paramname"><em>entity</em></td><td>)</td>
@@ -481,8 +481,8 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
-<a id="a82ba839c5f4e47641425f6ed14d90b47" name="a82ba839c5f4e47641425f6ed14d90b47"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a82ba839c5f4e47641425f6ed14d90b47">&#9670;&nbsp;</a></span>Serialize()</h2>
+<a id="ab5db87cdbfdca7d219ecbfd0a178aa27" name="ab5db87cdbfdca7d219ecbfd0a178aa27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5db87cdbfdca7d219ecbfd0a178aa27">&#9670;&nbsp;</a></span>Serialize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -500,7 +500,7 @@ template&lt;typename T &gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -537,7 +537,7 @@ template&lt;typename T &gt; </div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">friend class <a class="el" href="class_uni_engine_1_1_default_resources.html">DefaultResources</a></td>
+          <td class="memname">friend class DefaultResources</td>
         </tr>
       </table>
   </td>
@@ -607,7 +607,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Resources/<a class="el" href="_prefab_8hpp_source.html">Prefab.hpp</a></li>
+<li>C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/ECS/<a class="el" href="_prefab_8hpp_source.html">Prefab.hpp</a></li>
 <li>C:/Users/lllll/Documents/GitHub/UniEngine/src/lib/<a class="el" href="_prefab_8cpp.html">Prefab.cpp</a></li>
 </ul>
 </div><!-- contents -->

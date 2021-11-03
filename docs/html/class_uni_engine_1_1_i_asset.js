@@ -15,6 +15,7 @@ var class_uni_engine_1_1_i_asset =
     [ "SetPathAndSave", "class_uni_engine_1_1_i_asset.html#a6ad080adb9c5d4559770c5405819a2f3", null ],
     [ "AssetRegistry", "class_uni_engine_1_1_i_asset.html#a78622a4072c97072cc9c8136cfc23760", null ],
     [ "DefaultResources", "class_uni_engine_1_1_i_asset.html#a55ba8a10748d222a2f6fe9a16c071998", null ],
+    [ "EditorLayer", "class_uni_engine_1_1_i_asset.html#aeaa38e94b5b3b9ba2c53b5f6a6d70741", null ],
     [ "EditorManager", "class_uni_engine_1_1_i_asset.html#ab4a07d61ba268f3670d11194a067ede4", null ],
     [ "ProjectManager", "class_uni_engine_1_1_i_asset.html#aa860c957116c15c1b786357fbcd19fc7", null ],
     [ "m_name", "class_uni_engine_1_1_i_asset.html#af65adf02b4bf376fd878653cb656f046", null ],

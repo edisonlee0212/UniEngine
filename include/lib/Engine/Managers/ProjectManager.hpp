@@ -61,6 +61,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 {
     friend class AssetManager;
     friend class EditorManager;
+    friend class EditorLayer;
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;
     std::optional<std::function<void()>> m_newSceneCustomizer;

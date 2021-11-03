@@ -2,6 +2,7 @@ var class_uni_engine_1_1_entity_manager =
 [
     [ "Application", "class_uni_engine_1_1_entity_manager.html#a032a36b57185374d22055fb6eedc3a09", null ],
     [ "AssetManager", "class_uni_engine_1_1_entity_manager.html#abad1c5d70da76d82c3d8e9fc4c1b108b", null ],
+    [ "EditorLayer", "class_uni_engine_1_1_entity_manager.html#aeaa38e94b5b3b9ba2c53b5f6a6d70741", null ],
     [ "EditorManager", "class_uni_engine_1_1_entity_manager.html#ab4a07d61ba268f3670d11194a067ede4", null ],
     [ "Entity", "class_uni_engine_1_1_entity_manager.html#a4de4c6926260be1262f425df15fc9c82", null ],
     [ "EntityArchetype", "class_uni_engine_1_1_entity_manager.html#ab8bb70a526937dd421bf38af06cc1cab", null ],

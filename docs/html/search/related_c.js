@@ -5,7 +5,7 @@ var searchData=
   ['skinnedmesh_2',['SkinnedMesh',['../class_uni_engine_1_1_particle_matrices.html#a8c107eabd2eff7dbaadc90a71c499106',1,'UniEngine::ParticleMatrices']]],
   ['skinnedmeshbonesblock_3',['SkinnedMeshBonesBlock',['../class_uni_engine_1_1_skinned_mesh.html#ad772c23a2c5f3cd7f685d72533ac54a7',1,'UniEngine::SkinnedMesh']]],
   ['skinnedmeshrenderer_4',['SkinnedMeshRenderer',['../class_uni_engine_1_1_animator.html#ab1ea7091a50c9aabc6a21ed842f92477',1,'UniEngine::Animator::SkinnedMeshRenderer()'],['../class_uni_engine_1_1_skinned_mesh.html#ab1ea7091a50c9aabc6a21ed842f92477',1,'UniEngine::SkinnedMesh::SkinnedMeshRenderer()']]],
-  ['ssao_5',['SSAO',['../class_uni_engine_1_1_camera.html#a5043fc13f2da3605b728ff38584c5724',1,'UniEngine::Camera::SSAO()'],['../class_uni_engine_1_1_default_resources.html#a5043fc13f2da3605b728ff38584c5724',1,'UniEngine::DefaultResources::SSAO()']]],
-  ['ssr_6',['SSR',['../class_uni_engine_1_1_camera.html#a39ee8ad3ab06e0c6cdd19e343900f691',1,'UniEngine::Camera::SSR()'],['../class_uni_engine_1_1_default_resources.html#a39ee8ad3ab06e0c6cdd19e343900f691',1,'UniEngine::DefaultResources::SSR()']]],
+  ['ssao_5',['SSAO',['../class_uni_engine_1_1_camera.html#a5043fc13f2da3605b728ff38584c5724',1,'UniEngine::Camera']]],
+  ['ssr_6',['SSR',['../class_uni_engine_1_1_camera.html#a39ee8ad3ab06e0c6cdd19e343900f691',1,'UniEngine::Camera']]],
   ['systemref_7',['SystemRef',['../class_uni_engine_1_1_scene.html#af5e382882b747d5a261300abf156ec95',1,'UniEngine::Scene']]]
 ];

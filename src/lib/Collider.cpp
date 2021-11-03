@@ -1,12 +1,15 @@
 #include <Collider.hpp>
-#include <PhysicsManager.hpp>
-#include <RenderManager.hpp>
 #include <EditorManager.hpp>
+#include <PhysicsLayer.hpp>
+#include <RenderManager.hpp>
+#include "Application.hpp"
 using namespace UniEngine;
 void Collider::OnCreate()
 {
-    if(!m_physicsMaterial.Get<PhysicsMaterial>()) m_physicsMaterial = DefaultResources::Physics::DefaultPhysicsMaterial;
-    m_shape = PhysicsManager::GetInstance().m_physics->createShape(
+    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+    if(!physicsLayer) return;
+    if(!m_physicsMaterial.Get<PhysicsMaterial>()) m_physicsMaterial = physicsLayer->m_defaultPhysicsMaterial;
+    m_shape = physicsLayer->m_physics->createShape(
         PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z),
         *m_physicsMaterial.Get<PhysicsMaterial>()->m_value);
 }
@@ -59,6 +62,8 @@ Collider::~Collider()
 }
 void Collider::SetShapeType(const ShapeType& type)
 {
+    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+    if(!physicsLayer) return;
     if(m_attachCount != 0){
         UNIENGINE_ERROR("Unable to modify collider, attached to rigidbody!");
     }
@@ -66,13 +71,13 @@ void Collider::SetShapeType(const ShapeType& type)
     switch (m_shapeType)
     {
     case ShapeType::Sphere:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = physicsLayer->m_physics->createShape(PxSphereGeometry(m_shapeParam.x), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Box:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = physicsLayer->m_physics->createShape(PxBoxGeometry(m_shapeParam.x, m_shapeParam.y, m_shapeParam.z), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     case ShapeType::Capsule:
-        m_shape = PhysicsManager::GetInstance().m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
+        m_shape = physicsLayer->m_physics->createShape(PxCapsuleGeometry(m_shapeParam.x, m_shapeParam.y), *m_physicsMaterial.Get<PhysicsMaterial>()->m_value, false);
         break;
     }
 }
@@ -126,7 +131,9 @@ void Collider::Deserialize(const YAML::Node &in)
     SetShapeParam(m_shapeParam);
     auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
     if(!mat){
-        mat = DefaultResources::Physics::DefaultPhysicsMaterial;
+        auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+        if(!physicsLayer) return;
+        mat = physicsLayer->m_defaultPhysicsMaterial;
     }
     SetMaterial(mat);
     m_attachCount = in["m_attachCount"].as<size_t>();

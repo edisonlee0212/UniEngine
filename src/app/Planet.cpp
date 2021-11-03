@@ -24,8 +24,8 @@ int main()
         LoadScene();
     });
 
-    Application::Init(applicationConfigs);
-    Application::Run();
+    Application::Create(applicationConfigs);
+    Application::Start();
     Application::End();
 #pragma endregion
     return 0;

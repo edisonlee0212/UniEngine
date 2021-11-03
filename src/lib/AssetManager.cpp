@@ -34,7 +34,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const std::string &typeName, const Han
     }
     FileRecord fileRecord;
     if(ProjectManager::GetInstance().m_assetRegistry.Find(handle, fileRecord)){
-        auto retVal = CreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
+        auto retVal = UnsafeCreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
         retVal->SetPath(fileRecord.m_relativeFilePath);
         retVal->Load();
         assetManager.m_assets[handle] = retVal;
@@ -67,7 +67,7 @@ std::shared_ptr<IAsset> AssetManager::Get(const Handle &handle)
     }
     FileRecord fileRecord;
     if(ProjectManager::GetInstance().m_assetRegistry.Find(handle, fileRecord)){
-        auto retVal = CreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
+        auto retVal = UnsafeCreateAsset(fileRecord.m_typeName, handle, fileRecord.m_name);
         retVal->SetPath(fileRecord.m_relativeFilePath);
         retVal->Load();
         assetManager.m_assets[handle] = retVal;
@@ -160,7 +160,7 @@ void AssetManager::OnInspect()
                         {
                             if (ImGui::Button("New..."))
                             {
-                                Share(CreateAsset(collection.first, Handle(), ""));
+                                Share(UnsafeCreateAsset(collection.first, Handle(), ""));
                             }
                             ImGui::EndPopup();
                         }
@@ -296,7 +296,7 @@ bool AssetRegistry::Find(const std::filesystem::path &newRelativePath)
     return false;
 }
 
-std::shared_ptr<IAsset> AssetManager::CreateAsset(
+std::shared_ptr<IAsset> AssetManager::UnsafeCreateAsset(
     const std::string &typeName, const Handle &handle, const std::string &name)
 {
     size_t hashCode;

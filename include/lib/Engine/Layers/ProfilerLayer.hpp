@@ -2,11 +2,12 @@
 #include <ConsoleManager.hpp>
 #include <ISingleton.hpp>
 #include <uniengine_export.h>
+#include "ILayer.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API IProfiler
 {
-    friend class ProfilerManager;
+    friend class ProfilerLayer;
   protected:
     std::string m_name;
     virtual void PreUpdate() = 0;
@@ -30,7 +31,7 @@ class UNIENGINE_API CPUTimeProfiler : public IProfiler
 {
     CPUUsageEvent m_rootEvent = CPUUsageEvent(nullptr, "Main Loop");
     CPUUsageEvent *m_currentEventPointer = &m_rootEvent;
-    friend class ProfilerManager;
+    friend class ProfilerLayer;
 
   protected:
     void PreUpdate() override;
@@ -39,38 +40,39 @@ class UNIENGINE_API CPUTimeProfiler : public IProfiler
     void LateUpdate() override;
     void OnInspect() override;
 };
-class UNIENGINE_API ProfilerManager : public ISingleton<ProfilerManager>
+class UNIENGINE_API ProfilerLayer : public ILayer
 {
     std::map<size_t, std::shared_ptr<IProfiler>> m_profilers;
     bool m_record = false;
+    void PreUpdate() override;
+    void LateUpdate() override;
+    void OnInspect() override;
+    void OnCreate() override;
   public:
     bool m_gui = true;
-    template <class T = IProfiler> static std::shared_ptr<T> GetOrCreateProfiler(const std::string &name);
-    template <class T = IProfiler> static std::shared_ptr<T> GetProfiler();
-    static void PreUpdate();
-    static void LateUpdate();
+    template <class T = IProfiler> std::shared_ptr<T> GetOrCreateProfiler(const std::string &name);
+    template <class T = IProfiler> std::shared_ptr<T> GetProfiler();
     static void StartEvent(const std::string &name);
     static void EndEvent(const std::string &name);
-    static void OnInspect();
+
 };
-template <class T> std::shared_ptr<T> UniEngine::ProfilerManager::GetProfiler()
+template <class T> std::shared_ptr<T> UniEngine::ProfilerLayer::GetProfiler()
 {
-    auto &profilerManager = GetInstance();
-    const auto search = profilerManager.m_profilers.find(typeid(T).hash_code());
-    if (search != profilerManager.m_profilers.end())
+    const auto search = m_profilers.find(typeid(T).hash_code());
+    if (search != m_profilers.end())
         return std::dynamic_pointer_cast<T>(search->second);
     return nullptr;
 }
-template <class T> std::shared_ptr<T> UniEngine::ProfilerManager::GetOrCreateProfiler(const std::string &name)
+template <class T> std::shared_ptr<T> UniEngine::ProfilerLayer::GetOrCreateProfiler(const std::string &name)
 {
     auto profiler = GetProfiler<T>();
     if (profiler != nullptr)
         return profiler;
-    auto &profilerManager = GetInstance();
     profiler = std::make_shared<T>();
     profiler->m_name = name;
-    profilerManager.m_profilers.insert({typeid(T).hash_code(), profiler});
+    m_profilers.insert({typeid(T).hash_code(), profiler});
     return profiler;
 }
+
 
 } // namespace UniEngine

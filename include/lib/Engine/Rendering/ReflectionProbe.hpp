@@ -8,7 +8,7 @@ class UNIENGINE_API ReflectionProbe : public IAsset
 {
     friend class RenderManager;
     friend class DefaultResources;
-
+    friend class RenderLayer;
     std::unique_ptr<Cubemap> m_preFilteredMap;
     size_t m_preFilteredMapResolution = 512;
     bool m_ready = false;

@@ -19,7 +19,7 @@ class UNIENGINE_API ISystem : public ISerializable
     virtual void OnEnable(){};
     virtual void OnDisable(){};
   public:
-    std::shared_ptr<Scene> GetScene() const;
+    [[nodiscard]] std::shared_ptr<Scene> GetScene() const;
     [[nodiscard]] float GetRank();
     ISystem();
     void Enable();
@@ -28,7 +28,6 @@ class UNIENGINE_API ISystem : public ISerializable
     virtual void OnCreate(){};
     virtual void Start(){};
     virtual void OnDestroy(){};
-    virtual void PreUpdate(){};
     virtual void Update(){};
     virtual void FixedUpdate(){};
     virtual void LateUpdate(){};

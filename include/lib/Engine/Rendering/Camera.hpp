@@ -32,6 +32,7 @@ class Cubemap;
 class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 {
     friend class RenderManager;
+    friend class RenderLayer;
     friend class EditorManager;
     friend struct CameraInfoBlock;
     friend class PostProcessing;
@@ -94,7 +95,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     void OnInspect() override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
 
-
+    [[nodiscard]] std::unique_ptr<RenderTarget>& UnsafeGetGBuffer();
     [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferDepth();
     [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferNormal();
     [[nodiscard]] std::unique_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGBufferAlbedo();

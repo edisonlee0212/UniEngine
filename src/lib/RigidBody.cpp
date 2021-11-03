@@ -1,6 +1,6 @@
 #include <Application.hpp>
 #include <EditorManager.hpp>
-#include <PhysicsManager.hpp>
+#include <PhysicsLayer.hpp>
 #include <RenderManager.hpp>
 #include <RigidBody.hpp>
 #include <Transform.hpp>
@@ -36,6 +36,8 @@ void UniEngine::RigidBody::OnDestroy()
 
 void UniEngine::RigidBody::RecreateBody()
 {
+    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+    if(!physicsLayer) return;
     if (m_rigidActor)
         m_rigidActor->release();
     auto owner = GetOwner();
@@ -47,10 +49,10 @@ void UniEngine::RigidBody::RecreateBody()
         globalTransform.SetScale(glm::vec3(1.0f));
     }
     if (m_static)
-        m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidStatic(
+        m_rigidActor = physicsLayer->m_physics->createRigidStatic(
             PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
     else
-        m_rigidActor = PhysicsManager::GetInstance().m_physics->createRigidDynamic(
+        m_rigidActor = physicsLayer->m_physics->createRigidDynamic(
             PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
 
     if (!m_static)
@@ -410,4 +412,8 @@ void RigidBody::CollectAssetRef(std::vector<AssetRef> &list)
 {
     for (const auto &i : m_colliders)
         list.push_back(i);
+}
+bool RigidBody::Registered() const
+{
+    return m_currentRegistered;
 }

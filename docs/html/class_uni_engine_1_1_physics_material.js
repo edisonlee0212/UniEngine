@@ -9,5 +9,5 @@ var class_uni_engine_1_1_physics_material =
     [ "SetRestitution", "class_uni_engine_1_1_physics_material.html#a6656f2364860382bb8382b764802f2f5", null ],
     [ "SetStaticFriction", "class_uni_engine_1_1_physics_material.html#a2b0a7047bc5666a636f4a34846044e8a", null ],
     [ "Collider", "class_uni_engine_1_1_physics_material.html#a95f9c6cfd56f684a85ac83dd3f5a4e51", null ],
-    [ "PhysicsManager", "class_uni_engine_1_1_physics_material.html#a139cf05ac01161b7071c8a037c841683", null ]
+    [ "PhysicsLayer", "class_uni_engine_1_1_physics_material.html#ad276d269e84c8b4e20d9abe9e1977b68", null ]
 ];

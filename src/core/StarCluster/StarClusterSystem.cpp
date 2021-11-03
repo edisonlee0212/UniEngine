@@ -233,7 +233,7 @@ void Galaxy::StarClusterSystem::OnInspect()
         if (ImGui::Button("Remove all stars"))
             ClearAllStars();
     }
-    if (ImGui::CollapsingHeader("Run time control", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::CollapsingHeader("Start time control", ImGuiTreeNodeFlags_DefaultOpen))
     {
         ImGui::DragFloat("Speed", &m_speed, 1.0f, 0.0f, 40000.0f);
         ImGui::DragFloat("Star Size", &m_size, 0.01f, 0.01f, 10.0f);
@@ -396,7 +396,6 @@ void Galaxy::StarClusterSystem::OnEnable()
 }
 void StarClusterSystem::Start()
 {
-    EditorManager::GetInstance().m_selectedHierarchyDisplayMode = 0;
     if (m_rendererFront.Get().IsNull() && m_rendererBack.Get().IsNull())
     {
         m_rendererFront = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Renderer 1");
