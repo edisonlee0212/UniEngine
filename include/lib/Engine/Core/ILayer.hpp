@@ -12,6 +12,9 @@ class UNIENGINE_API ILayer
     virtual void OnCreate()
     {
     }
+    virtual void OnDestroy()
+    {
+    }
     virtual void PreUpdate()
     {
     }

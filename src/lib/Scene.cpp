@@ -411,7 +411,8 @@ void Scene::Deserialize(const YAML::Node &in)
             auto asset = AssetManager::Get(handle);
             if (!asset)
             {
-                asset = AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
+                asset = AssetManager::UnsafeCreateAsset(
+                    i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
                 isLocal.push_back(false);
             }
             else

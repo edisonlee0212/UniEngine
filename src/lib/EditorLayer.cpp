@@ -1099,7 +1099,7 @@ void EditorLayer::OnInspect()
                         {
                             std::string newFileName = "New " + i.first;
                             auto newHandle = Handle();
-                            auto newAsset = AssetManager::CreateAsset(i.first, newHandle, newFileName);
+                            auto newAsset = AssetManager::UnsafeCreateAsset(i.first, newHandle, newFileName);
                             auto newPath = ProjectManager::GenerateNewPath(
                                 (projectManager.m_projectPath.parent_path() /
                                  projectManager.m_currentFocusedFolder->m_relativePath / newFileName)

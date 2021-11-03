@@ -137,8 +137,8 @@ bool Prefab::LoadInternal(const std::filesystem::path &path)
             for (const auto &i : inLocalAssets)
             {
                 Handle handle = i["Handle"].as<uint64_t>();
-                localAssets.push_back(
-                    AssetManager::CreateAsset(i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+                localAssets.push_back(AssetManager::UnsafeCreateAsset(
+                    i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
             }
             int index = 0;
             for (const auto &i : inLocalAssets)
@@ -851,7 +851,7 @@ void Prefab::Deserialize(const YAML::Node &in)
     {
         for (const auto &i : in["m_children"])
         {
-            auto child = AssetManager::CreateAsset<Prefab>(Handle(i["m_handle"].as<uint64_t>()), "");
+            auto child = AssetManager::UnsafeCreateAsset<Prefab>(Handle(i["m_handle"].as<uint64_t>()), "");
             child->Deserialize(i);
             m_children.push_back(child);
         }

@@ -16,6 +16,7 @@
 #include <RenderManager.hpp>
 #include <TransformManager.hpp>
 #include <WindowManager.hpp>
+#include "PhysicsLayer.hpp"
 using namespace UniEngine;
 
 void Application::Init(const ApplicationConfigs &applicationConfigs)
@@ -80,6 +81,7 @@ void Application::PreUpdateInternal()
     application.m_time.m_frameStartTime = glfwGetTime();
     EditorManager::ImGuiPreUpdate();
     OpenGLUtils::PreUpdate();
+    InputManager::PreUpdate();
     if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
         for (const auto &i : application.m_externalPreUpdateFunctions)
@@ -93,8 +95,7 @@ void Application::PreUpdateInternal()
         {
             i->PreUpdate();
         }
-        InputManager::PreUpdate();
-        PhysicsLayer::PreUpdate();
+
         TransformManager::PreUpdate();
         AnimationManager::PreUpdate();
         auto fixedDeltaTime = application.m_time.FixedDeltaTime();
@@ -160,11 +161,9 @@ void Application::LateUpdateInternal()
         // Post-processing happens here
         // Manager settings
         OnInspect();
-        InputManager::OnInspect();
         AssetManager::OnInspect();
         ConsoleManager::OnInspect();
         ProjectManager::OnInspect();
-
         if (application.m_gameStatus == GameStatus::Step)
             application.m_gameStatus = GameStatus::Pause;
     }
@@ -207,8 +206,12 @@ bool Application::IsInitialized()
 
 void Application::End()
 {
+    auto &application = GetInstance();
     EntityManager::GetInstance().m_scene.reset();
-    PhysicsLayer::Destroy();
+    for (auto &i : application.m_layers)
+    {
+        i->OnDestroy();
+    }
     // glfwTerminate();
 }
 
@@ -218,11 +221,10 @@ void Application::Run()
     PushLayer<ProfilerLayer>();
     PushLayer<EditorLayer>();
     PushLayer<RenderLayer>();
-
+    PushLayer<PhysicsLayer>();
 
     InputManager::Init();
     JobManager::Init();
-    PhysicsLayer::Init();
     AssetManager::Init();
     EntityManager::Init();
     EditorManager::InitImGui();

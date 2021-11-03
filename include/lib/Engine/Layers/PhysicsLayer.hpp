@@ -1,5 +1,5 @@
 #pragma once
-#include <ISingleton.hpp>
+#include <ILayer.hpp>
 #include <Joint.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
@@ -107,7 +107,7 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const PxVec4 &v);
 YAML::Emitter &operator<<(YAML::Emitter &out, const PxMat44 &v);
 
 class UNIENGINE_API PhysicsScene;
-class UNIENGINE_API PhysicsLayer : public ISingleton<PhysicsLayer>
+class UNIENGINE_API PhysicsLayer : public ILayer
 {
     PxPvdTransport *m_pvdTransport;
     PxDefaultAllocator m_allocator;
@@ -123,16 +123,17 @@ class UNIENGINE_API PhysicsLayer : public ISingleton<PhysicsLayer>
     friend class PhysicsSystem;
     friend class PhysicsMaterial;
     friend class Collider;
-    static void UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *rigidBodyEntities);
-    static void UploadJointLinks(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *jointEntities);
+    void UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *rigidBodyEntities);
+    void UploadJointLinks(const std::shared_ptr<Scene> &scene, const std::shared_ptr<PhysicsScene>& physicsScene, const std::vector<Entity> *jointEntities);
   public:
-    static void UploadTransforms(const std::shared_ptr<Scene>& scene, const bool& updateAll, const bool& freeze = false);
-    static void UploadRigidBodyShapes(const std::shared_ptr<Scene>& scene);
-    static void UploadJointLinks(const std::shared_ptr<Scene> &scene);
-    static void UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody);
-    static void PreUpdate();
-    static void Init();
-    static void Destroy();
+    std::shared_ptr<PhysicsMaterial> m_defaultPhysicsMaterial;
+    void UploadTransforms(const std::shared_ptr<Scene>& scene, const bool& updateAll, const bool& freeze = false);
+    void UploadRigidBodyShapes(const std::shared_ptr<Scene>& scene);
+    void UploadJointLinks(const std::shared_ptr<Scene> &scene);
+    void UploadTransform(const GlobalTransform &globalTransform, const std::shared_ptr<RigidBody> &rigidBody);
+    void PreUpdate() override;
+    void OnCreate() override;
+    void OnDestroy() override;
 };
 
 class UNIENGINE_API PhysicsScene{

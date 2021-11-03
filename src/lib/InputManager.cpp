@@ -85,24 +85,6 @@ bool InputManager::GetMousePosition(glm::vec2 &pos)
     return GetInstance().m_mousePositionValid;
 }
 
-void InputManager::OnInspect()
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("View"))
-        {
-            ImGui::Checkbox("Input Manager", &GetInstance().m_enableInputMenu);
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-    if (GetInstance().m_enableInputMenu)
-    {
-        ImGui::Begin("Input Manager");
-        ImGui::End();
-    }
-}
-
 bool InputManager::GetKeyInternal(int key, GLFWwindow *window)
 {
     auto state = glfwGetKey(window, key);
