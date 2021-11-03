@@ -28,6 +28,13 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
     WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
     OpenGLUtils::Init();
     application.m_applicationConfigs = applicationConfigs;
+
+    PushLayer<ProfilerLayer>();
+    PushLayer<TransformLayer>();
+    PushLayer<AnimationLayer>();
+    PushLayer<EditorLayer>();
+    PushLayer<RenderLayer>();
+    PushLayer<PhysicsLayer>();
 }
 
 void ApplicationTime::OnInspect()
@@ -84,9 +91,9 @@ void Application::PreUpdateInternal()
     application.m_time.m_frameStartTime = glfwGetTime();
     EditorManager::ImGuiPreUpdate();
     OpenGLUtils::PreUpdate();
-    InputManager::PreUpdate();
     if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
+        InputManager::PreUpdate();
         for (const auto &i : application.m_externalPreUpdateFunctions)
             i();
 
@@ -217,12 +224,7 @@ void Application::End()
 void Application::Start()
 {
     auto &application = GetInstance();
-    PushLayer<ProfilerLayer>();
-    PushLayer<TransformLayer>();
-    PushLayer<AnimationLayer>();
-    PushLayer<EditorLayer>();
-    PushLayer<RenderLayer>();
-    PushLayer<PhysicsLayer>();
+
 
 
     InputManager::Init();
