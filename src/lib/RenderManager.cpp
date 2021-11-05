@@ -439,15 +439,10 @@ void RenderManager::DrawGizmoMesh(
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (!editorLayer)
         return;
-
-    auto &sceneCamera = editorLayer->m_sceneCamera;
-    if (sceneCamera && sceneCamera->IsEnabled())
-    {
-        Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-        Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-        cameraComponent->Bind();
-        renderLayer->DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-    }
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    cameraComponent->Bind();
+    renderLayer->DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstanced(
@@ -466,16 +461,11 @@ void RenderManager::DrawGizmoMeshInstanced(
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (!editorLayer)
         return;
-
-    auto &sceneCamera = editorLayer->m_sceneCamera;
-    if (sceneCamera && sceneCamera->IsEnabled())
-    {
-        Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-        Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-        cameraComponent->Bind();
-        renderLayer->DrawGizmoMeshInstanced(
-            true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
-    }
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    cameraComponent->Bind();
+    renderLayer->DrawGizmoMeshInstanced(
+        true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoMeshInstancedColored(
@@ -494,15 +484,10 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (!editorLayer)
         return;
-
-    auto &sceneCamera = editorLayer->m_sceneCamera;
-    if (sceneCamera && sceneCamera->IsEnabled())
-    {
-        Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
-        Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-        cameraComponent->Bind();
-        renderLayer->DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
-    }
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    cameraComponent->Bind();
+    renderLayer->DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
 void RenderManager::DrawGizmoRay(
