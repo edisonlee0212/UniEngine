@@ -1,7 +1,7 @@
 #pragma once
 #include <AssetManager.hpp>
 #include <Camera.hpp>
-#include <Core/OpenGLUtils.hpp>
+#include <OpenGLUtils.hpp>
 #include <Gui.hpp>
 #include <ISingleton.hpp>
 #include <RenderTarget.hpp>

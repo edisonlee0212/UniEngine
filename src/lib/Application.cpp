@@ -29,6 +29,12 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
     OpenGLUtils::Init();
     application.m_applicationConfigs = applicationConfigs;
 
+    InputManager::Init();
+    JobManager::Init();
+    AssetManager::Init();
+    EntityManager::Init();
+    EditorManager::InitImGui();
+
     PushLayer<ProfilerLayer>();
     PushLayer<TransformLayer>();
     PushLayer<AnimationLayer>();
@@ -224,14 +230,6 @@ void Application::End()
 void Application::Start()
 {
     auto &application = GetInstance();
-
-
-
-    InputManager::Init();
-    JobManager::Init();
-    AssetManager::Init();
-    EntityManager::Init();
-    EditorManager::InitImGui();
 
     for (auto &i : application.m_layers)
     {
