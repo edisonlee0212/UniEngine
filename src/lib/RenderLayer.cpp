@@ -480,11 +480,10 @@ void RenderLayer::OnCreate()
 }
 void RenderLayer::CollectRenderInstances(Bound &worldBound)
 {
-
     auto &editorManager = EditorManager::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if(editorLayer && editorLayer->IsEnabled())
+    if(editorLayer)
     {
         auto& sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())

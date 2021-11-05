@@ -381,10 +381,10 @@ void RenderManager::DrawGizmoMeshInstanced(
     const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
 
     auto &sceneCamera = editorLayer->m_sceneCamera;
@@ -407,10 +407,10 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
 
     auto &sceneCamera = editorLayer->m_sceneCamera;
@@ -434,10 +434,10 @@ void RenderManager::DrawGizmoMesh(
     const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
 
     auto &sceneCamera = editorLayer->m_sceneCamera;
@@ -461,10 +461,10 @@ void RenderManager::DrawGizmoMeshInstanced(
     const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
 
     auto &sceneCamera = editorLayer->m_sceneCamera;
@@ -489,10 +489,10 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
 
     auto &sceneCamera = editorLayer->m_sceneCamera;
@@ -664,7 +664,7 @@ void RenderManager::DrawMesh(
     const bool &castShadow)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
 
     RenderCommand renderCommand;
@@ -677,7 +677,7 @@ void RenderManager::DrawMesh(
     renderLayer->m_forwardRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
         renderCommand);
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (editorLayer && editorLayer->IsEnabled())
+    if (editorLayer)
     {
         auto &sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())
@@ -698,7 +698,7 @@ void RenderManager::DrawMeshInstanced(
     const bool &castShadow)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
 
     RenderCommand renderCommand;
@@ -712,7 +712,7 @@ void RenderManager::DrawMeshInstanced(
     renderLayer->m_forwardInstancedRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
         renderCommand);
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (editorLayer && editorLayer->IsEnabled())
+    if (editorLayer)
     {
         auto &sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())
@@ -799,10 +799,10 @@ void RenderManager::DrawGizmoMesh(
     const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if (!renderLayer || !renderLayer->IsEnabled())
+    if (!renderLayer)
         return;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if (!editorLayer || editorLayer->IsEnabled())
+    if (!editorLayer)
         return;
     auto &sceneCamera = editorLayer->m_sceneCamera;
     if (sceneCamera && sceneCamera->IsEnabled())

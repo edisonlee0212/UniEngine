@@ -4,10 +4,7 @@ namespace UniEngine
 {
 class UNIENGINE_API ILayer
 {
-    bool m_enabled = true;
-    friend class Application;
   private:
-
     friend class Application;
     virtual void OnCreate()
     {
@@ -30,15 +27,5 @@ class UNIENGINE_API ILayer
     virtual void OnInspect()
     {
     }
-
-  public:
-    void SetEnable(bool value)
-    {
-        m_enabled = value;
-    }
-    [[nodiscard]] bool IsEnabled() const
-    {
-        return m_enabled;
-    };
 };
 } // namespace UniEngine

@@ -464,7 +464,7 @@ static const char *HierarchyDisplayMode[]{"Archetype", "Hierarchy"};
 void EditorLayer::RenderToSceneCamera()
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if(!renderLayer || !renderLayer->IsEnabled()) return;
+    if(!renderLayer) return;
     ProfilerLayer::StartEvent("RenderToSceneCamera");
 
     const auto resolution = m_sceneCamera->UnsafeGetGBuffer()->GetResolution();
@@ -1677,7 +1677,7 @@ void EditorLayer::SceneCameraWindow()
 void EditorLayer::MainCameraWindow()
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();
-    if(!renderLayer || !renderLayer->IsEnabled()) return;
+    if(!renderLayer) return;
 
     auto scene = EntityManager::GetCurrentScene();
 #pragma region Window
