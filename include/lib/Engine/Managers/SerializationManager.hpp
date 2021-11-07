@@ -271,7 +271,7 @@ template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializab
 }
 
 template <typename T>
-void SaveList(const std::string& name, std::vector<T>& target, YAML::Emitter &out){
+UNIENGINE_API inline void SaveList(const std::string& name, std::vector<T>& target, YAML::Emitter &out){
     if(target.empty()) return;
     out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
     for (auto &i: target) {
@@ -282,7 +282,7 @@ void SaveList(const std::string& name, std::vector<T>& target, YAML::Emitter &ou
     out << YAML::EndSeq;
 }
 template <typename T>
-void LoadList(const std::string& name, std::vector<T> target, const YAML::Node &in){
+UNIENGINE_API inline void LoadList(const std::string& name, std::vector<T> target, const YAML::Node &in){
     if(in[name]){
         target.clear();
         for(const auto& i : in[name]){
@@ -293,7 +293,7 @@ void LoadList(const std::string& name, std::vector<T> target, const YAML::Node &
     }
 }
 template <typename T>
-void SaveListAsBinary(const std::string& name, const std::vector<T>& target, YAML::Emitter &out){
+UNIENGINE_API inline void SaveListAsBinary(const std::string& name, const std::vector<T>& target, YAML::Emitter &out){
     if (!target.empty())
     {
         out << YAML::Key << name << YAML::Value
@@ -301,7 +301,7 @@ void SaveListAsBinary(const std::string& name, const std::vector<T>& target, YAM
     }
 }
 template <typename T>
-void LoadListFromBinary(const std::string& name, std::vector<T> target, const YAML::Node &in){
+UNIENGINE_API inline void LoadListFromBinary(const std::string& name, std::vector<T> target, const YAML::Node &in){
     if (in[name])
     {
         YAML::Binary binaryList = in[name].as<YAML::Binary>();
