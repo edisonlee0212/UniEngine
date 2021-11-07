@@ -103,4 +103,25 @@ class UNIENGINE_API AssetRef
         }
     }
 };
+
+UNIENGINE_API inline void SaveList(const std::string& name, std::vector<AssetRef>& target, YAML::Emitter &out){
+    if(target.empty()) return;
+    out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
+    for (auto &i: target) {
+        out << YAML::BeginMap;
+        i.Serialize(out);
+        out << YAML::EndMap;
+    }
+    out << YAML::EndSeq;
+}
+UNIENGINE_API inline void LoadList(const std::string& name, std::vector<AssetRef> target, const YAML::Node &in){
+    if(in[name]){
+        target.clear();
+        for(const auto& i : in[name]){
+            AssetRef instance;
+            instance.Deserialize(i);
+            target.push_back(instance);
+        }
+    }
+}
 } // namespace UniEngine

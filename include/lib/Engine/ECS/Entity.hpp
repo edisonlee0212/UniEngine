@@ -155,6 +155,28 @@ class UNIENGINE_API EntityRef
         Deserialize(in[name]);
     }
 };
+
+UNIENGINE_API inline void SaveList(const std::string& name, std::vector<EntityRef>& target, YAML::Emitter &out){
+    if(target.empty()) return;
+    out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
+    for (auto &i: target) {
+        out << YAML::BeginMap;
+        i.Serialize(out);
+        out << YAML::EndMap;
+    }
+    out << YAML::EndSeq;
+}
+UNIENGINE_API inline void LoadList(const std::string& name, std::vector<EntityRef> target, const YAML::Node &in){
+    if(in[name]){
+        target.clear();
+        for(const auto& i : in[name]){
+            EntityRef instance;
+            instance.Deserialize(i);
+            target.push_back(instance);
+        }
+    }
+}
+
 const size_t ARCHETYPE_CHUNK_SIZE = 16384;
 
 struct UNIENGINE_API ComponentDataChunk
