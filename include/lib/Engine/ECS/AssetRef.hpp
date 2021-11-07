@@ -18,7 +18,7 @@ class UNIENGINE_API AssetRef
     bool Update();
 
   public:
-    void Serialize(YAML::Emitter &out)
+    void Serialize(YAML::Emitter &out) const
     {
         out << YAML::Key << "m_assetHandle" << YAML::Value << m_assetHandle;
         out << YAML::Key << "m_assetTypeName" << YAML::Value << m_assetTypeName;
@@ -104,7 +104,7 @@ class UNIENGINE_API AssetRef
     }
 };
 
-UNIENGINE_API inline void SaveList(const std::string& name, std::vector<AssetRef>& target, YAML::Emitter &out){
+UNIENGINE_API inline void SaveList(const std::string& name, const std::vector<AssetRef>& target, YAML::Emitter &out){
     if(target.empty()) return;
     out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
     for (auto &i: target) {
@@ -114,7 +114,7 @@ UNIENGINE_API inline void SaveList(const std::string& name, std::vector<AssetRef
     }
     out << YAML::EndSeq;
 }
-UNIENGINE_API inline void LoadList(const std::string& name, std::vector<AssetRef> target, const YAML::Node &in){
+UNIENGINE_API inline void LoadList(const std::string& name, std::vector<AssetRef>& target, const YAML::Node &in){
     if(in[name]){
         target.clear();
         for(const auto& i : in[name]){

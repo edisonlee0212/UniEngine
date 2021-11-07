@@ -17,7 +17,7 @@ class UNIENGINE_API PrivateComponentRef
 
   public:
     PrivateComponentRef &operator=(const PrivateComponentRef &other);
-    void Serialize(YAML::Emitter &out)
+    void Serialize(YAML::Emitter &out) const
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
         out << YAML::Key << "m_privateComponentTypeName" << YAML::Value << m_privateComponentTypeName;

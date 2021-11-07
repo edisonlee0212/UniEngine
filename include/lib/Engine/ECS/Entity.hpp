@@ -88,7 +88,7 @@ class UNIENGINE_API EntityRef
     void Update();
 
   public:
-    void Serialize(YAML::Emitter &out)
+    void Serialize(YAML::Emitter &out) const
     {
         out << YAML::Key << "m_entityHandle" << YAML::Value << m_entityHandle;
     }
@@ -156,7 +156,7 @@ class UNIENGINE_API EntityRef
     }
 };
 
-UNIENGINE_API inline void SaveList(const std::string& name, std::vector<EntityRef>& target, YAML::Emitter &out){
+UNIENGINE_API inline void SaveList(const std::string& name, const std::vector<EntityRef>& target, YAML::Emitter &out){
     if(target.empty()) return;
     out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
     for (auto &i: target) {
@@ -166,7 +166,7 @@ UNIENGINE_API inline void SaveList(const std::string& name, std::vector<EntityRe
     }
     out << YAML::EndSeq;
 }
-UNIENGINE_API inline void LoadList(const std::string& name, std::vector<EntityRef> target, const YAML::Node &in){
+UNIENGINE_API inline void LoadList(const std::string& name, std::vector<EntityRef>& target, const YAML::Node &in){
     if(in[name]){
         target.clear();
         for(const auto& i : in[name]){
