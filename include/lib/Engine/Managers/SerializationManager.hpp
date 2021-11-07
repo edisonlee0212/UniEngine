@@ -269,48 +269,4 @@ template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializab
     UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
 }
-
-template <typename T>
-UNIENGINE_API inline void SaveList(const std::string& name, std::vector<T>& target, YAML::Emitter &out){
-    if(target.empty()) return;
-    out << YAML::Key << name << YAML::Value << YAML::BeginSeq;
-    for (auto &i: target) {
-        out << YAML::BeginMap;
-        static_cast<ISerializable*>(&i)->Serialize(out);
-        out << YAML::EndMap;
-    }
-    out << YAML::EndSeq;
-}
-template <typename T>
-UNIENGINE_API inline void LoadList(const std::string& name, std::vector<T> target, const YAML::Node &in){
-    if(in[name]){
-        target.clear();
-        for(const auto& i : in[name]){
-            T instance;
-            static_cast<ISerializable*>(&instance)->Deserialize(i);
-            target.push_back(instance);
-        }
-    }
-}
-
-
-
-template <typename T>
-UNIENGINE_API inline void SaveListAsBinary(const std::string& name, const std::vector<T>& target, YAML::Emitter &out){
-    if (!target.empty())
-    {
-        out << YAML::Key << name << YAML::Value
-            << YAML::Binary((const unsigned char *)target.data(), target.size() * sizeof(T));
-    }
-}
-template <typename T>
-UNIENGINE_API inline void LoadListFromBinary(const std::string& name, std::vector<T> target, const YAML::Node &in){
-    if (in[name])
-    {
-        YAML::Binary binaryList = in[name].as<YAML::Binary>();
-        target.resize(binaryList.size() / sizeof(T));
-        std::memcpy(target.data(), binaryList.data(), binaryList.size());
-    }
-}
-
 } // namespace UniEngine
