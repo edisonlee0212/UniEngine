@@ -33,7 +33,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
 
   public:
     bool m_ragDollFreeze = false;
-    bool RagDoll() const;
+    [[nodiscard]] bool RagDoll() const;
     void SetRagDoll(bool value);
     PrivateComponentRef m_animator;
     std::shared_ptr<BoneMatrices> m_finalResults;
@@ -50,7 +50,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void CollectAssetRef(std::vector<AssetRef> &list) override;
     void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) override;
 
-    size_t GetRagDollBoneSize() const;
+    [[nodiscard]] size_t GetRagDollBoneSize() const;
     void SetRagDollBoundEntity(int index, const Entity& entity, bool resetTransform = true);
     void SetRagDollBoundEntities(const std::vector<Entity>& entities, bool resetTransform = true);
 };

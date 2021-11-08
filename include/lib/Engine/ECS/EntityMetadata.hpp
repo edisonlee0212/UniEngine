@@ -17,7 +17,7 @@ struct EntityMetadata : public ISerializable
     size_t m_chunkArrayIndex = 0;
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-    void Clone(const EntityMetadata &source, const std::shared_ptr<Scene> &scene);
+    void Clone(const std::unordered_map<Handle, Handle> &entityMap, const EntityMetadata &source, const std::shared_ptr<Scene> &scene);
 };
 
 } // namespace UniEngine

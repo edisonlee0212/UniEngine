@@ -63,7 +63,7 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
     out << YAML::EndMap;
 }
 
-void EntityMetadata::Clone(const EntityMetadata &source, const std::shared_ptr<Scene> &scene)
+void EntityMetadata::Clone(const std::unordered_map<Handle, Handle> &entityMap, const EntityMetadata &source, const std::shared_ptr<Scene> &scene)
 {
     m_handle = source.m_handle;
     m_name = source.m_name;
@@ -85,5 +85,6 @@ void EntityMetadata::Clone(const EntityMetadata &source, const std::shared_ptr<S
         SerializationManager::ClonePrivateComponent(
             m_privateComponentElements[i].m_privateComponentData,
             source.m_privateComponentElements[i].m_privateComponentData);
+        m_privateComponentElements[i].m_privateComponentData->Relink(entityMap, scene);
     }
 }

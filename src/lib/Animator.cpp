@@ -37,7 +37,6 @@ void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 
 void Animator::OnInspect()
 {
-
     auto animation = m_animation.Get<Animation>();
     Animation *previous = animation.get();
     EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
@@ -104,10 +103,46 @@ void Animator::AutoPlay()
         m_currentAnimationTime =
             glm::mod(m_currentAnimationTime, animation->m_animationNameAndLength[m_currentActivatedAnimation]);
     m_needAnimate = true;
-    Animate();
+}
+float Animator::CurrentAnimationTime()
+{
+    return m_currentAnimationTime;
 }
 
-void Animator::Animate()
+std::string Animator::CurrentAnimationName()
+{
+    return m_currentActivatedAnimation;
+}
+
+void Animator::Animate(const std::string& animationName, float time)
+{
+    auto animation = m_animation.Get<Animation>();
+    if (!animation)
+        return;
+    auto search = animation->m_animationNameAndLength.find(animationName);
+    if(search == animation->m_animationNameAndLength.end()){
+        UNIENGINE_ERROR("Animation not found!");
+        return;
+    }
+    m_currentActivatedAnimation = animationName;
+    m_currentAnimationTime =
+        glm::mod(time, animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+    m_needAnimate = true;
+}
+void Animator::SetAutoPlay(bool value)
+{
+    m_autoPlay = value;
+}
+void Animator::Animate(float time)
+{
+    auto animation = m_animation.Get<Animation>();
+    if (!animation)
+        return;
+    m_currentAnimationTime =
+        glm::mod(time, animation->m_animationNameAndLength[m_currentActivatedAnimation]);
+    m_needAnimate = true;
+}
+void Animator::Apply()
 {
     if (!m_needAnimate)
         return;
@@ -131,7 +166,7 @@ void Animator::Animate()
         }
     }
     m_needAnimate = false;
-    m_animatedCurrentFrame = false;
+    m_animatedCurrentFrame = true;
 }
 
 void Animator::BoneSetter(const std::shared_ptr<Bone> &boneWalker)

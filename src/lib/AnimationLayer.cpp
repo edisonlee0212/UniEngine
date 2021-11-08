@@ -25,21 +25,29 @@ void AnimationLayer::PreUpdate()
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      if (animator->m_animatedCurrentFrame)
+                                      {
+                                          animator->m_animatedCurrentFrame = false;
+                                      }
                                       if (!Application::IsPlaying() && animator->m_autoPlay)
                                       {
                                           animator->AutoPlay();
                                       }
-                                      animator->Animate();
+                                      animator->Apply();
                                   }
                                   if (threadIndex < loadReminder)
                                   {
                                       const int i = threadIndex + threadSize * threadLoad;
                                       auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      if (animator->m_animatedCurrentFrame)
+                                      {
+                                          animator->m_animatedCurrentFrame = false;
+                                      }
                                       if (!Application::IsPlaying() && animator->m_autoPlay)
                                       {
                                           animator->AutoPlay();
                                       }
-                                      animator->Animate();
+                                      animator->Apply();
                                   }
                               })
                               .share());
@@ -78,44 +86,4 @@ void AnimationLayer::PreUpdate()
     for (const auto &i : results)
         i.wait();
     ProfilerLayer::EndEvent("AnimationManager");
-}
-void AnimationLayer::LateUpdate()
-{
-    const std::vector<Entity> *owners =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>(EntityManager::GetCurrentScene());
-    if (!owners)
-    {
-        return;
-    }
-    auto &workers = JobManager::PrimaryWorkers();
-    std::vector<std::shared_future<void>> results;
-    auto threadSize = workers.Size();
-    auto threadLoad = owners->size() / threadSize;
-    auto loadReminder = owners->size() % threadSize;
-    for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
-    {
-        results.push_back(workers
-                              .Push([=](int id) {
-                                  for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
-                                  {
-                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
-                                      if (animator->m_animatedCurrentFrame)
-                                      {
-                                          animator->m_animatedCurrentFrame = false;
-                                      }
-                                  }
-                                  if (threadIndex < loadReminder)
-                                  {
-                                      const int i = threadIndex + threadSize * threadLoad;
-                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
-                                      if (animator->m_animatedCurrentFrame)
-                                      {
-                                          animator->m_animatedCurrentFrame = false;
-                                      }
-                                  }
-                              })
-                              .share());
-    }
-    for (const auto &i : results)
-        i.wait();
 }

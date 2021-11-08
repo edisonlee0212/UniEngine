@@ -8,6 +8,5 @@ class UNIENGINE_API AnimationLayer : public ILayer
 {
   private:
     void PreUpdate() override;
-    void LateUpdate() override;
 };
 } // namespace UniEngine

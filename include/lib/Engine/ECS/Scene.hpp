@@ -43,7 +43,7 @@ struct SceneDataStorage
     std::unordered_map<Handle, Entity> m_entityMap;
     PrivateComponentStorage m_entityPrivateComponentStorage;
 
-    void Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &scene);
+    void Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene);
 };
 
 class UNIENGINE_API Scene : public IAsset
@@ -81,7 +81,7 @@ class UNIENGINE_API Scene : public IAsset
     PrivateComponentRef m_mainCamera;
     void Purge();
     void OnCreate() override;
-    void Clone(const std::shared_ptr<Scene> &source);
+    static void Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Scene> &newScene);
     [[nodiscard]] Bound GetBound() const;
     void SetBound(const Bound &value);
     template <typename T = ISystem> void DestroySystem();

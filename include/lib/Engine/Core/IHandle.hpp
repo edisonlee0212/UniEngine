@@ -48,7 +48,7 @@ class UNIENGINE_API IHandle{
     friend class Scene;
     Handle m_handle;
   public:
-    Handle GetHandle()
+    Handle GetHandle() const
     {
         return m_handle;
     }

@@ -589,24 +589,24 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 
     return true;
 }
-void Scene::Clone(const std::shared_ptr<Scene> &source)
+void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Scene> &newScene)
 {
-    m_name = source->m_name;
-    m_environmentSettings = source->m_environmentSettings;
-    m_projectRelativePath = source->m_projectRelativePath;
-    m_saved = source->m_saved;
-    m_worldBound = source->m_worldBound;
-    m_sceneDataStorage.Clone(source->m_sceneDataStorage, source);
-    m_projectRelativePath.clear();
+    newScene->m_name = source->m_name;
+    newScene->m_environmentSettings = source->m_environmentSettings;
+    newScene->m_projectRelativePath = source->m_projectRelativePath;
+    newScene->m_saved = source->m_saved;
+    newScene->m_worldBound = source->m_worldBound;
+    newScene->m_sceneDataStorage.Clone(source->m_sceneDataStorage, newScene);
+    newScene->m_projectRelativePath.clear();
     for (const auto &i : source->m_systems)
     {
         auto systemName = i.second->GetTypeName();
         size_t hashCode;
         auto system = std::dynamic_pointer_cast<ISystem>(
             SerializationManager::ProduceSerializable(systemName, hashCode, i.second->GetHandle()));
-        m_systems.insert({i.first, system});
-        m_indexedSystems[hashCode] = system;
-        m_mappedSystems[i.second->GetHandle()] = system;
+        newScene->m_systems.insert({i.first, system});
+        newScene->m_indexedSystems[hashCode] = system;
+        newScene->m_mappedSystems[i.second->GetHandle()] = system;
         system->m_scene = source;
         system->OnCreate();
         SerializationManager::CloneSystem(system, i.second);
@@ -615,8 +615,8 @@ void Scene::Clone(const std::shared_ptr<Scene> &source)
     auto mainCamera = source->m_mainCamera.Get();
     if(mainCamera)
     {
-        m_mainCamera =
-            EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(m_handle), mainCamera->GetOwner())
+        newScene->m_mainCamera =
+            EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
                 .lock();
     }
 }
@@ -641,12 +641,18 @@ void EnvironmentSettings::Deserialize(const YAML::Node &in)
         m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
     m_environmentalMap.Load("m_environmentSettings", in);
 }
-void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &scene)
+void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene)
 {
     m_entities = source.m_entities;
     m_entityInfos.resize(source.m_entityInfos.size());
+
+    std::unordered_map<Handle, Handle> entityMap;
+    for(const auto& i : source.m_entityInfos){
+        entityMap.insert({i.GetHandle(), i.GetHandle()});
+    }
+
     for (int i = 0; i < m_entityInfos.size(); i++)
-        m_entityInfos[i].Clone(source.m_entityInfos[i], scene);
+        m_entityInfos[i].Clone(entityMap, source.m_entityInfos[i], newScene);
     m_dataComponentStorages.resize(source.m_dataComponentStorages.size());
     for (int i = 0; i < m_dataComponentStorages.size(); i++)
         m_dataComponentStorages[i] = source.m_dataComponentStorages[i];

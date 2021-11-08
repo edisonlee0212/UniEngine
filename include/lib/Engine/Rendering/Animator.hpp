@@ -21,7 +21,10 @@ class UNIENGINE_API Animator : public IPrivateComponent
     size_t m_boneSize = 0;
     void BoneSetter(const std::shared_ptr<Bone> &boneWalker);
     void Setup();
-
+    std::string m_currentActivatedAnimation;
+    float m_currentAnimationTime;
+    void Apply();
+    void AutoPlay();
   public:
     [[nodiscard]] bool AnimatedCurrentFrame() const;
     bool m_needAnimate = true;
@@ -32,15 +35,17 @@ class UNIENGINE_API Animator : public IPrivateComponent
      */
     void Setup(std::vector<std::string> &name, std::vector<glm::mat4> &offsetMatrices);
     void ApplyOffsetMatrices();
-
+    void SetAutoPlay(bool value);
     glm::mat4 GetReverseTransform(const int &index, const Entity &entity);
     bool m_autoPlay = false;
-    std::string m_currentActivatedAnimation;
-    float m_currentAnimationTime;
-    void AutoPlay();
+    [[nodiscard]] float CurrentAnimationTime();
+    [[nodiscard]] std::string CurrentAnimationName();
+    void Animate(const std::string& animationName, float time);
+    void Animate(float time);
+
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
     void OnInspect() override;
-    void Animate();
+
     void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target) override;
     std::shared_ptr<Animation> GetAnimation();
     void Serialize(YAML::Emitter &out) override;

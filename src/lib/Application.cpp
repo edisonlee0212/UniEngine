@@ -304,7 +304,7 @@ void Application::Play()
     if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
-        copiedScene->Clone(application.m_scene);
+        Scene::Clone(application.m_scene, copiedScene);
         EntityManager::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Playing;
@@ -336,7 +336,7 @@ void Application::Step()
     if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
-        copiedScene->Clone(application.m_scene);
+        Scene::Clone(application.m_scene, copiedScene);
         EntityManager::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Step;
