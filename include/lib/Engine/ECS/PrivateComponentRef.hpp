@@ -1,9 +1,9 @@
 #pragma once
+#include "SerializationManager.hpp"
 #include <Entity.hpp>
 #include <IAsset.hpp>
-#include <ISerializable.hpp>
 #include <IPrivateComponent.hpp>
-#include "SerializationManager.hpp"
+#include <ISerializable.hpp>
 namespace UniEngine
 {
 class UNIENGINE_API PrivateComponentRef
@@ -70,6 +70,11 @@ class UNIENGINE_API PrivateComponentRef
         }
         else
             Clear();
+    };
+
+    void ResetScene(const std::shared_ptr<Scene> &scene)
+    {
+        m_scene = scene;
     };
 
     template <typename T = IPrivateComponent> [[nodiscard]] std::shared_ptr<T> Get()

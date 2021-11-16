@@ -64,6 +64,7 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     std::vector<std::function<void()>> m_externalUpdateFunctions;
     std::vector<std::function<void()>> m_externalFixedUpdateFunctions;
     std::vector<std::function<void()>> m_externalLateUpdateFunctions;
+    std::vector<std::function<void(const std::shared_ptr<Scene>& newScene)>> m_postAttachSceneFunctions;
 
     static void PreUpdateInternal();
     static void UpdateInternal();
@@ -100,6 +101,7 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     static void RegisterUpdateFunction(const std::function<void()> &func);
     static void RegisterLateUpdateFunction(const std::function<void()> &func);
     static void RegisterFixedUpdateFunction(const std::function<void()> &func);
+    static void RegisterPostAttachSceneFunction(const std::function<void(const std::shared_ptr<Scene>& newScene)> &func);
 };
 template <typename T> std::shared_ptr<T> Application::PushLayer()
 {

@@ -268,6 +268,13 @@ void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
 {
     GetInstance().m_externalFixedUpdateFunctions.push_back(func);
 }
+
+void Application::RegisterPostAttachSceneFunction(const std::function<void(const std::shared_ptr<Scene>& newScene)> &func)
+{
+    GetInstance().m_postAttachSceneFunctions.push_back(func);
+}
+
+
 void Application::Reset()
 {
     auto &application = GetInstance();

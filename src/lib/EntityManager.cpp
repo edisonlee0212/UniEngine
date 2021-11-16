@@ -342,6 +342,9 @@ void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
     }
     auto &entityManager = GetInstance();
     entityManager.m_scene = scene;
+    for(auto& func : Application::GetInstance().m_postAttachSceneFunctions){
+        func(scene);
+    }
 }
 
 Entity EntityManager::CreateEntity(const std::shared_ptr<Scene> &scene, const std::string &name)
