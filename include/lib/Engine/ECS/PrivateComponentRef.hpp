@@ -74,6 +74,7 @@ class UNIENGINE_API PrivateComponentRef
 
     void ResetScene(const std::shared_ptr<Scene> &scene)
     {
+        m_value.reset();
         m_scene = scene;
     };
 
