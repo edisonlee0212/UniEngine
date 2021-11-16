@@ -1223,13 +1223,13 @@ sometimes be necessary to declare it public, such as when using it with
 Just as you can do set-up and tear-down at the test level and the test suite
 level, you can also do it at the test program level. Here's how.
 
-First, you subclass the `::testing::Environment` class to define a test
+First, you subclass the `::testing::EnvironmentProperties` class to define a test
 environment, which knows how to set-up and tear-down:
 
 ```c++
-class Environment : public ::testing::Environment {
+class EnvironmentProperties : public ::testing::EnvironmentProperties {
  public:
-  virtual ~Environment() {}
+  virtual ~EnvironmentProperties() {}
 
   // Override this to define how to set up the environment.
   void SetUp() override {}
@@ -1243,7 +1243,7 @@ Then, you register an instance of your environment class with googletest by
 calling the `::testing::AddGlobalTestEnvironment()` function:
 
 ```c++
-Environment* AddGlobalTestEnvironment(Environment* env);
+EnvironmentProperties* AddGlobalTestEnvironment(EnvironmentProperties* env);
 ```
 
 Now, when `RUN_ALL_TESTS()` is called, it first calls the `SetUp()` method of
@@ -1265,7 +1265,7 @@ probably in `main()`. If you use `gtest_main`, you need to call this before
 variable like this:
 
 ```c++
-::testing::Environment* const foo_env =
+::testing::EnvironmentProperties* const foo_env =
     ::testing::AddGlobalTestEnvironment(new FooEnvironment);
 ```
 

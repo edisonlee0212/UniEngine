@@ -3,3 +3,11 @@ m_fileRecords:
     m_name: Anchor
     m_fileName: Anchor.ueprefab
     m_typeName: Prefab
+  - Handle: 7162863857310029079
+    m_name: Physics
+    m_fileName: Physics.ueproj
+    m_typeName: Binary
+  - Handle: 13662816272289592242
+    m_name: New Scene
+    m_fileName: New Scene.uescene
+    m_typeName: Scene

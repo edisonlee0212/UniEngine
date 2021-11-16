@@ -119,9 +119,9 @@ Inheritance diagram for UniEngine::PostProcessingLayer:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a94a1cce159364ef5317390a074adf04d"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_post_processing_layer.html#a94a1cce159364ef5317390a074adf04d">ResizeResolution</a> (int x, int y)=0</td></tr>
 <tr class="separator:a94a1cce159364ef5317390a074adf04d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60a9805a905563d1bea9ecc73862853d"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_post_processing_layer.html#a60a9805a905563d1bea9ecc73862853d">Process</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;cameraComponent, <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &amp;renderTarget) const =0</td></tr>
+<tr class="memitem:a60a9805a905563d1bea9ecc73862853d"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_post_processing_layer.html#a60a9805a905563d1bea9ecc73862853d">Process</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;cameraComponent, <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &amp;renderTarget) const =0</td></tr>
 <tr class="separator:a60a9805a905563d1bea9ecc73862853d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aacc22bc7d707d083454abfd6bb5a4504"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_post_processing_layer.html#aacc22bc7d707d083454abfd6bb5a4504">OnInspect</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;cameraComponent)=0</td></tr>
+<tr class="memitem:aacc22bc7d707d083454abfd6bb5a4504"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_post_processing_layer.html#aacc22bc7d707d083454abfd6bb5a4504">OnInspect</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;cameraComponent)=0</td></tr>
 <tr class="separator:aacc22bc7d707d083454abfd6bb5a4504"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -152,7 +152,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="memname">virtual void UniEngine::PostProcessingLayer::OnInspect </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>cameraComponent</em></td><td>)</td>
           <td></td>
         </tr>
@@ -180,7 +180,7 @@ Friends</h2></td></tr>
         <tr>
           <td class="memname">virtual void UniEngine::PostProcessingLayer::Process </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>cameraComponent</em>, </td>
         </tr>
         <tr>

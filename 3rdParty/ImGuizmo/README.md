@@ -102,7 +102,7 @@ Code for :
 ![Image of dialog](http://i.imgur.com/GL5flN1.png)
 
 ```C++
-void EditTransform(const Camera& camera, matrix_t& matrix)
+void EditTransform(const CameraSettings& camera, matrix_t& matrix)
 {
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);

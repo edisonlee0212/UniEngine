@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: UniEngine::Camera Class Reference</title>
+<title>My Project: UniEngine::CameraSettings Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
@@ -99,13 +99,13 @@ $(document).ready(function(){initNavTree('class_uni_engine_1_1_camera.html','');
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
 <a href="class_uni_engine_1_1_camera-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">UniEngine::Camera Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
+  <div class="headertitle"><div class="title">UniEngine::CameraSettings Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="_camera_8hpp_source.html">Camera.hpp</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_camera_8hpp_source.html">CameraSettings.hpp</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for UniEngine::Camera:</div>
+Inheritance diagram for UniEngine::CameraSettings:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="class_uni_engine_1_1_camera.png" usemap="#UniEngine::Camera_map" alt=""/>
@@ -119,7 +119,7 @@ Inheritance diagram for UniEngine::Camera:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a77b1aae0808ab1d4d3a70c70866585f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a77b1aae0808ab1d4d3a70c70866585f4">operator=</a> (const <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &amp;source)</td></tr>
+<tr class="memitem:a77b1aae0808ab1d4d3a70c70866585f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a77b1aae0808ab1d4d3a70c70866585f4">operator=</a> (const <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &amp;source)</td></tr>
 <tr class="separator:a77b1aae0808ab1d4d3a70c70866585f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b241221f075c687076a2705f007bf08"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a4b241221f075c687076a2705f007bf08">PostCloneAction</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_private_component.html">IPrivateComponent</a> &gt; &amp;target) override</td></tr>
 <tr class="separator:a4b241221f075c687076a2705f007bf08"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,7 +228,7 @@ Public Member Functions</h2></td></tr>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aa4b4beae6bde8bb570f7d15091615193"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#aa4b4beae6bde8bb570f7d15091615193">CalculatePlanes</a> (std::vector&lt; <a class="el" href="struct_uni_engine_1_1_plane.html">Plane</a> &gt; &amp;planes, glm::mat4 projection, glm::mat4 view)</td></tr>
 <tr class="separator:aa4b4beae6bde8bb570f7d15091615193"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae010d611c2d3637cfc33b0e33ac83512"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ae010d611c2d3637cfc33b0e33ac83512">CalculateFrustumPoints</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;cameraComponrnt, float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points)</td></tr>
+<tr class="memitem:ae010d611c2d3637cfc33b0e33ac83512"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#ae010d611c2d3637cfc33b0e33ac83512">CalculateFrustumPoints</a> (const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;cameraComponrnt, float nearPlane, float farPlane, glm::vec3 cameraPos, glm::quat cameraRot, glm::vec3 *points)</td></tr>
 <tr class="separator:ae010d611c2d3637cfc33b0e33ac83512"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41273bdc1a275a5b209886bbdb7d87af"><td class="memItemLeft" align="right" valign="top">static glm::quat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_camera.html#a41273bdc1a275a5b209886bbdb7d87af">ProcessMouseMovement</a> (float yawAngle, float pitchAngle, bool constrainPitch=true)</td></tr>
 <tr class="separator:a41273bdc1a275a5b209886bbdb7d87af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -304,9 +304,9 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::CalculateFrustumPoints </td>
+          <td class="memname">void CameraSettings::CalculateFrustumPoints </td>
           <td>(</td>
-          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &gt; &amp;&#160;</td>
+          <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>cameraComponrnt</em>, </td>
         </tr>
         <tr>
@@ -364,7 +364,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::CalculatePlanes </td>
+          <td class="memname">void CameraSettings::CalculatePlanes </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; <a class="el" href="struct_uni_engine_1_1_plane.html">Plane</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>planes</em>, </td>
@@ -406,7 +406,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::CollectAssetRef </td>
+          <td class="memname">void CameraSettings::CollectAssetRef </td>
           <td>(</td>
           <td class="paramtype">std::vector&lt; <a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>list</em></td><td>)</td>
@@ -434,7 +434,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::Deserialize </td>
+          <td class="memname">void CameraSettings::Deserialize </td>
           <td>(</td>
           <td class="paramtype">const YAML::Node &amp;&#160;</td>
           <td class="paramname"><em>in</em></td><td>)</td>
@@ -462,7 +462,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::GenerateMatrices </td>
+          <td class="memname">void CameraSettings::GenerateMatrices </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -484,7 +484,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_texture2_d.html">Texture2D</a> &gt; Camera::GetDepthStencil </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_texture2_d.html">Texture2D</a> &gt; CameraSettings::GetDepthStencil </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -501,7 +501,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec3 Camera::GetMouseWorldPoint </td>
+          <td class="memname">glm::vec3 CameraSettings::GetMouseWorldPoint </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> &amp;&#160;</td>
           <td class="paramname"><em>ltw</em>, </td>
@@ -529,7 +529,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">glm::mat4 Camera::GetProjection </td>
+          <td class="memname">glm::mat4 CameraSettings::GetProjection </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -546,7 +546,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_texture2_d.html">Texture2D</a> &gt; Camera::GetTexture </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_texture2_d.html">Texture2D</a> &gt; CameraSettings::GetTexture </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -566,7 +566,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::OnCreate </td>
+          <td class="memname">void CameraSettings::OnCreate </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -593,7 +593,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::OnDestroy </td>
+          <td class="memname">void CameraSettings::OnDestroy </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -620,7 +620,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::OnInspect </td>
+          <td class="memname">void CameraSettings::OnInspect </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -644,9 +644,9 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &amp; Camera::operator= </td>
+          <td class="memname"><a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &amp; CameraSettings::operator= </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="class_uni_engine_1_1_camera.html">Camera</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a> &amp;&#160;</td>
           <td class="paramname"><em>source</em></td><td>)</td>
           <td></td>
         </tr>
@@ -665,7 +665,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::PostCloneAction </td>
+          <td class="memname">void CameraSettings::PostCloneAction </td>
           <td>(</td>
           <td class="paramtype">const std::shared_ptr&lt; <a class="el" href="class_uni_engine_1_1_i_private_component.html">IPrivateComponent</a> &gt; &amp;&#160;</td>
           <td class="paramname"><em>target</em></td><td>)</td>
@@ -693,7 +693,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">glm::quat Camera::ProcessMouseMovement </td>
+          <td class="memname">glm::quat CameraSettings::ProcessMouseMovement </td>
           <td>(</td>
           <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>yawAngle</em>, </td>
@@ -735,7 +735,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec3 Camera::Project </td>
+          <td class="memname">glm::vec3 CameraSettings::Project </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> &amp;&#160;</td>
           <td class="paramname"><em>ltw</em>, </td>
@@ -768,7 +768,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::ResizeResolution </td>
+          <td class="memname">void CameraSettings::ResizeResolution </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>x</em>, </td>
@@ -799,7 +799,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::ReverseAngle </td>
+          <td class="memname">void CameraSettings::ReverseAngle </td>
           <td>(</td>
           <td class="paramtype">const glm::quat &amp;&#160;</td>
           <td class="paramname"><em>rotation</em>, </td>
@@ -844,7 +844,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="struct_uni_engine_1_1_ray.html">Ray</a> Camera::ScreenPointToRay </td>
+          <td class="memname"><a class="el" href="struct_uni_engine_1_1_ray.html">Ray</a> CameraSettings::ScreenPointToRay </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> &amp;&#160;</td>
           <td class="paramname"><em>ltw</em>, </td>
@@ -875,7 +875,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::Serialize </td>
+          <td class="memname">void CameraSettings::Serialize </td>
           <td>(</td>
           <td class="paramtype">YAML::Emitter &amp;&#160;</td>
           <td class="paramname"><em>out</em></td><td>)</td>
@@ -900,7 +900,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::SetClearColor </td>
+          <td class="memname">void CameraSettings::SetClearColor </td>
           <td>(</td>
           <td class="paramtype">glm::vec3&#160;</td>
           <td class="paramname"><em>color</em></td><td>)</td>
@@ -921,7 +921,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Camera::Start </td>
+          <td class="memname">void CameraSettings::Start </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -945,7 +945,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec3 Camera::UnProject </td>
+          <td class="memname">glm::vec3 CameraSettings::UnProject </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_uni_engine_1_1_global_transform.html">GlobalTransform</a> &amp;&#160;</td>
           <td class="paramname"><em>ltw</em>, </td>
@@ -973,7 +973,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &gt; &amp; Camera::UnsafeGetGBuffer </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_render_target.html">RenderTarget</a> &gt; &amp; CameraSettings::UnsafeGetGBuffer </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -990,7 +990,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; Camera::UnsafeGetGBufferAlbedo </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; CameraSettings::UnsafeGetGBufferAlbedo </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1007,7 +1007,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; Camera::UnsafeGetGBufferDepth </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; CameraSettings::UnsafeGetGBufferDepth </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1024,7 +1024,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; Camera::UnsafeGetGBufferMetallicRoughnessEmissionAmbient </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; CameraSettings::UnsafeGetGBufferMetallicRoughnessEmissionAmbient </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1041,7 +1041,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; Camera::UnsafeGetGBufferNormal </td>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="class_uni_engine_1_1_open_g_l_utils_1_1_g_l_texture2_d.html">OpenGLUtils::GLTexture2D</a> &gt; &amp; CameraSettings::UnsafeGetGBufferNormal </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -1236,7 +1236,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool UniEngine::Camera::m_allowAutoResize = true</td>
+          <td class="memname">bool UniEngine::CameraSettings::m_allowAutoResize = true</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1253,7 +1253,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="struct_uni_engine_1_1_camera_info_block.html">CameraInfoBlock</a> Camera::m_cameraInfoBlock</td>
+          <td class="memname"><a class="el" href="struct_uni_engine_1_1_camera_info_block.html">CameraInfoBlock</a> CameraSettings::m_cameraInfoBlock</td>
         </tr>
       </table>
   </td>
@@ -1272,7 +1272,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">glm::vec3 UniEngine::Camera::m_clearColor = glm::vec3(0.0f)</td>
+          <td class="memname">glm::vec3 UniEngine::CameraSettings::m_clearColor = glm::vec3(0.0f)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1286,7 +1286,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float UniEngine::Camera::m_farDistance = 500.0f</td>
+          <td class="memname">float UniEngine::CameraSettings::m_farDistance = 500.0f</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1300,7 +1300,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float UniEngine::Camera::m_fov = 120</td>
+          <td class="memname">float UniEngine::CameraSettings::m_fov = 120</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1314,7 +1314,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float UniEngine::Camera::m_nearDistance = 0.1f</td>
+          <td class="memname">float UniEngine::CameraSettings::m_nearDistance = 0.1f</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1328,7 +1328,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> UniEngine::Camera::m_skybox</td>
+          <td class="memname"><a class="el" href="class_uni_engine_1_1_asset_ref.html">AssetRef</a> UniEngine::CameraSettings::m_skybox</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1342,7 +1342,7 @@ Additional Inherited Members</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool UniEngine::Camera::m_useClearColor = false</td>
+          <td class="memname">bool UniEngine::CameraSettings::m_useClearColor = false</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1350,15 +1350,15 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>
-<li>C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/<a class="el" href="_camera_8hpp_source.html">Camera.hpp</a></li>
-<li>C:/Users/lllll/Documents/GitHub/UniEngine/src/lib/<a class="el" href="_camera_8cpp.html">Camera.cpp</a></li>
+<li>C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Rendering/<a class="el" href="_camera_8hpp_source.html">CameraSettings.hpp</a></li>
+<li>C:/Users/lllll/Documents/GitHub/UniEngine/src/lib/<a class="el" href="_camera_8cpp.html">CameraSettings.cpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="namespace_uni_engine.html">UniEngine</a></li><li class="navelem"><a class="el" href="class_uni_engine_1_1_camera.html">Camera</a></li>
+    <li class="navelem"><a class="el" href="namespace_uni_engine.html">UniEngine</a></li><li class="navelem"><a class="el" href="class_uni_engine_1_1_camera.html">CameraSettings</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
   </ul>
 </div>

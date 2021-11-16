@@ -74,7 +74,7 @@ class UNIENGINE_API EditorLayer : public ILayer
     void SceneCameraWindow();
     void MainCameraWindow();
 
-    void CameraWindowDragAndDrop();
+
 
     friend class Application;
 
@@ -84,6 +84,7 @@ class UNIENGINE_API EditorLayer : public ILayer
     void OnInspect() override;
 
   public:
+    void CameraWindowDragAndDrop();
     Entity m_selectedEntity;
     void MoveCamera(
         const glm::quat &targetRotation, const glm::vec3 &targetPosition, const float &transitionTime = 1.0f);

@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 </div><!--header-->
 <div class="contents">
 <a href="_render_manager_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
-<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="_camera_8hpp.html">Camera.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="_camera_8hpp.html">CameraSettings.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;DefaultResources.hpp&gt;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;<a class="code" href="_lights_8hpp.html">Lights.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="_mesh_renderer_8hpp.html">MeshRenderer.hpp</a>&gt;</span></div>
@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoMesh(</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keyword">const</span> std::shared_ptr&lt;Mesh&gt; &amp;mesh,</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keyword">const</span> glm::vec4 &amp;color = glm::vec4(1.0f),</div>
@@ -141,7 +141,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoMeshInstanced(</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="keyword">const</span> std::shared_ptr&lt;Mesh&gt; &amp;mesh,</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        <span class="keyword">const</span> glm::vec4 &amp;color,</div>
@@ -151,7 +151,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoMeshInstancedColored(</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keyword">const</span> std::shared_ptr&lt;Mesh&gt; &amp;mesh,</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <span class="keyword">const</span> std::vector&lt;glm::vec4&gt; &amp;colors,</div>
@@ -172,7 +172,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoRay(<span class="keyword">const</span> glm::vec4 &amp;color, <span class="keyword">const</span> <a class="code hl_struct" href="struct_uni_engine_1_1_ray.html">Ray</a> &amp;ray, <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;width = 0.01f);</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoRay(</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keyword">const</span> glm::vec4 &amp;color,</div>
@@ -181,7 +181,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;width = 0.01f);</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
 <div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoRays(</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        <span class="keyword">const</span> glm::vec4 &amp;color,</div>
@@ -189,7 +189,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;width = 0.01f);</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoRays(</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keyword">const</span> glm::vec4 &amp;color,</div>
@@ -197,7 +197,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        <span class="keyword">const</span> <span class="keywordtype">float</span> &amp;width = 0.01f);</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawGizmoRay(</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        <span class="keyword">const</span> glm::vec3 &amp;cameraPosition,</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        <span class="keyword">const</span> glm::quat &amp;cameraRotation,</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        <span class="keyword">const</span> glm::vec4 &amp;color,</div>
@@ -208,7 +208,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="keyword">const</span> std::shared_ptr&lt;Mesh&gt; &amp;mesh,</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        <span class="keyword">const</span> std::shared_ptr&lt;Material&gt; &amp;material,</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        <span class="keyword">const</span> glm::mat4 &amp;model,</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        <span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;receiveShadow = <span class="keyword">true</span>,</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        <span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;castShadow = <span class="keyword">true</span>);</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> DrawMeshInstanced(</div>
@@ -216,7 +216,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>        <span class="keyword">const</span> std::shared_ptr&lt;Material&gt; &amp;material,</div>
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>        <span class="keyword">const</span> glm::mat4 &amp;model,</div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        <span class="keyword">const</span> std::shared_ptr&lt;ParticleMatrices&gt; &amp;matrices,</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        <span class="keyword">const</span> std::shared_ptr&lt;Camera&gt; &amp;cameraComponent,</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        <span class="keyword">const</span> std::shared_ptr&lt;CameraSettings&gt; &amp;cameraComponent,</div>
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        <span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;receiveShadow = <span class="keyword">true</span>,</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>        <span class="keyword">const</span> <span class="keywordtype">bool</span> &amp;castShadow = <span class="keyword">true</span>);</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
@@ -240,7 +240,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="comment">        const float &amp;depth,</span></div>
 <div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="comment">        const glm::vec2 &amp;center,</span></div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="comment">        const glm::vec2 &amp;size,</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="comment">        const Camera &amp;cameraComponent);</span></div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="comment">        const CameraSettings &amp;cameraComponent);</span></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="comment">    */</span></div>
 <div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="preprocessor">#pragma endregion</span></div>
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
@@ -253,7 +253,7 @@ $(document).ready(function(){initNavTree('_render_manager_8hpp_source.html','');
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="preprocessor">#pragma endregion</span></div>
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>};</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>} <span class="comment">// namespace UniEngine</span></div>
-<div class="ttc" id="a_camera_8hpp_html"><div class="ttname"><a href="_camera_8hpp.html">Camera.hpp</a></div></div>
+<div class="ttc" id="a_camera_8hpp_html"><div class="ttname"><a href="_camera_8hpp.html">CameraSettings.hpp</a></div></div>
 <div class="ttc" id="a_lights_8hpp_html"><div class="ttname"><a href="_lights_8hpp.html">Lights.hpp</a></div></div>
 <div class="ttc" id="a_mesh_renderer_8hpp_html"><div class="ttname"><a href="_mesh_renderer_8hpp.html">MeshRenderer.hpp</a></div></div>
 <div class="ttc" id="a_particles_8hpp_html"><div class="ttname"><a href="_particles_8hpp.html">Particles.hpp</a></div></div>
