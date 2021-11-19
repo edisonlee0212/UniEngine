@@ -258,9 +258,16 @@ void Scene::Serialize(YAML::Emitter &out)
     for (auto &i : list)
     {
         auto asset = i.Get<IAsset>();
-        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
+        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle())
         {
-            assetMap[asset->GetHandle()] = asset;
+            if (asset->GetPath().empty())
+            {
+                assetMap[asset->GetHandle()] = asset;
+            }
+            else if (!asset->m_saved)
+            {
+                asset->Save();
+            }
         }
     }
     bool listCheck = true;
