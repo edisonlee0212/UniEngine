@@ -450,7 +450,8 @@ void FileUtils::OpenFile(
     const std::string &dialogTitle,
     const std::string &fileType,
     const std::vector<std::string> &extensions,
-    const std::function<void(const std::filesystem::path &path)> &func, bool projectDirCheck)
+    const std::function<void(const std::filesystem::path &path)> &func,
+    bool projectDirCheck)
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     if (ImGui::Button(dialogTitle.c_str()))
@@ -524,10 +525,11 @@ void FileUtils::OpenFile(
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
     std::string filters;
-    for(int i = 0; i < extensions.size(); i++)
+    for (int i = 0; i < extensions.size(); i++)
     {
         filters += extensions[i];
-        if(i < extensions.size() - 1) filters += ",";
+        if (i < extensions.size() - 1)
+            filters += ",";
     }
     if (file_dialog.showFileDialog(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(700, 310), filters))
@@ -602,7 +604,8 @@ void FileUtils::SaveFile(
     const std::string &dialogTitle,
     const std::string &fileType,
     const std::vector<std::string> &extensions,
-    const std::function<void(const std::filesystem::path &)> &func, bool projectDirCheck)
+    const std::function<void(const std::filesystem::path &)> &func,
+    bool projectDirCheck)
 {
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     if (ImGui::Button(dialogTitle.c_str()))
@@ -679,10 +682,11 @@ void FileUtils::SaveFile(
         ImGui::OpenPopup(dialogTitle.c_str());
     static imgui_addons::ImGuiFileBrowser file_dialog;
     std::string filters;
-    for(int i = 0; i < extensions.size(); i++)
+    for (int i = 0; i < extensions.size(); i++)
     {
         filters += extensions[i];
-        if(i < extensions.size() - 1) filters += ",";
+        if (i < extensions.size() - 1)
+            filters += ",";
     }
     if (file_dialog.showFileDialog(
             dialogTitle, imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ImVec2(700, 310), filters))
@@ -1339,4 +1343,56 @@ bool ImGui::Splitter(
                           0.0f);
     return SplitterBehavior(
         bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, &size1, &size2, min_size1, min_size2, 0.0f);
+}
+void SphereMeshGenerator::Icosahedron(std::vector<glm::vec3> &vertices, std::vector<glm::uvec3> &triangles)
+{
+    vertices.clear();
+    triangles.clear();
+
+    float phi = (1.0f + glm::sqrt(5.0f)) * 0.5f; // golden ratio
+    float a = 1.0f;
+    float b = 1.0f / phi;
+
+    // add vertices
+    vertices.push_back(glm::normalize(glm::vec3(0, b, -a)));
+    vertices.push_back(glm::normalize(glm::vec3(b, a, 0)));
+    vertices.push_back(glm::normalize(glm::vec3(-b, a, 0)));
+    vertices.push_back(glm::normalize(glm::vec3(0, b, a)));
+    vertices.push_back(glm::normalize(glm::vec3(0, -b, a)));
+    vertices.push_back(glm::normalize(glm::vec3(-a, 0, b)));
+    vertices.push_back(glm::normalize(glm::vec3(0, -b, -a)));
+    vertices.push_back(glm::normalize(glm::vec3(a, 0, -b)));
+    vertices.push_back(glm::normalize(glm::vec3(a, 0, b)));
+    vertices.push_back(glm::normalize(glm::vec3(-a, 0, -b)));
+    vertices.push_back(glm::normalize(glm::vec3(b, -a, 0)));
+    vertices.push_back(glm::normalize(glm::vec3(-b, -a, 0)));
+
+    // add triangles
+    triangles.push_back(glm::uvec3(3, 2, 1));
+    triangles.push_back(glm::uvec3(2, 3, 4));
+    triangles.push_back(glm::uvec3(6, 5, 4));
+    triangles.push_back(glm::uvec3(5, 9, 4));
+    triangles.push_back(glm::uvec3(8, 7, 1));
+    triangles.push_back(glm::uvec3(7, 10, 1));
+    triangles.push_back(glm::uvec3(12, 11, 5));
+    triangles.push_back(glm::uvec3(11, 12, 7));
+    triangles.push_back(glm::uvec3(10, 6, 3));
+    triangles.push_back(glm::uvec3(6, 10, 12));
+    triangles.push_back(glm::uvec3(9, 8, 2));
+    triangles.push_back(glm::uvec3(8, 9, 11));
+    triangles.push_back(glm::uvec3(3, 6, 4));
+    triangles.push_back(glm::uvec3(9, 2, 4));
+    triangles.push_back(glm::uvec3(10, 3, 1));
+    triangles.push_back(glm::uvec3(2, 8, 1));
+    triangles.push_back(glm::uvec3(12, 10, 7));
+    triangles.push_back(glm::uvec3(8, 11, 7));
+    triangles.push_back(glm::uvec3(6, 12, 5));
+    triangles.push_back(glm::uvec3(11, 9, 5));
+
+    for (auto &i : triangles)
+    {
+        i.x -= 1;
+        i.y -= 1;
+        i.z -= 1;
+    }
 }

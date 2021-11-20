@@ -88,6 +88,11 @@ class UNIENGINE_API Curve : public ISerializable
     void Deserialize(const YAML::Node &in);
 };
 
+class UNIENGINE_API SphereMeshGenerator {
+  public:
+    static void Icosahedron(std::vector<glm::vec3> &vertices, std::vector<glm::uvec3> &triangles);
+};
+
 } // namespace UniEngine
 namespace ImGui
 {
