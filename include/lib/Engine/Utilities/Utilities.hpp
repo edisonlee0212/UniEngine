@@ -59,7 +59,8 @@ enum class UNIENGINE_API CurveEditorFlags
     SHOW_GRID = 1 << 1,
     RESET = 1 << 2,
     ALLOW_RESIZE = 1 << 3,
-    ALLOW_REMOVE_SIDES = 1 << 4
+    ALLOW_REMOVE_SIDES = 1 << 4,
+    SHOW_DEBUG = 1 << 5
 };
 
 class UNIENGINE_API Curve : public ISerializable
@@ -84,8 +85,8 @@ class UNIENGINE_API Curve : public ISerializable
         unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     float GetValue(float x);
 
-    void Serialize(YAML::Emitter &out);
-    void Deserialize(const YAML::Node &in);
+    void Serialize(YAML::Emitter &out) override;
+    void Deserialize(const YAML::Node &in) override;
 };
 
 class UNIENGINE_API SphereMeshGenerator {

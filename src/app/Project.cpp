@@ -8,10 +8,19 @@ using namespace UniEngine;
 
 int main()
 {
-
+    Curve curve = Curve({0, 0}, {1, 1});
     ProjectManager::SetScenePostLoadActions([&]() {
         Application::RegisterLateUpdateFunction([&](){
             ImGui::ShowDemoWindow();
+            if(ImGui::Begin("Test"))
+            {
+                curve.CurveEditor(
+                    "Curve",
+                    ImVec2(-1, -1),
+                    (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID |
+                        (unsigned)CurveEditorFlags::SHOW_DEBUG);
+            }
+            ImGui::End();
         });
     });
     ApplicationConfigs applicationConfigs;

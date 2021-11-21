@@ -1167,6 +1167,12 @@ bool Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, uns
             ImGui::SliderFloat("L", &values[1].y, m_min.y, m_max.y);
             ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y);
         }
+        bool debug = (unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG;
+        if(debug){
+            static float test = 0.5f;
+            ImGui::SliderFloat("X", &test, 0.0f, 1.0f);
+            ImGui::Text("Y: %.3f", GetValue(test));
+        }
         ImGui::TreePop();
         return changed_idx != -1;
     }
@@ -1204,11 +1210,12 @@ float Curve::GetValue(float x)
                 float upper = 1.0f;
                 float lower = 0.0f;
                 float tempT = 0.5f;
-                for(int iter = 0; iter < 8; iter++){
+                for(int iter = 0; iter < 10; iter++){
                     float tempT1 = 1.0f - tempT;
-                    float testX = tempT1 * tempT1 * tempT1 * prev.x + 3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
-                                  3.0f * tempT1 * tempT * tempT * (prev.x + m_values[i * 3 + 3].x) + tempT * tempT * tempT * next.x;
-                    if(testX < realX){
+                    float globalX = tempT1 * tempT1 * tempT1 * prev.x + 3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
+                                  3.0f * tempT1 * tempT * tempT * (next.x + m_values[i * 3 + 3].x) + tempT * tempT * tempT * next.x;
+                    float testX = (globalX - prev.x) / (next.x - prev.x);
+                    if(testX > realX){
                         upper = tempT;
                         tempT = (tempT + lower) / 2.0f;
                     }else{
@@ -1218,7 +1225,7 @@ float Curve::GetValue(float x)
                 }
                 float tempT1 = 1.0f - tempT;
                 return tempT1 * tempT1 * tempT1 * prev.y + 3.0f * tempT1 * tempT1 * tempT * (prev.y + m_values[i * 3 + 2].y) +
-                       3.0f * tempT1 * tempT * tempT * (prev.y + m_values[i * 3 + 3].y) + tempT * tempT * tempT * next.y;
+                       3.0f * tempT1 * tempT * tempT * (next.y + m_values[i * 3 + 3].y) + tempT * tempT * tempT * next.y;
             }
         }
         return m_values[m_values.size() - 2].y;
