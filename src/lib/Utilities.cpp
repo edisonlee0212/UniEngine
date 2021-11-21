@@ -1187,6 +1187,7 @@ bool Curve::IsTangent()
 }
 float Curve::GetValue(float x)
 {
+    x = glm::clamp(x, 0.0f, 1.0f);
     if (m_tangent)
     {
         int pointSize = m_values.size() / 3;
@@ -1194,12 +1195,30 @@ float Curve::GetValue(float x)
         {
             auto &prev = m_values[i * 3 + 1];
             auto &next = m_values[i * 3 + 4];
-            if (x >= prev.x && x < next.x)
+            if(x == prev.x){
+                return prev.y;
+            }
+            else if (x > prev.x && x < next.x)
             {
-                float t = (x - prev.x) / (next.x - prev.x);
-                float t1 = 1.0 - t;
-                return t1 * t1 * t1 * prev.y + 3.0f * t1 * t1 * t * (prev.y + m_values[i * 3 + 2].y) +
-                       3.0f * t1 * t * t * (prev.y + m_values[i * 3 + 3].y) + t * t * t * next.y;
+                float realX = (x - prev.x) / (next.x - prev.x);
+                float upper = 1.0f;
+                float lower = 0.0f;
+                float tempT = 0.5f;
+                for(int iter = 0; iter < 8; iter++){
+                    float tempT1 = 1.0f - tempT;
+                    float testX = tempT1 * tempT1 * tempT1 * prev.x + 3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
+                                  3.0f * tempT1 * tempT * tempT * (prev.x + m_values[i * 3 + 3].x) + tempT * tempT * tempT * next.x;
+                    if(testX < realX){
+                        upper = tempT;
+                        tempT = (tempT + lower) / 2.0f;
+                    }else{
+                        lower = tempT;
+                        tempT = (tempT + upper) / 2.0f;
+                    }
+                }
+                float tempT1 = 1.0f - tempT;
+                return tempT1 * tempT1 * tempT1 * prev.y + 3.0f * tempT1 * tempT1 * tempT * (prev.y + m_values[i * 3 + 2].y) +
+                       3.0f * tempT1 * tempT * tempT * (prev.y + m_values[i * 3 + 3].y) + tempT * tempT * tempT * next.y;
             }
         }
         return m_values[m_values.size() - 2].y;
