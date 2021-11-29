@@ -56,6 +56,10 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     void OnCreate() override;
     void OnInspect() override;
 
+    void AddForce(const glm::vec3& force);
+    void AddTorque(const glm::vec3& torque);
+
+
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;

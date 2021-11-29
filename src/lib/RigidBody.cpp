@@ -6,7 +6,7 @@
 #include <Transform.hpp>
 using namespace UniEngine;
 
-void UniEngine::RigidBody::SetStatic(bool value)
+void RigidBody::SetStatic(bool value)
 {
     if (value)
     {
@@ -16,7 +16,7 @@ void UniEngine::RigidBody::SetStatic(bool value)
     RecreateBody();
 }
 
-void UniEngine::RigidBody::SetShapeTransform(const glm::mat4 &value)
+void RigidBody::SetShapeTransform(const glm::mat4 &value)
 {
     GlobalTransform ltw;
     ltw.m_value = value;
@@ -24,7 +24,7 @@ void UniEngine::RigidBody::SetShapeTransform(const glm::mat4 &value)
     m_shapeTransform = ltw.m_value;
 }
 
-void UniEngine::RigidBody::OnDestroy()
+void RigidBody::OnDestroy()
 {
     while (!m_colliders.empty())
         DetachCollider(0);
@@ -34,7 +34,7 @@ void UniEngine::RigidBody::OnDestroy()
     }
 }
 
-void UniEngine::RigidBody::RecreateBody()
+void RigidBody::RecreateBody()
 {
     auto physicsLayer = Application::GetLayer<PhysicsLayer>();
     if(!physicsLayer) return;
@@ -74,12 +74,12 @@ void UniEngine::RigidBody::RecreateBody()
     m_currentRegistered = false;
 }
 
-void UniEngine::RigidBody::OnCreate()
+void RigidBody::OnCreate()
 {
     RecreateBody();
 }
 
-void UniEngine::RigidBody::OnInspect()
+void RigidBody::OnInspect()
 {
     if (ImGui::TreeNodeEx("Colliders"))
     {
@@ -124,7 +124,7 @@ void UniEngine::RigidBody::OnInspect()
         }
         if (!m_kinematic)
         {
-            PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+            auto *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
             if (Application::IsPlaying())
             {
                 m_linearVelocity = rigidBody->getLinearVelocity();
@@ -145,6 +145,15 @@ void UniEngine::RigidBody::OnInspect()
             if (ImGui::DragFloat("Angular Damping", &m_angularDamping, 0.01f))
             {
                 rigidBody->setAngularDamping(m_angularDamping);
+            }
+
+            static auto applyValue = glm::vec3(0.0f);
+            ImGui::DragFloat3("Value", &applyValue.x, 0.01f);
+            if(ImGui::Button("Apply force")){
+                AddForce(applyValue);
+            }
+            if(ImGui::Button("Apply torque")){
+                AddForce(applyValue);
             }
         }
     }
@@ -416,4 +425,36 @@ void RigidBody::CollectAssetRef(std::vector<AssetRef> &list)
 bool RigidBody::Registered() const
 {
     return m_currentRegistered;
+}
+void RigidBody::AddForce(const glm::vec3 &force)
+{
+    if (m_static)
+    {
+        UNIENGINE_ERROR("RigidBody is static!");
+        return;
+    }
+    if (m_kinematic)
+    {
+        UNIENGINE_ERROR("RigidBody is kinematic!");
+        return;
+    }
+    auto *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+    auto pxForce = PxVec3(force.x, force.y, force.z);
+    rigidBody->addForce(pxForce, PxForceMode::eFORCE);
+}
+void RigidBody::AddTorque(const glm::vec3 &torque)
+{
+    if (m_static)
+    {
+        UNIENGINE_ERROR("RigidBody is static!");
+        return;
+    }
+    if (m_kinematic)
+    {
+        UNIENGINE_ERROR("RigidBody is kinematic!");
+        return;
+    }
+    auto *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+    auto pxTorque = PxVec3(torque.x, torque.y, torque.z);
+    rigidBody->addTorque(pxTorque, PxForceMode::eFORCE);
 }
