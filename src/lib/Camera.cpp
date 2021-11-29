@@ -263,7 +263,8 @@ void Camera::OnCreate()
     m_depthStencilTexture = AssetManager::CreateAsset<Texture2D>();
     m_depthStencilTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
-    m_depthStencilTexture->m_texture->SetData(0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
+    m_depthStencilTexture->m_texture->SetData(
+        0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
     m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -306,7 +307,6 @@ void Camera::OnCreate()
     m_gBufferMetallicRoughnessEmissionAmbient->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     m_gBuffer->AttachTexture(m_gBufferMetallicRoughnessEmissionAmbient.get(), GL_COLOR_ATTACHMENT2);
 
-
     m_gBuffer->Clear();
     SetEnabled(true);
 }
@@ -337,6 +337,8 @@ void Camera::Deserialize(const YAML::Node &in)
     ResizeResolution(resolutionX, resolutionY);
 
     m_skybox.Load("m_skybox", in);
+    m_rendered = false;
+    m_requireRendering = false;
 }
 
 void Camera::OnDestroy()
@@ -388,29 +390,34 @@ void Camera::OnInspect()
 
     if (ImGui::TreeNode("Debug"))
     {
+        m_requireRendering = true;
         static float debugSacle = 0.25f;
         ImGui::DragFloat("Scale", &debugSacle, 0.01f, 0.1f, 1.0f);
         debugSacle = glm::clamp(debugSacle, 0.1f, 1.0f);
-        ImGui::Image(
-            (ImTextureID)m_colorTexture->UnsafeGetGLTexture()->Id(),
-            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
-            ImVec2(0, 1),
-            ImVec2(1, 0));
-        ImGui::Image(
-            (ImTextureID)m_gBufferNormal->Id(),
-            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
-            ImVec2(0, 1),
-            ImVec2(1, 0));
-        ImGui::Image(
-            (ImTextureID)m_gBufferAlbedo->Id(),
-            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
-            ImVec2(0, 1),
-            ImVec2(1, 0));
-        ImGui::Image(
-            (ImTextureID)m_gBufferMetallicRoughnessEmissionAmbient->Id(),
-            ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
-            ImVec2(0, 1),
-            ImVec2(1, 0));
+        if (m_rendered)
+        {
+            ImGui::Image(
+                (ImTextureID)m_colorTexture->UnsafeGetGLTexture()->Id(),
+                ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferNormal->Id(),
+                ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferAlbedo->Id(),
+                ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+            ImGui::Image(
+                (ImTextureID)m_gBufferMetallicRoughnessEmissionAmbient->Id(),
+                ImVec2(m_resolutionX * debugSacle, m_resolutionY * debugSacle),
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+
+        }
         ImGui::TreePop();
     }
 }
@@ -444,6 +451,14 @@ std::unique_ptr<RenderTarget> &Camera::UnsafeGetGBuffer()
 {
     return m_gBuffer;
 }
+bool Camera::Rendered() const
+{
+    return m_rendered;
+}
+void Camera::SetRequireRendering(bool value)
+{
+    m_requireRendering = m_requireRendering || value;
+}
 
 void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
 {
@@ -462,12 +477,14 @@ void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm:
         glm::tan(glm::radians(camera->m_fov * 0.5f)),
         static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
     m_clearColor = glm::vec4(camera->m_clearColor, 1.0f);
-    if(camera->m_useClearColor){
+    if (camera->m_useClearColor)
+    {
         m_clearColor.w = 1.0f;
-    }else{
+    }
+    else
+    {
         m_clearColor.w = 0.0f;
     }
-
 }
 
 void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera) const

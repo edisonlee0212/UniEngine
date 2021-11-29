@@ -68,13 +68,14 @@ void RenderLayer::DispatchRenderCommands(
 #pragma endregion
 void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel)
 {
+    /*
     if (cameraComponent->m_frameCount == 0)
     {
         cameraComponent->m_frameCount++;
         return;
     }
     cameraComponent->m_frameCount++;
-
+    */
     auto sceneBound = EntityManager::GetCurrentScene()->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
     ApplyShadowMapSettings();
@@ -250,12 +251,13 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glDepthFunc(GL_LESS); // set depth function back to default
 #pragma endregion
+
+    cameraComponent->m_rendered = true;
+    cameraComponent->m_requireRendering = false;
 }
 void RenderLayer::PreUpdate()
 {
     ProfilerLayer::StartEvent("RenderManager");
-
-
 
     ProfilerLayer::StartEvent("Clear GBuffer");
     m_deferredRenderInstances.clear();
@@ -274,9 +276,7 @@ void RenderLayer::LateUpdate()
     if (!scene)
         return;
 
-
     std::shared_ptr<Camera> mainCamera = scene->m_mainCamera.Get<Camera>();
-
 #pragma region Collect RenderCommands
     ProfilerLayer::StartEvent("RenderCommand Collection");
     Bound worldBound;
@@ -299,15 +299,13 @@ void RenderLayer::LateUpdate()
     {
         for (auto cameraEntity : *cameraEntities)
         {
-            if (!cameraEntity.IsEnabled())
-                continue;
             auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
-            if (cameraComponent->IsEnabled())
+            cameraComponent->m_rendered = false;
+            if (cameraComponent->m_requireRendering)
             {
                 auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
                 Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-
                 RenderToCamera(cameraComponent, cameraEntity.GetDataComponent<GlobalTransform>());
             }
         }
@@ -346,8 +344,6 @@ glm::vec3 RenderLayer::ClosestPointOnLine(const glm::vec3 &point, const glm::vec
 }
 void RenderLayer::OnInspect()
 {
-
-
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))

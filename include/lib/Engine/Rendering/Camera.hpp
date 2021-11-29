@@ -33,7 +33,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 {
     friend class RenderManager;
     friend class RenderLayer;
-    friend class EditorManager;
+    friend class EditorLayer;
     friend struct CameraInfoBlock;
     friend class PostProcessing;
     friend class Bloom;
@@ -51,7 +51,11 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 
     static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
     size_t m_frameCount = 0;
+    bool m_rendered = false;
+    bool m_requireRendering = false;
   public:
+    [[nodiscard]] bool Rendered() const;
+    void SetRequireRendering(bool value);
     Camera& operator=(const Camera& source);
     void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 

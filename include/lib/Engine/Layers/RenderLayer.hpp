@@ -122,7 +122,6 @@ class UNIENGINE_API RenderLayer : public ILayer
     void OnCreate() override;
     std::unique_ptr<OpenGLUtils::GLUBO> m_kernelBlock;
 
-    bool m_mainCameraViewable = true;
     int m_mainCameraResolutionX = 1;
     int m_mainCameraResolutionY = 1;
     friend class RenderTarget;
