@@ -365,7 +365,7 @@ void ProjectManager::GenerateNewDefaultScene()
     const auto mainCameraEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Main Camera");
     Transform cameraLtw;
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
-    cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 15)));
+    cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 0)));
     mainCameraEntity.SetDataComponent(cameraLtw);
     auto mainCameraComponent = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
     scene->m_mainCamera = mainCameraComponent;

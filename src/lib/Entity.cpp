@@ -41,15 +41,24 @@ size_t Entity::operator()(Entity const &key) const
 
 bool Entity::IsEnabled() const
 {
-    assert(IsValid());
     return EntityManager::IsEntityEnabled(EntityManager::GetCurrentScene(), *this);
 }
-
+bool Entity::IsStatic() const
+{
+    return EntityManager::IsEntityStatic(EntityManager::GetCurrentScene(), *this);
+}
+bool Entity::IsRoot() const
+{
+    return EntityManager::IsEntityRoot(EntityManager::GetCurrentScene(), *this);
+}
 void Entity::SetEnabled(const bool &value) const
 {
     EntityManager::SetEnable(EntityManager::GetCurrentScene(), *this, value);
 }
-
+void Entity::SetStatic(const bool &value) const
+{
+    EntityManager::SetEntityStatic(EntityManager::GetCurrentScene(), *this, value);
+}
 void Entity::SetEnabledSingle(const bool &value) const
 {
     EntityManager::SetEnableSingle(EntityManager::GetCurrentScene(), *this, value);
@@ -135,6 +144,7 @@ Handle Entity::GetHandle() const
     auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
     return storage.at(m_index).GetHandle();
 }
+
 
 IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {

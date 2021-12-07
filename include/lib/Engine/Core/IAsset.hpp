@@ -64,6 +64,12 @@ class UNIENGINE_API IAsset : public ISerializable
      */
     bool Export(const std::filesystem::path &path);
     /**
+     * Import current asset. Will not affect the path member of the asset.
+     * @param path The target path of the asset, must be absolute path.
+     * @return If the asset is successfully imported.
+     */
+    bool Import(const std::filesystem::path &path);
+    /**
      * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */

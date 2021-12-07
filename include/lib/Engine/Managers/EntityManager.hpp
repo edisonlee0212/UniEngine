@@ -277,9 +277,14 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
     static void SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
     static bool IsEntityValid(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static bool IsEntityEnabled(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static bool IsEntityRoot(const std::shared_ptr<Scene> &scene, const Entity &entity);
+    static bool IsEntityStatic(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static Entity GetRoot(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static std::string GetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity);
     static void SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &entity, const std::string &name);
+    static void SetEntityStatic(const std::shared_ptr<Scene> &scene,
+                                const Entity &entity, bool value);
+
     static void SetParent(
         const std::shared_ptr<Scene> &scene,
         const Entity &entity,

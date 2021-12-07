@@ -74,8 +74,6 @@ IAsset::~IAsset()
 {
 }
 
-
-
 void IAsset::OnCreate()
 {
     m_name = "New " + m_typeName;
@@ -93,7 +91,8 @@ void IAsset::SetPath(const std::filesystem::path &path)
     }
     auto newPath = ProjectManager::GetRelativePath(
         std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
-    if(newPath == m_projectRelativePath) return;
+    if (newPath == m_projectRelativePath)
+        return;
 
     m_projectRelativePath = newPath;
     m_saved = false;
@@ -116,7 +115,8 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &path)
 {
     SetPath(path);
     bool success = Save();
-    if(success){
+    if (success)
+    {
         auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
         assert(folder);
         ProjectManager::UpdateFolderMetadata(folder);
@@ -144,4 +144,10 @@ bool IAsset::Export(const std::filesystem::path &path)
     if (!path.is_absolute())
         return false;
     return SaveInternal(path);
+}
+bool IAsset::Import(const std::filesystem::path &path)
+{
+    if (!path.is_absolute())
+        return false;
+    return LoadInternal(path);
 }

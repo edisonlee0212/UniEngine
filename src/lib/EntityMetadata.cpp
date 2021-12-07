@@ -10,11 +10,16 @@ void EntityMetadata::Deserialize(const YAML::Node &in)
     m_name = in["Name"].as<std::string>();
     m_version = in["Version"].as<unsigned>();
     m_enabled = in["Enabled"].as<bool>();
+    m_static = in["Static"].as<bool>();
     m_handle.m_value = in["Handle"].as<uint64_t>();
     Entity parent;
     parent.m_index = in["Parent.Index"].as<unsigned>();
     parent.m_version = in["Parent.Version"].as<unsigned>();
     m_parent = parent;
+    Entity root;
+    root.m_index = in["Root.Index"].as<unsigned>();
+    root.m_version = in["Root.Version"].as<unsigned>();
+    m_root = root;
     if (in["Children"].IsDefined())
     {
         YAML::Binary childrenData = in["Children"].as<YAML::Binary>();
@@ -35,9 +40,11 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
         out << YAML::Key << "Handle" << YAML::Value << m_handle.m_value;
         out << YAML::Key << "Version" << YAML::Value << m_version;
         out << YAML::Key << "Enabled" << YAML::Value << m_enabled;
+        out << YAML::Key << "Static" << YAML::Value << m_static;
         out << YAML::Key << "Parent.Index" << YAML::Value << m_parent.m_index;
         out << YAML::Key << "Parent.Version" << YAML::Value << m_parent.m_version;
-
+        out << YAML::Key << "Root.Index" << YAML::Value << m_root.m_index;
+        out << YAML::Key << "Root.Version" << YAML::Value << m_root.m_version;
         if (!m_children.empty())
         {
             out << YAML::Key << "Children" << YAML::Value
@@ -70,6 +77,8 @@ void EntityMetadata::Clone(const std::unordered_map<Handle, Handle> &entityMap, 
     m_version = source.m_version;
     m_enabled = source.m_enabled;
     m_parent = source.m_parent;
+    m_root = source.m_root;
+    m_static = source.m_static;
     m_dataComponentStorageIndex = source.m_dataComponentStorageIndex;
     m_chunkArrayIndex = source.m_chunkArrayIndex;
     m_children = source.m_children;

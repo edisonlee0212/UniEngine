@@ -14,19 +14,23 @@ void TransformLayer::PreUpdate()
     CalculateTransformGraphs(EntityManager::GetCurrentScene());
 }
 
-void TransformLayer::CalculateTransformGraph(const std::shared_ptr<Scene>& scene,
-                                               std::vector<EntityMetadata> &entityInfos, const GlobalTransform &pltw, Entity parent)
+void TransformLayer::CalculateTransformGraph(
+    const std::shared_ptr<Scene> &scene,
+    std::vector<EntityMetadata> &entityInfos,
+    const GlobalTransform &pltw,
+    Entity parent)
 {
     EntityMetadata &entityInfo = entityInfos.at(parent.GetIndex());
     for (const auto &entity : entityInfo.m_children)
     {
-        auto *transformStatus = reinterpret_cast<GlobalTransformUpdateFlag *>(
-            EntityManager::GetDataComponentPointer(scene, entity.GetIndex(), typeid(GlobalTransformUpdateFlag).hash_code()));
+        auto *transformStatus = reinterpret_cast<GlobalTransformUpdateFlag *>(EntityManager::GetDataComponentPointer(
+            scene, entity.GetIndex(), typeid(GlobalTransformUpdateFlag).hash_code()));
         GlobalTransform ltw;
         if (transformStatus->m_value)
         {
             ltw = entity.GetDataComponent<GlobalTransform>();
-            reinterpret_cast<Transform *>(EntityManager::GetDataComponentPointer(scene, entity.GetIndex(), typeid(Transform).hash_code()))
+            reinterpret_cast<Transform *>(
+                EntityManager::GetDataComponentPointer(scene, entity.GetIndex(), typeid(Transform).hash_code()))
                 ->m_value = glm::inverse(pltw.m_value) * ltw.m_value;
             transformStatus->m_value = false;
         }
@@ -34,19 +38,20 @@ void TransformLayer::CalculateTransformGraph(const std::shared_ptr<Scene>& scene
         {
             auto ltp = EntityManager::GetDataComponent<Transform>(scene, entity.GetIndex());
             ltw.m_value = pltw.m_value * ltp.m_value;
-            *reinterpret_cast<GlobalTransform *>(
-                EntityManager::GetDataComponentPointer(scene, entity.GetIndex(), typeid(GlobalTransform).hash_code())) = ltw;
+            *reinterpret_cast<GlobalTransform *>(EntityManager::GetDataComponentPointer(
+                scene, entity.GetIndex(), typeid(GlobalTransform).hash_code())) = ltw;
         }
         CalculateTransformGraph(scene, entityInfos, ltw, entity);
     }
 }
-void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene>& scene)
+void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scene, bool checkStatic)
 {
     if (!scene)
         return;
-    auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
+    auto &entityInfos = scene->m_sceneDataStorage.m_entityInfos;
     ProfilerLayer::StartEvent("TransformManager");
-    EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(scene,
+    EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
+        scene,
         JobManager::PrimaryWorkers(),
         m_transformQuery,
         [&](int i,
@@ -56,6 +61,8 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene>& scen
             GlobalTransformUpdateFlag &transformStatus) {
             EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex());
             if (!entityInfo.m_parent.IsNull())
+                return;
+            if (checkStatic && entityInfo.m_static)
                 return;
             if (transformStatus.m_value)
             {
@@ -70,9 +77,11 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene>& scen
     m_physicsSystemOverride = false;
     ProfilerLayer::EndEvent("TransformManager");
 }
-void TransformLayer::CalculateTransformGraphForDescendents(const std::shared_ptr<Scene>& scene, const Entity &entity)
+void TransformLayer::CalculateTransformGraphForDescendents(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
-    if(!scene) return;
-    auto& entityInfos = scene->m_sceneDataStorage.m_entityInfos;
-    CalculateTransformGraph(scene, entityInfos, EntityManager::GetDataComponent<GlobalTransform>(scene, entity.GetIndex()), entity);
+    if (!scene)
+        return;
+    auto &entityInfos = scene->m_sceneDataStorage.m_entityInfos;
+    CalculateTransformGraph(
+        scene, entityInfos, EntityManager::GetDataComponent<GlobalTransform>(scene, entity.GetIndex()), entity);
 }

@@ -58,23 +58,27 @@ void EditorLayer::OnCreate()
             glm::vec3 s;
             ltw->Decompose(t, er, s);
             er = glm::degrees(er);
-            ImGui::InputFloat3("Position##Global", &t.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-            ImGui::InputFloat3("Rotation##Global", &er.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-            ImGui::InputFloat3("Scale##Global", &s.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+            ImGui::DragFloat3("Position##Global", &t.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+            ImGui::DragFloat3("Rotation##Global", &er.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+            ImGui::DragFloat3("Scale##Global", &s.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
         });
     EditorManager::RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
         bool reload = previousEntity != entity;
+        bool readOnly = false;
         if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>())
         {
             auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
             if (rigidBody->IsKinematic() && rigidBody->Registered())
             {
                 reload = true;
+                readOnly = true;
             }
         }
+        if (entity.GetRoot().IsStatic())
+            readOnly = true;
         if (reload)
         {
             previousEntity = entity;
@@ -84,7 +88,14 @@ void EditorLayer::OnCreate()
             m_localRotationSelected = false;
             m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalPosition", &m_previouslyStoredPosition.x, 0.1f, 0, 0))
+        if (ImGui::DragFloat3(
+                "##LocalPosition",
+                &m_previouslyStoredPosition.x,
+                0.1f,
+                0,
+                0,
+                "%.3f",
+                readOnly ? ImGuiSliderFlags_ReadOnly : 0))
             edited = true;
         ImGui::SameLine();
         if (ImGui::Selectable("Position##Local", &m_localPositionSelected) && m_localPositionSelected)
@@ -92,7 +103,14 @@ void EditorLayer::OnCreate()
             m_localRotationSelected = false;
             m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalRotation", &m_previouslyStoredRotation.x, 1.0f, 0, 0))
+        if (ImGui::DragFloat3(
+                "##LocalRotation",
+                &m_previouslyStoredRotation.x,
+                1.0f,
+                0,
+                0,
+                "%.3f",
+                readOnly ? ImGuiSliderFlags_ReadOnly : 0))
             edited = true;
         ImGui::SameLine();
         if (ImGui::Selectable("Rotation##Local", &m_localRotationSelected) && m_localRotationSelected)
@@ -100,7 +118,14 @@ void EditorLayer::OnCreate()
             m_localPositionSelected = false;
             m_localScaleSelected = false;
         }
-        if (ImGui::DragFloat3("##LocalScale", &m_previouslyStoredScale.x, 0.01f, 0, 0))
+        if (ImGui::DragFloat3(
+                "##LocalScale",
+                &m_previouslyStoredScale.x,
+                0.01f,
+                0,
+                0,
+                "%.3f",
+                readOnly ? ImGuiSliderFlags_ReadOnly : 0))
             edited = true;
         ImGui::SameLine();
         if (ImGui::Selectable("Scale##Local", &m_localScaleSelected) && m_localScaleSelected)
@@ -816,8 +841,16 @@ void EditorLayer::OnInspect()
                 }
             }
             ImGui::SameLine();
+            bool isStatic = m_selectedEntity.IsStatic();
+            if (ImGui::Checkbox("Static##StaticCheckbox", &isStatic))
+            {
+                if (m_selectedEntity.IsStatic() != isStatic)
+                {
+                    m_selectedEntity.SetStatic(isStatic);
+                }
+            }
+
             bool deleted = DrawEntityMenu(m_selectedEntity.IsEnabled(), m_selectedEntity);
-            ImGui::Separator();
             if (!deleted)
             {
                 if (ImGui::CollapsingHeader("Data components", ImGuiTreeNodeFlags_DefaultOpen))
@@ -1304,23 +1337,50 @@ void EditorLayer::OnInspect()
         if (!EditorManager::GetInstance().m_inspectingAsset.expired())
         {
             auto asset = EditorManager::GetInstance().m_inspectingAsset.lock();
+            ImGui::Button(asset->m_name.c_str());
+            EditorManager::DraggableAsset(asset);
             if (!asset->GetPath().empty())
             {
                 if (ImGui::Button("Save"))
                 {
                     asset->Save();
                 }
+                ImGui::SameLine();
+                FileUtils::SaveFile(
+                    "Reset path & save",
+                    asset->GetTypeName(),
+                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                    [&](const std::filesystem::path &path) {
+                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                    },
+                    true);
             }
             else
             {
                 ImGui::Text("Temporary asset");
+                ImGui::SameLine();
+                FileUtils::SaveFile(
+                    "Allocate path & save",
+                    asset->GetTypeName(),
+                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                    [&](const std::filesystem::path &path) {
+                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                    },
+                    true);
             }
 
             FileUtils::SaveFile(
-                "Export",
+                "Export...",
                 asset->GetTypeName(),
                 AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
                 [&](const std::filesystem::path &path) { asset->Export(path); },
+                false);
+            ImGui::SameLine();
+            FileUtils::OpenFile(
+                "Import...",
+                asset->GetTypeName(),
+                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                [&](const std::filesystem::path &path) { asset->Import(path); },
                 false);
 
             ImGui::Separator();
@@ -1618,7 +1678,8 @@ void EditorLayer::SceneCameraWindow()
     {
         m_sceneCameraWindowFocused = false;
     }
-    m_sceneCamera->SetRequireRendering(!(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+    m_sceneCamera->SetRequireRendering(
+        !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
     ImGui::End();
     ImGui::PopStyleVar();
 

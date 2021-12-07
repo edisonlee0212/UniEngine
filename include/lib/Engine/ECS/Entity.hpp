@@ -52,7 +52,10 @@ struct UNIENGINE_API Entity final
     bool operator!=(const Entity &other) const;
     size_t operator()(Entity const &key) const;
     [[nodiscard]] bool IsEnabled() const;
+    [[nodiscard]] bool IsStatic() const;
+    [[nodiscard]] bool IsRoot() const;
     void SetEnabled(const bool &value) const;
+    void SetStatic(const bool &value) const;
     void SetEnabledSingle(const bool &value) const;
     [[nodiscard]] bool IsNull() const;
     [[nodiscard]] bool IsValid() const;

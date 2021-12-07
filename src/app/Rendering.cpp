@@ -13,7 +13,7 @@ int main()
      */
     const std::filesystem::path resourceFolderPath("../Resources");
     ProjectManager::SetScenePostLoadActions([](){
-        //LoadScene();
+        LoadScene();
     });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Rendering/Rendering.ueproj";
@@ -184,6 +184,7 @@ void LoadScene(){
     spotLightConeEntity.SetDataComponent(spotLightConeTransform);
 
     auto spotLightRenderer = spotLightConeEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    spotLightRenderer->m_castShadow = false;
     auto spotLightMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
     spotLightRenderer->m_material.Set<Material>(spotLightMaterial);
     spotLightMaterial->m_albedoColor = glm::vec3(1, 0.7, 0.7);

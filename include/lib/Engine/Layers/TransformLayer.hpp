@@ -14,6 +14,6 @@ class UNIENGINE_API TransformLayer : public ILayer
     void PreUpdate() override;
   public:
     void CalculateTransformGraphForDescendents(const std::shared_ptr<Scene>& scene, const Entity& entity);
-    void CalculateTransformGraphs(const std::shared_ptr<Scene>& scene);
+    void CalculateTransformGraphs(const std::shared_ptr<Scene>& scene, bool checkStatic = true);
 };
 } // namespace UniEngine

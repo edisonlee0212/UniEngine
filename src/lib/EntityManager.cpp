@@ -342,7 +342,8 @@ void EntityManager::Attach(const std::shared_ptr<Scene> &scene)
     }
     auto &entityManager = GetInstance();
     entityManager.m_scene = scene;
-    for(auto& func : Application::GetInstance().m_postAttachSceneFunctions){
+    for (auto &func : Application::GetInstance().m_postAttachSceneFunctions)
+    {
         func(scene);
     }
 }
@@ -387,6 +388,8 @@ Entity EntityManager::CreateEntity(
         // If the version is 0 in chunk means it's deleted.
         retVal.m_version = 1;
         EntityMetadata entityInfo;
+        entityInfo.m_root = retVal;
+        entityInfo.m_static = false;
         entityInfo.m_name = name;
         entityInfo.m_handle = handle;
         entityInfo.m_dataComponentStorageIndex = search->second;
@@ -403,6 +406,8 @@ Entity EntityManager::CreateEntity(
     {
         retVal = storage.m_chunkArray.m_entities.at(storage.m_entityAliveCount);
         EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(retVal.m_index);
+        entityInfo.m_root = retVal;
+        entityInfo.m_static = false;
         entityInfo.m_handle = handle;
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
@@ -453,6 +458,8 @@ std::vector<Entity> EntityManager::CreateEntities(
         remainAmount--;
         Entity entity = storage.m_chunkArray.m_entities.at(storage.m_entityAliveCount);
         EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+        entityInfo.m_root = entity;
+        entityInfo.m_static = false;
         entityInfo.m_enabled = true;
         entityInfo.m_name = name;
         entity.m_version = entityInfo.m_version;
@@ -499,6 +506,8 @@ std::vector<Entity> EntityManager::CreateEntities(
 
         auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(originalSize + i);
         entityInfo = EntityMetadata();
+        entityInfo.m_root = entity;
+        entityInfo.m_static = false;
         entityInfo.m_name = name;
         entityInfo.m_dataComponentStorageIndex = search->second;
         entityInfo.m_chunkArrayIndex = storage.m_entityAliveCount - remainAmount + i;
@@ -630,7 +639,18 @@ void EntityManager::SetEntityName(const std::shared_ptr<Scene> &scene, const Ent
     }
     scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = "Unnamed";
 }
-
+void EntityManager::SetEntityStatic(const std::shared_ptr<Scene> &scene, const Entity &entity, bool value)
+{
+    assert(entity.IsValid());
+    const size_t childIndex = entity.m_index;
+    auto &entityManager = GetInstance();
+    if (!scene)
+    {
+        return;
+    }
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetRoot().m_index);
+    entityInfo.m_static = value;
+}
 void EntityManager::SetParent(
     const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent, const bool &recalculateTransform)
 {
@@ -663,6 +683,8 @@ void EntityManager::SetParent(
         SetDataComponent(scene, entity, childTransform);
     }
     childEntityInfo.m_parent = parent;
+    childEntityInfo.m_root = parentEntityInfo.m_root;
+    childEntityInfo.m_static = false;
     parentEntityInfo.m_children.push_back(entity);
 }
 
@@ -746,21 +768,23 @@ void EntityManager::RemoveChild(const std::shared_ptr<Scene> &scene, const Entit
     }
     const size_t childIndex = entity.m_index;
     const size_t parentIndex = parent.m_index;
-    if (scene->m_sceneDataStorage.m_entityInfos.at(childIndex).m_parent.m_index == 0)
+    auto &childEntityMetadata = scene->m_sceneDataStorage.m_entityInfos.at(childIndex);
+    auto &parentEntityMetadata = scene->m_sceneDataStorage.m_entityInfos.at(parentIndex);
+    if (childEntityMetadata.m_parent.m_index == 0)
     {
         UNIENGINE_ERROR("No child by the parent!");
     }
     entityManager.m_scene->m_saved = false;
-    scene->m_sceneDataStorage.m_entityInfos.at(childIndex).m_parent = Entity();
-    const size_t childrenCount = scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.size();
+    childEntityMetadata.m_parent = Entity();
+    childEntityMetadata.m_root = entity;
+    const size_t childrenCount = parentEntityMetadata.m_children.size();
 
     for (int i = 0; i < childrenCount; i++)
     {
-        if (scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children[i].m_index == childIndex)
+        if (parentEntityMetadata.m_children[i].m_index == childIndex)
         {
-            scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children[i] =
-                scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.back();
-            scene->m_sceneDataStorage.m_entityInfos.at(parentIndex).m_children.pop_back();
+            parentEntityMetadata.m_children[i] = parentEntityMetadata.m_children.back();
+            parentEntityMetadata.m_children.pop_back();
             break;
         }
     }
@@ -1488,15 +1512,25 @@ std::vector<std::reference_wrapper<DataComponentStorage>> EntityManager::QueryDa
 }
 bool EntityManager::IsEntityValid(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
-    auto& storage = scene->m_sceneDataStorage.m_entities;
-    return entity.m_index != 0 && entity.m_version != 0 && entity.m_index < storage.size() && storage.at(entity.m_index).m_version == entity.m_version;
+    auto &storage = scene->m_sceneDataStorage.m_entities;
+    return entity.m_index != 0 && entity.m_version != 0 && entity.m_index < storage.size() &&
+           storage.at(entity.m_index).m_version == entity.m_version;
 }
 bool EntityManager::IsEntityEnabled(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     assert(IsEntityValid(scene, entity));
     return scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled;
 }
-
+bool EntityManager::IsEntityRoot(const std::shared_ptr<Scene> &scene, const Entity &entity)
+{
+    assert(IsEntityValid(scene, entity));
+    return scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_root == entity;
+}
+bool EntityManager::IsEntityStatic(const std::shared_ptr<Scene> &scene, const Entity &entity)
+{
+    assert(IsEntityValid(scene, entity));
+    return scene->m_sceneDataStorage.m_entityInfos.at(entity.GetRoot().m_index).m_static;
+}
 size_t EntityQuery::GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnabled) const
 {
     return EntityManager::GetEntityAmount(scene, *this, checkEnabled);

@@ -23,12 +23,6 @@ std::map<std::string, std::shared_ptr<Texture2D>> &EditorManager::AssetIcons()
     return GetInstance().m_assetsIcons;
 }
 
-
-
-
-
-
-
 bool EditorManager::DragAndDropButton(Entity &entity)
 {
     bool statusChanged = false;
