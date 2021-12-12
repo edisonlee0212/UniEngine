@@ -10,7 +10,9 @@ class UNIENGINE_API ParticleMatrices : ISerializable{
     bool m_bufferReady = false;
     friend class Mesh;
     friend class SkinnedMesh;
+    size_t m_version = 0;
   public:
+    [[nodiscard]] size_t &GetVersion();
     ParticleMatrices();
     std::vector<glm::mat4> m_value;
     void Serialize(YAML::Emitter &out) override;
