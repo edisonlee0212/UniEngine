@@ -28,11 +28,11 @@ PrivateComponentRegistration<Particles> ParticlesRegistry("Particles");
 PrivateComponentRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 PrivateComponentRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 PrivateComponentRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
-PrivateComponentRegistration<PointCloud> PointCloudRegistry("PointCloud");
 PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentRegistry("UnknownPrivateComponent");
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
+AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", ".uepc");
 AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
 AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
 AssetRegistration<Texture2D> Texture2DReg("Texture2D", ".uetexture2d");
