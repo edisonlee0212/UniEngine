@@ -52,7 +52,7 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scen
     ProfilerLayer::StartEvent("TransformManager");
     EntityManager::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
         scene,
-        JobManager::PrimaryWorkers(),
+        JobManager::Workers(),
         m_transformQuery,
         [&](int i,
             Entity entity,

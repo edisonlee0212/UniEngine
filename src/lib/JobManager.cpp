@@ -1,29 +1,43 @@
 #include <JobManager.hpp>
 using namespace UniEngine;
 
-void JobManager::ResizePrimaryWorkers(int size)
+void JobManager::ResizeWorkers(unsigned size)
 {
-    GetInstance().m_primaryWorkers.FinishAll(true);
-    GetInstance().m_primaryWorkers.Resize(size);
+    GetInstance().m_workers.FinishAll(true);
+    GetInstance().m_workers.Resize(size);
 }
 
-void JobManager::ResizeSecondaryWorkers(int size)
+ThreadPool &JobManager::Workers()
 {
-    GetInstance().m_secondaryWorkers.FinishAll(true);
-    GetInstance().m_secondaryWorkers.Resize(size);
+    return GetInstance().m_workers;
 }
 
-ThreadPool &JobManager::PrimaryWorkers()
-{
-    return GetInstance().m_primaryWorkers;
-}
-
-ThreadPool &JobManager::SecondaryWorkers()
-{
-    return GetInstance().m_secondaryWorkers;
-}
 void JobManager::Init()
 {
-    PrimaryWorkers().Resize(std::thread::hardware_concurrency() - 2);
-    SecondaryWorkers().Resize(1);
+    Workers().Resize(std::thread::hardware_concurrency() - 1);
+}
+void JobManager::ParallelFor(
+    unsigned size, const std::function<void(unsigned i)> &func, std::vector<std::shared_future<void>> &results)
+{
+    auto &workers = GetInstance().m_workers;
+    const auto threadSize = workers.Size();
+    const auto threadLoad = size / threadSize;
+    const auto loadReminder = size % threadSize;
+    results.reserve(results.size() + threadSize);
+    for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
+    {
+        results.push_back(workers
+                              .Push([&](int id) {
+                                  for (unsigned i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
+                                  {
+                                      func(i);
+                                  }
+                                  if (threadIndex < loadReminder)
+                                  {
+                                      const unsigned i = threadIndex + threadSize * threadLoad;
+                                      func(i);
+                                  }
+                              })
+                              .share());
+    }
 }

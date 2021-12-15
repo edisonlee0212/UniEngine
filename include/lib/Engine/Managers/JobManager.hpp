@@ -4,16 +4,14 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
-class JobManager final : ISingleton<JobManager>
+class UNIENGINE_API JobManager final : ISingleton<JobManager>
 {
-    ThreadPool m_primaryWorkers;
-    ThreadPool m_secondaryWorkers;
+    ThreadPool m_workers;
 
   public:
-    UNIENGINE_API static void ResizePrimaryWorkers(int size);
-    UNIENGINE_API static void ResizeSecondaryWorkers(int size);
-    UNIENGINE_API static ThreadPool &PrimaryWorkers();
-    UNIENGINE_API static ThreadPool &SecondaryWorkers();
-    UNIENGINE_API static void Init();
+    static void ResizeWorkers(unsigned size);
+    static ThreadPool &Workers();
+    static void Init();
+    static void ParallelFor(unsigned size, const std::function<void(unsigned i)> &func, std::vector<std::shared_future<void>>& results);
 };
 } // namespace UniEngine

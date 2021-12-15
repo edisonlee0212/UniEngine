@@ -59,11 +59,11 @@ void Scene::Start()
             if (!privateComponentElement.m_privateComponentData->m_started)
             {
                 privateComponentElement.m_privateComponentData->Start();
-                if (entityInfo.m_version != entityInfo.m_version)
+                if (entity.m_version != entityInfo.m_version)
                     break;
                 privateComponentElement.m_privateComponentData->m_started = true;
             }
-            if (entityInfo.m_version != entityInfo.m_version)
+            if (entity.m_version != entityInfo.m_version)
                 break;
         }
     }
@@ -95,17 +95,17 @@ void Scene::Update()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled)
+            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->Update();
-            if (entityInfo.m_version != entityInfo.m_version)
+            if (entity.m_version != entityInfo.m_version)
                 break;
         }
     }
 
     for (auto &i : m_systems)
     {
-        if (i.second->Enabled())
+        if (i.second->Enabled() && i.second->m_started)
         {
             ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->Update();
@@ -126,17 +126,17 @@ void Scene::LateUpdate()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled)
+            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->LateUpdate();
-            if (entityInfo.m_version != entityInfo.m_version)
+            if (entity.m_version != entityInfo.m_version)
                 break;
         }
     }
 
     for (auto &i : m_systems)
     {
-        if (i.second->Enabled())
+        if (i.second->Enabled() && i.second->m_started)
         {
             ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->LateUpdate();
@@ -156,17 +156,17 @@ void Scene::FixedUpdate()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled)
+            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->FixedUpdate();
-            if (entityInfo.m_version != entityInfo.m_version)
+            if (entity.m_version != entityInfo.m_version)
                 break;
         }
     }
 
     for (auto &i : m_systems)
     {
-        if (i.second->Enabled())
+        if (i.second->Enabled() && i.second->m_started)
         {
             ProfilerLayer::StartEvent(i.second->GetTypeName());
             i.second->FixedUpdate();

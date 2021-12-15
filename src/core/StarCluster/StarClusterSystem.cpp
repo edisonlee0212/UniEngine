@@ -173,7 +173,7 @@ void Galaxy::StarClusterPattern::Apply(const bool &forceUpdateAllStars, const bo
 {
     SetAb();
     EntityManager::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion, SurfaceColor>(EntityManager::GetCurrentScene(),
-        JobManager::SecondaryWorkers(),
+        JobManager::Workers(),
         [&](int i,
             Entity entity,
             StarInfo &starInfo,
@@ -254,7 +254,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
     // and proportion value. StarOrbitOffset: The position offset of the star, used to add irregularity to the
     // position.
     EntityManager::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(EntityManager::GetCurrentScene(),
-        JobManager::SecondaryWorkers(),
+        JobManager::Workers(),
         m_starQuery,
         [=](int i,
             Entity entity,
@@ -280,7 +280,7 @@ void Galaxy::StarClusterSystem::ApplyPosition()
 {
     m_applyPositionTimer = Application::Time().CurrentTime();
     EntityManager::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(EntityManager::GetCurrentScene(),
-        JobManager::SecondaryWorkers(),
+        JobManager::Workers(),
         m_starQuery,
         [this](
             int i,
@@ -311,7 +311,7 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
     matrices->m_value.resize(starAmount);
     colors.resize(starAmount);
     EntityManager::ForEach<GlobalTransform, DisplayColor>(EntityManager::GetCurrentScene(),
-        JobManager::SecondaryWorkers(),
+        JobManager::Workers(),
         m_starQuery,
         [&](int i, Entity entity, GlobalTransform &globalTransform, DisplayColor &displayColor) {
             matrices->m_value[i] = globalTransform.m_value;
@@ -441,8 +441,6 @@ void StarClusterSystem::Start()
         OriginalColor(),
         SurfaceColor(),
         DisplayColor());
-    JobManager::ResizePrimaryWorkers(1);
-    JobManager::ResizeSecondaryWorkers(16);
     m_firstTime = true;
 }
 void StarClusterSystem::Serialize(YAML::Emitter &out)
