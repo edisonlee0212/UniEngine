@@ -215,7 +215,7 @@ void PointCloud::OnInspect()
             UNIENGINE_ERROR("Failed to load from " + filePath.string());
         }
     });
-    FileUtils::SaveFile(("SaveInternal Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
+    FileUtils::SaveFile(("Save Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
         try
         {
             Save(filePath);
@@ -226,6 +226,7 @@ void PointCloud::OnInspect()
             UNIENGINE_ERROR("Failed to save to " + filePath.string());
         }
     });
+    if(ImGui::Button("Clear all points")) m_points.clear();
 }
 void PointCloud::ApplyCompressed()
 {
