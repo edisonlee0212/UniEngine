@@ -1780,6 +1780,7 @@ void RenderLayer::DrawGizmoMesh(
     if (mesh == nullptr)
         return;
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
+    glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     if (!depthTest)
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);

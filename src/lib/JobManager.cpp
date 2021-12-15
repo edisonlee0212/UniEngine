@@ -27,7 +27,7 @@ void JobManager::ParallelFor(
     for (int threadIndex = 0; threadIndex < threadSize; threadIndex++)
     {
         results.push_back(workers
-                              .Push([&](int id) {
+                              .Push([=](int id) {
                                   for (unsigned i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
                                       func(i);
