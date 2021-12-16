@@ -1462,7 +1462,6 @@ void EditorLayer::SceneCameraWindow()
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings"))
                 {
-#pragma region Menu
                     if (ImGui::Button("Reset camera"))
                     {
                         MoveCamera(m_defaultSceneCameraRotation, m_defaultSceneCameraPosition);
@@ -1473,7 +1472,9 @@ void EditorLayer::SceneCameraWindow()
                         m_defaultSceneCameraRotation = m_sceneCameraRotation;
                     }
                     ImGui::SliderFloat("FOV", &m_sceneCamera->m_fov, 30.0f, 120.0f);
-#pragma endregion
+                    ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f);
+                    ImGui::DragFloat("Speed", &m_velocity, 0.1f);
+                    ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f);
                     ImGui::EndMenu();
                 }
                 ImGui::PopStyleVar();
