@@ -135,40 +135,28 @@ void PointCloud::Load(const std::filesystem::path &path)
 
         // Example One: converting to your own application types
         const size_t numVerticesBytes = vertices->buffer.size_bytes();
-        if(vertices->t == tinyply::Type::FLOAT32){
-            m_points.resize(vertices->count);
-            std::memcpy(m_points.data(), vertices->buffer.get(), numVerticesBytes);
-            if(m_recenter)
-            {
-                glm::dvec3 sum;
-                for (const auto &i : m_points)
-                {
-                    sum += i;
-                }
-                sum /= m_points.size();
-                for (auto &i : m_points)
-                {
-                    i -= sum;
-                }
-            }
-        }else if(vertices->t == tinyply::Type::FLOAT64){
+        if (vertices->t == tinyply::Type::FLOAT64)
+        {
             std::vector<glm::dvec3> points;
             points.resize(vertices->count);
             m_points.resize(vertices->count);
             std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
-            if(m_recenter)
+            for (int i = 0; i < vertices->count; i++)
             {
-                glm::dvec3 sum = glm::dvec3(0);
-                for (const auto &i : points)
-                {
-                    sum += i / (double)points.size();
-                }
-                for (auto &i : points)
-                {
-                    i -= sum;
-                }
+                m_points[i].x = points[i].x;
+                m_points[i].y = points[i].z;
+                m_points[i].z = points[i].y;
             }
-            for(int i = 0; i < vertices->count; i++){
+        }
+        else if (vertices->t == tinyply::Type::FLOAT32)
+        {
+            std::vector<glm::vec3> points;
+            points.resize(vertices->count);
+            m_points.resize(vertices->count);
+            std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+
+            for (int i = 0; i < vertices->count; i++)
+            {
                 m_points[i].x = points[i].x;
                 m_points[i].y = points[i].z;
                 m_points[i].z = points[i].y;
@@ -188,11 +176,12 @@ void PointCloud::OnCreate()
 
 void PointCloud::OnInspect()
 {
-    ImGui::Checkbox("Recenter when load", &m_recenter);
+    float speed = 0.1f;
+
+    ImGui::DragScalarN("Offset", ImGuiDataType_Double, &m_offset.x, 3);
     ImGui::Text(("Original amount: " + std::to_string(m_points.size())).c_str());
     ImGui::DragFloat("Point size", &m_pointSize, 0.01f, 0.01f, 100.0f);
     ImGui::DragFloat("Compress factor", &m_compressFactor, 0.001f, 0.0001f, 10.0f);
-    ImGui::DragFloat("Compress scale", &m_scale, 0.001f, 0.0001f, 10.0f);
 
     if (ImGui::Button("Apply compressed"))
     {
@@ -204,29 +193,32 @@ void PointCloud::OnInspect()
         ApplyOriginal();
     }
 
-    FileUtils::OpenFile(("Load PLY file##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
-        try
-        {
-            Load(filePath);
-            UNIENGINE_LOG("Loaded from " + filePath.string());
-        }
-        catch (std::exception &e)
-        {
-            UNIENGINE_ERROR("Failed to load from " + filePath.string());
-        }
-    });
-    FileUtils::SaveFile(("Save Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
-        try
-        {
-            Save(filePath);
-            UNIENGINE_LOG("Saved to " + filePath.string());
-        }
-        catch (std::exception &e)
-        {
-            UNIENGINE_ERROR("Failed to save to " + filePath.string());
-        }
-    });
-    if(ImGui::Button("Clear all points")) m_points.clear();
+    FileUtils::OpenFile(
+        ("Load PLY file##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
+            try
+            {
+                Load(filePath);
+                UNIENGINE_LOG("Loaded from " + filePath.string());
+            }
+            catch (std::exception &e)
+            {
+                UNIENGINE_ERROR("Failed to load from " + filePath.string());
+            }
+        });
+    FileUtils::SaveFile(
+        ("Save Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
+            try
+            {
+                Save(filePath);
+                UNIENGINE_LOG("Saved to " + filePath.string());
+            }
+            catch (std::exception &e)
+            {
+                UNIENGINE_ERROR("Failed to save to " + filePath.string());
+            }
+        });
+    if (ImGui::Button("Clear all points"))
+        m_points.clear();
 }
 void PointCloud::ApplyCompressed()
 {
@@ -237,16 +229,16 @@ void PointCloud::ApplyCompressed()
     particles->m_mesh = DefaultResources::Primitives::Cube;
     auto particleMatrices = particles->m_matrices;
     auto &matrices = particleMatrices->m_value;
-    auto compressed = std::vector<glm::vec3>();
+    auto compressed = std::vector<glm::dvec3>();
     Compress(compressed);
     matrices.resize(compressed.size());
     for (int i = 0; i < matrices.size(); i++)
     {
-        matrices[i] = glm::translate(compressed[i]) * glm::scale(glm::vec3(m_pointSize));
+        matrices[i] = glm::translate((glm::vec3)(compressed[i] + m_offset)) * glm::scale(glm::vec3(m_pointSize));
     }
     particleMatrices->Update();
 }
-void PointCloud::Compress(std::vector<glm::vec3>& points)
+void PointCloud::Compress(std::vector<glm::dvec3> &points)
 {
     RecalculateBoundingBox();
     if (m_compressFactor == 0)
@@ -256,19 +248,13 @@ void PointCloud::Compress(std::vector<glm::vec3>& points)
     }
     points.clear();
 
-    float xMin = m_boundingBox.m_min.x - std::fmod(m_boundingBox.m_min.x, m_compressFactor) -
-        (m_boundingBox.m_min.x < 0 ? m_compressFactor : 0);
-    float yMin = m_boundingBox.m_min.y - std::fmod(m_boundingBox.m_min.y, m_compressFactor) -
-        (m_boundingBox.m_min.y < 0 ? m_compressFactor : 0);
-    float zMin = m_boundingBox.m_min.z - std::fmod(m_boundingBox.m_min.z, m_compressFactor) -
-        (m_boundingBox.m_min.z < 0 ? m_compressFactor : 0);
+    double xMin = m_min.x - std::fmod(m_min.x, m_compressFactor) - (m_min.x < 0 ? m_compressFactor : 0);
+    double yMin = m_min.y - std::fmod(m_min.y, m_compressFactor) - (m_min.y < 0 ? m_compressFactor : 0);
+    double zMin = m_min.z - std::fmod(m_min.z, m_compressFactor) - (m_min.z < 0 ? m_compressFactor : 0);
 
-    float xMax = m_boundingBox.m_max.x - std::fmod(m_boundingBox.m_max.x, m_compressFactor) +
-        (m_boundingBox.m_max.x > 0 ? m_compressFactor : 0);
-    float yMax = m_boundingBox.m_max.y - std::fmod(m_boundingBox.m_max.y, m_compressFactor) +
-        (m_boundingBox.m_max.y > 0 ? m_compressFactor : 0);
-    float zMax = m_boundingBox.m_max.z - std::fmod(m_boundingBox.m_max.z, m_compressFactor) +
-        (m_boundingBox.m_max.z > 0 ? m_compressFactor : 0);
+    double xMax = m_max.x - std::fmod(m_max.x, m_compressFactor) + (m_max.x > 0 ? m_compressFactor : 0);
+    double yMax = m_max.y - std::fmod(m_max.y, m_compressFactor) + (m_max.y > 0 ? m_compressFactor : 0);
+    double zMax = m_max.z - std::fmod(m_max.z, m_compressFactor) + (m_max.z > 0 ? m_compressFactor : 0);
 
     UNIENGINE_LOG(
         "X, Y, Z MIN: [" + std::to_string(xMin) + ", " + std::to_string(yMin) + ", " + std::to_string(zMin) + "]");
@@ -276,9 +262,9 @@ void PointCloud::Compress(std::vector<glm::vec3>& points)
         "X, Y, Z MAX: [" + std::to_string(xMax) + ", " + std::to_string(yMax) + ", " + std::to_string(zMax) + "]");
 
     std::vector<int> voxels;
-    int rangeX = ((xMax - xMin) / m_compressFactor);
-    int rangeY = ((yMax - yMin) / m_compressFactor);
-    int rangeZ = ((zMax - zMin) / m_compressFactor);
+    int rangeX = (int)(((xMax - xMin) / (double)m_compressFactor));
+    int rangeY = (int)(((yMax - yMin) / (double)m_compressFactor));
+    int rangeZ = (int)(((zMax - zMin) / (double)m_compressFactor));
     int voxelSize = (rangeX + 1) * (rangeY + 1) * (rangeZ + 1);
 
     if (voxelSize > 1000000000 || voxelSize < 0)
@@ -296,9 +282,9 @@ void PointCloud::Compress(std::vector<glm::vec3>& points)
 
     for (const auto &i : m_points)
     {
-        int posX = ((i.x - m_boundingBox.m_min.x) / m_compressFactor);
-        int posY = ((i.y - m_boundingBox.m_min.y) / m_compressFactor);
-        int posZ = ((i.z - m_boundingBox.m_min.z) / m_compressFactor);
+        int posX = (int)(((i.x - m_min.x) / (double)m_compressFactor));
+        int posY = (int)(((i.y - m_min.y) / (double)m_compressFactor));
+        int posZ = (int)(((i.z - m_min.z) / (double)m_compressFactor));
         auto index = posX * (rangeY + 1) * (rangeZ + 1) + posY * (rangeZ + 1) + posZ;
         if (index >= voxelSize)
         {
@@ -307,7 +293,6 @@ void PointCloud::Compress(std::vector<glm::vec3>& points)
         }
         voxels[index]++;
     }
-
 
     for (int x = 0; x <= rangeX; x++)
     {
@@ -318,7 +303,7 @@ void PointCloud::Compress(std::vector<glm::vec3>& points)
                 auto index = x * (rangeY + 1) * (rangeZ + 1) + y * (rangeZ + 1) + z;
                 if (voxels[index] != 0)
                 {
-                    points.push_back((glm::vec3(x, y, z) * m_compressFactor) * m_scale);
+                    points.push_back(((glm::dvec3(x, y, z)) * (double)m_compressFactor) + m_min);
                 }
             }
         }
@@ -328,47 +313,54 @@ void PointCloud::RecalculateBoundingBox()
 {
     if (m_points.empty())
     {
-        m_boundingBox.m_min = glm::vec3(0.0f);
-        m_boundingBox.m_max = glm::vec3(0.0f);
+        m_min = glm::vec3(0.0f);
+        m_max = glm::vec3(0.0f);
         return;
     }
-    glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
-    glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
+    auto minBound = glm::dvec3(static_cast<int>(INT_MAX));
+    auto maxBound = glm::dvec3(static_cast<int>(INT_MIN));
     for (const auto &i : m_points)
     {
         minBound = glm::vec3((glm::min)(minBound.x, i.x), (glm::min)(minBound.y, i.y), (glm::min)(minBound.z, i.z));
-
         maxBound = glm::vec3((glm::max)(maxBound.x, i.x), (glm::max)(maxBound.y, i.y), (glm::max)(maxBound.z, i.z));
     }
-    m_boundingBox.m_max = maxBound;
-    m_boundingBox.m_min = minBound;
+    m_max = maxBound;
+    m_min = minBound;
+
+    auto avg = glm::dvec3(0);
+    for (const auto &i : m_points)
+    {
+        avg += i / (double)m_points.size();
+    }
+    m_offset = -m_min;
 }
 void PointCloud::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "m_recenter" << m_recenter;
+    out << YAML::Key << "m_offset" << m_offset;
     out << YAML::Key << "m_pointSize" << m_pointSize;
     out << YAML::Key << "m_compressFactor" << m_compressFactor;
-    out << YAML::Key << "m_scale" << m_scale;
-    out << YAML::Key << "m_boundingBox.m_min" << m_boundingBox.m_min;
-    out << YAML::Key << "m_boundingBox.m_max" << m_boundingBox.m_max;
+    out << YAML::Key << "m_min" << m_min;
+    out << YAML::Key << "m_max" << m_max;
     if (!m_points.empty())
     {
         out << YAML::Key << "m_points" << YAML::Value
-            << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::vec3));
+            << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::dvec3));
     }
 }
 void PointCloud::Deserialize(const YAML::Node &in)
 {
-    if(in["m_recenter"]) m_recenter = in["m_recenter"].as<bool>();
+    if (in["m_offset"])
+        m_offset = in["m_offset"].as<glm::dvec3>();
     m_pointSize = in["m_pointSize"].as<float>();
-    m_scale = in["m_scale"].as<float>();
     m_compressFactor = in["m_compressFactor"].as<float>();
-    if(in["m_boundingBox.m_min"]) m_boundingBox.m_min = in["m_boundingBox.m_min"].as<glm::vec3>();
-    if(in["m_boundingBox.m_max"]) m_boundingBox.m_max = in["m_boundingBox.m_max"].as<glm::vec3>();
+    if (in["m_min"])
+        m_min = in["m_min"].as<glm::dvec3>();
+    if (in["m_max"])
+        m_max = in["m_max"].as<glm::dvec3>();
     if (in["m_points"])
     {
         auto vertexData = in["m_points"].as<YAML::Binary>();
-        m_points.resize(vertexData.size() / sizeof(glm::vec3));
+        m_points.resize(vertexData.size() / sizeof(glm::dvec3));
         std::memcpy(m_points.data(), vertexData.data(), vertexData.size());
     }
 }
@@ -384,7 +376,7 @@ void PointCloud::ApplyOriginal()
     matrices.resize(m_points.size());
     for (int i = 0; i < matrices.size(); i++)
     {
-        matrices[i] = glm::translate(m_points[i]) * glm::scale(glm::vec3(m_pointSize));
+        matrices[i] = glm::translate(glm::vec3(m_points[i] + m_offset)) * glm::scale(glm::vec3(m_pointSize));
     }
     particleMatrices->Update();
 }
@@ -406,7 +398,7 @@ void PointCloud::Save(const std::filesystem::path &path)
     cube_file.add_properties_to_element(
         "vertex",
         {"x", "z", "y"},
-        Type::FLOAT32,
+        Type::FLOAT64,
         m_points.size(),
         reinterpret_cast<uint8_t *>(m_points.data()),
         Type::INVALID,
@@ -432,4 +424,3 @@ void PointCloud::Save(const std::filesystem::path &path)
     // Write a binary file
     cube_file.write(outstream_binary, true);
 }
-
