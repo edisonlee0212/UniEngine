@@ -62,7 +62,7 @@ void OpenGLUtils::PreUpdate()
 
     auto& utils = GetInstance();
     utils.m_depthTest = false;
-    utils.m_scissorTest = false;
+    utils.m_scissorTest = true;
     utils.m_stencilTest = false;
     utils.m_blend = false;
     utils.m_cullFace = false;
@@ -71,6 +71,12 @@ void OpenGLUtils::PreUpdate()
     SetEnable(OpenGLCapability::StencilTest, true);
     SetEnable(OpenGLCapability::Blend, true);
     SetEnable(OpenGLCapability::CullFace, true);
+
+    utils.m_polygonMode = OpenGLPolygonMode::Point;
+    SetPolygonMode(OpenGLPolygonMode::Fill);
+
+    utils.m_cullFaceMode = OpenGLCullFace::FrontAndBack;
+    SetCullFace(OpenGLCullFace::Back);
 }
 void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
 {
@@ -79,9 +85,9 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
     case OpenGLCapability::DepthTest:
         if(utils.m_depthTest != enable){
             if(enable){
-                glEnable(GL_DEPTH_TEST);
+                glEnable((GLenum)capability);
             }else{
-                glDisable(GL_DEPTH_TEST);
+                glDisable((GLenum)capability);
             }
         }
         utils.m_depthTest = enable;
@@ -89,9 +95,9 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
     case OpenGLCapability::ScissorTest:
         if(utils.m_scissorTest != enable){
             if(enable){
-                glEnable(GL_SCISSOR_TEST);
+                glEnable((GLenum)capability);
             }else{
-                glDisable(GL_SCISSOR_TEST);
+                glDisable((GLenum)capability);
             }
         }
         utils.m_scissorTest = enable;
@@ -99,9 +105,9 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
     case OpenGLCapability::StencilTest:
         if(utils.m_stencilTest != enable){
             if(enable){
-                glEnable(GL_STENCIL_TEST);
+                glEnable((GLenum)capability);
             }else{
-                glDisable(GL_STENCIL_TEST);
+                glDisable((GLenum)capability);
             }
         }
         utils.m_stencilTest = enable;
@@ -109,9 +115,9 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
     case OpenGLCapability::Blend:
         if(utils.m_blend != enable){
             if(enable){
-                glEnable(GL_BLEND);
+                glEnable((GLenum)capability);
             }else{
-                glDisable(GL_BLEND);
+                glDisable((GLenum)capability);
             }
         }
         utils.m_blend = enable;
@@ -119,16 +125,39 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
     case OpenGLCapability::CullFace:
         if(utils.m_cullFace != enable){
             if(enable){
-                glEnable(GL_CULL_FACE);
+                glEnable((GLenum)capability);
             }else{
-                glDisable(GL_CULL_FACE);
+                glDisable((GLenum)capability);
             }
         }
         utils.m_cullFace = enable;
         break;
     }
 }
-
+void OpenGLUtils::SetPolygonMode(OpenGLPolygonMode mode)
+{
+    auto& utils = GetInstance();
+    if(utils.m_polygonMode != mode){
+        utils.m_polygonMode = mode;
+        glPolygonMode(GL_FRONT_AND_BACK, (GLenum)mode);
+    }
+}
+void OpenGLUtils::SetCullFace(OpenGLCullFace cullFace)
+{
+    auto& utils = GetInstance();
+    if(utils.m_cullFaceMode != cullFace){
+        utils.m_cullFaceMode = cullFace;
+        glCullFace((GLenum)cullFace);
+    }
+}
+void OpenGLUtils::SetViewPort(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+{
+    glViewport((GLint)x1, (GLint)y1, (GLint)x2, (GLint)y2);
+}
+void OpenGLUtils::SetViewPort(unsigned x, unsigned y)
+{
+    glViewport(0, 0, (GLint)x, (GLint)y);
+}
 GLuint OpenGLUtils::GLObject::Id() const
 {
     return m_id;
@@ -788,18 +817,6 @@ void OpenGLUtils::GLFrameBuffer::ClearColor(const glm::vec4 &value) const
 {
     Bind();
     glClearColor(value.r, value.g, value.b, value.a);
-}
-
-void OpenGLUtils::GLFrameBuffer::ViewPort(const glm::ivec4 &value) const
-{
-    Bind();
-    glViewport(value[0], value[1], value[2], value[3]);
-}
-
-void OpenGLUtils::GLFrameBuffer::ViewPort(size_t x, size_t y) const
-{
-    Bind();
-    glViewport(0, 0, x, y);
 }
 
 void OpenGLUtils::GLFrameBuffer::Check() const

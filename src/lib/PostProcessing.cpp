@@ -158,10 +158,10 @@ void Bloom::ResizeResolution(int x, int y)
 
 void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 
     DefaultResources::ScreenVAO->Bind();
@@ -273,10 +273,10 @@ void SSAO::ResizeResolution(int x, int y)
 
 void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     DefaultResources::ScreenVAO->Bind();
 
@@ -393,10 +393,11 @@ void SSR::ResizeResolution(int x, int y)
 }
 void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &renderTarget) const
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDisable(GL_BLEND);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
+
     unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     DefaultResources::ScreenVAO->Bind();
 

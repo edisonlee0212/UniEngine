@@ -44,8 +44,7 @@ void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCube
     DefaultResources::ConvolutionProgram->SetInt("environmentMap", 0);
     DefaultResources::ConvolutionProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
     targetCubemap->m_texture->Bind(0);
-    renderTarget->GetFrameBuffer()->ViewPort(
-        resolution, resolution); // don't forget to configure the viewport to the capture dimensions.
+    OpenGLUtils::SetViewPort(resolution, resolution);
     for (unsigned int i = 0; i < 6; ++i)
     {
         DefaultResources::ConvolutionProgram->SetFloat4x4("view", EnvironmentalMapCaptureViews[i]);

@@ -513,7 +513,7 @@ void EditorLayer::RenderToSceneCamera()
         Camera::m_cameraInfoBlock.UploadMatrices(m_sceneCamera);
 #pragma region For entity selection
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
         OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
         OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
         m_sceneCameraEntityRecorder->Bind();

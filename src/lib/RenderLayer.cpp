@@ -142,7 +142,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
         },
         true);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
 #pragma region Copy Depth Buffer back to camera
@@ -869,7 +869,7 @@ void RenderLayer::RenderShadows(
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
 
 #pragma region Shadow
     auto &minBound = worldBound.m_min;
@@ -1387,13 +1387,13 @@ void RenderLayer::MaterialPropertySetter(const std::shared_ptr<Material> &materi
     switch (material->m_polygonMode)
     {
     case MaterialPolygonMode::Fill:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
         break;
     case MaterialPolygonMode::Line:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Line);
         break;
     case MaterialPolygonMode::Point:
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Point);
         break;
     }
 
@@ -1404,11 +1404,11 @@ void RenderLayer::MaterialPropertySetter(const std::shared_ptr<Material> &materi
         break;
     case MaterialCullingMode::Front:
         OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-        glCullFace(GL_FRONT);
+        OpenGLUtils::SetCullFace(OpenGLCullFace::Front);
         break;
     case MaterialCullingMode::Back:
         OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-        glCullFace(GL_BACK);
+        OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
         break;
     }
     if (disableBlending)
@@ -1553,7 +1553,7 @@ void RenderLayer::PrepareBrdfLut()
     renderBuffer->AllocateStorage(GL_DEPTH_COMPONENT24, resolution, resolution);
     renderTarget->AttachRenderBuffer(renderBuffer.get(), GL_DEPTH_ATTACHMENT);
     renderTarget->AttachTexture(DefaultResources::m_brdfLut->m_texture.get(), GL_COLOR_ATTACHMENT0);
-    renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
+    OpenGLUtils::SetViewPort(resolution, resolution);
     DefaultResources::BrdfProgram->Bind();
     renderTarget->Clear();
     RenderManager::RenderQuad();
@@ -1716,12 +1716,12 @@ void RenderLayer::DrawGizmoMeshInstanced(
     if (mesh == nullptr || matrices.empty())
         return;
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    glCullFace(GL_BACK);
+    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
     if (!depthTest)
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mesh->Enable();
@@ -1745,12 +1745,12 @@ void RenderLayer::DrawGizmoMeshInstancedColored(
     if (mesh == nullptr || matrices.empty() || colors.empty() || matrices.size() != colors.size())
         return;
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    glCullFace(GL_BACK);
+    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
     if (!depthTest)
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     mesh->Enable();
@@ -1780,13 +1780,12 @@ void RenderLayer::DrawGizmoMesh(
     if (mesh == nullptr)
         return;
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    glDisable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
     if (!depthTest)
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     else
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

@@ -53,8 +53,7 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
         renderBuffer->AllocateStorage(GL_DEPTH_COMPONENT24, mipWidth, mipWidth);
         renderTarget->AttachRenderBuffer(renderBuffer.get(), GL_DEPTH_ATTACHMENT);
         targetCubemap->Texture()->Bind(0);
-        renderTarget->GetFrameBuffer()->ViewPort(
-            mipWidth, mipWidth); // don't forget to configure the viewport to the capture dimensions.
+        OpenGLUtils::SetViewPort(mipWidth, mipWidth);
         float roughness = (float)mip / (float)(maxMipLevels - 1);
         DefaultResources::PrefilterProgram->SetFloat("roughness", roughness);
         for (unsigned int i = 0; i < 6; ++i)

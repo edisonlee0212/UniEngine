@@ -86,7 +86,7 @@ void RenderTarget::Bind() const
     }
     m_frameBuffer->Bind();
     m_frameBuffer->Check();
-    m_frameBuffer->ViewPort(glm::vec4(0, 0, m_resolutionX, m_resolutionY));
+    OpenGLUtils::SetViewPort(m_resolutionX, m_resolutionY);
 }
 
 void RenderTarget::Clear() const

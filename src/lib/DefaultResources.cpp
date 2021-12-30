@@ -735,7 +735,7 @@ void DefaultResources::PrepareBrdfLut()
     renderBuffer->AllocateStorage(GL_DEPTH_COMPONENT24, resolution, resolution);
     renderTarget->AttachRenderBuffer(renderBuffer.get(), GL_DEPTH_ATTACHMENT);
     renderTarget->AttachTexture(m_brdfLut->m_texture.get(), GL_COLOR_ATTACHMENT0);
-    renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
+    OpenGLUtils::SetViewPort(resolution, resolution);
     DefaultResources::BrdfProgram->Bind();
     renderTarget->Clear();
     RenderManager::RenderQuad();

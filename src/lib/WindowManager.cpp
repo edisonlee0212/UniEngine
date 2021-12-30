@@ -108,9 +108,9 @@ void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
     RenderTarget::BindDefault();
     /* Make the window's context current */
     glViewport(0, 0, GetInstance().m_windowWidth, GetInstance().m_windowHeight);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     /* Render here */
-    glDisable(GL_DEPTH_TEST);
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
     glDrawBuffer(GL_BACK);
     auto program = DefaultResources::ScreenProgram;
     program->Bind();

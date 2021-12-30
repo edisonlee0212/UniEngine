@@ -62,7 +62,7 @@ void Cubemap::ConvertFromEquirectangularTexture(const std::shared_ptr<Texture2D>
     DefaultResources::m_2DToCubemapProgram->SetInt("equirectangularMap", 0);
     DefaultResources::m_2DToCubemapProgram->SetFloat4x4("projection", captureProjection);
     targetTexture->UnsafeGetGLTexture()->Bind(0);
-    renderTarget->GetFrameBuffer()->ViewPort(resolution, resolution);
+    OpenGLUtils::SetViewPort(resolution, resolution);
     for (unsigned int i = 0; i < 6; ++i)
     {
         DefaultResources::m_2DToCubemapProgram->SetFloat4x4("view", captureViews[i]);

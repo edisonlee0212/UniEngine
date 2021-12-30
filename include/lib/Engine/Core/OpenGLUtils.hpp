@@ -4,13 +4,22 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
-
+enum class OpenGLPolygonMode{
+    Point = GL_POINT,
+    Line = GL_LINE,
+    Fill = GL_FILL
+};
+enum class OpenGLCullFace{
+    Front = GL_FRONT,
+    Back = GL_BACK,
+    FrontAndBack = GL_FRONT_AND_BACK
+};
 enum class OpenGLCapability{
-    DepthTest,
-    ScissorTest,
-    StencilTest,
-    Blend,
-    CullFace
+    DepthTest = GL_DEPTH_TEST,
+    ScissorTest = GL_SCISSOR_TEST,
+    StencilTest = GL_STENCIL_TEST,
+    Blend = GL_BLEND,
+    CullFace = GL_CULL_FACE
 };
 class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
@@ -22,10 +31,17 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     bool m_stencilTest = true;
     bool m_blend = true;
     bool m_cullFace = true;
+    OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Point;
+
+    OpenGLCullFace m_cullFaceMode = OpenGLCullFace::Back;
   public:
     static void Init();
     static void PreUpdate();
     static void SetEnable(OpenGLCapability capability, bool enable);
+    static void SetPolygonMode(OpenGLPolygonMode mode);
+    static void SetCullFace(OpenGLCullFace cullFace);
+    static void SetViewPort(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
+    static void SetViewPort(unsigned x, unsigned y);
 #pragma region Sub classes
     class UNIENGINE_API GLObject
     {
@@ -420,8 +436,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         static void Disable(const GLenum &cap);
         void Bind() const;
         void ClearColor(const glm::vec4 &value) const;
-        void ViewPort(const glm::ivec4 &value) const;
-        void ViewPort(size_t x, size_t y) const;
         void Check() const;
         void DrawBuffer(const GLenum &buffer) const;
         void DrawBuffers(const GLsizei &n, const GLenum *buffers) const;
