@@ -441,8 +441,10 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     fout << out.c_str();
     fout.flush();
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     DWORD attributes = GetFileAttributes(path.string().c_str());
     SetFileAttributes(path.string().c_str(), attributes + FILE_ATTRIBUTE_HIDDEN);
+#endif
 }
 bool FolderMetadata::Load(const std::filesystem::path &path)
 {
