@@ -424,3 +424,11 @@ void PointCloud::Save(const std::filesystem::path &path)
     // Write a binary file
     cube_file.write(outstream_binary, true);
 }
+void PointCloud::Crop(std::vector<glm::dvec3>& points, const glm::dvec3& min, const glm::dvec3& max)
+{
+    for(const auto& i : m_points){
+        if(i.x >= min.x && i.y >= min.y && i.z >= min.z && i.x <= max.x && i.y <= max.y && i.z <= max.z){
+            points.push_back(i);
+        }
+    }
+}

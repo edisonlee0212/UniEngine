@@ -36,7 +36,7 @@
 
 namespace tinyply
 {
-enum class UNIENGINE_API  Type : uint8_t
+enum class UNIENGINE_API Type : uint8_t
 {
     INVALID,
     INT8,

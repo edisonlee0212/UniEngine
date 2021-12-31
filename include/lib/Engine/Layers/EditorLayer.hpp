@@ -85,6 +85,9 @@ class UNIENGINE_API EditorLayer : public ILayer
     void OnInspect() override;
 
   public:
+    bool m_mainCameraFocusOverride = false;
+    bool m_sceneCameraFocusOverride = false;
+
     void CameraWindowDragAndDrop();
     Entity m_selectedEntity;
     void MoveCamera(

@@ -148,6 +148,8 @@ void EditorLayer::OnCreate()
 }
 void EditorLayer::PreUpdate()
 {
+    m_mainCameraFocusOverride = false;
+    m_sceneCameraFocusOverride = false;
     if (ImGui::BeginMainMenuBar())
     {
         switch (Application::GetGameStatus())
@@ -1447,11 +1449,11 @@ void EditorLayer::SetSelectedEntity(const Entity &entity, bool openMenu)
 
 bool EditorLayer::MainCameraWindowFocused()
 {
-    return m_mainCameraWindowFocused;
+    return m_mainCameraWindowFocused || m_mainCameraFocusOverride;
 }
 bool EditorLayer::SceneCameraWindowFocused()
 {
-    return m_sceneCameraWindowFocused;
+    return m_sceneCameraWindowFocused || m_sceneCameraFocusOverride;
 }
 void EditorLayer::SceneCameraWindow()
 {

@@ -20,7 +20,7 @@ class UNIENGINE_API PointCloud : public IAsset
     void ApplyCompressed();
     void ApplyOriginal();
     void RecalculateBoundingBox();
-
+    void Crop(std::vector<glm::dvec3>& points, const glm::dvec3& min, const glm::dvec3& max);
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 
