@@ -512,8 +512,9 @@ void Graphics::DrawGizmoRays(const glm::vec4 &color,
         starts.size(),
         [&](unsigned i) {
             auto start = starts[i];
-            auto &end = ends[i];
-            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            auto end = ends[i];
+            auto direction = glm::normalize(end - start);
+            glm::quat rotation = glm::quatLookAt(direction, glm::vec3(direction.y, direction.z, direction.x));
             rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
             glm::mat4 rotationMat = glm::mat4_cast(rotation);
             const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
@@ -538,8 +539,9 @@ void Graphics::DrawGizmoRays(
         startEnds.size(),
         [&](unsigned i) {
             auto start = startEnds[i].first;
-            auto &end = startEnds[i].second;
-            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            auto end = startEnds[i].second;
+            auto direction = glm::normalize(end - start);
+            glm::quat rotation = glm::quatLookAt(direction, glm::vec3(direction.y, direction.z, direction.x));
             rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
             glm::mat4 rotationMat = glm::mat4_cast(rotation);
             const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
@@ -564,7 +566,7 @@ void Graphics::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &ray
         rays.size(),
         [&](unsigned i) {
             auto &ray = rays[i];
-            glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::quat rotation = glm::quatLookAt(ray.m_direction, {ray.m_direction.y, ray.m_direction.z, ray.m_direction.x});
             rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
             const glm::mat4 rotationMat = glm::mat4_cast(rotation);
             const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
@@ -621,8 +623,9 @@ void Graphics::DrawGizmoRays(
     Jobs::ParallelFor(
         connections.size(), [&](unsigned i) {
             auto start = connections[i].first;
-            auto &end = connections[i].second;
-            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            auto end = connections[i].second;
+            auto direction = glm::normalize(end - start);
+            glm::quat rotation = glm::quatLookAt(direction, glm::vec3(direction.y, direction.z, direction.x));
             rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
             glm::mat4 rotationMat = glm::mat4_cast(rotation);
             const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
@@ -651,7 +654,7 @@ void Graphics::DrawGizmoRays(
     Jobs::ParallelFor(
         rays.size(), [&](unsigned i) {
             auto &ray = rays[i];
-            glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::quat rotation = glm::quatLookAt(ray.m_direction, {ray.m_direction.y, ray.m_direction.z, ray.m_direction.x});
             rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
             const glm::mat4 rotationMat = glm::mat4_cast(rotation);
             const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
