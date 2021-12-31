@@ -93,7 +93,7 @@ class UNIENGINE_API RenderLayer : public ILayer
   private:
     unsigned m_frameIndex = 0;
 #pragma region GUI
-    bool m_enableRenderMenu = true;
+    bool m_enableRenderMenu = false;
     bool m_enableInfoWindow = true;
 #pragma endregion
     std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_deferredRenderInstances;

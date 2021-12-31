@@ -1,11 +1,11 @@
 #pragma once
-#include "Engine/Managers/AssetManager.hpp"
-#include "Engine/Rendering/Camera.hpp"
-#include "Engine/Core/OpenGLUtils.hpp"
-#include "Engine/Core/ISingleton.hpp"
-#include "Engine/Rendering/RenderTarget.hpp"
-#include "Engine/Physics/RigidBody.hpp"
-#include "Engine/Rendering/Texture2D.hpp"
+#include "AssetManager.hpp"
+#include "Camera.hpp"
+#include "OpenGLUtils.hpp"
+#include "ISingleton.hpp"
+#include "RenderTarget.hpp"
+#include "RigidBody.hpp"
+#include "Texture2D.hpp"
 
 namespace UniEngine
 {

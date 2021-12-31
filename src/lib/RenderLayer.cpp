@@ -340,7 +340,7 @@ void RenderLayer::OnInspect()
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Render Manager", &m_enableRenderMenu);
+            ImGui::Checkbox("Render Settings", &m_enableRenderMenu);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -348,7 +348,7 @@ void RenderLayer::OnInspect()
 
     if (m_enableRenderMenu)
     {
-        ImGui::Begin("Render Manager");
+        ImGui::Begin("Render Settings");
         ImGui::DragFloat("Gamma", &m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
 
         bool enableShadow = m_materialSettings.m_enableShadow;

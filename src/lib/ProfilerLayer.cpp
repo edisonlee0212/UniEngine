@@ -74,7 +74,7 @@ void ProfilerLayer::OnInspect()
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Profiler Manager", &m_gui);
+            ImGui::Checkbox("Profiler", &m_gui);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -82,7 +82,7 @@ void ProfilerLayer::OnInspect()
 
     if (m_gui)
     {
-        ImGui::Begin("Profiler Manager");
+        ImGui::Begin("Profiler");
         if (m_record)
         {
             ImGui::Text("Pause Game to view results");

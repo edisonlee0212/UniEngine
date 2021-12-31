@@ -68,7 +68,7 @@ set(UNIENGINE_INCLUDES_LOCAL
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Core
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/ECS
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Layers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Managers
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Assets
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Physics
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Rendering
         ${CMAKE_CURRENT_SOURCE_DIR}/include/lib/Engine/Utilities

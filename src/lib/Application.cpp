@@ -288,7 +288,7 @@ void Application::OnInspect()
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("App Settings", &application.m_enableSettingsMenu);
+            ImGui::Checkbox("Application Settings", &application.m_enableSettingsMenu);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

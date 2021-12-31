@@ -689,6 +689,16 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
 }
 void EditorLayer::OnInspect()
 {
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("System Inspector", &m_enableSystemInspector);
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
     if (m_leftMouseButtonHold && !Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow()))
     {
         m_leftMouseButtonHold = false;
@@ -960,7 +970,7 @@ void EditorLayer::OnInspect()
     SceneCameraWindow();
     auto &projectManager = ProjectManager::GetInstance();
 
-    if (ImGui::Begin("Project Manager"))
+    if (ImGui::Begin("Project"))
     {
         if (projectManager.m_currentProject)
         {
@@ -1284,7 +1294,7 @@ void EditorLayer::OnInspect()
         }
     }
     ImGui::End();
-    if (scene)
+    if (scene && m_enableSystemInspector)
     {
         if (ImGui::Begin("System Inspector"))
         {
@@ -1301,7 +1311,7 @@ void EditorLayer::OnInspect()
                 ImGui::Separator();
                 ImGui::EndPopup();
             }
-            for (auto &i : Entities::GetCurrentScene().get()->m_systems)
+            for (auto &i : Entities::GetCurrentScene()->m_systems)
             {
                 if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
                 {
@@ -1326,66 +1336,69 @@ void EditorLayer::OnInspect()
         }
         ImGui::End();
     }
-    if (ImGui::Begin("Asset Inspector"))
+    if(!Editor::GetInstance().m_inspectingAsset.expired())
     {
-        if (!Editor::GetInstance().m_inspectingAsset.expired())
+        if (ImGui::Begin("Asset Inspector"))
         {
-            auto asset = Editor::GetInstance().m_inspectingAsset.lock();
-            ImGui::Button(asset->m_name.c_str());
-            Editor::DraggableAsset(asset);
-            if (!asset->GetPath().empty())
+            if (!Editor::GetInstance().m_inspectingAsset.expired())
             {
-                if (ImGui::Button("Save"))
+                auto asset = Editor::GetInstance().m_inspectingAsset.lock();
+                ImGui::Button(asset->m_name.c_str());
+                Editor::DraggableAsset(asset);
+                if (!asset->GetPath().empty())
                 {
-                    asset->Save();
+                    if (ImGui::Button("Save"))
+                    {
+                        asset->Save();
+                    }
+                    ImGui::SameLine();
+                    FileUtils::SaveFile(
+                        "Reset path & save",
+                        asset->GetTypeName(),
+                        AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                        [&](const std::filesystem::path &path) {
+                            asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                        },
+                        true);
                 }
-                ImGui::SameLine();
+                else
+                {
+                    ImGui::Text("Temporary asset");
+                    ImGui::SameLine();
+                    FileUtils::SaveFile(
+                        "Allocate path & save",
+                        asset->GetTypeName(),
+                        AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                        [&](const std::filesystem::path &path) {
+                            asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                        },
+                        true);
+                }
+
                 FileUtils::SaveFile(
-                    "Reset path & save",
+                    "Export...",
                     asset->GetTypeName(),
                     AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                    [&](const std::filesystem::path &path) {
-                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
-                    },
-                    true);
+                    [&](const std::filesystem::path &path) { asset->Export(path); },
+                    false);
+                ImGui::SameLine();
+                FileUtils::OpenFile(
+                    "Import...",
+                    asset->GetTypeName(),
+                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                    [&](const std::filesystem::path &path) { asset->Import(path); },
+                    false);
+
+                ImGui::Separator();
+                asset->OnInspect();
             }
             else
             {
-                ImGui::Text("Temporary asset");
-                ImGui::SameLine();
-                FileUtils::SaveFile(
-                    "Allocate path & save",
-                    asset->GetTypeName(),
-                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                    [&](const std::filesystem::path &path) {
-                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
-                    },
-                    true);
+                ImGui::Text("None");
             }
-
-            FileUtils::SaveFile(
-                "Export...",
-                asset->GetTypeName(),
-                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                [&](const std::filesystem::path &path) { asset->Export(path); },
-                false);
-            ImGui::SameLine();
-            FileUtils::OpenFile(
-                "Import...",
-                asset->GetTypeName(),
-                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                [&](const std::filesystem::path &path) { asset->Import(path); },
-                false);
-
-            ImGui::Separator();
-            asset->OnInspect();
         }
-        else
-        {
-            ImGui::Text("None");
-        }
+        ImGui::End();
     }
-    ImGui::End();
 }
 
 void EditorLayer::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)

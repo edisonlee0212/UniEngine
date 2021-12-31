@@ -49,7 +49,7 @@ class UNIENGINE_API ProfilerLayer : public ILayer
     void OnInspect() override;
     void OnCreate() override;
   public:
-    bool m_gui = true;
+    bool m_gui = false;
     template <class T = IProfiler> std::shared_ptr<T> GetOrCreateProfiler(const std::string &name);
     template <class T = IProfiler> std::shared_ptr<T> GetProfiler();
     static void StartEvent(const std::string &name);

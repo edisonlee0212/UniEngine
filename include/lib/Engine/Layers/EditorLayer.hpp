@@ -20,6 +20,8 @@ enum EntityEditorSystemConfigFlags
 class UNIENGINE_API EditorLayer : public ILayer
 {
   private:
+    bool m_enableSystemInspector = false;
+
     unsigned int m_configFlags = 0;
     EntityArchetype m_basicEntityArchetype;
 
