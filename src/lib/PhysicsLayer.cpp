@@ -56,7 +56,7 @@ void PhysicsLayer::UploadTransform(
 void PhysicsLayer::PreUpdate()
 {
     const bool playing = Application::IsPlaying();
-    auto activeScene = EntityManager::GetCurrentScene();
+    auto activeScene = Entities::GetCurrentScene();
     UploadRigidBodyShapes(activeScene);
     UploadTransforms(activeScene, !playing);
     UploadJointLinks(activeScene);
@@ -107,7 +107,7 @@ void PhysicsLayer::UploadTransforms(const std::shared_ptr<Scene> &scene, const b
 {
     if (!scene)
         return;
-    if (const std::vector<Entity> *entities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
+    if (const std::vector<Entity> *entities = Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
         entities != nullptr)
     {
         for (auto entity : *entities)
@@ -179,7 +179,7 @@ void PhysicsScene::Simulate(float time) const
 void PhysicsSystem::Simulate(float time) const
 {
     const std::vector<Entity> *rigidBodyEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(Entities::GetCurrentScene());
     if (!rigidBodyEntities)
         return;
     m_scene->Simulate(time);
@@ -194,7 +194,7 @@ void PhysicsSystem::OnEnable()
 void PhysicsSystem::DownloadRigidBodyTransforms() const
 {
     const std::vector<Entity> *rigidBodyEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(Entities::GetCurrentScene());
     if (rigidBodyEntities)
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
@@ -207,9 +207,8 @@ void PhysicsLayer::UploadRigidBodyShapes(
 #pragma region Update shape
     for (auto entity : *rigidBodyEntities)
     {
-        auto rigidBody = EntityManager::GetOrSetPrivateComponent<RigidBody>(scene, entity).lock();
-        bool shouldRegister = EntityManager::IsEntityValid(scene, entity) &&
-                              EntityManager::IsEntityEnabled(scene, entity) && rigidBody->IsEnabled();
+        auto rigidBody = Entities::GetOrSetPrivateComponent<RigidBody>(scene, entity).lock();
+        bool shouldRegister = Entities::IsEntityValid(scene, entity) && Entities::IsEntityEnabled(scene, entity) && rigidBody->IsEnabled();
         if (rigidBody->m_currentRegistered == false && shouldRegister)
         {
             rigidBody->m_currentRegistered = true;
@@ -230,7 +229,7 @@ void PhysicsLayer::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
-    const std::vector<Entity> *rigidBodyEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
+    const std::vector<Entity> *rigidBodyEntities = Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
     if (rigidBodyEntities)
     {
         auto physicsScene = physicsSystem->m_scene;
@@ -244,7 +243,7 @@ void PhysicsLayer::UploadJointLinks(const std::shared_ptr<Scene> &scene)
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
-    const std::vector<Entity> *jointEntities = EntityManager::UnsafeGetPrivateComponentOwnersList<Joint>(scene);
+    const std::vector<Entity> *jointEntities = Entities::UnsafeGetPrivateComponentOwnersList<Joint>(scene);
     if (jointEntities)
     {
         auto physicsScene = physicsSystem->m_scene;
@@ -261,18 +260,17 @@ void PhysicsLayer::UploadJointLinks(
 #pragma region Update shape
     for (auto entity : *jointEntities)
     {
-        auto joint = EntityManager::GetOrSetPrivateComponent<Joint>(scene, entity).lock();
+        auto joint = Entities::GetOrSetPrivateComponent<Joint>(scene, entity).lock();
         auto rigidBody1 = joint->m_rigidBody1.Get<RigidBody>();
         auto rigidBody2 = joint->m_rigidBody2.Get<RigidBody>();
-        bool shouldRegister = EntityManager::IsEntityValid(scene, entity) &&
-                              EntityManager::IsEntityEnabled(scene, entity) && joint->IsEnabled() &&
+        bool shouldRegister = Entities::IsEntityValid(scene, entity) && Entities::IsEntityEnabled(scene, entity) && joint->IsEnabled() &&
                               (rigidBody1 && rigidBody2);
         if (!joint->m_linked && shouldRegister)
         {
             PxTransform localFrame1;
-            auto ownerGT = EntityManager::GetDataComponent<GlobalTransform>(scene, rigidBody1->GetOwner());
+            auto ownerGT = Entities::GetDataComponent<GlobalTransform>(scene, rigidBody1->GetOwner());
             ownerGT.SetScale(glm::vec3(1.0f));
-            auto linkerGT = EntityManager::GetDataComponent<GlobalTransform>(scene, rigidBody2->GetOwner());
+            auto linkerGT = Entities::GetDataComponent<GlobalTransform>(scene, rigidBody2->GetOwner());
             linkerGT.SetScale(glm::vec3(1.0f));
             Transform transform;
             transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;

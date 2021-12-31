@@ -10,7 +10,7 @@
 #include <DefaultResources.hpp>
 #include <EditorLayer.hpp>
 #include <EditorManager.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <Gui.hpp>
 #include <InputManager.hpp>
 #include <JobManager.hpp>
@@ -32,7 +32,7 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
     InputManager::Init();
     JobManager::Init();
     AssetManager::Init();
-    EntityManager::Init();
+    Entities::Init();
     EditorManager::InitImGui();
 
     PushLayer<ProfilerLayer>();
@@ -106,7 +106,7 @@ void Application::PreUpdateInternal()
 
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            EntityManager::GetInstance().m_scene->Start();
+            Entities::GetInstance().m_scene->Start();
         }
         for (auto &i : application.m_layers)
         {
@@ -124,7 +124,7 @@ void Application::PreUpdateInternal()
             }
             if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
             {
-                EntityManager::GetInstance().m_scene->FixedUpdate();
+                Entities::GetInstance().m_scene->FixedUpdate();
             }
             application.m_time.EndFixedUpdate();
         }
@@ -145,7 +145,7 @@ void Application::UpdateInternal()
         }
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            EntityManager::GetInstance().m_scene->Update();
+            Entities::GetInstance().m_scene->Update();
         }
     }
 }
@@ -160,7 +160,7 @@ void Application::LateUpdateInternal()
 
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            EntityManager::GetInstance().m_scene->LateUpdate();
+            Entities::GetInstance().m_scene->LateUpdate();
         }
 
         for (auto &i : application.m_layers)
@@ -219,7 +219,7 @@ bool Application::IsInitialized()
 void Application::End()
 {
     auto &application = GetInstance();
-    EntityManager::GetInstance().m_scene.reset();
+    Entities::GetInstance().m_scene.reset();
     for (auto &i : application.m_layers)
     {
         i->OnDestroy();
@@ -312,7 +312,7 @@ void Application::Play()
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
         Scene::Clone(application.m_scene, copiedScene);
-        EntityManager::Attach(copiedScene);
+        Entities::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Playing;
 }
@@ -322,7 +322,7 @@ void Application::Stop()
     if (application.m_gameStatus == GameStatus::Stop)
         return;
     application.m_gameStatus = GameStatus::Stop;
-    EntityManager::Attach(application.m_scene);
+    Entities::Attach(application.m_scene);
 }
 void Application::Pause()
 {
@@ -344,7 +344,7 @@ void Application::Step()
     {
         auto copiedScene = AssetManager::CreateAsset<Scene>();
         Scene::Clone(application.m_scene, copiedScene);
-        EntityManager::Attach(copiedScene);
+        Entities::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Step;
 }

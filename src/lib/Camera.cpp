@@ -357,18 +357,18 @@ void Camera::OnInspect()
         }
     }
     ImGui::Checkbox("Use clear color", &m_useClearColor);
-    const bool savedState = (this == EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>().get());
+    const bool savedState = (this == Entities::GetCurrentScene()->m_mainCamera.Get<Camera>().get());
     bool isMainCamera = savedState;
     ImGui::Checkbox("Main Camera", &isMainCamera);
     if (savedState != isMainCamera)
     {
         if (isMainCamera)
         {
-            EntityManager::GetCurrentScene()->m_mainCamera = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
+            Entities::GetCurrentScene()->m_mainCamera = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
         }
         else
         {
-            EntityManager::GetCurrentScene()->m_mainCamera.Clear();
+            Entities::GetCurrentScene()->m_mainCamera.Clear();
         }
     }
     if (m_useClearColor)

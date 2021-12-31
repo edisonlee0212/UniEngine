@@ -1,7 +1,7 @@
 #include "ProjectManager.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <PhysicsLayer.hpp>
 #include "Engine/Utilities/Graphics.hpp"
 using namespace UniEngine;
@@ -47,7 +47,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         {
             scene = std::dynamic_pointer_cast<Scene>(AssetManager::Get(sceneHandle));
             Application::GetInstance().m_scene = scene;
-            EntityManager::Attach(scene);
+            Entities::Attach(scene);
         }
         else
         {
@@ -360,9 +360,9 @@ void ProjectManager::GenerateNewDefaultScene()
     scene->SetPath(newSceneRelativePath);
     projectManager.m_currentProject->m_startScenePath = newSceneRelativePath;
     Application::GetInstance().m_scene = scene;
-    EntityManager::Attach(scene);
+    Entities::Attach(scene);
 #pragma region Main Camera
-    const auto mainCameraEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Main Camera");
+    const auto mainCameraEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Main Camera");
     Transform cameraLtw;
     cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
     cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 0)));

@@ -14,7 +14,7 @@ class UNIENGINE_API ISerializable : public IHandle
     friend class SerializationManager;
     friend class AssetManager;
     friend class IAsset;
-    friend class EntityManager;
+    friend class Entities;
     friend class SerializationManager;
     std::string m_typeName;
   public:

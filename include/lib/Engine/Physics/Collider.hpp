@@ -1,5 +1,5 @@
 #pragma once
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <IAsset.hpp>
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>

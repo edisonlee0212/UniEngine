@@ -9,7 +9,7 @@ class Scene;
 class UNIENGINE_API ISystem : public ISerializable
 {
     friend class Scene;
-    friend class EntityManager;
+    friend class Entities;
     friend class SerializationManager;
     bool m_enabled;
     float m_rank = 0.0f;

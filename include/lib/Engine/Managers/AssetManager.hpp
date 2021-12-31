@@ -1,6 +1,6 @@
 #pragma once
 #include <Cubemap.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <EnvironmentalMap.hpp>
 #include <IAsset.hpp>
 #include <LightProbe.hpp>

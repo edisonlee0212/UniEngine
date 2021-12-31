@@ -36,7 +36,7 @@ struct UNIENGINE_API Handle
     uint64_t m_value;
 };
 class UNIENGINE_API IHandle{
-    friend class EntityManager;
+    friend class Entities;
     friend class EntityMetadata;
     friend class EditorManager;
     friend class EditorLayer;

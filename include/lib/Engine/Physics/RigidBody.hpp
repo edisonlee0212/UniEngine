@@ -1,6 +1,6 @@
 #pragma once
 #include <Collider.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <PhysicsMaterial.hpp>
 #include <uniengine_export.h>
 using namespace physx;

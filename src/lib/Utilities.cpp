@@ -1,5 +1,5 @@
 #include "Engine/Utilities/Console.hpp"
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>
 #include <ProjectManager.hpp>

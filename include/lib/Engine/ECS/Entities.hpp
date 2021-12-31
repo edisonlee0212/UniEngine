@@ -1,15 +1,15 @@
 #pragma once
 #include "Engine/Utilities/Console.hpp"
-#include <Entity.hpp>
-#include <EntityMetadata.hpp>
-#include <IPrivateComponent.hpp>
-#include <ISerializable.hpp>
-#include <ISingleton.hpp>
-#include <ISystem.hpp>
-#include <JobManager.hpp>
-#include <Scene.hpp>
-#include <SerializationManager.hpp>
-#include <Transform.hpp>
+#include "Entity.hpp"
+#include "EntityMetadata.hpp"
+#include "IPrivateComponent.hpp"
+#include "ISerializable.hpp"
+#include "Engine/Core/ISingleton.hpp"
+#include "ISystem.hpp"
+#include "Engine/Managers/JobManager.hpp"
+#include "Scene.hpp"
+#include "Engine/Managers/SerializationManager.hpp"
+#include "Transform.hpp"
 
 namespace UniEngine
 {
@@ -28,7 +28,7 @@ inline UNIENGINE_API bool ComponentTypeComparator(const DataComponentType &a, co
 }
 #pragma region EntityManager
 
-class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
+class UNIENGINE_API Entities final : ISingleton<Entities>
 {
     friend class PhysicsSystem;
     friend class EditorLayer;
@@ -633,18 +633,18 @@ class UNIENGINE_API EntityManager final : ISingleton<EntityManager>
 
 #pragma region Collectors
 
-template <typename T> bool EntityManager::CheckDataComponentTypes(T arg)
+template <typename T> bool Entities::CheckDataComponentTypes(T arg)
 {
     return std::is_standard_layout<T>::value;
 }
 
-template <typename T, typename... Ts> bool EntityManager::CheckDataComponentTypes(T arg, Ts... args)
+template <typename T, typename... Ts> bool Entities::CheckDataComponentTypes(T arg, Ts... args)
 {
     return std::is_standard_layout<T>::value && CheckDataComponentTypes(args...);
 }
 
 template <typename T>
-size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg)
+size_t Entities::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg)
 {
     const auto type = Typeof<T>();
     componentTypes->push_back(type);
@@ -652,7 +652,7 @@ size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *
 }
 
 template <typename T, typename... Ts>
-size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg, Ts... args)
+size_t Entities::CollectDataComponentTypes(std::vector<DataComponentType> *componentTypes, T arg, Ts... args)
 {
     auto offset = CollectDataComponentTypes(componentTypes, args...);
     DataComponentType type = Typeof<T>();
@@ -661,7 +661,7 @@ size_t EntityManager::CollectDataComponentTypes(std::vector<DataComponentType> *
 }
 
 template <typename T, typename... Ts>
-std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, Ts... args)
+std::vector<DataComponentType> Entities::CollectDataComponentTypes(T arg, Ts... args)
 {
     auto retVal = std::vector<DataComponentType>();
     retVal.push_back(Typeof<Transform>());
@@ -681,7 +681,7 @@ std::vector<DataComponentType> EntityManager::CollectDataComponentTypes(T arg, T
 #pragma endregion
 #pragma region ForEachStorage
 template <typename T1>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -749,7 +749,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -827,7 +827,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -915,7 +915,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3, typename T4>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -1023,7 +1023,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -1141,7 +1141,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -1270,7 +1270,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -1410,7 +1410,7 @@ void EntityManager::ForEachStorage(
         i.wait();
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-void EntityManager::ForEachStorage(
+void Entities::ForEachStorage(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const DataComponentStorage &storage,
@@ -1563,7 +1563,7 @@ void EntityManager::ForEachStorage(
 #pragma endregion
 #pragma region Others
 template <typename T>
-void EntityManager::GetDataComponentArrayStorage(
+void Entities::GetDataComponentArrayStorage(
     const std::shared_ptr<Scene> &scene,
     const DataComponentStorage &storage,
     std::vector<T> &container,
@@ -1662,7 +1662,7 @@ void EntityManager::GetDataComponentArrayStorage(
 }
 
 template <typename T, typename... Ts>
-EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T arg, Ts... args)
+EntityArchetype Entities::CreateEntityArchetype(const std::string &name, T arg, Ts... args)
 {
     EntityArchetype retVal = EntityArchetype();
     if (!CheckDataComponentTypes(arg, args...))
@@ -1683,7 +1683,7 @@ EntityArchetype EntityManager::CreateEntityArchetype(const std::string &name, T 
 #pragma endregion
 #pragma region GetSetHas
 template <typename T>
-void EntityManager::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
+void Entities::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -1765,7 +1765,7 @@ void EntityManager::AddDataComponent(const std::shared_ptr<Scene> &scene, const 
 #pragma endregion
 }
 
-template <typename T> void EntityManager::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+template <typename T> void Entities::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -1853,13 +1853,13 @@ template <typename T> void EntityManager::RemoveDataComponent(const std::shared_
 }
 
 template <typename T>
-void EntityManager::SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
+void Entities::SetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity, const T &value)
 {
     assert(entity.IsValid());
     SetDataComponent(scene, entity.m_index, typeid(T).hash_code(), sizeof(T), (IDataComponent *)&value);
 }
 template <typename T>
-void EntityManager::SetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index, const T &value)
+void Entities::SetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index, const T &value)
 {
     auto &entityManager = GetInstance();
 
@@ -1871,7 +1871,7 @@ void EntityManager::SetDataComponent(const std::shared_ptr<Scene> &scene, const 
     assert(index < scene->m_sceneDataStorage.m_entityInfos.size());
     SetDataComponent(scene, index, id, sizeof(T), (IDataComponent *)&value);
 }
-template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+template <typename T> T Entities::GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -1912,7 +1912,7 @@ template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Sc
     UNIENGINE_LOG("ComponentData doesn't exist");
     return T();
 }
-template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+template <typename T> bool Entities::HasDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -1945,7 +1945,7 @@ template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr
     }
     return false;
 }
-template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
+template <typename T> T Entities::GetDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
 {
     auto &entityManager = GetInstance();
 
@@ -1989,7 +1989,7 @@ template <typename T> T EntityManager::GetDataComponent(const std::shared_ptr<Sc
     UNIENGINE_LOG("ComponentData doesn't exist");
     return T();
 }
-template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
+template <typename T> bool Entities::HasDataComponent(const std::shared_ptr<Scene> &scene, const size_t &index)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -2026,7 +2026,7 @@ template <typename T> bool EntityManager::HasDataComponent(const std::shared_ptr
 }
 
 template <typename T>
-std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -2052,7 +2052,7 @@ std::weak_ptr<T> EntityManager::GetOrSetPrivateComponent(const std::shared_ptr<S
     return std::move(ptr);
 }
 template <typename T>
-void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -2074,7 +2074,7 @@ void EntityManager::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, 
     }
 }
 
-template <typename T> bool EntityManager::HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
+template <typename T> bool Entities::HasPrivateComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
 {
     auto &entityManager = GetInstance();
     if (!scene)
@@ -2093,7 +2093,7 @@ template <typename T> bool EntityManager::HasPrivateComponent(const std::shared_
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void Entities::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_allDataComponentTypes =
@@ -2101,7 +2101,7 @@ void EntityManager::SetEntityQueryAllFilters(const EntityQuery &entityQuery, T a
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void Entities::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_anyDataComponentTypes =
@@ -2109,7 +2109,7 @@ void EntityManager::SetEntityQueryAnyFilters(const EntityQuery &entityQuery, T a
 }
 
 template <typename T, typename... Ts>
-void EntityManager::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args)
+void Entities::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T arg, Ts... args)
 {
     assert(entityQuery.IsValid());
     GetInstance().m_entityQueryInfos[entityQuery.m_index].m_noneDataComponentTypes =
@@ -2118,7 +2118,7 @@ void EntityManager::SetEntityQueryNoneFilters(const EntityQuery &entityQuery, T 
 #pragma endregion
 #pragma region For Each
 template <typename T1>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2134,7 +2134,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2150,7 +2150,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2166,7 +2166,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3, typename T4>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2182,7 +2182,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2198,7 +2198,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2214,7 +2214,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2230,7 +2230,7 @@ void EntityManager::ForEach(
     }
 }
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const EntityQuery &entityQuery,
@@ -2247,7 +2247,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &)> &func,
@@ -2268,7 +2268,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &)> &func,
@@ -2289,7 +2289,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func,
@@ -2310,7 +2310,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func,
@@ -2331,7 +2331,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func,
@@ -2352,7 +2352,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func,
@@ -2373,7 +2373,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func,
@@ -2394,7 +2394,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-void EntityManager::ForEach(
+void Entities::ForEach(
     const std::shared_ptr<Scene> &scene,
     ThreadPool &workers,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func,
@@ -2415,7 +2415,7 @@ void EntityManager::ForEach(
 }
 
 template <typename T1>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
@@ -2431,7 +2431,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
@@ -2447,7 +2447,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
@@ -2463,7 +2463,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene, const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &)> &func)
 {
     std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> task(
@@ -2479,7 +2479,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &)> &func)
 {
@@ -2496,7 +2496,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &)> &func)
 {
@@ -2513,7 +2513,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &)> &func)
 {
@@ -2530,7 +2530,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager::CreateParallelTask(
+std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> Entities::CreateParallelTask(
     const std::shared_ptr<Scene> &scene,
     const std::function<void(int i, Entity entity, T1 &, T2 &, T3 &, T4 &, T5 &, T6 &, T7 &, T8 &)> &func)
 {
@@ -2547,7 +2547,7 @@ std::packaged_task<void(ThreadPool &, const EntityQuery &, bool)> EntityManager:
 }
 #pragma endregion
 template <typename T>
-void EntityManager::GetComponentDataArray(
+void Entities::GetComponentDataArray(
     const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable)
 {
     assert(entityQuery.IsValid());
@@ -2559,7 +2559,7 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1, typename T2>
-void EntityManager::GetComponentDataArray(
+void Entities::GetComponentDataArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
@@ -2620,7 +2620,7 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1, typename T2, typename T3>
-void EntityManager::GetComponentDataArray(
+void Entities::GetComponentDataArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<T1> &container,
@@ -2689,7 +2689,7 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1, typename T2>
-void EntityManager::GetComponentDataArray(
+void Entities::GetComponentDataArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     const T1 &filter,
@@ -2749,7 +2749,7 @@ void EntityManager::GetComponentDataArray(
 }
 
 template <typename T1>
-void EntityManager::GetEntityArray(
+void Entities::GetEntityArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
@@ -2809,7 +2809,7 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T1, typename T2>
-void EntityManager::GetEntityArray(
+void Entities::GetEntityArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     std::vector<Entity> &container,
@@ -2876,7 +2876,7 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T1>
-void EntityManager::GetEntityArray(
+void Entities::GetEntityArray(
     const std::shared_ptr<Scene> &scene,
     const EntityQuery &entityQuery,
     const T1 &filter,
@@ -2934,7 +2934,7 @@ void EntityManager::GetEntityArray(
 }
 
 template <typename T>
-std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(
+std::vector<std::pair<T *, size_t>> Entities::UnsafeGetDataComponentArray(
     const std::shared_ptr<Scene> &scene, const EntityQuery &entityQuery)
 {
     std::vector<std::pair<T *, size_t>> retVal;
@@ -2977,7 +2977,7 @@ std::vector<std::pair<T *, size_t>> EntityManager::UnsafeGetDataComponentArray(
 }
 
 template <typename T>
-const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
+const std::vector<Entity> *Entities::UnsafeGetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
 
@@ -2990,32 +2990,32 @@ const std::vector<Entity> *EntityManager::UnsafeGetPrivateComponentOwnersList(co
 
 template <typename T> void Entity::SetDataComponent(const T &value) const
 {
-    EntityManager::SetDataComponent(EntityManager::GetCurrentScene(), *this, value);
+    Entities::SetDataComponent(Entities::GetCurrentScene(), *this, value);
 }
 
 template <typename T> T Entity::GetDataComponent() const
 {
-    return std::move(EntityManager::GetDataComponent<T>(EntityManager::GetCurrentScene(), *this));
+    return std::move(Entities::GetDataComponent<T>(Entities::GetCurrentScene(), *this));
 }
 
 template <typename T> bool Entity::HasDataComponent() const
 {
-    return EntityManager::HasDataComponent<T>(EntityManager::GetCurrentScene(), *this);
+    return Entities::HasDataComponent<T>(Entities::GetCurrentScene(), *this);
 }
 
 template <typename T> std::weak_ptr<T> Entity::GetOrSetPrivateComponent() const
 {
-    return std::move(EntityManager::GetOrSetPrivateComponent<T>(EntityManager::GetCurrentScene(), *this));
+    return std::move(Entities::GetOrSetPrivateComponent<T>(Entities::GetCurrentScene(), *this));
 }
 
 template <typename T> void Entity::RemovePrivateComponent() const
 {
-    EntityManager::RemovePrivateComponent<T>(EntityManager::GetCurrentScene(), *this);
+    Entities::RemovePrivateComponent<T>(Entities::GetCurrentScene(), *this);
 }
 
 template <typename T> bool Entity::HasPrivateComponent() const
 {
-    return EntityManager::HasPrivateComponent<T>(EntityManager::GetCurrentScene(), *this);
+    return Entities::HasPrivateComponent<T>(Entities::GetCurrentScene(), *this);
 }
 
 template <typename T> T ComponentDataChunk::GetData(const size_t &offset)
@@ -3030,24 +3030,24 @@ template <typename T> void ComponentDataChunk::SetData(const size_t &offset, con
 
 template <typename T, typename... Ts> void EntityQuery::SetAllFilters(T arg, Ts... args)
 {
-    EntityManager::SetEntityQueryAllFilters(*this, arg, args...);
+    Entities::SetEntityQueryAllFilters(*this, arg, args...);
 }
 
 template <typename T, typename... Ts> void EntityQuery::SetAnyFilters(T arg, Ts... args)
 {
-    EntityManager::SetEntityQueryAnyFilters(*this, arg, args...);
+    Entities::SetEntityQueryAnyFilters(*this, arg, args...);
 }
 
 template <typename T, typename... Ts> void EntityQuery::SetNoneFilters(T arg, Ts... args)
 {
-    EntityManager::SetEntityQueryNoneFilters(*this, arg, args...);
+    Entities::SetEntityQueryNoneFilters(*this, arg, args...);
 }
 
 template <typename T1>
 void EntityQuery::ToComponentDataArray(
     const std::shared_ptr<Scene> &scene, std::vector<T1> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray<T1>(scene, *this, container, checkEnable);
+    Entities::GetComponentDataArray<T1>(scene, *this, container, checkEnable);
 }
 
 template <typename T1, typename T2>
@@ -3057,7 +3057,7 @@ void EntityQuery::ToComponentDataArray(
     const std::function<bool(const T2 &)> &filterFunc,
     bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
+    Entities::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2, typename T3>
@@ -3067,20 +3067,20 @@ void EntityQuery::ToComponentDataArray(
     const std::function<bool(const T2 &, const T3 &)> &filterFunc,
     bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
+    Entities::GetComponentDataArray(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2>
 void EntityQuery::ToComponentDataArray(
     const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<T2> &container, bool checkEnable)
 {
-    EntityManager::GetComponentDataArray(scene, *this, filter, container, checkEnable);
+    Entities::GetComponentDataArray(scene, *this, filter, container, checkEnable);
 }
 template <typename T1>
 void EntityQuery::ToEntityArray(
     const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<Entity> &container, bool checkEnable)
 {
-    EntityManager::GetEntityArray(scene, *this, filter, container, checkEnable);
+    Entities::GetEntityArray(scene, *this, filter, container, checkEnable);
 }
 
 template <typename T1>
@@ -3090,7 +3090,7 @@ void EntityQuery::ToEntityArray(
     const std::function<bool(const Entity &, const T1 &)> &filterFunc,
     bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
+    Entities::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
 }
 
 template <typename T1, typename T2>
@@ -3100,7 +3100,7 @@ void EntityQuery::ToEntityArray(
     const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
     bool checkEnable)
 {
-    EntityManager::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
+    Entities::GetEntityArray<T1>(scene, *this, container, filterFunc, checkEnable);
 }
 #pragma endregion
 

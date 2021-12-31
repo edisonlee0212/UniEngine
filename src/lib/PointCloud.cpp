@@ -222,7 +222,7 @@ void PointCloud::OnInspect()
 }
 void PointCloud::ApplyCompressed()
 {
-    const auto owner = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Compressed Point Cloud");
+    const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Compressed Point Cloud");
     auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
     particles->m_material = AssetManager::CreateAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
@@ -366,7 +366,7 @@ void PointCloud::Deserialize(const YAML::Node &in)
 }
 void PointCloud::ApplyOriginal()
 {
-    const auto owner = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Original Point Cloud");
+    const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Original Point Cloud");
     auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
     particles->m_material = AssetManager::CreateAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);

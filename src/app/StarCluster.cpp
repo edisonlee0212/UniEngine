@@ -40,12 +40,12 @@ int main()
 }
 
 void LoadScene(){
-    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
     auto mainCameraEntity = mainCamera->GetOwner();
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
 #pragma region Star System
     auto starClusterSystem =
-        EntityManager::GetCurrentScene()->GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+        Entities::GetCurrentScene()->GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto postProcessing =
         mainCamera->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();

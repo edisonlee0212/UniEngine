@@ -1,5 +1,5 @@
 #include <Entity.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <ISerializable.hpp>
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>
@@ -41,27 +41,27 @@ size_t Entity::operator()(Entity const &key) const
 
 bool Entity::IsEnabled() const
 {
-    return EntityManager::IsEntityEnabled(EntityManager::GetCurrentScene(), *this);
+    return Entities::IsEntityEnabled(Entities::GetCurrentScene(), *this);
 }
 bool Entity::IsStatic() const
 {
-    return EntityManager::IsEntityStatic(EntityManager::GetCurrentScene(), *this);
+    return Entities::IsEntityStatic(Entities::GetCurrentScene(), *this);
 }
 bool Entity::IsRoot() const
 {
-    return EntityManager::IsEntityRoot(EntityManager::GetCurrentScene(), *this);
+    return Entities::IsEntityRoot(Entities::GetCurrentScene(), *this);
 }
 void Entity::SetEnabled(const bool &value) const
 {
-    EntityManager::SetEnable(EntityManager::GetCurrentScene(), *this, value);
+    Entities::SetEnable(Entities::GetCurrentScene(), *this, value);
 }
 void Entity::SetStatic(const bool &value) const
 {
-    EntityManager::SetEntityStatic(EntityManager::GetCurrentScene(), *this, value);
+    Entities::SetEntityStatic(Entities::GetCurrentScene(), *this, value);
 }
 void Entity::SetEnabledSingle(const bool &value) const
 {
-    EntityManager::SetEnableSingle(EntityManager::GetCurrentScene(), *this, value);
+    Entities::SetEnableSingle(Entities::GetCurrentScene(), *this, value);
 }
 
 bool Entity::IsNull() const
@@ -71,65 +71,65 @@ bool Entity::IsNull() const
 
 bool Entity::IsValid() const
 {
-    return EntityManager::IsEntityValid(EntityManager::GetCurrentScene(), *this);
+    return Entities::IsEntityValid(Entities::GetCurrentScene(), *this);
 }
 
 void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
 {
-    EntityManager::SetParent(EntityManager::GetCurrentScene(), *this, parent, recalculateTransform);
+    Entities::SetParent(Entities::GetCurrentScene(), *this, parent, recalculateTransform);
 }
 
 std::string Entity::GetName() const
 {
-    return EntityManager::GetEntityName(EntityManager::GetCurrentScene(), *this);
+    return Entities::GetEntityName(Entities::GetCurrentScene(), *this);
 }
 
 void Entity::SetName(const std::string &name) const
 {
-    return EntityManager::SetEntityName(EntityManager::GetCurrentScene(), *this, name);
+    return Entities::SetEntityName(Entities::GetCurrentScene(), *this, name);
 }
 
 Entity Entity::GetParent() const
 {
-    return EntityManager::GetParent(EntityManager::GetCurrentScene(), *this);
+    return Entities::GetParent(Entities::GetCurrentScene(), *this);
 }
 template <typename T> void Entity::RemoveDataComponent() const
 {
-    EntityManager::RemoveDataComponent(EntityManager::GetCurrentScene(), *this);
+    Entities::RemoveDataComponent(Entities::GetCurrentScene(), *this);
 }
 
 Entity Entity::GetRoot() const
 {
-    return EntityManager::GetRoot(EntityManager::GetCurrentScene(), *this);
+    return Entities::GetRoot(Entities::GetCurrentScene(), *this);
 }
 size_t Entity::GetChildrenAmount() const
 {
-    return EntityManager::GetChildrenAmount(EntityManager::GetCurrentScene(), *this);
+    return Entities::GetChildrenAmount(Entities::GetCurrentScene(), *this);
 }
 std::vector<Entity> Entity::GetChildren() const
 {
-    return std::move(EntityManager::GetChildren(EntityManager::GetCurrentScene(), *this));
+    return std::move(Entities::GetChildren(Entities::GetCurrentScene(), *this));
 }
 Entity Entity::GetChild(int index) const
 {
-    return std::move(EntityManager::GetChild(EntityManager::GetCurrentScene(), *this, index));
+    return std::move(Entities::GetChild(Entities::GetCurrentScene(), *this, index));
 }
 void Entity::ForEachChild(const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func) const
 {
-    EntityManager::ForEachChild(EntityManager::GetCurrentScene(), *this, func);
+    Entities::ForEachChild(Entities::GetCurrentScene(), *this, func);
 }
 
 void Entity::RemoveChild(const Entity &child) const
 {
-    EntityManager::RemoveChild(EntityManager::GetCurrentScene(), child, *this);
+    Entities::RemoveChild(Entities::GetCurrentScene(), child, *this);
 }
 std::vector<Entity> Entity::GetDescendants() const
 {
-    return std::move(EntityManager::GetDescendants(EntityManager::GetCurrentScene(), *this));
+    return std::move(Entities::GetDescendants(Entities::GetCurrentScene(), *this));
 }
 void Entity::ForEachDescendant(const std::function<void(const std::shared_ptr<Scene> &, const Entity &)> &func, const bool &fromRoot) const
 {
-    EntityManager::ForEachDescendant(EntityManager::GetCurrentScene(), *this, func, fromRoot);
+    Entities::ForEachDescendant(Entities::GetCurrentScene(), *this, func, fromRoot);
 }
 unsigned Entity::GetIndex() const
 {
@@ -141,7 +141,7 @@ unsigned Entity::GetVersion() const
 }
 Handle Entity::GetHandle() const
 {
-    auto& storage = EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
+    auto& storage = Entities::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
     return storage.at(m_index).GetHandle();
 }
 
@@ -162,8 +162,8 @@ void ComponentDataChunk::ClearData(const size_t &offset, const size_t &size) con
 }
 
 ComponentDataChunk &ComponentDataChunk::operator=(const ComponentDataChunk &source){
-    m_data = static_cast<void *>(calloc(1, EntityManager::GetArchetypeChunkSize()));
-    memcpy(m_data, source.m_data, EntityManager::GetArchetypeChunkSize());
+    m_data = static_cast<void *>(calloc(1, Entities::GetArchetypeChunkSize()));
+    memcpy(m_data, source.m_data, Entities::GetArchetypeChunkSize());
     return *this;
 }
 
@@ -174,16 +174,16 @@ bool EntityArchetype::IsNull() const
 
 bool EntityArchetype::IsValid() const
 {
-    return m_index != 0 && EntityManager::GetInstance().m_entityArchetypeInfos.size() > m_index;
+    return m_index != 0 && Entities::GetInstance().m_entityArchetypeInfos.size() > m_index;
 }
 
 std::string EntityArchetype::GetName() const
 {
-    return EntityManager::GetEntityArchetypeName(*this);
+    return Entities::GetEntityArchetypeName(*this);
 }
 void EntityArchetype::SetName(const std::string &name) const
 {
-    EntityManager::SetEntityArchetypeName(*this, name);
+    Entities::SetEntityArchetypeName(*this, name);
 }
 size_t EntityArchetype::GetIndex()
 {
@@ -227,7 +227,7 @@ size_t EntityQuery::GetIndex()
 }
 bool EntityQuery::IsValid() const
 {
-    return m_index != 0 && EntityManager::GetInstance().m_entityQueryInfos.size() > m_index;
+    return m_index != 0 && Entities::GetInstance().m_entityQueryInfos.size() > m_index;
 }
 
 DataComponentStorage::DataComponentStorage(const EntityArchetypeInfo &entityArchetypeInfo)
@@ -281,11 +281,11 @@ void EntityRef::Update()
         Clear();
         return;
     }else if(m_value.IsNull()){
-        auto scene = EntityManager::GetCurrentScene();
+        auto scene = Entities::GetCurrentScene();
         if(!scene) Clear();
         else
         {
-            m_value = EntityManager::GetEntity(scene, m_entityHandle);
+            m_value = Entities::GetEntity(scene, m_entityHandle);
             if (m_value.IsNull())
             {
                 Clear();

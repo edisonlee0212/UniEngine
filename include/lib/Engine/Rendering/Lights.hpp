@@ -1,5 +1,5 @@
 #pragma once
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <RenderTarget.hpp>
 namespace UniEngine
 {

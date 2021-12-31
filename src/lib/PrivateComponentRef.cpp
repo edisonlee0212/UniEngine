@@ -4,7 +4,7 @@
 
 #include "PrivateComponentRef.hpp"
 #include <AssetManager.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 using namespace UniEngine;
 bool PrivateComponentRef::Update()
 {
@@ -16,12 +16,12 @@ bool PrivateComponentRef::Update()
     else if (!m_value.has_value() || m_value->expired())
     {
         auto scene = m_scene.lock();
-        auto entity = EntityManager::GetEntity(scene, m_entityHandle);
+        auto entity = Entities::GetEntity(scene, m_entityHandle);
         if (!entity.IsNull())
         {
-            if (EntityManager::HasPrivateComponent(scene, entity, m_privateComponentTypeName))
+            if (Entities::HasPrivateComponent(scene, entity, m_privateComponentTypeName))
             {
-                m_value = EntityManager::GetPrivateComponent(scene, entity, m_privateComponentTypeName);
+                m_value = Entities::GetPrivateComponent(scene, entity, m_privateComponentTypeName);
                 return true;
             }
         }

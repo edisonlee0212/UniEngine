@@ -3,7 +3,7 @@
 //
 #include "IPrivateComponent.hpp"
 #include <AssetManager.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include "SerializationManager.hpp"
 using namespace UniEngine;
 PrivateComponentElement::PrivateComponentElement(

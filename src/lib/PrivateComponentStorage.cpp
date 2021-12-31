@@ -1,4 +1,4 @@
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <PrivateComponentStorage.hpp>
 using namespace UniEngine;
 void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID)
@@ -42,7 +42,8 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
 
 void PrivateComponentStorage::DeleteEntity(Entity entity)
 {
-    for (auto &element : EntityManager::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements)
+    for (auto &element :
+         Entities::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements)
     {
         RemovePrivateComponent(entity, element.m_typeId);
     }

@@ -1,5 +1,5 @@
 #pragma once
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <RigidBody.hpp>
 #include <uniengine_export.h>
 #include "PrivateComponentRef.hpp"

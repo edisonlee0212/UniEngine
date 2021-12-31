@@ -75,7 +75,7 @@ int main()
     return 0;
 }
 void LoadScene(){
-    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
     auto mainCameraEntity = mainCamera->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
     mainCameraTransform.SetPosition(glm::vec3(0, -4, 25));
@@ -86,8 +86,8 @@ void LoadScene(){
 #pragma region Create 9 spheres in different PBR properties
     const int amount = 20;
     const float scaleFactor = 0.1f;
-    const auto collection = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Spheres");
-    auto spheres = EntityManager::CreateEntities(EntityManager::GetCurrentScene(), amount * amount, "Instance");
+    const auto collection = Entities::CreateEntity(Entities::GetCurrentScene(), "Spheres");
+    auto spheres = Entities::CreateEntities(Entities::GetCurrentScene(), amount * amount, "Instance");
 
     for (int i = 0; i < amount; i++)
     {
@@ -121,7 +121,7 @@ void LoadScene(){
 #pragma endregion
 
 #pragma region Lighting
-    const auto dirLightEntity = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), "Dir Light");
+    const auto dirLightEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Dir Light");
     auto dirLight = dirLightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
@@ -251,7 +251,7 @@ Entity CreateCube(
     const glm::vec3 &scale,
     const std::string &name)
 {
-    auto cube = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), name);
+    auto cube = Entities::CreateEntity(Entities::GetCurrentScene(), name);
     auto groundMeshRenderer = cube.GetOrSetPrivateComponent<MeshRenderer>().lock();
     groundMeshRenderer->m_material.Set<Material>(
         AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
@@ -319,7 +319,7 @@ Entity CreateSphere(
     const float &scale,
     const std::string &name)
 {
-    auto sphere = EntityManager::CreateEntity(EntityManager::GetCurrentScene(), name);
+    auto sphere = Entities::CreateEntity(Entities::GetCurrentScene(), name);
     auto groundMeshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
     groundMeshRenderer->m_material.Set<Material>(
         AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));

@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
 #include <Cubemap.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API ReflectionProbe : public IAsset

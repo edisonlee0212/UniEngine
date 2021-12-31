@@ -22,7 +22,7 @@ struct UNIENGINE_API DataComponentType final
 struct UNIENGINE_API EntityArchetype final
 {
   private:
-    friend class EntityManager;
+    friend class Entities;
     friend class SerializationManager;
     size_t m_index = 0;
 
@@ -38,7 +38,7 @@ class IPrivateComponent;
 struct UNIENGINE_API Entity final
 {
   private:
-    friend class EntityManager;
+    friend class Entities;
     friend class Scene;
     friend class EntityMetadata;
     friend class SerializationManager;
@@ -214,7 +214,7 @@ struct UNIENGINE_API EntityArchetypeInfo
 struct UNIENGINE_API EntityQuery final
 {
   private:
-    friend class EntityManager;
+    friend class Entities;
     friend class SerializationManager;
     size_t m_index = 0;
 

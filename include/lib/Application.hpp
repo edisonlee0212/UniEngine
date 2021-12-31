@@ -1,6 +1,6 @@
 #pragma once
 #include <ClassRegistry.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <ILayer.hpp>
 #include <ISingleton.hpp>
 #include <InputManager.hpp>
@@ -51,7 +51,7 @@ enum class UNIENGINE_API GameStatus{
 };
 class UNIENGINE_API Application final : public ISingleton<Application>
 {
-    friend class EntityManager;
+    friend class Entities;
     friend class WindowManager;
     friend class EditorManager;
     friend class ProjectManager;

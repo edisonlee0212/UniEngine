@@ -74,12 +74,12 @@ template <typename T> void EditorManager::RegisterSystem()
 {
     auto &editorManager = GetInstance();
     auto func = [&](float rank) {
-        if (EntityManager::GetCurrentScene()->GetSystem<T>())
+        if (Entities::GetCurrentScene()->GetSystem<T>())
             return;
         auto systemName = SerializationManager::GetSerializableTypeName<T>();
         if (ImGui::Button(systemName.c_str()))
         {
-            EntityManager::GetCurrentScene()->GetOrCreateSystem(systemName, rank);
+            Entities::GetCurrentScene()->GetOrCreateSystem(systemName, rank);
         }
     };
     for (int i = 0; i < editorManager.m_systemMenuList.size(); i++)
@@ -126,7 +126,7 @@ template <typename T> void EditorManager::RegisterDataComponent()
             return;
         if (ImGui::Button(SerializationManager::GetDataComponentTypeName<T>().c_str()))
         {
-            EntityManager::AddDataComponent<T>(EntityManager::GetCurrentScene(), owner, T());
+            Entities::AddDataComponent<T>(Entities::GetCurrentScene(), owner, T());
         }
     };
     for (int i = 0; i < GetInstance().m_componentDataMenuList.size(); i++)

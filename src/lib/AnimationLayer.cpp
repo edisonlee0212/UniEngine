@@ -7,7 +7,7 @@ void AnimationLayer::PreUpdate()
 {
     ProfilerLayer::StartEvent("AnimationManager");
     const std::vector<Entity> *owners =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<Animator>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<Animator>(Entities::GetCurrentScene());
     if (!owners)
     {
         ProfilerLayer::EndEvent("AnimationManager");
@@ -56,7 +56,7 @@ void AnimationLayer::PreUpdate()
         i.wait();
     results.clear();
 
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(EntityManager::GetCurrentScene());
+    owners = Entities::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(Entities::GetCurrentScene());
     if (!owners)
     {
         ProfilerLayer::EndEvent("AnimationManager");

@@ -10,12 +10,12 @@ void Planet::PlanetTerrainSystem::OnCreate()
 void Planet::PlanetTerrainSystem::Update()
 {
     const std::vector<Entity> *const planetTerrainList =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>(Entities::GetCurrentScene());
     if (planetTerrainList == nullptr)
         return;
 
     std::mutex meshGenLock;
-    const auto mainCamera = EntityManager::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
     if (mainCamera)
     {
         const auto cameraLtw = mainCamera->GetOwner().GetDataComponent<GlobalTransform>();

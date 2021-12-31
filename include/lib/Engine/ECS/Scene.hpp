@@ -49,7 +49,7 @@ struct SceneDataStorage
 class UNIENGINE_API Scene : public IAsset
 {
     friend class Application;
-    friend class EntityManager;
+    friend class Entities;
     friend class EditorManager;
     friend class EditorLayer;
     friend class SerializationManager;

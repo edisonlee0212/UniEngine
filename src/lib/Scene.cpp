@@ -1,6 +1,6 @@
 #include <Application.hpp>
 
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <Scene.hpp>
 
 using namespace UniEngine;
@@ -177,7 +177,7 @@ void Scene::FixedUpdate()
 static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
-    if (this == EntityManager::GetCurrentScene().get())
+    if (this == Entities::GetCurrentScene().get())
         EditorManager::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -373,7 +373,7 @@ void Scene::Deserialize(const YAML::Node &in)
             dataComponentStorage.m_chunkArray.m_chunks.emplace_back();
             auto &componentDataChunk = dataComponentStorage.m_chunkArray.m_chunks.back();
             componentDataChunk.m_data =
-                static_cast<void *>(calloc(1, EntityManager::GetInstance().m_archetypeChunkSize));
+                static_cast<void *>(calloc(1, Entities::GetInstance().m_archetypeChunkSize));
             YAML::Binary chunkData = chunk["Data"].as<YAML::Binary>();
             assert(chunkData.size() == ARCHETYPE_CHUNK_SIZE);
             std::memcpy(componentDataChunk.m_data, chunkData.data(), chunkData.size());
@@ -584,15 +584,15 @@ void Scene::OnCreate()
 }
 bool Scene::LoadInternal(const std::filesystem::path &path)
 {
-    auto previousScene = EntityManager::GetCurrentScene();
-    EntityManager::Attach(std::shared_ptr<Scene>(this, [](Scene *) {}));
+    auto previousScene = Entities::GetCurrentScene();
+    Entities::Attach(std::shared_ptr<Scene>(this, [](Scene *) {}));
     std::ifstream stream(path.string());
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
     m_name = in["m_name"].as<std::string>();
     Deserialize(in);
-    EntityManager::Attach(previousScene);
+    Entities::Attach(previousScene);
 
     return true;
 }
@@ -622,8 +622,7 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
     auto mainCamera = source->m_mainCamera.Get();
     if(mainCamera)
     {
-        newScene->m_mainCamera =
-            EntityManager::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
+        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
                 .lock();
     }
 }

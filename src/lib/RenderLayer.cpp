@@ -76,7 +76,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     }
     cameraComponent->m_frameCount++;
     */
-    auto sceneBound = EntityManager::GetCurrentScene()->GetBound();
+    auto sceneBound = Entities::GetCurrentScene()->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
     ApplyShadowMapSettings();
     ApplyEnvironmentalSettings(cameraComponent);
@@ -265,7 +265,7 @@ void RenderLayer::PreUpdate()
 void RenderLayer::LateUpdate()
 {
     ProfilerLayer::StartEvent("Graphics");
-    auto scene = EntityManager::GetCurrentScene();
+    auto scene = Entities::GetCurrentScene();
     if (!scene)
         return;
 
@@ -287,7 +287,7 @@ void RenderLayer::LateUpdate()
             mainCamera->ResizeResolution(m_mainCameraResolutionX, m_mainCameraResolutionY);
     }
     const std::vector<Entity> *cameraEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<Camera>(Entities::GetCurrentScene());
     if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
@@ -308,7 +308,7 @@ void RenderLayer::LateUpdate()
 #pragma region Post - processing
     ProfilerLayer::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PostProcessing>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<PostProcessing>(Entities::GetCurrentScene());
     if (postProcessingEntities != nullptr)
     {
         for (auto postProcessingEntity : *postProcessingEntities)
@@ -460,7 +460,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
         }
     }
     const std::vector<Entity> *cameraEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<Camera>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<Camera>(Entities::GetCurrentScene());
     if (cameraEntities)
     {
         for (const auto &i : *cameraEntities)
@@ -479,7 +479,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
     maxBound = glm::vec3(INT_MIN);
 
     const std::vector<Entity> *owners =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(Entities::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -540,7 +540,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<Particles>(EntityManager::GetCurrentScene());
+    owners = Entities::UnsafeGetPrivateComponentOwnersList<Particles>(Entities::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -601,7 +601,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = EntityManager::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(EntityManager::GetCurrentScene());
+    owners = Entities::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(Entities::GetCurrentScene());
     if (owners)
     {
         for (auto owner : *owners)
@@ -843,7 +843,7 @@ void RenderLayer::RenderShadows(
     glm::quat mainCameraRot = ltw.GetRotation();
     m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &m_lightSettings);
     const std::vector<Entity> *directionalLightEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<DirectionalLight>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<DirectionalLight>(Entities::GetCurrentScene());
     size_t size = 0;
     if (directionalLightEntities && !directionalLightEntities->empty())
     {
@@ -1059,7 +1059,7 @@ void RenderLayer::RenderShadows(
         m_directionalLightBlock.SubData(0, 4, &size);
     }
     const std::vector<Entity> *pointLightEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<PointLight>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<PointLight>(Entities::GetCurrentScene());
     size = 0;
     if (pointLightEntities && !pointLightEntities->empty())
     {
@@ -1171,7 +1171,7 @@ void RenderLayer::RenderShadows(
         m_pointLightBlock.SubData(0, 4, &size);
     }
     const std::vector<Entity> *spotLightEntities =
-        EntityManager::UnsafeGetPrivateComponentOwnersList<SpotLight>(EntityManager::GetCurrentScene());
+        Entities::UnsafeGetPrivateComponentOwnersList<SpotLight>(Entities::GetCurrentScene());
     size = 0;
     if (spotLightEntities && !spotLightEntities->empty())
     {
@@ -1293,7 +1293,7 @@ void RenderLayer::ApplyShadowMapSettings()
 
 void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
-    auto scene = EntityManager::GetCurrentScene();
+    auto scene = Entities::GetCurrentScene();
 
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
     if (!cameraSkybox || !cameraSkybox->Texture())

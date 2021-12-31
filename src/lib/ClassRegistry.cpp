@@ -1,7 +1,7 @@
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
-#include <EntityManager.hpp>
+#include "Engine/ECS/Entities.hpp"
 #include <MeshRenderer.hpp>
 #include <PhysicsLayer.hpp>
 #include <PlayerController.hpp>
