@@ -1,16 +1,15 @@
 #pragma once
-#include <Gui.hpp>
-#include <ISingleton.hpp>
-#include <uniengine_export.h>
+#include "ISingleton.hpp"
+#include "uniengine_export.h"
 namespace UniEngine
 {
-class UNIENGINE_API InputManager : public ISingleton<InputManager>
+class UNIENGINE_API Inputs : public ISingleton<Inputs>
 {
-    friend class EditorManager;
+    friend class Editor;
     friend class Application;
     bool m_enableInputMenu;
     friend class Application;
-    friend class WindowManager;
+    friend class Windows;
     friend class Graphics;
     friend class Application;
     glm::vec2 m_mousePosition;

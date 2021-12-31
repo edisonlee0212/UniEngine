@@ -1,4 +1,3 @@
-#include <Gui.hpp>
 #include <Lights.hpp>
 using namespace UniEngine;
 

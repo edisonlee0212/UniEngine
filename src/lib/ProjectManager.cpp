@@ -3,7 +3,8 @@
 #include <AssetManager.hpp>
 #include "Engine/ECS/Entities.hpp"
 #include <PhysicsLayer.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
+
 using namespace UniEngine;
 
 void Project::Serialize(YAML::Emitter &out)
@@ -23,7 +24,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
         return;
     projectManager.m_projectPath = path;
     projectManager.m_currentProjectName = path.stem().string();
-    projectManager.m_currentProject = SerializationManager::ProduceSerializable<Project>();
+    projectManager.m_currentProject = Serialization::ProduceSerializable<Project>();
     projectManager.m_assetRegistry.Clear();
     Application::Reset();
     std::shared_ptr<Scene> scene;
@@ -439,6 +440,9 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     std::ofstream fout(path.string());
     fout << out.c_str();
     fout.flush();
+
+    DWORD attributes = GetFileAttributes(path.string().c_str());
+    SetFileAttributes(path.string().c_str(), attributes + FILE_ATTRIBUTE_HIDDEN);
 }
 bool FolderMetadata::Load(const std::filesystem::path &path)
 {

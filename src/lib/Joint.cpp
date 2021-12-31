@@ -1,4 +1,4 @@
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <Joint.hpp>
 #include <PhysicsLayer.hpp>
 #include <RigidBody.hpp>
@@ -148,8 +148,8 @@ void Joint::OnInspect()
     }
     auto storedRigidBody1 = m_rigidBody1.Get<RigidBody>();
     auto storedRigidBody2 = m_rigidBody2.Get<RigidBody>();
-    EditorManager::DragAndDropButton<RigidBody>(m_rigidBody1, "Link 1");
-    EditorManager::DragAndDropButton<RigidBody>(m_rigidBody2, "Link 2");
+    Editor::DragAndDropButton<RigidBody>(m_rigidBody1, "Link 1");
+    Editor::DragAndDropButton<RigidBody>(m_rigidBody2, "Link 2");
     if (m_rigidBody1.Get<RigidBody>() != storedRigidBody1 || m_rigidBody2.Get<RigidBody>() != storedRigidBody2)
     {
         Unlink();

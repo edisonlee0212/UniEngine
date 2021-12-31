@@ -1,7 +1,7 @@
 #include <Application.hpp>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <PhysicsLayer.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <RigidBody.hpp>
 #include <Transform.hpp>
 using namespace UniEngine;
@@ -86,7 +86,7 @@ void RigidBody::OnInspect()
         int index = 0;
         for (auto &i : m_colliders)
         {
-            EditorManager::DragAndDropButton<Collider>(i, ("Collider " + std::to_string(index++)));
+            Editor::DragAndDropButton<Collider>(i, ("Collider " + std::to_string(index++)));
         }
         ImGui::TreePop();
     }

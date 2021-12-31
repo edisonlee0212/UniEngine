@@ -16,7 +16,7 @@ struct UNIENGINE_API FileRecord
 };
 
 struct UNIENGINE_API FolderMetadata{
-    friend class EditorManager;
+    friend class Editor;
     std::unordered_map<Handle, FileRecord> m_fileRecords;
     std::map<std::string, Handle> m_fileMap;
     void Save(const std::filesystem::path &path);
@@ -60,7 +60,7 @@ class UNIENGINE_API Project : public ISerializable
 class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 {
     friend class AssetManager;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     std::filesystem::path m_projectPath;
     std::shared_ptr<Project> m_currentProject;

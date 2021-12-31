@@ -1,6 +1,5 @@
 #include "Engine/Utilities/Console.hpp"
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <Mesh.hpp>
 #include <Particles.hpp>
 #include <SkinnedMesh.hpp>

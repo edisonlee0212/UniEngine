@@ -4,7 +4,7 @@
 #include "IPrivateComponent.hpp"
 #include <AssetManager.hpp>
 #include "Engine/ECS/Entities.hpp"
-#include "SerializationManager.hpp"
+#include "Serialization.hpp"
 using namespace UniEngine;
 PrivateComponentElement::PrivateComponentElement(
     size_t id, const std::shared_ptr<IPrivateComponent> &data, const Entity &owner, const std::shared_ptr<Scene> &scene)

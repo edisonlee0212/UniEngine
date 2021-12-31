@@ -1,6 +1,5 @@
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
-#include <Gui.hpp>
 #include <PostProcessing.hpp>
 #include <Texture2D.hpp>
 #include <Utilities.hpp>

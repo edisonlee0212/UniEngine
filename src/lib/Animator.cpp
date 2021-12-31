@@ -1,7 +1,7 @@
 #include "Application.hpp"
 #include "Graphics.hpp"
 #include <Animator.hpp>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 using namespace UniEngine;
 bool Animator::AnimatedCurrentFrame() const
 {
@@ -39,7 +39,7 @@ void Animator::OnInspect()
 {
     auto animation = m_animation.Get<Animation>();
     Animation *previous = animation.get();
-    EditorManager::DragAndDropButton<Animation>(m_animation, "Animation");
+    Editor::DragAndDropButton<Animation>(m_animation, "Animation");
     if (previous != animation.get() && animation)
     {
         Setup(animation);

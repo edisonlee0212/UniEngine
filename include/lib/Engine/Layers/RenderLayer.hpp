@@ -129,7 +129,7 @@ class UNIENGINE_API RenderLayer : public ILayer
     int m_mainCameraResolutionY = 1;
     friend class RenderTarget;
     friend class DefaultResources;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     friend class LightProbe;
     friend class ReflectionProbe;

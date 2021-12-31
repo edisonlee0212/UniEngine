@@ -23,7 +23,7 @@ struct UNIENGINE_API EntityArchetype final
 {
   private:
     friend class Entities;
-    friend class SerializationManager;
+    friend class Serialization;
     size_t m_index = 0;
 
   public:
@@ -41,7 +41,7 @@ struct UNIENGINE_API Entity final
     friend class Entities;
     friend class Scene;
     friend class EntityMetadata;
-    friend class SerializationManager;
+    friend class Serialization;
     unsigned m_index = 0;
     unsigned m_version = 0;
   public:
@@ -215,7 +215,7 @@ struct UNIENGINE_API EntityQuery final
 {
   private:
     friend class Entities;
-    friend class SerializationManager;
+    friend class Serialization;
     size_t m_index = 0;
 
   public:

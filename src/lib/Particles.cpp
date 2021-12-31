@@ -1,8 +1,7 @@
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <Particles.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 
 using namespace UniEngine;
 
@@ -67,8 +66,8 @@ void Particles::OnInspect()
             1);
     }
 
-    EditorManager::DragAndDropButton<Material>(m_material, "Material");
-    EditorManager::DragAndDropButton<Mesh>(m_mesh, "Mesh");
+    Editor::DragAndDropButton<Material>(m_material, "Material");
+    Editor::DragAndDropButton<Mesh>(m_mesh, "Mesh");
 }
 
 void Particles::Serialize(YAML::Emitter &out)

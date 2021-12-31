@@ -47,7 +47,7 @@ class UNIENGINE_API Mesh : public IAsset
     friend class RenderLayer;
     friend class MeshRenderer;
     friend class Particles;
-    friend class EditorManager;
+    friend class Editor;
     size_t m_version = 0;
 
     std::vector<Vertex> m_vertices;

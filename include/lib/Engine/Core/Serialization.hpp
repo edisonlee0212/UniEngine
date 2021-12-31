@@ -1,10 +1,10 @@
 #pragma once
 #include "ISystem.hpp"
 #include "Engine/Utilities/Console.hpp"
-#include <IDataComponent.hpp>
-#include <IPrivateComponent.hpp>
-#include <ISerializable.hpp>
-#include <ISingleton.hpp>
+#include "Engine/ECS/IDataComponent.hpp"
+#include "Engine/ECS/IPrivateComponent.hpp"
+#include "Engine/ECS/ISerializable.hpp"
+#include "ISingleton.hpp"
 namespace YAML
 {
 class Node;
@@ -360,7 +360,7 @@ template <> struct UNIENGINE_API convert<glm::uvec4>
 namespace UniEngine
 {
 #pragma region Component Factory
-class UNIENGINE_API SerializationManager : public ISingleton<SerializationManager>
+class UNIENGINE_API Serialization : public ISingleton<Serialization>
 {
     friend class AssetManager;
     friend class ISerializable;
@@ -417,15 +417,15 @@ class UNIENGINE_API SerializationManager : public ISingleton<SerializationManage
     static size_t GetSerializableTypeId(const std::string &typeName);
     static size_t GetDataComponentTypeId(const std::string &typeName);
 };
-template <typename T> std::string SerializationManager::GetDataComponentTypeName()
+template <typename T> std::string Serialization::GetDataComponentTypeName()
 {
     return GetInstance().m_dataComponentNames.find(typeid(T).hash_code())->second;
 }
-template <typename T> std::string SerializationManager::GetSerializableTypeName()
+template <typename T> std::string Serialization::GetSerializableTypeName()
 {
     return GetInstance().m_serializableNames.find(typeid(T).hash_code())->second;
 }
-template <typename T> bool SerializationManager::RegisterDataComponentType(const std::string &name)
+template <typename T> bool Serialization::RegisterDataComponentType(const std::string &name)
 {
     return RegisterDataComponentType(name, typeid(T).hash_code(), [](size_t &hashCode, size_t &size) {
         hashCode = typeid(T).hash_code();
@@ -434,7 +434,7 @@ template <typename T> bool SerializationManager::RegisterDataComponentType(const
     });
 }
 
-template <typename T> bool SerializationManager::RegisterSerializableType(const std::string &name)
+template <typename T> bool Serialization::RegisterSerializableType(const std::string &name)
 {
     return RegisterSerializableType(name, typeid(T).hash_code(), [](size_t &hashCode) {
         hashCode = typeid(T).hash_code();
@@ -442,7 +442,7 @@ template <typename T> bool SerializationManager::RegisterSerializableType(const 
         return ptr;
     });
 }
-template <typename T> bool SerializationManager::RegisterPrivateComponentType(const std::string &name)
+template <typename T> bool Serialization::RegisterPrivateComponentType(const std::string &name)
 {
     return RegisterPrivateComponentType(
         name,
@@ -456,7 +456,7 @@ template <typename T> bool SerializationManager::RegisterPrivateComponentType(co
             target->PostCloneAction(source);
         });
 }
-template <typename T> bool SerializationManager::RegisterSystemType(const std::string &name)
+template <typename T> bool Serialization::RegisterSystemType(const std::string &name)
 {
     return RegisterSystemType(name, [](std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem> &source) {
         target->m_handle = source->m_handle;
@@ -488,7 +488,7 @@ UNIENGINE_API YAML::Emitter &operator<<(YAML::Emitter &out, const glm::uvec2 &v)
 UNIENGINE_API YAML::Emitter &operator<<(YAML::Emitter &out, const glm::uvec3 &v);
 UNIENGINE_API YAML::Emitter &operator<<(YAML::Emitter &out, const glm::uvec4 &v);
 
-template <typename T> std::shared_ptr<T> SerializationManager::ProduceSerializable()
+template <typename T> std::shared_ptr<T> Serialization::ProduceSerializable()
 {
     auto &serializationManager = GetInstance();
     const auto typeName = GetSerializableTypeName<T>();

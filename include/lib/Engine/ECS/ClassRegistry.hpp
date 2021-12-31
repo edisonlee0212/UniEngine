@@ -1,8 +1,8 @@
 #pragma once
 #include <AssetManager.hpp>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <Entity.hpp>
-#include <SerializationManager.hpp>
+#include "Engine/Core/Serialization.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API ClassRegistry
@@ -14,26 +14,26 @@ class UNIENGINE_API ClassRegistry
     }
     template <typename T = IDataComponent> static void RegisterDataComponent(const std::string &name)
     {
-        SerializationManager::RegisterDataComponentType<T>(name);
-        EditorManager::RegisterDataComponent<T>();
+        Serialization::RegisterDataComponentType<T>(name);
+        Editor::RegisterDataComponent<T>();
     }
     template <typename T = IPrivateComponent> static void RegisterPrivateComponent(const std::string &name)
     {
-        SerializationManager::RegisterSerializableType<T>(name);
-        SerializationManager::RegisterPrivateComponentType<T>(name);
-        EditorManager::RegisterPrivateComponent<T>();
+        Serialization::RegisterSerializableType<T>(name);
+        Serialization::RegisterPrivateComponentType<T>(name);
+        Editor::RegisterPrivateComponent<T>();
     }
 
     template <typename T = ISystem> static void RegisterSystem(const std::string &name)
     {
-        SerializationManager::RegisterSerializableType<T>(name);
-        SerializationManager::RegisterSystemType<T>(name);
-        EditorManager::RegisterSystem<T>();
+        Serialization::RegisterSerializableType<T>(name);
+        Serialization::RegisterSystemType<T>(name);
+        Editor::RegisterSystem<T>();
     }
 
     template <typename T = ISerializable> static void RegisterSerializable(const std::string &name)
     {
-        SerializationManager::RegisterSerializableType<T>(name);
+        Serialization::RegisterSerializableType<T>(name);
     }
 };
 

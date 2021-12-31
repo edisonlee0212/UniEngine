@@ -1,10 +1,10 @@
 #pragma once
-#include <Core/OpenGLUtils.hpp>
-#include <ISingleton.hpp>
-#include <uniengine_export.h>
+#include "OpenGLUtils.hpp"
+#include "ISingleton.hpp"
+#include "uniengine_export.h"
 namespace UniEngine
 {
-class UNIENGINE_API WindowManager : public ISingleton<WindowManager>
+class UNIENGINE_API Windows : public ISingleton<Windows>
 {
   public:
     static void LateUpdate();

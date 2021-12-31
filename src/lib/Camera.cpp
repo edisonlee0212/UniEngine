@@ -4,11 +4,10 @@
 
 #include <Camera.hpp>
 #include <Cubemap.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <PostProcessing.hpp>
-#include "Engine/Utilities/Graphics.hpp"
-#include <SerializationManager.hpp>
+#include "Engine/Rendering/Graphics.hpp"
+#include "Engine/Core/Serialization.hpp"
 #include <Texture2D.hpp>
 using namespace UniEngine;
 
@@ -377,7 +376,7 @@ void Camera::OnInspect()
     }
     else
     {
-        EditorManager::DragAndDropButton<Cubemap>(m_skybox, "Skybox");
+        Editor::DragAndDropButton<Cubemap>(m_skybox, "Skybox");
     }
 
     ImGui::DragFloat("Near", &m_nearDistance, m_nearDistance / 10.0f, 0, m_farDistance);

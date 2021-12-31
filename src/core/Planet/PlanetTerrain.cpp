@@ -1,7 +1,7 @@
 #include <Planet/PlanetTerrain.hpp>
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <yaml-cpp/yaml.h>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 void Planet::PlanetTerrain::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "PlanetInfo";
@@ -85,7 +85,7 @@ void Planet::PlanetTerrain::Init()
 
 void Planet::PlanetTerrain::OnInspect()
 {
-    EditorManager::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
+    Editor::DragAndDropButton<Material>(m_surfaceMaterial, "Material");
 }
 void Planet::PlanetTerrain::PostCloneAction(const std::shared_ptr<IPrivateComponent> &target)
 {

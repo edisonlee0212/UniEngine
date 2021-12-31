@@ -3,9 +3,8 @@
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
-#include <InputManager.hpp>
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
 #include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -16,14 +15,14 @@
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
-#include <WindowManager.hpp>
+#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
-std::map<std::string, std::shared_ptr<Texture2D>> &EditorManager::AssetIcons()
+std::map<std::string, std::shared_ptr<Texture2D>> &Editor::AssetIcons()
 {
     return GetInstance().m_assetsIcons;
 }
 
-bool EditorManager::DragAndDropButton(Entity &entity)
+bool Editor::DragAndDropButton(Entity &entity)
 {
     bool statusChanged = false;
     // const std::string type = "Entity";
@@ -70,7 +69,7 @@ bool EditorManager::DragAndDropButton(Entity &entity)
     return statusChanged;
 }
 
-bool EditorManager::DragAndDropButton(EntityRef &entityRef, const std::string &name)
+bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
@@ -123,7 +122,7 @@ bool EditorManager::DragAndDropButton(EntityRef &entityRef, const std::string &n
     return statusChanged;
 }
 
-bool EditorManager::DragAndDropButton(
+bool Editor::DragAndDropButton(
     AssetRef &target, const std::string &name, const std::vector<std::string> &acceptableTypeNames, bool removable)
 {
     ImGui::Text(name.c_str());
@@ -135,7 +134,7 @@ bool EditorManager::DragAndDropButton(
     {
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
-            EditorManager::GetInstance().m_inspectingAsset = ptr;
+            Editor::GetInstance().m_inspectingAsset = ptr;
         }
         const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -185,7 +184,7 @@ bool EditorManager::DragAndDropButton(
     }
     return statusChanged;
 }
-void EditorManager::ImGuiPreUpdate()
+void Editor::ImGuiPreUpdate()
 {
 #pragma region ImGui
     ImGui_ImplOpenGL3_NewFrame();
@@ -236,7 +235,7 @@ void EditorManager::ImGuiPreUpdate()
     ImGui::End();
 #pragma endregion
 }
-void EditorManager::ImGuiLateUpdate()
+void Editor::ImGuiLateUpdate()
 {
 #pragma region ImGui
     RenderTarget::BindDefault();
@@ -256,7 +255,7 @@ void EditorManager::ImGuiLateUpdate()
     }
 #pragma endregion
 }
-void EditorManager::InitImGui()
+void Editor::InitImGui()
 {
 #pragma region ImGUI
     IMGUI_CHECKVERSION();
@@ -273,11 +272,11 @@ void EditorManager::InitImGui()
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
-    ImGui_ImplGlfw_InitForOpenGL(WindowManager::GetWindow(), true);
+    ImGui_ImplGlfw_InitForOpenGL(Windows::GetWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
 }
-bool EditorManager::DragAndDropButton(
+bool Editor::DragAndDropButton(
     PrivateComponentRef &target,
     const std::string &name,
     const std::vector<std::string> &acceptableTypeNames,

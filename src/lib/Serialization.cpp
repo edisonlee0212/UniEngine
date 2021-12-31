@@ -1,14 +1,14 @@
 #include "Engine/Utilities/Console.hpp"
 #include <ISerializable.hpp>
-#include <SerializationManager.hpp>
+#include "Engine/Core/Serialization.hpp"
 using namespace UniEngine;
 
-std::string SerializationManager::GetSerializableTypeName(const size_t &typeId)
+std::string Serialization::GetSerializableTypeName(const size_t &typeId)
 {
     return GetInstance().m_serializableNames.find(typeId)->second;
 }
 
-bool SerializationManager::RegisterDataComponentType(
+bool Serialization::RegisterDataComponentType(
     const std::string &typeName,
     const size_t &typeId,
     const std::function<std::shared_ptr<IDataComponent>(size_t &, size_t &)> &func)
@@ -23,7 +23,7 @@ bool SerializationManager::RegisterDataComponentType(
     return GetInstance().m_dataComponentGenerators.insert({typeName, func}).second;
 }
 
-std::shared_ptr<IDataComponent> SerializationManager::ProduceDataComponent(
+std::shared_ptr<IDataComponent> Serialization::ProduceDataComponent(
     const std::string &typeName, size_t &hashCode, size_t &size)
 {
     auto &factory = GetInstance();
@@ -36,7 +36,7 @@ std::shared_ptr<IDataComponent> SerializationManager::ProduceDataComponent(
     throw 1;
 }
 
-bool SerializationManager::RegisterSerializableType(
+bool Serialization::RegisterSerializableType(
     const std::string &typeName,
     const size_t &typeId,
     const std::function<std::shared_ptr<ISerializable>(size_t &)> &func)
@@ -51,7 +51,7 @@ bool SerializationManager::RegisterSerializableType(
     serializationManger.m_serializableIds[typeName] = typeId;
     return serializationManger.m_serializableGenerators.insert({typeName, func}).second;
 }
-bool SerializationManager::RegisterPrivateComponentType(
+bool Serialization::RegisterPrivateComponentType(
     const std::string &typeName,
     const size_t &typeId,
     const std::function<void(std::shared_ptr<IPrivateComponent>, const std::shared_ptr<IPrivateComponent> &)> &cloneFunc)
@@ -59,7 +59,7 @@ bool SerializationManager::RegisterPrivateComponentType(
     auto& serializationManger = GetInstance();
     return serializationManger.m_privateComponentCloners.insert({typeName, cloneFunc}).second;
 }
-std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(const std::string &typeName, size_t &hashCode)
+std::shared_ptr<ISerializable> Serialization::ProduceSerializable(const std::string &typeName, size_t &hashCode)
 {
     auto &serializationManager = GetInstance();
     const auto it = serializationManager.m_serializableGenerators.find(typeName);
@@ -72,7 +72,7 @@ std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(const s
     UNIENGINE_ERROR("PrivateComponent " + typeName + "is not registered!");
     throw 1;
 }
-std::shared_ptr<ISerializable> SerializationManager::ProduceSerializable(
+std::shared_ptr<ISerializable> Serialization::ProduceSerializable(
     const std::string &typeName, size_t &hashCode, const Handle &handle)
 {
     auto &serializationManager = GetInstance();
@@ -183,7 +183,7 @@ YAML::Emitter &UniEngine::operator<<(YAML::Emitter &out, const glm::uvec4 &v)
     return out;
 }
 
-size_t SerializationManager::GetDataComponentTypeId(const std::string &typeName)
+size_t Serialization::GetDataComponentTypeId(const std::string &typeName)
 {
     auto& serializationManager = GetInstance();
     if(serializationManager.HasComponentDataType(typeName)){
@@ -191,23 +191,23 @@ size_t SerializationManager::GetDataComponentTypeId(const std::string &typeName)
     }else return 0;
 }
 
-size_t SerializationManager::GetSerializableTypeId(const std::string &typeName)
+size_t Serialization::GetSerializableTypeId(const std::string &typeName)
 {
     auto& serializationManager = GetInstance();
     if(serializationManager.HasSerializableType(typeName)){
         return serializationManager.m_serializableIds[typeName];
     }else return 0;
 }
-bool SerializationManager::HasSerializableType(const std::string &typeName)
+bool Serialization::HasSerializableType(const std::string &typeName)
 {
     return GetInstance().m_serializableIds.find(typeName) != GetInstance().m_serializableIds.end();
 }
-bool SerializationManager::HasComponentDataType(const std::string &typeName)
+bool Serialization::HasComponentDataType(const std::string &typeName)
 {
     return GetInstance().m_dataComponentIds.find(typeName) != GetInstance().m_dataComponentIds.end();
 }
 
-void SerializationManager::ClonePrivateComponent(std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source)
+void Serialization::ClonePrivateComponent(std::shared_ptr<IPrivateComponent> target, const std::shared_ptr<IPrivateComponent>& source)
 {
     auto targetTypeName = target->GetTypeName();
     auto sourceTypeName = source->GetTypeName();
@@ -219,7 +219,7 @@ void SerializationManager::ClonePrivateComponent(std::shared_ptr<IPrivateCompone
         UNIENGINE_ERROR("PrivateComponent " + targetTypeName + "is not registered!");
     }
 }
-void SerializationManager::CloneSystem(std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem> &source)
+void Serialization::CloneSystem(std::shared_ptr<ISystem> target, const std::shared_ptr<ISystem> &source)
 {
     auto targetTypeName = target->GetTypeName();
     auto sourceTypeName = source->GetTypeName();
@@ -231,7 +231,7 @@ void SerializationManager::CloneSystem(std::shared_ptr<ISystem> target, const st
         UNIENGINE_ERROR("System " + targetTypeName + "is not registered!");
     }
 }
-bool SerializationManager::RegisterSystemType(
+bool Serialization::RegisterSystemType(
     const std::string &typeName,
     const std::function<void(std::shared_ptr<ISystem>, const std::shared_ptr<ISystem> &)> &cloneFunc)
 {

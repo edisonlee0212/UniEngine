@@ -1,10 +1,10 @@
 #pragma once
-#include <ISingleton.hpp>
-#include <ThreadPool.hpp>
-#include <uniengine_export.h>
+#include "ISingleton.hpp"
+#include "ThreadPool.hpp"
+#include "uniengine_export.h"
 namespace UniEngine
 {
-class UNIENGINE_API JobManager final : ISingleton<JobManager>
+class UNIENGINE_API Jobs final : ISingleton<Jobs>
 {
     ThreadPool m_workers;
 

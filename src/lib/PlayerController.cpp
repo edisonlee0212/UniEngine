@@ -1,7 +1,7 @@
 //
 // Created by lllll on 8/9/2021.
 //
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <PlayerController.hpp>
 #include "EditorLayer.hpp"
 void UniEngine::PlayerController::OnCreate()
@@ -19,32 +19,32 @@ void UniEngine::PlayerController::LateUpdate()
         const auto front = rotation * glm::vec3(0, 0, -1);
         const auto right = rotation * glm::vec3(1, 0, 0);
         auto moved = false;
-        if (InputManager::GetKey(GLFW_KEY_W))
+        if (Inputs::GetKey(GLFW_KEY_W))
         {
             position += front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
             moved = true;
         }
-        if (InputManager::GetKey(GLFW_KEY_S))
+        if (Inputs::GetKey(GLFW_KEY_S))
         {
             position -= front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
             moved = true;
         }
-        if (InputManager::GetKey(GLFW_KEY_A))
+        if (Inputs::GetKey(GLFW_KEY_A))
         {
             position -= right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
             moved = true;
         }
-        if (InputManager::GetKey(GLFW_KEY_D))
+        if (Inputs::GetKey(GLFW_KEY_D))
         {
             position += right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
             moved = true;
         }
-        if (InputManager::GetKey(GLFW_KEY_LEFT_SHIFT))
+        if (Inputs::GetKey(GLFW_KEY_LEFT_SHIFT))
         {
             position.y += m_velocity * static_cast<float>(Application::Time().DeltaTime());
             moved = true;
         }
-        if (InputManager::GetKey(GLFW_KEY_LEFT_CONTROL))
+        if (Inputs::GetKey(GLFW_KEY_LEFT_CONTROL))
         {
             position.y -= m_velocity * static_cast<float>(Application::Time().DeltaTime());
             moved = true;
@@ -54,7 +54,7 @@ void UniEngine::PlayerController::LateUpdate()
             transform.SetPosition(position);
         }
         glm::vec2 mousePosition;
-        bool valid = InputManager::GetMousePosition(mousePosition);
+        bool valid = Inputs::GetMousePosition(mousePosition);
         float xOffset = 0;
         float yOffset = 0;
         if (valid)
@@ -70,7 +70,7 @@ void UniEngine::PlayerController::LateUpdate()
             m_lastX = mousePosition.x;
             m_lastY = mousePosition.y;
         }
-        if (InputManager::GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
+        if (Inputs::GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
         {
             if (xOffset != 0 || yOffset != 0)
             {

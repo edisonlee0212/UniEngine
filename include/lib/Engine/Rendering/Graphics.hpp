@@ -1,6 +1,6 @@
 #pragma once
-#include "Engine/Rendering/Camera.hpp"
 #include "Engine/DefaultResources.hpp"
+#include "Engine/Rendering/Camera.hpp"
 #include "Engine/Rendering/Lights.hpp"
 #include "Engine/Rendering/MeshRenderer.hpp"
 #include "Engine/Rendering/Particles.hpp"
@@ -64,7 +64,12 @@ class UNIENGINE_API Graphics
 
     static void DrawGizmoRays(
         const glm::vec4 &color,
-        const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
+        const std::vector<std::pair<glm::vec3, glm::vec3>> &startEnds,
+        const float &width = 0.01f);
+    static void DrawGizmoRays(
+        const glm::vec4 &color,
+        const std::vector<glm::vec3> &starts,
+        const std::vector<glm::vec3> &ends,
         const float &width = 0.01f);
 
     static void DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width = 0.01f);
@@ -105,7 +110,8 @@ class UNIENGINE_API Graphics
         const float &width = 0.01f);
 #pragma endregion
     /**
-     * DrawMesh draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be affected by Projectors - just like it was part of some game object.
+     * DrawMesh draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be
+     * affected by Projectors - just like it was part of some game object.
      * @param mesh The Mesh to draw.
      * @param material The material to use.
      * @param model The transform of the mesh
@@ -121,7 +127,8 @@ class UNIENGINE_API Graphics
         const bool &receiveShadow = true,
         const bool &castShadow = true);
     /**
-     * Draws the same mesh multiple times using GPU instancing. Use this function in situations where you want to draw the same mesh for a particular amount of times using an instanced shader.
+     * Draws the same mesh multiple times using GPU instancing. Use this function in situations where you want to draw
+     * the same mesh for a particular amount of times using an instanced shader.
      * @param mesh The Mesh to draw.
      * @param material The material to use. The program should contain instanced shader.
      * @param model The transform of the group

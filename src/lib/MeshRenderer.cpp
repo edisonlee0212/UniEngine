@@ -1,8 +1,7 @@
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <MeshRenderer.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 using namespace UniEngine;
 void MeshRenderer::RenderBound(glm::vec4 &color)
 {
@@ -27,8 +26,8 @@ void MeshRenderer::OnInspect()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
-    EditorManager::DragAndDropButton<Material>(m_material, "Material");
-    EditorManager::DragAndDropButton<Mesh>(m_mesh, "Mesh");
+    Editor::DragAndDropButton<Material>(m_material, "Material");
+    Editor::DragAndDropButton<Mesh>(m_mesh, "Mesh");
     if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))

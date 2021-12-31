@@ -9,31 +9,30 @@
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
 #include <EditorLayer.hpp>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include "Engine/ECS/Entities.hpp"
-#include <Gui.hpp>
-#include <InputManager.hpp>
-#include <JobManager.hpp>
+#include "Engine/Core/Inputs.hpp"
+#include "Engine/Core/Jobs.hpp"
 #include <OpenGLUtils.hpp>
 #include <PhysicsLayer.hpp>
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <TransformLayer.hpp>
-#include <WindowManager.hpp>
+#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-    WindowManager::Init("UniEngine", applicationConfigs.m_fullScreen);
+    Windows::Init("UniEngine", applicationConfigs.m_fullScreen);
     OpenGLUtils::Init();
     application.m_applicationConfigs = applicationConfigs;
 
-    InputManager::Init();
-    JobManager::Init();
+    Inputs::Init();
+    Jobs::Init();
     AssetManager::Init();
     Entities::Init();
-    EditorManager::InitImGui();
+    Editor::InitImGui();
 
     PushLayer<ProfilerLayer>();
     PushLayer<TransformLayer>();
@@ -93,14 +92,14 @@ void ApplicationTime::EndFixedUpdate()
 void Application::PreUpdateInternal()
 {
     auto &application = GetInstance();
-    WindowManager::PreUpdate();
+    Windows::PreUpdate();
     application.m_time.m_deltaTime = glfwGetTime() - application.m_time.m_frameStartTime;
     application.m_time.m_frameStartTime = glfwGetTime();
-    EditorManager::ImGuiPreUpdate();
+    Editor::ImGuiPreUpdate();
     OpenGLUtils::PreUpdate();
     if (application.m_applicationStatus == ApplicationStatus::Initialized)
     {
-        InputManager::PreUpdate();
+        Inputs::PreUpdate();
         for (const auto &i : application.m_externalPreUpdateFunctions)
             i();
 
@@ -200,9 +199,9 @@ void Application::LateUpdateInternal()
         }
     }
     // ImGui drawing
-    EditorManager::ImGuiLateUpdate();
+    Editor::ImGuiLateUpdate();
     // Swap Window's framebuffer
-    WindowManager::LateUpdate();
+    Windows::LateUpdate();
     application.m_time.m_lastUpdateTime = glfwGetTime();
 }
 

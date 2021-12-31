@@ -3,9 +3,9 @@
 #include "Engine/ECS/Entities.hpp"
 #include <ILayer.hpp>
 #include <ISingleton.hpp>
-#include <InputManager.hpp>
+#include "Engine/Core/Inputs.hpp"
 #include <ProfilerLayer.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <Scene.hpp>
 #include <Utilities.hpp>
 namespace UniEngine
@@ -52,8 +52,8 @@ enum class UNIENGINE_API GameStatus{
 class UNIENGINE_API Application final : public ISingleton<Application>
 {
     friend class Entities;
-    friend class WindowManager;
-    friend class EditorManager;
+    friend class Windows;
+    friend class Editor;
     friend class ProjectManager;
     friend class EditorLayer;
     ApplicationConfigs m_applicationConfigs;

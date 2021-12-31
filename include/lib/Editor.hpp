@@ -1,19 +1,18 @@
 #pragma once
-#include <AssetManager.hpp>
-#include <Camera.hpp>
-#include <Core/OpenGLUtils.hpp>
-#include <Gui.hpp>
-#include <ISingleton.hpp>
-#include <RenderTarget.hpp>
-#include <RigidBody.hpp>
-#include <Texture2D.hpp>
+#include "Engine/Managers/AssetManager.hpp"
+#include "Engine/Rendering/Camera.hpp"
+#include "Engine/Core/OpenGLUtils.hpp"
+#include "Engine/Core/ISingleton.hpp"
+#include "Engine/Rendering/RenderTarget.hpp"
+#include "Engine/Physics/RigidBody.hpp"
+#include "Engine/Rendering/Texture2D.hpp"
 
 namespace UniEngine
 {
 struct Transform;
 
 class Folder;
-class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
+class UNIENGINE_API Editor : public ISingleton<Editor>
 {
     friend class ClassRegistry;
     friend class EditorLayer;
@@ -64,19 +63,19 @@ class UNIENGINE_API EditorManager : public ISingleton<EditorManager>
 };
 
 template <typename T1>
-void EditorManager::RegisterComponentDataInspector(
+void Editor::RegisterComponentDataInspector(
     const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func)
 {
     GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
 }
 
-template <typename T> void EditorManager::RegisterSystem()
+template <typename T> void Editor::RegisterSystem()
 {
     auto &editorManager = GetInstance();
     auto func = [&](float rank) {
         if (Entities::GetCurrentScene()->GetSystem<T>())
             return;
-        auto systemName = SerializationManager::GetSerializableTypeName<T>();
+        auto systemName = Serialization::GetSerializableTypeName<T>();
         if (ImGui::Button(systemName.c_str()))
         {
             Entities::GetCurrentScene()->GetOrCreateSystem(systemName, rank);
@@ -93,13 +92,13 @@ template <typename T> void EditorManager::RegisterSystem()
     editorManager.m_systemMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
-template <typename T> void EditorManager::RegisterPrivateComponent()
+template <typename T> void Editor::RegisterPrivateComponent()
 {
     auto &editorManager = GetInstance();
     auto func = [&](Entity owner) {
         if (owner.HasPrivateComponent<T>())
             return;
-        if (ImGui::Button(SerializationManager::GetSerializableTypeName<T>().c_str()))
+        if (ImGui::Button(Serialization::GetSerializableTypeName<T>().c_str()))
         {
             owner.GetOrSetPrivateComponent<T>();
         }
@@ -115,7 +114,7 @@ template <typename T> void EditorManager::RegisterPrivateComponent()
     editorManager.m_privateComponentMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
-template <typename T> void EditorManager::RegisterDataComponent()
+template <typename T> void Editor::RegisterDataComponent()
 {
     auto id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code() || id == typeid(GlobalTransform).hash_code() ||
@@ -124,7 +123,7 @@ template <typename T> void EditorManager::RegisterDataComponent()
     auto func = [](Entity owner) {
         if (owner.HasDataComponent<T>())
             return;
-        if (ImGui::Button(SerializationManager::GetDataComponentTypeName<T>().c_str()))
+        if (ImGui::Button(Serialization::GetDataComponentTypeName<T>().c_str()))
         {
             Entities::AddDataComponent<T>(Entities::GetCurrentScene(), owner, T());
         }
@@ -140,14 +139,14 @@ template <typename T> void EditorManager::RegisterDataComponent()
     GetInstance().m_componentDataMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
-template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, const std::string &name, bool removable)
+template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std::string &name, bool removable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
     const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
     bool statusChanged = false;
     ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
-    const std::string type = SerializationManager::GetSerializableTypeName<T>();
+    const std::string type = Serialization::GetSerializableTypeName<T>();
     if (ptr)
     {
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
@@ -204,14 +203,14 @@ template <typename T> bool EditorManager::DragAndDropButton(AssetRef &target, co
 }
 
 template <typename T>
-bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool removable)
+bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool removable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
     bool statusChanged = false;
     const std::shared_ptr<IPrivateComponent> ptr = target.Get<IPrivateComponent>();
     ImGui::Button(ptr ? ptr->GetOwner().GetName().c_str() : "none");
-    const std::string type = SerializationManager::GetSerializableTypeName<T>();
+    const std::string type = Serialization::GetSerializableTypeName<T>();
     if (ptr)
     {
         const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
@@ -270,7 +269,7 @@ bool EditorManager::DragAndDropButton(PrivateComponentRef &target, const std::st
     }
     return statusChanged;
 }
-template <typename T> void EditorManager::DraggablePrivateComponent(std::shared_ptr<T> &target)
+template <typename T> void Editor::DraggablePrivateComponent(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IPrivateComponent> ptr = std::dynamic_pointer_cast<IPrivateComponent>(target);
     const auto type = ptr->GetTypeName();
@@ -283,7 +282,7 @@ template <typename T> void EditorManager::DraggablePrivateComponent(std::shared_
     }
     return;
 }
-template <typename T> void EditorManager::DraggableAsset(std::shared_ptr<T> &target)
+template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
 {
     const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))

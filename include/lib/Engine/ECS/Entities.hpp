@@ -6,9 +6,9 @@
 #include "ISerializable.hpp"
 #include "Engine/Core/ISingleton.hpp"
 #include "ISystem.hpp"
-#include "Engine/Managers/JobManager.hpp"
+#include "Engine/Core/Jobs.hpp"
 #include "Scene.hpp"
-#include "Engine/Managers/SerializationManager.hpp"
+#include "Engine/Core/Serialization.hpp"
 #include "Transform.hpp"
 
 namespace UniEngine
@@ -16,7 +16,7 @@ namespace UniEngine
 template <typename T> DataComponentType Typeof()
 {
     DataComponentType type;
-    type.m_name = SerializationManager::GetDataComponentTypeName<T>();
+    type.m_name = Serialization::GetDataComponentTypeName<T>();
     type.m_size = sizeof(T);
     type.m_offset = 0;
     type.m_typeId = typeid(T).hash_code();
@@ -35,9 +35,9 @@ class UNIENGINE_API Entities final : ISingleton<Entities>
     friend class PrefabHolder;
     friend class PrivateComponentStorage;
     friend class TransformLayer;
-    friend class EditorManager;
+    friend class Editor;
     friend class Scene;
-    friend class SerializationManager;
+    friend class Serialization;
     friend struct EntityArchetype;
     friend struct EntityQuery;
     friend struct Entity;
@@ -88,7 +88,7 @@ class UNIENGINE_API Entities final : ISingleton<Entities>
     static void SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value);
     static void SetDataComponent(
         const std::shared_ptr<Scene> &scene, const unsigned &entityIndex, size_t id, size_t size, IDataComponent *data);
-    friend class SerializationManager;
+    friend class Serialization;
     static IDataComponent *GetDataComponentPointer(
         const std::shared_ptr<Scene> &scene, const Entity &entity, const size_t &id);
     static IDataComponent *GetDataComponentPointer(
@@ -1586,7 +1586,7 @@ void Entities::GetDataComponentArrayStorage(
                 return;
             if (checkEnable)
             {
-                auto &workers = JobManager::Workers();
+                auto &workers = Jobs::Workers();
                 const auto capacity = storage.m_chunkCapacity;
                 const auto &chunkArray = storage.m_chunkArray;
                 const auto &entities = chunkArray.m_entities;
@@ -2034,7 +2034,7 @@ std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene>
         throw 0;
     }
     assert(entity.IsValid());
-    auto typeName = SerializationManager::GetSerializableTypeName<T>();
+    auto typeName = Serialization::GetSerializableTypeName<T>();
     size_t i = 0;
     auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
@@ -2046,7 +2046,7 @@ std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene>
         i++;
     }
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent<T>(entity);
-    auto ptr = SerializationManager::ProduceSerializable<T>();
+    auto ptr = Serialization::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity, scene);
     entityManager.m_scene->m_saved = false;
     return std::move(ptr);
@@ -2576,7 +2576,7 @@ void Entities::GetComponentDataArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = componentDataList.size();
     std::vector<std::vector<T1>> collectedDataLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedDataLists.push_back(std::vector<T1>());
@@ -2585,7 +2585,7 @@ void Entities::GetComponentDataArray(
     {
         std::vector<T1> *collectedDataList = &collectedDataLists[i];
         futures.push_back(
-            JobManager::Workers()
+            Jobs::Workers()
                 .Push(
                     [&targetDataList, &componentDataList, size, collectedDataList, i, filterFunc, threadSize](int id) {
                         for (int j = 0; j < size / threadSize; j++)
@@ -2639,7 +2639,7 @@ void Entities::GetComponentDataArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = componentDataList1.size();
     std::vector<std::vector<T1>> collectedDataLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedDataLists.push_back(std::vector<T1>());
@@ -2648,7 +2648,7 @@ void Entities::GetComponentDataArray(
     {
         std::vector<T1> *collectedDataList = &collectedDataLists[i];
         futures.push_back(
-            JobManager::Workers()
+            Jobs::Workers()
                 .Push([&targetDataList,
                        &componentDataList1,
                        &componentDataList2,
@@ -2706,7 +2706,7 @@ void Entities::GetComponentDataArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = componentDataList.size();
     std::vector<std::vector<T2>> collectedDataLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedDataLists.push_back(std::vector<T2>());
@@ -2715,7 +2715,7 @@ void Entities::GetComponentDataArray(
     {
         std::vector<T2> *collectedDataList = &collectedDataLists[i];
         futures.push_back(
-            JobManager::Workers()
+            Jobs::Workers()
                 .Push([&targetDataList, &componentDataList, size, filter, collectedDataList, i, threadSize](int id) {
                     for (int j = 0; j < size / threadSize; j++)
                     {
@@ -2766,7 +2766,7 @@ void Entities::GetEntityArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = allEntities.size();
     std::vector<std::vector<Entity>> collectedEntityLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedEntityLists.push_back(std::vector<Entity>());
@@ -2775,7 +2775,7 @@ void Entities::GetEntityArray(
     {
         std::vector<Entity> *collectedEntityList = &collectedEntityLists[i];
         futures.push_back(
-            JobManager::Workers()
+            Jobs::Workers()
                 .Push([&allEntities, &componentDataList, size, collectedEntityList, i, filterFunc, threadSize](int id) {
                     for (int j = 0; j < size / threadSize; j++)
                     {
@@ -2828,7 +2828,7 @@ void Entities::GetEntityArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = allEntities.size();
     std::vector<std::vector<Entity>> collectedEntityLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedEntityLists.push_back(std::vector<Entity>());
@@ -2836,7 +2836,7 @@ void Entities::GetEntityArray(
     for (int i = 0; i < collectedEntityLists.size(); i++)
     {
         std::vector<Entity> *collectedEntityList = &collectedEntityLists[i];
-        futures.push_back(JobManager::Workers()
+        futures.push_back(Jobs::Workers()
                               .Push([=, &allEntities, &componentDataList1, &componentDataList2](int id) {
                                   for (int j = 0; j < size / threadSize; j++)
                                   {
@@ -2891,7 +2891,7 @@ void Entities::GetEntityArray(
     std::vector<std::shared_future<void>> futures;
     size_t size = allEntities.size();
     std::vector<std::vector<Entity>> collectedEntityLists;
-    const auto threadSize = JobManager::Workers().Size();
+    const auto threadSize = Jobs::Workers().Size();
     for (int i = 0; i < threadSize; i++)
     {
         collectedEntityLists.push_back(std::vector<Entity>());
@@ -2900,7 +2900,7 @@ void Entities::GetEntityArray(
     {
         std::vector<Entity> *collectedEntityList = &collectedEntityLists[i];
         futures.push_back(
-            JobManager::Workers()
+            Jobs::Workers()
                 .Push([&allEntities, &componentDataList, size, filter, collectedEntityList, i, threadSize](int id) {
                     for (int j = 0; j < size / threadSize; j++)
                     {

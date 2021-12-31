@@ -97,9 +97,9 @@ $(document).ready(function(){initNavTree('_class_registry_8hpp_source.html','');
 <div class="contents">
 <a href="_class_registry_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#include &lt;<a class="code" href="_asset_manager_8hpp.html">AssetManager.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;<a class="code" href="_editor_manager_8hpp.html">EditorManager.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;<a class="code" href="_editor_manager_8hpp.html">Editor.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;<a class="code" href="_entity_8hpp.html">Entity.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="_serialization_manager_8hpp.html">SerializationManager.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="_serialization_manager_8hpp.html">Serialization.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespace_uni_engine.html">UniEngine</a></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>{</div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_class_registry.html">    8</a></span><span class="keyword">class </span>UNIENGINE_API <a class="code hl_class" href="class_uni_engine_1_1_class_registry.html">ClassRegistry</a></div>
@@ -111,26 +111,26 @@ $(document).ready(function(){initNavTree('_class_registry_8hpp_source.html','');
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    }</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_class_registry.html#ac2c15ba3e6c42e85de278511808b799a">   15</a></span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T = IDataComponent&gt; <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_uni_engine_1_1_class_registry.html#ac2c15ba3e6c42e85de278511808b799a">RegisterDataComponent</a>(<span class="keyword">const</span> std::string &amp;name)</div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    {</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        SerializationManager::RegisterDataComponentType&lt;T&gt;(name);</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        EditorManager::RegisterDataComponent&lt;T&gt;();</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        Serialization::RegisterDataComponentType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        Editor::RegisterDataComponent&lt;T&gt;();</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    }</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_class_registry.html#ab0ee4b97d7e732f478a671f22a4768d4">   20</a></span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T = IPrivateComponent&gt; <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_uni_engine_1_1_class_registry.html#ab0ee4b97d7e732f478a671f22a4768d4">RegisterPrivateComponent</a>(<span class="keyword">const</span> std::string &amp;name)</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    {</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        SerializationManager::RegisterSerializableType&lt;T&gt;(name);</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        SerializationManager::RegisterPrivateComponentType&lt;T&gt;(name);</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        EditorManager::RegisterPrivateComponent&lt;T&gt;();</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        Serialization::RegisterSerializableType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        Serialization::RegisterPrivateComponentType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        Editor::RegisterPrivateComponent&lt;T&gt;();</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    }</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_class_registry.html#a479d26c7d79d2af8039a0d8214839d97">   27</a></span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T = ISystem&gt; <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_uni_engine_1_1_class_registry.html#a479d26c7d79d2af8039a0d8214839d97">RegisterSystem</a>(<span class="keyword">const</span> std::string &amp;name)</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    {</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        SerializationManager::RegisterSerializableType&lt;T&gt;(name);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        SerializationManager::RegisterSystemType&lt;T&gt;(name);</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        EditorManager::RegisterSystem&lt;T&gt;();</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        Serialization::RegisterSerializableType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        Serialization::RegisterSystemType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        Editor::RegisterSystem&lt;T&gt;();</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    }</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_class_registry.html#a6f5a80d84bb7a176bc3ba0287bbb9a02">   34</a></span>    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> T = ISerializable&gt; <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code hl_function" href="class_uni_engine_1_1_class_registry.html#a6f5a80d84bb7a176bc3ba0287bbb9a02">RegisterSerializable</a>(<span class="keyword">const</span> std::string &amp;name)</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    {</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        SerializationManager::RegisterSerializableType&lt;T&gt;(name);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        Serialization::RegisterSerializableType&lt;T&gt;(name);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    }</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>};</div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
@@ -181,9 +181,9 @@ $(document).ready(function(){initNavTree('_class_registry_8hpp_source.html','');
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>} <span class="comment">// namespace UniEngine</span></div>
 <div class="ttc" id="a_asset_manager_8hpp_html"><div class="ttname"><a href="_asset_manager_8hpp.html">AssetManager.hpp</a></div></div>
-<div class="ttc" id="a_editor_manager_8hpp_html"><div class="ttname"><a href="_editor_manager_8hpp.html">EditorManager.hpp</a></div></div>
+<div class="ttc" id="a_editor_manager_8hpp_html"><div class="ttname"><a href="_editor_manager_8hpp.html">Editor.hpp</a></div></div>
 <div class="ttc" id="a_entity_8hpp_html"><div class="ttname"><a href="_entity_8hpp.html">Entity.hpp</a></div></div>
-<div class="ttc" id="a_serialization_manager_8hpp_html"><div class="ttname"><a href="_serialization_manager_8hpp.html">SerializationManager.hpp</a></div></div>
+<div class="ttc" id="a_serialization_manager_8hpp_html"><div class="ttname"><a href="_serialization_manager_8hpp.html">Serialization.hpp</a></div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_asset_registration_html"><div class="ttname"><a href="class_uni_engine_1_1_asset_registration.html">UniEngine::AssetRegistration</a></div><div class="ttdef"><b>Definition:</b> ClassRegistry.hpp:50</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_asset_registration_html_a1dbaa87c0b59b84e63b23d900a71c93e"><div class="ttname"><a href="class_uni_engine_1_1_asset_registration.html#a1dbaa87c0b59b84e63b23d900a71c93e">UniEngine::AssetRegistration::AssetRegistration</a></div><div class="ttdeci">AssetRegistration(const std::string &amp;name, const std::string &amp;extension)</div><div class="ttdef"><b>Definition:</b> ClassRegistry.hpp:52</div></div>
 <div class="ttc" id="aclass_uni_engine_1_1_class_registry_html"><div class="ttname"><a href="class_uni_engine_1_1_class_registry.html">UniEngine::ClassRegistry</a></div><div class="ttdef"><b>Definition:</b> ClassRegistry.hpp:9</div></div>

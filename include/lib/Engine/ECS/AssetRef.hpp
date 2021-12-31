@@ -9,7 +9,7 @@ class UNIENGINE_API AssetRef
 {
     friend class Prefab;
     friend class Project;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     friend class AssetManager;
     std::shared_ptr<IAsset> m_value;

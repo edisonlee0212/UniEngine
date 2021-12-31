@@ -11,15 +11,14 @@
 #include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
-#include <InputManager.hpp>
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
 #include <LightProbe.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
@@ -448,7 +447,7 @@ void RenderLayer::OnCreate()
 }
 void RenderLayer::CollectRenderInstances(Bound &worldBound)
 {
-    auto &editorManager = EditorManager::GetInstance();
+    auto &editorManager = Editor::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (editorLayer)

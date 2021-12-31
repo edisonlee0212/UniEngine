@@ -10,11 +10,11 @@
 #include <PostProcessing.hpp>
 #include <Prefab.hpp>
 #include <ReflectionProbe.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <Scene.hpp>
 #include <SkinnedMesh.hpp>
 #include <Utilities.hpp>
-#include "EditorManager.hpp"
+#include "Editor.hpp"
 using namespace UniEngine;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_2DToCubemapProgram;
@@ -862,7 +862,7 @@ void DefaultResources::LoadEditorManagerResources()
 }
 void DefaultResources::LoadIcons()
 {
-    auto& editorManager = EditorManager::GetInstance();
+    auto& editorManager = Editor::GetInstance();
     auto texture2D = std::make_shared<Texture2D>();
     texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/project.png");
     editorManager.m_assetsIcons["Project"] = texture2D;

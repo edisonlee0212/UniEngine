@@ -9,7 +9,7 @@ class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
     friend class DefaultResources;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     friend class AssetRegistry;
     friend class ProjectManager;

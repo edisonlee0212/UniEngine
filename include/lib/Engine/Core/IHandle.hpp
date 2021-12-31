@@ -38,11 +38,11 @@ struct UNIENGINE_API Handle
 class UNIENGINE_API IHandle{
     friend class Entities;
     friend class EntityMetadata;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     friend class AssetManager;
     friend class DefaultResources;
-    friend class SerializationManager;
+    friend class Serialization;
     friend class IAsset;
     friend class AssetRef;
     friend class Scene;

@@ -1,22 +1,22 @@
-#include <JobManager.hpp>
+#include "Engine/Core/Jobs.hpp"
 using namespace UniEngine;
 
-void JobManager::ResizeWorkers(unsigned size)
+void Jobs::ResizeWorkers(unsigned size)
 {
     GetInstance().m_workers.FinishAll(true);
     GetInstance().m_workers.Resize(size);
 }
 
-ThreadPool &JobManager::Workers()
+ThreadPool &Jobs::Workers()
 {
     return GetInstance().m_workers;
 }
 
-void JobManager::Init()
+void Jobs::Init()
 {
     Workers().Resize(std::thread::hardware_concurrency() - 1);
 }
-void JobManager::ParallelFor(
+void Jobs::ParallelFor(
     unsigned size, const std::function<void(unsigned i)> &func, std::vector<std::shared_future<void>> &results)
 {
     auto &workers = GetInstance().m_workers;

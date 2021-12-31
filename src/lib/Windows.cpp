@@ -4,16 +4,16 @@
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <RenderTarget.hpp>
-#include <WindowManager.hpp>
+#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 
-void WindowManager::ResizeCallback(GLFWwindow *window, int width, int height)
+void Windows::ResizeCallback(GLFWwindow *window, int width, int height)
 {
     GetInstance().m_windowWidth = width;
     GetInstance().m_windowHeight = height;
 }
 
-void WindowManager::SetMonitorCallback(GLFWmonitor *monitor, int event)
+void Windows::SetMonitorCallback(GLFWmonitor *monitor, int event)
 {
     if (event == GLFW_CONNECTED)
     {
@@ -37,13 +37,13 @@ void WindowManager::SetMonitorCallback(GLFWmonitor *monitor, int event)
     GetInstance().m_primaryMonitor = glfwGetPrimaryMonitor();
 }
 
-void WindowManager::LateUpdate()
+void Windows::LateUpdate()
 {
     auto& windowManager = GetInstance();
     glfwSwapBuffers(windowManager.m_window);
 }
 
-void WindowManager::Init(std::string name, bool fullScreen)
+void Windows::Init(std::string name, bool fullScreen)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -82,28 +82,28 @@ void WindowManager::Init(std::string name, bool fullScreen)
     glfwMakeContextCurrent(GetInstance().m_window);
 }
 
-GLFWwindow *WindowManager::GetWindow()
+GLFWwindow *Windows::GetWindow()
 {
     return GetInstance().m_window;
 }
 
-GLFWmonitor *WindowManager::PrimaryMonitor()
+GLFWmonitor *Windows::PrimaryMonitor()
 {
     return GetInstance().m_primaryMonitor;
 }
 
-void WindowManager::PreUpdate()
+void Windows::PreUpdate()
 {
     glfwPollEvents();
     RenderTarget::BindDefault();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    if (glfwWindowShouldClose(WindowManager::GetWindow()))
+    if (glfwWindowShouldClose(Windows::GetWindow()))
     {
         Application::GetInstance().m_applicationStatus = ApplicationStatus::OnDestroy;
     }
 }
 
-void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
+void Windows::DrawTexture(OpenGLUtils::GLTexture2D *texture)
 {
     RenderTarget::BindDefault();
     /* Make the window's context current */
@@ -123,7 +123,7 @@ void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
     program->SetFloat2("size", glm::vec2(1.0));
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-void WindowManager::WindowFocusCallback(GLFWwindow* window, int focused)
+void Windows::WindowFocusCallback(GLFWwindow* window, int focused)
 {
     if (focused)
     {

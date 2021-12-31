@@ -2,7 +2,6 @@
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <OpenGLUtils.hpp>
-#include <Gui.hpp>
 #include <ISingleton.hpp>
 #include <RenderTarget.hpp>
 #include <RigidBody.hpp>
@@ -46,7 +45,7 @@ class UNIENGINE_API EditorLayer : public ILayer
 
 #pragma region Scene Camera
     friend class Graphics;
-    friend class InputManager;
+    friend class Inputs;
 
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;

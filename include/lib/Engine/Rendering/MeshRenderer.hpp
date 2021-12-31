@@ -6,7 +6,7 @@ namespace UniEngine
 {
 class UNIENGINE_API MeshRenderer : public IPrivateComponent
 {
-    friend class EditorManager;
+    friend class Editor;
     void RenderBound(glm::vec4 &color);
   public:
     bool m_forwardRendering = false;

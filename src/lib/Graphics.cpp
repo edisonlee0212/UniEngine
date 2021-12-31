@@ -1,3 +1,4 @@
+#include "Engine/Rendering/Graphics.hpp"
 #include "EditorLayer.hpp"
 #include "RenderLayer.hpp"
 #include <Application.hpp>
@@ -5,15 +6,13 @@
 #include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
-#include <InputManager.hpp>
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
 #include <LightProbe.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
-#include "Engine/Utilities/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
@@ -490,8 +489,7 @@ void Graphics::DrawGizmoMeshInstancedColored(
     renderLayer->DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
-void Graphics::DrawGizmoRay(
-    const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width)
+void Graphics::DrawGizmoRay(const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
@@ -500,25 +498,57 @@ void Graphics::DrawGizmoRay(
                        glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
     DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
 }
-
-void Graphics::DrawGizmoRays(
-    const glm::vec4 &color, const std::vector<std::pair<glm::vec3, glm::vec3>> &connections, const float &width)
+void Graphics::DrawGizmoRays(const glm::vec4 &color,
+                             const std::vector<glm::vec3> &starts,
+                             const std::vector<glm::vec3> &ends,
+                             const float &width)
 {
-    if (connections.empty())
+    if (starts.empty() || ends.empty() || starts.size() != ends.size())
         return;
     std::vector<glm::mat4> models;
-    models.resize(connections.size());
-    for (int i = 0; i < connections.size(); i++)
-    {
-        auto start = connections[i].first;
-        auto &end = connections[i].second;
-        glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
-        rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-        glm::mat4 rotationMat = glm::mat4_cast(rotation);
-        const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
-                           glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-        models[i] = model;
-    }
+    models.resize(starts.size());
+    std::vector<std::shared_future<void>> results;
+    Jobs::ParallelFor(
+        starts.size(),
+        [&](unsigned i) {
+            auto start = starts[i];
+            auto &end = ends[i];
+            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+            glm::mat4 rotationMat = glm::mat4_cast(rotation);
+            const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
+                               glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
+            models[i] = model;
+        },
+        results);
+    for (const auto &i : results)
+        i.wait();
+
+    DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
+}
+void Graphics::DrawGizmoRays(
+    const glm::vec4 &color, const std::vector<std::pair<glm::vec3, glm::vec3>> &startEnds, const float &width)
+{
+    if (startEnds.empty())
+        return;
+    std::vector<glm::mat4> models;
+    models.resize(startEnds.size());
+    std::vector<std::shared_future<void>> results;
+    Jobs::ParallelFor(
+        startEnds.size(),
+        [&](unsigned i) {
+            auto start = startEnds[i].first;
+            auto &end = startEnds[i].second;
+            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+            glm::mat4 rotationMat = glm::mat4_cast(rotation);
+            const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
+                               glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
+            models[i] = model;
+        },
+        results);
+    for (const auto &i : results)
+        i.wait();
 
     DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
@@ -529,16 +559,21 @@ void Graphics::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &ray
         return;
     std::vector<glm::mat4> models;
     models.resize(rays.size());
-    for (int i = 0; i < rays.size(); i++)
-    {
-        auto &ray = rays[i];
-        glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-        const glm::mat4 rotationMat = glm::mat4_cast(rotation);
-        const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
-                           glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-        models[i] = model;
-    }
+    std::vector<std::shared_future<void>> results;
+    Jobs::ParallelFor(
+        rays.size(),
+        [&](unsigned i) {
+            auto &ray = rays[i];
+            glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+            const glm::mat4 rotationMat = glm::mat4_cast(rotation);
+            const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
+                               glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
+            models[i] = model;
+        },
+        results);
+    for (const auto &i : results)
+        i.wait();
     DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
 
@@ -582,17 +617,20 @@ void Graphics::DrawGizmoRays(
         return;
     std::vector<glm::mat4> models;
     models.resize(connections.size());
-    for (int i = 0; i < connections.size(); i++)
-    {
-        auto start = connections[i].first;
-        auto &end = connections[i].second;
-        glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
-        rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-        glm::mat4 rotationMat = glm::mat4_cast(rotation);
-        const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
-                           glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
-        models[i] = model;
-    }
+    std::vector<std::shared_future<void>> results;
+    Jobs::ParallelFor(
+        connections.size(), [&](unsigned i) {
+            auto start = connections[i].first;
+            auto &end = connections[i].second;
+            glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+            glm::mat4 rotationMat = glm::mat4_cast(rotation);
+            const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
+                               glm::scale(glm::vec3(width, glm::distance(end, start) / 2.0f, width));
+            models[i] = model;
+        }, results);
+    for (const auto &i : results)
+        i.wait();
     DrawGizmoMeshInstanced(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
@@ -609,16 +647,19 @@ void Graphics::DrawGizmoRays(
         return;
     std::vector<glm::mat4> models;
     models.resize(rays.size());
-    for (int i = 0; i < rays.size(); i++)
-    {
-        auto &ray = rays[i];
-        glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
-        const glm::mat4 rotationMat = glm::mat4_cast(rotation);
-        const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
-                           glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
-        models[i] = model;
-    }
+    std::vector<std::shared_future<void>> results;
+    Jobs::ParallelFor(
+        rays.size(), [&](unsigned i) {
+            auto &ray = rays[i];
+            glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
+            rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+            const glm::mat4 rotationMat = glm::mat4_cast(rotation);
+            const auto model = glm::translate((ray.m_start + ray.m_direction * ray.m_length / 2.0f)) * rotationMat *
+                               glm::scale(glm::vec3(width, ray.m_length / 2.0f, width));
+            models[i] = model;
+        }, results);
+    for (const auto &i : results)
+        i.wait();
     DrawGizmoMeshInstanced(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
@@ -730,15 +771,15 @@ void Graphics::DrawTexture2D(
     const glm::vec2 &size,
     const Camera &cameraComponent)
 {
-    if (EditorManager::GetInstance().m_enabled)
+    if (Editor::GetInstance().m_enabled)
     {
-        auto &sceneCamera = EditorManager::GetInstance().m_sceneCamera;
+        auto &sceneCamera = Editor::GetInstance().m_sceneCamera;
         if (&cameraComponent != &sceneCamera && sceneCamera.IsEnabled())
         {
             Camera::m_cameraInfoBlock.UpdateMatrices(
                 sceneCamera,
-                EditorManager::GetInstance().m_sceneCameraPosition,
-                EditorManager::GetInstance().m_sceneCameraRotation);
+                Editor::GetInstance().m_sceneCameraPosition,
+                Editor::GetInstance().m_sceneCameraRotation);
             Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
             sceneCamera.Bind();
             DrawTexture2D(texture->Texture().get(), depth, center, size);
@@ -799,6 +840,7 @@ void Graphics::DrawGizmoMesh(
         renderLayer->DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
     }
 }
+
 #pragma endregion
 #pragma endregion
 

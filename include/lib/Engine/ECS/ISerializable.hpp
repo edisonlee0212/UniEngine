@@ -11,11 +11,11 @@ namespace UniEngine
 {
 class UNIENGINE_API ISerializable : public IHandle
 {
-    friend class SerializationManager;
+    friend class Serialization;
     friend class AssetManager;
     friend class IAsset;
     friend class Entities;
-    friend class SerializationManager;
+    friend class Serialization;
     std::string m_typeName;
   public:
     [[nodiscard]] std::string GetTypeName()

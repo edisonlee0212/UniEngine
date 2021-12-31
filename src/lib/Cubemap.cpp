@@ -1,8 +1,8 @@
 #include <AssetManager.hpp>
 #include <Cubemap.hpp>
 #include <RenderTarget.hpp>
-#include "Engine/Utilities/Graphics.hpp"
-#include <EditorManager.hpp>
+#include "Engine/Rendering/Graphics.hpp"
+#include "Editor.hpp"
 using namespace UniEngine;
 
 void Cubemap::OnCreate()
@@ -18,7 +18,7 @@ std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 void Cubemap::OnInspect()
 {
     static AssetRef targetTexture;
-    if(EditorManager::DragAndDropButton<Texture2D>(targetTexture, "Convert from equirectangular texture")){
+    if(Editor::DragAndDropButton<Texture2D>(targetTexture, "Convert from equirectangular texture")){
         auto tex = targetTexture.Get<Texture2D>();
         if(tex) ConvertFromEquirectangularTexture(tex);
         targetTexture.Clear();

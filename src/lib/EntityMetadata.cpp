@@ -3,7 +3,7 @@
 //
 
 #include "EntityMetadata.hpp"
-#include "SerializationManager.hpp"
+#include "Serialization.hpp"
 using namespace UniEngine;
 void EntityMetadata::Deserialize(const YAML::Node &in)
 {
@@ -86,12 +86,12 @@ void EntityMetadata::Clone(const std::unordered_map<Handle, Handle> &entityMap, 
     for(int i = 0; i < m_privateComponentElements.size(); i++)
     {
         m_privateComponentElements[i].m_privateComponentData =
-            std::dynamic_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(
+            std::dynamic_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(
                 source.m_privateComponentElements[i].m_privateComponentData->GetTypeName(),
                 m_privateComponentElements[i].m_typeId));
         m_privateComponentElements[i].m_privateComponentData->m_scene = scene;
         m_privateComponentElements[i].m_privateComponentData->OnCreate();
-        SerializationManager::ClonePrivateComponent(
+        Serialization::ClonePrivateComponent(
             m_privateComponentElements[i].m_privateComponentData,
             source.m_privateComponentElements[i].m_privateComponentData);
         m_privateComponentElements[i].m_privateComponentData->Relink(entityMap, scene);

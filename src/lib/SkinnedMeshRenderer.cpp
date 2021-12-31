@@ -1,8 +1,7 @@
 #include <Application.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Editor.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
@@ -87,13 +86,13 @@ void SkinnedMeshRenderer::DebugBoneRender(const glm::vec4 &color, const float &s
 
 void SkinnedMeshRenderer::OnInspect()
 {
-    EditorManager::DragAndDropButton<Animator>(m_animator, "Animator");
+    Editor::DragAndDropButton<Animator>(m_animator, "Animator");
     ImGui::Checkbox("Forward Rendering##SkinnedMeshRenderer", &m_forwardRendering);
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
-    EditorManager::DragAndDropButton<Material>(m_material, "Material");
-    EditorManager::DragAndDropButton<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
+    Editor::DragAndDropButton<Material>(m_material, "Material");
+    Editor::DragAndDropButton<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
     if (m_skinnedMesh.Get<SkinnedMesh>())
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))
@@ -136,7 +135,7 @@ void SkinnedMeshRenderer::OnInspect()
             {
                 for (int i = 0; i < m_boundEntities.size(); i++)
                 {
-                    if (EditorManager::DragAndDropButton(m_boundEntities[i], "Bone: " + animator->m_names[i]))
+                    if (Editor::DragAndDropButton(m_boundEntities[i], "Bone: " + animator->m_names[i]))
                     {
                         auto entity = m_boundEntities[i].Get();
                         SetRagDollBoundEntity(i, entity);

@@ -79,7 +79,7 @@ void PhysicsLayer::OnCreate()
         true,
         m_physVisDebugger);
     PxInitExtensions(*m_physics, m_physVisDebugger);
-    m_dispatcher = PxDefaultCpuDispatcherCreate(JobManager::Workers().Size());
+    m_dispatcher = PxDefaultCpuDispatcherCreate(Jobs::Workers().Size());
 
     #pragma region Physics
     m_defaultPhysicsMaterial =
@@ -408,12 +408,12 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
 {
     std::vector<std::shared_future<void>> futures;
     auto &list = rigidBodyEntities;
-    auto threadSize = JobManager::Workers().Size();
+    auto threadSize = Jobs::Workers().Size();
     size_t capacity = rigidBodyEntities->size() / threadSize;
     size_t reminder = rigidBodyEntities->size() % threadSize;
     for (size_t i = 0; i < threadSize; i++)
     {
-        futures.push_back(JobManager::Workers()
+        futures.push_back(Jobs::Workers()
                               .Push([&list, i, capacity, reminder, threadSize](int id) {
                                   for (size_t j = 0; j < capacity; j++)
                                   {

@@ -1,7 +1,6 @@
 #include <AssetManager.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
-#include <SerializationManager.hpp>
+#include "Editor.hpp"
+#include "Engine/Core/Serialization.hpp"
 #include <StarCluster/StarClusterSystem.hpp>
 using namespace Galaxy;
 
@@ -174,7 +173,7 @@ void Galaxy::StarClusterPattern::Apply(const bool &forceUpdateAllStars, const bo
     SetAb();
     Entities::ForEach<StarInfo, StarClusterIndex, StarOrbit, StarOrbitOffset, StarOrbitProportion, SurfaceColor>(
         Entities::GetCurrentScene(),
-        JobManager::Workers(),
+        Jobs::Workers(),
         [&](int i,
             Entity entity,
             StarInfo &starInfo,
@@ -256,7 +255,7 @@ void Galaxy::StarClusterSystem::CalculateStarPositionSync()
     // position.
     Entities::ForEach<StarOrbitProportion, StarPosition, StarOrbit, StarOrbitOffset>(
         Entities::GetCurrentScene(),
-        JobManager::Workers(),
+        Jobs::Workers(),
         m_starQuery,
         [=](int i,
             Entity entity,
@@ -283,7 +282,7 @@ void Galaxy::StarClusterSystem::ApplyPosition()
     m_applyPositionTimer = Application::Time().CurrentTime();
     Entities::ForEach<StarPosition, GlobalTransform, Transform, SurfaceColor, DisplayColor>(
         Entities::GetCurrentScene(),
-        JobManager::Workers(),
+        Jobs::Workers(),
         m_starQuery,
         [this](
             int i,
@@ -315,7 +314,7 @@ void Galaxy::StarClusterSystem::CopyPosition(const bool &reverse)
     colors.resize(starAmount);
     Entities::ForEach<GlobalTransform, DisplayColor>(
         Entities::GetCurrentScene(),
-        JobManager::Workers(),
+        Jobs::Workers(),
         m_starQuery,
         [&](int i, Entity entity, GlobalTransform &globalTransform, DisplayColor &displayColor) {
             matrices->m_value[i] = globalTransform.m_value;

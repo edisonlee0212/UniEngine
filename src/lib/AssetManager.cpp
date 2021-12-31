@@ -1,13 +1,12 @@
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <MeshRenderer.hpp>
 #include <Prefab.hpp>
 #include <ProjectManager.hpp>
-#include "Engine/Utilities/Graphics.hpp"
-#include <SerializationManager.hpp>
+#include "Engine/Rendering/Graphics.hpp"
+#include "Engine/Core/Serialization.hpp"
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
@@ -197,7 +196,7 @@ void AssetManager::OnInspect()
                         for (auto &i : collection.second)
                         {
                             ImGui::Button(i.second->m_name.c_str());
-                            EditorManager::DraggableAsset(i.second);
+                            Editor::DraggableAsset(i.second);
                             const std::string type = i.second->GetTypeName();
                             const std::string tag = "##" + type + std::to_string(i.second->GetHandle());
                             if (ImGui::BeginPopupContextItem(tag.c_str()))
@@ -301,7 +300,7 @@ std::shared_ptr<IAsset> AssetManager::UnsafeCreateAsset(
 {
     size_t hashCode;
     auto retVal =
-        std::dynamic_pointer_cast<IAsset>(SerializationManager::ProduceSerializable(typeName, hashCode, handle));
+        std::dynamic_pointer_cast<IAsset>(Serialization::ProduceSerializable(typeName, hashCode, handle));
     RegisterAsset(retVal);
     retVal->OnCreate();
     if (!name.empty())

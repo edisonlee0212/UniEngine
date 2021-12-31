@@ -1,10 +1,9 @@
 #include "Engine/Utilities/Console.hpp"
 #include "Engine/ECS/Entities.hpp"
-#include <Gui.hpp>
 #include <ImGuiFileBrowser.hpp>
 #include <ProjectManager.hpp>
 #include <Utilities.hpp>
-#include <WindowManager.hpp>
+#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 Bound::Bound()
 {
@@ -460,7 +459,7 @@ void FileUtils::OpenFile(
         CHAR szFile[260] = {0};
         ZeroMemory(&ofn, sizeof(OPENFILENAME));
         ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
+        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)Windows::GetWindow());
         ofn.lpstrFile = szFile;
         ofn.nMaxFile = sizeof(szFile);
         std::string filters = fileType + " (";
@@ -614,7 +613,7 @@ void FileUtils::SaveFile(
         CHAR szFile[260] = {0};
         ZeroMemory(&ofn, sizeof(OPENFILENAME));
         ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)WindowManager::GetWindow());
+        ofn.hwndOwner = glfwGetWin32Window((GLFWwindow *)Windows::GetWindow());
         ofn.lpstrFile = szFile;
         ofn.nMaxFile = sizeof(szFile);
         std::string filters = fileType + " (";

@@ -24,7 +24,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class AssetManager;
     friend class IAsset;
     friend class Graphics;
-    friend class EditorManager;
+    friend class Editor;
     friend class LightProbe;
     friend class ReflectionProbe;
     friend class EnvironmentalMap;
@@ -33,7 +33,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class SSAO;
     friend class Bloom;
     friend class SSR;
-    friend class WindowManager;
+    friend class Windows;
     friend class EditorLayer;
     friend class RenderLayer;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;

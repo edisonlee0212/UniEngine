@@ -1,7 +1,7 @@
 #include <Collider.hpp>
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <PhysicsLayer.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include "Application.hpp"
 using namespace UniEngine;
 void Collider::OnCreate()
@@ -22,7 +22,7 @@ void Collider::OnGui()
         "Shape", reinterpret_cast<int *>(&m_shapeType), RigidBodyShape, IM_ARRAYSIZE(RigidBodyShape))){
         statusChanged = true;
     }
-    EditorManager::DragAndDropButton<PhysicsMaterial>(m_physicsMaterial, "Physics Mat");
+    Editor::DragAndDropButton<PhysicsMaterial>(m_physicsMaterial, "Physics Mat");
     auto mat = m_physicsMaterial.Get<PhysicsMaterial>();
     if(mat)
     {

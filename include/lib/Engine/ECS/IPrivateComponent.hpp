@@ -7,10 +7,10 @@ namespace UniEngine
 class UNIENGINE_API IPrivateComponent : public ISerializable
 {
     friend class Entities;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
     friend struct PrivateComponentElement;
-    friend class SerializationManager;
+    friend class Serialization;
     friend class Scene;
     friend class Prefab;
     friend class EntityMetadata;

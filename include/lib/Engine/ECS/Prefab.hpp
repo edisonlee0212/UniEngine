@@ -117,7 +117,7 @@ class UNIENGINE_API Prefab : public IAsset
 
 template <typename T> std::shared_ptr<T> Prefab::GetPrivateComponent()
 {
-    auto typeName = SerializationManager::GetSerializableTypeName<T>();
+    auto typeName = Serialization::GetSerializableTypeName<T>();
     for (auto &i : m_privateComponents)
     {
         if (i.m_data->GetTypeName() == typeName)

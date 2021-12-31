@@ -2,15 +2,14 @@
 // Created by lllll on 11/2/2021.
 //
 #include "EditorLayer.hpp"
-#include "EditorManager.hpp"
+#include "Editor.hpp"
 #include "RenderLayer.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
 #include <DefaultResources.hpp>
-#include <Gui.hpp>
-#include <InputManager.hpp>
+#include "Engine/Core/Inputs.hpp"
 #include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -21,7 +20,7 @@
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
-#include <WindowManager.hpp>
+#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 void EditorLayer::OnCreate()
 {
@@ -45,12 +44,12 @@ void EditorLayer::OnCreate()
     m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
     m_configFlags += EntityEditorSystem_EnableEntityInspector;
 
-    m_sceneCamera = SerializationManager::ProduceSerializable<Camera>();
+    m_sceneCamera = Serialization::ProduceSerializable<Camera>();
     m_sceneCamera->m_clearColor = glm::vec3(0.5f);
     m_sceneCamera->m_useClearColor = false;
     m_sceneCamera->OnCreate();
 
-    EditorManager::RegisterComponentDataInspector<GlobalTransform>(
+    Editor::RegisterComponentDataInspector<GlobalTransform>(
         [](Entity entity, IDataComponent *data, bool isRoot) {
             auto *ltw = reinterpret_cast<GlobalTransform *>(data);
             glm::vec3 er;
@@ -62,7 +61,7 @@ void EditorLayer::OnCreate()
             ImGui::DragFloat3("Rotation##Global", &er.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
             ImGui::DragFloat3("Scale##Global", &s.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
         });
-    EditorManager::RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
+    Editor::RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
         bool edited = false;
@@ -140,7 +139,7 @@ void EditorLayer::OnCreate()
                            glm::scale(m_previouslyStoredScale);
         }
     });
-    EditorManager::RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
+    Editor::RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ray = static_cast<Ray *>(static_cast<void *>(data));
         ImGui::InputFloat3("Start", &ray->m_start.x);
         ImGui::InputFloat3("Direction", &ray->m_direction.x);
@@ -155,7 +154,7 @@ void EditorLayer::PreUpdate()
         {
         case GameStatus::Stop: {
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["PlayButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["PlayButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -163,7 +162,7 @@ void EditorLayer::PreUpdate()
                 Application::Play();
             }
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["StepButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["StepButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -174,7 +173,7 @@ void EditorLayer::PreUpdate()
         }
         case GameStatus::Playing: {
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["PauseButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["PauseButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -182,7 +181,7 @@ void EditorLayer::PreUpdate()
                 Application::Pause();
             }
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["StopButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["StopButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -193,7 +192,7 @@ void EditorLayer::PreUpdate()
         }
         case GameStatus::Pause: {
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["PlayButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["PlayButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -201,7 +200,7 @@ void EditorLayer::PreUpdate()
                 Application::Play();
             }
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["StepButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["StepButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -209,7 +208,7 @@ void EditorLayer::PreUpdate()
                 Application::Step();
             }
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["StopButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["StopButton"]->UnsafeGetGLTexture()->Id(),
                     {15, 15},
                     {0, 1},
                     {1, 0}))
@@ -290,7 +289,7 @@ bool EditorLayer::DrawEntityMenu(const bool &enabled, const Entity &entity)
 }
 void EditorLayer::InspectComponentData(Entity entity, IDataComponent *data, DataComponentType type, bool isRoot)
 {
-    auto &editorManager = EditorManager::GetInstance();
+    auto &editorManager = Editor::GetInstance();
     if (editorManager.m_componentDataInspectorMap.find(type.m_typeId) !=
         editorManager.m_componentDataInspectorMap.end())
     {
@@ -690,11 +689,11 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
 }
 void EditorLayer::OnInspect()
 {
-    if (m_leftMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+    if (m_leftMouseButtonHold && !Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow()))
     {
         m_leftMouseButtonHold = false;
     }
-    if (m_rightMouseButtonHold && !InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow()))
+    if (m_rightMouseButtonHold && !Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, Windows::GetWindow()))
     {
         m_rightMouseButtonHold = false;
         m_startMouse = false;
@@ -742,7 +741,7 @@ void EditorLayer::OnInspect()
             }
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
-                EditorManager::GetInstance().m_inspectingAsset = scene;
+                Editor::GetInstance().m_inspectingAsset = scene;
             }
             if (ImGui::BeginDragDropTarget())
             {
@@ -854,7 +853,7 @@ void EditorLayer::OnInspect()
                     {
                         ImGui::Text("Add data component: ");
                         ImGui::Separator();
-                        for (auto &i : EditorManager::GetInstance().m_componentDataMenuList)
+                        for (auto &i : Editor::GetInstance().m_componentDataMenuList)
                         {
                             i.second(m_selectedEntity);
                         }
@@ -898,7 +897,7 @@ void EditorLayer::OnInspect()
                     {
                         ImGui::Text("Add private component: ");
                         ImGui::Separator();
-                        for (auto &i : EditorManager::GetInstance().m_privateComponentMenuList)
+                        for (auto &i : Editor::GetInstance().m_privateComponentMenuList)
                         {
                             i.second(m_selectedEntity);
                         }
@@ -915,7 +914,7 @@ void EditorLayer::OnInspect()
                             ImGui::Checkbox(
                                 data.m_privateComponentData->GetTypeName().c_str(),
                                 &data.m_privateComponentData->m_enabled);
-                            EditorManager::DraggablePrivateComponent(data.m_privateComponentData);
+                            Editor::DraggablePrivateComponent(data.m_privateComponentData);
                             const std::string tag = "##" + data.m_privateComponentData->GetTypeName() +
                                                     std::to_string(data.m_privateComponentData->GetHandle());
                             if (ImGui::BeginPopupContextItem(tag.c_str()))
@@ -950,7 +949,7 @@ void EditorLayer::OnInspect()
         }
         ImGui::End();
     }
-    if (scene && InputManager::GetKeyInternal(GLFW_KEY_DELETE, WindowManager::GetWindow()))
+    if (scene && Inputs::GetKeyInternal(GLFW_KEY_DELETE, Windows::GetWindow()))
     {
         if (m_selectedEntity.IsValid())
         {
@@ -1037,7 +1036,7 @@ void EditorLayer::OnInspect()
 
             ImGui::BeginChild("2", ImVec2(size2 - 5.0f, h), true);
             if (ImGui::ImageButton(
-                    (ImTextureID)EditorManager::AssetIcons()["RefreshButton"]->UnsafeGetGLTexture()->Id(),
+                    (ImTextureID)Editor::AssetIcons()["RefreshButton"]->UnsafeGetGLTexture()->Id(),
                     {16, 16},
                     {0, 1},
                     {1, 0}))
@@ -1049,7 +1048,7 @@ void EditorLayer::OnInspect()
             {
                 ImGui::SameLine();
                 if (ImGui::ImageButton(
-                        (ImTextureID)EditorManager::AssetIcons()["BackButton"]->UnsafeGetGLTexture()->Id(),
+                        (ImTextureID)Editor::AssetIcons()["BackButton"]->UnsafeGetGLTexture()->Id(),
                         {16, 16},
                         {0, 1},
                         {1, 0}))
@@ -1098,13 +1097,13 @@ void EditorLayer::OnInspect()
             float panelWidth = ImGui::GetContentRegionAvailWidth();
             int columnCount = glm::max(1, (int)(panelWidth / cellSize));
             ImGui::Columns(columnCount, 0, false);
-            auto &editorManager = EditorManager::GetInstance();
+            auto &editorManager = Editor::GetInstance();
             if (!updated)
             {
                 for (auto &i : projectManager.m_currentFocusedFolder->m_children)
                 {
                     ImGui::Image(
-                        (ImTextureID)EditorManager::AssetIcons()["Folder"]->UnsafeGetGLTexture()->Id(),
+                        (ImTextureID)Editor::AssetIcons()["Folder"]->UnsafeGetGLTexture()->Id(),
                         {thumbnailSizePadding.x, thumbnailSizePadding.x},
                         {0, 1},
                         {1, 0});
@@ -1164,18 +1163,18 @@ void EditorLayer::OnInspect()
                         continue;
                     if (fileName.extension().string() == ".ueproj")
                     {
-                        textureId = (ImTextureID)EditorManager::AssetIcons()["Project"]->UnsafeGetGLTexture()->Id();
+                        textureId = (ImTextureID)Editor::AssetIcons()["Project"]->UnsafeGetGLTexture()->Id();
                     }
                     else
                     {
-                        auto iconSearch = EditorManager::AssetIcons().find(i.second.m_typeName);
-                        if (iconSearch != EditorManager::AssetIcons().end())
+                        auto iconSearch = Editor::AssetIcons().find(i.second.m_typeName);
+                        if (iconSearch != Editor::AssetIcons().end())
                         {
                             textureId = (ImTextureID)iconSearch->second->UnsafeGetGLTexture()->Id();
                         }
                         else
                         {
-                            textureId = (ImTextureID)EditorManager::AssetIcons()["Binary"]->UnsafeGetGLTexture()->Id();
+                            textureId = (ImTextureID)Editor::AssetIcons()["Binary"]->UnsafeGetGLTexture()->Id();
                         }
                     }
                     static std::shared_ptr<IAsset> asset;
@@ -1195,7 +1194,7 @@ void EditorLayer::OnInspect()
                             // If it's an asset then inspect.
                             asset = AssetManager::Get(i.first);
                             if (asset)
-                                EditorManager::GetInstance().m_inspectingAsset = asset;
+                                Editor::GetInstance().m_inspectingAsset = asset;
                         }
                     }
                     const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
@@ -1295,7 +1294,7 @@ void EditorLayer::OnInspect()
                 ImGui::Separator();
                 static float rank = 0.0f;
                 ImGui::DragFloat("Rank", &rank, 1.0f, 0.0f, 999.0f);
-                for (auto &i : EditorManager::GetInstance().m_systemMenuList)
+                for (auto &i : Editor::GetInstance().m_systemMenuList)
                 {
                     i.second(rank);
                 }
@@ -1329,11 +1328,11 @@ void EditorLayer::OnInspect()
     }
     if (ImGui::Begin("Asset Inspector"))
     {
-        if (!EditorManager::GetInstance().m_inspectingAsset.expired())
+        if (!Editor::GetInstance().m_inspectingAsset.expired())
         {
-            auto asset = EditorManager::GetInstance().m_inspectingAsset.lock();
+            auto asset = Editor::GetInstance().m_inspectingAsset.lock();
             ImGui::Button(asset->m_name.c_str());
-            EditorManager::DraggableAsset(asset);
+            Editor::DraggableAsset(asset);
             if (!asset->GetPath().empty())
             {
                 if (ImGui::Button("Save"))
@@ -1498,7 +1497,7 @@ void EditorLayer::SceneCameraWindow()
             glm::vec2 mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
             if (m_sceneCameraWindowFocused)
             {
-                bool valid = InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
+                bool valid = Inputs::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), mousePosition);
                 float xOffset = 0;
                 float yOffset = 0;
                 if (valid)
@@ -1517,7 +1516,7 @@ void EditorLayer::SceneCameraWindow()
                     if (!m_rightMouseButtonHold &&
                         !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x ||
                           mousePosition.y > viewPortSize.y) &&
-                        InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, WindowManager::GetWindow()))
+                        Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, Windows::GetWindow()))
                     {
                         m_rightMouseButtonHold = true;
                     }
@@ -1525,31 +1524,31 @@ void EditorLayer::SceneCameraWindow()
                     {
                         glm::vec3 front = m_sceneCameraRotation * glm::vec3(0, 0, -1);
                         glm::vec3 right = m_sceneCameraRotation * glm::vec3(1, 0, 0);
-                        if (InputManager::GetKeyInternal(GLFW_KEY_W, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_W, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition +=
                                 front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                         }
-                        if (InputManager::GetKeyInternal(GLFW_KEY_S, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_S, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition -=
                                 front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                         }
-                        if (InputManager::GetKeyInternal(GLFW_KEY_A, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_A, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition -=
                                 right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                         }
-                        if (InputManager::GetKeyInternal(GLFW_KEY_D, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_D, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition +=
                                 right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
                         }
-                        if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition.y += m_velocity * static_cast<float>(Application::Time().DeltaTime());
                         }
-                        if (InputManager::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, WindowManager::GetWindow()))
+                        if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, Windows::GetWindow()))
                         {
                             m_sceneCameraPosition.y -= m_velocity * static_cast<float>(Application::Time().DeltaTime());
                         }
@@ -1612,7 +1611,7 @@ void EditorLayer::SceneCameraWindow()
                 if (!m_leftMouseButtonHold &&
                     !(mousePosition.x > 0 || mousePosition.y < 0 || mousePosition.x < -viewPortSize.x ||
                       mousePosition.y > viewPortSize.y) &&
-                    InputManager::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, WindowManager::GetWindow()))
+                    Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow()))
                 {
                     Entity focusedEntity = MouseEntitySelection(mousePosition);
                     if (focusedEntity == Entity())
@@ -1762,7 +1761,7 @@ void EditorLayer::MainCameraWindow()
                     if (ImGui::IsMousePosValid())
                     {
                         glm::vec2 pos;
-                        InputManager::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
+                        Inputs::GetMousePositionInternal(ImGui::GetCurrentWindowRead(), pos);
                         ImGui::Text("Mouse Pos: (%.1f,%.1f)", pos.x, pos.y);
                     }
                     else
@@ -1810,7 +1809,7 @@ void EditorLayer::CameraWindowDragAndDrop()
     {
         if (!Application::IsPlaying())
         {
-            const std::string sceneTypeHash = SerializationManager::GetSerializableTypeName<Scene>();
+            const std::string sceneTypeHash = Serialization::GetSerializableTypeName<Scene>();
             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
             {
                 IM_ASSERT(payload->DataSize == sizeof(Handle));
@@ -1822,7 +1821,7 @@ void EditorLayer::CameraWindowDragAndDrop()
                 Entities::Attach(Application::GetInstance().m_scene);
             }
         }
-        const std::string modelTypeHash = SerializationManager::GetSerializableTypeName<Prefab>();
+        const std::string modelTypeHash = Serialization::GetSerializableTypeName<Prefab>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
@@ -1833,7 +1832,7 @@ void EditorLayer::CameraWindowDragAndDrop()
             EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             std::dynamic_pointer_cast<Prefab>(assetRef.m_value)->ToEntity();
         }
-        const std::string texture2DTypeHash = SerializationManager::GetSerializableTypeName<Texture2D>();
+        const std::string texture2DTypeHash = Serialization::GetSerializableTypeName<Texture2D>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(texture2DTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
@@ -1844,7 +1843,7 @@ void EditorLayer::CameraWindowDragAndDrop()
             EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             AssetManager::ToEntity(archetype, std::dynamic_pointer_cast<Texture2D>(assetRef.m_value));
         }
-        const std::string meshTypeHash = SerializationManager::GetSerializableTypeName<Mesh>();
+        const std::string meshTypeHash = Serialization::GetSerializableTypeName<Mesh>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
@@ -1860,7 +1859,7 @@ void EditorLayer::CameraWindowDragAndDrop()
             meshRenderer->m_material.Set<Material>(material);
         }
 
-        const std::string environmentalMapTypeHash = SerializationManager::GetSerializableTypeName<EnvironmentalMap>();
+        const std::string environmentalMapTypeHash = Serialization::GetSerializableTypeName<EnvironmentalMap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
@@ -1872,7 +1871,7 @@ void EditorLayer::CameraWindowDragAndDrop()
                 std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
         }
 
-        const std::string cubeMapTypeHash = SerializationManager::GetSerializableTypeName<Cubemap>();
+        const std::string cubeMapTypeHash = Serialization::GetSerializableTypeName<Cubemap>();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
         {
             auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();

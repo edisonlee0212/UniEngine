@@ -1,6 +1,5 @@
 #include "DefaultResources.hpp"
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <Material.hpp>
 using namespace UniEngine;
 static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
@@ -43,7 +42,7 @@ void Material::OnInspect()
         }
         ImGui::EndPopup();
     }
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program"))
         m_saved = false;
     ImGui::Separator();
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
@@ -112,19 +111,19 @@ void Material::OnInspect()
     }
     if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
     {
-        if(EditorManager::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex")){
+        if(Editor::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex")){
             m_saved = false;
         }
-        if(EditorManager::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex")){
+        if(Editor::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex")){
             m_saved = false;
         }
-        if(EditorManager::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex")){
+        if(Editor::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex")){
             m_saved = false;
         }
-        if(EditorManager::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex")){
+        if(Editor::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex")){
             m_saved = false;
         }
-        if(EditorManager::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex")){
+        if(Editor::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex")){
             m_saved = false;
         }
         ImGui::TreePop();

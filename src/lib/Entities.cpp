@@ -209,7 +209,7 @@ void Entities::GetEntityStorage(
         return;
     if (checkEnable)
     {
-        auto &workers = JobManager::Workers();
+        auto &workers = Jobs::Workers();
         const auto capacity = storage.m_chunkCapacity;
         const auto &chunkArray = storage.m_chunkArray;
         const auto &entities = &chunkArray.m_entities;
@@ -521,14 +521,14 @@ std::vector<Entity> Entities::CreateEntities(
         storage.m_chunkArray.m_entities.end(),
         scene->m_sceneDataStorage.m_entities.begin() + originalSize,
         scene->m_sceneDataStorage.m_entities.end());
-    const int threadSize = JobManager::Workers().Size();
+    const int threadSize = Jobs::Workers().Size();
     int perThreadAmount = remainAmount / threadSize;
     if (perThreadAmount > 0)
     {
         std::vector<std::shared_future<void>> results;
         for (int i = 0; i < threadSize; i++)
         {
-            results.push_back(JobManager::Workers()
+            results.push_back(Jobs::Workers()
                                   .Push([i, perThreadAmount, originalSize, scene](int id) {
                                       const Transform transform;
                                       const GlobalTransform globalTransform;
@@ -544,7 +544,7 @@ std::vector<Entity> Entities::CreateEntities(
                                   })
                                   .share());
         }
-        results.push_back(JobManager::Workers()
+        results.push_back(Jobs::Workers()
                               .Push([perThreadAmount, originalSize, &remainAmount, threadSize, scene](int id) {
                                   const Transform transform;
                                   const GlobalTransform globalTransform;
@@ -1075,7 +1075,7 @@ void Entities::SetPrivateComponent(
     }
     if (!found)
     {
-        auto id = SerializationManager::GetSerializableTypeId(typeName);
+        auto id = Serialization::GetSerializableTypeId(typeName);
         scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
         elements.emplace_back(id, ptr, entity, scene);
     }

@@ -1,5 +1,5 @@
 ﻿#include "Engine/Utilities/Console.hpp"
-#include <EditorManager.hpp>
+#include "Editor.hpp"
 #include <OpenGLUtils.hpp>
 using namespace UniEngine;
 
@@ -1417,7 +1417,7 @@ void OpenGLUtils::GLProgram::OnInspect()
     auto tessellationShader = GetShader(ShaderType::Tessellation);
     auto computeShader = GetShader(ShaderType::Compute);
 
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_vertexShader, "Vertex"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_vertexShader, "Vertex"))
     {
         if (vertexShader)
             vertexShader->Detach(m_id);
@@ -1426,7 +1426,7 @@ void OpenGLUtils::GLProgram::OnInspect()
             vertexShader->Attach(m_id);
         m_linked = false;
     }
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_tessellationShader, "Tessellation"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_tessellationShader, "Tessellation"))
     {
         if (tessellationShader)
             tessellationShader->Detach(m_id);
@@ -1435,7 +1435,7 @@ void OpenGLUtils::GLProgram::OnInspect()
             tessellationShader->Attach(m_id);
         m_linked = false;
     }
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_geometryShader, "Geometry"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_geometryShader, "Geometry"))
     {
         if (geometryShader)
             geometryShader->Detach(m_id);
@@ -1444,7 +1444,7 @@ void OpenGLUtils::GLProgram::OnInspect()
             geometryShader->Attach(m_id);
         m_linked = false;
     }
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_fragmentShader, "Fragment"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_fragmentShader, "Fragment"))
     {
         if (fragmentShader)
             fragmentShader->Detach(m_id);
@@ -1453,7 +1453,7 @@ void OpenGLUtils::GLProgram::OnInspect()
             fragmentShader->Attach(m_id);
         m_linked = false;
     }
-    if (EditorManager::DragAndDropButton<OpenGLUtils::GLShader>(m_computeShader, "Compute"))
+    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_computeShader, "Compute"))
     {
         if (computeShader)
             computeShader->Detach(m_id);

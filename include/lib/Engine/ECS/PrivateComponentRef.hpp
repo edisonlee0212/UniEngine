@@ -1,5 +1,5 @@
 #pragma once
-#include "SerializationManager.hpp"
+#include "Serialization.hpp"
 #include <Entity.hpp>
 #include <IAsset.hpp>
 #include <IPrivateComponent.hpp>
@@ -120,7 +120,7 @@ class UNIENGINE_API PrivateComponentRef
         }
         else
         {
-            UNIENGINE_WARNING("Entity doesn't contain " + SerializationManager::GetSerializableTypeName<T>() + "!");
+            UNIENGINE_WARNING("Entity doesn't contain " + Serialization::GetSerializableTypeName<T>() + "!");
             return;
         }
     }

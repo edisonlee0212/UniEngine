@@ -1,47 +1,47 @@
-#include <EditorManager.hpp>
-#include <InputManager.hpp>
-#include <WindowManager.hpp>
-#include "Engine/Utilities/Graphics.hpp"
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
+#include "Engine/Core/Windows.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include "Application.hpp"
 #include "EditorLayer.hpp"
 using namespace UniEngine;
 
-void InputManager::Init()
+void Inputs::Init()
 {
 }
 
-bool InputManager::GetKey(int key)
+bool Inputs::GetKey(int key)
 {
     bool retVal = false;
     if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
-        const auto state = glfwGetKey(WindowManager::GetWindow(), key);
+        const auto state = glfwGetKey(Windows::GetWindow(), key);
         retVal = state == GLFW_PRESS || state == GLFW_REPEAT;
     }
     return retVal;
 }
 
-bool InputManager::GetMouse(int button)
+bool Inputs::GetMouse(int button)
 {
     bool retVal = false;
     if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
-        retVal = glfwGetMouseButton(WindowManager::GetWindow(), button) == GLFW_PRESS;
+        retVal = glfwGetMouseButton(Windows::GetWindow(), button) == GLFW_PRESS;
     }
     return retVal;
 }
-glm::vec2 InputManager::GetMouseAbsolutePosition()
+glm::vec2 Inputs::GetMouseAbsolutePosition()
 {
     double x = FLT_MIN;
     double y = FLT_MIN;
     if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
-        glfwGetCursorPos(WindowManager::GetWindow(), &x, &y);
+        glfwGetCursorPos(Windows::GetWindow(), &x, &y);
     }
     return glm::vec2(x, y);
 }
 
-bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
+bool Inputs::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
 {
     ImGuiIO &io = ImGui::GetIO();
     const auto viewPortSize = window->Size;
@@ -55,7 +55,7 @@ bool InputManager::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
     }
     return false;
 }
-void InputManager::PreUpdate()
+void Inputs::PreUpdate()
 {
     auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
     if (mainCamera && Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
@@ -79,24 +79,24 @@ void InputManager::PreUpdate()
         GetInstance().m_mousePositionValid = false;
     };
 }
-bool InputManager::GetMousePosition(glm::vec2 &pos)
+bool Inputs::GetMousePosition(glm::vec2 &pos)
 {
     pos = GetInstance().m_mousePosition;
     return GetInstance().m_mousePositionValid;
 }
 
-bool InputManager::GetKeyInternal(int key, GLFWwindow *window)
+bool Inputs::GetKeyInternal(int key, GLFWwindow *window)
 {
     auto state = glfwGetKey(window, key);
     return state == GLFW_PRESS;
 }
 
-bool InputManager::GetMouseInternal(int button, GLFWwindow *window)
+bool Inputs::GetMouseInternal(int button, GLFWwindow *window)
 {
     return glfwGetMouseButton(window, button) == GLFW_PRESS;
 }
 
-glm::vec2 InputManager::GetMouseAbsolutePositionInternal(GLFWwindow *window)
+glm::vec2 Inputs::GetMouseAbsolutePositionInternal(GLFWwindow *window)
 {
     double x = FLT_MIN;
     double y = FLT_MIN;

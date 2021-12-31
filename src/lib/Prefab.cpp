@@ -1,12 +1,11 @@
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <DefaultResources.hpp>
-#include <EditorManager.hpp>
-#include <Gui.hpp>
+#include "Editor.hpp"
 #include <MeshRenderer.hpp>
 #include <Prefab.hpp>
-#include "Engine/Utilities/Graphics.hpp"
-#include <SerializationManager.hpp>
+#include "Engine/Rendering/Graphics.hpp"
+#include "Engine/Core/Serialization.hpp"
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
@@ -43,8 +42,8 @@ Entity Prefab::ToEntity() const
     {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        SerializationManager::ClonePrivateComponent(ptr, i.m_data);
+            Serialization::ProduceSerializable(i.m_data->GetTypeName(), id));
+        Serialization::ClonePrivateComponent(ptr, i.m_data);
         ptr->m_scene = Entities::GetCurrentScene();
         Entities::SetPrivateComponent(Entities::GetCurrentScene(), entity, ptr);
     }
@@ -107,8 +106,8 @@ void Prefab::AttachChildrenPrivateComponent(
     {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(i.m_data->GetTypeName(), id));
-        SerializationManager::ClonePrivateComponent(ptr, i.m_data);
+            Serialization::ProduceSerializable(i.m_data->GetTypeName(), id));
+        Serialization::ClonePrivateComponent(ptr, i.m_data);
         ptr->m_scene = Entities::GetCurrentScene();
         Entities::SetPrivateComponent(Entities::GetCurrentScene(), entity, ptr);
     }
@@ -413,7 +412,7 @@ bool Prefab::ProcessNode(
 
         if (isSkinnedMesh)
         {
-            auto skinnedMeshRenderer = SerializationManager::ProduceSerializable<SkinnedMeshRenderer>();
+            auto skinnedMeshRenderer = Serialization::ProduceSerializable<SkinnedMeshRenderer>();
             skinnedMeshRenderer->m_material.Set<Material>(material);
             skinnedMeshRenderer->m_skinnedMesh.Set<SkinnedMesh>(ReadSkinnedMesh(boneMaps, importerMesh));
             if (!skinnedMeshRenderer->m_skinnedMesh.Get())
@@ -426,7 +425,7 @@ bool Prefab::ProcessNode(
         }
         else
         {
-            auto meshRenderer = SerializationManager::ProduceSerializable<MeshRenderer>();
+            auto meshRenderer = Serialization::ProduceSerializable<MeshRenderer>();
             meshRenderer->m_material.Set<Material>(material);
             meshRenderer->m_mesh.Set<Mesh>(ReadMesh(importerMesh));
             if (!meshRenderer->m_mesh.Get())
@@ -733,8 +732,7 @@ void Prefab::FromEntity(const Entity &entity)
             holder.m_type = type;
             size_t id;
             size_t size;
-            holder.m_data = std::static_pointer_cast<IDataComponent>(
-                SerializationManager::ProduceDataComponent(type.m_name, id, size));
+            holder.m_data = std::static_pointer_cast<IDataComponent>(Serialization::ProduceDataComponent(type.m_name, id, size));
             memcpy(holder.m_data.get(), data, type.m_size);
             m_dataComponents.push_back(std::move(holder));
         });
@@ -744,9 +742,9 @@ void Prefab::FromEntity(const Entity &entity)
     {
         size_t id;
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
+            Serialization::ProduceSerializable(element.m_privateComponentData->GetTypeName(), id));
         ptr->OnCreate();
-        SerializationManager::ClonePrivateComponent(ptr, element.m_privateComponentData);
+        Serialization::ClonePrivateComponent(ptr, element.m_privateComponentData);
         PrivateComponentHolder holder;
         holder.m_enabled = element.m_privateComponentData->m_enabled;
         holder.m_data = ptr;
@@ -770,9 +768,9 @@ void DataComponentHolder::Serialize(YAML::Emitter &out)
 bool DataComponentHolder::Deserialize(const YAML::Node &in)
 {
     m_type.m_name = in["m_type.m_name"].as<std::string>();
-    if (!SerializationManager::HasComponentDataType(m_type.m_name))
+    if (!Serialization::HasComponentDataType(m_type.m_name))
         return false;
-    m_data = SerializationManager::ProduceDataComponent(m_type.m_name, m_type.m_typeId, m_type.m_size);
+    m_data = Serialization::ProduceDataComponent(m_type.m_name, m_type.m_typeId, m_type.m_size);
     if (in["m_data"])
     {
         YAML::Binary data = in["m_data"].as<YAML::Binary>();
@@ -1006,7 +1004,7 @@ void Prefab::LoadModelInternal(const std::filesystem::path &path, bool optimize,
         ReadAnimations(scene, animation, bonesMap);
         ApplyBoneIndices(this);
 
-        auto animator = SerializationManager::ProduceSerializable<Animator>();
+        auto animator = Serialization::ProduceSerializable<Animator>();
         animator->Setup(animation);
         AttachAnimator(this, m_entityHandle);
         PrivateComponentHolder holder;
@@ -1031,16 +1029,16 @@ void PrivateComponentHolder::Deserialize(const YAML::Node &in)
     m_enabled = in["m_enabled"].as<bool>();
     auto typeName = in["m_typeName"].as<std::string>();
     auto inData = in["m_data"];
-    if (SerializationManager::HasSerializableType(typeName))
+    if (Serialization::HasSerializableType(typeName))
     {
         size_t hashCode;
         m_data = std::dynamic_pointer_cast<IPrivateComponent>(
-            SerializationManager::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
+            Serialization::ProduceSerializable(typeName, hashCode, Handle(inData["m_handle"].as<uint64_t>())));
     }
     else
     {
         size_t hashCode;
-        m_data = std::dynamic_pointer_cast<IPrivateComponent>(SerializationManager::ProduceSerializable(
+        m_data = std::dynamic_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(
             "UnknownPrivateComponent", hashCode, Handle(inData["m_handle"].as<uint64_t>())));
     }
     m_data->OnCreate();

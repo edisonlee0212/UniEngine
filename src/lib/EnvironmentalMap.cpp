@@ -1,5 +1,5 @@
 #include <AssetManager.hpp>
-#include "EditorManager.hpp"
+#include "Editor.hpp"
 #include "Cubemap.hpp"
 #include <EnvironmentalMap.hpp>
 using namespace UniEngine;
@@ -29,7 +29,7 @@ void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targ
 void EnvironmentalMap::OnInspect()
 {
     static AssetRef targetTexture;
-    if(EditorManager::DragAndDropButton<Cubemap>(targetTexture, "Convert from cubemap")){
+    if(Editor::DragAndDropButton<Cubemap>(targetTexture, "Convert from cubemap")){
         auto tex = targetTexture.Get<Cubemap>();
         if(tex)
             ConstructFromCubemap(tex);

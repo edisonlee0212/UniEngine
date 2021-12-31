@@ -214,7 +214,7 @@ $(document).ready(function(){initNavTree('_prefab_8hpp_source.html',''); initRes
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno"><a class="line" href="class_uni_engine_1_1_prefab.html#a7c98bc9e1816732a32c6e6af53992cda">  118</a></span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; std::shared_ptr&lt;T&gt; <a class="code hl_function" href="class_uni_engine_1_1_prefab.html#a7c98bc9e1816732a32c6e6af53992cda">Prefab::GetPrivateComponent</a>()</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>{</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">auto</span> typeName = SerializationManager::GetSerializableTypeName&lt;T&gt;();</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">auto</span> typeName = Serialization::GetSerializableTypeName&lt;T&gt;();</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> &amp;i : <a class="code hl_variable" href="class_uni_engine_1_1_prefab.html#a220c689c7189200def21959a856d1d6f">m_privateComponents</a>)</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    {</div>
 <div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        <span class="keywordflow">if</span> (i.m_data-&gt;GetTypeName() == typeName)</div>

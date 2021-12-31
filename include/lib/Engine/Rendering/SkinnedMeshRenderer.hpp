@@ -14,7 +14,7 @@ class UNIENGINE_API BoneMatrices
 
 class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
 {
-    friend class EditorManager;
+    friend class Editor;
     friend class Animator;
     friend class AnimationLayer;
     friend class Prefab;

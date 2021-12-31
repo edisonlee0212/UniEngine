@@ -50,9 +50,9 @@ class UNIENGINE_API Scene : public IAsset
 {
     friend class Application;
     friend class Entities;
-    friend class EditorManager;
+    friend class Editor;
     friend class EditorLayer;
-    friend class SerializationManager;
+    friend class Serialization;
     friend class SystemRef;
     friend struct Entity;
     friend class Prefab;

@@ -178,7 +178,7 @@ static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
     if (this == Entities::GetCurrentScene().get())
-        EditorManager::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
+        Editor::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
@@ -189,7 +189,7 @@ void Scene::OnInspect()
         switch (m_environmentSettings.m_environmentType)
         {
         case EnvironmentType::EnvironmentalMap: {
-            EditorManager::DragAndDropButton<EnvironmentalMap>(
+            Editor::DragAndDropButton<EnvironmentalMap>(
                 m_environmentSettings.m_environmentalMap, "Environmental Map");
         }
         break;
@@ -207,7 +207,7 @@ void Scene::OnInspect()
 std::shared_ptr<ISystem> Scene::GetOrCreateSystem(const std::string &systemName, float order)
 {
     size_t typeId;
-    auto ptr = SerializationManager::ProduceSerializable(systemName, typeId);
+    auto ptr = Serialization::ProduceSerializable(systemName, typeId);
     auto system = std::dynamic_pointer_cast<ISystem>(ptr);
     system->m_handle = Handle();
     system->m_rank = order;
@@ -357,7 +357,7 @@ void Scene::Deserialize(const YAML::Node &in)
             dataComponentType.m_name = inDataComponentType["Name"].as<std::string>();
             dataComponentType.m_size = inDataComponentType["Size"].as<size_t>();
             dataComponentType.m_offset = inDataComponentType["Offset"].as<size_t>();
-            dataComponentType.m_typeId = SerializationManager::GetDataComponentTypeId(dataComponentType.m_name);
+            dataComponentType.m_typeId = Serialization::GetDataComponentTypeId(dataComponentType.m_name);
             dataComponentStorage.m_dataComponentTypes.push_back(dataComponentType);
         }
         auto inDataChunkArray = inDataComponentStorage["DataComponentChunkArray"];
@@ -453,10 +453,9 @@ void Scene::Deserialize(const YAML::Node &in)
             {
                 auto name = inPrivateComponent["TypeName"].as<std::string>();
                 size_t hashCode;
-                if (SerializationManager::HasSerializableType(name))
+                if (Serialization::HasSerializableType(name))
                 {
-                    auto ptr = std::static_pointer_cast<IPrivateComponent>(
-                        SerializationManager::ProduceSerializable(name, hashCode));
+                    auto ptr = std::static_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(name, hashCode));
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
@@ -465,7 +464,7 @@ void Scene::Deserialize(const YAML::Node &in)
                 else
                 {
                     auto ptr = std::static_pointer_cast<IPrivateComponent>(
-                        SerializationManager::ProduceSerializable("UnknownPrivateComponent", hashCode));
+                        Serialization::ProduceSerializable("UnknownPrivateComponent", hashCode));
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
@@ -484,7 +483,7 @@ void Scene::Deserialize(const YAML::Node &in)
     {
         auto name = inSystem["TypeName"].as<std::string>();
         size_t hashCode;
-        auto ptr = std::static_pointer_cast<ISystem>(SerializationManager::ProduceSerializable(name, hashCode));
+        auto ptr = std::static_pointer_cast<ISystem>(Serialization::ProduceSerializable(name, hashCode));
         ptr->m_handle = Handle(inSystem["Handle"].as<uint64_t>());
         ptr->m_enabled = inSystem["Enabled"].as<bool>();
         ptr->m_rank = inSystem["Rank"].as<float>();
@@ -610,13 +609,13 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
         auto systemName = i.second->GetTypeName();
         size_t hashCode;
         auto system = std::dynamic_pointer_cast<ISystem>(
-            SerializationManager::ProduceSerializable(systemName, hashCode, i.second->GetHandle()));
+            Serialization::ProduceSerializable(systemName, hashCode, i.second->GetHandle()));
         newScene->m_systems.insert({i.first, system});
         newScene->m_indexedSystems[hashCode] = system;
         newScene->m_mappedSystems[i.second->GetHandle()] = system;
         system->m_scene = source;
         system->OnCreate();
-        SerializationManager::CloneSystem(system, i.second);
+        Serialization::CloneSystem(system, i.second);
     }
 
     auto mainCamera = source->m_mainCamera.Get();

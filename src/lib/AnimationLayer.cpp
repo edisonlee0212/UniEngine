@@ -13,7 +13,7 @@ void AnimationLayer::PreUpdate()
         ProfilerLayer::EndEvent("AnimationManager");
         return;
     }
-    auto &workers = JobManager::Workers();
+    auto &workers = Jobs::Workers();
     std::vector<std::shared_future<void>> results;
     auto threadSize = workers.Size();
     auto threadLoad = owners->size() / threadSize;
