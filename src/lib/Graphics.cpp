@@ -13,14 +13,14 @@
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
 #pragma region Helpers
 unsigned int environmentalMapCubeVAO = 0;
 unsigned int environmentalMapCubeVBO = 0;
-void RenderManager::RenderCube()
+void Graphics::RenderCube()
 {
     // initialize (if necessary)
     if (environmentalMapCubeVAO == 0)
@@ -344,7 +344,7 @@ void RenderManager::RenderCube()
 }
 unsigned int environmentalMapQuadVAO = 0;
 unsigned int environmentalMapQuadVBO;
-void RenderManager::RenderQuad()
+void Graphics::RenderQuad()
 {
     if (environmentalMapQuadVAO == 0)
     {
@@ -373,7 +373,7 @@ void RenderManager::RenderQuad()
 #pragma region RenderAPI
 
 #pragma region External
-void RenderManager::DrawGizmoMeshInstanced(
+void Graphics::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
     const glm::vec4 &color,
     const std::vector<glm::mat4> &matrices,
@@ -399,7 +399,7 @@ void RenderManager::DrawGizmoMeshInstanced(
     }
 }
 
-void RenderManager::DrawGizmoMeshInstancedColored(
+void Graphics::DrawGizmoMeshInstancedColored(
     const std::shared_ptr<Mesh> &mesh,
     const std::vector<glm::vec4> &colors,
     const std::vector<glm::mat4> &matrices,
@@ -424,7 +424,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     }
 }
 
-void RenderManager::DrawGizmoMesh(
+void Graphics::DrawGizmoMesh(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
@@ -445,7 +445,7 @@ void RenderManager::DrawGizmoMesh(
     renderLayer->DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void RenderManager::DrawGizmoMeshInstanced(
+void Graphics::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
@@ -468,7 +468,7 @@ void RenderManager::DrawGizmoMeshInstanced(
         true, mesh, color, model, matrices, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
-void RenderManager::DrawGizmoMeshInstancedColored(
+void Graphics::DrawGizmoMeshInstancedColored(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
@@ -490,7 +490,7 @@ void RenderManager::DrawGizmoMeshInstancedColored(
     renderLayer->DrawGizmoMeshInstancedColored(true, mesh, colors, matrices, model, glm::scale(glm::vec3(size)));
 }
 
-void RenderManager::DrawGizmoRay(
+void Graphics::DrawGizmoRay(
     const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(end - start, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -501,7 +501,7 @@ void RenderManager::DrawGizmoRay(
     DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
 }
 
-void RenderManager::DrawGizmoRays(
+void Graphics::DrawGizmoRays(
     const glm::vec4 &color, const std::vector<std::pair<glm::vec3, glm::vec3>> &connections, const float &width)
 {
     if (connections.empty())
@@ -523,7 +523,7 @@ void RenderManager::DrawGizmoRays(
     DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
 
-void RenderManager::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width)
+void Graphics::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width)
 {
     if (rays.empty())
         return;
@@ -542,7 +542,7 @@ void RenderManager::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray>
     DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
 }
 
-void RenderManager::DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width)
+void Graphics::DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width)
 {
     glm::quat rotation = glm::quatLookAt(ray.m_direction, glm::vec3(0.0f, 1.0f, 0.0f));
     rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
@@ -552,7 +552,7 @@ void RenderManager::DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const f
     DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
 }
 
-void RenderManager::DrawGizmoRay(
+void Graphics::DrawGizmoRay(
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -570,7 +570,7 @@ void RenderManager::DrawGizmoRay(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
-void RenderManager::DrawGizmoRays(
+void Graphics::DrawGizmoRays(
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -597,7 +597,7 @@ void RenderManager::DrawGizmoRays(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
-void RenderManager::DrawGizmoRays(
+void Graphics::DrawGizmoRays(
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -623,7 +623,7 @@ void RenderManager::DrawGizmoRays(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, models);
 }
 
-void RenderManager::DrawGizmoRay(
+void Graphics::DrawGizmoRay(
     const std::shared_ptr<Camera> &cameraComponent,
     const glm::vec3 &cameraPosition,
     const glm::quat &cameraRotation,
@@ -640,7 +640,7 @@ void RenderManager::DrawGizmoRay(
         DefaultResources::Primitives::Cylinder, cameraComponent, cameraPosition, cameraRotation, color, model);
 }
 
-void RenderManager::DrawMesh(
+void Graphics::DrawMesh(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
@@ -673,7 +673,7 @@ void RenderManager::DrawMesh(
     }
 }
 
-void RenderManager::DrawMeshInstanced(
+void Graphics::DrawMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
@@ -712,7 +712,7 @@ void RenderManager::DrawMeshInstanced(
 
 /*
 #pragma region DrawTexture
-void RenderManager::DrawTexture2D(
+void Graphics::DrawTexture2D(
     const OpenGLUtils::GLTexture2D *texture,
     const float &depth,
     const glm::vec2 &center,
@@ -723,7 +723,7 @@ void RenderManager::DrawTexture2D(
     DrawTexture2D(texture, depth, center, size);
 }
 
-void RenderManager::DrawTexture2D(
+void Graphics::DrawTexture2D(
     const Texture2D *texture,
     const float &depth,
     const glm::vec2 &center,
@@ -752,7 +752,7 @@ void RenderManager::DrawTexture2D(
     cameraComponent.Bind();
     DrawTexture2D(texture->Texture().get(), depth, center, size);
 }
-void RenderManager::DrawTexture2D(
+void Graphics::DrawTexture2D(
     const OpenGLUtils::GLTexture2D *texture, const float &depth, const glm::vec2 &center, const glm::vec2 &size)
     {
     const auto program = DefaultResources::GLPrograms::ScreenProgram;
@@ -765,7 +765,7 @@ void RenderManager::DrawTexture2D(
     program->SetFloat2("size", size);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     }
-void RenderManager::DrawTexture2D(
+void Graphics::DrawTexture2D(
     const Texture2D *texture,
     const float &depth,
     const glm::vec2 &center,
@@ -780,7 +780,7 @@ void RenderManager::DrawTexture2D(
 #pragma endregion
 #pragma region Gizmo
 
-void RenderManager::DrawGizmoMesh(
+void Graphics::DrawGizmoMesh(
     const std::shared_ptr<Mesh> &mesh, const glm::vec4 &color, const glm::mat4 &model, const float &size)
 {
     auto renderLayer = Application::GetLayer<RenderLayer>();

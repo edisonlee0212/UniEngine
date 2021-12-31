@@ -10,7 +10,7 @@
 #include <PostProcessing.hpp>
 #include <Prefab.hpp>
 #include <ReflectionProbe.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <Scene.hpp>
 #include <SkinnedMesh.hpp>
 #include <Utilities.hpp>
@@ -738,7 +738,7 @@ void DefaultResources::PrepareBrdfLut()
     OpenGLUtils::SetViewPort(resolution, resolution);
     DefaultResources::BrdfProgram->Bind();
     renderTarget->Clear();
-    RenderManager::RenderQuad();
+    Graphics::RenderQuad();
     OpenGLUtils::GLFrameBuffer::BindDefault();
 }
 void DefaultResources::LoadEditorManagerResources()

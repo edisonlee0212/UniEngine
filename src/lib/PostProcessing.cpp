@@ -162,7 +162,6 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 
     DefaultResources::ScreenVAO->Bind();
 
@@ -171,7 +170,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
     renderTarget.AttachTexture(m_flatColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_brightColor.get(), GL_COLOR_ATTACHMENT1);
     renderTarget.Bind();
-    glDrawBuffers(2, enums);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
     cameraComponent->m_colorTexture->m_texture->Bind(0);
     m_separateProgram->SetInt("image", 0);
     m_separateProgram->SetFloat("threshold", m_threshold);
@@ -179,7 +178,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
 
     m_filterProgram->Bind();
     renderTarget.AttachTexture(m_result.get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_brightColor->Bind(0);
     m_filterProgram->SetInt("image", 0);
     m_filterProgram->SetBool("horizontal", false);
@@ -202,7 +201,7 @@ void Bloom::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget
 
     m_combineProgram->Bind();
     renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_flatColor->Bind(0);
     m_brightColor->Bind(1);
     m_combineProgram->SetInt("flatColor", 0);
@@ -277,7 +276,6 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     DefaultResources::ScreenVAO->Bind();
 
     m_geometryProgram->Bind();
@@ -285,7 +283,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_ssaoPosition.get(), GL_COLOR_ATTACHMENT1);
     renderTarget.Bind();
-    glDrawBuffers(2, enums);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
 
     cameraComponent->m_colorTexture->UnsafeGetGLTexture()->Bind(0);
     cameraComponent->m_gBufferNormal->Bind(1);
@@ -302,7 +300,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
 
     m_blurProgram->Bind();
     renderTarget.AttachTexture(m_blur.get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_ssaoPosition->Bind(0);
     m_blurProgram->SetInt("image", 0);
     m_blurProgram->SetInt("sampleStep", m_sampleStep);
@@ -324,7 +322,7 @@ void SSAO::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget 
 
     m_combineProgram->Bind();
     renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_originalColor->Bind(0);
     m_ssaoPosition->Bind(1);
     m_combineProgram->SetInt("originalColor", 0);
@@ -398,7 +396,6 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
 
-    unsigned int enums[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     DefaultResources::ScreenVAO->Bind();
 
     m_reflectProgram->Bind();
@@ -406,7 +403,7 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
     renderTarget.AttachTexture(m_originalColor.get(), GL_COLOR_ATTACHMENT0);
     renderTarget.AttachTexture(m_reflectedColorVisibility.get(), GL_COLOR_ATTACHMENT1);
     renderTarget.Bind();
-    glDrawBuffers(2, enums);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
 
     cameraComponent->m_colorTexture->UnsafeGetGLTexture()->Bind(0);
     cameraComponent->m_gBufferMetallicRoughnessEmissionAmbient->Bind(1);
@@ -430,7 +427,7 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
 
     m_blurProgram->Bind();
     renderTarget.AttachTexture(m_blur.get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_reflectedColorVisibility->Bind(0);
     m_blurProgram->SetInt("image", 0);
     m_blurProgram->SetInt("sampleStep", m_sampleStep);
@@ -453,7 +450,7 @@ void SSR::Process(const std::shared_ptr<Camera> &cameraComponent, RenderTarget &
 
     m_combineProgram->Bind();
     renderTarget.AttachTexture(cameraComponent->m_colorTexture->UnsafeGetGLTexture().get(), GL_COLOR_ATTACHMENT0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    renderTarget.GetFrameBuffer()->DrawBuffers({GL_COLOR_ATTACHMENT0});
     m_originalColor->Bind(0);
     m_reflectedColorVisibility->Bind(1);
     m_combineProgram->SetInt("originalColor", 0);

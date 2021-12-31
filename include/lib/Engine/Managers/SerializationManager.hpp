@@ -1,6 +1,6 @@
 #pragma once
 #include "ISystem.hpp"
-#include <ConsoleManager.hpp>
+#include "Engine/Utilities/Console.hpp"
 #include <IDataComponent.hpp>
 #include <IPrivateComponent.hpp>
 #include <ISerializable.hpp>

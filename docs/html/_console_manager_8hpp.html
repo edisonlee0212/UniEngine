@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/ConsoleManager.hpp File Reference</title>
+<title>My Project: C:/Users/lllll/Documents/GitHub/UniEngine/include/lib/Engine/Managers/Console.hpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
@@ -97,7 +97,7 @@ $(document).ready(function(){initNavTree('_console_manager_8hpp.html',''); initR
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#enum-members">Enumerations</a>  </div>
-  <div class="headertitle"><div class="title">ConsoleManager.hpp File Reference</div></div>
+  <div class="headertitle"><div class="title">Console.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;uniengine_export.h&gt;</code><br />
@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('_console_manager_8hpp.html',''); initR
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_uni_engine_1_1_console_message.html">UniEngine::ConsoleMessage</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_console_manager.html">UniEngine::ConsoleManager</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_uni_engine_1_1_console_manager.html">UniEngine::Console</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -151,10 +151,10 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    {                                                                                                                  <a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a0062aeae16426ce23541d770520177c9">\</a></div>
-<div class="line"><a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a0062aeae16426ce23541d770520177c9">        UniEngine::ConsoleManager::Error</a>(msg);                                                                                  \</div>
+<div class="line"><a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a0062aeae16426ce23541d770520177c9">        UniEngine::Console::Error</a>(msg);                                                                                  \</div>
 <div class="line">        std::cerr &lt;&lt; <span class="stringliteral">&quot;(UniEngine)Error: &quot;</span> &lt;&lt; msg &lt;&lt; <span class="stringliteral">&quot; (&quot;</span> &lt;&lt; __FILE__ &lt;&lt; <span class="stringliteral">&quot;: line &quot;</span> &lt;&lt; __LINE__ &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;     \</div>
 <div class="line">    }</div>
-<div class="ttc" id="aclass_uni_engine_1_1_console_manager_html_a0062aeae16426ce23541d770520177c9"><div class="ttname"><a href="class_uni_engine_1_1_console_manager.html#a0062aeae16426ce23541d770520177c9">UniEngine::ConsoleManager::Error</a></div><div class="ttdeci">static UNIENGINE_API void Error(const std::string &amp;msg)</div><div class="ttdef"><b>Definition:</b> ConsoleManager.cpp:16</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_console_manager_html_a0062aeae16426ce23541d770520177c9"><div class="ttname"><a href="class_uni_engine_1_1_console_manager.html#a0062aeae16426ce23541d770520177c9">UniEngine::Console::Error</a></div><div class="ttdeci">static UNIENGINE_API void Error(const std::string &amp;msg)</div><div class="ttdef"><b>Definition:</b> Console.cpp:16</div></div>
 </div><!-- fragment -->
 <p>A thread-safe error log macro. </p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -182,10 +182,10 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    {                                                                                                                  <a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a523efe387ac6190c5140d27bc35ce6e6">\</a></div>
-<div class="line"><a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a523efe387ac6190c5140d27bc35ce6e6">        UniEngine::ConsoleManager::Log</a>(msg);                                                                                    \</div>
+<div class="line"><a class="code hl_function" href="class_uni_engine_1_1_console_manager.html#a523efe387ac6190c5140d27bc35ce6e6">        UniEngine::Console::Log</a>(msg);                                                                                    \</div>
 <div class="line">        std::cout &lt;&lt; <span class="stringliteral">&quot;(UniEngine)Log: &quot;</span> &lt;&lt; msg &lt;&lt; <span class="stringliteral">&quot; (&quot;</span> &lt;&lt; __FILE__ &lt;&lt; <span class="stringliteral">&quot;: line &quot;</span> &lt;&lt; __LINE__ &lt;&lt; <span class="stringliteral">&quot;)&quot;</span> &lt;&lt; std::endl;       \</div>
 <div class="line">    }</div>
-<div class="ttc" id="aclass_uni_engine_1_1_console_manager_html_a523efe387ac6190c5140d27bc35ce6e6"><div class="ttname"><a href="class_uni_engine_1_1_console_manager.html#a523efe387ac6190c5140d27bc35ce6e6">UniEngine::ConsoleManager::Log</a></div><div class="ttdeci">static UNIENGINE_API void Log(const std::string &amp;msg)</div><div class="ttdef"><b>Definition:</b> ConsoleManager.cpp:5</div></div>
+<div class="ttc" id="aclass_uni_engine_1_1_console_manager_html_a523efe387ac6190c5140d27bc35ce6e6"><div class="ttname"><a href="class_uni_engine_1_1_console_manager.html#a523efe387ac6190c5140d27bc35ce6e6">UniEngine::Console::Log</a></div><div class="ttdeci">static UNIENGINE_API void Log(const std::string &amp;msg)</div><div class="ttdef"><b>Definition:</b> Console.cpp:5</div></div>
 </div><!-- fragment -->
 <p>A thread-safe message log macro. </p>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -202,7 +202,7 @@ Enumerations</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_75cd9fdc0e5857172e4208accfea24ce.html">Managers</a></li><li class="navelem"><a class="el" href="_console_manager_8hpp.html">ConsoleManager.hpp</a></li>
+    <li class="navelem"><a class="el" href="dir_d44c64559bbebec7f509842c48db8b23.html">include</a></li><li class="navelem"><a class="el" href="dir_a61f22007e0f347cded0d82030ee545d.html">lib</a></li><li class="navelem"><a class="el" href="dir_f094ba03229c8a680e71b527c95601d8.html">Engine</a></li><li class="navelem"><a class="el" href="dir_75cd9fdc0e5857172e4208accfea24ce.html">Managers</a></li><li class="navelem"><a class="el" href="_console_manager_8hpp.html">Console.hpp</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.2 </li>
   </ul>
 </div>

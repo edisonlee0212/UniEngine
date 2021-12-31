@@ -2,7 +2,7 @@
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <MeshRenderer.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 using namespace UniEngine;
 void MeshRenderer::RenderBound(glm::vec4 &color)
 {
@@ -14,7 +14,7 @@ void MeshRenderer::RenderBound(glm::vec4 &color)
         size.z = 0.01f;
     if (size.y < 0.01f)
         size.y = 0.01f;
-    RenderManager::DrawGizmoMesh(
+    Graphics::DrawGizmoMesh(
         DefaultResources::Primitives::Cube,
         color,
         transform * (glm::translate(m_mesh.Get<Mesh>()->m_bound.Center()) * glm::scale(size)),

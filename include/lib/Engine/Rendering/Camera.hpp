@@ -31,7 +31,7 @@ struct Ray;
 class Cubemap;
 class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 {
-    friend class RenderManager;
+    friend class Graphics;
     friend class RenderLayer;
     friend class EditorLayer;
     friend struct CameraInfoBlock;

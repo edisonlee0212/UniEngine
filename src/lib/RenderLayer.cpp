@@ -3,6 +3,9 @@
 //
 
 #include "RenderLayer.hpp"
+#include "EditorLayer.hpp"
+#include "ProfilerLayer.hpp"
+#include "Graphics.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <Camera.hpp>
@@ -16,11 +19,8 @@
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
-#include "EditorLayer.hpp"
-#include "ProfilerLayer.hpp"
-#include "RenderManager.hpp"
 using namespace UniEngine;
 
 #pragma region RenderCommand Dispatch
@@ -82,9 +82,8 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     ApplyEnvironmentalSettings(cameraComponent);
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     cameraComponent->m_gBuffer->Bind();
-    unsigned int attachments[4] = {
-        GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
-    cameraComponent->m_gBuffer->GetFrameBuffer()->DrawBuffers(4, attachments);
+    cameraComponent->m_gBuffer->GetFrameBuffer()->DrawBuffers(
+        {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3});
     cameraComponent->m_gBuffer->Clear();
     DispatchRenderCommands(
         m_deferredRenderInstances[cameraComponent],
@@ -97,8 +96,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DeferredPrepassInternal(mesh);
                 break;
@@ -110,8 +108,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
                 ApplyProgramSettings(program, material);
                 renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DeferredPrepassInternal(skinnedMesh);
                 break;
@@ -132,8 +129,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
                 program->Bind();
                 ApplyProgramSettings(program, material);
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                 DeferredPrepassInstancedInternal(mesh, renderCommand.m_matrices.lock());
                 break;
@@ -152,7 +148,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     glBlitFramebuffer(0, 0, res.x, res.y, 0, 0, res.x, res.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 #pragma endregion
 
-    cameraComponent->m_frameBuffer->DrawBuffer(GL_COLOR_ATTACHMENT0);
+    cameraComponent->m_frameBuffer->DrawBuffers({GL_COLOR_ATTACHMENT0});
 #pragma region Apply GBuffer with lighting
     DefaultResources::m_gBufferLightingPass->Bind();
     cameraComponent->m_gBufferDepth->Bind(12);
@@ -184,8 +180,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
             case RenderCommandMeshType::Default: {
                 auto mesh = renderCommand.m_mesh.lock();
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 if (!program)
                     break;
@@ -199,8 +194,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
                 auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
                 renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 if (!program)
                     break;
@@ -223,8 +217,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
                     break;
                 auto mesh = renderCommand.m_mesh.lock();
                 m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
-                m_materialSettingsBuffer->SubData(
-                    0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+                m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
                 auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
                 if (!program)
                     break;
@@ -257,7 +250,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
 }
 void RenderLayer::PreUpdate()
 {
-    ProfilerLayer::StartEvent("RenderManager");
+    ProfilerLayer::StartEvent("Graphics");
 
     ProfilerLayer::StartEvent("Clear GBuffer");
     m_deferredRenderInstances.clear();
@@ -267,11 +260,11 @@ void RenderLayer::PreUpdate()
     m_transparentRenderInstances.clear();
     m_instancedTransparentRenderInstances.clear();
     ProfilerLayer::EndEvent("Clear GBuffer");
-    ProfilerLayer::EndEvent("RenderManager");
+    ProfilerLayer::EndEvent("Graphics");
 }
 void RenderLayer::LateUpdate()
 {
-    ProfilerLayer::StartEvent("RenderManager");
+    ProfilerLayer::StartEvent("Graphics");
     auto scene = EntityManager::GetCurrentScene();
     if (!scene)
         return;
@@ -330,7 +323,7 @@ void RenderLayer::LateUpdate()
     ProfilerLayer::EndEvent("Post Processing");
 #pragma endregion
     m_frameIndex++;
-    ProfilerLayer::EndEvent("RenderManager");
+    ProfilerLayer::EndEvent("Graphics");
 }
 glm::vec3 RenderLayer::ClosestPointOnLine(const glm::vec3 &point, const glm::vec3 &a, const glm::vec3 &b)
 {
@@ -364,42 +357,22 @@ void RenderLayer::OnInspect()
         {
             m_materialSettings.m_enableShadow = enableShadow;
         }
-        if (m_materialSettings.m_enableShadow &&
-            ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
+        if (m_materialSettings.m_enableShadow && ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
         {
             if (ImGui::TreeNode("Distance"))
             {
                 ImGui::DragFloat("Max shadow distance", &m_maxShadowDistance, 1.0f, 0.1f);
+                ImGui::DragFloat("Split 1", &m_shadowCascadeSplit[0], 0.01f, 0.0f, m_shadowCascadeSplit[1]);
                 ImGui::DragFloat(
-                    "Split 1",
-                    &m_shadowCascadeSplit[0],
-                    0.01f,
-                    0.0f,
-                    m_shadowCascadeSplit[1]);
+                    "Split 2", &m_shadowCascadeSplit[1], 0.01f, m_shadowCascadeSplit[0], m_shadowCascadeSplit[2]);
                 ImGui::DragFloat(
-                    "Split 2",
-                    &m_shadowCascadeSplit[1],
-                    0.01f,
-                    m_shadowCascadeSplit[0],
-                    m_shadowCascadeSplit[2]);
-                ImGui::DragFloat(
-                    "Split 3",
-                    &m_shadowCascadeSplit[2],
-                    0.01f,
-                    m_shadowCascadeSplit[1],
-                    m_shadowCascadeSplit[3]);
-                ImGui::DragFloat(
-                    "Split 4",
-                    &m_shadowCascadeSplit[3],
-                    0.01f,
-                    m_shadowCascadeSplit[2],
-                    1.0f);
+                    "Split 3", &m_shadowCascadeSplit[2], 0.01f, m_shadowCascadeSplit[1], m_shadowCascadeSplit[3]);
+                ImGui::DragFloat("Split 4", &m_shadowCascadeSplit[3], 0.01f, m_shadowCascadeSplit[2], 1.0f);
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode("PCSS"))
             {
-                ImGui::DragInt(
-                    "Blocker search side amount", &m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
+                ImGui::DragInt("Blocker search side amount", &m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
                 ImGui::DragInt("PCF Sample Size", &m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
                 ImGui::TreePop();
             }
@@ -464,8 +437,7 @@ void RenderLayer::OnCreate()
     m_spotLightBlock.SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
-    m_directionalLightShadowMap =
-        std::make_unique<DirectionalLightShadowMap>(m_directionalLightShadowMapResolution);
+    m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(m_directionalLightShadowMapResolution);
 #pragma region PointLight
     m_pointLightShadowMap = std::make_unique<PointLightShadowMap>(m_pointLightShadowMapResolution);
 #pragma endregion
@@ -479,9 +451,9 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
     auto &editorManager = EditorManager::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
     auto editorLayer = Application::GetLayer<EditorLayer>();
-    if(editorLayer)
+    if (editorLayer)
     {
-        auto& sceneCamera = editorLayer->m_sceneCamera;
+        auto &sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())
         {
             cameraPairs.emplace_back(sceneCamera, editorLayer->m_sceneCameraPosition);
@@ -539,14 +511,11 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             for (const auto &pair : cameraPairs)
             {
                 auto &deferredRenderInstances = m_deferredRenderInstances[pair.first].m_value;
-                auto &deferredInstancedRenderInstances =
-                    m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances = m_deferredInstancedRenderInstances[pair.first].m_value;
                 auto &forwardRenderInstances = m_forwardRenderInstances[pair.first].m_value;
-                auto &forwardInstancedRenderInstances =
-                    m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances = m_forwardInstancedRenderInstances[pair.first].m_value;
                 auto &transparentRenderInstances = m_transparentRenderInstances[pair.first].m_value;
-                auto &instancedTransparentRenderInstances =
-                    m_instancedTransparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances = m_instancedTransparentRenderInstances[pair.first].m_value;
 
                 float distance = glm::distance(glm::vec3(meshCenter), pair.second);
                 RenderCommand renderInstance;
@@ -602,14 +571,11 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             for (const auto &pair : cameraPairs)
             {
                 auto &deferredRenderInstances = m_deferredRenderInstances[pair.first].m_value;
-                auto &deferredInstancedRenderInstances =
-                    m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances = m_deferredInstancedRenderInstances[pair.first].m_value;
                 auto &forwardRenderInstances = m_forwardRenderInstances[pair.first].m_value;
-                auto &forwardInstancedRenderInstances =
-                    m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances = m_forwardInstancedRenderInstances[pair.first].m_value;
                 auto &transparentRenderInstances = m_transparentRenderInstances[pair.first].m_value;
-                auto &instancedTransparentRenderInstances =
-                    m_instancedTransparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances = m_instancedTransparentRenderInstances[pair.first].m_value;
                 auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
                 float distance = glm::distance(glm::vec3(meshCenter), pair.second);
                 RenderCommand renderInstance;
@@ -674,14 +640,11 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             for (const auto &pair : cameraPairs)
             {
                 auto &deferredRenderInstances = m_deferredRenderInstances[pair.first].m_value;
-                auto &deferredInstancedRenderInstances =
-                    m_deferredInstancedRenderInstances[pair.first].m_value;
+                auto &deferredInstancedRenderInstances = m_deferredInstancedRenderInstances[pair.first].m_value;
                 auto &forwardRenderInstances = m_forwardRenderInstances[pair.first].m_value;
-                auto &forwardInstancedRenderInstances =
-                    m_forwardInstancedRenderInstances[pair.first].m_value;
+                auto &forwardInstancedRenderInstances = m_forwardInstancedRenderInstances[pair.first].m_value;
                 auto &transparentRenderInstances = m_transparentRenderInstances[pair.first].m_value;
-                auto &instancedTransparentRenderInstances =
-                    m_instancedTransparentRenderInstances[pair.first].m_value;
+                auto &instancedTransparentRenderInstances = m_instancedTransparentRenderInstances[pair.first].m_value;
                 auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
                 float distance = glm::distance(glm::vec3(meshCenter), pair.second);
                 RenderCommand renderInstance;
@@ -1008,10 +971,7 @@ void RenderLayer::RenderShadows(
                 {
                 case 0:
                     m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
-                        0,
-                        0,
-                        m_directionalLightShadowMapResolution / 2,
-                        m_directionalLightShadowMapResolution / 2);
+                        0, 0, m_directionalLightShadowMapResolution / 2, m_directionalLightShadowMapResolution / 2);
                     break;
                 case 1:
                     m_directionalLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1064,13 +1024,12 @@ void RenderLayer::RenderShadows(
         m_directionalLightBlock.SubData(0, 4, &enabledSize);
         if (enabledSize != 0)
         {
-            m_directionalLightBlock.SubData(
-                16, enabledSize * sizeof(DirectionalLightInfo), &m_directionalLights[0]);
+            m_directionalLightBlock.SubData(16, enabledSize * sizeof(DirectionalLightInfo), &m_directionalLights[0]);
         }
         if (m_materialSettings.m_enableShadow)
         {
             m_directionalLightShadowMap->Bind();
-            m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            m_directionalLightShadowMap->GetFrameBuffer()->DrawBuffers({});
             glClear(GL_DEPTH_BUFFER_BIT);
             enabledSize = 0;
             DefaultResources::m_directionalLightProgram->Bind();
@@ -1079,7 +1038,7 @@ void RenderLayer::RenderShadows(
                 Entity lightEntity = directionalLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                glViewport(
+                OpenGLUtils::SetViewPort(
                     m_directionalLights[enabledSize].m_viewPort.x,
                     m_directionalLights[enabledSize].m_viewPort.y,
                     m_directionalLights[enabledSize].m_viewPort.z,
@@ -1146,17 +1105,13 @@ void RenderLayer::RenderShadows(
             m_pointLights[enabledSize].m_lightSpaceMatrix[5] =
                 shadowProj *
                 glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-            m_pointLights[enabledSize].m_reservedParameters =
-                glm::vec4(plc->m_bias, plc->m_lightSize, 0, 0);
+            m_pointLights[enabledSize].m_reservedParameters = glm::vec4(plc->m_bias, plc->m_lightSize, 0, 0);
 
             switch (enabledSize)
             {
             case 0:
-                m_pointLights[enabledSize].m_viewPort = glm::ivec4(
-                    0,
-                    0,
-                    m_pointLightShadowMapResolution / 2,
-                    m_pointLightShadowMapResolution / 2);
+                m_pointLights[enabledSize].m_viewPort =
+                    glm::ivec4(0, 0, m_pointLightShadowMapResolution / 2, m_pointLightShadowMapResolution / 2);
                 break;
             case 1:
                 m_pointLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1184,12 +1139,11 @@ void RenderLayer::RenderShadows(
         }
         m_pointLightBlock.SubData(0, 4, &enabledSize);
         if (enabledSize != 0)
-            m_pointLightBlock.SubData(
-                16, enabledSize * sizeof(PointLightInfo), &m_pointLights[0]);
+            m_pointLightBlock.SubData(16, enabledSize * sizeof(PointLightInfo), &m_pointLights[0]);
         if (m_materialSettings.m_enableShadow)
         {
             m_pointLightShadowMap->Bind();
-            m_pointLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            m_pointLightShadowMap->GetFrameBuffer()->DrawBuffers({});
             glClear(GL_DEPTH_BUFFER_BIT);
             enabledSize = 0;
             for (int i = 0; i < size; i++)
@@ -1197,7 +1151,7 @@ void RenderLayer::RenderShadows(
                 Entity lightEntity = pointLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                glViewport(
+                OpenGLUtils::SetViewPort(
                     m_pointLights[enabledSize].m_viewPort.x,
                     m_pointLights[enabledSize].m_viewPort.y,
                     m_pointLights[enabledSize].m_viewPort.z,
@@ -1250,8 +1204,7 @@ void RenderLayer::RenderShadows(
                 m_spotLightShadowMap->GetResolutionRatio(),
                 1.0f,
                 m_spotLights[enabledSize].m_constantLinearQuadFarPlane.w);
-            m_spotLights[enabledSize].m_lightSpaceMatrix =
-                shadowProj * glm::lookAt(position, position + front, up);
+            m_spotLights[enabledSize].m_lightSpaceMatrix = shadowProj * glm::lookAt(position, position + front, up);
             m_spotLights[enabledSize].m_cutOffOuterCutOffLightSizeBias = glm::vec4(
                 glm::cos(glm::radians(slc->m_innerDegrees)),
                 glm::cos(glm::radians(slc->m_outerDegrees)),
@@ -1261,11 +1214,8 @@ void RenderLayer::RenderShadows(
             switch (enabledSize)
             {
             case 0:
-                m_spotLights[enabledSize].m_viewPort = glm::ivec4(
-                    0,
-                    0,
-                    m_spotLightShadowMapResolution / 2,
-                    m_spotLightShadowMapResolution / 2);
+                m_spotLights[enabledSize].m_viewPort =
+                    glm::ivec4(0, 0, m_spotLightShadowMapResolution / 2, m_spotLightShadowMapResolution / 2);
                 break;
             case 1:
                 m_spotLights[enabledSize].m_viewPort = glm::ivec4(
@@ -1293,12 +1243,11 @@ void RenderLayer::RenderShadows(
         }
         m_spotLightBlock.SubData(0, 4, &enabledSize);
         if (enabledSize != 0)
-            m_spotLightBlock.SubData(
-                16, enabledSize * sizeof(SpotLightInfo), &m_spotLights[0]);
+            m_spotLightBlock.SubData(16, enabledSize * sizeof(SpotLightInfo), &m_spotLights[0]);
         if (m_materialSettings.m_enableShadow)
         {
             m_spotLightShadowMap->Bind();
-            m_spotLightShadowMap->GetFrameBuffer()->DrawBuffer(GL_NONE);
+            m_spotLightShadowMap->GetFrameBuffer()->DrawBuffers({});
             glClear(GL_DEPTH_BUFFER_BIT);
             enabledSize = 0;
             for (int i = 0; i < size; i++)
@@ -1306,7 +1255,7 @@ void RenderLayer::RenderShadows(
                 Entity lightEntity = spotLightEntities->at(i);
                 if (!lightEntity.IsEnabled())
                     continue;
-                glViewport(
+                OpenGLUtils::SetViewPort(
                     m_spotLights[enabledSize].m_viewPort.x,
                     m_spotLights[enabledSize].m_viewPort.y,
                     m_spotLights[enabledSize].m_viewPort.z,
@@ -1378,8 +1327,7 @@ void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &came
     environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
     environmentalMap->m_reflectionProbe.Get<ReflectionProbe>()->m_preFilteredMap->Texture()->Bind(10);
 
-    m_environmentalMapSettingsBuffer->SubData(
-        0, sizeof(EnvironmentalMapSettingsBlock), &m_environmentalMapSettings);
+    m_environmentalMapSettingsBuffer->SubData(0, sizeof(EnvironmentalMapSettingsBlock), &m_environmentalMapSettings);
 }
 
 void RenderLayer::MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending)
@@ -1556,7 +1504,7 @@ void RenderLayer::PrepareBrdfLut()
     OpenGLUtils::SetViewPort(resolution, resolution);
     DefaultResources::BrdfProgram->Bind();
     renderTarget->Clear();
-    RenderManager::RenderQuad();
+    Graphics::RenderQuad();
     OpenGLUtils::GLFrameBuffer::BindDefault();
 }
 
@@ -1812,6 +1760,5 @@ size_t RenderLayer::DrawCall()
 }
 RenderLayer::RenderLayer()
 {
-
 }
 #pragma endregion

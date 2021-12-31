@@ -9,6 +9,9 @@
 #include "ILayer.hpp"
 namespace UniEngine
 {
+
+
+
 struct UNIENGINE_API LightSettingsBlock
 {
     float m_splitDistance[4];
@@ -133,7 +136,7 @@ class UNIENGINE_API RenderLayer : public ILayer
     friend class EnvironmentalMap;
     friend class Cubemap;
     friend class AssetManager;
-    friend class RenderManager;
+    friend class Graphics;
     size_t m_triangles = 0;
     size_t m_drawCall = 0;
     std::unique_ptr<OpenGLUtils::GLUBO> m_materialSettingsBuffer;

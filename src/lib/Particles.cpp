@@ -2,7 +2,7 @@
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <Particles.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 
 using namespace UniEngine;
 
@@ -60,7 +60,7 @@ void Particles::OnInspect()
         static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
         ImGui::ColorEdit4("Color:##Particles", (float *)(void *)&displayBoundColor);
         const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
-        RenderManager::DrawGizmoMesh(
+        Graphics::DrawGizmoMesh(
             DefaultResources::Primitives::Cube,
             displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),

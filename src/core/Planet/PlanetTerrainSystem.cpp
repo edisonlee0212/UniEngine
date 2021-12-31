@@ -98,7 +98,7 @@ void Planet::PlanetTerrainSystem::RenderChunk(
     bool receiveShadow) const
 {
     if (chunk->Active)
-        RenderManager::DrawMesh(chunk->m_mesh, material, matrix, camera, true);
+        Graphics::DrawMesh(chunk->m_mesh, material, matrix, camera, true);
     if (chunk->ChildrenActive)
     {
         RenderChunk(chunk->m_c0, material, matrix, camera, receiveShadow);

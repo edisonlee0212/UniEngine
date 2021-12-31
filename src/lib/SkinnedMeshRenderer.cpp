@@ -2,7 +2,7 @@
 #include <DefaultResources.hpp>
 #include <EditorManager.hpp>
 #include <Gui.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
@@ -15,7 +15,7 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
         size.z = 0.01f;
     if (size.y < 0.01f)
         size.y = 0.01f;
-    RenderManager::DrawGizmoMesh(
+    Graphics::DrawGizmoMesh(
         DefaultResources::Primitives::Cube,
         color,
         transform * (glm::translate(m_skinnedMesh.Get<SkinnedMesh>()->m_bound.Center()) * glm::scale(size)),
@@ -81,7 +81,7 @@ void SkinnedMeshRenderer::DebugBoneRender(const glm::vec4 &color, const float &s
         debugRenderingMatrices[index] =
             debugRenderingMatrices[index] * glm::inverse(animator->m_offsetMatrices[index]) * glm::inverse(glm::scale(selfScale));
     }
-    RenderManager::DrawGizmoMeshInstanced(
+    Graphics::DrawGizmoMeshInstanced(
         DefaultResources::Primitives::Sphere, color, debugRenderingMatrices, ltw.m_value, size);
 }
 

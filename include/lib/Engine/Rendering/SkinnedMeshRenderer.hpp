@@ -22,7 +22,7 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     void RenderBound(glm::vec4 &color);
     void GetBoneMatrices();
 
-    friend class RenderManager;
+    friend class Graphics;
 
     bool m_ragDoll = false;
 

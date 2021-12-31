@@ -1,5 +1,5 @@
 #pragma once
-#include <ConsoleManager.hpp>
+#include "Engine/Utilities/Console.hpp"
 #include <Entity.hpp>
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>

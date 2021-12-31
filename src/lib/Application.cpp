@@ -1,4 +1,6 @@
 #include "AnimationLayer.hpp"
+#include "ConsoleLayer.hpp"
+#include "Graphics.hpp"
 #include "PhysicsLayer.hpp"
 #include "RenderLayer.hpp"
 #include "TransformLayer.hpp"
@@ -16,10 +18,8 @@
 #include <PhysicsLayer.hpp>
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
-#include <RenderManager.hpp>
 #include <TransformLayer.hpp>
 #include <WindowManager.hpp>
-
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
@@ -41,6 +41,7 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
     PushLayer<EditorLayer>();
     PushLayer<RenderLayer>();
     PushLayer<PhysicsLayer>();
+    PushLayer<ConsoleLayer>();
 }
 
 void ApplicationTime::OnInspect()
@@ -174,7 +175,6 @@ void Application::LateUpdateInternal()
         // Manager settings
         OnInspect();
         AssetManager::OnInspect();
-        ConsoleManager::OnInspect();
         ProjectManager::OnInspect();
         if (application.m_gameStatus == GameStatus::Step)
             application.m_gameStatus = GameStatus::Pause;
@@ -269,11 +269,11 @@ void Application::RegisterFixedUpdateFunction(const std::function<void()> &func)
     GetInstance().m_externalFixedUpdateFunctions.push_back(func);
 }
 
-void Application::RegisterPostAttachSceneFunction(const std::function<void(const std::shared_ptr<Scene>& newScene)> &func)
+void Application::RegisterPostAttachSceneFunction(
+    const std::function<void(const std::shared_ptr<Scene> &newScene)> &func)
 {
     GetInstance().m_postAttachSceneFunctions.push_back(func);
 }
-
 
 void Application::Reset()
 {

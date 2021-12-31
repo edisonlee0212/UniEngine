@@ -7,7 +7,7 @@
 #include <PlayerController.hpp>
 #include <PointCloud.hpp>
 #include <PostProcessing.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <UnknownPrivateComponent.hpp>
 using namespace UniEngine;
 

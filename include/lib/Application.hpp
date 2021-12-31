@@ -5,7 +5,7 @@
 #include <ISingleton.hpp>
 #include <InputManager.hpp>
 #include <ProfilerLayer.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <Scene.hpp>
 #include <Utilities.hpp>
 namespace UniEngine

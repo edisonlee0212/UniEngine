@@ -1,7 +1,7 @@
 #include <Collider.hpp>
 #include <EditorManager.hpp>
 #include <PhysicsLayer.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include "Application.hpp"
 using namespace UniEngine;
 void Collider::OnCreate()

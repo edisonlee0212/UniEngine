@@ -1,18 +1,15 @@
 #pragma once
-#include <Camera.hpp>
-#include <DefaultResources.hpp>
-#include <Lights.hpp>
-#include <MeshRenderer.hpp>
-#include <Particles.hpp>
-#include <SkinnedMeshRenderer.hpp>
+#include "Engine/Rendering/Camera.hpp"
+#include "Engine/DefaultResources.hpp"
+#include "Engine/Rendering/Lights.hpp"
+#include "Engine/Rendering/MeshRenderer.hpp"
+#include "Engine/Rendering/Particles.hpp"
+#include "Engine/Rendering/SkinnedMeshRenderer.hpp"
 namespace UniEngine
 {
-
-
-class UNIENGINE_API RenderManager : public ISingleton<RenderManager>
+class UNIENGINE_API Graphics
 {
   public:
-
 #pragma region Render API
 #pragma region Gizmos
     static void DrawGizmoMesh(

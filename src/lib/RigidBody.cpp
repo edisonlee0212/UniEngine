@@ -1,7 +1,7 @@
 #include <Application.hpp>
 #include <EditorManager.hpp>
 #include <PhysicsLayer.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <RigidBody.hpp>
 #include <Transform.hpp>
 using namespace UniEngine;
@@ -194,7 +194,7 @@ void RigidBody::OnInspect()
             {
             case ShapeType::Sphere:
                 if (m_drawBounds)
-                    RenderManager::DrawGizmoMesh(
+                    Graphics::DrawGizmoMesh(
                         DefaultResources::Primitives::Sphere,
                         displayBoundColor,
                         ltw.m_value *
@@ -203,7 +203,7 @@ void RigidBody::OnInspect()
                 break;
             case ShapeType::Box:
                 if (m_drawBounds)
-                    RenderManager::DrawGizmoMesh(
+                    Graphics::DrawGizmoMesh(
                         DefaultResources::Primitives::Cube,
                         displayBoundColor,
                         ltw.m_value *
@@ -212,7 +212,7 @@ void RigidBody::OnInspect()
                 break;
             case ShapeType::Capsule:
                 if (m_drawBounds)
-                    RenderManager::DrawGizmoMesh(
+                    Graphics::DrawGizmoMesh(
                         DefaultResources::Primitives::Cylinder,
                         displayBoundColor,
                         ltw.m_value *

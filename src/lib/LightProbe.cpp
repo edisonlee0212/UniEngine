@@ -1,6 +1,6 @@
 #include <DefaultResources.hpp>
 #include <LightProbe.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <RenderTarget.hpp>
 using namespace UniEngine;
 
@@ -51,7 +51,7 @@ void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCube
         renderTarget->AttachTexture2D(
             m_irradianceMap->Texture().get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
         renderTarget->Clear();
-        RenderManager::RenderCube();
+        Graphics::RenderCube();
     }
     OpenGLUtils::GLFrameBuffer::BindDefault();
     m_ready = true;

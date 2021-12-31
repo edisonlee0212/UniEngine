@@ -1,7 +1,7 @@
 #include <AssetManager.hpp>
 #include <Cubemap.hpp>
 #include <RenderTarget.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <EditorManager.hpp>
 using namespace UniEngine;
 
@@ -68,7 +68,7 @@ void Cubemap::ConvertFromEquirectangularTexture(const std::shared_ptr<Texture2D>
         DefaultResources::m_2DToCubemapProgram->SetFloat4x4("view", captureViews[i]);
         renderTarget->AttachTexture2D(m_texture.get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
         renderTarget->Clear();
-        RenderManager::RenderCube();
+        Graphics::RenderCube();
     }
     OpenGLUtils::GLFrameBuffer::BindDefault();
     m_texture->GenerateMipMap();

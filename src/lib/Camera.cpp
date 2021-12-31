@@ -7,7 +7,7 @@
 #include <EditorManager.hpp>
 #include <Gui.hpp>
 #include <PostProcessing.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <SerializationManager.hpp>
 #include <Texture2D.hpp>
 using namespace UniEngine;

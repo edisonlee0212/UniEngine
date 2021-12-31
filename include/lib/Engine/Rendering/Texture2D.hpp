@@ -13,7 +13,7 @@ enum class UNIENGINE_API TextureType
 class UNIENGINE_API Texture2D : public IAsset
 {
     friend class Material;
-    friend class RenderManager;
+    friend class Graphics;
     friend class Bloom;
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
     friend class AssetManager;

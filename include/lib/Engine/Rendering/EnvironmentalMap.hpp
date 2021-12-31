@@ -9,7 +9,7 @@ namespace UniEngine
 {
 class UNIENGINE_API EnvironmentalMap : public IAsset
 {
-    friend class RenderManager;
+    friend class Graphics;
     friend class RenderLayer;
     friend class DefaultResources;
     friend class RenderLayer;

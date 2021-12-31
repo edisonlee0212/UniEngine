@@ -33,7 +33,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     Bound m_bound;
     friend class SkinnedMeshRenderer;
     friend class Particles;
-    friend class RenderManager;
+    friend class Graphics;
     friend class RenderLayer;
     friend class EditorManager;
     size_t m_version = 0;

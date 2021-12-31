@@ -45,7 +45,7 @@ class UNIENGINE_API EditorLayer : public ILayer
 #pragma endregion
 
 #pragma region Scene Camera
-    friend class RenderManager;
+    friend class Graphics;
     friend class InputManager;
 
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;

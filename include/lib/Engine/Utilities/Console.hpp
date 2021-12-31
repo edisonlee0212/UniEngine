@@ -1,32 +1,12 @@
 #pragma once
-#include <uniengine_export.h>
-#include <ISingleton.hpp>
+#include "uniengine_export.h"
+#include "Engine/Core/ISingleton.hpp"
+#include "ConsoleLayer.hpp"
 namespace UniEngine
 {
 
-enum class ConsoleMessageType
+class Console : public ISingleton<Console>
 {
-    Log,
-    Warning,
-    Error
-};
-struct ConsoleMessage
-{
-    ConsoleMessageType m_type = ConsoleMessageType::Log;
-    std::string m_value;
-    double m_time = 0;
-};
-class ConsoleManager : public ISingleton<ConsoleManager>
-{
-    std::vector<ConsoleMessage> m_consoleMessages;
-    std::mutex m_consoleMessageMutex;
-
-    bool m_enableConsole = true;
-    bool m_enableConsoleLogs = false;
-    bool m_enableConsoleErrors = true;
-    bool m_enableConsoleWarnings = false;
-
-
   public:
     /**
      * Push log to the console
@@ -43,13 +23,6 @@ class ConsoleManager : public ISingleton<ConsoleManager>
      * @param msg The message to print.
      */
     UNIENGINE_API static void Warning(const std::string &msg);
-    /**
-     * Retrieve current stored messages.
-     * @return The list of message stored.
-     */
-    UNIENGINE_API static std::vector<ConsoleMessage> &GetConsoleMessages();
-
-    static void OnInspect();
 };
 
 } // namespace UniEngine
@@ -60,7 +33,7 @@ class ConsoleManager : public ISingleton<ConsoleManager>
  */
 #define UNIENGINE_LOG(msg)                                                                                             \
     {                                                                                                                  \
-        UniEngine::ConsoleManager::Log(msg);                                                                                    \
+        UniEngine::Console::Log(msg);                                                                                    \
         std::cout << "(UniEngine)Log: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;       \
     }
 
@@ -70,7 +43,7 @@ class ConsoleManager : public ISingleton<ConsoleManager>
  */
 #define UNIENGINE_ERROR(msg)                                                                                           \
     {                                                                                                                  \
-        UniEngine::ConsoleManager::Error(msg);                                                                                  \
+        UniEngine::Console::Error(msg);                                                                                  \
         std::cerr << "(UniEngine)Error: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;     \
     }
 /**
@@ -79,6 +52,6 @@ class ConsoleManager : public ISingleton<ConsoleManager>
  */
 #define UNIENGINE_WARNING(msg)                                                                                         \
     {                                                                                                                  \
-        UniEngine::ConsoleManager::Warning(msg);                                                                                \
+        UniEngine::Console::Warning(msg);                                                                                \
         std::cout << "(UniEngine)Warning: " << msg << " (" << __FILE__ << ": line " << __LINE__ << ")" << std::endl;   \
     }

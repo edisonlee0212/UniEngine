@@ -24,7 +24,7 @@ enum class OpenGLCapability{
 class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
     friend class DefaultResources;
-    friend class RenderManager;
+    friend class Graphics;
 
     bool m_depthTest = true;
     bool m_scissorTest = true;
@@ -432,24 +432,24 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         bool m_stencil;
         static GLuint m_boundFrameBuffer;
       public:
-        static void Enable(const GLenum &cap);
-        static void Disable(const GLenum &cap);
+        static void Enable(GLenum cap);
+        static void Disable(GLenum cap);
         void Bind() const;
         void ClearColor(const glm::vec4 &value) const;
         void Check() const;
-        void DrawBuffer(const GLenum &buffer) const;
-        void DrawBuffers(const GLsizei &n, const GLenum *buffers) const;
+        static void DefaultFrameBufferDrawBuffer(GLenum buffer);
+        void DrawBuffers(const std::vector<GLenum>& buffers) const;
         static void BindDefault();
         GLFrameBuffer();
         ~GLFrameBuffer() override;
         bool Color() const;
         bool Depth() const;
         bool Stencil() const;
-        void AttachRenderBuffer(const GLRenderBuffer *buffer, const GLenum &attachPoint);
-        void AttachTexture(const GLTexture *texture, const GLenum &attachPoint);
-        void AttachTextureLayer(const GLTexture *texture, const GLenum &attachPoint, const GLint &layer);
+        void AttachRenderBuffer(const GLRenderBuffer *buffer, GLenum attachPoint);
+        void AttachTexture(const GLTexture *texture, GLenum attachPoint);
+        void AttachTextureLayer(const GLTexture *texture, GLenum attachPoint, GLint layer);
         void AttachTexture2D(
-            const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint &level = 0);
+            const GLTexture *texture, GLenum attachPoint, GLenum texTarget, GLint level = 0);
         void Clear();
     };
     enum class UNIENGINE_API ShaderType

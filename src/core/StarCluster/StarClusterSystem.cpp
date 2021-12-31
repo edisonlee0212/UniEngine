@@ -335,7 +335,7 @@ void Galaxy::StarClusterSystem::Update()
 
     // Do not touch below functions.
     m_counter++;
-    RenderManager::DrawGizmoMeshInstancedColored(
+    Graphics::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
         m_useFront ? m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock()->m_matrices->m_value

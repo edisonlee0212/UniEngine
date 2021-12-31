@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "RenderManager.hpp"
+#include "Graphics.hpp"
 #include <Animator.hpp>
 #include <EditorManager.hpp>
 using namespace UniEngine;

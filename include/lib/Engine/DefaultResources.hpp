@@ -23,7 +23,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static void PrepareBrdfLut();
     friend class AssetManager;
     friend class IAsset;
-    friend class RenderManager;
+    friend class Graphics;
     friend class EditorManager;
     friend class LightProbe;
     friend class ReflectionProbe;

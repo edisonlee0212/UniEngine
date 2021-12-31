@@ -1,4 +1,4 @@
-﻿#include <ConsoleManager.hpp>
+﻿#include "Engine/Utilities/Console.hpp"
 #include <EditorManager.hpp>
 #include <OpenGLUtils.hpp>
 using namespace UniEngine;
@@ -60,7 +60,7 @@ void OpenGLUtils::PreUpdate()
     GLFrameBuffer::m_boundFrameBuffer = 0;
     GLRenderBuffer::m_boundRenderBuffer = 0;
 
-    auto& utils = GetInstance();
+    auto &utils = GetInstance();
     utils.m_depthTest = false;
     utils.m_scissorTest = true;
     utils.m_stencilTest = false;
@@ -80,53 +80,74 @@ void OpenGLUtils::PreUpdate()
 }
 void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
 {
-    auto& utils = GetInstance();
-    switch(capability){
+    auto &utils = GetInstance();
+    switch (capability)
+    {
     case OpenGLCapability::DepthTest:
-        if(utils.m_depthTest != enable){
-            if(enable){
+        if (utils.m_depthTest != enable)
+        {
+            if (enable)
+            {
                 glEnable((GLenum)capability);
-            }else{
+            }
+            else
+            {
                 glDisable((GLenum)capability);
             }
         }
         utils.m_depthTest = enable;
         break;
     case OpenGLCapability::ScissorTest:
-        if(utils.m_scissorTest != enable){
-            if(enable){
+        if (utils.m_scissorTest != enable)
+        {
+            if (enable)
+            {
                 glEnable((GLenum)capability);
-            }else{
+            }
+            else
+            {
                 glDisable((GLenum)capability);
             }
         }
         utils.m_scissorTest = enable;
         break;
     case OpenGLCapability::StencilTest:
-        if(utils.m_stencilTest != enable){
-            if(enable){
+        if (utils.m_stencilTest != enable)
+        {
+            if (enable)
+            {
                 glEnable((GLenum)capability);
-            }else{
+            }
+            else
+            {
                 glDisable((GLenum)capability);
             }
         }
         utils.m_stencilTest = enable;
         break;
     case OpenGLCapability::Blend:
-        if(utils.m_blend != enable){
-            if(enable){
+        if (utils.m_blend != enable)
+        {
+            if (enable)
+            {
                 glEnable((GLenum)capability);
-            }else{
+            }
+            else
+            {
                 glDisable((GLenum)capability);
             }
         }
         utils.m_blend = enable;
         break;
     case OpenGLCapability::CullFace:
-        if(utils.m_cullFace != enable){
-            if(enable){
+        if (utils.m_cullFace != enable)
+        {
+            if (enable)
+            {
                 glEnable((GLenum)capability);
-            }else{
+            }
+            else
+            {
                 glDisable((GLenum)capability);
             }
         }
@@ -136,16 +157,18 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
 }
 void OpenGLUtils::SetPolygonMode(OpenGLPolygonMode mode)
 {
-    auto& utils = GetInstance();
-    if(utils.m_polygonMode != mode){
+    auto &utils = GetInstance();
+    if (utils.m_polygonMode != mode)
+    {
         utils.m_polygonMode = mode;
         glPolygonMode(GL_FRONT_AND_BACK, (GLenum)mode);
     }
 }
 void OpenGLUtils::SetCullFace(OpenGLCullFace cullFace)
 {
-    auto& utils = GetInstance();
-    if(utils.m_cullFaceMode != cullFace){
+    auto &utils = GetInstance();
+    if (utils.m_cullFaceMode != cullFace)
+    {
         utils.m_cullFaceMode = cullFace;
         glCullFace((GLenum)cullFace);
     }
@@ -795,12 +818,12 @@ void OpenGLUtils::GLRenderBuffer::AllocateStorage(GLenum internalFormat, GLsizei
     glNamedRenderbufferStorage(m_id, internalFormat, width, height);
 }
 
-void OpenGLUtils::GLFrameBuffer::Enable(const GLenum &cap)
+void OpenGLUtils::GLFrameBuffer::Enable(GLenum cap)
 {
     glEnable(cap);
 }
 
-void OpenGLUtils::GLFrameBuffer::Disable(const GLenum &cap)
+void OpenGLUtils::GLFrameBuffer::Disable(GLenum cap)
 {
     glDisable(cap);
 }
@@ -826,17 +849,19 @@ void OpenGLUtils::GLFrameBuffer::Check() const
     if (status != GL_FRAMEBUFFER_COMPLETE)
         UNIENGINE_ERROR("GLFrameBuffer: Not Complete!");
 }
-
-void OpenGLUtils::GLFrameBuffer::DrawBuffer(const GLenum &buffer) const
+void OpenGLUtils::GLFrameBuffer::DefaultFrameBufferDrawBuffer(GLenum buffer)
 {
-    Bind();
-    glNamedFramebufferDrawBuffer(m_id, buffer);
+    if(OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer != 0) {
+        UNIENGINE_ERROR("Not default framebuffer!");
+        return;
+    }
+    glNamedFramebufferDrawBuffer(0, buffer);
 }
 
-void OpenGLUtils::GLFrameBuffer::DrawBuffers(const GLsizei &n, const GLenum *buffers) const
+void OpenGLUtils::GLFrameBuffer::DrawBuffers(const std::vector<GLenum>& buffers) const
 {
     Bind();
-    glNamedFramebufferDrawBuffers(m_id, n, buffers);
+    glNamedFramebufferDrawBuffers(m_id, (GLsizei)buffers.size(), (GLenum *)buffers.data());
 }
 
 void OpenGLUtils::GLFrameBuffer::BindDefault()
@@ -876,7 +901,7 @@ bool OpenGLUtils::GLFrameBuffer::Stencil() const
     return m_stencil;
 }
 
-void OpenGLUtils::GLFrameBuffer::AttachRenderBuffer(const GLRenderBuffer *buffer, const GLenum &attachPoint)
+void OpenGLUtils::GLFrameBuffer::AttachRenderBuffer(const GLRenderBuffer *buffer, GLenum attachPoint)
 {
     switch (attachPoint)
     {
@@ -898,7 +923,7 @@ void OpenGLUtils::GLFrameBuffer::AttachRenderBuffer(const GLRenderBuffer *buffer
     glNamedFramebufferRenderbuffer(m_id, attachPoint, GL_RENDERBUFFER, buffer->Id());
 }
 
-void OpenGLUtils::GLFrameBuffer::AttachTexture(const GLTexture *texture, const GLenum &attachPoint)
+void OpenGLUtils::GLFrameBuffer::AttachTexture(const GLTexture *texture, GLenum attachPoint)
 {
     switch (attachPoint)
     {
@@ -921,7 +946,7 @@ void OpenGLUtils::GLFrameBuffer::AttachTexture(const GLTexture *texture, const G
 }
 
 void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(
-    const GLTexture *texture, const GLenum &attachPoint, const GLint &layer)
+    const GLTexture *texture, GLenum attachPoint, GLint layer)
 {
     switch (attachPoint)
     {
@@ -944,7 +969,7 @@ void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(
 }
 
 void OpenGLUtils::GLFrameBuffer::AttachTexture2D(
-    const GLTexture *texture, const GLenum &attachPoint, const GLenum &texTarget, const GLint &level)
+    const GLTexture *texture, GLenum attachPoint, GLenum texTarget, GLint level)
 {
     switch (attachPoint)
     {

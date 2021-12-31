@@ -115,7 +115,7 @@ void Planet::TerrainChunk::GenerateTerrain(std::mutex &mutex, std::shared_ptr<Te
 {
     if (targetChunk->m_mesh)
     {
-        ConsoleManager::Error("Mesh Exist!");
+        Console::Error("Mesh Exist!");
     }
     std::vector<Vertex> &vertices = m_planetTerrain->m_sharedVertices;
     auto size = vertices.size();

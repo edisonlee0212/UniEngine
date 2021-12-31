@@ -34,7 +34,7 @@ Here lists the features that already exists in the UniEngine.
        - Similiar to https://docs.unity3d.com/ScriptReference/Graphics.DrawMesh.html
  - Animation
  - Cross-platform support for Linux, Windows
- - Native high-level rendering API support (Please visit RenderManager for further details)
+ - Native high-level rendering API support (Please visit Graphics for further details)
  - Exportable as shared library (For my own research purposes, I'm using the UniEngine as the underlying rendering framework for my other research projects. Those are private.)
  - AssetManager, ProjectManager
     - Asset I/O

@@ -11,7 +11,7 @@ class UNIENGINE_API InputManager : public ISingleton<InputManager>
     bool m_enableInputMenu;
     friend class Application;
     friend class WindowManager;
-    friend class RenderManager;
+    friend class Graphics;
     friend class Application;
     glm::vec2 m_mousePosition;
     bool m_mousePositionValid = false;

@@ -1,5 +1,5 @@
 #include <Application.hpp>
-#include <ConsoleManager.hpp>
+#include "Engine/Utilities/Console.hpp"
 #include <DefaultResources.hpp>
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
@@ -107,11 +107,11 @@ void WindowManager::DrawTexture(OpenGLUtils::GLTexture2D *texture)
 {
     RenderTarget::BindDefault();
     /* Make the window's context current */
-    glViewport(0, 0, GetInstance().m_windowWidth, GetInstance().m_windowHeight);
+    OpenGLUtils::SetViewPort(GetInstance().m_windowWidth, GetInstance().m_windowHeight);
     OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
     /* Render here */
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    glDrawBuffer(GL_BACK);
+    OpenGLUtils::GLFrameBuffer::DefaultFrameBufferDrawBuffer(GL_BACK);
     auto program = DefaultResources::ScreenProgram;
     program->Bind();
     program->SetFloat("depth", 0);

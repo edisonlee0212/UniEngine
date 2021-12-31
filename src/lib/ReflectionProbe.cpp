@@ -1,6 +1,6 @@
 #include <DefaultResources.hpp>
 #include <ReflectionProbe.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <RenderTarget.hpp>
 using namespace UniEngine;
 
@@ -62,7 +62,7 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
             renderTarget->AttachTexture2D(
                 m_preFilteredMap->m_texture.get(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mip);
             renderTarget->Clear();
-            RenderManager::RenderCube();
+            Graphics::RenderCube();
         }
     }
     OpenGLUtils::GLFrameBuffer::BindDefault();

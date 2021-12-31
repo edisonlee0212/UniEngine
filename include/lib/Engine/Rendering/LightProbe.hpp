@@ -6,7 +6,7 @@ namespace UniEngine
 {
 class UNIENGINE_API LightProbe : public IAsset
 {
-    friend class RenderManager;
+    friend class Graphics;
     friend class DefaultResources;
     friend class RenderLayer;
     std::unique_ptr<Cubemap> m_irradianceMap;

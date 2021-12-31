@@ -6,7 +6,7 @@
 #include <MeshRenderer.hpp>
 #include <Prefab.hpp>
 #include <ProjectManager.hpp>
-#include <RenderManager.hpp>
+#include "Engine/Utilities/Graphics.hpp"
 #include <SerializationManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
