@@ -83,7 +83,7 @@ class UNIENGINE_API Curve : public ISerializable
         const std::string &label,
         const ImVec2 &editor_size = ImVec2(-1, -1),
         unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
-    float GetValue(float x);
+    [[nodiscard]] float GetValue(float x, unsigned iteration = 8) const;
 
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;

@@ -1190,7 +1190,7 @@ bool Curve::IsTangent()
 {
     return m_tangent;
 }
-float Curve::GetValue(float x)
+float Curve::GetValue(float x, unsigned iteration) const
 {
     x = glm::clamp(x, 0.0f, 1.0f);
     if (m_tangent)
@@ -1209,7 +1209,7 @@ float Curve::GetValue(float x)
                 float upper = 1.0f;
                 float lower = 0.0f;
                 float tempT = 0.5f;
-                for(int iter = 0; iter < 10; iter++){
+                for(unsigned iter = 0; iter < iteration; iter++){
                     float tempT1 = 1.0f - tempT;
                     float globalX = tempT1 * tempT1 * tempT1 * prev.x + 3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
                                   3.0f * tempT1 * tempT * tempT * (next.x + m_values[i * 3 + 3].x) + tempT * tempT * tempT * next.x;
