@@ -1156,15 +1156,22 @@ bool Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, uns
         }
 
         ImGui::EndChildFrame();
+        bool sliderChanged = false;
         if (noTangent)
         {
-            ImGui::SliderFloat("L", &values.front().y, m_min.y, m_max.y);
-            ImGui::SliderFloat("R", &values.back().y, m_min.y, m_max.y);
+            sliderChanged = ImGui::SliderFloat("L", &values.front().y, m_min.y, m_max.y);
+            if(ImGui::SliderFloat("R", &values.back().y, m_min.y, m_max.y)){
+                sliderChanged = true;
+            }
         }
         else
         {
-            ImGui::SliderFloat("L", &values[1].y, m_min.y, m_max.y);
-            ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y);
+            if(ImGui::SliderFloat("L", &values[1].y, m_min.y, m_max.y)){
+                sliderChanged = true;
+            }
+            if(ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y)){
+                sliderChanged = true;
+            }
         }
         bool debug = (unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG;
         if(debug){
@@ -1173,7 +1180,7 @@ bool Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, uns
             ImGui::Text("Y: %.3f", GetValue(test));
         }
         ImGui::TreePop();
-        return changed_idx != -1;
+        return changed_idx != -1 || sliderChanged;
     }
     return false;
 }
