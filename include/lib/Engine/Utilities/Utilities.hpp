@@ -79,12 +79,11 @@ class UNIENGINE_API Curve : public ISerializable
     void SetStart(float value);
     void SetEnd(float value);
     [[nodiscard]] bool IsTangent();
-    bool CurveEditor(
+    bool OnInspect(
         const std::string &label,
         const ImVec2 &editor_size = ImVec2(-1, -1),
         unsigned flags = (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID);
     [[nodiscard]] float GetValue(float x, unsigned iteration = 8) const;
-
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
 };

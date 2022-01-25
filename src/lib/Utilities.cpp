@@ -699,7 +699,7 @@ void FileUtils::SaveFile(
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-bool Curve::CurveEditor(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
+bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
 {
     enum class StorageValues : ImGuiID
     {
@@ -1354,6 +1354,7 @@ void Curve::Deserialize(const YAML::Node &in)
         }
     }
 }
+
 bool ImGui::Splitter(
     bool split_vertically,
     float thickness,

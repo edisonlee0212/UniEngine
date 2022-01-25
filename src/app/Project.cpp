@@ -14,7 +14,7 @@ int main()
             ImGui::ShowDemoWindow();
             if(ImGui::Begin("Test"))
             {
-                curve.CurveEditor(
+                curve.OnInspect(
                     "Curve",
                     ImVec2(-1, -1),
                     (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID |

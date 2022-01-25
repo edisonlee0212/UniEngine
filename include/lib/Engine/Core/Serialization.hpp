@@ -417,6 +417,7 @@ class UNIENGINE_API Serialization : public ISingleton<Serialization>
     static size_t GetSerializableTypeId(const std::string &typeName);
     static size_t GetDataComponentTypeId(const std::string &typeName);
 };
+
 template <typename T> std::string Serialization::GetDataComponentTypeName()
 {
     return GetInstance().m_dataComponentNames.find(typeid(T).hash_code())->second;

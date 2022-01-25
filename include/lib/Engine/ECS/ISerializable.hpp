@@ -18,6 +18,8 @@ class UNIENGINE_API ISerializable : public IHandle
     friend class Serialization;
     std::string m_typeName;
   public:
+    void Serialize(const std::string &name, YAML::Emitter &out);
+    void Deserialize(const std::string &name, const YAML::Node &in);
     [[nodiscard]] std::string GetTypeName()
     {
         return m_typeName;
