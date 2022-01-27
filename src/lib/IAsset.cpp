@@ -119,7 +119,7 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &path)
     {
         auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
         assert(folder);
-        ProjectManager::UpdateFolderMetadata(folder);
+        ProjectManager::UpdateFolderMetadata(folder, false);
     }
     return success;
 }

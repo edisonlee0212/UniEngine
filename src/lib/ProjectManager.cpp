@@ -34,7 +34,7 @@ void ProjectManager::CreateOrLoadProject(const std::filesystem::path &path)
     auto directory = projectManager.m_projectPath.parent_path();
     projectManager.m_currentFocusedFolder->m_relativePath = "";
     projectManager.m_currentFocusedFolder->m_name = directory.filename().string();
-    ScanProjectFolder();
+    ScanProjectFolder(true);
 
     if (std::filesystem::exists(path))
     {
@@ -97,9 +97,9 @@ void ProjectManager::SaveProject()
     std::ofstream fout(projectManager.m_projectPath.string());
     fout << out.c_str();
     fout.flush();
-    UpdateFolderMetadata(projectManager.m_currentProject->m_projectFolder);
+    UpdateFolderMetadata(projectManager.m_currentProject->m_projectFolder, false);
 }
-void ProjectManager::ScanProjectFolder(bool updateMetadata)
+void ProjectManager::ScanProjectFolder(bool scanAll, bool updateMetadata)
 {
     auto &projectManager = GetInstance();
     auto projectPath = projectManager.m_projectPath;
@@ -112,7 +112,7 @@ void ProjectManager::ScanProjectFolder(bool updateMetadata)
     }
 
     std::shared_ptr<Folder> currentFolder = projectManager.m_currentProject->m_projectFolder;
-    ScanFolderHelper(directory, currentFolder, updateMetadata);
+    ScanFolderHelper(directory, currentFolder, scanAll, updateMetadata);
 
     if (!std::filesystem::exists(
             projectManager.m_projectPath.parent_path() / projectManager.m_currentFocusedFolder->m_relativePath))
@@ -121,10 +121,10 @@ void ProjectManager::ScanProjectFolder(bool updateMetadata)
     }
 }
 void ProjectManager::ScanFolderHelper(
-    const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &folder, bool updateMetaData)
+    const std::filesystem::path &folderPath, const std::shared_ptr<Folder> &folder, bool scanAll, bool updateMetaData)
 {
     if (updateMetaData)
-        UpdateFolderMetadata(folder);
+        UpdateFolderMetadata(folder, scanAll);
     auto it = folder->m_children.begin();
     while (it != folder->m_children.end())
     {
@@ -143,6 +143,7 @@ void ProjectManager::ScanFolderHelper(
             auto folderName = entry.path().filename().string();
             auto search = folder->m_children.find(folderName);
             std::shared_ptr<Folder> childFolder;
+            bool isNewFolder = false;
             if (search == folder->m_children.end())
             {
                 auto newFolder = std::make_shared<Folder>();
@@ -152,12 +153,13 @@ void ProjectManager::ScanFolderHelper(
                 folder->m_children[folderName] = newFolder;
                 newFolder->m_parent = folder;
                 childFolder = newFolder;
+                isNewFolder = true;
             }
             else
             {
                 childFolder = search->second;
             }
-            ScanFolderHelper(entry.path(), childFolder);
+            ScanFolderHelper(entry.path(), childFolder, scanAll || isNewFolder);
         }
     }
 
@@ -214,7 +216,7 @@ void ProjectManager::SetScenePostLoadActions(const std::function<void()> &action
 {
     GetInstance().m_newSceneCustomizer = actions;
 }
-void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
+void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder, bool scanAll)
 {
     auto &projectManager = GetInstance();
     auto &assetManager = AssetManager::GetInstance();
@@ -244,6 +246,11 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
         fileMetadataPath = folderPath / ".uemetadata";
         metadataUpdated = true;
     }
+
+    if(!scanAll && !metadataUpdated && std::filesystem::last_write_time(folderPath) == folder->m_lastWriteTime){
+        return;
+    }
+
     // Scan and remove deleted files.
     auto it = folderMetadata.m_fileMap.begin();
     while (it != folderMetadata.m_fileMap.end())
@@ -340,6 +347,7 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder)
     {
         folderMetadata.Save(fileMetadataPath);
     }
+    folder->m_lastWriteTime = std::filesystem::last_write_time(folderPath);
 }
 bool ProjectManager::IsInProjectFolder(const std::filesystem::path &target)
 {
@@ -437,13 +445,12 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     }
     out << YAML::EndSeq;
     out << YAML::EndMap;
-    std::ofstream fout(path.string());
+    std::ofstream fout(path.string().c_str(), std::ios_base::trunc);
     fout << out.c_str();
-    fout.flush();
-
+    fout.close();
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     DWORD attributes = GetFileAttributes(path.string().c_str());
-    SetFileAttributes(path.string().c_str(), attributes + FILE_ATTRIBUTE_HIDDEN);
+    SetFileAttributes(path.string().c_str(), attributes | FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
 bool FolderMetadata::Load(const std::filesystem::path &path)

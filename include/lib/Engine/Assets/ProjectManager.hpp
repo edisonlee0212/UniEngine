@@ -18,7 +18,7 @@ struct UNIENGINE_API FileRecord
 struct UNIENGINE_API FolderMetadata{
     friend class Editor;
     std::unordered_map<Handle, FileRecord> m_fileRecords;
-    std::map<std::string, Handle> m_fileMap;
+    std::unordered_map<std::string, Handle> m_fileMap;
     void Save(const std::filesystem::path &path);
     bool Load(const std::filesystem::path &path);
 };
@@ -38,6 +38,7 @@ class UNIENGINE_API AssetRegistry
 };
 
 struct UNIENGINE_API Folder {
+    std::filesystem::file_time_type m_lastWriteTime;
     std::filesystem::path m_relativePath;
     std::string m_name;
     FolderMetadata m_folderMetadata;
@@ -69,7 +70,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 
     static void GenerateNewDefaultScene();
     static std::filesystem::path GenerateNewPath(const std::string &filestem, const std::string &extension);
-    static void ScanFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& folder, bool updateMetaData = true);
+    static void ScanFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& folder, bool scanAll, bool updateMetaData = true);
 
 
     static void FindFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& walker, std::shared_ptr<Folder>& result);
@@ -81,7 +82,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
      */
     static std::shared_ptr<Folder> FindFolder(const std::filesystem::path& folderPath);
 
-    static void UpdateFolderMetadata(const std::shared_ptr<Folder>& folder);
+    static void UpdateFolderMetadata(const std::shared_ptr<Folder>& folder, bool scanAll);
 
     static bool IsInProjectFolder(const std::filesystem::path &target);
     static std::filesystem::path GetRelativePath(const std::filesystem::path &target);
@@ -93,7 +94,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void OnInspect();
     static void CreateOrLoadProject(const std::filesystem::path &path);
     static void SaveProject();
-    static void ScanProjectFolder(bool updateMetadata = true);
+    static void ScanProjectFolder(bool scanAll, bool updateMetadata = true);
     static std::filesystem::path GetProjectPath();
 
 };

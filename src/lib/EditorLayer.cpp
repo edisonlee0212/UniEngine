@@ -1053,7 +1053,7 @@ void EditorLayer::OnInspect()
                     {0, 1},
                     {1, 0}))
             {
-                ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder);
+                ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder, false);
             }
 
             if (projectManager.m_currentFocusedFolder != projectManager.m_currentProject->m_projectFolder)
@@ -1268,7 +1268,7 @@ void EditorLayer::OnInspect()
                             std::filesystem::remove(
                                 projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
                             projectManager.m_assetRegistry.RemoveFile(i.first);
-                            ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder);
+                            ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder, false);
                             ImGui::CloseCurrentPopup();
                             ImGui::EndPopup();
                             break;
