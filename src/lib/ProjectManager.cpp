@@ -221,36 +221,18 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder,
     auto &projectManager = GetInstance();
     auto &assetManager = AssetManager::GetInstance();
     // 1. Find metadata file
-    std::filesystem::path fileMetadataPath;
+
     auto folderPath = projectManager.m_projectPath.parent_path() / folder->m_relativePath;
-    bool found = false;
-    for (const auto &entry : std::filesystem::directory_iterator(folderPath))
-    {
-        if (!std::filesystem::is_directory(entry.path()) && entry.path().filename().string() == ".uemetadata")
-        {
-            found = true;
-            fileMetadataPath = entry;
-        }
-    }
+    std::filesystem::path fileMetadataPath = folderPath / ".uemetadata";
+
     // 2. Create metadata file if not exist
-    bool metadataUpdated = false;
     FolderMetadata &folderMetadata = folder->m_folderMetadata;
-    if (found)
-    {
-        if(folderMetadata.Load(fileMetadataPath)){
-            metadataUpdated = true;
-        }
+    if(std::filesystem::exists(fileMetadataPath)){
+        folderMetadata.Load(fileMetadataPath);
     }
-    else
-    {
-        fileMetadataPath = folderPath / ".uemetadata";
-        metadataUpdated = true;
-    }
+    if(!scanAll && std::filesystem::last_write_time(folderPath) == folder->m_lastWriteTime) return;
 
-    if(!scanAll && !metadataUpdated && std::filesystem::last_write_time(folderPath) == folder->m_lastWriteTime){
-        return;
-    }
-
+    bool metadataUpdated = false;
     // Scan and remove deleted files.
     auto it = folderMetadata.m_fileMap.begin();
     while (it != folderMetadata.m_fileMap.end())
@@ -288,7 +270,7 @@ void ProjectManager::UpdateFolderMetadata(const std::shared_ptr<Folder> &folder,
             it++;
         }
     }
-    // 3. Load metadata file and scan the folder. Update metadata if needed.
+    // 3. Scan the folder for new files. Update metadata if needed.
     auto &assetRegistry = projectManager.m_assetRegistry;
     for (const auto &entry : std::filesystem::directory_iterator(folderPath))
     {
@@ -456,10 +438,8 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     SetFileAttributes(path.string().c_str(), attributes | FILE_ATTRIBUTE_HIDDEN);
 #endif
 }
-bool FolderMetadata::Load(const std::filesystem::path &path)
+void FolderMetadata::Load(const std::filesystem::path &path)
 {
-    m_fileMap.clear();
-    m_fileRecords.clear();
     std::ifstream stream(path.string());
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
@@ -472,17 +452,11 @@ bool FolderMetadata::Load(const std::filesystem::path &path)
             Handle handle = Handle(inFileRecords["Handle"].as<uint64_t>());
             FileRecord fileRecord;
             fileRecord.Deserialize(inFileRecords);
-            if (fileRecord.m_fileName.empty())
-            {
-                changed = true;
-                continue;
-            }
             fileRecord.m_relativeFilePath = ProjectManager::GetRelativePath(path.parent_path() / fileRecord.m_fileName);
             m_fileRecords[handle] = fileRecord;
             m_fileMap[fileRecord.m_relativeFilePath.string()] = handle;
         }
     }
-    return changed;
 }
 void FileRecord::Serialize(YAML::Emitter &out) const
 {

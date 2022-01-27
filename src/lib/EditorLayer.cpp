@@ -1353,6 +1353,12 @@ void EditorLayer::OnInspect()
             if (!Editor::GetInstance().m_inspectingAsset.expired())
             {
                 auto asset = Editor::GetInstance().m_inspectingAsset.lock();
+                ImGui::Text("Type:");
+                ImGui::SameLine();
+                ImGui::Text(asset->GetTypeName().c_str());
+                ImGui::Separator();
+                ImGui::Text("Name:");
+                ImGui::SameLine();
                 ImGui::Button(asset->m_name.c_str());
                 Editor::DraggableAsset(asset);
                 if (!asset->GetPath().empty())

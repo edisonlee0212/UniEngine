@@ -20,7 +20,7 @@ struct UNIENGINE_API FolderMetadata{
     std::unordered_map<Handle, FileRecord> m_fileRecords;
     std::unordered_map<std::string, Handle> m_fileMap;
     void Save(const std::filesystem::path &path);
-    bool Load(const std::filesystem::path &path);
+    void Load(const std::filesystem::path &path);
 };
 
 class UNIENGINE_API AssetRegistry
