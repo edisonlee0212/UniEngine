@@ -150,7 +150,9 @@ bool Editor::DragAndDropButton(
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
-                    ptr->m_name = std::string(newName);
+                {
+                    ptr->SetName(std::string(newName));
+                }
                 ImGui::EndMenu();
             }
             if (removable)

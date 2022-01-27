@@ -21,7 +21,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     friend class ProjectManager;
     std::map<std::string, std::shared_ptr<Texture2D>> m_assetsIcons;
     bool m_enabled = false;
-    std::map<size_t, std::function<void(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
+    std::map<size_t, std::function<bool(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_privateComponentMenuList;
     std::vector<std::pair<size_t, std::function<void(float rank)>>> m_systemMenuList;
     std::vector<std::pair<size_t, std::function<void(Entity owner)>>> m_componentDataMenuList;
@@ -36,7 +36,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     std::weak_ptr<IAsset> m_inspectingAsset;
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
-        const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func);
+        const std::function<bool(Entity entity, IDataComponent *data, bool isRoot)> &func);
 
 
     static bool DragAndDropButton(
@@ -64,7 +64,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
 
 template <typename T1>
 void Editor::RegisterComponentDataInspector(
-    const std::function<void(Entity entity, IDataComponent *data, bool isRoot)> &func)
+    const std::function<bool(Entity entity, IDataComponent *data, bool isRoot)> &func)
 {
     GetInstance().m_componentDataInspectorMap.insert_or_assign(typeid(T1).hash_code(), func);
 }
@@ -167,7 +167,7 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
-                    ptr->m_name = std::string(newName);
+                    ptr->SetName(std::string(newName));
                 ImGui::EndMenu();
             }
 
@@ -305,7 +305,7 @@ template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
             static char newName[256];
             ImGui::InputText(("New name" + tag).c_str(), newName, 256);
             if (ImGui::Button(("Confirm" + tag).c_str()))
-                ptr->m_name = std::string(newName);
+                ptr->SetName(std::string(newName));
             ImGui::EndMenu();
         }
         ImGui::EndPopup();

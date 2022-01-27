@@ -914,7 +914,7 @@ bool Prefab::SaveInternal(const std::filesystem::path &path)
                 out << YAML::BeginMap;
                 out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
                 out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-                out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
+                out << YAML::Key << "Name" << YAML::Value << i.second->GetName();
                 i.second->Serialize(out);
                 out << YAML::EndMap;
             }

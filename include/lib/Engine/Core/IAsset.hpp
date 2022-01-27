@@ -16,34 +16,45 @@ class UNIENGINE_API IAsset : public ISerializable
     std::filesystem::path m_projectRelativePath;
 
     /**
-     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
+     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager.
+     * Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */
     virtual bool SaveInternal(const std::filesystem::path &path);
     /**
-     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
+     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is
+     * virtual so user can define their own deserialization procedure.
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
     virtual bool LoadInternal(const std::filesystem::path &path);
     /**
+     * The name of the asset.
+     */
+    std::string m_name;
+    /**
      * Whether the asset is saved or not.
      */
+    bool m_saved = false;
   public:
     /**
      * Function will be invoked right after asset creation.
      */
     virtual void OnCreate();
     /**
-     * The name of the asset.
+     * Set the name of the asset
+     * @param name The name of the asset.
      */
-    std::string m_name;
+    void SetName(const std::string& name);
+    /**
+     * Get the name of the asset
+     * @return The name of the asset.
+     */
+    [[nodiscard]] std::string GetName() const;
     /**
      * Get the file path of the asset (relative to project).
      * @return The file path of the asset, may be empty.
      */
-    [[nodiscard]] std::filesystem::path GetPath(){
-        return m_projectRelativePath;
-    }
+    [[nodiscard]] std::filesystem::path GetPath() const;
     /**
      * Reset the path of the asset, resetting path will make changes to the asset registry of the project.
      * @param path The new file path of the asset.
@@ -70,12 +81,14 @@ class UNIENGINE_API IAsset : public ISerializable
      */
     bool Import(const std::filesystem::path &path);
     /**
-     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager. Function is virtual so user can define their own serialization procedure.
+     * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager.
+     * Function is virtual so user can define their own serialization procedure.
      * @param path The file path for saving the asset, may or may not be the local stored path.
      */
     bool SetPathAndSave(const std::filesystem::path &path);
     /**
-     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is virtual so user can define their own deserialization procedure.
+     * The function that handles deserialization. May be invoked by Load() or AssetManager/ProjectManager. Function is
+     * virtual so user can define their own deserialization procedure.
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
     bool SetPathAndLoad(const std::filesystem::path &path);
@@ -87,14 +100,19 @@ class UNIENGINE_API IAsset : public ISerializable
     /**
      * The GUI of the asset when inspected in the editor.
      */
-    virtual void OnInspect() {};
+    virtual void OnInspect(){};
     /**
-     * During the serialization of the prefab and scene, user should mark all the AssetRef member in the class so they will be serialized and correctly restored during deserialization.
-     * @param list The list for collecting the AssetRef of all members. You should push all the AssetRef of the class members to ensure correct behaviour.
+     * During the serialization of the prefab and scene, user should mark all the AssetRef member in the class so they
+     * will be serialized and correctly restored during deserialization.
+     * @param list The list for collecting the AssetRef of all members. You should push all the AssetRef of the class
+     * members to ensure correct behaviour.
      */
     virtual void CollectAssetRef(std::vector<AssetRef> &list){};
-
-    bool m_saved = false;
+    /**
+     * Notify asset to be saved later.
+     */
+    void SetUnsaved();
+    [[nodiscard]] bool Saved() const;
 };
 
 } // namespace UniEngine

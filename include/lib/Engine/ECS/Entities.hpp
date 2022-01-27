@@ -1710,7 +1710,7 @@ void Entities::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entit
             return;
         }
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
 #pragma endregion
 #pragma region If not exist, we first need to create a new archetype
     EntityArchetypeInfo newArchetypeInfo;
@@ -1790,7 +1790,7 @@ template <typename T> void Entities::RemoveDataComponent(const std::shared_ptr<S
                         "components!");
         return;
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
 #pragma region Create new archetype
     EntityArchetypeInfo newArchetypeInfo;
     newArchetypeInfo.m_name = "New archetype";
@@ -2048,7 +2048,7 @@ std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene>
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent<T>(entity);
     auto ptr = Serialization::ProduceSerializable<T>();
     elements.emplace_back(typeid(T).hash_code(), ptr, entity, scene);
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     return std::move(ptr);
 }
 template <typename T>
@@ -2068,7 +2068,7 @@ void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const
             scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent<T>(entity);
             elements[i].m_privateComponentData->OnDestroy();
             elements.erase(elements.begin() + i);
-            GetInstance().m_scene->m_saved = false;
+            scene->m_saved = false;
             return;
         }
     }

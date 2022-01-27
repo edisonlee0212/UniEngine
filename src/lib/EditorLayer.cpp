@@ -60,6 +60,7 @@ void EditorLayer::OnCreate()
             ImGui::DragFloat3("Position##Global", &t.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
             ImGui::DragFloat3("Rotation##Global", &er.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
             ImGui::DragFloat3("Scale##Global", &s.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+            return false;
         });
     Editor::RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
@@ -138,12 +139,15 @@ void EditorLayer::OnCreate()
                            glm::mat4_cast(glm::quat(glm::radians(m_previouslyStoredRotation))) *
                            glm::scale(m_previouslyStoredScale);
         }
+        return edited;
     });
     Editor::RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ray = static_cast<Ray *>(static_cast<void *>(data));
-        ImGui::InputFloat3("Start", &ray->m_start.x);
-        ImGui::InputFloat3("Direction", &ray->m_direction.x);
-        ImGui::InputFloat("Length", &ray->m_length);
+        bool changed = false;
+        if(ImGui::InputFloat3("Start", &ray->m_start.x)) changed = true;
+        if(ImGui::InputFloat3("Direction", &ray->m_direction.x)) changed = true;
+        if(ImGui::InputFloat("Length", &ray->m_length)) changed = true;
+        return changed;
     });
 }
 void EditorLayer::PreUpdate()
@@ -295,7 +299,9 @@ void EditorLayer::InspectComponentData(Entity entity, IDataComponent *data, Data
     if (editorManager.m_componentDataInspectorMap.find(type.m_typeId) !=
         editorManager.m_componentDataInspectorMap.end())
     {
-        editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot);
+        if(editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot)){
+            Entities::GetCurrentScene()->SetUnsaved();
+        }
     }
 }
 
@@ -746,7 +752,9 @@ void EditorLayer::OnInspect()
                     static char newName[256];
                     ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                     if (ImGui::Button(("Confirm" + tag).c_str()))
-                        scene->m_name = std::string(newName);
+                    {
+                        scene->SetName(std::string(newName));
+                    }
                     ImGui::EndMenu();
                 }
                 ImGui::EndPopup();

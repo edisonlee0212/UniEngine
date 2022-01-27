@@ -30,6 +30,9 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
     try
     {
+        if(std::filesystem::exists(path)){
+            std::filesystem::remove(path);
+        }
         YAML::Emitter out;
         out << YAML::BeginMap;
         out << YAML::Key << "m_name" << YAML::Value << m_name;
@@ -37,7 +40,7 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
         out << YAML::EndMap;
         std::ofstream fout(path.string());
         fout << out.c_str();
-        fout.flush();
+        fout.close();
     }
     catch (std::exception e)
     {
@@ -150,4 +153,25 @@ bool IAsset::Import(const std::filesystem::path &path)
     if (!path.is_absolute())
         return false;
     return LoadInternal(path);
+}
+void IAsset::SetName(const std::string &name)
+{
+    m_name = name;
+    m_saved = false;
+}
+std::string IAsset::GetName() const
+{
+    return m_name;
+}
+void IAsset::SetUnsaved()
+{
+    m_saved = true;
+}
+std::filesystem::path IAsset::GetPath() const
+{
+    return m_projectRelativePath;
+}
+bool IAsset::Saved() const
+{
+    return m_saved;
 }

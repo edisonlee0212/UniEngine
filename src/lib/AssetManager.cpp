@@ -195,7 +195,7 @@ void AssetManager::OnInspect()
 
                         for (auto &i : collection.second)
                         {
-                            ImGui::Button(i.second->m_name.c_str());
+                            ImGui::Button(i.second->GetName().c_str());
                             Editor::DraggableAsset(i.second);
                             const std::string type = i.second->GetTypeName();
                             const std::string tag = "##" + type + std::to_string(i.second->GetHandle());
@@ -304,10 +304,10 @@ std::shared_ptr<IAsset> AssetManager::UnsafeCreateAsset(
     RegisterAsset(retVal);
     retVal->OnCreate();
     if (!name.empty())
-        retVal->m_name = name;
+        retVal->SetName(name);
     else
     {
-        retVal->m_name = "New " + typeName;
+        retVal->SetName("New " + typeName);
     }
     return retVal;
 }

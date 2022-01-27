@@ -431,9 +431,12 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     auto directory = path;
     directory.remove_filename();
     std::filesystem::create_directories(directory);
+    if(std::filesystem::exists(path)){
+        std::filesystem::remove(path);
+    }
     YAML::Emitter out;
     out << YAML::BeginMap;
-    out << YAML::Key << "m_fileRecords" << YAML::BeginSeq;
+    out << YAML::Key << "m_fileRecords" << YAML::Value << YAML::BeginSeq;
     for (const auto &i : m_fileRecords)
     {
         out << YAML::BeginMap;
@@ -445,7 +448,7 @@ void FolderMetadata::Save(const std::filesystem::path &path)
     }
     out << YAML::EndSeq;
     out << YAML::EndMap;
-    std::ofstream fout(path.string().c_str(), std::ios_base::trunc);
+    std::ofstream fout(path.string());
     fout << out.c_str();
     fout.close();
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)

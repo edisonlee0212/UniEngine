@@ -367,10 +367,10 @@ Entity Entities::CreateEntity(
     auto &entityManager = GetInstance();
     if (!scene)
     {
-        return Entity();
+        return {};
     }
     assert(archetype.IsValid());
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     Entity retVal;
     auto search = GetDataComponentStorage(scene, archetype);
     DataComponentStorage &storage = search->first;
@@ -446,7 +446,7 @@ std::vector<Entity> Entities::CreateEntities(
     }
     assert(archetype.IsValid());
     std::vector<Entity> retVal;
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     auto search = GetDataComponentStorage(scene, archetype);
     DataComponentStorage &storage = search->first;
     auto remainAmount = amount;
@@ -588,7 +588,7 @@ void Entities::DeleteEntity(const std::shared_ptr<Scene> &scene, const Entity &e
     {
         return;
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     const size_t entityIndex = entity.m_index;
     auto children = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex).m_children;
     for (const auto &child : children)
@@ -631,7 +631,7 @@ void Entities::SetEntityName(const std::shared_ptr<Scene> &scene, const Entity &
         UNIENGINE_ERROR("Child already deleted!");
         return;
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     if (name.length() != 0)
     {
         scene->m_sceneDataStorage.m_entityInfos.at(index).m_name = name;
@@ -650,6 +650,7 @@ void Entities::SetEntityStatic(const std::shared_ptr<Scene> &scene, const Entity
     }
     auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetRoot().m_index);
     entityInfo.m_static = value;
+    scene->m_saved = false;
 }
 void Entities::SetParent(
     const std::shared_ptr<Scene> &scene, const Entity &entity, const Entity &parent, const bool &recalculateTransform)
@@ -668,7 +669,7 @@ void Entities::SetParent(
         if (i == entity)
             return;
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     auto &childEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(childIndex);
     if (!childEntityInfo.m_parent.IsNull())
     {
@@ -774,7 +775,7 @@ void Entities::RemoveChild(const std::shared_ptr<Scene> &scene, const Entity &en
     {
         UNIENGINE_ERROR("No child by the parent!");
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     childEntityMetadata.m_parent = Entity();
     childEntityMetadata.m_root = entity;
     const size_t childrenCount = parentEntityMetadata.m_children.size();
@@ -875,7 +876,7 @@ void Entities::RemoveDataComponent(const std::shared_ptr<Scene> &scene, const En
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(scene, newEntity);
 #pragma endregion
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
 }
 
 void Entities::SetDataComponent(
@@ -886,6 +887,7 @@ void Entities::SetDataComponent(
     {
         return;
     }
+    scene->m_saved = false;
     auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entityIndex);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
@@ -1079,7 +1081,7 @@ void Entities::SetPrivateComponent(
         scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
         elements.emplace_back(id, ptr, entity, scene);
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
 }
 
 void Entities::ForEachDescendantHelper(
@@ -1148,7 +1150,7 @@ void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const
             break;
         }
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
     scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(entity, typeId);
 }
 
@@ -1180,7 +1182,7 @@ void Entities::SetEnable(const std::shared_ptr<Scene> &scene, const Entity &enti
     {
         SetEnable(scene, i, value);
     }
-    entityManager.m_scene->m_saved = false;
+    scene->m_saved = false;
 }
 
 void Entities::SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
@@ -1206,7 +1208,6 @@ void Entities::SetEnableSingle(const std::shared_ptr<Scene> &scene, const Entity
             }
         }
         entityMetadata.m_enabled = value;
-        entityManager.m_scene->m_saved = false;
     }
 }
 

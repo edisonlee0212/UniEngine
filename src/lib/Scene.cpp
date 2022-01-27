@@ -95,7 +95,8 @@ void Scene::Update()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
+            if (!privateComponentElement.m_privateComponentData->m_enabled ||
+                !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->Update();
             if (entity.m_version != entityInfo.m_version)
@@ -126,7 +127,8 @@ void Scene::LateUpdate()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
+            if (!privateComponentElement.m_privateComponentData->m_enabled ||
+                !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->LateUpdate();
             if (entity.m_version != entityInfo.m_version)
@@ -156,7 +158,8 @@ void Scene::FixedUpdate()
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
         {
-            if (!privateComponentElement.m_privateComponentData->m_enabled || !privateComponentElement.m_privateComponentData->m_started)
+            if (!privateComponentElement.m_privateComponentData->m_enabled ||
+                !privateComponentElement.m_privateComponentData->m_started)
                 continue;
             privateComponentElement.m_privateComponentData->FixedUpdate();
             if (entity.m_version != entityInfo.m_version)
@@ -178,29 +181,36 @@ static const char *EnvironmentTypes[]{"Environmental Map", "Color"};
 void Scene::OnInspect()
 {
     if (this == Entities::GetCurrentScene().get())
-        Editor::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true);
+        if (Editor::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true))
+            m_saved = false;
     if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
         if (ImGui::Combo("Environment type", &type, EnvironmentTypes, IM_ARRAYSIZE(EnvironmentTypes)))
         {
             m_environmentSettings.m_environmentType = (EnvironmentType)type;
+            m_saved = false;
         }
         switch (m_environmentSettings.m_environmentType)
         {
         case EnvironmentType::EnvironmentalMap: {
-            Editor::DragAndDropButton<EnvironmentalMap>(
-                m_environmentSettings.m_environmentalMap, "Environmental Map");
+            if (Editor::DragAndDropButton<EnvironmentalMap>(
+                    m_environmentSettings.m_environmentalMap, "Environmental Map"))
+                m_saved = false;
         }
         break;
         case EnvironmentType::Color: {
-            ImGui::ColorEdit3("Background Color", &m_environmentSettings.m_backgroundColor.x);
+            if (ImGui::ColorEdit3("Background Color", &m_environmentSettings.m_backgroundColor.x))
+                m_saved = false;
         }
         break;
         }
-        ImGui::DragFloat(
-            "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 2.0f);
-        ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f);
+        if (ImGui::DragFloat(
+                "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 2.0f))
+            m_saved = false;
+        if (ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f)){
+            m_saved = false;
+        }
     }
 }
 
@@ -264,7 +274,7 @@ void Scene::Serialize(YAML::Emitter &out)
             {
                 assetMap[asset->GetHandle()] = asset;
             }
-            else if (!asset->m_saved)
+            else if (!asset->Saved())
             {
                 asset->Save();
             }
@@ -288,7 +298,7 @@ void Scene::Serialize(YAML::Emitter &out)
                 {
                     assetMap[asset->GetHandle()] = asset;
                 }
-                else if (!asset->m_saved)
+                else if (!asset->Saved())
                 {
                     asset->Save();
                 }
@@ -305,7 +315,7 @@ void Scene::Serialize(YAML::Emitter &out)
             out << YAML::BeginMap;
             out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
             out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-            out << YAML::Key << "Name" << YAML::Value << i.second->m_name;
+            out << YAML::Key << "Name" << YAML::Value << i.second->GetName();
             i.second->Serialize(out);
             out << YAML::EndMap;
         }
@@ -372,8 +382,7 @@ void Scene::Deserialize(const YAML::Node &in)
         {
             dataComponentStorage.m_chunkArray.m_chunks.emplace_back();
             auto &componentDataChunk = dataComponentStorage.m_chunkArray.m_chunks.back();
-            componentDataChunk.m_data =
-                static_cast<void *>(calloc(1, Entities::GetInstance().m_archetypeChunkSize));
+            componentDataChunk.m_data = static_cast<void *>(calloc(1, Entities::GetInstance().m_archetypeChunkSize));
             YAML::Binary chunkData = chunk["Data"].as<YAML::Binary>();
             assert(chunkData.size() == ARCHETYPE_CHUNK_SIZE);
             std::memcpy(componentDataChunk.m_data, chunkData.data(), chunkData.size());
@@ -455,7 +464,8 @@ void Scene::Deserialize(const YAML::Node &in)
                 size_t hashCode;
                 if (Serialization::HasSerializableType(name))
                 {
-                    auto ptr = std::static_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(name, hashCode));
+                    auto ptr =
+                        std::static_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(name, hashCode));
                     ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
@@ -619,10 +629,11 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
     }
 
     auto mainCamera = source->m_mainCamera.Get();
-    if(mainCamera)
+    if (mainCamera)
     {
-        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
-                .lock();
+        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(
+                                     AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
+                                     .lock();
     }
 }
 
@@ -652,7 +663,8 @@ void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_p
     m_entityInfos.resize(source.m_entityInfos.size());
 
     std::unordered_map<Handle, Handle> entityMap;
-    for(const auto& i : source.m_entityInfos){
+    for (const auto &i : source.m_entityInfos)
+    {
         entityMap.insert({i.GetHandle(), i.GetHandle()});
     }
 
