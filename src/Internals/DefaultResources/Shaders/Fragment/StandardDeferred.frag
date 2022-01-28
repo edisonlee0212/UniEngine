@@ -14,8 +14,8 @@ void main()
     vec2 texCoords = fs_in.TexCoords;
     vec4 albedo = UE_PBR_ALBEDO;
     if (UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoords);
-    if (UE_APLHA_DISCARD_ENABLED && albedo.a < UE_APLHA_DISCARD_OFFSET)
-    discard;
+    if (albedo.a < 0.05)
+        discard;
 
     vec3 B = cross(fs_in.Normal, fs_in.Tangent);
     mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);

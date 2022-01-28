@@ -48,10 +48,15 @@ void Material::OnInspect()
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
     {
         if (!m_albedoTexture.Get())
+        {
             if (ImGui::ColorEdit3("Albedo##Material", &m_albedoColor.x))
             {
                 m_saved = false;
             }
+            if(m_blendingMode != MaterialBlendingMode::Off && ImGui::DragFloat("Transparency", &m_transparency, 0.01f, 0.0f, 1.0f)){
+                m_saved = false;
+            }
+        }
         if (!m_metallicTexture.Get())
             if (ImGui::DragFloat("Metallic##Material", &m_metallic, 0.01f, 0.0f, 1.0f))
             {
@@ -75,55 +80,52 @@ void Material::OnInspect()
     }
     if (ImGui::TreeNodeEx("Others##Material"))
     {
-        if (ImGui::Checkbox("Enable alpha discard##Material", &m_alphaDiscardEnabled))
+        if (ImGui::Combo(
+                "Polygon Mode##Material",
+                reinterpret_cast<int *>(&m_polygonMode),
+                MatPolygonMode,
+                IM_ARRAYSIZE(MatPolygonMode)))
         {
             m_saved = false;
         }
-        if (m_alphaDiscardEnabled)
+        if (ImGui::Combo(
+                "Culling Mode##Material",
+                reinterpret_cast<int *>(&m_cullingMode),
+                MatCullingMode,
+                IM_ARRAYSIZE(MatCullingMode)))
         {
-            if (ImGui::DragFloat("Alpha discard offset##Material", &m_alphaDiscardOffset, 0.01f, 0.0f, 0.99f))
-            {
-                m_saved = false;
-            }
-        }
-        if(ImGui::Combo(
-            "Polygon Mode##Material",
-            reinterpret_cast<int *>(&m_polygonMode),
-            MatPolygonMode,
-            IM_ARRAYSIZE(MatPolygonMode))){
             m_saved = false;
         }
-        if(ImGui::Combo(
-            "Culling Mode##Material",
-            reinterpret_cast<int *>(&m_cullingMode),
-            MatCullingMode,
-            IM_ARRAYSIZE(MatCullingMode))){
-            m_saved = false;
-        }
-        if(ImGui::Combo(
-            "Blending Mode##Material",
-            reinterpret_cast<int *>(&m_blendingMode),
-            MatBlendingMode,
-            IM_ARRAYSIZE(MatBlendingMode))){
+        if (ImGui::Combo(
+                "Blending Mode##Material",
+                reinterpret_cast<int *>(&m_blendingMode),
+                MatBlendingMode,
+                IM_ARRAYSIZE(MatBlendingMode)))
+        {
             m_saved = false;
         }
         ImGui::TreePop();
     }
     if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
     {
-        if(Editor::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex")){
+        if (Editor::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex"))
+        {
             m_saved = false;
         }
-        if(Editor::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex")){
+        if (Editor::DragAndDropButton<Texture2D>(m_normalTexture, "Normal Tex"))
+        {
             m_saved = false;
         }
-        if(Editor::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex")){
+        if (Editor::DragAndDropButton<Texture2D>(m_metallicTexture, "Metallic Tex"))
+        {
             m_saved = false;
         }
-        if(Editor::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex")){
+        if (Editor::DragAndDropButton<Texture2D>(m_roughnessTexture, "Roughness Tex"))
+        {
             m_saved = false;
         }
-        if(Editor::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex")){
+        if (Editor::DragAndDropButton<Texture2D>(m_aoTexture, "AO Tex"))
+        {
             m_saved = false;
         }
         ImGui::TreePop();
@@ -222,8 +224,9 @@ void Material::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_ambient" << YAML::Value << m_ambient;
     out << YAML::Key << "m_emission" << YAML::Value << m_emission;
     out << YAML::Key << "m_albedoColor" << YAML::Value << m_albedoColor;
-    out << YAML::Key << "m_alphaDiscardEnabled" << YAML::Value << m_alphaDiscardEnabled;
-    out << YAML::Key << "m_alphaDiscardOffset" << YAML::Value << m_alphaDiscardOffset;
+    out << YAML::Key << "m_transparency" << YAML::Value << m_transparency;
+    out << YAML::Key << "m_subsurfaceColor" << YAML::Value << m_subsurfaceColor;
+    out << YAML::Key << "m_subsurfaceRadius" << YAML::Value << m_subsurfaceRadius;
 }
 void Material::Deserialize(const YAML::Node &in)
 {
@@ -241,13 +244,22 @@ void Material::Deserialize(const YAML::Node &in)
     if (in["m_blendingMode"])
         m_blendingMode = (MaterialBlendingMode)in["m_blendingMode"].as<unsigned>();
 
-    m_metallic = in["m_metallic"].as<float>();
-    m_roughness = in["m_roughness"].as<float>();
-    m_ambient = in["m_ambient"].as<float>();
-    m_emission = in["m_emission"].as<float>();
-    m_albedoColor = in["m_albedoColor"].as<glm::vec3>();
-    m_alphaDiscardEnabled = in["m_alphaDiscardEnabled"].as<bool>();
-    m_alphaDiscardOffset = in["m_alphaDiscardOffset"].as<float>();
+    if (in["m_metallic"])
+        m_metallic = in["m_metallic"].as<float>();
+    if (in["m_transparency"])
+        m_transparency = in["m_transparency"].as<float>();
+    if (in["m_roughness"])
+        m_roughness = in["m_roughness"].as<float>();
+    if (in["m_ambient"])
+        m_ambient = in["m_ambient"].as<float>();
+    if (in["m_emission"])
+        m_emission = in["m_emission"].as<float>();
+    if (in["m_albedoColor"])
+        m_albedoColor = in["m_albedoColor"].as<glm::vec3>();
+    if (in["m_subsurfaceColor"])
+        m_subsurfaceColor = in["m_subsurfaceColor"].as<glm::vec3>();
+    if (in["m_subsurfaceRadius"])
+        m_subsurfaceRadius = in["m_subsurfaceRadius"].as<float>();
 }
 void Material::CollectAssetRef(std::vector<AssetRef> &list)
 {

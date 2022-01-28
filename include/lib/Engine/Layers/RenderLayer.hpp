@@ -36,17 +36,18 @@ struct MaterialSettingsBlock
     int m_normalEnabled = 0;
     int m_metallicEnabled = 0;
     int m_roughnessEnabled = 0;
+
     int m_aoEnabled = 0;
-    int m_alphaDiscardEnabled = true;
+    int m_castShadow = true;
     int m_receiveShadow = true;
     int m_enableShadow = true;
 
     glm::vec4 m_albedoColorVal = glm::vec4(1.0f);
+    glm::vec4 m_subsurfaceColorRadius = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
     float m_metallicVal = 0.5f;
     float m_roughnessVal = 0.5f;
     float m_aoVal = 1.0f;
     float m_emissionVal = 0.0f;
-    float m_alphaDiscardOffset = 0.1f;
 };
 
 

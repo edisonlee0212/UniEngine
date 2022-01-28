@@ -1415,9 +1415,9 @@ void RenderLayer::ApplyMaterialSettings(const std::shared_ptr<Material> &materia
     {
         DefaultResources::Textures::MissingTexture->UnsafeGetGLTexture()->Bind(3);
     }
-    m_materialSettings.m_alphaDiscardEnabled = material->m_alphaDiscardEnabled;
-    m_materialSettings.m_alphaDiscardOffset = material->m_alphaDiscardOffset;
-    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, 1.0f);
+    m_materialSettings.m_castShadow = true;
+    m_materialSettings.m_subsurfaceColorRadius = glm::vec4(material->m_subsurfaceColor, material->m_subsurfaceRadius);
+    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, material->m_blendingMode != MaterialBlendingMode::Off ? material->m_transparency : 1.0f);
     m_materialSettings.m_metallicVal = material->m_metallic;
     m_materialSettings.m_roughnessVal = material->m_roughness;
     m_materialSettings.m_aoVal = material->m_ambient;

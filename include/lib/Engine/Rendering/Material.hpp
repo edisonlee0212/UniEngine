@@ -54,8 +54,10 @@ class UNIENGINE_API Material : public IAsset
     float m_ambient = 1.0f;
     float m_emission = 0.0f;
     glm::vec3 m_albedoColor = glm::vec3(1.0f);
-    bool m_alphaDiscardEnabled = true;
-    float m_alphaDiscardOffset = 0.1f;
+    float m_transparency = 0;
+    glm::vec3 m_subsurfaceColor = glm::vec3(1.0f);
+    float m_subsurfaceRadius = 0.0f;
+
     void OnCreate() override;
     void OnInspect() override;
     void SetMaterialProperty(const std::string &name, const float &value);
