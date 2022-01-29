@@ -10,6 +10,13 @@ enum class UNIENGINE_API TextureType
     Roughness,
     AO,
 };
+
+enum class UNIENGINE_API TextureColorType{
+    Red = 1,
+    RG = 2,
+    RGB = 3,
+    RGBA = 4
+};
 class UNIENGINE_API Texture2D : public IAsset
 {
     friend class Material;
@@ -24,12 +31,11 @@ class UNIENGINE_API Texture2D : public IAsset
     friend class ReflectionProbe;
     friend class EnvironmentalMap;
     friend class Cubemap;
-
   protected:
     bool SaveInternal(const std::filesystem::path &path) override;
     bool LoadInternal(const std::filesystem::path & path) override;
-
   public:
+    TextureColorType m_textureColorType;
     void OnInspect() override;
     float m_gamma = 1.0f;
     void OnCreate() override;

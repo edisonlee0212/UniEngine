@@ -53,7 +53,7 @@ void Material::OnInspect()
             {
                 m_saved = false;
             }
-            if(m_blendingMode != MaterialBlendingMode::Off && ImGui::DragFloat("Transparency", &m_transparency, 0.01f, 0.0f, 1.0f)){
+            if(m_blendingMode != MaterialBlendingMode::Off && ImGui::DragFloat("Transparency##Material", &m_transparency, 0.01f, 0.0f, 1.0f)){
                 m_saved = false;
             }
         }
@@ -73,6 +73,13 @@ void Material::OnInspect()
                 m_saved = false;
             }
         if (ImGui::DragFloat("Emission##Material", &m_emission, 0.01f, 0.0f, 10.0f))
+        {
+            m_saved = false;
+        }
+        if(ImGui::DragFloat("Subsurface Radius", &m_subsurfaceRadius, 0.01f, 0.0f, 999.0f)){
+            m_saved = false;
+        }
+        if (ImGui::ColorEdit3("Subsurface Color##Material", &m_subsurfaceColor.x))
         {
             m_saved = false;
         }

@@ -123,17 +123,21 @@ bool Texture2D::LoadInternal(const std::filesystem::path &path)
     if (data)
     {
         GLenum format = GL_RED;
+        m_textureColorType = TextureColorType::Red;
         if (nrComponents == 2)
         {
             format = GL_RG;
+            m_textureColorType = TextureColorType::RG;
         }
         else if (nrComponents == 3)
         {
             format = GL_RGB;
+            m_textureColorType = TextureColorType::RGB;
         }
         else if (nrComponents == 4)
         {
             format = GL_RGBA;
+            m_textureColorType = TextureColorType::RGBA;
         }
         GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(width, height))) + 1;
         m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, width, height, true);
