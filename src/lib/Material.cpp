@@ -76,12 +76,16 @@ void Material::OnInspect()
         {
             m_saved = false;
         }
-        if(ImGui::DragFloat("Subsurface Radius", &m_subsurfaceRadius, 0.01f, 0.0f, 999.0f)){
+        if(ImGui::DragFloat("Subsurface Factor##Material", &m_subsurfaceFactor, 0.01f, 0.0f, 1.0f)){
             m_saved = false;
         }
-        if (ImGui::ColorEdit3("Subsurface Color##Material", &m_subsurfaceColor.x))
-        {
-            m_saved = false;
+        if(m_subsurfaceFactor > 0.0f) {
+            if (ImGui::DragFloat("Subsurface Radius##Material", &m_subsurfaceRadius, 0.01f, 0.0f, 999.0f)) {
+                m_saved = false;
+            }
+            if (ImGui::ColorEdit3("Subsurface Color##Material", &m_subsurfaceColor.x)) {
+                m_saved = false;
+            }
         }
         ImGui::TreePop();
     }
@@ -233,6 +237,7 @@ void Material::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_albedoColor" << YAML::Value << m_albedoColor;
     out << YAML::Key << "m_transparency" << YAML::Value << m_transparency;
     out << YAML::Key << "m_subsurfaceColor" << YAML::Value << m_subsurfaceColor;
+    out << YAML::Key << "m_subsurfaceFactor" << YAML::Value << m_subsurfaceFactor;
     out << YAML::Key << "m_subsurfaceRadius" << YAML::Value << m_subsurfaceRadius;
 }
 void Material::Deserialize(const YAML::Node &in)
@@ -265,6 +270,8 @@ void Material::Deserialize(const YAML::Node &in)
         m_albedoColor = in["m_albedoColor"].as<glm::vec3>();
     if (in["m_subsurfaceColor"])
         m_subsurfaceColor = in["m_subsurfaceColor"].as<glm::vec3>();
+    if (in["m_subsurfaceFactor"])
+        m_subsurfaceFactor = in["m_subsurfaceFactor"].as<float>();
     if (in["m_subsurfaceRadius"])
         m_subsurfaceRadius = in["m_subsurfaceRadius"].as<float>();
 }

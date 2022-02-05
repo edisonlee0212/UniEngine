@@ -56,6 +56,7 @@ class UNIENGINE_API Material : public IAsset
     glm::vec3 m_albedoColor = glm::vec3(1.0f);
     float m_transparency = 0;
     glm::vec3 m_subsurfaceColor = glm::vec3(1.0f);
+    float m_subsurfaceFactor = 0.0f;
     float m_subsurfaceRadius = 0.0f;
 
     void OnCreate() override;

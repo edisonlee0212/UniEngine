@@ -320,18 +320,17 @@ void DefaultResources::Load()
 
 
 #pragma region Environmental
-    Environmental::DefaultSkybox = AssetManager::UnsafeCreateAsset<Cubemap>(GenerateNewHandle(), "Default");
+    Environmental::DefaultSkybox = AssetManager::UnsafeCreateAsset<Cubemap>(GenerateNewHandle(), "DefaultSkybox");
     auto defaultSkyboxEquiTex = AssetManager::CreateAsset<Texture2D>();
     defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/Walk_Of_Fame/Mans_Outside_Env.hdr");
     Environmental::DefaultSkybox->ConvertFromEquirectangularTexture(defaultSkyboxEquiTex);
-    Environmental::DefaultSkybox->m_name = "Default";
     AssetManager::Share(Environmental::DefaultSkybox);
     Textures::MissingTexture = AssetManager::UnsafeCreateAsset<Texture2D>(GenerateNewHandle(), "Missing");
     Textures::MissingTexture->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/texture-missing.png");
     Textures::MissingTexture->m_name = "Missing";
 
     Environmental::DefaultEnvironmentalMap =
-        AssetManager::UnsafeCreateAsset<EnvironmentalMap>(GenerateNewHandle(), "Default");
+        AssetManager::UnsafeCreateAsset<EnvironmentalMap>(GenerateNewHandle(), "DefaultEnvMap");
     Environmental::DefaultEnvironmentalMap->ConstructFromCubemap(Environmental::DefaultSkybox);
     AssetManager::Share(Environmental::DefaultEnvironmentalMap);
 #pragma endregion
