@@ -20,6 +20,7 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
 
   protected:
   public:
+    AssetRef GetCubemap();
     float m_gamma = 1.0f;
     [[nodiscard]] bool IsReady() const;
     void OnCreate() override;

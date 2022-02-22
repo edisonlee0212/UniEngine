@@ -6,6 +6,8 @@
 #include <MeshRenderer.hpp>
 #include <Particles.hpp>
 #include <SkinnedMeshRenderer.hpp>
+#include <EnvironmentalMap.hpp>
+
 #include "ILayer.hpp"
 namespace UniEngine
 {
@@ -230,4 +232,6 @@ class UNIENGINE_API RenderLayer : public ILayer
                                               const glm::mat4 &scaleMatrix);
     float Lerp(const float &a, const float &b, const float &f);
 };
+
+
 }

@@ -13,7 +13,9 @@ void EnvironmentalMap::OnCreate()
 {
     m_name = "New environmental map";
 }
-
+AssetRef EnvironmentalMap::GetCubemap() {
+    return m_targetCubemap;
+}
 void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
     m_targetCubemap = targetCubemap;
