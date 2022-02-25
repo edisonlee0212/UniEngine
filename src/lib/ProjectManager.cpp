@@ -348,7 +348,7 @@ void ProjectManager::GenerateNewDefaultScene()
     auto &projectManager = GetInstance();
     auto scene = AssetManager::CreateAsset<Scene>("New Scene");
     std::filesystem::path newSceneRelativePath = GenerateNewPath("New Scene", ".uescene");
-    scene->SetPath(newSceneRelativePath);
+    scene->SetPathAndSave(newSceneRelativePath);
     projectManager.m_currentProject->m_startScenePath = newSceneRelativePath;
     Application::GetInstance().m_scene = scene;
     Entities::Attach(scene);
