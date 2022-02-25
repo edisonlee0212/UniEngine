@@ -3,13 +3,14 @@
 //
 #include "EditorLayer.hpp"
 #include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
+#include "Engine/Core/Windows.hpp"
 #include "RenderLayer.hpp"
 #include <Application.hpp>
 #include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
 #include <DefaultResources.hpp>
-#include "Engine/Core/Inputs.hpp"
 #include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -20,7 +21,6 @@
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
-#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 void EditorLayer::OnCreate()
 {
@@ -49,19 +49,18 @@ void EditorLayer::OnCreate()
     m_sceneCamera->m_useClearColor = false;
     m_sceneCamera->OnCreate();
 
-    Editor::RegisterComponentDataInspector<GlobalTransform>(
-        [](Entity entity, IDataComponent *data, bool isRoot) {
-            auto *ltw = reinterpret_cast<GlobalTransform *>(data);
-            glm::vec3 er;
-            glm::vec3 t;
-            glm::vec3 s;
-            ltw->Decompose(t, er, s);
-            er = glm::degrees(er);
-            ImGui::DragFloat3("Position##Global", &t.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
-            ImGui::DragFloat3("Rotation##Global", &er.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
-            ImGui::DragFloat3("Scale##Global", &s.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
-            return false;
-        });
+    Editor::RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
+        auto *ltw = reinterpret_cast<GlobalTransform *>(data);
+        glm::vec3 er;
+        glm::vec3 t;
+        glm::vec3 s;
+        ltw->Decompose(t, er, s);
+        er = glm::degrees(er);
+        ImGui::DragFloat3("Position##Global", &t.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+        ImGui::DragFloat3("Rotation##Global", &er.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+        ImGui::DragFloat3("Scale##Global", &s.x, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+        return false;
+    });
     Editor::RegisterComponentDataInspector<Transform>([&](Entity entity, IDataComponent *data, bool isRoot) {
         static Entity previousEntity;
         auto *ltp = static_cast<Transform *>(static_cast<void *>(data));
@@ -144,9 +143,12 @@ void EditorLayer::OnCreate()
     Editor::RegisterComponentDataInspector<Ray>([&](Entity entity, IDataComponent *data, bool isRoot) {
         auto *ray = static_cast<Ray *>(static_cast<void *>(data));
         bool changed = false;
-        if(ImGui::InputFloat3("Start", &ray->m_start.x)) changed = true;
-        if(ImGui::InputFloat3("Direction", &ray->m_direction.x)) changed = true;
-        if(ImGui::InputFloat("Length", &ray->m_length)) changed = true;
+        if (ImGui::InputFloat3("Start", &ray->m_start.x))
+            changed = true;
+        if (ImGui::InputFloat3("Direction", &ray->m_direction.x))
+            changed = true;
+        if (ImGui::InputFloat("Length", &ray->m_length))
+            changed = true;
         return changed;
     });
 }
@@ -299,7 +301,8 @@ void EditorLayer::InspectComponentData(Entity entity, IDataComponent *data, Data
     if (editorManager.m_componentDataInspectorMap.find(type.m_typeId) !=
         editorManager.m_componentDataInspectorMap.end())
     {
-        if(editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot)){
+        if (editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot))
+        {
             Entities::GetCurrentScene()->SetUnsaved();
         }
     }
@@ -330,8 +333,8 @@ void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity)
     if (!entity.IsValid() || !entity.IsEnabled())
         return;
     Entities::ForEachChild(Entities::GetCurrentScene(), entity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
-            HighLightEntityPrePassHelper(child);
-        });
+        HighLightEntityPrePassHelper(child);
+    });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
@@ -378,8 +381,8 @@ void EditorLayer::HighLightEntityHelper(const Entity &entity)
     if (!entity.IsValid() || !entity.IsEnabled())
         return;
     Entities::ForEachChild(Entities::GetCurrentScene(), entity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
-            HighLightEntityHelper(child);
-        });
+        HighLightEntityHelper(child);
+    });
     if (entity.HasPrivateComponent<MeshRenderer>())
     {
         auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
@@ -1240,7 +1243,6 @@ void EditorLayer::OnInspect()
                                     projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath,
                                     projectManager.m_projectPath.parent_path() / newPath);
                                 // Asset path
-
                                 auto search1 = assetManager.m_assets.find(i.first);
                                 if (search1 != assetManager.m_assets.end())
                                 {
@@ -1250,33 +1252,27 @@ void EditorLayer::OnInspect()
                                         searchAsset->SetPath(newPath);
                                     }
                                 }
+
                                 // FolderMetadata
                                 auto originalHandle = projectManager.m_currentFocusedFolder->m_folderMetadata
                                                           .m_fileMap[i.second.m_relativeFilePath.string()];
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(
-                                    i.second.m_relativeFilePath.string());
-                                i.second.m_relativeFilePath = newPath;
-                                i.second.m_fileName = newPath.filename().string();
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] =
-                                    originalHandle;
-                                projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
-                                    projectManager.m_projectPath.parent_path() /
-                                    projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
+                                projectManager.m_currentFocusedFolder->ResetFilePath(originalHandle, newPath);
+                                projectManager.m_assetRegistry.ResetFilePath(originalHandle, newPath);
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndMenu();
                         }
                         if (ImGui::Button(("Remove" + tag).c_str()))
                         {
-                            asset = AssetManager::Get(i.first);
-                            if (asset)
+                            auto search = AssetManager::GetInstance().m_assets.find(i.first);
+                            if (search != AssetManager::GetInstance().m_assets.end() && !search->second.expired())
                             {
-                                asset->m_projectRelativePath.clear();
+                                search->second.lock()->m_projectRelativePath.clear();
                             }
-                            std::filesystem::remove(
-                                projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
+                            auto path = i.second.m_relativeFilePath;
+                            std::filesystem::remove(projectManager.m_projectPath.parent_path() / path);
                             projectManager.m_assetRegistry.RemoveFile(i.first);
-                            ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder, false);
+                            projectManager.m_currentFocusedFolder->RemoveFile(i.first);
                             ImGui::CloseCurrentPopup();
                             ImGui::EndPopup();
                             break;
@@ -1346,7 +1342,7 @@ void EditorLayer::OnInspect()
         }
         ImGui::End();
     }
-    if(!Editor::GetInstance().m_inspectingAsset.expired())
+    if (!Editor::GetInstance().m_inspectingAsset.expired())
     {
         if (ImGui::Begin("Asset Inspector"))
         {

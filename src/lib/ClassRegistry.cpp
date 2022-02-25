@@ -37,7 +37,7 @@ AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
 AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
 AssetRegistration<Texture2D> Texture2DReg("Texture2D", ".uetexture2d");
 AssetRegistration<Cubemap> CubemapReg("Cubemap", ".uecubemap");
-AssetRegistration<LightProbe> LightProbeReg("LightProbe", ".uelightprobe");
+AssetRegistration<LightProbe> LightProbeReg("IlluminationSampler", ".uelightprobe");
 AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", ".uereflecprobe");
 AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", ".ueglprogram");
 AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", ".ueglshader");

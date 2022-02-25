@@ -458,6 +458,23 @@ void FolderMetadata::Load(const std::filesystem::path &path)
         }
     }
 }
+void FolderMetadata::RemoveFile(Handle handle)
+{
+    if (m_fileRecords.find(handle) != m_fileRecords.end())
+    {
+        m_fileMap.erase(m_fileRecords[handle].m_relativeFilePath.string());
+        m_fileRecords.erase(handle);
+    }
+}
+void FolderMetadata::ResetFilePath(Handle handle, const std::filesystem::path &newFilePath)
+{
+    std::string original = m_fileRecords[handle].m_relativeFilePath.string();
+    m_fileRecords[handle].m_relativeFilePath = newFilePath;
+    m_fileRecords[handle].m_fileName = newFilePath.filename().string();
+    if (m_fileMap.find(original) != m_fileMap.end())
+        m_fileMap.erase(original);
+    m_fileMap[newFilePath.string()] = handle;
+}
 void FileRecord::Serialize(YAML::Emitter &out) const
 {
     out << YAML::Key << "m_name" << YAML::Value << m_name;
@@ -480,4 +497,29 @@ void Folder::ClearAllDescendents()
 {
     for(auto& i : m_children) i.second->ClearAllDescendents();
     m_children.clear();
+}
+void Folder::RemoveFile(Handle handle)
+{
+    m_folderMetadata.RemoveFile(handle);
+    m_folderMetadata.Save(
+        ProjectManager::GetProjectPath().parent_path() /
+        m_relativePath / ".uemetadata");
+}
+void Folder::ResetFilePath(Handle handle, const std::filesystem::path &newFilePath)
+{
+    m_folderMetadata.ResetFilePath(handle, newFilePath);
+    m_folderMetadata.Save(
+        ProjectManager::GetProjectPath().parent_path() /
+        m_relativePath / ".uemetadata");
+}
+void Folder::AddOrResetFile(Handle handle, const FileRecord &newFileRecord)
+{
+    std::string original = m_folderMetadata.m_fileRecords[handle].m_relativeFilePath.string();
+    m_folderMetadata.m_fileRecords[handle] = newFileRecord;
+    if (m_folderMetadata.m_fileMap.find(original) != m_folderMetadata.m_fileMap.end())
+        m_folderMetadata.m_fileMap.erase(original);
+    m_folderMetadata.m_fileMap[newFileRecord.m_relativeFilePath.string()] = handle;
+    m_folderMetadata.Save(
+        ProjectManager::GetProjectPath().parent_path() /
+        m_relativePath / ".uemetadata");
 }

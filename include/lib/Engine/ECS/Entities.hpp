@@ -2045,8 +2045,7 @@ std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene>
         }
         i++;
     }
-    scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent<T>(entity);
-    auto ptr = Serialization::ProduceSerializable<T>();
+    auto ptr = scene->m_sceneDataStorage.m_entityPrivateComponentStorage.GetOrSetPrivateComponent<T>(entity);
     elements.emplace_back(typeid(T).hash_code(), ptr, entity, scene);
     scene->m_saved = false;
     return std::move(ptr);
@@ -2065,8 +2064,7 @@ void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const
     {
         if (std::dynamic_pointer_cast<T>(elements[i].m_privateComponentData))
         {
-            scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent<T>(entity);
-            elements[i].m_privateComponentData->OnDestroy();
+            scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent<T>(entity, elements[i].m_privateComponentData);
             elements.erase(elements.begin() + i);
             scene->m_saved = false;
             return;

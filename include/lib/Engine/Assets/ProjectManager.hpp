@@ -16,11 +16,15 @@ struct UNIENGINE_API FileRecord
 };
 
 struct UNIENGINE_API FolderMetadata{
-    friend class Editor;
+    friend class EditorLayer;
+    friend class Folder;
     std::unordered_map<Handle, FileRecord> m_fileRecords;
     std::unordered_map<std::string, Handle> m_fileMap;
     void Save(const std::filesystem::path &path);
     void Load(const std::filesystem::path &path);
+  private:
+    void RemoveFile(Handle handle);
+    void ResetFilePath(Handle handle, const std::filesystem::path &newFilePath);
 };
 
 class UNIENGINE_API AssetRegistry
@@ -46,6 +50,9 @@ struct UNIENGINE_API Folder {
     std::weak_ptr<Folder> m_parent;
     void Rename(const std::string& newName);
     void ClearAllDescendents();
+    void RemoveFile(Handle handle);
+    void ResetFilePath(Handle handle, const std::filesystem::path &newFilePath);
+    void AddOrResetFile(Handle handle, const FileRecord &newFileRecord);
 };
 
 class UNIENGINE_API Project : public ISerializable

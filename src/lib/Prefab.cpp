@@ -108,8 +108,9 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             Serialization::ProduceSerializable(i.m_data->GetTypeName(), id));
         Serialization::ClonePrivateComponent(ptr, i.m_data);
-        ptr->m_scene = Entities::GetCurrentScene();
-        Entities::SetPrivateComponent(Entities::GetCurrentScene(), entity, ptr);
+        auto scene = Entities::GetCurrentScene();
+        ptr->m_scene = scene;
+        Entities::SetPrivateComponent(scene, entity, ptr);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)

@@ -30,7 +30,8 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
     try
     {
-        if(std::filesystem::exists(path)){
+        if (std::filesystem::exists(path))
+        {
             std::filesystem::remove(path);
         }
         YAML::Emitter out;
@@ -86,33 +87,31 @@ void IAsset::SetPath(const std::filesystem::path &path)
 {
     assert(path.is_relative());
     auto &projectManager = ProjectManager::GetInstance();
+    auto newPath = ProjectManager::GetRelativePath(
+        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
+    if (newPath == m_projectRelativePath)
+        return;
+    auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
+    folder->RemoveFile(m_handle);
     if (path.empty())
     {
         m_projectRelativePath.clear();
         projectManager.m_assetRegistry.RemoveFile(m_handle);
         return;
     }
-    auto newPath = ProjectManager::GetRelativePath(
-        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
-    if (newPath == m_projectRelativePath)
-        return;
-
     m_projectRelativePath = newPath;
     m_saved = false;
 
-    if (!projectManager.m_assetRegistry.Find(m_projectRelativePath))
-    {
-        FileRecord assetRecord;
-        assetRecord.m_typeName = m_typeName;
-        assetRecord.m_relativeFilePath = m_projectRelativePath;
-        assetRecord.m_fileName = m_projectRelativePath.filename().string();
-        projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
+    FileRecord assetRecord;
+    assetRecord.m_typeName = m_typeName;
+    assetRecord.m_relativeFilePath = m_projectRelativePath;
+    assetRecord.m_fileName = m_projectRelativePath.filename().string();
+    projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
+
+    folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
+    if(folder){
+        folder->AddOrResetFile(m_handle, assetRecord);
     }
-    else
-    {
-        projectManager.m_assetRegistry.ResetFilePath(m_handle, m_projectRelativePath);
-    }
-    auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
 }
 bool IAsset::SetPathAndSave(const std::filesystem::path &path)
 {

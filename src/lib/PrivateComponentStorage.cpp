@@ -1,7 +1,7 @@
 #include "Engine/ECS/Entities.hpp"
 #include <PrivateComponentStorage.hpp>
 using namespace UniEngine;
-void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID)
+void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID, std::shared_ptr<IPrivateComponent> privateComponent)
 {
     const auto search = m_pOwnersCollectionsMap.find(typeID);
     if (search != m_pOwnersCollectionsMap.end())
@@ -15,6 +15,8 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
                 UNIENGINE_ERROR("RemovePrivateComponent: Entity mismatch!");
                 return;
             }
+            privateComponent->OnDestroy();
+            m_privateComponentPool[typeID].push_back(privateComponent);
             if (collection.m_ownersList.size() == 1)
             {
                 const auto eraseHash = typeID;
@@ -45,7 +47,7 @@ void PrivateComponentStorage::DeleteEntity(Entity entity)
     for (auto &element :
          Entities::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements)
     {
-        RemovePrivateComponent(entity, element.m_typeId);
+        RemovePrivateComponent(entity, element.m_typeId, element.m_privateComponentData);
     }
 }
 

@@ -1,0 +1,1348 @@
+m_name: Anchor
+m_enabled: true
+m_entityHandle: 11918513626763294862
+m_dataComponents:
+  - m_type.m_name: Transform
+    m_data: !!binary "wtAQPsPQED4AAAAAAAAAAMPQEL7C0BA+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAAAAgwQAAAAAAAAAAAACAPw=="
+  - m_type.m_name: GlobalTransform
+    m_data: !!binary "wtAQPsPQED4AAAAAAAAAAMPQEL7C0BA+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAAAAgwQAAAAAAAAAAAACAPw=="
+  - m_type.m_name: GlobalTransformUpdateFlag
+    m_data: !!binary "AA=="
+m_privateComponents:
+  - m_enabled: true
+    m_typeName: MeshRenderer
+    m_data:
+      m_handle: 1893888743827465139
+      m_forwardRendering: false
+      m_castShadow: true
+      m_receiveShadow: true
+      m_mesh:
+        m_assetHandle: 22
+        m_assetTypeName: Mesh
+      m_material:
+        m_assetHandle: 13782936990317180207
+        m_assetTypeName: Material
+  - m_enabled: true
+    m_typeName: RigidBody
+    m_data:
+      m_handle: 17077828792236721121
+      m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+      m_drawBounds: false
+      m_static: false
+      m_density: 125
+      m_massCenter: [0, 0, 0]
+      m_linearVelocity: [0, 0, 0]
+      m_angularVelocity: [0, 0, 0]
+      m_kinematic: true
+      m_linearDamping: 0.5
+      m_angularDamping: 0.5
+      m_minPositionIterations: 4
+      m_minVelocityIterations: 1
+      m_gravity: true
+      m_colliders:
+        - m_assetHandle: 4095156123732627776
+          m_assetTypeName: Collider
+m_children:
+  - m_handle: 2530248394631311961
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 1167456282275832150
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAMEZiwDBGYkAAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "wtAQPsPQED4AAAAAAAAAAMPQEL7C0BA+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAAAAwwQAAALMAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 2451203333776835863
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 13890726181316863998
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 16141240526029712854
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [-1.95577741e-08, 5.58793545e-09, 0]
+          m_angularVelocity: [0, 0, 8.24220479e-08]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 15354944115934230565
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 5910965560787514860
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.707107067, -0.707107067, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 1167456282275832150
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 11918513626763294862
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 3834325800039544740
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 16729676937693819353
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "Rv9/PwBBnDsAAAAAAAAAAABBnLtG/38/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAA0LjiwGDO4UAAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "kR8QPiKBET4AAAAAAAAAACKBEb6RHxA+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAov8/wQCfhLsAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 17994601564978059853
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 11392194856030987223
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 13177304575706045373
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [-0.000351618044, 0.025723489, 0]
+          m_angularVelocity: [0, 0, 0.0177487899]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 7962045583150510989
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 2457875776001005394
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.707107067, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 16729676937693819353
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 1167456282275832150
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 13447902296559615083
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 9324259922045337568
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "Sv9/PwBBnDsAAAAAAAAAAABBnLtK/38/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAhDAqwYQzKUEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "kx8QPiSBET4AAAAAAAAAACSBEb6THxA+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAQv9PwQAfD7wAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 269733858086113352
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 14876267688661799774
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 9881117163976391137
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [-0.000968915643, 0.00726672914, 0]
+          m_angularVelocity: [0, 0, 0.0177489091]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 490504638686216802
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 11972638496522020441
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 9324259922045337568
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 16729676937693819353
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 5038999298507178344
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 17846131900320570742
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "dP5/P0B44jsAAAAAAAAAAEB44rt0/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAWCdjwdBdYUEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "qc8PPhzQET4AAAAAAAAAABzQEb6pzw8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAA+/5fwQBpgbwAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 8813108900382254902
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 11971426668517795103
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 7776745670098670946
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.000854839338, -0.0314092711, 0]
+          m_angularVelocity: [0, 0, 0.051881589]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 8605094469432103096
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 18122762075017018537
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.707107544, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 17846131900320570742
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 9324259922045337568
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 9933583346357546071
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 18078537647987514351
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "dP5/P0B44jsAAAAAAAAAAEB44rt0/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAArA2OwXjFjEEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "qc8PPhzQET4AAAAAAAAAABzQEb6pzw8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAs/5vwYCpubwAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 15878483191052669966
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 12060832603889190057
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 10725250000695989067
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.00172588625, -0.0827707499, 0]
+          m_angularVelocity: [0, 0, 0.0518816411]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 7549255162328077968
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 3001496017129644904
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 18078537647987514351
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 17846131900320570742
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 8943436499204086991
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 16023775614443380526
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "MP5/PwBx+DsAAAAAAAAAAABx+Lsw/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAA7o6qwSLVqEEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "qLYPPtHoET4AAAAAAAAAANHoEb6otg8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAhv5/wQDs+bwAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 11907880701317641645
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 10619090990327829392
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 17569408238408783750
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.00170173426, -0.144427612, 0]
+          m_angularVelocity: [0, 0, 0.0603099726]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 17755489661773094781
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 10929707798692691827
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 16023775614443380526
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 18078537647987514351
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 14523049047229365689
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 12442035555026247029
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "MP5/PwBx+DsAAAAAAAAAAABx+Lsw/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAFA7HwcjmxEEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "qLYPPtHoET4AAAAAAAAAANHoEb6otg8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAKP+HwcDuG70AAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 1050749324622697918
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 16201712627267533000
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 18201725142763114420
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.0020567493, -0.204839483, 0]
+          m_angularVelocity: [0, 0, 0.0603099838]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 438426846561044153
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 9384383249901733202
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 12442035555026247029
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 16023775614443380526
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 12794689491011697895
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 666891090376890326
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "F/5/P8Dw+jsAAAAAAAAAAMDw+rsX/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAeI/jwXD24EEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "xbMPPpbrET4AAAAAAAAAAJbrEb7Fsw8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAFv+PwcAZPL0AAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 9980530151042431033
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 1107502649820027454
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 2351072307849988272
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.00251757191, -0.26876542, 0]
+          m_angularVelocity: [0, 0, 0.0655831099]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 17819274236116643137
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 2398936662283813907
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.70710659, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 666891090376890326
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 12442035555026247029
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+  - m_handle: 12049482778149717548
+    m_name: Link
+    m_enabled: true
+    m_entityHandle: 4399910010495080392
+    m_dataComponents:
+      - m_type.m_name: Transform
+        m_data: !!binary "F/5/P8Dw+jsAAAAAAAAAAMDw+rsX/n8/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAsgcAwooH/UEAAAAAAACAPw=="
+      - m_type.m_name: GlobalTransform
+        m_data: !!binary "xbMPPpbrET4AAAAAAAAAAJbrEb7Fsw8+AAAAAAAAAAAAAAAAAAAAAM3MTD4AAAAAA/+XwYByW70AAAAAAACAPw=="
+      - m_type.m_name: GlobalTransformUpdateFlag
+        m_data: !!binary "AA=="
+    m_privateComponents:
+      - m_enabled: true
+        m_typeName: MeshRenderer
+        m_data:
+          m_handle: 11464056837137546004
+          m_forwardRendering: false
+          m_castShadow: true
+          m_receiveShadow: true
+          m_mesh:
+            m_assetHandle: 21
+            m_assetTypeName: Mesh
+          m_material:
+            m_assetHandle: 9206189383004307415
+            m_assetTypeName: Material
+      - m_enabled: true
+        m_typeName: RigidBody
+        m_data:
+          m_handle: 15672848487077216338
+          m_shapeTransform: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+          m_drawBounds: false
+          m_static: false
+          m_density: 125
+          m_massCenter: [0, 0, 0]
+          m_linearVelocity: [0.00319920154, -0.334164709, 0]
+          m_angularVelocity: [0, 0, 0.0655831024]
+          m_kinematic: false
+          m_linearDamping: 0.5
+          m_angularDamping: 0.5
+          m_minPositionIterations: 4
+          m_minVelocityIterations: 1
+          m_gravity: true
+          m_colliders:
+            - m_assetHandle: 3596577041455103987
+              m_assetTypeName: Collider
+      - m_enabled: true
+        m_typeName: Joint
+        m_data:
+          m_handle: 13315267966562378271
+          m_jointType: 1
+          m_localPosition1: [0, 0, 0]
+          m_localPosition2: [0.70710659, -0.707107544, 0]
+          m_localRotation1: [0, 0, 0, 1]
+          m_localRotation2: [0, 0, 0, 1]
+          m_rigidBody1:
+            m_entityHandle: 4399910010495080392
+            m_privateComponentTypeName: RigidBody
+          m_rigidBody2:
+            m_entityHandle: 666891090376890326
+            m_privateComponentTypeName: RigidBody
+          m_motionTypes:
+            - Index: 0
+              MotionType: 0
+            - Index: 1
+              MotionType: 0
+            - Index: 2
+              MotionType: 0
+            - Index: 3
+              MotionType: 0
+            - Index: 4
+              MotionType: 0
+            - Index: 5
+              MotionType: 0
+          m_drives:
+            - Index: 0
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 1
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 2
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 3
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 4
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+            - Index: 5
+              Stiffness: 0
+              Damping: 0
+              Flags: 0
+LocalAssets:
+  - TypeName: Material
+    Handle: 11392194856030987223
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Material
+    Handle: 13782936990317180207
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 490504638686216802
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Collider
+    Handle: 4095156123732627776
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 1
+  - TypeName: Material
+    Handle: 13890726181316863998
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 7962045583150510989
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Collider
+    Handle: 7549255162328077968
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Collider
+    Handle: 15354944115934230565
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Material
+    Handle: 14876267688661799774
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Material
+    Handle: 11971426668517795103
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 8605094469432103096
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Material
+    Handle: 12060832603889190057
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Material
+    Handle: 10619090990327829392
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 17755489661773094781
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Material
+    Handle: 16201712627267533000
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 438426846561044153
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Material
+    Handle: 1107502649820027454
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 17819274236116643137
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0
+  - TypeName: Material
+    Handle: 9206189383004307415
+    Name: New Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 0, 0]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - TypeName: Collider
+    Handle: 3596577041455103987
+    Name: New Collider
+    m_physicsMaterial:
+      m_assetHandle: 86
+      m_assetTypeName: PhysicsMaterial
+    m_shapeParam: [0.200000003, 0.200000003, 0.200000003]
+    m_attachCount: 6
+    m_shapeType: 0

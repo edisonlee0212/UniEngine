@@ -1,8 +1,10 @@
 #pragma once
 #include <Entity.hpp>
+#include <utility>
+#include "Serialization.hpp"
 namespace UniEngine
 {
-struct POwnersCollection
+struct UNIENGINE_API POwnersCollection
 {
     std::unordered_map<Entity, size_t, Entity> m_ownersMap;
     std::vector<Entity> m_ownersList;
@@ -12,22 +14,23 @@ struct POwnersCollection
         m_ownersMap = std::unordered_map<Entity, size_t, Entity>();
     }
 };
-class PrivateComponentStorage
+class UNIENGINE_API PrivateComponentStorage
 {
-    std::unordered_map<std::size_t, size_t> m_pOwnersCollectionsMap;
+    std::unordered_map<size_t, size_t> m_pOwnersCollectionsMap;
     std::vector<std::pair<size_t, POwnersCollection>> m_pOwnersCollectionsList;
+    std::unordered_map<size_t, std::vector<std::shared_ptr<IPrivateComponent>>> m_privateComponentPool;
 
   public:
-    UNIENGINE_API void RemovePrivateComponent(Entity entity, size_t typeID);
+    void RemovePrivateComponent(Entity entity, size_t typeID, std::shared_ptr<IPrivateComponent> privateComponent);
     void DeleteEntity(Entity entity);
-    template <typename T = IPrivateComponent> void SetPrivateComponent(Entity entity);
+    template <typename T = IPrivateComponent> std::shared_ptr<T> GetOrSetPrivateComponent(Entity entity);
     void SetPrivateComponent(Entity entity, size_t id);
-    template <typename T = IPrivateComponent> void RemovePrivateComponent(Entity entity);
+    template <typename T = IPrivateComponent> void RemovePrivateComponent(Entity entity, std::shared_ptr<IPrivateComponent> privateComponent);
     template <typename T> const std::vector<Entity> *UnsafeGetOwnersList();
     template <typename T> const std::vector<Entity> GetOwnersList();
 };
 
-template <typename T> void PrivateComponentStorage::SetPrivateComponent(Entity entity)
+template <typename T> std::shared_ptr<T> PrivateComponentStorage::GetOrSetPrivateComponent(Entity entity)
 {
     size_t id = typeid(T).hash_code();
     auto search = m_pOwnersCollectionsMap.find(id);
@@ -47,13 +50,20 @@ template <typename T> void PrivateComponentStorage::SetPrivateComponent(Entity e
         collection.m_ownersMap.insert({entity, 0});
         collection.m_ownersList.push_back(entity);
         m_pOwnersCollectionsMap.insert({id, m_pOwnersCollectionsList.size()});
-        m_pOwnersCollectionsList.push_back(std::make_pair(id, std::move(collection)));
+        m_pOwnersCollectionsList.emplace_back(id, std::move(collection));
     }
+    const auto pSearch = m_privateComponentPool.find(id);
+    if(pSearch != m_privateComponentPool.end() && !pSearch->second.empty()){
+        auto back = pSearch->second.back();
+        pSearch->second.pop_back();
+        return std::dynamic_pointer_cast<T>(back);
+    }
+    return Serialization::ProduceSerializable<T>();
 }
 
-template <typename T> void PrivateComponentStorage::RemovePrivateComponent(Entity entity)
+template <typename T> void PrivateComponentStorage::RemovePrivateComponent(Entity entity, std::shared_ptr<IPrivateComponent> privateComponent)
 {
-    RemovePrivateComponent(entity, typeid(T).hash_code());
+    RemovePrivateComponent(entity, typeid(T).hash_code(), std::move(privateComponent));
 }
 
 template <typename T> const std::vector<Entity> *PrivateComponentStorage::UnsafeGetOwnersList()

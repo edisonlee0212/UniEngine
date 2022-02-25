@@ -1,8 +1,8 @@
-#include "Application.hpp"
-#include <AssetManager.hpp>
-#include "Engine/Utilities/Console.hpp"
-#include <Entity.hpp>
 #include "Engine/ECS/Entities.hpp"
+#include "Application.hpp"
+#include "Engine/Utilities/Console.hpp"
+#include <AssetManager.hpp>
+#include <Entity.hpp>
 #include <PhysicsLayer.hpp>
 #include <Scene.hpp>
 using namespace UniEngine;
@@ -99,10 +99,6 @@ void Entities::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, unsigne
     scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = Entity();
     entityInfo.m_handle = Handle(0);
 
-    for (auto &i : entityInfo.m_privateComponentElements)
-    {
-        i.m_privateComponentData->OnDestroy();
-    }
     entityInfo.m_privateComponentElements.clear();
     // Set to version 0, marks it as deleted.
     actualEntity.m_version = 0;
@@ -1019,8 +1015,7 @@ IDataComponent *Entities::GetDataComponentPointer(
     return nullptr;
 }
 
-EntityArchetype Entities::CreateEntityArchetype(
-    const std::string &name, const std::vector<DataComponentType> &types)
+EntityArchetype Entities::CreateEntityArchetype(const std::string &name, const std::vector<DataComponentType> &types)
 {
     auto &entityManager = GetInstance();
     EntityArchetypeInfo entityArchetypeInfo;
@@ -1057,13 +1052,13 @@ void Entities::SetPrivateComponent(
         return;
     }
     auto typeName = ptr->GetTypeName();
-    bool found = false;
-    size_t i = 0;
     auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
         {
+            return;
+            /*
             found = true;
             if (element.m_privateComponentData)
             {
@@ -1072,15 +1067,14 @@ void Entities::SetPrivateComponent(
             element.m_privateComponentData = ptr;
             element.ResetOwner(entity, scene);
             element.m_privateComponentData->OnCreate();
+            */
         }
-        i++;
     }
-    if (!found)
-    {
-        auto id = Serialization::GetSerializableTypeId(typeName);
-        scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
-        elements.emplace_back(id, ptr, entity, scene);
-    }
+
+    auto id = Serialization::GetSerializableTypeId(typeName);
+    scene->m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
+    elements.emplace_back(id, ptr, entity, scene);
+
     scene->m_saved = false;
 }
 
@@ -1145,13 +1139,13 @@ void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const
     {
         if (privateComponentElements[i].m_typeId == typeId)
         {
-            privateComponentElements[i].m_privateComponentData->OnDestroy();
+            scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(
+                entity, typeId, privateComponentElements[i].m_privateComponentData);
             privateComponentElements.erase(privateComponentElements.begin() + i);
+            scene->m_saved = false;
             break;
         }
     }
-    scene->m_saved = false;
-    scene->m_sceneDataStorage.m_entityPrivateComponentStorage.RemovePrivateComponent(entity, typeId);
 }
 
 void Entities::SetEnable(const std::shared_ptr<Scene> &scene, const Entity &entity, const bool &value)
@@ -1318,8 +1312,7 @@ void Entities::GetDescendantsHelper(
     for (const auto &i : children)
         GetDescendantsHelper(scene, i, results);
 }
-template <typename T>
-std::vector<Entity> Entities::GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
+template <typename T> std::vector<Entity> Entities::GetPrivateComponentOwnersList(const std::shared_ptr<Scene> &scene)
 {
     auto &entityManager = GetInstance();
     if (!scene)
