@@ -1256,23 +1256,30 @@ void EditorLayer::OnInspect()
                                 // FolderMetadata
                                 auto originalHandle = projectManager.m_currentFocusedFolder->m_folderMetadata
                                                           .m_fileMap[i.second.m_relativeFilePath.string()];
-                                projectManager.m_currentFocusedFolder->ResetFilePath(originalHandle, newPath);
-                                projectManager.m_assetRegistry.ResetFilePath(originalHandle, newPath);
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap.erase(
+                                    i.second.m_relativeFilePath.string());
+                                i.second.m_relativeFilePath = newPath;
+                                i.second.m_fileName = newPath.filename().string();
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.m_fileMap[newPath.string()] =
+                                    originalHandle;
+                                projectManager.m_currentFocusedFolder->m_folderMetadata.Save(
+                                    projectManager.m_projectPath.parent_path() /
+                                    projectManager.m_currentFocusedFolder->m_relativePath / ".uemetadata");
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndMenu();
                         }
                         if (ImGui::Button(("Remove" + tag).c_str()))
                         {
-                            auto search = AssetManager::GetInstance().m_assets.find(i.first);
-                            if (search != AssetManager::GetInstance().m_assets.end() && !search->second.expired())
+                            asset = AssetManager::Get(i.first);
+                            if (asset)
                             {
-                                search->second.lock()->m_projectRelativePath.clear();
+                                asset->m_projectRelativePath.clear();
                             }
-                            auto path = i.second.m_relativeFilePath;
-                            std::filesystem::remove(projectManager.m_projectPath.parent_path() / path);
+                            std::filesystem::remove(
+                                projectManager.m_projectPath.parent_path() / i.second.m_relativeFilePath);
                             projectManager.m_assetRegistry.RemoveFile(i.first);
-                            projectManager.m_currentFocusedFolder->RemoveFile(i.first);
+                            ProjectManager::UpdateFolderMetadata(projectManager.m_currentFocusedFolder, false);
                             ImGui::CloseCurrentPopup();
                             ImGui::EndPopup();
                             break;
