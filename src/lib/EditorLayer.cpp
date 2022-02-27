@@ -70,14 +70,12 @@ void EditorLayer::OnCreate()
         if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>())
         {
             auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
-            if (rigidBody->IsKinematic() && rigidBody->Registered())
+            if (!rigidBody->IsKinematic() && rigidBody->Registered())
             {
                 reload = true;
                 readOnly = true;
             }
         }
-        if (entity.GetRoot().IsStatic())
-            readOnly = true;
         if (reload)
         {
             previousEntity = entity;

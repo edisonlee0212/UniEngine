@@ -8,6 +8,7 @@ using namespace UniEngine;
 
 void RigidBody::SetStatic(bool value)
 {
+    if(m_static == value) return;
     if (value)
     {
         SetKinematic(false);
