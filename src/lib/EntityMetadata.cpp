@@ -90,6 +90,7 @@ void EntityMetadata::Clone(const std::unordered_map<Handle, Handle> &entityMap, 
                 source.m_privateComponentElements[i].m_privateComponentData->GetTypeName(),
                 m_privateComponentElements[i].m_typeId));
         m_privateComponentElements[i].m_privateComponentData->m_scene = scene;
+        m_privateComponentElements[i].m_privateComponentData->m_owner = source.m_privateComponentElements[i].m_privateComponentData->m_owner;
         m_privateComponentElements[i].m_privateComponentData->OnCreate();
         Serialization::ClonePrivateComponent(
             m_privateComponentElements[i].m_privateComponentData,
