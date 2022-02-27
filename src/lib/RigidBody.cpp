@@ -31,6 +31,7 @@ void RigidBody::OnDestroy()
     if (m_rigidActor)
     {
         m_rigidActor->release();
+        m_rigidActor = nullptr;
     }
 }
 
