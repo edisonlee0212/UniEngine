@@ -96,15 +96,15 @@ class UNIENGINE_API EditorLayer : public ILayer
     int m_selectedHierarchyDisplayMode = 1;
     float m_sceneCameraYawAngle = -90;
     float m_sceneCameraPitchAngle = 0;
-    float m_velocity = 20.0f;
+    float m_velocity = 5.0f;
     float m_sensitivity = 0.1f;
     bool m_lockCamera;
 
     std::shared_ptr<Camera> m_sceneCamera;
     glm::quat m_sceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-    glm::vec3 m_sceneCameraPosition = glm::vec3(0, 5, 20);
+    glm::vec3 m_sceneCameraPosition = glm::vec3(0, 2, 5);
     glm::quat m_defaultSceneCameraRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
-    glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 5, 20);
+    glm::vec3 m_defaultSceneCameraPosition = glm::vec3(0, 2, 5);
     void RenderToSceneCamera();
     void SetSelectedEntity(const Entity &entity, bool openMenu = true);
     bool MainCameraWindowFocused();
