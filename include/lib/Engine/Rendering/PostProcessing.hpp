@@ -26,6 +26,7 @@ class UNIENGINE_API PostProcessing final : public IPrivateComponent, public Rend
     void RemoveLayer(const std::string &layerName);
     void SetEnableLayer(const std::string &layerName, bool enabled);
     void OnCreate() override;
+    void OnDestroy() override;
     void Process();
     void ResizeResolution(int x, int y);
     void OnInspect() override;

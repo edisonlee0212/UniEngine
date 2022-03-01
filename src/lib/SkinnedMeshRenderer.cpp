@@ -300,6 +300,15 @@ size_t SkinnedMeshRenderer::GetRagDollBoneSize() const
     }
     return m_boundEntities.size();
 }
+void SkinnedMeshRenderer::OnDestroy()
+{
+    m_ragDollTransformChain.clear();
+    m_boundEntities.clear();
+    m_animator.Clear();
+    m_finalResults.reset();
+    m_skinnedMesh.Clear();
+    m_material.Clear();
+}
 
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh> &skinnedMesh) const
 {

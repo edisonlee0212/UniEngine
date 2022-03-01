@@ -342,6 +342,14 @@ void Camera::Deserialize(const YAML::Node &in)
 
 void Camera::OnDestroy()
 {
+    m_colorTexture.reset();
+    m_depthStencilTexture.reset();
+    m_gBuffer.reset();
+    m_gBufferDepth.reset();
+    m_gBufferNormal.reset();
+    m_gBufferAlbedo.reset();
+    m_gBufferMetallicRoughnessEmissionAmbient.reset();
+
 }
 
 void Camera::OnInspect()

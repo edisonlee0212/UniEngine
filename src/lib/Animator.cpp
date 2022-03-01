@@ -28,7 +28,14 @@ void Animator::Setup()
     }
     m_needAnimationSetup = false;
 }
-
+void Animator::OnDestroy()
+{
+    m_transformChain.clear();
+    m_offsetMatrices.clear();
+    m_names.clear();
+    m_animation.Clear();
+    m_bones.clear();
+}
 void Animator::Setup(const std::shared_ptr<Animation> &targetAnimation)
 {
     m_animation.Set<Animation>(targetAnimation);

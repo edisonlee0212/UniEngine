@@ -185,6 +185,8 @@ void Joint::OnInspect()
 void Joint::OnDestroy()
 {
     Unlink();
+    m_rigidBody1.Clear();
+    m_rigidBody2.Clear();
 }
 
 
@@ -356,13 +358,19 @@ case JointType::Prismatic:
     m_linked = false;
     m_joint = nullptr;
 }
-void Joint::Link(const Entity &entity)
+void Joint::Link(const Entity &entity, bool reverse)
 {
     const auto owner = GetOwner();
     if (owner.HasPrivateComponent<RigidBody>())
     {
-        m_rigidBody1.Set<RigidBody>(owner);
-        m_rigidBody2.Set<RigidBody>(entity);
+        if(!reverse)
+        {
+            m_rigidBody1.Set<RigidBody>(owner);
+            m_rigidBody2.Set<RigidBody>(entity);
+        }else{
+            m_rigidBody2.Set<RigidBody>(owner);
+            m_rigidBody1.Set<RigidBody>(entity);
+        }
         Unlink();
     }
 }

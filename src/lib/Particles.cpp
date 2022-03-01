@@ -102,6 +102,12 @@ void Particles::CollectAssetRef(std::vector<AssetRef> &list)
     list.push_back(m_mesh);
     list.push_back(m_material);
 }
+void Particles::OnDestroy()
+{
+    m_mesh.Clear();
+    m_material.Clear();
+    m_matrices.reset();
+}
 void ParticleMatrices::Serialize(YAML::Emitter &out)
 {
     if (!m_value.empty())

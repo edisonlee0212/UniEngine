@@ -37,6 +37,6 @@ class UNIENGINE_API Particles : public IPrivateComponent
     void Deserialize(const YAML::Node &in) override;
     void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
     void CollectAssetRef(std::vector<AssetRef> &list) override;
-
+    void OnDestroy() override;
 };
 } // namespace UniEngine

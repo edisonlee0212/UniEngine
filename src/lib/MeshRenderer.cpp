@@ -78,3 +78,8 @@ void MeshRenderer::CollectAssetRef(std::vector<AssetRef> &list)
     list.push_back(m_mesh);
     list.push_back(m_material);
 }
+void MeshRenderer::OnDestroy()
+{
+    m_mesh.Clear();
+    m_material.Clear();
+}

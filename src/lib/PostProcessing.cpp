@@ -116,6 +116,10 @@ PostProcessing &PostProcessing::operator=(const PostProcessing &source)
     SetEnabled(source.IsEnabled());
     return *this;
 }
+void PostProcessing::OnDestroy()
+{
+    m_layers.clear();
+}
 
 Bloom::Bloom()
 {

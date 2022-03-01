@@ -42,7 +42,7 @@ class UNIENGINE_API Animator : public IPrivateComponent
     [[nodiscard]] std::string CurrentAnimationName();
     void Animate(const std::string& animationName, float time);
     void Animate(float time);
-
+    void OnDestroy() override;
     void Setup(const std::shared_ptr<Animation> &targetAnimation);
     void OnInspect() override;
 

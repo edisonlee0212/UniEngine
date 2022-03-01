@@ -107,7 +107,7 @@ class UNIENGINE_API Joint : public IPrivateComponent
     bool Linked();
     void OnCreate() override;
 
-    void Link(const Entity& entity);
+    void Link(const Entity& entity, bool reverse = false);
     void OnInspect() override;
     void OnDestroy() override;
 
