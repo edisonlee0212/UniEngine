@@ -970,6 +970,7 @@ void EditorLayer::OnInspect()
         }
         ImGui::End();
     }
+    /*
     if (scene && Inputs::GetKeyInternal(GLFW_KEY_DELETE, Windows::GetWindow()))
     {
         if (m_selectedEntity.IsValid())
@@ -977,6 +978,7 @@ void EditorLayer::OnInspect()
             Entities::DeleteEntity(Entities::GetCurrentScene(), m_selectedEntity);
         }
     }
+    */
     MainCameraWindow();
     SceneCameraWindow();
     auto &projectManager = ProjectManager::GetInstance();
