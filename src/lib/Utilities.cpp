@@ -711,6 +711,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         POINT_START_X,
         POINT_START_Y
     };
+    int changed_idx = -1;
+    bool changed = false;
 
     if (ImGui::TreeNodeEx(label.c_str()))
     {
@@ -721,7 +723,10 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             Clear();
         }
         if (ImGui::Button("Clear"))
+        {
+            changed = true;
             Clear();
+        }
         static ImVec2 start_pan;
         ImGuiContext &g = *GImGui;
         const ImGuiStyle &style = g.Style;
@@ -882,7 +887,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             start_pan.y = from_y;
         }
 
-        int changed_idx = -1;
+
         for (int point_idx = points_count - 2; point_idx >= 0; --point_idx)
         {
             ImVec2 *points;
@@ -934,7 +939,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 if (ImGui::IsItemHovered())
                     hovered_idx = point_idx + idx;
 
-                bool changed = false;
+
                 if (ImGui::IsItemActive() && ImGui::IsMouseClicked(0))
                 {
                     if (selected_point)
@@ -949,7 +954,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                     ImFormatString(tmp, sizeof(tmp), "%0.2f, %0.2f", p.x, p.y);
                     window->DrawList->AddText({pos.x, pos.y - ImGui::GetTextLineHeight()}, 0xff000000, tmp);
                 }
-
+                bool valueChanged = false;
                 if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
                 {
                     pos.x = window->StateStorage.GetFloat((ImGuiID)StorageValues::POINT_START_X, pos.x);
@@ -958,12 +963,12 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                     ImVec2 v = invTransform(pos);
 
                     p = v;
-                    changed = true;
+                    valueChanged = true;
                 }
                 ImGui::PopID();
 
                 ImGui::SetCursorScreenPos(cursor_pos);
-                return changed;
+                return valueChanged;
             };
 
             auto handleTangent = [&](ImVec2 &t, const ImVec2 &p, int idx) -> bool {
@@ -991,20 +996,19 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 window->DrawList->AddLine(tang + ImVec2(SIZE, SIZE), tang + ImVec2(SIZE, -SIZE), col);
                 window->DrawList->AddLine(tang + ImVec2(SIZE, -SIZE), tang + ImVec2(-SIZE, -SIZE), col);
                 window->DrawList->AddLine(tang + ImVec2(-SIZE, -SIZE), tang + ImVec2(-SIZE, SIZE), col);
-
-                bool changed = false;
+                bool tangentChanged = false;
                 if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
                 {
                     tang = ImGui::GetIO().MousePos - pos;
                     tang = tang / size.x;
                     tang.y *= -1;
                     t = tang;
-                    changed = true;
+                    tangentChanged = true;
                 }
                 ImGui::PopID();
 
                 ImGui::SetCursorScreenPos(cursor_pos);
-                return changed;
+                return tangentChanged;
             };
 
             ImGui::PushID(point_idx);
@@ -1084,6 +1088,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 }
                 if (suitable)
                 {
+                    changed = true;
                     values.resize(values.size() + 3);
                     values[points_count * 3 + 0] = glm::vec2(-0.1f, 0);
                     values[points_count * 3 + 1] = glm::vec2(new_p.x, new_p.y);
@@ -1117,6 +1122,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             }
             else
             {
+                changed = true;
                 values.resize(values.size() + 1);
                 values[points_count] = glm::vec2(new_p.x, new_p.y);
 
@@ -1133,7 +1139,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         {
             if (allowRemoveSides || (hovered_idx > 0 && hovered_idx < points_count - 1))
             {
-                ImVec2 *points = (ImVec2 *)values.data();
+                changed = true;
+                auto *points = (ImVec2 *)values.data();
                 if (!noTangent)
                 {
                     for (int j = hovered_idx * 3; j < points_count * 3 - 3; j += 3)
@@ -1156,21 +1163,22 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         }
 
         ImGui::EndChildFrame();
-        bool sliderChanged = false;
         if (noTangent)
         {
-            sliderChanged = ImGui::SliderFloat("L", &values.front().y, m_min.y, m_max.y);
-            if(ImGui::SliderFloat("R", &values.back().y, m_min.y, m_max.y)){
-                sliderChanged = true;
+            if(ImGui::SliderFloat("Begin Y", &values.front().y, m_min.y, m_max.y)){
+                changed = true;
+            }
+            if(ImGui::SliderFloat("End Y", &values.back().y, m_min.y, m_max.y)){
+                changed = true;
             }
         }
         else
         {
-            if(ImGui::SliderFloat("L", &values[1].y, m_min.y, m_max.y)){
-                sliderChanged = true;
+            if(ImGui::SliderFloat("Begin Y", &values[1].y, m_min.y, m_max.y)){
+                changed = true;
             }
-            if(ImGui::SliderFloat("R", &values[values.size() - 2].y, m_min.y, m_max.y)){
-                sliderChanged = true;
+            if(ImGui::SliderFloat("End Y", &values[values.size() - 2].y, m_min.y, m_max.y)){
+                changed = true;
             }
         }
         bool debug = (unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG;
@@ -1180,9 +1188,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             ImGui::Text("Y: %.3f", GetValue(test));
         }
         ImGui::TreePop();
-        return changed_idx != -1 || sliderChanged;
     }
-    return false;
+    return changed_idx != -1 || changed;
 }
 std::vector<glm::vec2> &Curve::UnsafeGetValues()
 {
