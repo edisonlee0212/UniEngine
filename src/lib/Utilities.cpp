@@ -1163,26 +1163,32 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         }
 
         ImGui::EndChildFrame();
-        if (noTangent)
+        if(!((unsigned)flags & (unsigned)CurveEditorFlags::DISABLE_START_END_Y))
         {
-            if(ImGui::SliderFloat("Begin Y", &values.front().y, m_min.y, m_max.y)){
-                changed = true;
+            if (noTangent)
+            {
+                if (ImGui::SliderFloat("Begin Y", &values.front().y, m_min.y, m_max.y))
+                {
+                    changed = true;
+                }
+                if (ImGui::SliderFloat("End Y", &values.back().y, m_min.y, m_max.y))
+                {
+                    changed = true;
+                }
             }
-            if(ImGui::SliderFloat("End Y", &values.back().y, m_min.y, m_max.y)){
-                changed = true;
+            else
+            {
+                if (ImGui::SliderFloat("Begin Y", &values[1].y, m_min.y, m_max.y))
+                {
+                    changed = true;
+                }
+                if (ImGui::SliderFloat("End Y", &values[values.size() - 2].y, m_min.y, m_max.y))
+                {
+                    changed = true;
+                }
             }
         }
-        else
-        {
-            if(ImGui::SliderFloat("Begin Y", &values[1].y, m_min.y, m_max.y)){
-                changed = true;
-            }
-            if(ImGui::SliderFloat("End Y", &values[values.size() - 2].y, m_min.y, m_max.y)){
-                changed = true;
-            }
-        }
-        bool debug = (unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG;
-        if(debug){
+        if((unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG){
             static float test = 0.5f;
             ImGui::SliderFloat("X", &test, 0.0f, 1.0f);
             ImGui::Text("Y: %.3f", GetValue(test));

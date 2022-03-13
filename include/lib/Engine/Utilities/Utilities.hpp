@@ -60,7 +60,8 @@ enum class UNIENGINE_API CurveEditorFlags
     RESET = 1 << 2,
     ALLOW_RESIZE = 1 << 3,
     ALLOW_REMOVE_SIDES = 1 << 4,
-    SHOW_DEBUG = 1 << 5
+    DISABLE_START_END_Y = 1 << 5,
+    SHOW_DEBUG = 1 << 6
 };
 
 class UNIENGINE_API Curve : public ISerializable
