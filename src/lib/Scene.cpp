@@ -389,7 +389,7 @@ void Scene::Deserialize(const YAML::Node &in)
         dataComponentStorage.m_entitySize = inDataComponentStorage["m_entitySize"].as<size_t>();
         dataComponentStorage.m_chunkCapacity = inDataComponentStorage["m_chunkCapacity"].as<size_t>();
         dataComponentStorage.m_entityAliveCount = dataComponentStorage.m_entityCount = inDataComponentStorage["m_entityAliveCount"].as<size_t>();
-        dataComponentStorage.m_chunkArray.m_entities.resize(dataComponentStorage.m_entityAliveCount + 1);
+        dataComponentStorage.m_chunkArray.m_entities.resize(dataComponentStorage.m_entityAliveCount);
         const size_t chunkSize = dataComponentStorage.m_entityCount / dataComponentStorage.m_chunkCapacity + 1;
         while (dataComponentStorage.m_chunkArray.m_chunks.size() <= chunkSize)
         {
