@@ -389,7 +389,7 @@ void Scene::Deserialize(const YAML::Node &in)
         dataComponentStorage.m_entitySize = inDataComponentStorage["m_entitySize"].as<size_t>();
         dataComponentStorage.m_chunkCapacity = inDataComponentStorage["m_chunkCapacity"].as<size_t>();
         dataComponentStorage.m_entityAliveCount = dataComponentStorage.m_entityCount = inDataComponentStorage["m_entityAliveCount"].as<size_t>();
-
+        dataComponentStorage.m_chunkArray.m_entities.resize(dataComponentStorage.m_entityAliveCount + 1);
         const size_t chunkSize = dataComponentStorage.m_entityCount / dataComponentStorage.m_chunkCapacity + 1;
         while (dataComponentStorage.m_chunkArray.m_chunks.size() <= chunkSize)
         {
@@ -409,11 +409,12 @@ void Scene::Deserialize(const YAML::Node &in)
             dataComponentStorage.m_dataComponentTypes.push_back(dataComponentType);
         }
         auto inDataChunkArray = inDataComponentStorage["m_chunkArray"];
-        int chunkArrayIndex = 1;
+        int chunkArrayIndex = 0;
         for (const auto &entityDataComponent : inDataChunkArray)
         {
             Handle handle = entityDataComponent["m_handle"].as<uint64_t>();
             Entity entity = m_sceneDataStorage.m_entityMap[handle];
+            dataComponentStorage.m_chunkArray.m_entities[chunkArrayIndex] = entity;
             auto& metadata = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
             metadata.m_dataComponentStorageIndex = storageIndex;
             metadata.m_chunkArrayIndex = chunkArrayIndex;
