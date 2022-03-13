@@ -9,7 +9,7 @@ void Scene::Purge()
 {
     m_sceneDataStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();
     m_sceneDataStorage.m_entities.clear();
-    m_sceneDataStorage.m_entityInfos.clear();
+    m_sceneDataStorage.m_entityMetadataList.clear();
     for (int index = 1; index < m_sceneDataStorage.m_dataComponentStorages.size(); index++)
     {
         auto &i = m_sceneDataStorage.m_dataComponentStorages[index];
@@ -20,7 +20,7 @@ void Scene::Purge()
 
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
     m_sceneDataStorage.m_entities.emplace_back();
-    m_sceneDataStorage.m_entityInfos.emplace_back();
+    m_sceneDataStorage.m_entityMetadataList.emplace_back();
 }
 
 Bound Scene::GetBound() const
@@ -49,7 +49,7 @@ void Scene::Start()
     {
         if (entity.m_version == 0)
             continue;
-        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        auto entityInfo = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
         if (!entityInfo.m_enabled)
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
@@ -90,7 +90,7 @@ void Scene::Update()
     {
         if (entity.m_version == 0)
             continue;
-        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        auto entityInfo = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
         if (!entityInfo.m_enabled)
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
@@ -122,7 +122,7 @@ void Scene::LateUpdate()
     {
         if (entity.m_version == 0)
             continue;
-        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        auto entityInfo = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
         if (!entityInfo.m_enabled)
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
@@ -153,7 +153,7 @@ void Scene::FixedUpdate()
     {
         if (entity.m_version == 0)
             continue;
-        auto entityInfo = m_sceneDataStorage.m_entityInfos[entity.m_index];
+        auto entityInfo = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
         if (!entityInfo.m_enabled)
             continue;
         for (auto &privateComponentElement : entityInfo.m_privateComponentElements)
@@ -208,7 +208,8 @@ void Scene::OnInspect()
         if (ImGui::DragFloat(
                 "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 2.0f))
             m_saved = false;
-        if (ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f)){
+        if (ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f))
+        {
             m_saved = false;
         }
     }
@@ -232,7 +233,6 @@ std::shared_ptr<ISystem> Scene::GetOrCreateSystem(const std::string &systemName,
 
 void Scene::Serialize(YAML::Emitter &out)
 {
-    out << YAML::Key << "Scene" << YAML::Value << m_name;
     out << YAML::Key << "m_environmentSettings" << YAML::Value << YAML::BeginMap;
     m_environmentSettings.Serialize(out);
     out << YAML::EndMap;
@@ -242,20 +242,23 @@ void Scene::Serialize(YAML::Emitter &out)
     list.push_back(m_environmentSettings.m_environmentalMap);
     auto &sceneDataStorage = m_sceneDataStorage;
 #pragma region EntityInfo
-    out << YAML::Key << "EntityInfos" << YAML::Value << YAML::BeginSeq;
-    for (int i = 1; i < sceneDataStorage.m_entityInfos.size(); i++)
+    out << YAML::Key << "m_entityMetadataList" << YAML::Value << YAML::BeginSeq;
+    for (int i = 1; i < sceneDataStorage.m_entityMetadataList.size(); i++)
     {
-        sceneDataStorage.m_entityInfos[i].Serialize(out);
-        for (const auto &i : sceneDataStorage.m_entityInfos[i].m_privateComponentElements)
+        auto &entityMetadata = sceneDataStorage.m_entityMetadataList[i];
+        if (entityMetadata.m_handle == 0)
+            continue;
+        for (const auto &element : entityMetadata.m_privateComponentElements)
         {
-            i.m_privateComponentData->CollectAssetRef(list);
+            element.m_privateComponentData->CollectAssetRef(list);
         }
+        entityMetadata.Serialize(out);
     }
     out << YAML::EndSeq;
 #pragma endregion
 
 #pragma region Systems
-    out << YAML::Key << "Systems" << YAML::Value << YAML::BeginSeq;
+    out << YAML::Key << "m_systems" << YAML::Value << YAML::BeginSeq;
     for (const auto &i : m_systems)
     {
         SerializeSystem(i.second, out);
@@ -313,9 +316,9 @@ void Scene::Serialize(YAML::Emitter &out)
         for (auto &i : assetMap)
         {
             out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
-            out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-            out << YAML::Key << "Name" << YAML::Value << i.second->GetName();
+            out << YAML::Key << "m_typeName" << YAML::Value << i.second->GetTypeName();
+            out << YAML::Key << "m_handle" << YAML::Value << i.first.GetValue();
+            out << YAML::Key << "m_name" << YAML::Value << i.second->GetName();
             i.second->Serialize(out);
             out << YAML::EndMap;
         }
@@ -324,95 +327,115 @@ void Scene::Serialize(YAML::Emitter &out)
 #pragma endregion
 
 #pragma region DataComponentStorage
-    out << YAML::Key << "DataComponentStorages" << YAML::Value << YAML::BeginSeq;
+    out << YAML::Key << "m_dataComponentStorages" << YAML::Value << YAML::BeginSeq;
     for (int i = 1; i < sceneDataStorage.m_dataComponentStorages.size(); i++)
     {
         SerializeDataComponentStorage(sceneDataStorage.m_dataComponentStorages[i], out);
     }
     out << YAML::EndSeq;
 #pragma endregion
-#pragma region Entities
-    out << YAML::Key << "Entities" << YAML::Value
-        << YAML::Binary(
-               (const unsigned char *)sceneDataStorage.m_entities.data(),
-               sceneDataStorage.m_entities.size() * sizeof(Entity));
-#pragma endregion
     out << YAML::EndMap;
 }
 void Scene::Deserialize(const YAML::Node &in)
 {
-    if (!in["Scene"])
-    {
-        UNIENGINE_ERROR("Scene load failed!");
-    }
     UNIENGINE_LOG("Loading scene...");
     auto self = AssetManager::Get<Scene>(m_handle);
-    auto &sceneDataStorage = m_sceneDataStorage;
-    m_name = in["Scene"].as<std::string>();
+
+    m_sceneDataStorage.m_entities.clear();
+    m_sceneDataStorage.m_entityMetadataList.clear();
+    m_sceneDataStorage.m_dataComponentStorages.clear();
+    m_sceneDataStorage.m_entities.emplace_back();
+    m_sceneDataStorage.m_entityMetadataList.emplace_back();
+    m_sceneDataStorage.m_dataComponentStorages.emplace_back();
+#pragma region EntityMetadata
+    auto inEntityMetadataList = in["m_entityMetadataList"];
+    int currentIndex = 1;
+    for (const auto &inEntityMetadata : inEntityMetadataList)
+    {
+        m_sceneDataStorage.m_entityMetadataList.emplace_back();
+        auto &newInfo = m_sceneDataStorage.m_entityMetadataList.back();
+        newInfo.Deserialize(inEntityMetadata);
+        Entity entity;
+        entity.m_version = 1;
+        entity.m_index = currentIndex;
+        m_sceneDataStorage.m_entityMap[newInfo.GetHandle()] = entity;
+        m_sceneDataStorage.m_entities.push_back(entity);
+        currentIndex++;
+    }
+    currentIndex = 1;
+    for (const auto &inEntityMetadata : inEntityMetadataList)
+    {
+        auto& metadata = m_sceneDataStorage.m_entityMetadataList[currentIndex];
+        if(inEntityMetadata["Parent.Handle"]) {
+            metadata.m_parent = m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Parent.Handle"].as<uint64_t>())];
+            auto& parentMetadata = m_sceneDataStorage.m_entityMetadataList[metadata.m_parent.m_index];
+            Entity entity;
+            entity.m_version = 1;
+            entity.m_index = currentIndex;
+            parentMetadata.m_children.push_back(entity);
+        }
+        if(inEntityMetadata["Root.Handle"]) metadata.m_root = m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Root.Handle"].as<uint64_t>())];
+        currentIndex++;
+    }
+#pragma endregion
 
 #pragma region DataComponentStorage
-    auto inDataComponentStorages = in["DataComponentStorages"];
+    auto inDataComponentStorages = in["m_dataComponentStorages"];
+    int storageIndex = 1;
     for (const auto &inDataComponentStorage : inDataComponentStorages)
     {
-        sceneDataStorage.m_dataComponentStorages.emplace_back();
-        auto &dataComponentStorage = sceneDataStorage.m_dataComponentStorages.back();
-        dataComponentStorage.m_entitySize = inDataComponentStorage["EntitySize"].as<size_t>();
-        dataComponentStorage.m_chunkCapacity = inDataComponentStorage["ChunkCapacity"].as<size_t>();
-        dataComponentStorage.m_entityCount = inDataComponentStorage["EntityCount"].as<size_t>();
-        dataComponentStorage.m_entityAliveCount = inDataComponentStorage["EntityAliveCount"].as<size_t>();
-        auto inDataComponentTypes = inDataComponentStorage["DataComponentTypes"];
+        m_sceneDataStorage.m_dataComponentStorages.emplace_back();
+        auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages.back();
+        dataComponentStorage.m_entitySize = inDataComponentStorage["m_entitySize"].as<size_t>();
+        dataComponentStorage.m_chunkCapacity = inDataComponentStorage["m_chunkCapacity"].as<size_t>();
+        dataComponentStorage.m_entityAliveCount = dataComponentStorage.m_entityCount = inDataComponentStorage["m_entityAliveCount"].as<size_t>();
+
+        const size_t chunkSize = dataComponentStorage.m_entityCount / dataComponentStorage.m_chunkCapacity + 1;
+        while (dataComponentStorage.m_chunkArray.m_chunks.size() <= chunkSize)
+        {
+            // Allocate new chunk;
+            ComponentDataChunk chunk = {};
+            chunk.m_data = static_cast<void *>(calloc(1, Entities::GetInstance().m_archetypeChunkSize));
+            dataComponentStorage.m_chunkArray.m_chunks.push_back(chunk);
+        }
+        auto inDataComponentTypes = inDataComponentStorage["m_dataComponentTypes"];
         for (const auto &inDataComponentType : inDataComponentTypes)
         {
             DataComponentType dataComponentType;
-            dataComponentType.m_name = inDataComponentType["Name"].as<std::string>();
-            dataComponentType.m_size = inDataComponentType["Size"].as<size_t>();
-            dataComponentType.m_offset = inDataComponentType["Offset"].as<size_t>();
+            dataComponentType.m_name = inDataComponentType["m_name"].as<std::string>();
+            dataComponentType.m_size = inDataComponentType["m_size"].as<size_t>();
+            dataComponentType.m_offset = inDataComponentType["m_offset"].as<size_t>();
             dataComponentType.m_typeId = Serialization::GetDataComponentTypeId(dataComponentType.m_name);
             dataComponentStorage.m_dataComponentTypes.push_back(dataComponentType);
         }
-        auto inDataChunkArray = inDataComponentStorage["DataComponentChunkArray"];
-        if (inDataChunkArray["Entities"].IsDefined())
+        auto inDataChunkArray = inDataComponentStorage["m_chunkArray"];
+        int chunkArrayIndex = 1;
+        for (const auto &entityDataComponent : inDataChunkArray)
         {
-            YAML::Binary entitiesData = inDataChunkArray["Entities"].as<YAML::Binary>();
-            dataComponentStorage.m_chunkArray.m_entities.resize(entitiesData.size() / sizeof(Entity));
-            std::memcpy(dataComponentStorage.m_chunkArray.m_entities.data(), entitiesData.data(), entitiesData.size());
+            Handle handle = entityDataComponent["m_handle"].as<uint64_t>();
+            Entity entity = m_sceneDataStorage.m_entityMap[handle];
+            auto& metadata = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
+            metadata.m_dataComponentStorageIndex = storageIndex;
+            metadata.m_chunkArrayIndex = chunkArrayIndex;
+            const auto chunkIndex = metadata.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
+            const auto chunkPointer = metadata.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
+            const auto chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
+
+            int typeIndex = 0;
+            for (const auto &inDataComponent : entityDataComponent["DataComponents"])
+            {
+                auto& type = dataComponentStorage.m_dataComponentTypes[typeIndex];
+                auto data = inDataComponent["Data"].as<YAML::Binary>();
+                std::memcpy(chunk.GetDataPointer(static_cast<size_t>(
+                                type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size)), data.data(), data.size());
+                typeIndex++;
+            }
+
+            chunkArrayIndex++;
         }
-        auto inChunks = inDataChunkArray["Chunks"];
-        for (const auto &chunk : inChunks)
-        {
-            dataComponentStorage.m_chunkArray.m_chunks.emplace_back();
-            auto &componentDataChunk = dataComponentStorage.m_chunkArray.m_chunks.back();
-            componentDataChunk.m_data = static_cast<void *>(calloc(1, Entities::GetInstance().m_archetypeChunkSize));
-            YAML::Binary chunkData = chunk["Data"].as<YAML::Binary>();
-            assert(chunkData.size() == ARCHETYPE_CHUNK_SIZE);
-            std::memcpy(componentDataChunk.m_data, chunkData.data(), chunkData.size());
-        }
+        storageIndex++;
     }
 #pragma endregion
-#pragma region EntityInfo
-    auto inEntityInfos = in["EntityInfos"];
-    for (const auto &inEntityInfo : inEntityInfos)
-    {
-        sceneDataStorage.m_entityInfos.emplace_back();
-        auto &newInfo = sceneDataStorage.m_entityInfos.back();
-        newInfo.Deserialize(inEntityInfo);
-    }
-#pragma endregion
-#pragma region Entities
-    auto entitiesData = in["Entities"].as<YAML::Binary>();
-    sceneDataStorage.m_entities.resize(entitiesData.size() / sizeof(Entity));
-    std::memcpy(sceneDataStorage.m_entities.data(), entitiesData.data(), entitiesData.size());
-#pragma endregion
-    unsigned entityIndex = 1;
-    for (const auto &inEntityInfo : inEntityInfos)
-    {
-        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
-        Entity entity;
-        entity.m_index = entityIndex;
-        entity.m_version = entityInfo.m_version;
-        sceneDataStorage.m_entityMap[entityInfo.GetHandle()] = entity;
-        entityIndex++;
-    }
     m_mainCamera.Load("m_mainCamera", in, self);
 #pragma region Assets
     std::vector<std::shared_ptr<IAsset>> localAssets;
@@ -422,13 +445,13 @@ void Scene::Deserialize(const YAML::Node &in)
         std::vector<bool> isLocal;
         for (const auto &i : inLocalAssets)
         {
-            Handle handle = i["Handle"].as<uint64_t>();
+            Handle handle = i["m_handle"].as<uint64_t>();
             // First, find the asset in assetregistry
             auto asset = AssetManager::Get(handle);
             if (!asset)
             {
                 asset = AssetManager::UnsafeCreateAsset(
-                    i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>());
+                    i["m_typeName"].as<std::string>(), handle, i["m_name"].as<std::string>());
                 isLocal.push_back(false);
             }
             else
@@ -448,37 +471,35 @@ void Scene::Deserialize(const YAML::Node &in)
 #pragma endregion
     if (in["m_environmentSettings"])
         m_environmentSettings.Deserialize(in["m_environmentSettings"]);
-    entityIndex = 1;
-    for (const auto &inEntityInfo : inEntityInfos)
+    int entityIndex = 1;
+    for (const auto &inEntityInfo : inEntityMetadataList)
     {
-        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
-        Entity entity;
-        entity.m_index = entityIndex;
-        entity.m_version = entityInfo.m_version;
-        auto inPrivateComponents = inEntityInfo["PrivateComponent"];
+        auto &entityMetadata = m_sceneDataStorage.m_entityMetadataList.at(entityIndex);
+        auto entity = m_sceneDataStorage.m_entities[entityIndex];
+        auto inPrivateComponents = inEntityInfo["m_privateComponentElements"];
         if (inPrivateComponents)
         {
             for (const auto &inPrivateComponent : inPrivateComponents)
             {
-                auto name = inPrivateComponent["TypeName"].as<std::string>();
+                auto name = inPrivateComponent["m_typeName"].as<std::string>();
                 size_t hashCode;
                 if (Serialization::HasSerializableType(name))
                 {
                     auto ptr =
                         std::static_pointer_cast<IPrivateComponent>(Serialization::ProduceSerializable(name, hashCode));
-                    ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
+                    ptr->m_enabled = inPrivateComponent["m_enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
+                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
                 else
                 {
                     auto ptr = std::static_pointer_cast<IPrivateComponent>(
                         Serialization::ProduceSerializable("UnknownPrivateComponent", hashCode));
-                    ptr->m_enabled = inPrivateComponent["Enabled"].as<bool>();
+                    ptr->m_enabled = false;
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityInfo.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
+                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
             }
         }
@@ -486,17 +507,17 @@ void Scene::Deserialize(const YAML::Node &in)
     }
 
 #pragma region Systems
-    auto inSystems = in["Systems"];
+    auto inSystems = in["m_systems"];
     std::vector<std::shared_ptr<ISystem>> systems;
 
     for (const auto &inSystem : inSystems)
     {
-        auto name = inSystem["TypeName"].as<std::string>();
+        auto name = inSystem["m_typeName"].as<std::string>();
         size_t hashCode;
         auto ptr = std::static_pointer_cast<ISystem>(Serialization::ProduceSerializable(name, hashCode));
-        ptr->m_handle = Handle(inSystem["Handle"].as<uint64_t>());
-        ptr->m_enabled = inSystem["Enabled"].as<bool>();
-        ptr->m_rank = inSystem["Rank"].as<float>();
+        ptr->m_handle = Handle(inSystem["m_handle"].as<uint64_t>());
+        ptr->m_enabled = inSystem["m_enabled"].as<bool>();
+        ptr->m_rank = inSystem["m_rank"].as<float>();
         ptr->m_started = false;
         m_systems.insert({ptr->m_rank, ptr});
         m_indexedSystems.insert({hashCode, ptr});
@@ -508,16 +529,16 @@ void Scene::Deserialize(const YAML::Node &in)
 #pragma endregion
 
     entityIndex = 1;
-    for (const auto &inEntityInfo : inEntityInfos)
+    for (const auto &inEntityInfo : inEntityMetadataList)
     {
-        auto &entityInfo = sceneDataStorage.m_entityInfos.at(entityIndex);
-        auto inPrivateComponents = inEntityInfo["PrivateComponent"];
+        auto &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entityIndex);
+        auto inPrivateComponents = inEntityInfo["m_privateComponentElements"];
         int componentIndex = 0;
         if (inPrivateComponents)
         {
             for (const auto &inPrivateComponent : inPrivateComponents)
             {
-                auto name = inPrivateComponent["TypeName"].as<std::string>();
+                auto name = inPrivateComponent["m_typeName"].as<std::string>();
                 auto ptr = entityInfo.m_privateComponentElements[componentIndex].m_privateComponentData;
                 ptr->Deserialize(inPrivateComponent);
                 componentIndex++;
@@ -529,7 +550,7 @@ void Scene::Deserialize(const YAML::Node &in)
     int systemIndex = 0;
     for (const auto &inSystem : inSystems)
     {
-        auto name = inSystem["TypeName"].as<std::string>();
+        auto name = inSystem["m_typeName"].as<std::string>();
         systems[systemIndex]->Deserialize(inSystem);
         systemIndex++;
     }
@@ -538,37 +559,53 @@ void Scene::SerializeDataComponentStorage(const DataComponentStorage &storage, Y
 {
     out << YAML::BeginMap;
     {
-        out << YAML::Key << "EntitySize" << YAML::Value << storage.m_entitySize;
-        out << YAML::Key << "ChunkCapacity" << YAML::Value << storage.m_chunkCapacity;
-        out << YAML::Key << "EntityCount" << YAML::Value << storage.m_entityCount;
-        out << YAML::Key << "EntityAliveCount" << YAML::Value << storage.m_entityAliveCount;
-        out << YAML::Key << "DataComponentTypes" << YAML::Value << YAML::BeginSeq;
+        out << YAML::Key << "m_entitySize" << YAML::Value << storage.m_entitySize;
+        out << YAML::Key << "m_chunkCapacity" << YAML::Value << storage.m_chunkCapacity;
+        out << YAML::Key << "m_entityAliveCount" << YAML::Value << storage.m_entityAliveCount;
+        out << YAML::Key << "m_dataComponentTypes" << YAML::Value << YAML::BeginSeq;
         for (const auto &i : storage.m_dataComponentTypes)
         {
             out << YAML::BeginMap;
-            out << YAML::Key << "Name" << YAML::Value << i.m_name;
-            out << YAML::Key << "Size" << YAML::Value << i.m_size;
-            out << YAML::Key << "Offset" << YAML::Value << i.m_offset;
+            out << YAML::Key << "m_name" << YAML::Value << i.m_name;
+            out << YAML::Key << "m_size" << YAML::Value << i.m_size;
+            out << YAML::Key << "m_offset" << YAML::Value << i.m_offset;
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
-        out << YAML::Key << "DataComponentChunkArray" << YAML::Value << YAML::BeginMap;
+
+        out << YAML::Key << "m_chunkArray" << YAML::Value << YAML::BeginSeq;
+        for (int i = 0; i < storage.m_entityAliveCount; i++)
         {
-            auto &array = storage.m_chunkArray;
-            out << YAML::Key << "Entities" << YAML::Value
-                << YAML::Binary(
-                       (const unsigned char *)array.m_entities.data(), array.m_entities.size() * sizeof(Entity));
-            out << YAML::Key << "Chunks" << YAML::Value << YAML::BeginSeq;
-            for (const auto &i : array.m_chunks)
+            auto entity = storage.m_chunkArray.m_entities[i];
+            if (entity.m_version == 0)
+                continue;
+
+            out << YAML::BeginMap;
+            auto &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
+            out << YAML::Key << "m_handle" << YAML::Value << entityInfo.m_handle;
+
+            auto &dataComponentStorage =
+                m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+            const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
+            const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
+            const auto chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
+
+            out << YAML::Key << "DataComponents" << YAML::Value << YAML::BeginSeq;
+            for (const auto &type : dataComponentStorage.m_dataComponentTypes)
             {
                 out << YAML::BeginMap;
                 out << YAML::Key << "Data" << YAML::Value
-                    << YAML::Binary((const unsigned char *)i.m_data, ARCHETYPE_CHUNK_SIZE);
+                    << YAML::Binary(
+                           (const unsigned char *)chunk.GetDataPointer(static_cast<size_t>(
+                               type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size)),
+                           type.m_size);
                 out << YAML::EndMap;
             }
             out << YAML::EndSeq;
+
+            out << YAML::EndMap;
         }
-        out << YAML::EndMap;
+        out << YAML::EndSeq;
     }
     out << YAML::EndMap;
 }
@@ -576,10 +613,10 @@ void Scene::SerializeSystem(const std::shared_ptr<ISystem> &system, YAML::Emitte
 {
     out << YAML::BeginMap;
     {
-        out << YAML::Key << "TypeName" << YAML::Value << system->GetTypeName();
-        out << YAML::Key << "Enabled" << YAML::Value << system->m_enabled;
-        out << YAML::Key << "Rank" << YAML::Value << system->m_rank;
-        out << YAML::Key << "Handle" << YAML::Value << system->GetHandle();
+        out << YAML::Key << "m_typeName" << YAML::Value << system->GetTypeName();
+        out << YAML::Key << "m_enabled" << YAML::Value << system->m_enabled;
+        out << YAML::Key << "m_rank" << YAML::Value << system->m_rank;
+        out << YAML::Key << "m_handle" << YAML::Value << system->GetHandle();
         system->Serialize(out);
     }
     out << YAML::EndMap;
@@ -587,7 +624,7 @@ void Scene::SerializeSystem(const std::shared_ptr<ISystem> &system, YAML::Emitte
 void Scene::OnCreate()
 {
     m_sceneDataStorage.m_entities.emplace_back();
-    m_sceneDataStorage.m_entityInfos.emplace_back();
+    m_sceneDataStorage.m_entityMetadataList.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
     m_environmentSettings.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
 }
@@ -660,16 +697,16 @@ void EnvironmentSettings::Deserialize(const YAML::Node &in)
 void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene)
 {
     m_entities = source.m_entities;
-    m_entityInfos.resize(source.m_entityInfos.size());
+    m_entityMetadataList.resize(source.m_entityMetadataList.size());
 
     std::unordered_map<Handle, Handle> entityMap;
-    for (const auto &i : source.m_entityInfos)
+    for (const auto &i : source.m_entityMetadataList)
     {
         entityMap.insert({i.GetHandle(), i.GetHandle()});
     }
 
-    for (int i = 0; i < m_entityInfos.size(); i++)
-        m_entityInfos[i].Clone(entityMap, source.m_entityInfos[i], newScene);
+    for (int i = 0; i < m_entityMetadataList.size(); i++)
+        m_entityMetadataList[i].Clone(entityMap, source.m_entityMetadataList[i], newScene);
     m_dataComponentStorages.resize(source.m_dataComponentStorages.size());
     for (int i = 0; i < m_dataComponentStorages.size(); i++)
         m_dataComponentStorages[i] = source.m_dataComponentStorages[i];

@@ -7,60 +7,31 @@
 using namespace UniEngine;
 void EntityMetadata::Deserialize(const YAML::Node &in)
 {
-    m_name = in["Name"].as<std::string>();
-    m_version = in["Version"].as<unsigned>();
-    m_enabled = in["Enabled"].as<bool>();
-    m_static = in["Static"].as<bool>();
-    m_handle.m_value = in["Handle"].as<uint64_t>();
-    Entity parent;
-    parent.m_index = in["Parent.Index"].as<unsigned>();
-    parent.m_version = in["Parent.Version"].as<unsigned>();
-    m_parent = parent;
-    Entity root;
-    root.m_index = in["Root.Index"].as<unsigned>();
-    root.m_version = in["Root.Version"].as<unsigned>();
-    m_root = root;
-    if (in["Children"].IsDefined())
-    {
-        YAML::Binary childrenData = in["Children"].as<YAML::Binary>();
-        const unsigned char *data = childrenData.data();
-        std::size_t size = childrenData.size();
-        m_children.resize(size / sizeof(Entity));
-        std::memcpy(m_children.data(), data, size);
-    }
-    m_dataComponentStorageIndex = in["DataComponentStorageIndex"].as<size_t>();
-    m_chunkArrayIndex = in["ChunkArrayIndex"].as<size_t>();
+    m_name = in["m_name"].as<std::string>();
+    m_version = 1;
+    m_enabled = in["m_enabled"].as<bool>();
+    m_static = in["m_static"].as<bool>();
+    m_handle.m_value = in["m_handle"].as<uint64_t>();
 }
 
 void EntityMetadata::Serialize(YAML::Emitter &out)
 {
     out << YAML::BeginMap;
     {
-        out << YAML::Key << "Name" << YAML::Value << m_name;
-        out << YAML::Key << "Handle" << YAML::Value << m_handle.m_value;
-        out << YAML::Key << "Version" << YAML::Value << m_version;
-        out << YAML::Key << "Enabled" << YAML::Value << m_enabled;
-        out << YAML::Key << "Static" << YAML::Value << m_static;
-        out << YAML::Key << "Parent.Index" << YAML::Value << m_parent.m_index;
-        out << YAML::Key << "Parent.Version" << YAML::Value << m_parent.m_version;
-        out << YAML::Key << "Root.Index" << YAML::Value << m_root.m_index;
-        out << YAML::Key << "Root.Version" << YAML::Value << m_root.m_version;
-        if (!m_children.empty())
-        {
-            out << YAML::Key << "Children" << YAML::Value
-            << YAML::Binary(
-                (const unsigned char *)m_children.data(),
-                m_children.size() * sizeof(Entity));
-        }
-        out << YAML::Key << "DataComponentStorageIndex" << YAML::Value << m_dataComponentStorageIndex;
-        out << YAML::Key << "ChunkArrayIndex" << YAML::Value << m_chunkArrayIndex;
+        out << YAML::Key << "m_name" << YAML::Value << m_name;
+        out << YAML::Key << "m_handle" << YAML::Value << m_handle.m_value;
+        out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
+        out << YAML::Key << "m_static" << YAML::Value << m_static;
+        if(m_parent.IsValid()) out << YAML::Key << "Parent.Handle" << YAML::Value << m_parent.GetHandle();
+        if(m_root.IsValid())out << YAML::Key << "Root.Handle" << YAML::Value << m_root.GetHandle();
+
 #pragma region Private Components
-        out << YAML::Key << "PrivateComponent" << YAML::Value << YAML::BeginSeq;
+        out << YAML::Key << "m_privateComponentElements" << YAML::Value << YAML::BeginSeq;
         for (const auto &element : m_privateComponentElements)
         {
             out << YAML::BeginMap;
-            out << YAML::Key << "TypeName" << YAML::Value << element.m_privateComponentData->GetTypeName();
-            out << YAML::Key << "Enabled" << YAML::Value << element.m_privateComponentData->IsEnabled();
+            out << YAML::Key << "m_typeName" << YAML::Value << element.m_privateComponentData->m_typeName;
+            out << YAML::Key << "m_enabled" << YAML::Value << element.m_privateComponentData->m_enabled;
             element.m_privateComponentData->Serialize(out);
             out << YAML::EndMap;
         }

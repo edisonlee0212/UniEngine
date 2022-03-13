@@ -738,7 +738,7 @@ void Prefab::FromEntity(const Entity &entity)
             m_dataComponents.push_back(std::move(holder));
         });
 
-    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex()).m_privateComponentElements;
     for (auto &element : elements)
     {
         size_t id;

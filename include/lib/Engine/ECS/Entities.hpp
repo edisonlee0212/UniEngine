@@ -726,7 +726,7 @@ void Entities::ForEachStorage(
                         auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(static_cast<int>(i), entity, address1[remainder]);
                     }
@@ -738,7 +738,7 @@ void Entities::ForEachStorage(
                         auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(static_cast<int>(i), entity, address1[remainder]);
                     }
@@ -803,7 +803,7 @@ void Entities::ForEachStorage(
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                     }
@@ -816,7 +816,7 @@ void Entities::ForEachStorage(
                         T1 *address1 = reinterpret_cast<T1 *>(data + targetType1.m_offset * capacity);
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(static_cast<int>(i), entity, address1[remainder], address2[remainder]);
                     }
@@ -888,7 +888,7 @@ void Entities::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -903,7 +903,7 @@ void Entities::ForEachStorage(
                         T2 *address2 = reinterpret_cast<T2 *>(data + targetType2.m_offset * capacity);
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i), entity, address1[remainder], address2[remainder], address3[remainder]);
@@ -984,7 +984,7 @@ void Entities::ForEachStorage(
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1006,7 +1006,7 @@ void Entities::ForEachStorage(
                         T3 *address3 = reinterpret_cast<T3 *>(data + targetType3.m_offset * capacity);
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1100,7 +1100,7 @@ void Entities::ForEachStorage(
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1123,7 +1123,7 @@ void Entities::ForEachStorage(
                         T4 *address4 = reinterpret_cast<T4 *>(data + targetType4.m_offset * capacity);
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1226,7 +1226,7 @@ void Entities::ForEachStorage(
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1251,7 +1251,7 @@ void Entities::ForEachStorage(
                         T5 *address5 = reinterpret_cast<T5 *>(data + targetType5.m_offset * capacity);
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1363,7 +1363,7 @@ void Entities::ForEachStorage(
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1390,7 +1390,7 @@ void Entities::ForEachStorage(
                         T6 *address6 = reinterpret_cast<T6 *>(data + targetType6.m_offset * capacity);
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1511,7 +1511,7 @@ void Entities::ForEachStorage(
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             continue;
                         func(
                             static_cast<int>(i),
@@ -1540,7 +1540,7 @@ void Entities::ForEachStorage(
                         T7 *address7 = reinterpret_cast<T7 *>(data + targetType7.m_offset * capacity);
                         T8 *address8 = reinterpret_cast<T8 *>(data + targetType8.m_offset * capacity);
                         const auto entity = entities.at(i);
-                        if (checkEnable && !scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                        if (checkEnable && !scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                             return;
                         func(
                             static_cast<int>(i),
@@ -1608,7 +1608,7 @@ void Entities::GetDataComponentArrayStorage(
                                     auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                     T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
                                     const auto entity = entities.at(i);
-                                    if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                                    if (!scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                                         continue;
                                     tempStorage[threadIndex].push_back(address1[remainder]);
                                 }
@@ -1620,7 +1620,7 @@ void Entities::GetDataComponentArrayStorage(
                                     auto *data = static_cast<char *>(chunkArray.m_chunks[chunkIndex].m_data);
                                     T *address1 = reinterpret_cast<T *>(data + type.m_offset * capacity);
                                     const auto entity = entities.at(i);
-                                    if (!scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_enabled)
+                                    if (!scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_enabled)
                                         return;
                                     tempStorage[threadIndex].push_back(address1[remainder]);
                                 }
@@ -1692,7 +1692,7 @@ void Entities::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entit
     }
     assert(entity.IsValid());
     const auto id = typeid(T).hash_code();
-    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
@@ -1749,7 +1749,7 @@ void Entities::AddDataComponent(const std::shared_ptr<Scene> &scene, const Entit
     }
     newEntity.SetDataComponent(value);
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1779,7 +1779,7 @@ template <typename T> void Entities::RemoveDataComponent(const std::shared_ptr<S
     {
         return;
     }
-    auto &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    auto &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     auto &entityArchetypeInfos = entityManager.m_entityArchetypeInfos;
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
     auto &dataComponentStorage =
@@ -1835,7 +1835,7 @@ template <typename T> void Entities::RemoveDataComponent(const std::shared_ptr<S
     }
     T retVal = entity.GetDataComponent<T>();
     // 5. Swap entity.
-    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityInfos.at(newEntity.m_index);
+    EntityMetadata &newEntityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
     newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
@@ -1868,7 +1868,7 @@ void Entities::SetDataComponent(const std::shared_ptr<Scene> &scene, const size_
         return;
     }
     const size_t id = typeid(T).hash_code();
-    assert(index < scene->m_sceneDataStorage.m_entityInfos.size());
+    assert(index < scene->m_sceneDataStorage.m_entityMetadataList.size());
     SetDataComponent(scene, index, id, sizeof(T), (IDataComponent *)&value);
 }
 template <typename T> T Entities::GetDataComponent(const std::shared_ptr<Scene> &scene, const Entity &entity)
@@ -1879,7 +1879,7 @@ template <typename T> T Entities::GetDataComponent(const std::shared_ptr<Scene> 
         return T();
     }
     assert(entity.IsValid());
-    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
@@ -1920,7 +1920,7 @@ template <typename T> bool Entities::HasDataComponent(const std::shared_ptr<Scen
         return false;
     }
     assert(entity.IsValid());
-    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index);
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t id = typeid(T).hash_code();
@@ -1953,9 +1953,9 @@ template <typename T> T Entities::GetDataComponent(const std::shared_ptr<Scene> 
     {
         return T();
     }
-    if (index > scene->m_sceneDataStorage.m_entityInfos.size())
+    if (index > scene->m_sceneDataStorage.m_entityMetadataList.size())
         return T();
-    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(index);
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(index);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
@@ -1996,9 +1996,9 @@ template <typename T> bool Entities::HasDataComponent(const std::shared_ptr<Scen
     {
         return false;
     }
-    if (index > scene->m_sceneDataStorage.m_entityInfos.size())
+    if (index > scene->m_sceneDataStorage.m_entityMetadataList.size())
         return false;
-    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(index);
+    EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(index);
     auto &dataComponentStorage =
         scene->m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
 
@@ -2036,7 +2036,7 @@ std::weak_ptr<T> Entities::GetOrSetPrivateComponent(const std::shared_ptr<Scene>
     assert(entity.IsValid());
     auto typeName = Serialization::GetSerializableTypeName<T>();
     size_t i = 0;
-    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_privateComponentElements;
     for (auto &element : elements)
     {
         if (typeName == element.m_privateComponentData->GetTypeName())
@@ -2059,7 +2059,7 @@ void Entities::RemovePrivateComponent(const std::shared_ptr<Scene> &scene, const
         return;
     }
     assert(entity.IsValid());
-    auto &elements = scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements;
+    auto &elements = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_privateComponentElements;
     for (auto i = 0; i < elements.size(); i++)
     {
         if (std::dynamic_pointer_cast<T>(elements[i].m_privateComponentData))
@@ -2080,7 +2080,7 @@ template <typename T> bool Entities::HasPrivateComponent(const std::shared_ptr<S
         return false;
     }
     assert(entity.IsValid());
-    for (auto &element : scene->m_sceneDataStorage.m_entityInfos.at(entity.m_index).m_privateComponentElements)
+    for (auto &element : scene->m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_privateComponentElements)
     {
         if (std::dynamic_pointer_cast<T>(element.m_privateComponentData))
         {

@@ -45,7 +45,7 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
 void PrivateComponentStorage::DeleteEntity(Entity entity)
 {
     for (auto &element :
-         Entities::GetCurrentScene()->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex()).m_privateComponentElements)
+         Entities::GetCurrentScene()->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex()).m_privateComponentElements)
     {
         RemovePrivateComponent(entity, element.m_typeId, element.m_privateComponentData);
     }

@@ -16,6 +16,7 @@ class UNIENGINE_API ISerializable : public IHandle
     friend class IAsset;
     friend class Entities;
     friend class Serialization;
+    friend class EntityMetadata;
     std::string m_typeName;
   public:
     void Serialize(const std::string &name, YAML::Emitter &out);

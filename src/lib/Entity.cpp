@@ -141,7 +141,7 @@ unsigned Entity::GetVersion() const
 }
 Handle Entity::GetHandle() const
 {
-    auto& storage = Entities::GetCurrentScene()->m_sceneDataStorage.m_entityInfos;
+    auto& storage = Entities::GetCurrentScene()->m_sceneDataStorage.m_entityMetadataList;
     return storage.at(m_index).GetHandle();
 }
 

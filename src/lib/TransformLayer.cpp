@@ -50,7 +50,7 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scen
 {
     if (!scene)
         return;
-    auto &entityInfos = scene->m_sceneDataStorage.m_entityInfos;
+    auto &entityInfos = scene->m_sceneDataStorage.m_entityMetadataList;
     ProfilerLayer::StartEvent("TransformManager");
     Entities::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
         scene,
@@ -61,7 +61,7 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scen
             Transform &transform,
             GlobalTransform &globalTransform,
             GlobalTransformUpdateFlag &transformStatus) {
-            EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityInfos.at(entity.GetIndex());
+            EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex());
             if (!entityInfo.m_parent.IsNull())
                 return;
             if (checkStatic && entityInfo.m_static)
@@ -83,7 +83,7 @@ void TransformLayer::CalculateTransformGraphForDescendents(const std::shared_ptr
 {
     if (!scene)
         return;
-    auto &entityInfos = scene->m_sceneDataStorage.m_entityInfos;
+    auto &entityInfos = scene->m_sceneDataStorage.m_entityMetadataList;
     CalculateTransformGraph(
         scene, entityInfos, Entities::GetDataComponent<GlobalTransform>(scene, entity.GetIndex()), entity);
 }

@@ -38,7 +38,7 @@ struct UNIENGINE_API EnvironmentSettings
 struct SceneDataStorage
 {
     std::vector<Entity> m_entities;
-    std::vector<EntityMetadata> m_entityInfos;
+    std::vector<EntityMetadata> m_entityMetadataList;
     std::vector<DataComponentStorage> m_dataComponentStorages;
     std::unordered_map<Handle, Entity> m_entityMap;
     PrivateComponentStorage m_entityPrivateComponentStorage;
