@@ -10,6 +10,7 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     friend class Editor;
     friend class EditorLayer;
     friend struct PrivateComponentElement;
+    friend struct PrivateComponentStorage;
     friend class Serialization;
     friend class Scene;
     friend class Prefab;
@@ -17,11 +18,13 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     bool m_enabled = true;
     Entity m_owner = Entity();
     bool m_started = false;
+    size_t m_version = 0;
     std::weak_ptr<Scene> m_scene;
 
   public:
     [[nodiscard]] std::shared_ptr<Scene> GetScene() const;
     [[nodiscard]] Entity GetOwner() const;
+    [[nodiscard]] size_t GetVersion() const;
     void SetEnabled(const bool &value);
     [[nodiscard]] bool IsEnabled() const;
     bool Started();

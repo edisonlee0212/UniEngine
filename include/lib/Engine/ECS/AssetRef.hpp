@@ -16,7 +16,6 @@ class UNIENGINE_API AssetRef
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName;
     bool Update();
-
   public:
     void Serialize(YAML::Emitter &out) const
     {

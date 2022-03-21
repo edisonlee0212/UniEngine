@@ -16,6 +16,7 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
                 return;
             }
             privateComponent->OnDestroy();
+            privateComponent->m_version++;
             m_privateComponentPool[typeID].push_back(privateComponent);
             if (collection.m_ownersList.size() == 1)
             {
