@@ -45,8 +45,8 @@ void EditorLayer::OnCreate()
     m_configFlags += EntityEditorSystem_EnableEntityInspector;
 
     m_sceneCamera = Serialization::ProduceSerializable<Camera>();
-    m_sceneCamera->m_clearColor = glm::vec3(0.5f);
-    m_sceneCamera->m_useClearColor = false;
+    m_sceneCamera->m_clearColor = glm::vec3(59.0f / 255.0f, 85 / 255.0f, 143 / 255.f);
+    m_sceneCamera->m_useClearColor = true;
     m_sceneCamera->OnCreate();
 
     Editor::RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
@@ -1497,6 +1497,7 @@ void EditorLayer::SceneCameraWindow()
                         m_defaultSceneCameraPosition = m_sceneCameraPosition;
                         m_defaultSceneCameraRotation = m_sceneCameraRotation;
                     }
+                    ImGui::ColorEdit3("Background color", &m_sceneCamera->m_clearColor.x);
                     ImGui::SliderFloat("FOV", &m_sceneCamera->m_fov, 30.0f, 120.0f);
                     ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f);
                     ImGui::DragFloat("Speed", &m_velocity, 0.1f);
