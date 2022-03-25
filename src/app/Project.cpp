@@ -19,7 +19,12 @@ int main()
                     ImVec2(-1, -1),
                     (unsigned)CurveEditorFlags::ALLOW_RESIZE | (unsigned)CurveEditorFlags::SHOW_GRID |
                         (unsigned)CurveEditorFlags::SHOW_DEBUG);
+
+                FileUtils::OpenFolder("Test", [](const std::filesystem::path &path){
+                    UNIENGINE_LOG(path.string());
+                }, false);
             }
+
             ImGui::End();
         });
     });

@@ -1,9 +1,10 @@
-#include "Engine/Utilities/Console.hpp"
+#include "Engine/Core/Windows.hpp"
 #include "Engine/ECS/Entities.hpp"
+#include "Engine/Utilities/Console.hpp"
+#include "shlobj.h"
 #include <ImGuiFileBrowser.hpp>
 #include <ProjectManager.hpp>
 #include <Utilities.hpp>
-#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 Bound::Bound()
 {
@@ -695,6 +696,48 @@ void FileUtils::SaveFile(
     }
 #endif
 }
+void FileUtils::OpenFolder(
+    const std::string &dialogTitle,
+    const std::function<void(const std::filesystem::path &path)> &func,
+    bool projectDirCheck)
+{
+    if (ImGui::Button(dialogTitle.c_str()))
+    {
+        TCHAR path[MAX_PATH];
+        BROWSEINFO bi = {0};
+        bi.lpszTitle = dialogTitle.c_str();
+        bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+        //bi.lpfn       = BrowseCallbackProc;
+        //bi.lParam     = (LPARAM) path_param;
+        LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
+        if (pidl != nullptr)
+        {
+            // get the name of the folder and put it in path
+            SHGetPathFromIDList(pidl, path);
+            // free memory used
+            IMalloc *imalloc = nullptr;
+            if (SUCCEEDED(SHGetMalloc(&imalloc)))
+            {
+                imalloc->Free(pidl);
+                imalloc->Release();
+            }
+            std::string retVal = path;
+            const std::string search = "\\";
+            size_t pos = retVal.find(search);
+            // Repeat till end is reached
+            while (pos != std::string::npos)
+            {
+                // Replace this occurrence of Sub String
+                retVal.replace(pos, 1, "/");
+                // Get the next occurrence from the current position
+                pos = retVal.find(search, pos + 1);
+            }
+            std::filesystem::path path = retVal;
+            if (!projectDirCheck || ProjectManager::IsInProjectFolder(path))
+                func(path);
+        }
+    }
+}
 
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
@@ -887,7 +930,6 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             start_pan.y = from_y;
         }
 
-
         for (int point_idx = points_count - 2; point_idx >= 0; --point_idx)
         {
             ImVec2 *points;
@@ -938,7 +980,6 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
 
                 if (ImGui::IsItemHovered())
                     hovered_idx = point_idx + idx;
-
 
                 if (ImGui::IsItemActive() && ImGui::IsMouseClicked(0))
                 {
@@ -1163,7 +1204,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         }
 
         ImGui::EndChildFrame();
-        if(!((unsigned)flags & (unsigned)CurveEditorFlags::DISABLE_START_END_Y))
+        if (!((unsigned)flags & (unsigned)CurveEditorFlags::DISABLE_START_END_Y))
         {
             if (noTangent)
             {
@@ -1188,7 +1229,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 }
             }
         }
-        if((unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG){
+        if ((unsigned)flags & (unsigned)CurveEditorFlags::SHOW_DEBUG)
+        {
             static float test = 0.5f;
             ImGui::SliderFloat("X", &test, 0.0f, 1.0f);
             ImGui::Text("Y: %.3f", GetValue(test));
@@ -1220,7 +1262,8 @@ float Curve::GetValue(float x, unsigned iteration) const
         {
             auto &prev = m_values[i * 3 + 1];
             auto &next = m_values[i * 3 + 4];
-            if(x == prev.x){
+            if (x == prev.x)
+            {
                 return prev.y;
             }
             else if (x > prev.x && x < next.x)
@@ -1229,22 +1272,30 @@ float Curve::GetValue(float x, unsigned iteration) const
                 float upper = 1.0f;
                 float lower = 0.0f;
                 float tempT = 0.5f;
-                for(unsigned iter = 0; iter < iteration; iter++){
+                for (unsigned iter = 0; iter < iteration; iter++)
+                {
                     float tempT1 = 1.0f - tempT;
-                    float globalX = tempT1 * tempT1 * tempT1 * prev.x + 3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
-                                  3.0f * tempT1 * tempT * tempT * (next.x + m_values[i * 3 + 3].x) + tempT * tempT * tempT * next.x;
+                    float globalX = tempT1 * tempT1 * tempT1 * prev.x +
+                                    3.0f * tempT1 * tempT1 * tempT * (prev.x + m_values[i * 3 + 2].x) +
+                                    3.0f * tempT1 * tempT * tempT * (next.x + m_values[i * 3 + 3].x) +
+                                    tempT * tempT * tempT * next.x;
                     float testX = (globalX - prev.x) / (next.x - prev.x);
-                    if(testX > realX){
+                    if (testX > realX)
+                    {
                         upper = tempT;
                         tempT = (tempT + lower) / 2.0f;
-                    }else{
+                    }
+                    else
+                    {
                         lower = tempT;
                         tempT = (tempT + upper) / 2.0f;
                     }
                 }
                 float tempT1 = 1.0f - tempT;
-                return tempT1 * tempT1 * tempT1 * prev.y + 3.0f * tempT1 * tempT1 * tempT * (prev.y + m_values[i * 3 + 2].y) +
-                       3.0f * tempT1 * tempT * tempT * (next.y + m_values[i * 3 + 3].y) + tempT * tempT * tempT * next.y;
+                return tempT1 * tempT1 * tempT1 * prev.y +
+                       3.0f * tempT1 * tempT1 * tempT * (prev.y + m_values[i * 3 + 2].y) +
+                       3.0f * tempT1 * tempT * tempT * (next.y + m_values[i * 3 + 3].y) +
+                       tempT * tempT * tempT * next.y;
             }
         }
         return m_values[m_values.size() - 2].y;

@@ -9,6 +9,10 @@ class UNIENGINE_API FileUtils
 
   public:
     static std::string LoadFileAsString(const std::filesystem::path &path = "");
+    static void OpenFolder(
+        const std::string &dialogTitle,
+        const std::function<void(const std::filesystem::path &path)> &func, bool projectDirCheck = true);
+
     static void OpenFile(
         const std::string &dialogTitle,
         const std::string &fileType,
