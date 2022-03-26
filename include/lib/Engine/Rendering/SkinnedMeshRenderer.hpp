@@ -20,18 +20,13 @@ class UNIENGINE_API SkinnedMeshRenderer : public IPrivateComponent
     friend class Prefab;
     friend class RenderLayer;
     void RenderBound(glm::vec4 &color);
-    void GetBoneMatrices();
-
     friend class Graphics;
-
     bool m_ragDoll = false;
-
     std::vector<glm::mat4> m_ragDollTransformChain;
     std::vector<EntityRef> m_boundEntities;
-
     void DebugBoneRender(const glm::vec4 &color, const float &size);
-
   public:
+    void GetBoneMatrices();
     bool m_ragDollFreeze = false;
     [[nodiscard]] bool RagDoll() const;
     void SetRagDoll(bool value);
