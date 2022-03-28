@@ -220,26 +220,26 @@ if (${CMAKE_BINARY_DIR} STREQUAL ${PROJECT_BINARY_DIR} OR UNIENGINE_BUILD_EXAMPL
             USE_ASSIMP
             )
 
-    #add_library(pyuniengine MODULE ${PYTHON_MODULE_SOURCES_LOCAL})
-    #target_include_directories(pyuniengine
-    #       PUBLIC
-    #       ${UNIENGINE_INCLUDES_LOCAL}
-    #        )
-    #target_precompile_headers(pyuniengine
-    #        PRIVATE
-    #        ${UNIENGINE_PCH_LOCAL}
-    #        )
-    #target_link_libraries(pyuniengine PRIVATE uniengine pybind11::module pybind11::lto pybind11::windows_extras)
-    #target_compile_definitions(pyuniengine
-    #       PRIVATE
-    #       USE_ASSIMP
-    #       )
+    add_library(pyuniengine MODULE ${PYTHON_MODULE_SOURCES_LOCAL})
+    target_include_directories(pyuniengine
+           PUBLIC
+           ${UNIENGINE_INCLUDES_LOCAL}
+            )
+    target_precompile_headers(pyuniengine
+            PRIVATE
+            ${UNIENGINE_PCH_LOCAL}
+            )
+    target_link_libraries(pyuniengine PRIVATE uniengine pybind11::module pybind11::lto pybind11::windows_extras)
+    target_compile_definitions(pyuniengine
+           PRIVATE
+           USE_ASSIMP
+           )
 
-    #pybind11_extension(pyuniengine)
-    #pybind11_strip(pyuniengine)
+    pybind11_extension(pyuniengine)
+    pybind11_strip(pyuniengine)
 
-    #set_target_properties(pyuniengine PROPERTIES CXX_VISIBILITY_PRESET "hidden"
-    #        CUDA_VISIBILITY_PRESET "hidden")
+    set_target_properties(pyuniengine PROPERTIES CXX_VISIBILITY_PRESET "hidden"
+            CUDA_VISIBILITY_PRESET "hidden")
 
 
     add_executable(Physics

@@ -6,5 +6,3 @@ import pyuniengine as ue
 
 def __main__():
     ue.RunApplication()
-    app = Application()
-    app.Create()
