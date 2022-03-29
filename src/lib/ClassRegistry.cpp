@@ -32,6 +32,7 @@ PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentReg
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
+AssetRegistration<IAsset> IAssetRegistry("IAsset", ".ueasset");
 AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", ".uepc");
 AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
 AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
