@@ -1215,7 +1215,7 @@ void EditorLayer::OnInspect()
                         if (ImGui::IsMouseDoubleClicked(0) && AssetManager::IsAsset(i.second.m_typeName))
                         {
                             // If it's an asset then inspect.
-                            asset = AssetManager::Get(i.first);
+                            asset = AssetManager::Get<IAsset>(i.first);
                             if (asset)
                                 Editor::GetInstance().m_inspectingAsset = asset;
                         }
@@ -1271,7 +1271,7 @@ void EditorLayer::OnInspect()
                         }
                         if (ImGui::Button(("Remove" + tag).c_str()))
                         {
-                            asset = AssetManager::Get(i.first);
+                            asset = AssetManager::Get<IAsset>(i.first);
                             if (asset)
                             {
                                 asset->m_projectRelativePath.clear();
