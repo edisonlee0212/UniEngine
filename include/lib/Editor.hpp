@@ -33,7 +33,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     static void ImGuiLateUpdate();
   public:
     static std::map<std::string, std::shared_ptr<Texture2D>>& AssetIcons();
-    std::weak_ptr<IAsset> m_inspectingAsset;
+    std::shared_ptr<IAsset> m_inspectingAsset = {};
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
         const std::function<bool(Entity entity, IDataComponent *data, bool isRoot)> &func);

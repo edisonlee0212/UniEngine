@@ -94,10 +94,6 @@ class UNIENGINE_API IAsset : public ISerializable
     bool SetPathAndLoad(const std::filesystem::path &path);
 
     /**
-     * The destructor, should be overwritten if explict handling is required when the lifecycle of the asset ends.
-     */
-    ~IAsset() override;
-    /**
      * The GUI of the asset when inspected in the editor.
      */
     virtual void OnInspect(){};

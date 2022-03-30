@@ -12,9 +12,9 @@ class UNIENGINE_API AssetRef
     friend class Editor;
     friend class EditorLayer;
     friend class AssetManager;
-    std::shared_ptr<IAsset> m_value;
+    std::shared_ptr<IAsset> m_value = {};
     Handle m_assetHandle = Handle(0);
-    std::string m_assetTypeName;
+    std::string m_assetTypeName = "";
     bool Update();
   public:
     void Serialize(YAML::Emitter &out) const
@@ -30,6 +30,11 @@ class UNIENGINE_API AssetRef
     }
     AssetRef()
     {
+        m_assetHandle = Handle(0);
+        m_assetTypeName = "";
+        m_value.reset();
+    }
+    ~AssetRef(){
         m_assetHandle = Handle(0);
         m_assetTypeName = "";
         m_value.reset();

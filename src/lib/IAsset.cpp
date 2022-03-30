@@ -73,10 +73,6 @@ bool IAsset::LoadInternal(const std::filesystem::path &path)
     return true;
 }
 
-IAsset::~IAsset()
-{
-}
-
 void IAsset::OnCreate()
 {
     m_name = "New " + m_typeName;

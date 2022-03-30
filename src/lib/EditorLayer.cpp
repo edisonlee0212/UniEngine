@@ -698,6 +698,7 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
 }
 void EditorLayer::OnInspect()
 {
+    auto &editorManager = Editor::GetInstance();
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
@@ -762,7 +763,7 @@ void EditorLayer::OnInspect()
             }
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
-                Editor::GetInstance().m_inspectingAsset = scene;
+                editorManager.m_inspectingAsset = scene;
             }
             if (ImGui::BeginDragDropTarget())
             {
@@ -874,7 +875,7 @@ void EditorLayer::OnInspect()
                     {
                         ImGui::Text("Add data component: ");
                         ImGui::Separator();
-                        for (auto &i : Editor::GetInstance().m_componentDataMenuList)
+                        for (auto &i : editorManager.m_componentDataMenuList)
                         {
                             i.second(m_selectedEntity);
                         }
@@ -918,7 +919,7 @@ void EditorLayer::OnInspect()
                     {
                         ImGui::Text("Add private component: ");
                         ImGui::Separator();
-                        for (auto &i : Editor::GetInstance().m_privateComponentMenuList)
+                        for (auto &i : editorManager.m_privateComponentMenuList)
                         {
                             i.second(m_selectedEntity);
                         }
@@ -1120,7 +1121,6 @@ void EditorLayer::OnInspect()
             float panelWidth = ImGui::GetContentRegionAvailWidth();
             int columnCount = glm::max(1, (int)(panelWidth / cellSize));
             ImGui::Columns(columnCount, 0, false);
-            auto &editorManager = Editor::GetInstance();
             if (!updated)
             {
                 for (auto &i : projectManager.m_currentFocusedFolder->m_children)
@@ -1217,7 +1217,7 @@ void EditorLayer::OnInspect()
                             // If it's an asset then inspect.
                             asset = AssetManager::Get<IAsset>(i.first);
                             if (asset)
-                                Editor::GetInstance().m_inspectingAsset = asset;
+                                editorManager.m_inspectingAsset = asset;
                         }
                     }
                     const std::string tag = "##" + i.second.m_typeName + std::to_string(i.first.GetValue());
@@ -1317,7 +1317,7 @@ void EditorLayer::OnInspect()
                 ImGui::Separator();
                 static float rank = 0.0f;
                 ImGui::DragFloat("Rank", &rank, 1.0f, 0.0f, 999.0f);
-                for (auto &i : Editor::GetInstance().m_systemMenuList)
+                for (auto &i : editorManager.m_systemMenuList)
                 {
                     i.second(rank);
                 }
@@ -1349,75 +1349,72 @@ void EditorLayer::OnInspect()
         }
         ImGui::End();
     }
-    if (!Editor::GetInstance().m_inspectingAsset.expired())
+    if (ImGui::Begin("Asset Inspector"))
     {
-        if (ImGui::Begin("Asset Inspector"))
+        if (editorManager.m_inspectingAsset)
         {
-            if (!Editor::GetInstance().m_inspectingAsset.expired())
+            auto& asset = editorManager.m_inspectingAsset;
+            ImGui::Text("Type:");
+            ImGui::SameLine();
+            ImGui::Text(asset->GetTypeName().c_str());
+            ImGui::Separator();
+            ImGui::Text("Name:");
+            ImGui::SameLine();
+            ImGui::Button(asset->m_name.c_str());
+            Editor::DraggableAsset(asset);
+            if (!asset->GetPath().empty())
             {
-                auto asset = Editor::GetInstance().m_inspectingAsset.lock();
-                ImGui::Text("Type:");
-                ImGui::SameLine();
-                ImGui::Text(asset->GetTypeName().c_str());
-                ImGui::Separator();
-                ImGui::Text("Name:");
-                ImGui::SameLine();
-                ImGui::Button(asset->m_name.c_str());
-                Editor::DraggableAsset(asset);
-                if (!asset->GetPath().empty())
+                if (ImGui::Button("Save"))
                 {
-                    if (ImGui::Button("Save"))
-                    {
-                        asset->Save();
-                    }
-                    ImGui::SameLine();
-                    FileUtils::SaveFile(
-                        "Reset path & save",
-                        asset->GetTypeName(),
-                        AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                        [&](const std::filesystem::path &path) {
-                            asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
-                        },
-                        true);
+                    asset->Save();
                 }
-                else
-                {
-                    ImGui::Text("Temporary asset");
-                    ImGui::SameLine();
-                    FileUtils::SaveFile(
-                        "Allocate path & save",
-                        asset->GetTypeName(),
-                        AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                        [&](const std::filesystem::path &path) {
-                            asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
-                        },
-                        true);
-                }
-
+                ImGui::SameLine();
                 FileUtils::SaveFile(
-                    "Export...",
+                    "Reset path & save",
                     asset->GetTypeName(),
                     AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                    [&](const std::filesystem::path &path) { asset->Export(path); },
-                    false);
-                ImGui::SameLine();
-                FileUtils::OpenFile(
-                    "Import...",
-                    asset->GetTypeName(),
-                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
-                    [&](const std::filesystem::path &path) { asset->Import(path); },
-                    false);
-
-                ImGui::Separator();
-                asset->OnInspect();
+                    [&](const std::filesystem::path &path) {
+                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                    },
+                    true);
             }
             else
             {
-                ImGui::Text("None");
+                ImGui::Text("Temporary asset");
+                ImGui::SameLine();
+                FileUtils::SaveFile(
+                    "Allocate path & save",
+                    asset->GetTypeName(),
+                    AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                    [&](const std::filesystem::path &path) {
+                        asset->SetPathAndSave(ProjectManager::GetRelativePath(path));
+                    },
+                    true);
             }
+
+            FileUtils::SaveFile(
+                "Export...",
+                asset->GetTypeName(),
+                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                [&](const std::filesystem::path &path) { asset->Export(path); },
+                false);
+            ImGui::SameLine();
+            FileUtils::OpenFile(
+                "Import...",
+                asset->GetTypeName(),
+                AssetManager::GetInstance().m_defaultExtensions[asset->GetTypeName()],
+                [&](const std::filesystem::path &path) { asset->Import(path); },
+                false);
+
+            ImGui::Separator();
+            asset->OnInspect();
         }
-        ImGui::End();
+        else
+        {
+            ImGui::Text("None");
+        }
     }
+    ImGui::End();
 }
 
 void EditorLayer::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)
