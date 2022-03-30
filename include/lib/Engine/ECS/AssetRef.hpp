@@ -32,7 +32,7 @@ class UNIENGINE_API AssetRef
     {
         m_assetHandle = Handle(0);
         m_assetTypeName = "";
-        m_value = nullptr;
+        m_value.reset();
     }
     template <typename T = IAsset> AssetRef(const std::shared_ptr<T> &other)
     {
