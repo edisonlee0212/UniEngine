@@ -21,9 +21,9 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     bool m_enableAssetMenu = false;
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, std::shared_ptr<IAsset>>> m_sharedAssets;
-    std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assets;
+    std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assets;
 
-    std::unordered_map<std::string, std::vector<std::string>> m_defaultExtensions;
+    std::unordered_map<std::string, std::vector<std::string>> m_assetExtensions;
     std::unordered_map<std::string, std::string> m_typeNames;
     friend class DefaultResources;
     friend class AssetRegistry;
@@ -34,14 +34,15 @@ class UNIENGINE_API AssetManager : public ISingleton<AssetManager>
     friend class Scene;
     friend class Prefab;
     static void RegisterAsset(std::shared_ptr<IAsset> resource);
-    template <typename T> static void RegisterAssetType(const std::string &name, const std::string &extension);
+    template <typename T> static void RegisterAssetType(const std::string &name, const std::vector<std::string> &extensions);
   public:
+    static std::string GetTypeName(const std::string& extension);
+
     static std::shared_ptr<IAsset> UnsafeCreateAsset(
         const std::string &typeName, const Handle &handle, const std::string &name);
     template <typename T> static std::shared_ptr<T> UnsafeCreateAsset(const Handle &handle, const std::string &name);
 
     static bool IsAsset(const std::string &typeName);
-    template <typename T> static void RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions);
 
     template <typename T> static std::shared_ptr<T> Import(const std::filesystem::path &path);
     template <typename T> static void Share(std::shared_ptr<T> resource);
@@ -98,7 +99,7 @@ template <typename T> std::shared_ptr<T> Scene::GetOrCreateSystem(float rank)
 }
 template <typename T> std::vector<std::string> AssetManager::GetExtension()
 {
-    return GetInstance().m_defaultExtensions[Serialization::GetSerializableTypeName<T>()];
+    return GetInstance().m_assetExtensions[Serialization::GetSerializableTypeName<T>()];
 }
 
 template <typename T> void AssetManager::Share(std::shared_ptr<T> resource)
@@ -111,21 +112,12 @@ template <typename T> std::shared_ptr<T> AssetManager::Get(const Handle &handle)
     return std::dynamic_pointer_cast<T>(Get(Serialization::GetSerializableTypeName<T>(), handle));
 }
 
-template <typename T> void AssetManager::RegisterAssetType(const std::string &name, const std::string &extension)
+template <typename T> void AssetManager::RegisterAssetType(const std::string &name, const std::vector<std::string> &extensions)
 {
     auto &resourceManager = GetInstance();
     Serialization::RegisterSerializableType<T>(name);
     resourceManager.m_sharedAssets[name] = std::unordered_map<Handle, std::shared_ptr<IAsset>>();
-    resourceManager.m_defaultExtensions[name].insert(resourceManager.m_defaultExtensions[name].begin(), extension);
-    resourceManager.m_typeNames[extension] = name;
-}
-
-template <typename T> void AssetManager::RegisterExternalAssetTypeExtensions(std::vector<std::string> extensions)
-{
-    auto &resourceManager = GetInstance();
-    auto name = Serialization::GetSerializableTypeName<T>();
-    resourceManager.m_defaultExtensions[name].insert(
-        resourceManager.m_defaultExtensions[name].end(), extensions.begin(), extensions.end());
+    resourceManager.m_assetExtensions[name] = extensions;
     for (const auto &extension : extensions)
     {
         resourceManager.m_typeNames[extension] = name;
@@ -148,5 +140,6 @@ template <typename T> void AssetManager::RemoveFromShared(const Handle &handle)
     assert(handle != 0);
     GetInstance().m_sharedAssets[Serialization::GetSerializableTypeName<T>()].erase(handle);
 }
+
 
 } // namespace UniEngine

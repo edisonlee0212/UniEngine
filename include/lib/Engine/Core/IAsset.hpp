@@ -5,6 +5,7 @@
 namespace UniEngine
 {
 class AssetRef;
+class AssetRecord;
 class UNIENGINE_API IAsset : public ISerializable
 {
   protected:
@@ -13,8 +14,8 @@ class UNIENGINE_API IAsset : public ISerializable
     friend class EditorLayer;
     friend class AssetRegistry;
     friend class ProjectManager;
-    std::filesystem::path m_projectRelativePath;
-
+    friend class AssetRecord;
+    std::weak_ptr<AssetRecord> m_assetRecord;
     /**
      * The function that handles serialization. May be invoked by SaveInternal() or AssetManager/ProjectManager.
      * Function is virtual so user can define their own serialization procedure.
@@ -27,10 +28,6 @@ class UNIENGINE_API IAsset : public ISerializable
      * @param path The file path for loading the asset, may or may not be the local stored path.
      */
     virtual bool LoadInternal(const std::filesystem::path &path);
-    /**
-     * The name of the asset.
-     */
-    std::string m_name;
     /**
      * Whether the asset is saved or not.
      */

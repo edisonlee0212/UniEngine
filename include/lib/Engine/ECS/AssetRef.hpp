@@ -8,7 +8,6 @@ namespace UniEngine
 class UNIENGINE_API AssetRef
 {
     friend class Prefab;
-    friend class Project;
     friend class Editor;
     friend class EditorLayer;
     friend class AssetManager;

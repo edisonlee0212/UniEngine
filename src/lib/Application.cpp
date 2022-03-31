@@ -352,6 +352,11 @@ bool Application::IsPlaying()
     auto &application = GetInstance();
     return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
 }
+ProjectManager &Application::GetProjectManager()
+{
+    auto &application = GetInstance();
+    return application.m_projectManager;
+}
 
 void ApplicationTime::Reset()
 {

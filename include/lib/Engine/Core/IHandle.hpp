@@ -46,6 +46,8 @@ class UNIENGINE_API IHandle{
     friend class IAsset;
     friend class AssetRef;
     friend class Scene;
+    friend class AssetRecord;
+    friend class Folder;
     Handle m_handle;
   public:
     Handle GetHandle() const

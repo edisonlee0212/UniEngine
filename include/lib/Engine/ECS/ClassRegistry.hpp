@@ -8,9 +8,9 @@ namespace UniEngine
 class UNIENGINE_API ClassRegistry
 {
   public:
-    template <typename T = IAsset> static void RegisterAsset(const std::string &name, const std::string& extension)
+    template <typename T = IAsset> static void RegisterAsset(const std::string &name, const std::vector<std::string> &externalExtensions)
     {
-        AssetManager::RegisterAssetType<T>(name, extension);
+        AssetManager::RegisterAssetType<T>(name, externalExtensions);
     }
     template <typename T = IDataComponent> static void RegisterDataComponent(const std::string &name)
     {
@@ -49,9 +49,9 @@ template <typename T> class UNIENGINE_API DataComponentRegistration
 template <typename T> class UNIENGINE_API AssetRegistration
 {
   public:
-    AssetRegistration(const std::string &name, const std::string& extension)
+    AssetRegistration(const std::string &name, const std::vector<std::string> &externalExtensions)
     {
-        ClassRegistry::RegisterAsset<T>(name, extension);
+        ClassRegistry::RegisterAsset<T>(name, externalExtensions);
     }
 };
 

@@ -4,98 +4,84 @@
 
 namespace UniEngine
 {
-
-struct UNIENGINE_API FileRecord
+class Folder;
+class UNIENGINE_API AssetRecord
 {
-    std::string m_name = "";
-    std::filesystem::path m_relativeFilePath = "";
-    std::string m_fileName = "";
-    std::string m_typeName = "";
-    void Serialize(YAML::Emitter &out) const;
-    void Deserialize(const YAML::Node &in);
-};
+    friend class Folder;
+    std::string m_assetFileName;
+    std::string m_assetExtension;
+    std::string m_assetTypeName;
+    Handle m_assetHandle = 0;
+    std::weak_ptr<IAsset> m_asset;
+    std::weak_ptr<Folder> m_folder;
 
-struct UNIENGINE_API FolderMetadata{
-    friend class Editor;
-    std::unordered_map<Handle, FileRecord> m_fileRecords;
-    std::unordered_map<std::string, Handle> m_fileMap;
-    void Save(const std::filesystem::path &path);
-    void Load(const std::filesystem::path &path);
-};
-
-class UNIENGINE_API AssetRegistry
-{
-    std::unordered_map<Handle, FileRecord> m_assetRecords;
-    std::unordered_map<std::string, Handle> m_fileMap;
   public:
-    void ResetFilePath(Handle handle, const std::filesystem::path &newFilePath);
-    void AddOrResetFile(Handle handle, const FileRecord &newFileRecord);
-    void RemoveFile(Handle handle);
-    bool Find(Handle handle, FileRecord& target);
-    bool Find(const std::filesystem::path &newRelativePath, Handle& handle);
-    bool Find(const std::filesystem::path &newRelativePath);
-    void Clear();
+    [[nodiscard]] Handle GetAssetHandle() const;
+    [[nodiscard]] std::shared_ptr<IAsset> GetAsset() const;
+    [[nodiscard]] std::string GetAssetTypeName() const;
+    [[nodiscard]] std::string GetAssetFileName() const;
+    [[nodiscard]] std::string GetAssetExtension() const;
+    void DeleteMetadata() const;
+
+    [[nodiscard]] std::filesystem::path GetProjectRelativePath() const;
+    [[nodiscard]] std::filesystem::path GetAbsolutePath() const;
+    void SetAssetFileName(const std::string &newName);
+    void SetAssetExtension(const std::string &newExtension);
+
+    void Save() const;
+    void Load(const std::filesystem::path& path);
 };
 
-struct UNIENGINE_API Folder {
-    std::filesystem::file_time_type m_lastWriteTime;
-    std::filesystem::path m_relativePath;
+class UNIENGINE_API Folder
+{
     std::string m_name;
-    FolderMetadata m_folderMetadata;
-    std::map<std::string, std::shared_ptr<Folder>> m_children;
+    std::unordered_map<Handle, std::shared_ptr<AssetRecord>> m_assetRecords;
+    std::map<Handle, std::shared_ptr<Folder>> m_children;
     std::weak_ptr<Folder> m_parent;
-    void Rename(const std::string& newName);
-    void ClearAllDescendents();
-};
+    Handle m_handle = 0;
 
-class UNIENGINE_API Project : public ISerializable
-{
+    void Refresh(const std::filesystem::path &parentAbsolutePath);
   public:
-    std::shared_ptr<Folder> m_projectFolder;
-    std::filesystem::path m_startScenePath;
-    void Serialize(YAML::Emitter &out) override;
-    void Deserialize(const YAML::Node &in) override;
+    void DeleteMetadata() const;
+    [[nodiscard]] Handle GetHandle() const;
+    [[nodiscard]] std::filesystem::path GetProjectRelativePath() const;
+    [[nodiscard]] std::filesystem::path GetAbsolutePath() const;
+    [[nodiscard]] std::string GetName() const;
 
+    void Rename(const std::string &newName);
+
+    void MoveChild(const Handle &childHandle, const std::shared_ptr<Folder> &dest);
+    void DeleteChild(const Handle &childHandle);
+    [[nodiscard]] std::weak_ptr<Folder> GetChild(const Handle &childHandle);
+    [[nodiscard]] std::weak_ptr<Folder> GetOrCreateChild(const std::string &folderName);
+
+    void MoveAssetRecord(const Handle &assetHandle, const std::shared_ptr<Folder> &dest);
+    void DeleteAssetRecord(const Handle &assetHandle);
+    [[nodiscard]] std::weak_ptr<AssetRecord> GetOrCreateAssetRecord(
+        const std::string &fileName, const std::string &extension);
+    [[nodiscard]] std::weak_ptr<AssetRecord> GetAssetRecord(const Handle &assetHandle);
+
+    void Save() const;
+    void Load(const std::filesystem::path& path);
 };
 
-class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
+class UNIENGINE_API ProjectManager
 {
     friend class AssetManager;
     friend class Editor;
     friend class EditorLayer;
+    friend class AssetRecord;
+    friend class Folder;
+    std::shared_ptr<Folder> m_projectFolder;
     std::filesystem::path m_projectPath;
-    std::shared_ptr<Project> m_currentProject;
     std::optional<std::function<void()>> m_newSceneCustomizer;
-    std::shared_ptr<Folder> m_currentFocusedFolder;
+    std::weak_ptr<Folder> m_currentFocusedFolder;
 
-    static void GenerateNewDefaultScene();
-    static std::filesystem::path GenerateNewPath(const std::string &filestem, const std::string &extension);
-    static void ScanFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& folder, bool scanAll, bool updateMetaData = true);
+    std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assetRegistry;
 
-
-    static void FindFolderHelper(const std::filesystem::path& folderPath, const std::shared_ptr<Folder>& walker, std::shared_ptr<Folder>& result);
   public:
-    /**
-     * Find a specific folder
-     * @param folderPath The path relative to project.
-     * @return The folder target. Null if not found.
-     */
-    static std::shared_ptr<Folder> FindFolder(const std::filesystem::path& folderPath);
+    [[nodiscard]] std::weak_ptr<Folder> GetOrCreateFolder(const std::filesystem::path &projectRelativePath);
 
-    static void UpdateFolderMetadata(const std::shared_ptr<Folder>& folder, bool scanAll);
-
-    static bool IsInProjectFolder(const std::filesystem::path &target);
-    static std::filesystem::path GetRelativePath(const std::filesystem::path &target);
-    static void SetScenePostLoadActions(const std::function<void()> &actions);
-
-    AssetRegistry m_assetRegistry;
-    std::string m_currentProjectName = "New Project";
-    static void Init(const std::filesystem::path& projectPath);
-    static void OnInspect();
-    static void CreateOrLoadProject(const std::filesystem::path &path);
-    static void SaveProject();
-    static void ScanProjectFolder(bool scanAll, bool updateMetadata = true);
-    static std::filesystem::path GetProjectPath();
-
+    void OnInspect();
 };
 } // namespace UniEngine

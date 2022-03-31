@@ -32,23 +32,21 @@ PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentReg
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
 
-AssetRegistration<IAsset> IAssetRegistry("IAsset", ".ueasset");
-AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", ".uepc");
-AssetRegistration<Material> MaterialRegistry("Material", ".uemat");
-AssetRegistration<Mesh> MeshRegistry("Mesh", ".uemesh");
-AssetRegistration<Texture2D> Texture2DReg("Texture2D", ".uetexture2d");
-AssetRegistration<Cubemap> CubemapReg("Cubemap", ".uecubemap");
-AssetRegistration<LightProbe> LightProbeReg("LightProbe", ".uelightprobe");
-AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", ".uereflecprobe");
-AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", ".ueglprogram");
-AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", ".ueglshader");
+AssetRegistration<IAsset> IAssetRegistry("IAsset", {".ueasset"});
+AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", {".uepc"});
+AssetRegistration<Material> MaterialRegistry("Material", {".uemat"});
+AssetRegistration<Mesh> MeshRegistry("Mesh", {".uemesh"});
+AssetRegistration<Texture2D> Texture2DReg("Texture2D", {".uetexture2d"});
+AssetRegistration<Cubemap> CubemapReg("Cubemap", {".uecubemap"});
+AssetRegistration<LightProbe> LightProbeReg("LightProbe", {".uelightprobe"});
+AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", {".uereflecprobe"});
+AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", {".ueglprogram"});
+AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", {".ueglshader"});
 
-AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", ".ueenvirmap");
-AssetRegistration<Animation> AnimationReg("Animation", ".ueanimation");
-AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", "ueskinnedmesh");
-AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial", "uephysmat");
-AssetRegistration<Collider> ColliderReg("Collider", "uecollider");
-AssetRegistration<Prefab> PrefabReg("Prefab", ".ueprefab");
-AssetRegistration<Scene> SceneReg("Scene", ".uescene");
-
-SerializableRegistration<Project> ProjectRegistryReg("Project");
+AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", {".ueenvirmap"});
+AssetRegistration<Animation> AnimationReg("Animation", {".ueanimation"});
+AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", {"ueskinnedmesh"});
+AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial", {"uephysmat"});
+AssetRegistration<Collider> ColliderReg("Collider", {"uecollider"});
+AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab"});
+AssetRegistration<Scene> SceneReg("Scene", {".uescene"});

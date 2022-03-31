@@ -313,5 +313,15 @@ std::shared_ptr<IAsset> AssetManager::UnsafeCreateAsset(
 }
 std::vector<std::string> AssetManager::GetExtension(const std::string &typeName)
 {
-    return GetInstance().m_defaultExtensions[typeName];
+    return GetInstance().m_assetExtensions[typeName];
+}
+std::string AssetManager::GetTypeName(const std::string& extension)
+{
+    auto& assetManager = GetInstance();
+    auto search = assetManager.m_typeNames.find(extension);
+    if (search != assetManager.m_typeNames.end())
+    {
+        return search->second;
+    }
+    return "";
 }
