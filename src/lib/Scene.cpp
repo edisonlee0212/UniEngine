@@ -317,6 +317,7 @@ void Scene::Serialize(YAML::Emitter &out)
         {
             out << YAML::BeginMap;
             out << YAML::Key << "m_typeName" << YAML::Value << i.second->GetTypeName();
+            out << YAML::Key << "m_handle" << YAML::Value << i.second->GetHandle();
             i.second->Serialize(out);
             out << YAML::EndMap;
         }
@@ -361,16 +362,19 @@ void Scene::Deserialize(const YAML::Node &in)
     currentIndex = 1;
     for (const auto &inEntityMetadata : inEntityMetadataList)
     {
-        auto& metadata = m_sceneDataStorage.m_entityMetadataList[currentIndex];
-        if(inEntityMetadata["Parent.Handle"]) {
-            metadata.m_parent = m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Parent.Handle"].as<uint64_t>())];
-            auto& parentMetadata = m_sceneDataStorage.m_entityMetadataList[metadata.m_parent.m_index];
+        auto &metadata = m_sceneDataStorage.m_entityMetadataList[currentIndex];
+        if (inEntityMetadata["Parent.Handle"])
+        {
+            metadata.m_parent =
+                m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Parent.Handle"].as<uint64_t>())];
+            auto &parentMetadata = m_sceneDataStorage.m_entityMetadataList[metadata.m_parent.m_index];
             Entity entity;
             entity.m_version = 1;
             entity.m_index = currentIndex;
             parentMetadata.m_children.push_back(entity);
         }
-        if(inEntityMetadata["Root.Handle"]) metadata.m_root = m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Root.Handle"].as<uint64_t>())];
+        if (inEntityMetadata["Root.Handle"])
+            metadata.m_root = m_sceneDataStorage.m_entityMap[Handle(inEntityMetadata["Root.Handle"].as<uint64_t>())];
         currentIndex++;
     }
 #pragma endregion
@@ -384,7 +388,8 @@ void Scene::Deserialize(const YAML::Node &in)
         auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages.back();
         dataComponentStorage.m_entitySize = inDataComponentStorage["m_entitySize"].as<size_t>();
         dataComponentStorage.m_chunkCapacity = inDataComponentStorage["m_chunkCapacity"].as<size_t>();
-        dataComponentStorage.m_entityAliveCount = dataComponentStorage.m_entityCount = inDataComponentStorage["m_entityAliveCount"].as<size_t>();
+        dataComponentStorage.m_entityAliveCount = dataComponentStorage.m_entityCount =
+            inDataComponentStorage["m_entityAliveCount"].as<size_t>();
         dataComponentStorage.m_chunkArray.m_entities.resize(dataComponentStorage.m_entityAliveCount);
         const size_t chunkSize = dataComponentStorage.m_entityCount / dataComponentStorage.m_chunkCapacity + 1;
         while (dataComponentStorage.m_chunkArray.m_chunks.size() <= chunkSize)
@@ -411,7 +416,7 @@ void Scene::Deserialize(const YAML::Node &in)
             Handle handle = entityDataComponent["m_handle"].as<uint64_t>();
             Entity entity = m_sceneDataStorage.m_entityMap[handle];
             dataComponentStorage.m_chunkArray.m_entities[chunkArrayIndex] = entity;
-            auto& metadata = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
+            auto &metadata = m_sceneDataStorage.m_entityMetadataList[entity.m_index];
             metadata.m_dataComponentStorageIndex = storageIndex;
             metadata.m_chunkArrayIndex = chunkArrayIndex;
             const auto chunkIndex = metadata.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
@@ -421,10 +426,13 @@ void Scene::Deserialize(const YAML::Node &in)
             int typeIndex = 0;
             for (const auto &inDataComponent : entityDataComponent["DataComponents"])
             {
-                auto& type = dataComponentStorage.m_dataComponentTypes[typeIndex];
+                auto &type = dataComponentStorage.m_dataComponentTypes[typeIndex];
                 auto data = inDataComponent["Data"].as<YAML::Binary>();
-                std::memcpy(chunk.GetDataPointer(static_cast<size_t>(
-                                type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size)), data.data(), data.size());
+                std::memcpy(
+                    chunk.GetDataPointer(static_cast<size_t>(
+                        type.m_offset * dataComponentStorage.m_chunkCapacity + chunkPointer * type.m_size)),
+                    data.data(),
+                    data.size());
                 typeIndex++;
             }
 
@@ -440,29 +448,16 @@ void Scene::Deserialize(const YAML::Node &in)
     auto inLocalAssets = in["LocalAssets"];
     if (inLocalAssets)
     {
-        std::vector<bool> isLocal;
         for (const auto &i : inLocalAssets)
         {
-            Handle handle = i["m_handle"].as<uint64_t>();
             // First, find the asset in assetregistry
-            auto asset = ProjectManager::GetAsset(handle);
-            if (!asset)
-            {
-                asset = ProjectManager::CreateTemporaryAsset(
-                    i["m_typeName"].as<std::string>());
-                isLocal.push_back(false);
-            }
-            else
-            {
-                isLocal.push_back(true);
-            }
+            auto asset = ProjectManager::CreateTemporaryAsset(i["m_typeName"].as<std::string>(), i["m_handle"].as<uint64_t>());
             localAssets.push_back(asset);
         }
         int index = 0;
         for (const auto &i : inLocalAssets)
         {
-            if (!isLocal[index])
-                localAssets[index++]->Deserialize(i);
+            localAssets[index++]->Deserialize(i);
         }
     }
 
@@ -662,9 +657,7 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
     auto mainCamera = source->m_mainCamera.Get();
     if (mainCamera)
     {
-        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(
-                                     newScene, mainCamera->GetOwner())
-                                     .lock();
+        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(newScene, mainCamera->GetOwner()).lock();
     }
 }
 

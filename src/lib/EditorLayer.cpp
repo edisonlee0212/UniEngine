@@ -1131,7 +1131,7 @@ void EditorLayer::OnInspect()
                             break;
                         }
                     }
-                    const std::string tag = "##Folder" + i.first;
+                    const std::string tag = "##Folder" + std::to_string(i.first);
                     if (ImGui::BeginPopupContextItem(tag.c_str()))
                     {
                         if (ImGui::BeginMenu(("Rename" + tag).c_str()))

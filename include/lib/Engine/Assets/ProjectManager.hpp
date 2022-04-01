@@ -64,6 +64,7 @@ class UNIENGINE_API Folder
 
     void MoveAsset(const Handle &assetHandle, const std::shared_ptr<Folder> &dest);
     void DeleteAsset(const Handle &assetHandle);
+    [[nodiscard]] bool HasAsset(const std::string &fileName, const std::string &extension);
     [[nodiscard]] std::shared_ptr<IAsset> GetOrCreateAsset(const std::string &fileName, const std::string &extension);
     [[nodiscard]] std::shared_ptr<IAsset> GetAsset(const Handle &assetHandle);
 
@@ -89,7 +90,8 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::filesystem::path m_projectPath;
     std::optional<std::function<void()>> m_newSceneCustomizer;
     std::weak_ptr<Folder> m_currentFocusedFolder;
-    std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assetRegistry;
+    std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assetRegistry;
+    std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assetRecordRegistry;
     bool m_enableDefaultResourceMenu = false;
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
@@ -113,7 +115,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
 
     static void DisplayDefaultResources();
     [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName);
-
+    [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName, const Handle& handle);
   public:
     static void OnInspect();
     static void SaveProject();

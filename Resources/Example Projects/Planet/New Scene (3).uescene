@@ -1,0 +1,429 @@
+m_environmentSettings:
+  m_backgroundColor: [1, 1, 1]
+  m_environmentGamma: 1
+  m_ambientLightIntensity: 0.800000012
+  m_environmentType: 0
+  m_environmentSettings:
+    m_assetHandle: 85
+    m_assetTypeName: EnvironmentalMap
+m_mainCamera:
+  m_entityHandle: 14604978230125188352
+  m_privateComponentTypeName: Camera
+m_entityMetadataList:
+  - m_name: Main Camera
+    m_handle: 14604978230125188352
+    m_enabled: true
+    m_static: false
+    Root.Handle: 14604978230125188352
+    m_privateComponentElements:
+      - m_typeName: Camera
+        m_enabled: true
+        m_resolutionX: 687
+        m_resolutionY: 681
+        m_useClearColor: false
+        m_clearColor: [0, 0, 0]
+        m_allowAutoResize: true
+        m_nearDistance: 0.100000001
+        m_farDistance: 500
+        m_fov: 120
+        m_skybox:
+          m_assetHandle: 83
+          m_assetTypeName: Cubemap
+      - m_typeName: PlayerController
+        m_enabled: true
+        m_velocity: 20
+        m_sensitivity: 0.100000001
+        m_sceneCameraYawAngle: -89
+        m_sceneCameraPitchAngle: 0
+      - m_typeName: PostProcessing
+        m_enabled: true
+  - m_name: Planet 1
+    m_handle: 3312568265576761093
+    m_enabled: true
+    m_static: false
+    Root.Handle: 3312568265576761093
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 8
+          LodDistance: 7
+          Radius: 10
+          Index: 0
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 0
+          m_assetTypeName: Material
+  - m_name: Planet 2
+    m_handle: 6040138691884717795
+    m_enabled: true
+    m_static: false
+    Root.Handle: 6040138691884717795
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 20
+          LodDistance: 7
+          Radius: 15
+          Index: 1
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 0
+          m_assetTypeName: Material
+  - m_name: Planet 3
+    m_handle: 17675242502954256683
+    m_enabled: true
+    m_static: false
+    Root.Handle: 17675242502954256683
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 4
+          LodDistance: 7
+          Radius: 5
+          Index: 2
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 0
+          m_assetTypeName: Material
+  - m_name: Directional Light 1
+    m_handle: 10899158101800731548
+    m_enabled: true
+    m_static: false
+    Root.Handle: 10899158101800731548
+    m_privateComponentElements:
+      - m_typeName: DirectionalLight
+        m_enabled: true
+        m_castShadow: true
+        m_bias: 0.100000001
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 0.800000012
+        m_lightSize: 0.00999999978
+        m_normalOffset: 0.00100000005
+  - m_name: Point Light 1
+    m_handle: 1871048204427028302
+    m_enabled: true
+    m_static: false
+    Root.Handle: 1871048204427028302
+    m_privateComponentElements:
+      - m_typeName: MeshRenderer
+        m_enabled: true
+        m_forwardRendering: false
+        m_castShadow: true
+        m_receiveShadow: true
+        m_mesh:
+          m_assetHandle: 21
+          m_assetTypeName: Mesh
+        m_material:
+          m_assetHandle: 0
+          m_assetTypeName: Material
+      - m_typeName: PointLight
+        m_enabled: true
+        m_castShadow: true
+        m_constant: 1
+        m_linear: 0.0900000036
+        m_quadratic: 0.0320000015
+        m_bias: 0.0500000007
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 5
+        m_lightSize: 0.100000001
+  - m_name: Point Light 2
+    m_handle: 13458525389904944300
+    m_enabled: true
+    m_static: false
+    Root.Handle: 13458525389904944300
+    m_privateComponentElements:
+      - m_typeName: PointLight
+        m_enabled: true
+        m_castShadow: true
+        m_constant: 1
+        m_linear: 0.0900000036
+        m_quadratic: 0.0320000015
+        m_bias: 0.0500000007
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 5
+        m_lightSize: 0.100000001
+      - m_typeName: MeshRenderer
+        m_enabled: true
+        m_forwardRendering: false
+        m_castShadow: true
+        m_receiveShadow: true
+        m_mesh:
+          m_assetHandle: 21
+          m_assetTypeName: Mesh
+        m_material:
+          m_assetHandle: 0
+          m_assetTypeName: Material
+  - m_name: Planet 1
+    m_handle: 12823771875434855572
+    m_enabled: true
+    m_static: false
+    Root.Handle: 12823771875434855572
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 8
+          LodDistance: 7
+          Radius: 10
+          Index: 0
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 17559669005557747875
+          m_assetTypeName: Material
+  - m_name: Planet 2
+    m_handle: 16708027046020686699
+    m_enabled: true
+    m_static: false
+    Root.Handle: 16708027046020686699
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 20
+          LodDistance: 7
+          Radius: 15
+          Index: 1
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 17559669005557747875
+          m_assetTypeName: Material
+  - m_name: Planet 3
+    m_handle: 5853598041811536264
+    m_enabled: true
+    m_static: false
+    Root.Handle: 5853598041811536264
+    m_privateComponentElements:
+      - m_typeName: PlanetTerrain
+        m_enabled: true
+        PlanetInfo:
+          MaxLodLevel: 4
+          LodDistance: 7
+          Radius: 5
+          Index: 2
+          Resolution: 8
+        m_surfaceMaterial:
+          m_assetHandle: 17559669005557747875
+          m_assetTypeName: Material
+  - m_name: Directional Light 1
+    m_handle: 11295502919831712034
+    m_enabled: true
+    m_static: false
+    Root.Handle: 11295502919831712034
+    m_privateComponentElements:
+      - m_typeName: DirectionalLight
+        m_enabled: true
+        m_castShadow: true
+        m_bias: 0.100000001
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 0.800000012
+        m_lightSize: 0.00999999978
+        m_normalOffset: 0.00100000005
+  - m_name: Point Light 1
+    m_handle: 3314480325027927719
+    m_enabled: true
+    m_static: false
+    Root.Handle: 3314480325027927719
+    m_privateComponentElements:
+      - m_typeName: MeshRenderer
+        m_enabled: true
+        m_forwardRendering: false
+        m_castShadow: true
+        m_receiveShadow: true
+        m_mesh:
+          m_assetHandle: 21
+          m_assetTypeName: Mesh
+        m_material:
+          m_assetHandle: 280125525329807988
+          m_assetTypeName: Material
+      - m_typeName: PointLight
+        m_enabled: true
+        m_castShadow: true
+        m_constant: 1
+        m_linear: 0.0900000036
+        m_quadratic: 0.0320000015
+        m_bias: 0.0500000007
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 5
+        m_lightSize: 0.100000001
+  - m_name: Point Light 2
+    m_handle: 3984038786476599596
+    m_enabled: true
+    m_static: false
+    Root.Handle: 3984038786476599596
+    m_privateComponentElements:
+      - m_typeName: PointLight
+        m_enabled: true
+        m_castShadow: true
+        m_constant: 1
+        m_linear: 0.0900000036
+        m_quadratic: 0.0320000015
+        m_bias: 0.0500000007
+        m_diffuse: [1, 1, 1]
+        m_diffuseBrightness: 5
+        m_lightSize: 0.100000001
+      - m_typeName: MeshRenderer
+        m_enabled: true
+        m_forwardRendering: false
+        m_castShadow: true
+        m_receiveShadow: true
+        m_mesh:
+          m_assetHandle: 21
+          m_assetTypeName: Mesh
+        m_material:
+          m_assetHandle: 280125525329807988
+          m_assetTypeName: Material
+m_systems:
+  - m_typeName: PhysicsSystem
+    m_enabled: true
+    m_rank: 1
+    m_handle: 4885777488220197040
+  - m_typeName: PlanetTerrainSystem
+    m_enabled: true
+    m_rank: 1
+    m_handle: 3890578500312282776
+LocalAssets:
+  - m_typeName: Material
+    m_albedoTexture:
+      m_assetHandle: 18222382844528398465
+      m_assetTypeName: Texture2D
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 1, 1]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+  - m_typeName: Material
+    m_albedoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_normalTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_metallicTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_roughnessTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_aoTexture:
+      m_assetHandle: 0
+      m_assetTypeName: ""
+    m_program:
+      m_assetHandle: 3
+      m_assetTypeName: GLProgram
+    m_polygonMode: 0
+    m_cullingMode: 0
+    m_blendingMode: 0
+    m_metallic: 0.300000012
+    m_roughness: 0.300000012
+    m_ambient: 1
+    m_emission: 0
+    m_albedoColor: [1, 1, 1]
+    m_transparency: 0
+    m_subsurfaceColor: [1, 1, 1]
+    m_subsurfaceFactor: 0
+    m_subsurfaceRadius: 0
+m_dataComponentStorages:
+  - m_entitySize: 129
+    m_chunkCapacity: 127
+    m_entityAliveCount: 13
+    m_dataComponentTypes:
+      - m_name: Transform
+        m_size: 64
+        m_offset: 0
+      - m_name: GlobalTransform
+        m_size: 64
+        m_offset: 64
+      - m_name: GlobalTransformUpdateFlag
+        m_size: 1
+        m_offset: 128
+    m_chunkArray:
+      - m_handle: 14604978230125188352
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgMAAAMhBAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgMAAAMhBAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 3312568265576761093
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 6040138691884717795
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAMQgAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAMQgAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 17675242502954256683
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAACgwQAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAACgwQAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 10899158101800731548
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 1871048204427028302
+        DataComponents:
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 13458525389904944300
+        DataComponents:
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 12823771875434855572
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 16708027046020686699
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAMQgAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 5853598041811536264
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAACgwQAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 11295502919831712034
+        DataComponents:
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 3314480325027927719
+        DataComponents:
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="
+      - m_handle: 3984038786476599596
+        DataComponents:
+          - Data: !!binary "AAAAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AACAPwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPw=="
+          - Data: !!binary "AA=="

@@ -30,10 +30,6 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
     try
     {
-        if (std::filesystem::exists(path))
-        {
-            std::filesystem::remove(path);
-        }
         YAML::Emitter out;
         out << YAML::BeginMap;
         Serialize(out);

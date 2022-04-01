@@ -30,6 +30,6 @@ int main()
     });
     ApplicationConfigs applicationConfigs;
     Application::Create(applicationConfigs);
-
+    Application::Start();
     return 0;
 }
