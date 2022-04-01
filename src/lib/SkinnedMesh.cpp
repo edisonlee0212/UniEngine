@@ -127,7 +127,6 @@ void SkinnedMesh::OnCreate()
 {
     m_vao = std::make_shared<OpenGLUtils::GLVAO>();
     m_bound = Bound();
-    m_name = "New Skinned";
 }
 void SkinnedMesh::Upload()
 {

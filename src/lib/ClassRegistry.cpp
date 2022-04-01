@@ -1,14 +1,14 @@
-#include <AssetManager.hpp>
+#include "Engine/ECS/Entities.hpp"
+#include "Engine/Rendering/Graphics.hpp"
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
-#include "Engine/ECS/Entities.hpp"
 #include <MeshRenderer.hpp>
 #include <PhysicsLayer.hpp>
 #include <PlayerController.hpp>
 #include <PointCloud.hpp>
 #include <PostProcessing.hpp>
-#include "Engine/Rendering/Graphics.hpp"
 #include <UnknownPrivateComponent.hpp>
+#include "Prefab.hpp"
 using namespace UniEngine;
 
 DataComponentRegistration<Transform> TransformRegistry("Transform");
@@ -36,7 +36,7 @@ AssetRegistration<IAsset> IAssetRegistry("IAsset", {".ueasset"});
 AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", {".uepc"});
 AssetRegistration<Material> MaterialRegistry("Material", {".uemat"});
 AssetRegistration<Mesh> MeshRegistry("Mesh", {".uemesh"});
-AssetRegistration<Texture2D> Texture2DReg("Texture2D", {".uetexture2d"});
+AssetRegistration<Texture2D> Texture2DReg("Texture2D", {".png", ".jpg", ".jpeg", ".tga", ".hdr"});
 AssetRegistration<Cubemap> CubemapReg("Cubemap", {".uecubemap"});
 AssetRegistration<LightProbe> LightProbeReg("LightProbe", {".uelightprobe"});
 AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", {".uereflecprobe"});
@@ -48,5 +48,5 @@ AssetRegistration<Animation> AnimationReg("Animation", {".ueanimation"});
 AssetRegistration<SkinnedMesh> SkinnedMeshReg("SkinnedMesh", {"ueskinnedmesh"});
 AssetRegistration<PhysicsMaterial> PhysicsMaterialReg("PhysicsMaterial", {"uephysmat"});
 AssetRegistration<Collider> ColliderReg("Collider", {"uecollider"});
-AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab"});
+AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab", ".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
 AssetRegistration<Scene> SceneReg("Scene", {".uescene"});

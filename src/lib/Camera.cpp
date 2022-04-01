@@ -1,4 +1,4 @@
-#include "AssetManager.hpp"
+#include "ProjectManager.hpp"
 
 #include <Utilities.hpp>
 
@@ -248,8 +248,7 @@ void Camera::OnCreate()
     m_resolutionX = 1;
     m_resolutionY = 1;
     m_frameCount = 0;
-    m_colorTexture = AssetManager::CreateAsset<Texture2D>();
-    m_colorTexture->m_name = "CameraTexture";
+    m_colorTexture = ProjectManager::CreateTemporaryAsset<Texture2D>();
     m_colorTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
     m_colorTexture->m_texture->SetData(0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0);
@@ -259,7 +258,7 @@ void Camera::OnCreate()
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     AttachTexture(m_colorTexture->m_texture.get(), GL_COLOR_ATTACHMENT0);
 
-    m_depthStencilTexture = AssetManager::CreateAsset<Texture2D>();
+    m_depthStencilTexture = ProjectManager::CreateTemporaryAsset<Texture2D>();
     m_depthStencilTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
     m_depthStencilTexture->m_texture->SetData(

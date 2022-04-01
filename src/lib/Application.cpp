@@ -1,24 +1,24 @@
 #include "AnimationLayer.hpp"
 #include "ConsoleLayer.hpp"
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
+#include "Engine/Core/Jobs.hpp"
+#include "Engine/Core/Windows.hpp"
+#include "Engine/ECS/Entities.hpp"
 #include "Graphics.hpp"
 #include "PhysicsLayer.hpp"
+#include "ProjectManager.hpp"
 #include "RenderLayer.hpp"
 #include "TransformLayer.hpp"
 #include <AnimationLayer.hpp>
 #include <Application.hpp>
-#include <AssetManager.hpp>
 #include <DefaultResources.hpp>
 #include <EditorLayer.hpp>
-#include "Editor.hpp"
-#include "Engine/ECS/Entities.hpp"
-#include "Engine/Core/Inputs.hpp"
-#include "Engine/Core/Jobs.hpp"
 #include <OpenGLUtils.hpp>
 #include <PhysicsLayer.hpp>
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <TransformLayer.hpp>
-#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
@@ -30,7 +30,7 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
 
     Inputs::Init();
     Jobs::Init();
-    AssetManager::Init();
+    DefaultResources::Load();
     Entities::Init();
     Editor::InitImGui();
 
@@ -172,9 +172,8 @@ void Application::LateUpdateInternal()
         }
         // Post-processing happens here
         // Manager settings
-        OnInspect();
-        AssetManager::OnInspect();
         ProjectManager::OnInspect();
+        OnInspect();
         if (application.m_gameStatus == GameStatus::Step)
             application.m_gameStatus = GameStatus::Pause;
     }
@@ -189,7 +188,7 @@ void Application::LateUpdateInternal()
                     "Project",
                     {".ueproj"},
                     [&](const std::filesystem::path &path) {
-                        ProjectManager::CreateOrLoadProject(path);
+                        ProjectManager::GetOrCreateProject(path);
                         application.m_applicationStatus = ApplicationStatus::Initialized;
                     },
                     false);
@@ -237,8 +236,8 @@ void Application::Start()
     application.m_applicationStatus = ApplicationStatus::Uninitialized;
     if (!application.m_applicationConfigs.m_projectPath.empty())
     {
-        ProjectManager::CreateOrLoadProject(application.m_applicationConfigs.m_projectPath);
-        application.m_applicationStatus = ApplicationStatus::Initialized;
+        ProjectManager::GetOrCreateProject(application.m_applicationConfigs.m_projectPath);
+        if(ProjectManager::GetInstance().m_projectFolder) application.m_applicationStatus = ApplicationStatus::Initialized;
     }
     application.m_gameStatus = GameStatus::Stop;
     while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
@@ -309,7 +308,7 @@ void Application::Play()
         return;
     if (application.m_gameStatus == GameStatus::Stop)
     {
-        auto copiedScene = AssetManager::CreateAsset<Scene>();
+        auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
         Scene::Clone(application.m_scene, copiedScene);
         Entities::Attach(copiedScene);
     }
@@ -341,7 +340,7 @@ void Application::Step()
         return;
     if (application.m_gameStatus == GameStatus::Stop)
     {
-        auto copiedScene = AssetManager::CreateAsset<Scene>();
+        auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
         Scene::Clone(application.m_scene, copiedScene);
         Entities::Attach(copiedScene);
     }
@@ -351,11 +350,6 @@ bool Application::IsPlaying()
 {
     auto &application = GetInstance();
     return application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step;
-}
-ProjectManager &Application::GetProjectManager()
-{
-    auto &application = GetInstance();
-    return application.m_projectManager;
 }
 
 void ApplicationTime::Reset()

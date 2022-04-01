@@ -5,7 +5,6 @@ void UniEngine::PhysicsMaterial::OnCreate()
 {
     auto physicsLayer = Application::GetLayer<PhysicsLayer>();
     if(!physicsLayer) return;
-    m_name = "New physics model";
     m_value = physicsLayer->m_physics->createMaterial(m_staticFriction, m_dynamicFriction, m_restitution);
 }
 UniEngine::PhysicsMaterial::~PhysicsMaterial()

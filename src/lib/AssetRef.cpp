@@ -3,7 +3,7 @@
 //
 
 #include "AssetRef.hpp"
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include <DefaultResources.hpp>
 #include <IAsset.hpp>
 using namespace UniEngine;
@@ -16,7 +16,7 @@ bool AssetRef::Update()
     }
     else if (!m_value)
     {
-        auto ptr = AssetManager::Get(m_assetHandle);
+        auto ptr = ProjectManager::GetAsset(m_assetHandle);
         if (ptr)
         {
             m_value = ptr;

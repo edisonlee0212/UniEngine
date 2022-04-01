@@ -1,11 +1,11 @@
-#include <Application.hpp>
-#include <AssetManager.hpp>
-#include <DefaultResources.hpp>
 #include "Editor.hpp"
+#include "Engine/Core/Serialization.hpp"
+#include "Engine/Rendering/Graphics.hpp"
+#include <Application.hpp>
+#include <DefaultResources.hpp>
 #include <MeshRenderer.hpp>
 #include <Prefab.hpp>
-#include "Engine/Rendering/Graphics.hpp"
-#include "Engine/Core/Serialization.hpp"
+#include <ProjectManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
@@ -137,8 +137,7 @@ bool Prefab::LoadInternal(const std::filesystem::path &path)
             for (const auto &i : inLocalAssets)
             {
                 Handle handle = i["Handle"].as<uint64_t>();
-                localAssets.push_back(AssetManager::UnsafeCreateAsset(
-                    i["TypeName"].as<std::string>(), handle, i["Name"].as<std::string>()));
+                localAssets.push_back(ProjectManager::CreateTemporaryAsset(i["TypeName"].as<std::string>()));
             }
             int index = 0;
             for (const auto &i : inLocalAssets)
@@ -311,8 +310,8 @@ std::shared_ptr<Texture2D> Prefab::CollectTexture(
     {
         return search->second;
     }
-    auto texture2D = AssetManager::CreateAsset<Texture2D>();
-    texture2D->SetPathAndLoad(ProjectManager::GetRelativePath(directory + "/" + path));
+    auto texture2D = std::dynamic_pointer_cast<Texture2D>(ProjectManager::GetOrCreateAsset(
+        std::filesystem::relative(directory + "/" + path, ProjectManager::GetProjectPath().parent_path())));
     loadedTextures[fileName] = texture2D;
     return texture2D;
 }
@@ -322,8 +321,9 @@ std::shared_ptr<Material> Prefab::ReadMaterial(
     std::map<std::string, std::shared_ptr<Texture2D>> &texture2DsLoaded,
     aiMaterial *importerMaterial)
 {
-    auto targetMaterial = AssetManager::LoadMaterial(glProgram);
-    if(importerMaterial)
+    auto targetMaterial = ProjectManager::CreateTemporaryAsset<Material>();
+    targetMaterial->SetProgram(glProgram);
+    if (importerMaterial)
     {
         // PBR
         if (importerMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
@@ -391,14 +391,17 @@ bool Prefab::ProcessNode(
         aiMesh *importerMesh = importerScene->mMeshes[importerNode->mMeshes[i]];
         if (!importerMesh)
             continue;
-        auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerMesh->mName.C_Str()));
+        auto childNode = ProjectManager::CreateTemporaryAsset<Prefab>();
+        childNode->m_name = std::string(importerMesh->mName.C_Str());
         const auto search = loadedMaterials.find(importerMesh->mMaterialIndex);
         bool isSkinnedMesh = importerMesh->mNumBones != 0xffffffff && importerMesh->mBones;
         std::shared_ptr<Material> material;
         if (search == loadedMaterials.end())
         {
             aiMaterial *importerMaterial = nullptr;
-            if(importerMesh->mMaterialIndex != 0xffffffff && importerMesh->mMaterialIndex < importerScene->mNumMaterials) importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
+            if (importerMesh->mMaterialIndex != 0xffffffff &&
+                importerMesh->mMaterialIndex < importerScene->mNumMaterials)
+                importerMaterial = importerScene->mMaterials[importerMesh->mMaterialIndex];
             material = ReadMaterial(
                 directory,
                 isSkinnedMesh ? DefaultResources::GLPrograms::StandardSkinnedProgram
@@ -452,7 +455,8 @@ bool Prefab::ProcessNode(
 
     for (unsigned i = 0; i < importerNode->mNumChildren; i++)
     {
-        auto childNode = AssetManager::CreateAsset<Prefab>(std::string(importerNode->mChildren[i]->mName.C_Str()));
+        auto childNode = ProjectManager::CreateTemporaryAsset<Prefab>();
+        childNode->m_name = std::string(importerNode->mChildren[i]->mName.C_Str());
         auto childAssimpNode = std::make_shared<AssimpNode>(importerNode->mChildren[i]);
         childAssimpNode->m_parent = assimpNode;
         const bool childAdd = ProcessNode(
@@ -543,7 +547,7 @@ std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
         for (int j = 0; j < 3; j++)
             indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
-    auto mesh = AssetManager::CreateAsset<Mesh>();
+    auto mesh = ProjectManager::CreateTemporaryAsset<Mesh>();
     mesh->SetVertices(mask, vertices, indices);
     return mesh;
 }
@@ -617,7 +621,7 @@ std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
         for (int j = 0; j < 3; j++)
             indices.push_back(importerMesh->mFaces[i].mIndices[j]);
     }
-    auto skinnedMesh = AssetManager::CreateAsset<SkinnedMesh>(importerMesh->mName.C_Str());
+    auto skinnedMesh = ProjectManager::CreateTemporaryAsset<SkinnedMesh>();
 #pragma region Read bones
     std::vector<std::vector<std::pair<int, float>>> verticesBoneIdWeights;
     verticesBoneIdWeights.resize(vertices.size());
@@ -733,7 +737,8 @@ void Prefab::FromEntity(const Entity &entity)
             holder.m_type = type;
             size_t id;
             size_t size;
-            holder.m_data = std::static_pointer_cast<IDataComponent>(Serialization::ProduceDataComponent(type.m_name, id, size));
+            holder.m_data =
+                std::static_pointer_cast<IDataComponent>(Serialization::ProduceDataComponent(type.m_name, id, size));
             memcpy(holder.m_data.get(), data, type.m_size);
             m_dataComponents.push_back(std::move(holder));
         });
@@ -755,7 +760,9 @@ void Prefab::FromEntity(const Entity &entity)
     auto children = entity.GetChildren();
     for (auto &i : children)
     {
-        m_children.push_back(AssetManager::CreateAsset<Prefab>(i.GetName()));
+        auto temp = ProjectManager::CreateTemporaryAsset<Prefab>();
+        temp->m_name = i.GetName();
+        m_children.push_back(temp);
         m_children.back()->FromEntity(i);
     }
 }
@@ -851,7 +858,8 @@ void Prefab::Deserialize(const YAML::Node &in)
     {
         for (const auto &i : in["m_children"])
         {
-            auto child = AssetManager::UnsafeCreateAsset<Prefab>(Handle(i["m_handle"].as<uint64_t>()), "");
+            auto child = ProjectManager::CreateTemporaryAsset<Prefab>();
+            child->m_handle = i["m_handle"].as<uint64_t>();
             child->Deserialize(i);
             m_children.push_back(child);
         }
@@ -867,7 +875,7 @@ void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &
     for (auto &i : list)
     {
         auto asset = i.Get<IAsset>();
-        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
+        if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->IsTemporary())
         {
             map[asset->GetHandle()] = asset;
         }
@@ -884,7 +892,7 @@ void Prefab::CollectAssets(std::unordered_map<Handle, std::shared_ptr<IAsset>> &
         for (auto &i : list)
         {
             auto asset = i.Get<IAsset>();
-            if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->GetPath().empty())
+            if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle() && asset->IsTemporary())
             {
                 map[asset->GetHandle()] = asset;
             }
@@ -915,7 +923,6 @@ bool Prefab::SaveInternal(const std::filesystem::path &path)
                 out << YAML::BeginMap;
                 out << YAML::Key << "TypeName" << YAML::Value << i.second->GetTypeName();
                 out << YAML::Key << "Handle" << YAML::Value << i.first.GetValue();
-                out << YAML::Key << "Name" << YAML::Value << i.second->GetName();
                 i.second->Serialize(out);
                 out << YAML::EndMap;
             }
@@ -937,10 +944,12 @@ void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map
 {
     auto currentScene = Entities::GetCurrentScene();
     Entities::ForEachPrivateComponent(Entities::GetCurrentScene(), parentEntity, [&](PrivateComponentElement &data) {
-            data.m_privateComponentData->Relink(map, currentScene);
-        });
+        data.m_privateComponentData->Relink(map, currentScene);
+    });
     Entities::ForEachChild(
-        Entities::GetCurrentScene(), parentEntity, [&](const std::shared_ptr<Scene> &scene, Entity child) { RelinkChildren(child, map); });
+        Entities::GetCurrentScene(), parentEntity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
+            RelinkChildren(child, map);
+        });
 }
 void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)
 {
@@ -979,7 +988,7 @@ void Prefab::LoadModelInternal(const std::filesystem::path &path, bool optimize,
     std::shared_ptr<Animation> animation;
     if (!bonesMap.empty() || scene->HasAnimations())
     {
-        animation = AssetManager::CreateAsset<Animation>(path.filename().string());
+        animation = ProjectManager::CreateTemporaryAsset<Animation>();
     }
     std::shared_ptr<AssimpNode> rootAssimpNode = std::make_shared<AssimpNode>(scene->mRootNode);
     if (!ProcessNode(

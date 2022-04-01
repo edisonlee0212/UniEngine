@@ -39,7 +39,6 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     size_t m_version = 0;
     std::vector<SkinnedVertex> m_skinnedVertices;
     std::vector<glm::uvec3> m_triangles;
-    friend class AssetManager;
     friend struct SkinnedMeshBonesBlock;
     static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
 

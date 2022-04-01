@@ -12,7 +12,6 @@ namespace UniEngine
 class UNIENGINE_API ISerializable : public IHandle
 {
     friend class Serialization;
-    friend class AssetManager;
     friend class IAsset;
     friend class Entities;
     friend class Serialization;

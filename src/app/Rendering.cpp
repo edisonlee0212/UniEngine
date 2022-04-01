@@ -1,5 +1,5 @@
-#include "AssetManager.hpp"
-
+#include "Prefab.hpp"
+#include "ProjectManager.hpp"
 #include <Application.hpp>
 #include <MeshRenderer.hpp>
 #include <PlayerController.hpp>
@@ -12,14 +12,10 @@ int main()
      * Please change this to the root folder.
      */
     const std::filesystem::path resourceFolderPath("../Resources");
-    ProjectManager::SetScenePostLoadActions([](){
-        LoadScene();
-    });
+    ProjectManager::SetScenePostLoadActions([]() { LoadScene(); });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Rendering/Rendering.ueproj";
     Application::Create(applicationConfigs);
-
-
 
     // Start engine. Here since we need to inject procedures to the main engine loop we need to manually loop by our
     // self. Another way to run engine is to simply execute:
@@ -28,7 +24,8 @@ int main()
 #pragma endregion
     return 0;
 }
-void LoadScene(){
+void LoadScene()
+{
     double time = 0;
     const float sinTime = glm::sin(time / 5.0f);
     const float cosTime = glm::cos(time / 5.0f);
@@ -60,7 +57,7 @@ void LoadScene(){
             sphere.SetDataComponent(transform);
             auto meshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
             meshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
-            auto material = AssetManager::CreateAsset<Material>();
+            auto material = ProjectManager::CreateTemporaryAsset<Material>();
             meshRenderer->m_material.Set<Material>(material);
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             material->m_roughness = static_cast<float>(i) / (amount - 1);
@@ -72,15 +69,13 @@ void LoadScene(){
 #pragma endregion
 #pragma region Load models and display
 
-    auto sponza =
-        AssetManager::CreateAsset<Prefab>();
-    sponza->LoadModel("Models/Sponza_FBX/Sponza.fbx", true);
+    auto sponza = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/Sponza_FBX/Sponza.fbx"));
     auto sponzaEntity = sponza->ToEntity();
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
     sponzaEntity.SetDataComponent(sponzaTransform);
 
-    auto title = AssetManager::Import<Prefab>("Models/UniEngine.obj");
+    auto title = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/UniEngine.obj"));
     auto titleEntity = title->ToEntity();
     titleEntity.SetName("Title");
     Transform titleTransform;
@@ -97,17 +92,17 @@ void LoadScene(){
 
 #ifdef USE_ASSIMP
 
-    auto dancingStormTrooper = AssetManager::Import<Prefab>(
-        "Models/dancing-stormtrooper/silly_dancing.fbx");
+    auto dancingStormTrooper =
+std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset(
+        "Models/dancing-stormtrooper/silly_dancing.fbx"));
     auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
     dancingStormTrooperEntity.SetName("StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
     dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
 
-    auto capoeira = AssetManager::Import<Prefab>("Models/Capoeira.fbx");
+    auto capoeira = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/Capoeira.fbx"));
     auto capoeiraEntity = capoeira->ToEntity();
-    // auto capoeiraEntity2 = capoeira->ToEntity();
     capoeiraEntity.SetName("Capoeira");
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
@@ -136,7 +131,8 @@ void LoadScene(){
 #pragma region Create ground
     auto ground = Entities::CreateEntity(Entities::GetCurrentScene(), "Ground");
     auto groundMeshRenderer = ground.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    auto groundMat = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    auto groundMat = ProjectManager::CreateTemporaryAsset<Material>();
+    groundMat->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material.Set<Material>(groundMat);
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
     Transform groundTransform;
@@ -152,7 +148,8 @@ void LoadScene(){
 
     auto pointLightLeftEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Right Point Light");
     auto pointLightLeftRenderer = pointLightLeftEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    auto groundMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    auto groundMaterial = ProjectManager::CreateTemporaryAsset<Material>();
+    groundMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material.Set<Material>(groundMaterial);
     groundMaterial->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     groundMaterial->m_emission = 10.0f;
@@ -166,7 +163,8 @@ void LoadScene(){
 
     auto pointLightRightEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Left Point Light");
     auto pointLightRightRenderer = pointLightRightEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    auto pointLightRightMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    auto pointLightRightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
+    pointLightRightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material.Set<Material>(pointLightRightMaterial);
     pointLightRightMaterial->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightMaterial->m_emission = 10.0f;
@@ -185,7 +183,8 @@ void LoadScene(){
 
     auto spotLightRenderer = spotLightConeEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
     spotLightRenderer->m_castShadow = false;
-    auto spotLightMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
+    auto spotLightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
+    spotLightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     spotLightRenderer->m_material.Set<Material>(spotLightMaterial);
     spotLightMaterial->m_albedoColor = glm::vec3(1, 0.7, 0.7);
     spotLightMaterial->m_emission = 10.0f;

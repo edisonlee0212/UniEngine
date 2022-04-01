@@ -23,7 +23,6 @@ class UNIENGINE_API EnvironmentalMap : public IAsset
     AssetRef GetCubemap();
     float m_gamma = 1.0f;
     [[nodiscard]] bool IsReady() const;
-    void OnCreate() override;
     void ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap);
     void OnInspect() override;
 };

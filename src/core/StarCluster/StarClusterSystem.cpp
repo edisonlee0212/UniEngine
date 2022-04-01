@@ -1,4 +1,4 @@
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include "Editor.hpp"
 #include "Engine/Core/Serialization.hpp"
 #include <StarCluster/StarClusterSystem.hpp>
@@ -405,7 +405,7 @@ void StarClusterSystem::Start()
         GlobalTransform ltw;
         ltw.SetScale(glm::vec3(1.0f));
         auto imr = m_rendererFront.Get().GetOrSetPrivateComponent<Particles>().lock();
-        auto material = AssetManager::CreateAsset<Material>();
+        auto material = ProjectManager::CreateTemporaryAsset<Material>();
         imr->m_material.Set<Material>(material);
         imr->m_castShadow = false;
         imr->m_receiveShadow = false;

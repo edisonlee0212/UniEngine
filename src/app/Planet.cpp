@@ -1,6 +1,6 @@
 // Planet.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-#include "AssetManager.hpp"
+#include "ProjectManager.hpp"
 #include <Application.hpp>
 #include <ClassRegistry.hpp>
 #include <MeshRenderer.hpp>
@@ -40,9 +40,9 @@ void LoadScene(){
     mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
     auto postProcessing = mainCameraEntity.GetOrSetPrivateComponent<PostProcessing>().lock();
 
-    auto surfaceMaterial = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-    auto borderTexture = AssetManager::CreateAsset<Texture2D>("Border");
-    borderTexture->SetPathAndLoad("Textures/border.png");
+    auto surfaceMaterial = ProjectManager::CreateTemporaryAsset<Material>();
+    surfaceMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+    auto borderTexture = std::dynamic_pointer_cast<Texture2D>(ProjectManager::GetOrCreateAsset("Textures/border.png"));
     surfaceMaterial->m_albedoTexture = borderTexture;
 
     auto pts = Entities::GetCurrentScene()->GetOrCreateSystem<PlanetTerrainSystem>(SystemGroup::SimulationSystemGroup);
@@ -95,8 +95,8 @@ void LoadScene(){
 #pragma endregion
 
 #pragma region Lights
-    auto sharedMat = AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram);
-
+    auto sharedMat = ProjectManager::CreateTemporaryAsset<Material>();
+    surfaceMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     Transform ltw;
 
     Entity dle = Entities::CreateEntity(Entities::GetCurrentScene(), "Directional Light");

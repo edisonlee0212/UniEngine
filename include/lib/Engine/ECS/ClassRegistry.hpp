@@ -1,8 +1,8 @@
 #pragma once
-#include <AssetManager.hpp>
 #include "Editor.hpp"
 #include <Entity.hpp>
 #include "Engine/Core/Serialization.hpp"
+#include "ProjectManager.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API ClassRegistry
@@ -10,7 +10,7 @@ class UNIENGINE_API ClassRegistry
   public:
     template <typename T = IAsset> static void RegisterAsset(const std::string &name, const std::vector<std::string> &externalExtensions)
     {
-        AssetManager::RegisterAssetType<T>(name, externalExtensions);
+        ProjectManager::RegisterAssetType<T>(name, externalExtensions);
     }
     template <typename T = IDataComponent> static void RegisterDataComponent(const std::string &name)
     {

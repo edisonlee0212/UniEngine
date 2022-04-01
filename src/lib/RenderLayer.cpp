@@ -7,7 +7,7 @@
 #include "ProfilerLayer.hpp"
 #include "Graphics.hpp"
 #include <Application.hpp>
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>

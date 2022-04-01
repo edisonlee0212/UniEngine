@@ -485,7 +485,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     class UNIENGINE_API GLProgram : public GLObject, public IAsset
     {
         friend class OpenGLUtils;
-        friend class AssetManager;
 
         AssetRef m_vertexShader;
         AssetRef m_tessellationShader;
@@ -497,7 +496,6 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         bool m_linked = false;
       public:
         GLProgram();
-        void OnCreate() override;
         ~GLProgram() override;
         std::shared_ptr<GLShader> GetShader(ShaderType type);
         bool HasShader(ShaderType type);
@@ -510,6 +508,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
             const std::shared_ptr<GLShader> &shader2,
             const std::shared_ptr<GLShader> &shader3);
         void Attach(const std::shared_ptr<GLShader> &shader);
+        void AttachAndLink(const std::vector<std::shared_ptr<GLShader>> &shaders);
         void Detach(ShaderType type);
         void SetBool(const std::string &name, bool value);
         void SetInt(const std::string &name, int value);

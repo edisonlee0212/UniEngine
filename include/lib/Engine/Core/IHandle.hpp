@@ -36,11 +36,11 @@ struct UNIENGINE_API Handle
     uint64_t m_value;
 };
 class UNIENGINE_API IHandle{
+    friend class Prefab;
     friend class Entities;
     friend class EntityMetadata;
     friend class Editor;
     friend class EditorLayer;
-    friend class AssetManager;
     friend class DefaultResources;
     friend class Serialization;
     friend class IAsset;

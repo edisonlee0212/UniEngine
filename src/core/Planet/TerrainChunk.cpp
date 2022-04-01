@@ -1,4 +1,4 @@
-#include "AssetManager.hpp"
+#include "ProjectManager.hpp"
 
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <Planet/TerrainChunk.hpp>
@@ -146,7 +146,7 @@ void Planet::TerrainChunk::GenerateTerrain(std::mutex &mutex, std::shared_ptr<Te
         vertices.at(index).m_position = glm::vec3(pointOnUnitCube * m_planetTerrain->m_info.m_radius * elevation);
     }
     std::lock_guard<std::mutex> lock(mutex);
-    auto mesh = AssetManager::CreateAsset<Mesh>();
+    auto mesh = ProjectManager::CreateTemporaryAsset<Mesh>();
     mesh->SetVertices(
         1 | static_cast<unsigned>(VertexAttribute::TexCoord),
         m_planetTerrain->m_sharedVertices,

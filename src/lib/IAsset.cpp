@@ -1,14 +1,13 @@
-#include <AssetManager.hpp>
 #include <DefaultResources.hpp>
 #include <IAsset.hpp>
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 bool IAsset::Save()
 {
-    if (m_projectRelativePath.empty())
+    if (IsTemporary())
         return false;
-    auto directory = (ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath).parent_path();
-    std::filesystem::create_directories(directory);
-    if (SaveInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath))
+    auto path = GetAbsolutePath();
+    if (SaveInternal(path))
     {
         m_saved = true;
         return true;
@@ -17,9 +16,10 @@ bool IAsset::Save()
 }
 bool IAsset::Load()
 {
-    if (m_projectRelativePath.empty())
+    if (IsTemporary())
         return false;
-    if (LoadInternal(ProjectManager::GetProjectPath().parent_path() / m_projectRelativePath))
+    auto path = GetAbsolutePath();
+    if (LoadInternal(path))
     {
         m_saved = true;
         return true;
@@ -30,12 +30,12 @@ bool IAsset::SaveInternal(const std::filesystem::path &path)
 {
     try
     {
-        if(std::filesystem::exists(path)){
+        if (std::filesystem::exists(path))
+        {
             std::filesystem::remove(path);
         }
         YAML::Emitter out;
         out << YAML::BeginMap;
-        out << YAML::Key << "m_name" << YAML::Value << m_name;
         Serialize(out);
         out << YAML::EndMap;
         std::ofstream fout(path.string());
@@ -62,7 +62,6 @@ bool IAsset::LoadInternal(const std::filesystem::path &path)
         std::stringstream stringStream;
         stringStream << stream.rdbuf();
         YAML::Node in = YAML::Load(stringStream.str());
-        m_name = in["m_name"].as<std::string>();
         Deserialize(in);
     }
     catch (std::exception e)
@@ -75,99 +74,94 @@ bool IAsset::LoadInternal(const std::filesystem::path &path)
 
 void IAsset::OnCreate()
 {
-    m_name = "New " + m_typeName;
 }
 
-void IAsset::SetPath(const std::filesystem::path &path)
-{
-    assert(path.is_relative());
-    auto &projectManager = ProjectManager::GetInstance();
-    if (path.empty())
-    {
-        m_projectRelativePath.clear();
-        projectManager.m_assetRegistry.RemoveFile(m_handle);
-        return;
-    }
-    auto newPath = ProjectManager::GetRelativePath(
-        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
-    if (newPath == m_projectRelativePath)
-        return;
-
-    m_projectRelativePath = newPath;
-    m_saved = false;
-
-    if (!projectManager.m_assetRegistry.Find(m_projectRelativePath))
-    {
-        FileRecord assetRecord;
-        assetRecord.m_typeName = m_typeName;
-        assetRecord.m_relativeFilePath = m_projectRelativePath;
-        assetRecord.m_fileName = m_projectRelativePath.filename().string();
-        projectManager.m_assetRegistry.AddOrResetFile(m_handle, assetRecord);
-    }
-    else
-    {
-        projectManager.m_assetRegistry.ResetFilePath(m_handle, m_projectRelativePath);
-    }
-    auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
-}
-bool IAsset::SetPathAndSave(const std::filesystem::path &path)
-{
-    SetPath(path);
-    bool success = Save();
-    if (success)
-    {
-        auto folder = ProjectManager::FindFolder(m_projectRelativePath.parent_path());
-        assert(folder);
-        ProjectManager::UpdateFolderMetadata(folder, false);
-    }
-    return success;
-}
-bool IAsset::SetPathAndLoad(const std::filesystem::path &path)
-{
-    auto &projectManager = ProjectManager::GetInstance();
-    auto correctedPath = ProjectManager::GetRelativePath(
-        std::filesystem::absolute(ProjectManager::GetProjectPath().parent_path() / path));
-    if (projectManager.m_assetRegistry.Find(correctedPath, m_handle))
-    {
-        FileRecord fileRecord;
-        projectManager.m_assetRegistry.Find(m_handle, fileRecord);
-        m_projectRelativePath = fileRecord.m_relativeFilePath;
-        m_name = fileRecord.m_name;
-        if (m_typeName == fileRecord.m_typeName)
-            return Load();
-    }
-    return false;
-}
 bool IAsset::Export(const std::filesystem::path &path)
 {
-    if (!path.is_absolute())
+    if (ProjectManager::IsInProjectFolder(path))
+    {
+        UNIENGINE_ERROR("Path is in project folder!");
         return false;
+    }
     return SaveInternal(path);
 }
 bool IAsset::Import(const std::filesystem::path &path)
 {
-    if (!path.is_absolute())
+    if (ProjectManager::IsInProjectFolder(path))
+    {
+        UNIENGINE_ERROR("Path is in project folder!");
         return false;
+    }
     return LoadInternal(path);
 }
-void IAsset::SetName(const std::string &name)
-{
-    m_name = name;
-    m_saved = false;
-}
-std::string IAsset::GetName() const
-{
-    return m_name;
-}
+
 void IAsset::SetUnsaved()
 {
     m_saved = true;
 }
-std::filesystem::path IAsset::GetPath() const
-{
-    return m_projectRelativePath;
-}
 bool IAsset::Saved() const
 {
     return m_saved;
+}
+bool IAsset::IsTemporary() const
+{
+    return m_assetRecord.expired();
+}
+std::weak_ptr<AssetRecord> IAsset::GetAssetRecord() const
+{
+    return m_assetRecord;
+}
+std::filesystem::path IAsset::GetProjectRelativePath() const
+{
+    if (m_assetRecord.expired())
+        return {};
+    return m_assetRecord.lock()->GetProjectRelativePath();
+}
+std::filesystem::path IAsset::GetAbsolutePath() const
+{
+    if (m_assetRecord.expired())
+        return {};
+    return m_assetRecord.lock()->GetAbsolutePath();
+}
+bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
+{
+    if (!projectRelativePath.is_relative())
+    {
+        UNIENGINE_ERROR("Not relative path!");
+        return false;
+    }
+    if (std::filesystem::exists(ProjectManager::GetProjectPath() / projectRelativePath))
+    {
+        return false;
+    }
+    if (ProjectManager::IsValidAssetFileName(projectRelativePath))
+    {
+        UNIENGINE_ERROR("Asset path invalid!");
+        return false;
+    }
+    auto newFolder = ProjectManager::GetOrCreateFolder(projectRelativePath.parent_path()).lock();
+    if (!IsTemporary())
+    {
+        auto assetRecord = m_assetRecord.lock();
+        auto folder = assetRecord->GetFolder().lock();
+        folder->MoveAsset(m_handle, newFolder);
+    }
+    else
+    {
+        auto stem = projectRelativePath.stem().string();
+        auto fileName = projectRelativePath.filename().string();
+        auto extension = projectRelativePath.extension().string();
+        if (fileName == stem)
+        {
+            stem = "";
+            extension = fileName;
+        }
+        newFolder->RegisterAsset(m_self.lock(), stem, extension);
+    }
+    Save();
+    return true;
+}
+std::string IAsset::GetTitle() const
+{
+    return IsTemporary() ? "Temporary " + m_typeName : (GetProjectRelativePath().stem().string() + (m_saved ? "" : " *"));
 }

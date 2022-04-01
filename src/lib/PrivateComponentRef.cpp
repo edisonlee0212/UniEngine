@@ -3,7 +3,7 @@
 //
 
 #include "PrivateComponentRef.hpp"
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include "Engine/ECS/Entities.hpp"
 using namespace UniEngine;
 bool PrivateComponentRef::Update()

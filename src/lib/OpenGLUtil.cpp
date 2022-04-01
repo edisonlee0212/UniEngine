@@ -1,5 +1,5 @@
-﻿#include "Engine/Utilities/Console.hpp"
-#include "Editor.hpp"
+﻿#include "Editor.hpp"
+#include "Engine/Utilities/Console.hpp"
 #include <OpenGLUtils.hpp>
 using namespace UniEngine;
 
@@ -851,14 +851,15 @@ void OpenGLUtils::GLFrameBuffer::Check() const
 }
 void OpenGLUtils::GLFrameBuffer::DefaultFrameBufferDrawBuffer(GLenum buffer)
 {
-    if(OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer != 0) {
+    if (OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer != 0)
+    {
         UNIENGINE_ERROR("Not default framebuffer!");
         return;
     }
     glNamedFramebufferDrawBuffer(0, buffer);
 }
 
-void OpenGLUtils::GLFrameBuffer::DrawBuffers(const std::vector<GLenum>& buffers) const
+void OpenGLUtils::GLFrameBuffer::DrawBuffers(const std::vector<GLenum> &buffers) const
 {
     Bind();
     glNamedFramebufferDrawBuffers(m_id, (GLsizei)buffers.size(), (GLenum *)buffers.data());
@@ -945,8 +946,7 @@ void OpenGLUtils::GLFrameBuffer::AttachTexture(const GLTexture *texture, GLenum 
     glNamedFramebufferTexture(m_id, attachPoint, texture->Id(), 0);
 }
 
-void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(
-    const GLTexture *texture, GLenum attachPoint, GLint layer)
+void OpenGLUtils::GLFrameBuffer::AttachTextureLayer(const GLTexture *texture, GLenum attachPoint, GLint layer)
 {
     switch (attachPoint)
     {
@@ -1162,11 +1162,6 @@ void OpenGLUtils::GLProgram::BindDefault()
         return;
     m_boundProgram = 0;
     glUseProgram(0);
-}
-
-void OpenGLUtils::GLProgram::OnCreate()
-{
-    m_name = "New Program";
 }
 
 OpenGLUtils::GLProgram::~GLProgram()
@@ -1501,6 +1496,13 @@ void OpenGLUtils::GLProgram::Deserialize(const YAML::Node &in)
     Attach(fragmentShader.Get<OpenGLUtils::GLShader>());
     Attach(computeShader.Get<OpenGLUtils::GLShader>());
     m_linked = false;
+}
+
+void OpenGLUtils::GLProgram::AttachAndLink(const std::vector<std::shared_ptr<GLShader>> &shaders)
+{
+    for (const auto &i : shaders)
+        Attach(i);
+    Link();
 }
 
 #pragma region OpenGL Debugging

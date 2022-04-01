@@ -49,6 +49,7 @@ enum class UNIENGINE_API GameStatus{
     Step,
     Playing
 };
+class ProjectManager;
 class UNIENGINE_API Application final : public ISingleton<Application>
 {
     friend class Entities;
@@ -78,10 +79,7 @@ class UNIENGINE_API Application final : public ISingleton<Application>
 
     std::vector<std::shared_ptr<ILayer>> m_layers;
 
-    ProjectManager m_projectManager;
-
   public:
-    static ProjectManager& GetProjectManager();
     template <typename T>
     static std::shared_ptr<T> PushLayer();
     template <typename T>

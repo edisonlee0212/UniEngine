@@ -4,11 +4,6 @@
 #include <RenderTarget.hpp>
 using namespace UniEngine;
 
-void LightProbe::OnCreate()
-{
-    m_name = "New light probe";
-}
-
 void LightProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
     m_gamma = targetCubemap->m_gamma;

@@ -273,7 +273,7 @@ void Scene::Serialize(YAML::Emitter &out)
         auto asset = i.Get<IAsset>();
         if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle())
         {
-            if (asset->GetPath().empty())
+            if (asset->IsTemporary())
             {
                 assetMap[asset->GetHandle()] = asset;
             }
@@ -297,7 +297,7 @@ void Scene::Serialize(YAML::Emitter &out)
             auto asset = i.Get<IAsset>();
             if (asset && asset->GetHandle().GetValue() >= DefaultResources::GetMaxHandle())
             {
-                if (asset->GetPath().empty())
+                if (asset->IsTemporary())
                 {
                     assetMap[asset->GetHandle()] = asset;
                 }
@@ -317,8 +317,6 @@ void Scene::Serialize(YAML::Emitter &out)
         {
             out << YAML::BeginMap;
             out << YAML::Key << "m_typeName" << YAML::Value << i.second->GetTypeName();
-            out << YAML::Key << "m_handle" << YAML::Value << i.first.GetValue();
-            out << YAML::Key << "m_name" << YAML::Value << i.second->GetName();
             i.second->Serialize(out);
             out << YAML::EndMap;
         }
@@ -339,8 +337,6 @@ void Scene::Serialize(YAML::Emitter &out)
 void Scene::Deserialize(const YAML::Node &in)
 {
     UNIENGINE_LOG("Loading scene...");
-    auto self = AssetManager::Get<Scene>(m_handle);
-
     m_sceneDataStorage.m_entities.clear();
     m_sceneDataStorage.m_entityMetadataList.clear();
     m_sceneDataStorage.m_dataComponentStorages.clear();
@@ -436,6 +432,7 @@ void Scene::Deserialize(const YAML::Node &in)
         }
         storageIndex++;
     }
+    auto self = std::dynamic_pointer_cast<Scene>(m_self.lock());
 #pragma endregion
     m_mainCamera.Load("m_mainCamera", in, self);
 #pragma region Assets
@@ -448,11 +445,11 @@ void Scene::Deserialize(const YAML::Node &in)
         {
             Handle handle = i["m_handle"].as<uint64_t>();
             // First, find the asset in assetregistry
-            auto asset = AssetManager::Get(handle);
+            auto asset = ProjectManager::GetAsset(handle);
             if (!asset)
             {
-                asset = AssetManager::UnsafeCreateAsset(
-                    i["m_typeName"].as<std::string>(), handle, i["m_name"].as<std::string>());
+                asset = ProjectManager::CreateTemporaryAsset(
+                    i["m_typeName"].as<std::string>());
                 isLocal.push_back(false);
             }
             else
@@ -637,7 +634,6 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
     std::stringstream stringStream;
     stringStream << stream.rdbuf();
     YAML::Node in = YAML::Load(stringStream.str());
-    m_name = in["m_name"].as<std::string>();
     Deserialize(in);
     Entities::Attach(previousScene);
 
@@ -645,13 +641,10 @@ bool Scene::LoadInternal(const std::filesystem::path &path)
 }
 void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Scene> &newScene)
 {
-    newScene->m_name = source->m_name;
     newScene->m_environmentSettings = source->m_environmentSettings;
-    newScene->m_projectRelativePath = source->m_projectRelativePath;
     newScene->m_saved = source->m_saved;
     newScene->m_worldBound = source->m_worldBound;
     newScene->m_sceneDataStorage.Clone(source->m_sceneDataStorage, newScene);
-    newScene->m_projectRelativePath.clear();
     for (const auto &i : source->m_systems)
     {
         auto systemName = i.second->GetTypeName();
@@ -670,7 +663,7 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
     if (mainCamera)
     {
         newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(
-                                     AssetManager::Get<Scene>(newScene->m_handle), mainCamera->GetOwner())
+                                     newScene, mainCamera->GetOwner())
                                      .lock();
     }
 }

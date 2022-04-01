@@ -127,6 +127,6 @@ void Windows::WindowFocusCallback(GLFWwindow* window, int focused)
 {
     if (focused)
     {
-        ProjectManager::ScanProjectFolder(false);
+        ProjectManager::ScanProject();
     }
 }

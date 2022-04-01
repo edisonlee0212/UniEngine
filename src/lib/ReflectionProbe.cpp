@@ -4,11 +4,6 @@
 #include <RenderTarget.hpp>
 using namespace UniEngine;
 
-void ReflectionProbe::OnCreate()
-{
-    m_name = "New reflection probe";
-}
-
 void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap)
 {
     m_gamma = targetCubemap->m_gamma;

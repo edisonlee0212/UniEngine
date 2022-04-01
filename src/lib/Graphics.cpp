@@ -2,7 +2,7 @@
 #include "EditorLayer.hpp"
 #include "RenderLayer.hpp"
 #include <Application.hpp>
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>

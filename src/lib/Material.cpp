@@ -20,28 +20,11 @@ MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::m
 
 void Material::OnCreate()
 {
-    m_name = "New material";
     m_program = DefaultResources::GLPrograms::StandardProgram;
 }
 
 void Material::OnInspect()
 {
-    ImGui::Text("Name: %s", m_name.c_str());
-    if (ImGui::BeginPopupContextItem(m_name.c_str()))
-    {
-        if (ImGui::BeginMenu("Rename##Material"))
-        {
-            static char newName[256];
-            ImGui::InputText("New name##Material", newName, 256);
-            if (ImGui::Button("Confirm##Material"))
-            {
-                m_saved = false;
-                m_name = std::string(newName);
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndPopup();
-    }
     if (Editor::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program"))
         m_saved = false;
     ImGui::Separator();
@@ -117,7 +100,7 @@ void Material::OnInspect()
         }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode(("Textures##Material" + std::to_string(std::hash<std::string>{}(m_name))).c_str()))
+    if (ImGui::TreeNode("Textures##Material"))
     {
         if (Editor::DragAndDropButton<Texture2D>(m_albedoTexture, "Albedo Tex"))
         {

@@ -2,11 +2,6 @@
 #include <Texture2D.hpp>
 using namespace UniEngine;
 
-void Texture2D::OnCreate()
-{
-    m_name = "New Texture2D";
-}
-
 glm::vec2 Texture2D::GetResolution() const
 {
     return {m_texture->m_width, m_texture->m_height};
@@ -155,7 +150,6 @@ bool Texture2D::LoadInternal(const std::filesystem::path &path)
         stbi_image_free(data);
         return false;
     }
-    m_name = path.filename().string();
     m_gamma = actualGamma;
     return true;
 }

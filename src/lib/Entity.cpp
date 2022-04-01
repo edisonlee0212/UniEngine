@@ -3,7 +3,7 @@
 #include <ISerializable.hpp>
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)

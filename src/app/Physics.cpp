@@ -1,4 +1,4 @@
-#include "AssetManager.hpp"
+#include "ProjectManager.hpp"
 #include <Application.hpp>
 #include <Collider.hpp>
 #include <Joint.hpp>
@@ -58,9 +58,7 @@ Entity CreateSphere(
 void LoadScene();
 int main()
 {
-    ProjectManager::SetScenePostLoadActions([](){
-        LoadScene();
-    });
+    ProjectManager::SetScenePostLoadActions([]() { LoadScene(); });
 
     const std::filesystem::path resourceFolderPath("../Resources");
     ApplicationConfigs applicationConfigs;
@@ -74,7 +72,8 @@ int main()
 #pragma endregion
     return 0;
 }
-void LoadScene(){
+void LoadScene()
+{
     const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
     auto mainCameraEntity = mainCamera->GetOwner();
     auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
@@ -102,7 +101,7 @@ void LoadScene(){
             sphere.SetDataComponent(transform);
             auto meshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
             meshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
-            auto material = AssetManager::CreateAsset<Material>();
+            auto material = ProjectManager::CreateTemporaryAsset<Material>();
             meshRenderer->m_material.Set<Material>(material);
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             material->m_roughness = static_cast<float>(i) / (amount - 1);
@@ -111,7 +110,7 @@ void LoadScene(){
             auto rigidBody = sphere.GetOrSetPrivateComponent<RigidBody>().lock();
             rigidBody->SetEnabled(true);
             rigidBody->SetDensityAndMassCenter(0.1);
-            auto sphereCollider = AssetManager::CreateAsset<Collider>();
+            auto sphereCollider = ProjectManager::CreateTemporaryAsset<Collider>();
             sphereCollider->SetShapeType(ShapeType::Sphere);
             sphereCollider->SetShapeParam(glm::vec3(2.0 * scaleFactor));
             rigidBody->AttachCollider(sphereCollider);
@@ -134,27 +133,18 @@ void LoadScene(){
 #pragma region Create Boundaries
     {
 
-        const auto ground = CreateSolidCube(
-            1.0, glm::vec3(1.0f), glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
+        const auto ground =
+            CreateSolidCube(1.0, glm::vec3(1.0f), glm::vec3(0, -15, 0), glm::vec3(0), glm::vec3(30, 1, 30), "Ground");
 
-        CreateSolidCube(
-            1.0, glm::vec3(1.0f), glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "LeftWall");
-        CreateSolidCube(
-            1.0, glm::vec3(1.0f), glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "RightWall");
-        CreateSolidCube(
-            1.0, glm::vec3(1.0f), glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 15, 1), "FrontWall");
-        CreateSolidCube(
-            1.0, glm::vec3(1.0f), glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 15, 1), "BackWall");
+        CreateSolidCube(1.0, glm::vec3(1.0f), glm::vec3(30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "LeftWall");
+        CreateSolidCube(1.0, glm::vec3(1.0f), glm::vec3(-30, -10, 0), glm::vec3(0), glm::vec3(1, 15, 30), "RightWall");
+        CreateSolidCube(1.0, glm::vec3(1.0f), glm::vec3(0, -10, 30), glm::vec3(0), glm::vec3(30, 15, 1), "FrontWall");
+        CreateSolidCube(1.0, glm::vec3(1.0f), glm::vec3(0, -10, -30), glm::vec3(0), glm::vec3(30, 15, 1), "BackWall");
 
         const auto b1 = CreateDynamicCube(
-            1.0,
-            glm::vec3(0.0f, 0.0f, 1.0f),
-            glm::vec3(-5, -7.5, 0),
-            glm::vec3(0, 0, 45),
-            glm::vec3(0.5),
-            "Block 1");
-        const auto b2 = CreateDynamicCube(
-            1.0, glm::vec3(1.0f), glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
+            1.0, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Block 1");
+        const auto b2 =
+            CreateDynamicCube(1.0, glm::vec3(1.0f), glm::vec3(0, -10, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 2");
         const auto b3 = CreateDynamicCube(
             1.0, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(5, -7.5, 0), glm::vec3(0, 0, 45), glm::vec3(1), "Block 3");
 
@@ -185,12 +175,7 @@ void LoadScene(){
         }
 
         const auto freeSphere = CreateDynamicCube(
-            0.01,
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(-20, 0, 0),
-            glm::vec3(0, 0, 45),
-            glm::vec3(0.5),
-            "Free Cube");
+            0.01, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-20, 0, 0), glm::vec3(0, 0, 45), glm::vec3(0.5), "Free Cube");
         auto joint = freeSphere.GetOrSetPrivateComponent<Joint>().lock();
         joint->SetType(JointType::D6);
         joint->Link(lastLink);
@@ -214,7 +199,7 @@ Entity CreateSolidCube(
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     rigidBody->SetEnabled(true);
 
-    auto collider = AssetManager::CreateAsset<Collider>();
+    auto collider = ProjectManager::CreateTemporaryAsset<Collider>();
     collider->SetShapeType(ShapeType::Box);
     collider->SetShapeParam(scale);
     rigidBody->AttachCollider(collider);
@@ -237,7 +222,7 @@ Entity CreateDynamicCube(
     rigidBody->SetEnabled(true);
     rigidBody->SetDensityAndMassCenter(mass / scale.x / scale.y / scale.z);
 
-    auto collider = AssetManager::CreateAsset<Collider>();
+    auto collider = ProjectManager::CreateTemporaryAsset<Collider>();
     collider->SetShapeType(ShapeType::Box);
     collider->SetShapeParam(scale);
     rigidBody->AttachCollider(collider);
@@ -253,9 +238,10 @@ Entity CreateCube(
 {
     auto cube = Entities::CreateEntity(Entities::GetCurrentScene(), name);
     auto groundMeshRenderer = cube.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    groundMeshRenderer->m_material.Set<Material>(
-        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
-    groundMeshRenderer->m_material.Get<Material>()->m_albedoColor = color;
+    auto material = ProjectManager::CreateTemporaryAsset<Material>();
+    material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer->m_material.Set<Material>(material);
+    material->m_albedoColor = color;
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
@@ -284,7 +270,7 @@ Entity CreateDynamicSphere(
     rigidBody->SetEnabled(true);
     rigidBody->SetDensityAndMassCenter(mass / scale / scale / scale);
 
-    auto collider = AssetManager::CreateAsset<Collider>();
+    auto collider = ProjectManager::CreateTemporaryAsset<Collider>();
     collider->SetShapeType(ShapeType::Sphere);
     collider->SetShapeParam(glm::vec3(scale));
     rigidBody->AttachCollider(collider);
@@ -305,7 +291,7 @@ Entity CreateSolidSphere(
     // The rigidbody can only apply mesh bound after it's attached to an entity with mesh renderer.
     rigidBody->SetEnabled(true);
 
-    auto collider = AssetManager::CreateAsset<Collider>();
+    auto collider = ProjectManager::CreateTemporaryAsset<Collider>();
     collider->SetShapeType(ShapeType::Sphere);
     collider->SetShapeParam(glm::vec3(scale));
     rigidBody->AttachCollider(collider);
@@ -321,9 +307,10 @@ Entity CreateSphere(
 {
     auto sphere = Entities::CreateEntity(Entities::GetCurrentScene(), name);
     auto groundMeshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
-    groundMeshRenderer->m_material.Set<Material>(
-        AssetManager::LoadMaterial(DefaultResources::GLPrograms::StandardProgram));
-    groundMeshRenderer->m_material.Get<Material>()->m_albedoColor = color;
+    auto material = ProjectManager::CreateTemporaryAsset<Material>();
+    material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+    groundMeshRenderer->m_material.Set<Material>(material);
+    material->m_albedoColor = color;
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));

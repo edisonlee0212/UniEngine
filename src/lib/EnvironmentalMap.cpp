@@ -1,4 +1,4 @@
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include "Editor.hpp"
 #include "Cubemap.hpp"
 #include <EnvironmentalMap.hpp>
@@ -9,10 +9,6 @@ bool EnvironmentalMap::IsReady() const
     return m_ready;
 }
 
-void EnvironmentalMap::OnCreate()
-{
-    m_name = "New environmental map";
-}
 AssetRef EnvironmentalMap::GetCubemap() {
     return m_targetCubemap;
 }
@@ -21,9 +17,9 @@ void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targ
     m_targetCubemap = targetCubemap;
     m_gamma = targetCubemap->m_gamma;
 
-    m_lightProbe = AssetManager::CreateAsset<LightProbe>();
+    m_lightProbe = ProjectManager::CreateTemporaryAsset<LightProbe>();
     m_lightProbe.Get<LightProbe>()->ConstructFromCubemap(targetCubemap);
-    m_reflectionProbe = AssetManager::CreateAsset<ReflectionProbe>();
+    m_reflectionProbe = ProjectManager::CreateTemporaryAsset<ReflectionProbe>();
     m_reflectionProbe.Get<ReflectionProbe>()->ConstructFromCubemap(targetCubemap);
     m_ready = true;
 }

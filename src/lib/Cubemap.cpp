@@ -1,14 +1,9 @@
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include <Cubemap.hpp>
 #include <RenderTarget.hpp>
 #include "Engine/Rendering/Graphics.hpp"
 #include "Editor.hpp"
 using namespace UniEngine;
-
-void Cubemap::OnCreate()
-{
-    m_name = "New Cubemap";
-}
 
 std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 {

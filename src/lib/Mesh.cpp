@@ -7,22 +7,8 @@ std::unique_ptr<OpenGLUtils::GLVBO> Mesh::m_matricesBuffer;
 
 void Mesh::OnInspect()
 {
-    ImGui::Text(("Name: " + m_name).c_str());
     ImGui::Text(("Vertices size: " + std::to_string(m_vertices.size())).c_str());
     ImGui::Text(("Triangle amount: " + std::to_string(m_triangles.size())).c_str());
-    if (ImGui::BeginPopupContextItem(m_name.c_str()))
-    {
-        if (ImGui::BeginMenu("Rename"))
-        {
-            static char newName[256];
-            ImGui::InputText("New name", newName, 256);
-            if (ImGui::Button("Confirm"))
-                m_name = std::string(newName);
-            ImGui::EndMenu();
-        }
-        ImGui::EndPopup();
-    }
-
     if(!m_vertices.empty()){
         FileUtils::SaveFile(
             "Export as OBJ",
@@ -46,7 +32,6 @@ void Mesh::OnCreate()
 {
     m_vao = std::make_shared<OpenGLUtils::GLVAO>();
     m_bound = Bound();
-    m_name = "New mesh";
 }
 
 void Mesh::Upload()

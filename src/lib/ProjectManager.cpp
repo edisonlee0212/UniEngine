@@ -2,7 +2,6 @@
 #include "Engine/ECS/Entities.hpp"
 #include "Engine/Rendering/Graphics.hpp"
 #include <Application.hpp>
-#include <AssetManager.hpp>
 #include <PhysicsLayer.hpp>
 
 using namespace UniEngine;
@@ -11,15 +10,16 @@ std::shared_ptr<IAsset> AssetRecord::GetAsset() const
 {
     if (!m_asset.expired())
         return m_asset.lock();
-    if (!m_assetTypeName.empty() && m_assetHandle != 0)
+    if (!m_assetTypeName.empty() && m_assetTypeName != "Binary" && m_assetHandle != 0)
     {
         size_t hashCode;
         auto retVal = std::dynamic_pointer_cast<IAsset>(
             Serialization::ProduceSerializable(m_assetTypeName, hashCode, m_assetHandle));
-        auto self = m_folder.lock()->GetAssetRecord(m_assetHandle);
-        retVal->m_assetRecord = self;
+        retVal->m_assetRecord = m_self;
+        retVal->m_self = retVal;
         retVal->OnCreate();
-        if (std::filesystem::exists(GetAbsolutePath()))
+        auto absolutePath = GetAbsolutePath();
+        if (std::filesystem::exists(absolutePath))
         {
             retVal->Load();
         }
@@ -82,7 +82,12 @@ void AssetRecord::SetAssetFileName(const std::string &newName)
 }
 void AssetRecord::SetAssetExtension(const std::string &newExtension)
 {
-    auto validExtensions = AssetManager::GetExtension();
+    if (m_assetTypeName == "Binary")
+    {
+        UNIENGINE_ERROR("File is binary!");
+        return;
+    }
+    auto validExtensions = ProjectManager::GetExtension(m_assetTypeName);
     bool found = false;
     for (const auto &i : validExtensions)
     {
@@ -158,13 +163,23 @@ void AssetRecord::Load(const std::filesystem::path &path)
     if (in["m_assetHandle"])
         m_assetHandle = in["m_assetHandle"].as<uint64_t>();
 }
+std::weak_ptr<Folder> AssetRecord::GetFolder() const
+{
+    return m_folder;
+}
 std::filesystem::path Folder::GetProjectRelativePath() const
 {
+    if (m_parent.expired())
+    {
+        return m_name;
+    }
     return m_parent.lock()->GetProjectRelativePath() / m_name;
 }
 std::filesystem::path Folder::GetAbsolutePath() const
 {
-    return Application::GetProjectManager().m_projectPath / GetProjectRelativePath();
+    auto &projectManager = ProjectManager::GetInstance();
+    auto projectPath = projectManager.m_projectPath.parent_path().parent_path();
+    return projectPath / GetProjectRelativePath();
 }
 
 Handle Folder::GetHandle() const
@@ -199,6 +214,7 @@ void Folder::Save() const
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "m_handle" << YAML::Value << m_handle;
+    out << YAML::Key << "m_name" << YAML::Value << m_name;
     out << YAML::EndMap;
     std::ofstream fout(path.string());
     fout << out.c_str();
@@ -221,6 +237,8 @@ void Folder::Load(const std::filesystem::path &path)
     YAML::Node in = YAML::Load(stringStream.str());
     if (in["m_handle"])
         m_handle = in["m_handle"].as<uint64_t>();
+    if (in["m_name"])
+        m_name = in["m_name"].as<std::string>();
 }
 void Folder::DeleteMetadata() const
 {
@@ -272,8 +290,9 @@ std::weak_ptr<Folder> Folder::GetOrCreateChild(const std::string &folderName)
     auto newFolder = std::make_shared<Folder>();
     newFolder->m_name = folderName;
     newFolder->m_handle = Handle();
+    newFolder->m_self = newFolder;
     m_children[newFolder->m_handle] = newFolder;
-    newFolder->m_parent = m_parent.lock()->GetChild(m_handle);
+    newFolder->m_parent = m_self;
     newFolder->Save();
     return newFolder;
 }
@@ -283,9 +302,10 @@ void Folder::DeleteChild(const Handle &childHandle)
     child->DeleteMetadata();
     m_children.erase(childHandle);
 }
-std::weak_ptr<AssetRecord> Folder::GetOrCreateAssetRecord(const std::string &fileName, const std::string &extension)
+std::shared_ptr<IAsset> Folder::GetOrCreateAsset(const std::string &fileName, const std::string &extension)
 {
-    auto typeName = AssetManager::GetTypeName(extension);
+    auto &projectManager = ProjectManager::GetInstance();
+    auto typeName = projectManager.GetTypeName(extension);
     if (typeName.empty())
     {
         UNIENGINE_ERROR("Asset type not exist!");
@@ -294,29 +314,31 @@ std::weak_ptr<AssetRecord> Folder::GetOrCreateAssetRecord(const std::string &fil
     for (const auto &i : m_assetRecords)
     {
         if (i.second->m_assetFileName == fileName && i.second->m_assetExtension == extension)
-            return i.second;
+            return i.second->GetAsset();
     }
     auto record = std::make_shared<AssetRecord>();
-    record->m_folder = m_parent.lock()->GetChild(m_handle);
+    record->m_folder = m_self;
     record->m_assetTypeName = typeName;
     record->m_assetExtension = extension;
     record->m_assetFileName = fileName;
     record->m_assetHandle = Handle();
+    record->m_self = record;
     m_assetRecords[record->m_assetHandle] = record;
+    projectManager.m_assetRegistry[record->m_assetHandle] = record;
     auto asset = record->GetAsset();
     record->Save();
-    return record;
+    return asset;
 }
-std::weak_ptr<AssetRecord> Folder::GetAssetRecord(const Handle &assetHandle)
+std::shared_ptr<IAsset> Folder::GetAsset(const Handle &assetHandle)
 {
     auto search = m_assetRecords.find(assetHandle);
     if (search != m_assetRecords.end())
     {
-        return search->second;
+        return search->second->GetAsset();
     }
     return {};
 }
-void Folder::MoveAssetRecord(const Handle &assetHandle, const std::shared_ptr<Folder> &dest)
+void Folder::MoveAsset(const Handle &assetHandle, const std::shared_ptr<Folder> &dest)
 {
     auto search = m_assetRecords.find(assetHandle);
     if (search == m_assetRecords.end())
@@ -342,14 +364,19 @@ void Folder::MoveAssetRecord(const Handle &assetHandle, const std::shared_ptr<Fo
     assetRecord->m_folder = dest;
     assetRecord->Save();
 }
-void Folder::DeleteAssetRecord(const Handle &assetHandle)
+void Folder::DeleteAsset(const Handle &assetHandle)
 {
-    auto assetRecord = GetAssetRecord(assetHandle).lock();
+    auto &projectManager = ProjectManager::GetInstance();
+    auto assetRecord = GetAsset(assetHandle)->m_assetRecord.lock();
+    projectManager.m_assetRegistry.erase(assetRecord->m_assetHandle);
+    auto assetPath = assetRecord->GetAbsolutePath();
+    std::filesystem::remove(assetPath);
     assetRecord->DeleteMetadata();
     m_children.erase(assetHandle);
 }
 void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
 {
+    // auto &projectManager = ProjectManager::GetInstance();
     auto path = parentAbsolutePath / m_name;
     /**
      * 1. Scan folder for any unregistered folders and assets.
@@ -400,8 +427,9 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
             if (!child)
             {
                 auto newFolder = std::make_shared<Folder>();
+                newFolder->m_self = newFolder;
                 newFolder->m_name = folderName.string();
-                newFolder->m_parent = m_parent.lock()->GetChild(m_handle);
+                newFolder->m_parent = m_self;
                 newFolder->Load(childFolderMetadataPath);
                 m_children[newFolder->m_handle] = newFolder;
             }
@@ -429,21 +457,34 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
         {
             auto newAssetRecord = std::make_shared<AssetRecord>();
             newAssetRecord->m_assetFileName = assetName.string();
-            newAssetRecord->m_folder = m_parent.lock()->GetChild(m_handle);
+            newAssetRecord->m_folder = m_self.lock();
             newAssetRecord->Load(assetMetadataPath);
-            if(!std::filesystem::exists(newAssetRecord->GetAbsolutePath())){
+            if (!std::filesystem::exists(newAssetRecord->GetAbsolutePath()))
+            {
                 std::filesystem::remove(assetMetadataPath);
             }
         }
     }
     for (const auto &filePath : fileList)
     {
-        auto filename = filePath.filename().string();
+        auto filename = filePath.filename().replace_extension("").string();
         auto extension = filePath.extension().string();
-        auto typeName = AssetManager::GetTypeName(extension);
-        if (!typeName.empty())
+        auto typeName = ProjectManager::GetTypeName(extension);
+        if (typeName != "Binary")
         {
-            GetOrCreateAssetRecord(filename, extension);
+            auto asset = GetOrCreateAsset(filename, extension);
+        }
+        else
+        {
+            std::shared_ptr<AssetRecord> binaryRecord = std::make_shared<AssetRecord>();
+            binaryRecord->m_folder = m_self.lock();
+            binaryRecord->m_assetTypeName = typeName;
+            binaryRecord->m_assetExtension = extension;
+            binaryRecord->m_assetFileName = filename;
+            binaryRecord->m_assetHandle = Handle();
+            binaryRecord->m_self = binaryRecord;
+            m_assetRecords[binaryRecord->m_assetHandle] = binaryRecord;
+            binaryRecord->Save();
         }
     }
     /**
@@ -459,7 +500,7 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
     }
     for (const auto &i : assetToRemove)
     {
-        DeleteAssetRecord(i);
+        DeleteAsset(i);
     }
     std::vector<Handle> folderToRemove;
     for (const auto &i : m_children)
@@ -472,5 +513,365 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
     for (const auto &i : folderToRemove)
     {
         DeleteChild(i);
+    }
+}
+void Folder::RegisterAsset(
+    const std::shared_ptr<IAsset> &asset, const std::string &fileName, const std::string &extension)
+{
+    auto &projectManager = ProjectManager::GetInstance();
+    auto record = std::make_shared<AssetRecord>();
+    record->m_folder = m_parent.lock()->GetChild(m_handle);
+    record->m_assetTypeName = asset->GetTypeName();
+    record->m_assetExtension = extension;
+    record->m_assetFileName = fileName;
+    record->m_assetHandle = asset->m_handle;
+    record->m_self = record;
+    record->m_asset = asset;
+    m_assetRecords[record->m_assetHandle] = record;
+    projectManager.m_assetRegistry[record->m_assetHandle] = record;
+
+    asset->m_assetRecord = record;
+    asset->m_saved = false;
+    record->Save();
+}
+
+std::weak_ptr<Folder> ProjectManager::GetOrCreateFolder(const std::filesystem::path &projectRelativePath)
+{
+    auto &projectManager = GetInstance();
+    if (!projectRelativePath.is_relative())
+    {
+        UNIENGINE_ERROR("Path not relative!");
+        return {};
+    }
+    if (!std::filesystem::is_directory(projectManager.m_projectFolder->GetAbsolutePath() / projectRelativePath))
+    {
+        UNIENGINE_ERROR("Path not directory!");
+        return {};
+    }
+    std::shared_ptr<Folder> retVal = projectManager.m_projectFolder;
+    for (auto it = projectRelativePath.begin(); it != projectRelativePath.end(); ++it)
+    {
+        retVal = retVal->GetOrCreateChild(it->filename().string()).lock();
+    }
+    return retVal;
+}
+std::shared_ptr<IAsset> ProjectManager::GetOrCreateAsset(const std::filesystem::path &projectRelativePath)
+{
+    if (std::filesystem::is_directory(projectRelativePath))
+    {
+        UNIENGINE_ERROR("Path is directory!");
+        return {};
+    }
+    auto folder = GetOrCreateFolder(projectRelativePath.parent_path()).lock();
+    auto stem = projectRelativePath.stem().string();
+    auto fileName = projectRelativePath.filename().string();
+    auto extension = projectRelativePath.extension().string();
+    if (fileName == stem)
+    {
+        stem = "";
+        extension = fileName;
+    }
+    return folder->GetOrCreateAsset(stem, extension);
+}
+
+void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
+{
+    auto &projectManager = GetInstance();
+    auto projectAbsolutePath = std::filesystem::absolute(path);
+    if (std::filesystem::is_directory(projectAbsolutePath))
+    {
+        UNIENGINE_ERROR("Path is directory!");
+        return;
+    }
+    if (!projectAbsolutePath.is_absolute())
+    {
+        UNIENGINE_ERROR("Path not absolute!");
+        return;
+    }
+    if (projectAbsolutePath.extension() != ".ueproj")
+    {
+        UNIENGINE_ERROR("Wrong extension!");
+        return;
+    }
+    projectManager.m_projectPath = projectAbsolutePath;
+    projectManager.m_assetRegistry.clear();
+    Application::Reset();
+
+    std::shared_ptr<Scene> scene;
+
+    projectManager.m_currentFocusedFolder = projectManager.m_projectFolder = std::make_shared<Folder>();
+    projectManager.m_projectFolder->m_self = projectManager.m_projectFolder;
+    ScanProject();
+
+    bool foundScene = false;
+    if (std::filesystem::exists(projectAbsolutePath))
+    {
+        std::ifstream stream(projectAbsolutePath.string());
+        std::stringstream stringStream;
+        stringStream << stream.rdbuf();
+        YAML::Node in = YAML::Load(stringStream.str());
+        auto search = projectManager.m_assetRegistry.find(in["m_startSceneHandle"].as<uint64_t>());
+        if (search != projectManager.m_assetRegistry.end())
+        {
+            scene = std::dynamic_pointer_cast<Scene>(search->second.lock()->GetAsset());
+            Application::GetInstance().m_scene = scene;
+            Entities::Attach(scene);
+            foundScene = true;
+        }
+        UNIENGINE_LOG("Found and loaded project");
+    }
+    if (!foundScene)
+    {
+        scene = CreateTemporaryAsset<Scene>();
+        std::filesystem::path newSceneRelativePath = GenerateNewPath("New Scene", ".uescene");
+        bool succeed = scene->SetPathAndSave(newSceneRelativePath);
+        if (succeed)
+        {
+            UNIENGINE_LOG("Created new start scene!");
+        }
+        Application::GetInstance().m_scene = scene;
+        Entities::Attach(scene);
+#pragma region Main Camera
+        const auto mainCameraEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Main Camera");
+        Transform cameraLtw;
+        cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
+        cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 0)));
+        mainCameraEntity.SetDataComponent(cameraLtw);
+        auto mainCameraComponent = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+        scene->m_mainCamera = mainCameraComponent;
+        mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
+#pragma endregion
+
+        scene->GetOrCreateSystem<PhysicsSystem>(SystemGroup::SimulationSystemGroup);
+    }
+    if (projectManager.m_newSceneCustomizer.has_value())
+        projectManager.m_newSceneCustomizer.value()();
+}
+void ProjectManager::SaveProject()
+{
+    auto &projectManager = GetInstance();
+    auto currentScene = Application::GetInstance().m_scene;
+    currentScene->Save();
+    auto directory = projectManager.m_projectPath.parent_path();
+    if (!std::filesystem::exists(directory))
+    {
+        std::filesystem::create_directories(directory);
+    }
+    YAML::Emitter out;
+    out << YAML::BeginMap;
+    out << YAML::Key << "m_startSceneHandle" << YAML::Value << currentScene->GetHandle();
+    out << YAML::EndMap;
+    std::ofstream fout(projectManager.m_projectPath.string());
+    fout << out.c_str();
+    fout.flush();
+}
+std::filesystem::path ProjectManager::GetProjectPath()
+{
+    auto &projectManager = GetInstance();
+    return projectManager.m_projectPath;
+}
+std::string ProjectManager::GetProjectName()
+{
+    auto &projectManager = GetInstance();
+    return projectManager.m_projectPath.stem().string();
+}
+std::weak_ptr<Folder> ProjectManager::GetCurrentFocusedFolder()
+{
+    auto &projectManager = GetInstance();
+    return projectManager.m_currentFocusedFolder;
+}
+
+bool ProjectManager::IsAsset(const std::string &typeName)
+{
+    auto &projectManager = GetInstance();
+    return projectManager.m_assetExtensions.find(typeName) != projectManager.m_assetExtensions.end();
+}
+
+std::shared_ptr<IAsset> ProjectManager::CreateDefaultResource(
+    const std::string &typeName, const Handle &handle, const std::string &name)
+{
+    auto &projectManager = GetInstance();
+    size_t hashCode;
+    auto retVal = std::dynamic_pointer_cast<IAsset>(Serialization::ProduceSerializable(typeName, hashCode, handle));
+    projectManager.m_defaultResources[typeName][handle] = {name, retVal};
+    retVal->OnCreate();
+    return retVal;
+}
+
+std::shared_ptr<IAsset> ProjectManager::GetAsset(const Handle &handle)
+{
+    auto &projectManager = GetInstance();
+    auto search = projectManager.m_assetRegistry.find(handle);
+    if (search != projectManager.m_assetRegistry.end())
+        return search->second.lock()->GetAsset();
+    for (const auto &i : projectManager.m_defaultResources)
+    {
+        auto inSearch = i.second.find(handle);
+        if (inSearch != i.second.end())
+            return inSearch->second.m_value;
+    }
+    return {};
+}
+
+std::vector<std::string> ProjectManager::GetExtension(const std::string &typeName)
+{
+    auto &projectManager = GetInstance();
+    auto search = projectManager.m_assetExtensions.find(typeName);
+    if (search != projectManager.m_assetExtensions.end())
+        return search->second;
+    return {};
+}
+void ProjectManager::DisplayDefaultResources()
+{
+    auto &projectManager = GetInstance();
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Resources", &projectManager.m_enableDefaultResourceMenu);
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+    if (projectManager.m_enableDefaultResourceMenu)
+    {
+        ImGui::Begin("Resources");
+        if (ImGui::BeginTabBar(
+                "##Resource Tab", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
+        {
+            if (ImGui::BeginTabItem("Assets"))
+            {
+                for (auto &collection : projectManager.m_defaultResources)
+                {
+                    if (ImGui::CollapsingHeader(collection.first.c_str()))
+                    {
+                        for (auto &i : collection.second)
+                        {
+                            ImGui::Button(i.second.m_name.c_str());
+                            Editor::DraggableAsset(i.second.m_value);
+                            const std::string type = i.second.m_value->GetTypeName();
+                            const std::string tag = "##" + type + std::to_string(i.second.m_value->GetHandle());
+                            if (ImGui::BeginPopupContextItem(tag.c_str()))
+                            {
+                                if (ImGui::Button(("Remove" + tag).c_str()) &&
+                                    i.first >= DefaultResources::GetMaxHandle())
+                                {
+                                    collection.second.erase(i.first);
+                                    ImGui::EndPopup();
+                                    break;
+                                }
+                                ImGui::EndPopup();
+                            }
+                        }
+                    }
+                }
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::End();
+    }
+}
+std::string ProjectManager::GetTypeName(const std::string &extension)
+{
+    auto &projectManager = GetInstance();
+    auto search = projectManager.m_typeNames.find(extension);
+    if (search != projectManager.m_typeNames.end())
+        return search->second;
+    return "Binary";
+}
+
+std::shared_ptr<IAsset> ProjectManager::CreateTemporaryAsset(const std::string &typeName)
+{
+    size_t hashCode;
+    auto retVal = std::dynamic_pointer_cast<IAsset>(Serialization::ProduceSerializable(typeName, hashCode, Handle()));
+    retVal->m_self = retVal;
+    retVal->OnCreate();
+    return retVal;
+}
+bool ProjectManager::IsInProjectFolder(const std::filesystem::path &absolutePath)
+{
+    if (!absolutePath.is_absolute())
+    {
+        UNIENGINE_ERROR("Not absolute path!");
+        return false;
+    }
+    auto &projectManager = GetInstance();
+    auto it = std::search(
+        absolutePath.begin(),
+        absolutePath.end(),
+        projectManager.m_projectPath.begin(),
+        projectManager.m_projectPath.end());
+    return it != absolutePath.end();
+}
+bool ProjectManager::IsValidAssetFileName(const std::filesystem::path &path)
+{
+    auto stem = path.stem().string();
+    auto fileName = path.filename().string();
+    auto extension = path.extension().string();
+    if (fileName == stem)
+    {
+        stem = "";
+        extension = fileName;
+    }
+    auto typeName = GetTypeName(extension);
+    return typeName == "Binary";
+}
+std::filesystem::path ProjectManager::GenerateNewPath(const std::string &prefix, const std::string &postfix)
+{
+    std::filesystem::path retVal = prefix + postfix;
+    int i = 0;
+    while (std::filesystem::exists(retVal))
+    {
+        i++;
+        retVal = prefix + " (" + std::to_string(i) + ")" + postfix;
+    }
+    return retVal;
+}
+void ProjectManager::SetScenePostLoadActions(const std::function<void()> &actions)
+{
+    GetInstance().m_newSceneCustomizer = actions;
+}
+void ProjectManager::ScanProject()
+{
+    auto &projectManager = GetInstance();
+    auto directory = projectManager.m_projectPath.parent_path().parent_path();
+    projectManager.m_projectFolder->m_handle = 0;
+    projectManager.m_projectFolder->m_name = projectManager.m_projectPath.stem().string();
+    projectManager.m_projectFolder->Refresh(directory);
+}
+void ProjectManager::OnInspect()
+{
+    auto &projectManager = GetInstance();
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("Project"))
+        {
+            ImGui::Text(("Current Project path: " + projectManager.m_projectPath.string()).c_str());
+
+            FileUtils::SaveFile(
+                "Create or load New Project##ProjectManager",
+                "Project",
+                {".ueproj"},
+                [](const std::filesystem::path &filePath) {
+                    try
+                    {
+                        ProjectManager::GetOrCreateProject(filePath);
+                    }
+                    catch (std::exception &e)
+                    {
+                        UNIENGINE_ERROR("Failed to create/load from " + filePath.string());
+                    }
+                },
+                false);
+
+            if (ImGui::Button("Save"))
+            {
+                SaveProject();
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
     }
 }

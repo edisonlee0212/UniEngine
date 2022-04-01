@@ -1,10 +1,10 @@
+#include "Editor.hpp"
+#include "Engine/Core/Inputs.hpp"
+#include "Engine/Core/Windows.hpp"
 #include <Application.hpp>
-#include <AssetManager.hpp>
 #include <Camera.hpp>
 #include <ClassRegistry.hpp>
 #include <DefaultResources.hpp>
-#include "Editor.hpp"
-#include "Engine/Core/Inputs.hpp"
 #include <Joint.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
@@ -12,10 +12,10 @@
 #include <PhysicsLayer.hpp>
 #include <PlayerController.hpp>
 #include <PostProcessing.hpp>
+#include <ProjectManager.hpp>
 #include <RigidBody.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
-#include "Engine/Core/Windows.hpp"
 using namespace UniEngine;
 std::map<std::string, std::shared_ptr<Texture2D>> &Editor::AssetIcons()
 {
@@ -129,9 +129,10 @@ bool Editor::DragAndDropButton(
     ImGui::SameLine();
     const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
     bool statusChanged = false;
-    ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     if (ptr)
     {
+        const auto title = ptr->GetTitle();
+        ImGui::Button(title.c_str());
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
             Editor::GetInstance().m_inspectingAsset = ptr;
@@ -140,20 +141,24 @@ bool Editor::DragAndDropButton(
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
             ImGui::EndDragDropSource();
         }
         if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            if (!ptr->IsTemporary())
             {
-                static char newName[256];
-                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                if (ImGui::Button(("Confirm" + tag).c_str()))
+                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
                 {
-                    ptr->SetName(std::string(newName));
+                    static char newName[256];
+                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                    if (ImGui::Button(("Confirm" + tag).c_str()))
+                    {
+                        bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
+                            std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                    }
+                    ImGui::EndMenu();
                 }
-                ImGui::EndMenu();
             }
             if (removable)
             {
@@ -165,6 +170,10 @@ bool Editor::DragAndDropButton(
             }
             ImGui::EndPopup();
         }
+    }
+    else
+    {
+        ImGui::Button("none");
     }
     for (const auto &typeName : acceptableTypeNames)
     {

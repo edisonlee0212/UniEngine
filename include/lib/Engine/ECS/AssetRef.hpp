@@ -10,7 +10,6 @@ class UNIENGINE_API AssetRef
     friend class Prefab;
     friend class Editor;
     friend class EditorLayer;
-    friend class AssetManager;
     std::shared_ptr<IAsset> m_value = {};
     Handle m_assetHandle = Handle(0);
     std::string m_assetTypeName = "";

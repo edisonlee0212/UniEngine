@@ -1,8 +1,8 @@
 #pragma once
-#include "AssetManager.hpp"
 #include "Camera.hpp"
-#include "OpenGLUtils.hpp"
 #include "ISingleton.hpp"
+#include "OpenGLUtils.hpp"
+#include "ProjectManager.hpp"
 #include "RenderTarget.hpp"
 #include "RigidBody.hpp"
 #include "Texture2D.hpp"
@@ -31,13 +31,13 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     static void InitImGui();
     static void ImGuiPreUpdate();
     static void ImGuiLateUpdate();
+
   public:
-    static std::map<std::string, std::shared_ptr<Texture2D>>& AssetIcons();
+    static std::map<std::string, std::shared_ptr<Texture2D>> &AssetIcons();
     std::shared_ptr<IAsset> m_inspectingAsset = {};
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
         const std::function<bool(Entity entity, IDataComponent *data, bool isRoot)> &func);
-
 
     static bool DragAndDropButton(
         AssetRef &target,
@@ -59,7 +59,6 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
 
     template <typename T = IAsset> static void DraggableAsset(std::shared_ptr<T> &target);
     template <typename T = IPrivateComponent> static void DraggablePrivateComponent(std::shared_ptr<T> &target);
-
 };
 
 template <typename T1>
@@ -145,10 +144,11 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
     ImGui::SameLine();
     const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
     bool statusChanged = false;
-    ImGui::Button(ptr ? ptr->m_name.c_str() : "none");
     const std::string type = Serialization::GetSerializableTypeName<T>();
     if (ptr)
     {
+        const auto title = ptr->GetTitle();
+        ImGui::Button(title.c_str());
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
             GetInstance().m_inspectingAsset = ptr;
@@ -156,21 +156,26 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
         const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
-            ImGui::SetDragDropPayload(type.c_str(), &target.m_assetHandle, sizeof(Handle));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
             ImGui::EndDragDropSource();
         }
         if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            if (!ptr->IsTemporary())
             {
-                static char newName[256];
-                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                if (ImGui::Button(("Confirm" + tag).c_str()))
-                    ptr->SetName(std::string(newName));
-                ImGui::EndMenu();
+                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+                {
+                    static char newName[256];
+                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                    if (ImGui::Button(("Confirm" + tag).c_str()))
+                    {
+                        bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
+                            std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                    }
+                    ImGui::EndMenu();
+                }
             }
-
             if (removable)
             {
                 if (ImGui::Button(("Remove" + tag).c_str()))
@@ -181,6 +186,10 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
             }
             ImGui::EndPopup();
         }
+    }
+    else
+    {
+        ImGui::Button("none");
     }
 
     if (ImGui::BeginDragDropTarget())
@@ -291,22 +300,29 @@ template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
     }
     const auto type = ptr->GetTypeName();
     const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
+    const auto title = ptr->GetTitle();
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
     {
         ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
-        ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->m_name + tag).c_str());
+        ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
         ImGui::EndDragDropSource();
     }
 
     if (ImGui::BeginPopupContextItem(tag.c_str()))
     {
-        if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+        if (!ptr->IsTemporary())
         {
-            static char newName[256];
-            ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-            if (ImGui::Button(("Confirm" + tag).c_str()))
-                ptr->SetName(std::string(newName));
-            ImGui::EndMenu();
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                {
+                    bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
+                        std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                }
+                ImGui::EndMenu();
+            }
         }
         ImGui::EndPopup();
     }

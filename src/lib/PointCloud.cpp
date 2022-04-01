@@ -224,7 +224,7 @@ void PointCloud::ApplyCompressed()
 {
     const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Compressed Point Cloud");
     auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
-    particles->m_material = AssetManager::CreateAsset<Material>();
+    particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;
     auto particleMatrices = particles->m_matrices;
@@ -368,7 +368,7 @@ void PointCloud::ApplyOriginal()
 {
     const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Original Point Cloud");
     auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
-    particles->m_material = AssetManager::CreateAsset<Material>();
+    particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;
     auto particleMatrices = particles->m_matrices;

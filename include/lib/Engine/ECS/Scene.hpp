@@ -124,4 +124,22 @@ template <typename T> void Scene::DestroySystem()
         }
     }
 }
+template <typename T> std::shared_ptr<T> Scene::GetOrCreateSystem(float rank)
+{
+    const auto search = m_indexedSystems.find(typeid(T).hash_code());
+    if (search != m_indexedSystems.end())
+        return std::dynamic_pointer_cast<T>(search->second);
+    auto ptr = Serialization::ProduceSerializable<T>();
+    auto system = std::dynamic_pointer_cast<ISystem>(ptr);
+    system->m_scene = std::dynamic_pointer_cast<Scene>(m_self.lock());
+    system->m_handle = Handle();
+    system->m_rank = rank;
+    m_systems.insert({rank, system});
+    m_indexedSystems[typeid(T).hash_code()] = system;
+    m_mappedSystems[system->m_handle] = system;
+    system->m_started = false;
+    system->OnCreate();
+    m_saved = false;
+    return ptr;
+}
 } // namespace UniEngine

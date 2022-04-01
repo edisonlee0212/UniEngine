@@ -23,7 +23,6 @@ class UNIENGINE_API Texture2D : public IAsset
     friend class Graphics;
     friend class Bloom;
     std::shared_ptr<OpenGLUtils::GLTexture2D> m_texture;
-    friend class AssetManager;
     friend class Camera;
     friend class DefaultResources;
     friend class RenderLayer;
@@ -38,7 +37,6 @@ class UNIENGINE_API Texture2D : public IAsset
     TextureColorType m_textureColorType;
     void OnInspect() override;
     float m_gamma = 1.0f;
-    void OnCreate() override;
     [[nodiscard]] glm::vec2 GetResolution() const;
     void StoreToPng(
         const std::string &path,

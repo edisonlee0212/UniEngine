@@ -138,7 +138,6 @@ class UNIENGINE_API RenderLayer : public ILayer
     friend class ReflectionProbe;
     friend class EnvironmentalMap;
     friend class Cubemap;
-    friend class AssetManager;
     friend class Graphics;
     size_t m_triangles = 0;
     size_t m_drawCall = 0;

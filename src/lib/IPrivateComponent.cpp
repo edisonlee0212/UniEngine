@@ -2,7 +2,7 @@
 // Created by lllll on 8/13/2021.
 //
 #include "IPrivateComponent.hpp"
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include "Engine/ECS/Entities.hpp"
 #include "Serialization.hpp"
 

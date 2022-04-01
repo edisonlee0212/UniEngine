@@ -21,7 +21,6 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static void LoadRenderManagerResources();
     static void LoadEditorManagerResources();
     static void PrepareBrdfLut();
-    friend class AssetManager;
     friend class IAsset;
     friend class Graphics;
     friend class Editor;

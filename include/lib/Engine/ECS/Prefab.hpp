@@ -45,6 +45,7 @@ struct UNIENGINE_API PrivateComponentHolder
 
 class UNIENGINE_API Prefab : public IAsset
 {
+    std::string m_name;
     bool m_enabled = true;
     friend class DefaultResources;
 #pragma region Model Loading

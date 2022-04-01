@@ -15,7 +15,6 @@ class UNIENGINE_API ReflectionProbe : public IAsset
 
   public:
     float m_gamma = 1.0f;
-    void OnCreate() override;
     void ConstructFromCubemap(const std::shared_ptr<Cubemap> &targetCubemap);
 };
 } // namespace UniEngine

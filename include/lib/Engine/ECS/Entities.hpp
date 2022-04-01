@@ -42,7 +42,6 @@ class UNIENGINE_API Entities final : ISingleton<Entities>
     friend struct EntityQuery;
     friend struct Entity;
     friend struct Application;
-    friend struct AssetManager;
     friend struct PrivateComponentRef;
     friend class Prefab;
     size_t m_archetypeChunkSize = ARCHETYPE_CHUNK_SIZE;

@@ -1,7 +1,7 @@
 #include "DefaultResources.hpp"
 #include "Joint.hpp"
 #include <Application.hpp>
-#include <AssetManager.hpp>
+#include <ProjectManager.hpp>
 #include <PhysicsLayer.hpp>
 #include <RigidBody.hpp>
 #include <TransformLayer.hpp>
@@ -83,8 +83,7 @@ void PhysicsLayer::OnCreate()
 
     #pragma region Physics
     m_defaultPhysicsMaterial =
-        AssetManager::UnsafeCreateAsset<PhysicsMaterial>(DefaultResources::GenerateNewHandle(), "Default");
-    AssetManager::Share(m_defaultPhysicsMaterial);
+        ProjectManager::CreateDefaultResource<PhysicsMaterial>(DefaultResources::GenerateNewHandle(), "Default");
 #pragma endregion
 }
 
