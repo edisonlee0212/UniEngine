@@ -74,10 +74,15 @@ class UNIENGINE_API Folder
     virtual ~Folder();
 };
 
+class Texture2D;
 struct UNIENGINE_API DefaultResource
 {
     std::string m_name;
     std::shared_ptr<IAsset> m_value;
+};
+
+class UNIENGINE_API AssetThumbnail{
+    std::shared_ptr<Texture2D> m_icon;
 };
 
 class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
@@ -101,6 +106,10 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::shared_ptr<Scene> m_startScene;
     std::unordered_map<std::string, std::vector<std::string>> m_assetExtensions;
     std::unordered_map<std::string, std::string> m_typeNames;
+
+    std::unordered_map<Handle, std::weak_ptr<AssetThumbnail>> m_assetThumbnails;
+    std::queue<std::shared_ptr<AssetThumbnail>> m_assetThumbnailStorage;
+
     friend class DefaultResources;
     friend class AssetRegistry;
     friend class ProjectManager;

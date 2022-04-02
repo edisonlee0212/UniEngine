@@ -1082,6 +1082,8 @@ void EditorLayer::OnInspect()
                     projectManager.m_currentFocusedFolder = currentFocusedFolder->m_parent;
                 }
             }
+            ImGui::SameLine();
+            ImGui::Text(currentFocusedFolder->GetProjectRelativePath().string().c_str());
             ImGui::Separator();
 
             bool updated = false;
