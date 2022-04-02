@@ -83,7 +83,7 @@ bool IAsset::Export(const std::filesystem::path &path)
 }
 bool IAsset::Import(const std::filesystem::path &path)
 {
-    if (ProjectManager::IsInProjectFolder(path))
+    if (!ProjectManager::GetProjectPath().empty() && ProjectManager::IsInProjectFolder(path))
     {
         UNIENGINE_ERROR("Path is in project folder!");
         return false;
@@ -140,7 +140,8 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
     {
         auto assetRecord = m_assetRecord.lock();
         auto folder = assetRecord->GetFolder().lock();
-        if(newFolder == folder){
+        if (newFolder == folder)
+        {
             assetRecord->SetAssetFileName(projectRelativePath.stem().string());
         }
         else
@@ -165,10 +166,11 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
 }
 std::string IAsset::GetTitle() const
 {
-    return IsTemporary() ? "Temporary " + m_typeName : (GetProjectRelativePath().stem().string() + (m_saved ? "" : " *"));
+    return IsTemporary() ? "Temporary " + m_typeName
+                         : (GetProjectRelativePath().stem().string() + (m_saved ? "" : " *"));
 }
 IAsset::~IAsset()
 {
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     projectManager.m_assetRegistry.erase(m_handle);
 }
