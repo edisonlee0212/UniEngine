@@ -304,12 +304,13 @@ void Application::OnInspect()
 void Application::Play()
 {
     auto &application = GetInstance();
+    auto& projectManager = ProjectManager::GetInstance();
     if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
         return;
     if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
-        Scene::Clone(application.m_scene, copiedScene);
+        Scene::Clone(projectManager.GetStartScene().lock(), copiedScene);
         Entities::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Playing;
@@ -317,10 +318,11 @@ void Application::Play()
 void Application::Stop()
 {
     auto &application = GetInstance();
+    auto& projectManager = ProjectManager::GetInstance();
     if (application.m_gameStatus == GameStatus::Stop)
         return;
     application.m_gameStatus = GameStatus::Stop;
-    Entities::Attach(application.m_scene);
+    Entities::Attach(projectManager.GetStartScene().lock());
 }
 void Application::Pause()
 {
@@ -335,13 +337,14 @@ GameStatus Application::GetGameStatus()
 }
 void Application::Step()
 {
+    auto& projectManager = ProjectManager::GetInstance();
     auto &application = GetInstance();
     if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
         return;
     if (application.m_gameStatus == GameStatus::Stop)
     {
         auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
-        Scene::Clone(application.m_scene, copiedScene);
+        Scene::Clone(projectManager.GetStartScene().lock(), copiedScene);
         Entities::Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Step;

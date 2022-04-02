@@ -398,6 +398,10 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
         {
             childFolderList.push_back(entry.path());
         }
+        else if (entry.path().extension() == ".ueproj")
+        {
+            continue;
+        }
         else if (entry.path().extension() == ".ufmeta")
         {
             childFolderMetadataList.push_back(entry.path());
@@ -642,7 +646,7 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
         if (temp)
         {
             scene = std::dynamic_pointer_cast<Scene>(temp);
-            Application::GetInstance().m_scene = scene;
+            SetStartScene(scene);
             Entities::Attach(scene);
             foundScene = true;
         }
@@ -657,7 +661,7 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
         {
             UNIENGINE_LOG("Created new start scene!");
         }
-        Application::GetInstance().m_scene = scene;
+        SetStartScene(scene);
         Entities::Attach(scene);
 #pragma region Main Camera
         const auto mainCameraEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Main Camera");
@@ -674,15 +678,11 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
 
         if (projectManager.m_newSceneCustomizer.has_value())
             projectManager.m_newSceneCustomizer.value()();
-        SaveProject();
     }
-    ScanProject();
 }
 void ProjectManager::SaveProject()
 {
     auto &projectManager = GetInstance();
-    auto currentScene = Application::GetInstance().m_scene;
-    currentScene->Save();
     auto directory = projectManager.m_projectPath.parent_path();
     if (!std::filesystem::exists(directory))
     {
@@ -690,7 +690,7 @@ void ProjectManager::SaveProject()
     }
     YAML::Emitter out;
     out << YAML::BeginMap;
-    out << YAML::Key << "m_startSceneHandle" << YAML::Value << currentScene->GetHandle();
+    out << YAML::Key << "m_startSceneHandle" << YAML::Value << projectManager.m_startScene->GetHandle();
     out << YAML::EndMap;
     std::ofstream fout(projectManager.m_projectPath.string());
     fout << out.c_str();
@@ -926,4 +926,14 @@ void ProjectManager::OnInspect()
         }
         ImGui::EndMainMenuBar();
     }
+}
+std::weak_ptr<Scene> ProjectManager::GetStartScene()
+{
+    auto& projectManager = ProjectManager::GetInstance();
+    return projectManager.m_startScene;
+}
+void ProjectManager::SetStartScene(const std::shared_ptr<Scene>& scene){
+    auto& projectManager = ProjectManager::GetInstance();
+    projectManager.m_startScene = scene;
+    SaveProject();
 }

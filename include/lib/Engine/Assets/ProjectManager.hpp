@@ -95,7 +95,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     bool m_enableDefaultResourceMenu = false;
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
-
+    std::shared_ptr<Scene> m_startScene;
     std::unordered_map<std::string, std::vector<std::string>> m_assetExtensions;
     std::unordered_map<std::string, std::string> m_typeNames;
     friend class DefaultResources;
@@ -117,6 +117,8 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName);
     [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName, const Handle& handle);
   public:
+    static std::weak_ptr<Scene> GetStartScene();
+    static void SetStartScene(const std::shared_ptr<Scene>& scene);
     static void OnInspect();
     static void SaveProject();
     static void SetScenePostLoadActions(const std::function<void()> &actions);

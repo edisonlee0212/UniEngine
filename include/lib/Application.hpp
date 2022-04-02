@@ -75,8 +75,6 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     static void OnInspect();
     bool m_enableSettingsMenu = false;
 
-    std::shared_ptr<Scene> m_scene;
-
     std::vector<std::shared_ptr<ILayer>> m_layers;
 
   public:

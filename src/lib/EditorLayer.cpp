@@ -994,34 +994,31 @@ void EditorLayer::OnInspect()
             auto currentFolderPath = currentFocusedFolder->GetProjectRelativePath();
             if (ImGui::BeginDragDropTarget())
             {
-                for (const auto &i : projectManager.m_assetExtensions)
+                for (const auto &extension : projectManager.m_assetExtensions)
                 {
-                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(i.first.c_str()))
+                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
                     {
                         IM_ASSERT(payload->DataSize == sizeof(Handle));
                         Handle payload_n = *(Handle *)payload->Data;
-                        AssetRef assetRef;
-                        assetRef.m_assetHandle = payload_n;
-                        assetRef.Update();
-                        auto asset = assetRef.m_value;
+                        auto asset = projectManager.m_assetRegistry[payload_n].lock();
                         if (asset->IsTemporary())
                         {
-                            auto fileExtension = projectManager.m_assetExtensions[assetRef.m_assetTypeName].front();
-                            auto fileName = "New " + assetRef.m_assetTypeName;
+                            auto fileExtension = projectManager.m_assetExtensions[asset->GetTypeName()].front();
+                            auto fileName = "New " + asset->GetTypeName();
                             int index = 0;
                             auto filePath =
                                 ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
-                            assetRef.m_value->SetPathAndSave(filePath);
+                            asset->SetPathAndSave(filePath);
                         }
                         else
                         {
-                            auto assetRecord = assetRef.m_value->m_assetRecord.lock();
+                            auto assetRecord = asset->m_assetRecord.lock();
                             auto fileExtension = assetRecord->GetAssetExtension();
                             auto fileName = assetRecord->GetAssetFileName();
                             int index = 0;
                             auto filePath =
                                 ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
-                            assetRef.m_value->SetPathAndSave(filePath);
+                            asset->SetPathAndSave(filePath);
                         }
                     }
                 }
@@ -1120,6 +1117,62 @@ void EditorLayer::OnInspect()
                         {thumbnailSizePadding.x, thumbnailSizePadding.x},
                         {0, 1},
                         {1, 0});
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        for (const auto &extension : projectManager.m_assetExtensions)
+                        {
+                            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
+                            {
+                                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                                Handle payload_n = *(Handle *)payload->Data;
+                                auto asset = projectManager.m_assetRegistry[payload_n].lock();
+                                if (asset->IsTemporary())
+                                {
+                                    auto fileExtension = projectManager.m_assetExtensions[asset->GetTypeName()].front();
+                                    auto fileName = "New " + asset->GetTypeName();
+                                    int index = 0;
+                                    auto filePath = ProjectManager::GenerateNewPath(
+                                        (i.second->GetProjectRelativePath() / fileName).string(), fileExtension);
+                                    asset->SetPathAndSave(filePath);
+                                }
+                                else
+                                {
+                                    auto assetRecord = asset->m_assetRecord.lock();
+                                    auto fileExtension = assetRecord->GetAssetExtension();
+                                    auto fileName = assetRecord->GetAssetFileName();
+                                    int index = 0;
+                                    auto filePath = ProjectManager::GenerateNewPath(
+                                        (i.second->GetProjectRelativePath() / fileName).string(), fileExtension);
+                                    asset->SetPathAndSave(filePath);
+                                }
+                            }
+                        }
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Binary"))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(Handle));
+                            Handle payload_n = *(Handle *)payload->Data;
+                            auto record = projectManager.m_assetRecordRegistry[payload_n];
+                            if (!record.expired())
+                                record.lock()->GetFolder().lock()->MoveAsset(payload_n, i.second);
+                        }
+
+                        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+                        {
+                            IM_ASSERT(payload->DataSize == sizeof(Entity));
+                            auto prefab =
+                                std::dynamic_pointer_cast<Prefab>(ProjectManager::CreateTemporaryAsset<Prefab>());
+                            auto entity = *static_cast<Entity *>(payload->Data);
+                            prefab->FromEntity(entity);
+                            // If current folder doesn't contain file with same name
+                            auto fileName = entity.GetName();
+                            auto fileExtension = projectManager.m_assetExtensions["Prefab"].at(0);
+                            auto filePath =
+                                ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
+                            prefab->SetPathAndSave(filePath);
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
                     bool itemHovered = false;
                     if (ImGui::IsItemHovered())
                     {
@@ -1360,11 +1413,44 @@ void EditorLayer::OnInspect()
 
 void EditorLayer::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder)
 {
-    auto focusFolder = ProjectManager::GetInstance().m_currentFocusedFolder.lock();
+    auto& projectManager = ProjectManager::GetInstance();
+    auto focusFolder = projectManager.m_currentFocusedFolder.lock();
     const bool opened = ImGui::TreeNodeEx(
         folder->m_name.c_str(),
         ImGuiTreeNodeFlags_OpenOnArrow |
             (folder == focusFolder ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None));
+    if (ImGui::BeginDragDropTarget())
+    {
+        for (const auto &extension : projectManager.m_assetExtensions)
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
+            {
+                IM_ASSERT(payload->DataSize == sizeof(Handle));
+                Handle payload_n = *(Handle *)payload->Data;
+                auto asset = projectManager.m_assetRegistry[payload_n].lock();
+                if (asset->IsTemporary())
+                {
+                    auto fileExtension = projectManager.m_assetExtensions[asset->GetTypeName()].front();
+                    auto fileName = "New " + asset->GetTypeName();
+                    int index = 0;
+                    auto filePath = ProjectManager::GenerateNewPath(
+                        (folder->GetProjectRelativePath() / fileName).string(), fileExtension);
+                    asset->SetPathAndSave(filePath);
+                }
+                else
+                {
+                    auto assetRecord = asset->m_assetRecord.lock();
+                    auto fileExtension = assetRecord->GetAssetExtension();
+                    auto fileName = assetRecord->GetAssetFileName();
+                    int index = 0;
+                    auto filePath = ProjectManager::GenerateNewPath(
+                        (folder->GetProjectRelativePath() / fileName).string(), fileExtension);
+                    asset->SetPathAndSave(filePath);
+                }
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
     if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
     {
         focusFolder = folder;
@@ -1788,8 +1874,12 @@ void EditorLayer::CameraWindowDragAndDrop()
                 AssetRef assetRef;
                 assetRef.m_assetHandle = payload_n;
                 assetRef.Update();
-                Application::GetInstance().m_scene = assetRef.Get<Scene>();
-                Entities::Attach(Application::GetInstance().m_scene);
+                auto scene = assetRef.Get<Scene>();
+                if(scene)
+                {
+                    ProjectManager::SetStartScene(scene);
+                    Entities::Attach(scene);
+                }
             }
         }
         const std::string modelTypeHash = Serialization::GetSerializableTypeName<Prefab>();
