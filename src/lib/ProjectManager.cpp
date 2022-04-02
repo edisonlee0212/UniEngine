@@ -652,6 +652,9 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
     projectManager.m_currentFocusedFolder = projectManager.m_projectFolder = std::make_shared<Folder>();
     projectManager.m_folderRegistry[0] = projectManager.m_projectFolder;
     projectManager.m_projectFolder->m_self = projectManager.m_projectFolder;
+    if(!std::filesystem::exists(projectManager.m_projectFolder->GetAbsolutePath())){
+        std::filesystem::create_directories(projectManager.m_projectFolder->GetAbsolutePath());
+    }
     ScanProject();
 
     bool foundScene = false;
@@ -804,19 +807,6 @@ void ProjectManager::DisplayDefaultResources()
                         {
                             ImGui::Button(i.second.m_name.c_str());
                             Editor::DraggableAsset(i.second.m_value);
-                            const std::string type = i.second.m_value->GetTypeName();
-                            const std::string tag = "##" + type + std::to_string(i.second.m_value->GetHandle());
-                            if (ImGui::BeginPopupContextItem(tag.c_str()))
-                            {
-                                if (ImGui::Button(("Remove" + tag).c_str()) &&
-                                    i.first >= DefaultResources::GetMaxHandle())
-                                {
-                                    collection.second.erase(i.first);
-                                    ImGui::EndPopup();
-                                    break;
-                                }
-                                ImGui::EndPopup();
-                            }
                         }
                     }
                 }
@@ -945,6 +935,7 @@ void ProjectManager::OnInspect()
         }
         ImGui::EndMainMenuBar();
     }
+    DisplayDefaultResources();
 }
 std::weak_ptr<Scene> ProjectManager::GetStartScene()
 {

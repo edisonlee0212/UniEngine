@@ -24,7 +24,7 @@ using namespace UniEngine;
 void Application::Create(const ApplicationConfigs &applicationConfigs)
 {
     auto &application = GetInstance();
-    Windows::Init("UniEngine", applicationConfigs.m_fullScreen);
+    Windows::Init(applicationConfigs.m_applicationName, applicationConfigs.m_fullScreen);
     OpenGLUtils::Init();
     application.m_applicationConfigs = applicationConfigs;
 
@@ -181,19 +181,21 @@ void Application::LateUpdateInternal()
     {
         if (ImGui::BeginMainMenuBar())
         {
-            if (ImGui::BeginMenu("Project"))
-            {
-                FileUtils::SaveFile(
-                    "Create or load New Project",
-                    "Project",
-                    {".ueproj"},
-                    [&](const std::filesystem::path &path) {
-                        ProjectManager::GetOrCreateProject(path);
+            FileUtils::SaveFile(
+                "Create or load New Project",
+                "Project",
+                {".ueproj"},
+                [&](const std::filesystem::path &path) {
+                    ProjectManager::GetOrCreateProject(path);
+                    if (ProjectManager::GetInstance().m_projectFolder)
+                    {
+                        Windows::ResizeWindow(
+                            application.m_applicationConfigs.m_defaultWindowSize.x,
+                            application.m_applicationConfigs.m_defaultWindowSize.y);
                         application.m_applicationStatus = ApplicationStatus::Initialized;
-                    },
-                    false);
-                ImGui::EndMenu();
-            }
+                    }
+                },
+                false);
             ImGui::EndMainMenuBar();
         }
     }
@@ -237,7 +239,13 @@ void Application::Start()
     if (!application.m_applicationConfigs.m_projectPath.empty())
     {
         ProjectManager::GetOrCreateProject(application.m_applicationConfigs.m_projectPath);
-        if(ProjectManager::GetInstance().m_projectFolder) application.m_applicationStatus = ApplicationStatus::Initialized;
+        if (ProjectManager::GetInstance().m_projectFolder)
+        {
+            Windows::ResizeWindow(
+                application.m_applicationConfigs.m_defaultWindowSize.x,
+                application.m_applicationConfigs.m_defaultWindowSize.y);
+            application.m_applicationStatus = ApplicationStatus::Initialized;
+        }
     }
     application.m_gameStatus = GameStatus::Stop;
     while (application.m_applicationStatus != ApplicationStatus::OnDestroy)
@@ -304,7 +312,7 @@ void Application::OnInspect()
 void Application::Play()
 {
     auto &application = GetInstance();
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
         return;
     if (application.m_gameStatus == GameStatus::Stop)
@@ -318,7 +326,7 @@ void Application::Play()
 void Application::Stop()
 {
     auto &application = GetInstance();
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     if (application.m_gameStatus == GameStatus::Stop)
         return;
     application.m_gameStatus = GameStatus::Stop;
@@ -337,7 +345,7 @@ GameStatus Application::GetGameStatus()
 }
 void Application::Step()
 {
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     auto &application = GetInstance();
     if (application.m_gameStatus != GameStatus::Pause && application.m_gameStatus != GameStatus::Stop)
         return;

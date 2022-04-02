@@ -16,6 +16,7 @@ class UNIENGINE_API Windows : public ISingleton<Windows>
     static void ResizeCallback(GLFWwindow *, int, int);
     static void SetMonitorCallback(GLFWmonitor *monitor, int event);
     static void WindowFocusCallback(GLFWwindow* window, int focused);
+    static void ResizeWindow(int x, int y);
   private:
     std::vector<GLFWmonitor *> m_monitors;
     GLFWmonitor *m_primaryMonitor = nullptr;

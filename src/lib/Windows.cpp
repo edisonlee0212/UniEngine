@@ -66,8 +66,8 @@ void Windows::Init(std::string name, bool fullScreen)
     // glfw window creation
     // --------------------
     // const GLFWvidmode *mode = glfwGetVideoMode(GetInstance().m_primaryMonitor);
-    GetInstance().m_windowWidth = 1280;
-    GetInstance().m_windowHeight = 720;
+    GetInstance().m_windowWidth = 250;
+    GetInstance().m_windowHeight = 50;
 
     GetInstance().m_window =
         glfwCreateWindow(GetInstance().m_windowWidth, GetInstance().m_windowHeight, name.c_str(), NULL, NULL);
@@ -129,4 +129,8 @@ void Windows::WindowFocusCallback(GLFWwindow* window, int focused)
     {
         ProjectManager::ScanProject();
     }
+}
+void Windows::ResizeWindow(int x, int y)
+{
+    glfwSetWindowSize(GetWindow(), x, y);
 }
