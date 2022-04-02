@@ -137,7 +137,7 @@ bool Prefab::LoadInternal(const std::filesystem::path &path)
             for (const auto &i : inLocalAssets)
             {
                 Handle handle = i["Handle"].as<uint64_t>();
-                localAssets.push_back(ProjectManager::CreateTemporaryAsset(i["TypeName"].as<std::string>()));
+                localAssets.push_back(ProjectManager::CreateTemporaryAsset(i["TypeName"].as<std::string>(), handle));
             }
             int index = 0;
             for (const auto &i : inLocalAssets)
