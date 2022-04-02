@@ -29,7 +29,7 @@ bool Editor::DragAndDropButton(Entity &entity)
     ImGui::Button(entity.IsValid() ? entity.GetName().c_str() : "none");
     if (entity.IsValid())
     {
-        const std::string tag = "##Entity" + std::to_string(entity.GetIndex());
+        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
@@ -44,7 +44,10 @@ bool Editor::DragAndDropButton(Entity &entity)
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
+                {
                     entity.SetName(std::string(newName));
+                    memset(newName, 0, 256);
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::Button(("Remove" + tag).c_str()))
@@ -78,7 +81,7 @@ bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name)
     ImGui::Button(!entity.IsNull() ? entity.GetName().c_str() : "none");
     if (!entity.IsNull())
     {
-        const std::string tag = "##Entity" + std::to_string(entity.GetIndex());
+        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
         {
             ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
@@ -93,7 +96,10 @@ bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name)
                 static char newName[256];
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
+                {
                     entity.SetName(std::string(newName));
+                    memset(newName, 0, 256);
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::Button(("Remove" + tag).c_str()))
@@ -156,6 +162,7 @@ bool Editor::DragAndDropButton(
                     {
                         bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
                             std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                        if(succeed) memset(newName, 0, 256);
                     }
                     ImGui::EndMenu();
                 }

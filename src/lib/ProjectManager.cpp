@@ -6,7 +6,7 @@
 
 using namespace UniEngine;
 
-std::shared_ptr<IAsset> AssetRecord::GetAsset() const
+std::shared_ptr<IAsset> AssetRecord::GetAsset()
 {
     if (!m_asset.expired())
         return m_asset.lock();
@@ -27,6 +27,7 @@ std::shared_ptr<IAsset> AssetRecord::GetAsset() const
         {
             retVal->Save();
         }
+        m_asset = retVal;
         ProjectManager::GetInstance().m_assetRegistry[m_assetHandle] = retVal;
         ProjectManager::GetInstance().m_assetRecordRegistry[m_assetHandle] = m_self;
         return retVal;
@@ -65,6 +66,7 @@ std::filesystem::path AssetRecord::GetAbsolutePath() const
 }
 void AssetRecord::SetAssetFileName(const std::string &newName)
 {
+    if(m_assetFileName == newName) return;
     // TODO: Check invalid filename.
     auto oldPath = GetAbsolutePath();
     auto newPath = oldPath;
@@ -176,14 +178,14 @@ std::filesystem::path Folder::GetProjectRelativePath() const
 {
     if (m_parent.expired())
     {
-        return m_name;
+        return "";
     }
     return m_parent.lock()->GetProjectRelativePath() / m_name;
 }
 std::filesystem::path Folder::GetAbsolutePath() const
 {
     auto &projectManager = ProjectManager::GetInstance();
-    auto projectPath = projectManager.m_projectPath.parent_path().parent_path();
+    auto projectPath = projectManager.m_projectPath.parent_path();
     return projectPath / GetProjectRelativePath();
 }
 
@@ -292,21 +294,25 @@ std::weak_ptr<Folder> Folder::GetOrCreateChild(const std::string &folderName)
         if (i.second->m_name == folderName)
             return i.second;
     }
-
-
     auto newFolder = std::make_shared<Folder>();
     newFolder->m_name = folderName;
     newFolder->m_handle = Handle();
     newFolder->m_self = newFolder;
     m_children[newFolder->m_handle] = newFolder;
+    ProjectManager::GetInstance().m_folderRegistry[newFolder->m_handle] = newFolder;
     newFolder->m_parent = m_self;
-    std::filesystem::create_directories(newFolder->GetAbsolutePath());
+    auto newFolderPath = newFolder->GetAbsolutePath();
+    if(!std::filesystem::exists(newFolderPath)) {
+        std::filesystem::create_directories(newFolderPath);
+    }
     newFolder->Save();
     return newFolder;
 }
 void Folder::DeleteChild(const Handle &childHandle)
 {
     auto child = GetChild(childHandle).lock();
+    auto childFolderPath = child->GetAbsolutePath();
+    std::filesystem::remove_all(childFolderPath);
     child->DeleteMetadata();
     m_children.erase(childHandle);
 }
@@ -443,6 +449,8 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
                 newFolder->m_parent = m_self;
                 newFolder->Load(childFolderMetadataPath);
                 m_children[newFolder->m_handle] = newFolder;
+
+                projectManager.m_folderRegistry[newFolder->m_handle] = newFolder;
             }
         }
     }
@@ -488,22 +496,15 @@ void Folder::Refresh(const std::filesystem::path &parentAbsolutePath)
         auto typeName = ProjectManager::GetTypeName(extension);
         if (!HasAsset(filename, extension))
         {
-            if (typeName != "Binary")
-            {
-                auto asset = GetOrCreateAsset(filename, extension);
-            }
-            else
-            {
-                std::shared_ptr<AssetRecord> binaryRecord = std::make_shared<AssetRecord>();
-                binaryRecord->m_folder = m_self.lock();
-                binaryRecord->m_assetTypeName = typeName;
-                binaryRecord->m_assetExtension = extension;
-                binaryRecord->m_assetFileName = filename;
-                binaryRecord->m_assetHandle = Handle();
-                binaryRecord->m_self = binaryRecord;
-                m_assetRecords[binaryRecord->m_assetHandle] = binaryRecord;
-                binaryRecord->Save();
-            }
+            std::shared_ptr<AssetRecord> binaryRecord = std::make_shared<AssetRecord>();
+            binaryRecord->m_folder = m_self.lock();
+            binaryRecord->m_assetTypeName = typeName;
+            binaryRecord->m_assetExtension = extension;
+            binaryRecord->m_assetFileName = filename;
+            binaryRecord->m_assetHandle = Handle();
+            binaryRecord->m_self = binaryRecord;
+            m_assetRecords[binaryRecord->m_assetHandle] = binaryRecord;
+            binaryRecord->Save();
         }
     }
     /**
@@ -570,6 +571,21 @@ bool Folder::HasAsset(const std::string &fileName, const std::string &extension)
     }
     return false;
 }
+Folder::~Folder()
+{
+    auto& projectManager = ProjectManager::GetInstance();
+    projectManager.m_folderRegistry.erase(m_handle);
+}
+bool Folder::IsSelfOrAncestor(const Handle& handle)
+{
+    std::shared_ptr<Folder> walker = m_self.lock();
+    while(true){
+        if(walker->GetHandle() == handle) return true;
+        if(walker->m_parent.expired()) return false;
+        walker = walker->m_parent.lock();
+    }
+    return false;
+}
 
 std::weak_ptr<Folder> ProjectManager::GetOrCreateFolder(const std::filesystem::path &projectRelativePath)
 {
@@ -581,7 +597,7 @@ std::weak_ptr<Folder> ProjectManager::GetOrCreateFolder(const std::filesystem::p
     }
     auto dirPath = projectManager.m_projectFolder->GetAbsolutePath().parent_path() / projectRelativePath;
     std::shared_ptr<Folder> retVal = projectManager.m_projectFolder;
-    for (auto it = ++projectRelativePath.begin(); it != projectRelativePath.end(); ++it)
+    for (auto it = projectRelativePath.begin(); it != projectRelativePath.end(); ++it)
     {
         retVal = retVal->GetOrCreateChild(it->filename().string()).lock();
     }
@@ -627,11 +643,14 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
     }
     projectManager.m_projectPath = projectAbsolutePath;
     projectManager.m_assetRegistry.clear();
+    projectManager.m_assetRecordRegistry.clear();
+    projectManager.m_folderRegistry.clear();
     Application::Reset();
 
     std::shared_ptr<Scene> scene;
 
     projectManager.m_currentFocusedFolder = projectManager.m_projectFolder = std::make_shared<Folder>();
+    projectManager.m_folderRegistry[0] = projectManager.m_projectFolder;
     projectManager.m_projectFolder->m_self = projectManager.m_projectFolder;
     ScanProject();
 
@@ -936,4 +955,13 @@ void ProjectManager::SetStartScene(const std::shared_ptr<Scene>& scene){
     auto& projectManager = ProjectManager::GetInstance();
     projectManager.m_startScene = scene;
     SaveProject();
+}
+std::weak_ptr<Folder> ProjectManager::GetFolder(const Handle &handle)
+{
+    auto& projectManager = GetInstance();
+    auto search = projectManager.m_folderRegistry.find(handle);
+    if(search != projectManager.m_folderRegistry.end()){
+        return search->second;
+    }
+    return {};
 }

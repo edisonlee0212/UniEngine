@@ -172,6 +172,8 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
                     {
                         bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
                             std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                        if (succeed)
+                            memset(newName, 0, 256);
                     }
                     ImGui::EndMenu();
                 }
@@ -320,6 +322,8 @@ template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
                 {
                     bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
                         std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
+                    if (succeed)
+                        memset(newName, 0, 256);
                 }
                 ImGui::EndMenu();
             }

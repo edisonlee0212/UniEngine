@@ -20,7 +20,7 @@ class UNIENGINE_API AssetRecord
   public:
     [[nodiscard]] std::weak_ptr<Folder> GetFolder() const;
     [[nodiscard]] Handle GetAssetHandle() const;
-    [[nodiscard]] std::shared_ptr<IAsset> GetAsset() const;
+    [[nodiscard]] std::shared_ptr<IAsset> GetAsset();
     [[nodiscard]] std::string GetAssetTypeName() const;
     [[nodiscard]] std::string GetAssetFileName() const;
     [[nodiscard]] std::string GetAssetExtension() const;
@@ -49,6 +49,7 @@ class UNIENGINE_API Folder
     void Refresh(const std::filesystem::path &parentAbsolutePath);
     void RegisterAsset(const std::shared_ptr<IAsset>& asset, const std::string &fileName, const std::string &extension);
   public:
+    bool IsSelfOrAncestor(const Handle& handle);
     void DeleteMetadata() const;
     [[nodiscard]] Handle GetHandle() const;
     [[nodiscard]] std::filesystem::path GetProjectRelativePath() const;
@@ -70,6 +71,7 @@ class UNIENGINE_API Folder
 
     void Save() const;
     void Load(const std::filesystem::path &path);
+    virtual ~Folder();
 };
 
 struct UNIENGINE_API DefaultResource
@@ -92,6 +94,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::weak_ptr<Folder> m_currentFocusedFolder;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assetRegistry;
     std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assetRecordRegistry;
+    std::unordered_map<Handle, std::weak_ptr<Folder>> m_folderRegistry;
     bool m_enableDefaultResourceMenu = false;
     friend class ClassRegistry;
     std::map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
@@ -129,6 +132,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     [[nodiscard]] static std::weak_ptr<Folder> GetOrCreateFolder(const std::filesystem::path &projectRelativePath);
     [[nodiscard]] static std::shared_ptr<IAsset> GetOrCreateAsset(const std::filesystem::path &projectRelativePath);
     [[nodiscard]] static std::shared_ptr<IAsset> GetAsset(const Handle &handle);
+    [[nodiscard]] static std::weak_ptr<Folder> GetFolder(const Handle &handle);
     static void GetOrCreateProject(const std::filesystem::path &path);
     [[nodiscard]] static bool IsInProjectFolder(const std::filesystem::path &absolutePath);
     [[nodiscard]] static bool IsValidAssetFileName(const std::filesystem::path &path);

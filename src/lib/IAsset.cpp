@@ -126,7 +126,7 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
         UNIENGINE_ERROR("Not relative path!");
         return false;
     }
-    if (std::filesystem::exists(ProjectManager::GetProjectPath() / projectRelativePath))
+    if (std::filesystem::exists(ProjectManager::GetProjectPath().parent_path() / projectRelativePath))
     {
         return false;
     }
