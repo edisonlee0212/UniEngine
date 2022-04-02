@@ -151,6 +151,8 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     [[nodiscard]] static std::string GetTypeName(const std::string &extension);
     [[nodiscard]] static bool IsAsset(const std::string &typeName);
     static void ScanProject();
+
+    [[nodiscard]] static std::filesystem::path GetPathRelativeToProject(const std::filesystem::path& absolutePath);
 };
 template <typename T> std::shared_ptr<T> ProjectManager::CreateTemporaryAsset()
 {

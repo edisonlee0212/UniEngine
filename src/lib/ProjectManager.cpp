@@ -852,11 +852,12 @@ bool ProjectManager::IsInProjectFolder(const std::filesystem::path &absolutePath
         return false;
     }
     auto &projectManager = GetInstance();
+    auto projectFolderPath = projectManager.m_projectPath.parent_path();
     auto it = std::search(
         absolutePath.begin(),
         absolutePath.end(),
-        projectManager.m_projectPath.begin(),
-        projectManager.m_projectPath.end());
+        projectFolderPath.begin(),
+        projectFolderPath.end());
     return it != absolutePath.end();
 }
 bool ProjectManager::IsValidAssetFileName(const std::filesystem::path &path)
@@ -955,4 +956,12 @@ std::weak_ptr<Folder> ProjectManager::GetFolder(const Handle &handle)
         return search->second;
     }
     return {};
+}
+std::filesystem::path ProjectManager::GetPathRelativeToProject(const std::filesystem::path& absolutePath)
+{
+    auto& projectManager = GetInstance();
+    if(!projectManager.m_projectFolder) return {};
+    if(!absolutePath.is_absolute()) return {};
+    if(!IsInProjectFolder(absolutePath)) return {};
+    return std::filesystem::relative(absolutePath, projectManager.GetProjectPath().parent_path());
 }
