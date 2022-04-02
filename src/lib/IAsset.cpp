@@ -140,7 +140,13 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
     {
         auto assetRecord = m_assetRecord.lock();
         auto folder = assetRecord->GetFolder().lock();
-        folder->MoveAsset(m_handle, newFolder);
+        if(newFolder == folder){
+            assetRecord->SetAssetFileName(projectRelativePath.stem().string());
+        }
+        else
+        {
+            folder->MoveAsset(m_handle, newFolder);
+        }
     }
     else
     {
@@ -160,4 +166,9 @@ bool IAsset::SetPathAndSave(const std::filesystem::path &projectRelativePath)
 std::string IAsset::GetTitle() const
 {
     return IsTemporary() ? "Temporary " + m_typeName : (GetProjectRelativePath().stem().string() + (m_saved ? "" : " *"));
+}
+IAsset::~IAsset()
+{
+    auto& projectManager = ProjectManager::GetInstance();
+    projectManager.m_assetRegistry.erase(m_handle);
 }

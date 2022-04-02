@@ -1007,7 +1007,7 @@ void EditorLayer::OnInspect()
                         if (asset->IsTemporary())
                         {
                             auto fileExtension = projectManager.m_assetExtensions[assetRef.m_assetTypeName].front();
-                            auto fileName = assetRef.m_assetTypeName;
+                            auto fileName = "New " + assetRef.m_assetTypeName;
                             int index = 0;
                             auto filePath =
                                 ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
@@ -1063,7 +1063,7 @@ void EditorLayer::OnInspect()
                     {0, 1},
                     {1, 0}))
             {
-                projectManager.m_projectFolder->Refresh(projectManager.m_projectPath.parent_path());
+                projectManager.ScanProject();
             }
 
             if (currentFocusedFolder != projectManager.m_projectFolder)

@@ -83,6 +83,7 @@ class UNIENGINE_API IAsset : public ISerializable
      */
     void SetUnsaved();
     [[nodiscard]] bool Saved() const;
+    ~IAsset();
 };
 
 } // namespace UniEngine
