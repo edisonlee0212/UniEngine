@@ -82,4 +82,9 @@ void MeshRenderer::OnDestroy()
 {
     m_mesh.Clear();
     m_material.Clear();
+
+    m_material.Clear();
+    m_forwardRendering = false;
+    m_castShadow = true;
+    m_receiveShadow = true;
 }

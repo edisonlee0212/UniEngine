@@ -107,6 +107,11 @@ void Particles::OnDestroy()
     m_mesh.Clear();
     m_material.Clear();
     m_matrices.reset();
+
+    m_material.Clear();
+    m_forwardRendering = false;
+    m_castShadow = true;
+    m_receiveShadow = true;
 }
 void ParticleMatrices::Serialize(YAML::Emitter &out)
 {

@@ -308,6 +308,11 @@ void SkinnedMeshRenderer::OnDestroy()
     m_finalResults.reset();
     m_skinnedMesh.Clear();
     m_material.Clear();
+    m_ragDoll = false;
+    m_ragDollFreeze = false;
+    m_forwardRendering = false;
+    m_castShadow = true;
+    m_receiveShadow = true;
 }
 
 void BoneMatrices::UploadBones(const std::shared_ptr<SkinnedMesh> &skinnedMesh) const
