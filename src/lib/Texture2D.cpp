@@ -159,6 +159,8 @@ bool Texture2D::SaveInternal(const std::filesystem::path &path)
         StoreToPng(path.string());
     }else if(path.extension() == ".jpg"){
         StoreToJpg(path.string());
+    }else if(path.extension() == ".hdr"){
+        StoreToHdr(path.string());
     }else{
         UNIENGINE_ERROR("Not implemented!");
         return false;
@@ -176,5 +178,30 @@ void Texture2D::OnInspect()
             ImVec2(m_texture->GetSize().x * debugSacle, m_texture->GetSize().y * debugSacle),
             ImVec2(0, 1),
             ImVec2(1, 0));
+    }
+}
+
+void Texture2D::StoreToHdr(const std::string &path, int resizeX, int resizeY,
+                           bool alphaChannel, unsigned int quality) const {
+    const auto resolutionX = m_texture->m_width;
+    const auto resolutionY = m_texture->m_height;
+    float channels = 3;
+    if (alphaChannel)
+        channels = 4;
+    std::vector<float> dst;
+    dst.resize(resolutionX * resolutionY * channels);
+    m_texture->Bind(0);
+    glGetTexImage(GL_TEXTURE_2D, 0, (alphaChannel ? GL_RGBA : GL_RGB), GL_FLOAT, (void *)dst.data());
+    stbi_flip_vertically_on_write(true);
+    if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
+    {
+        std::vector<float> pixels;
+        pixels.resize(resizeX * resizeY * channels);
+        stbir_resize_float(dst.data(), resolutionX, resolutionY, 0, pixels.data(), resizeX, resizeY, 0, channels);
+        stbi_write_hdr(path.c_str(), resolutionX, resolutionY, channels, pixels.data());
+    }
+    else
+    {
+        stbi_write_hdr(path.c_str(), resolutionX, resolutionY, channels, dst.data());
     }
 }
