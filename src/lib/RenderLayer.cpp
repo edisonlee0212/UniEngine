@@ -291,6 +291,7 @@ void RenderLayer::LateUpdate()
     {
         for (auto cameraEntity : *cameraEntities)
         {
+            assert(cameraEntity.HasPrivateComponent<Camera>());
             auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
             cameraComponent->m_rendered = false;
             if (cameraComponent->m_requireRendering)
@@ -466,6 +467,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
         {
             if (!i.IsEnabled())
                 continue;
+            assert(i.HasPrivateComponent<Camera>());
             auto camera = i.GetOrSetPrivateComponent<Camera>().lock();
             if (!camera || !camera->IsEnabled())
                 continue;

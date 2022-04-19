@@ -85,6 +85,11 @@ void PostProcessing::ResizeResolution(int x, int y)
 
 void PostProcessing::OnInspect()
 {
+    auto owner = GetOwner();
+    if(!owner.HasPrivateComponent<Camera>()){
+        ImGui::Text("Camera not present!");
+        return;
+    }
     auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
     for (auto &layer : m_layers)
     {

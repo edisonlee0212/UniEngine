@@ -21,11 +21,11 @@ class UNIENGINE_API PrivateComponentStorage
     std::unordered_map<size_t, std::vector<std::shared_ptr<IPrivateComponent>>> m_privateComponentPool;
 
   public:
-    void RemovePrivateComponent(Entity entity, size_t typeID, std::shared_ptr<IPrivateComponent> privateComponent);
+    void RemovePrivateComponent(Entity entity, size_t typeID, const std::shared_ptr<IPrivateComponent> &privateComponent);
     void DeleteEntity(Entity entity);
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetOrSetPrivateComponent(Entity entity);
     void SetPrivateComponent(Entity entity, size_t id);
-    template <typename T = IPrivateComponent> void RemovePrivateComponent(Entity entity, std::shared_ptr<IPrivateComponent> privateComponent);
+    template <typename T = IPrivateComponent> void RemovePrivateComponent(Entity entity, const std::shared_ptr<IPrivateComponent> &privateComponent);
     template <typename T> const std::vector<Entity> *UnsafeGetOwnersList();
     template <typename T> const std::vector<Entity> GetOwnersList();
 };
@@ -61,9 +61,9 @@ template <typename T> std::shared_ptr<T> PrivateComponentStorage::GetOrSetPrivat
     return Serialization::ProduceSerializable<T>();
 }
 
-template <typename T> void PrivateComponentStorage::RemovePrivateComponent(Entity entity, std::shared_ptr<IPrivateComponent> privateComponent)
+template <typename T> void PrivateComponentStorage::RemovePrivateComponent(Entity entity, const std::shared_ptr<IPrivateComponent> &privateComponent)
 {
-    RemovePrivateComponent(entity, typeid(T).hash_code(), std::move(privateComponent));
+    RemovePrivateComponent(entity, typeid(T).hash_code(), privateComponent);
 }
 
 template <typename T> const std::vector<Entity> *PrivateComponentStorage::UnsafeGetOwnersList()

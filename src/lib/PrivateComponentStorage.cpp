@@ -1,7 +1,7 @@
 #include "Engine/ECS/Entities.hpp"
 #include <PrivateComponentStorage.hpp>
 using namespace UniEngine;
-void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID, std::shared_ptr<IPrivateComponent> privateComponent)
+void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID, const std::shared_ptr<IPrivateComponent> &privateComponent)
 {
     const auto search = m_pOwnersCollectionsMap.find(typeID);
     if (search != m_pOwnersCollectionsMap.end())

@@ -64,7 +64,7 @@ class UNIENGINE_API AssetRef
     {
         if (Update())
         {
-            return std::static_pointer_cast<T>(m_value);
+            return std::dynamic_pointer_cast<T>(m_value);
         }
         return nullptr;
     }

@@ -17,104 +17,102 @@
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
-std::map<std::string, std::shared_ptr<Texture2D>> &Editor::AssetIcons()
-{
-    return GetInstance().m_assetsIcons;
-}
-
-bool Editor::DragAndDropButton(Entity &entity)
+bool Editor::UnsafeDroppableAsset(AssetRef &target, const std::string &typeName)
 {
     bool statusChanged = false;
-    // const std::string type = "Entity";
-    ImGui::Button(entity.IsValid() ? entity.GetName().c_str() : "none");
-    if (entity.IsValid())
-    {
-        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-        {
-            ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (entity.GetName() + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-
-        if (ImGui::BeginPopupContextItem(tag.c_str()))
-        {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-            {
-                static char newName[256];
-                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                if (ImGui::Button(("Confirm" + tag).c_str()))
-                {
-                    entity.SetName(std::string(newName));
-                    memset(newName, 0, 256);
-                }
-                ImGui::EndMenu();
-            }
-            if (ImGui::Button(("Remove" + tag).c_str()))
-            {
-                entity = Entity();
-                statusChanged = true;
-            }
-            ImGui::EndPopup();
-        }
-    }
-
     if (ImGui::BeginDragDropTarget())
     {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
         {
-            IM_ASSERT(payload->DataSize == sizeof(Entity));
-            entity = *static_cast<Entity *>(payload->Data);
-            statusChanged = true;
+            const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
+            IM_ASSERT(payload->DataSize == sizeof(Handle));
+            Handle payload_n = *static_cast<Handle *>(payload->Data);
+            if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
+            {
+                target.Clear();
+                target.m_assetHandle = payload_n;
+                target.Update();
+                statusChanged = true;
+            }
         }
         ImGui::EndDragDropTarget();
     }
     return statusChanged;
 }
 
-bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name)
+bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::string &typeName)
+{
+    bool statusChanged = false;
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            Entity payload_n = *static_cast<Entity *>(payload->Data);
+            const auto currentScene = Entities::GetCurrentScene();
+            if (payload_n.IsValid() && Entities::HasPrivateComponent(currentScene, payload_n, typeName))
+            {
+                const auto ptr = target.Get<IPrivateComponent>();
+                auto received = Entities::GetPrivateComponent(currentScene, payload_n, typeName).lock();
+                if (!ptr || received.get() != ptr.get())
+                {
+                    target = received;
+                    statusChanged = true;
+                }
+            }
+        }
+        else if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
+        {
+            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IPrivateComponent>));
+            auto payload_n = *static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data);
+            const auto ptr = target.Get<IPrivateComponent>();
+            if (!ptr || payload_n.get() != ptr.get())
+            {
+                target = payload_n;
+                statusChanged = true;
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return statusChanged;
+}
+
+std::map<std::string, std::shared_ptr<Texture2D>> &Editor::AssetIcons()
+{
+    return GetInstance().m_assetsIcons;
+}
+
+bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name, bool modifiable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
     bool statusChanged = false;
     auto entity = entityRef.Get();
-    ImGui::Button(!entity.IsNull() ? entity.GetName().c_str() : "none");
     if (!entity.IsNull())
     {
-        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        ImGui::Button(entity.GetName().c_str());
+        Draggable(entityRef);
+        if (modifiable)
         {
-            ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (entity.GetName() + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-
-        if (ImGui::BeginPopupContextItem(tag.c_str()))
-        {
-            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-            {
-                static char newName[256];
-                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                if (ImGui::Button(("Confirm" + tag).c_str()))
-                {
-                    entity.SetName(std::string(newName));
-                    memset(newName, 0, 256);
-                }
-                ImGui::EndMenu();
-            }
-            if (ImGui::Button(("Remove" + tag).c_str()))
-            {
-                entityRef.Clear();
-                statusChanged = true;
-            }
-            ImGui::EndPopup();
+            statusChanged = Rename(entityRef);
+            statusChanged = Remove(entityRef) || statusChanged;
         }
     }
-
+    else
+    {
+        ImGui::Button("none");
+    }
+    statusChanged = Droppable(entityRef) || statusChanged;
+    return statusChanged;
+}
+bool Editor::Droppable(EntityRef &entityRef)
+{
+    bool statusChanged = false;
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
+            auto entity = entityRef.Get();
             IM_ASSERT(payload->DataSize == sizeof(Entity));
             auto payload_n = *static_cast<Entity *>(payload->Data);
             if (entity != payload_n)
@@ -127,13 +125,81 @@ bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name)
     }
     return statusChanged;
 }
+void Editor::Draggable(EntityRef &entityRef)
+{
+    auto entity = entityRef.Get();
+    if (!entity.IsNull())
+    {
+        DraggableEntity(entity);
+    }
+}
+void Editor::DraggableEntity(const Entity &entity)
+{
+    if (ImGui::BeginDragDropSource())
+    {
+        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        ImGui::SetDragDropPayload("Entity", &entity, sizeof(Entity));
+        ImGui::TextColored(ImVec4(0, 0, 1, 1), (entity.GetName() + tag).c_str());
+        ImGui::EndDragDropSource();
+    }
+}
+bool Editor::Rename(EntityRef &entityRef)
+{
+    bool statusChanged = false;
+    auto entity = entityRef.Get();
+    statusChanged = RenameEntity(entity);
+    return statusChanged;
+}
+bool Editor::Remove(EntityRef &entityRef)
+{
+    bool statusChanged = false;
+    auto entity = entityRef.Get();
+    if (entity.IsValid())
+    {
+        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                entity = Entity();
+                statusChanged = true;
+            }
+            ImGui::EndPopup();
+        }
+    }
+    return statusChanged;
+}
+bool Editor::RenameEntity(Entity &entity)
+{
+    bool statusChanged = false;
+    if (entity.IsValid())
+    {
+        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::BeginMenu(("Rename" + tag).c_str()))
+            {
+                static char newName[256];
+                ImGui::InputText(("New name" + tag).c_str(), newName, 256);
+                if (ImGui::Button(("Confirm" + tag).c_str()))
+                {
+                    entity.SetName(std::string(newName));
+                    memset(newName, 0, 256);
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndPopup();
+        }
+    }
+    return statusChanged;
+}
 
 bool Editor::DragAndDropButton(
-    AssetRef &target, const std::string &name, const std::vector<std::string> &acceptableTypeNames, bool removable)
+    AssetRef &target, const std::string &name, const std::vector<std::string> &acceptableTypeNames, bool modifiable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
-    const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
+    auto ptr = target.Get<IAsset>();
     bool statusChanged = false;
     if (ptr)
     {
@@ -143,39 +209,11 @@ bool Editor::DragAndDropButton(
         {
             Editor::GetInstance().m_inspectingAsset = ptr;
         }
-        const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        DraggableAsset(ptr);
+        if (modifiable)
         {
-            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-        if (ImGui::BeginPopupContextItem(tag.c_str()))
-        {
-            if (!ptr->IsTemporary())
-            {
-                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-                {
-                    static char newName[256];
-                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                    if (ImGui::Button(("Confirm" + tag).c_str()))
-                    {
-                        bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
-                            std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
-                        if(succeed) memset(newName, 0, 256);
-                    }
-                    ImGui::EndMenu();
-                }
-            }
-            if (removable)
-            {
-                if (ImGui::Button(("Remove" + tag).c_str()))
-                {
-                    target.Clear();
-                    statusChanged = true;
-                }
-            }
-            ImGui::EndPopup();
+            statusChanged = Rename(target);
+            statusChanged = Remove(target) || statusChanged;
         }
     }
     else
@@ -184,24 +222,47 @@ bool Editor::DragAndDropButton(
     }
     for (const auto &typeName : acceptableTypeNames)
     {
-        if (ImGui::BeginDragDropTarget())
+        if (statusChanged)
         {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
-            {
-                IM_ASSERT(payload->DataSize == sizeof(Handle));
-                Handle payload_n = *static_cast<Handle *>(payload->Data);
-                if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
-                {
-                    target.m_assetHandle = payload_n;
-                    target.Update();
-                    statusChanged = true;
-                }
-            }
-            ImGui::EndDragDropTarget();
+            break;
         }
+        statusChanged = UnsafeDroppableAsset(target, typeName) || statusChanged;
     }
     return statusChanged;
 }
+bool Editor::DragAndDropButton(
+    PrivateComponentRef &target,
+    const std::string &name,
+    const std::vector<std::string> &acceptableTypeNames,
+    bool modifiable)
+{
+    ImGui::Text(name.c_str());
+    ImGui::SameLine();
+    bool statusChanged = false;
+    auto ptr = target.Get<IPrivateComponent>();
+    if (ptr)
+    {
+        ImGui::Button(ptr->GetOwner().GetName().c_str());
+        const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
+        DraggablePrivateComponent(ptr);
+        if (modifiable)
+        {
+            statusChanged = Remove(target);
+        }
+    }else{
+        ImGui::Button("none");
+    }
+    for (const auto &typeName : acceptableTypeNames)
+    {
+        if (statusChanged)
+        {
+            break;
+        }
+        statusChanged = UnsafeDroppablePrivateComponent(target, typeName) || statusChanged;
+    }
+    return statusChanged;
+}
+
 void Editor::ImGuiPreUpdate()
 {
 #pragma region ImGui
@@ -293,58 +354,4 @@ void Editor::InitImGui()
     ImGui_ImplGlfw_InitForOpenGL(Windows::GetWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 450 core");
 #pragma endregion
-}
-bool Editor::DragAndDropButton(
-    PrivateComponentRef &target,
-    const std::string &name,
-    const std::vector<std::string> &acceptableTypeNames,
-    bool removable)
-{
-    ImGui::Text(name.c_str());
-    ImGui::SameLine();
-    bool statusChanged = false;
-    const std::shared_ptr<IPrivateComponent> ptr = target.Get<IPrivateComponent>();
-    ImGui::Button(ptr ? ptr->GetOwner().GetName().c_str() : "none");
-    if (ptr)
-    {
-        const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-        {
-            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->GetOwner().GetName() + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-        if (removable)
-        {
-            if (ImGui::BeginPopupContextItem(tag.c_str()))
-            {
-
-                if (ImGui::Button(("Remove" + tag).c_str()))
-                {
-                    target.Clear();
-                    statusChanged = true;
-                }
-                ImGui::EndPopup();
-            }
-        }
-    }
-    for (const auto &type : acceptableTypeNames)
-    {
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
-            {
-                IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IPrivateComponent>));
-                std::shared_ptr<IPrivateComponent> payload_n =
-                    *static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data);
-                if (!ptr || payload_n.get() != ptr.get())
-                {
-                    target = payload_n;
-                    statusChanged = true;
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }
-    return statusChanged;
 }

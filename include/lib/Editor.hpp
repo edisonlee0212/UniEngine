@@ -32,6 +32,11 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     static void ImGuiPreUpdate();
     static void ImGuiLateUpdate();
 
+    std::vector<std::weak_ptr<AssetRecord>> m_assetRecordBus;
+    std::map<std::string, std::vector<AssetRef>> m_assetRefBus;
+    std::map<std::string, std::vector<PrivateComponentRef>> m_privateComponentRefBus;
+    std::map<std::string, std::vector<EntityRef>> m_entityRefBus;
+
   public:
     static std::map<std::string, std::shared_ptr<Texture2D>> &AssetIcons();
     std::shared_ptr<IAsset> m_inspectingAsset = {};
@@ -43,22 +48,44 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
         AssetRef &target,
         const std::string &name,
         const std::vector<std::string> &acceptableTypeNames,
-        bool removable = true);
+        bool modifiable = true);
     static bool DragAndDropButton(
         PrivateComponentRef &target,
         const std::string &name,
         const std::vector<std::string> &acceptableTypeNames,
-        bool removable = true);
+        bool modifiable = true);
 
     template <typename T = IAsset>
-    static bool DragAndDropButton(AssetRef &target, const std::string &name, bool removable = true);
+    static bool DragAndDropButton(AssetRef &target, const std::string &name, bool modifiable = true);
     template <typename T = IPrivateComponent>
-    static bool DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool removable = true);
-    static bool DragAndDropButton(EntityRef &entityRef, const std::string &name);
-    static bool DragAndDropButton(Entity &entity);
+    static bool DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool modifiable = true);
+    static bool DragAndDropButton(EntityRef &entityRef, const std::string &name, bool modifiable = true);
 
-    template <typename T = IAsset> static void DraggableAsset(std::shared_ptr<T> &target);
-    template <typename T = IPrivateComponent> static void DraggablePrivateComponent(std::shared_ptr<T> &target);
+    template <typename T = IAsset> static void Draggable(AssetRef &target);
+    template <typename T = IPrivateComponent> static void Draggable(PrivateComponentRef &target);
+    static void Draggable(EntityRef &entityRef);
+
+    template <typename T = IAsset> static void DraggableAsset(const std::shared_ptr<T> &target);
+    template <typename T = IPrivateComponent>
+    static void DraggablePrivateComponent(const std::shared_ptr<T> &target);
+    static void DraggableEntity(const Entity &entity);
+
+    static bool UnsafeDroppableAsset(AssetRef &target, const std::string &typeName);
+    static bool UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::string &typeName);
+
+    template <typename T = IAsset> static bool Droppable(AssetRef &target);
+    template <typename T = IPrivateComponent> static bool Droppable(PrivateComponentRef &target);
+    static bool Droppable(EntityRef &entityRef);
+
+    template <typename T = IAsset> static bool Rename(AssetRef &target);
+    static bool Rename(EntityRef &entityRef);
+
+    template <typename T = IAsset> static bool RenameAsset(const std::shared_ptr<T> &target);
+    static bool RenameEntity(Entity &entity);
+
+    template <typename T = IAsset> static bool Remove(AssetRef &target);
+    template <typename T = IPrivateComponent> static bool Remove(PrivateComponentRef &target);
+    static bool Remove(EntityRef &entityRef);
 };
 
 template <typename T1>
@@ -138,178 +165,148 @@ template <typename T> void Editor::RegisterDataComponent()
     GetInstance().m_componentDataMenuList.emplace_back(typeid(T).hash_code(), func);
 }
 
-template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std::string &name, bool removable)
+template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std::string &name, bool modifiable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
-    const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
+    const auto ptr = target.Get<IAsset>();
     bool statusChanged = false;
-    const std::string type = Serialization::GetSerializableTypeName<T>();
     if (ptr)
     {
-        const auto title = ptr->GetTitle();
-        ImGui::Button(title.c_str());
+        ImGui::Button(ptr->GetTitle().c_str());
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
             GetInstance().m_inspectingAsset = ptr;
         }
-        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        Draggable(target);
+        if (modifiable)
         {
-            ImGui::SetDragDropPayload(ptr->GetTypeName().c_str(), &target.m_assetHandle, sizeof(Handle));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-        if (ImGui::BeginPopupContextItem(tag.c_str()))
-        {
-            if (!ptr->IsTemporary())
-            {
-                if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-                {
-                    static char newName[256];
-                    ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                    if (ImGui::Button(("Confirm" + tag).c_str()))
-                    {
-                        bool succeed = ptr->SetPathAndSave(ptr->GetProjectRelativePath().replace_filename(
-                            std::string(newName) + ptr->GetAssetRecord().lock()->GetAssetExtension()));
-                        if (succeed)
-                            memset(newName, 0, 256);
-                    }
-                    ImGui::EndMenu();
-                }
-            }
-            if (removable)
-            {
-                if (ImGui::Button(("Remove" + tag).c_str()))
-                {
-                    target.Clear();
-                    statusChanged = true;
-                }
-            }
-            ImGui::EndPopup();
+            statusChanged = Rename(target);
+            statusChanged = Remove(target) || statusChanged;
         }
     }
     else
     {
         ImGui::Button("none");
     }
-
-    if (ImGui::BeginDragDropTarget())
-    {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Handle));
-            Handle payload_n = *static_cast<Handle *>(payload->Data);
-            if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
-            {
-                target.Clear();
-                target.m_assetHandle = payload_n;
-                target.Update();
-                statusChanged = true;
-            }
-        }
-        ImGui::EndDragDropTarget();
-    }
+    statusChanged = Droppable<T>(target) || statusChanged;
     return statusChanged;
 }
 
 template <typename T>
-bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool removable)
+bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &name, bool modifiable)
 {
     ImGui::Text(name.c_str());
     ImGui::SameLine();
     bool statusChanged = false;
-    const std::shared_ptr<IPrivateComponent> ptr = target.Get<IPrivateComponent>();
-    ImGui::Button(ptr ? ptr->GetOwner().GetName().c_str() : "none");
-    const std::string type = Serialization::GetSerializableTypeName<T>();
+    const auto ptr = target.Get<IPrivateComponent>();
     if (ptr)
     {
-        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        ImGui::Button(ptr->GetOwner().GetName().c_str());
+        Draggable(target);
+        if (modifiable)
         {
-            ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (ptr->GetOwner().GetName() + tag).c_str());
-            ImGui::EndDragDropSource();
-        }
-        if (removable)
-        {
-            if (ImGui::BeginPopupContextItem(tag.c_str()))
-            {
-
-                if (ImGui::Button(("Remove" + tag).c_str()))
-                {
-                    target.Clear();
-                    statusChanged = true;
-                }
-                ImGui::EndPopup();
-            }
+            statusChanged = Remove(target) || statusChanged;
         }
     }
-    if (ImGui::BeginDragDropTarget())
+    else
     {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(type.c_str()))
+        ImGui::Button("none");
+    }
+    statusChanged = Droppable<T>(target) || statusChanged;
+    return statusChanged;
+}
+template <typename T> void Editor::DraggablePrivateComponent(const std::shared_ptr<T> &target)
+{
+    if (ImGui::BeginDragDropSource())
+    {
+        const auto ptr = std::dynamic_pointer_cast<IPrivateComponent>(target);
+        if (ptr)
         {
-            IM_ASSERT(payload->DataSize == sizeof(std::shared_ptr<IPrivateComponent>));
-            std::shared_ptr<T> payload_n =
-                std::dynamic_pointer_cast<T>(*static_cast<std::shared_ptr<IPrivateComponent> *>(payload->Data));
-            if (!ptr || payload_n.get() != ptr.get())
+            const auto type = ptr->GetTypeName();
+            const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
+            ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (type + tag).c_str());
+        }
+        ImGui::EndDragDropSource();
+    }
+}
+template <typename T> void Editor::DraggableAsset(const std::shared_ptr<T> &target)
+{
+    if (ImGui::BeginDragDropSource())
+    {
+        const auto ptr = std::dynamic_pointer_cast<IAsset>(target);
+        if(ptr)
+        {
+            const auto type = ptr->GetTypeName();
+            const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
+            const auto title = ptr->GetTitle();
+            ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
+        }
+        ImGui::EndDragDropSource();
+    }
+}
+template <typename T> void Editor::Draggable(AssetRef &target)
+{
+    DraggableAsset(target.Get<IAsset>());
+}
+template <typename T> bool Editor::Droppable(AssetRef &target)
+{
+    return UnsafeDroppableAsset(target, Serialization::GetSerializableTypeName<T>());
+}
+
+template <typename T> bool Editor::Rename(AssetRef &target)
+{
+    return RenameAsset(target.Get<IAsset>());
+}
+template <typename T> bool Editor::Remove(AssetRef &target)
+{
+    bool statusChanged = false;
+    auto ptr = target.Get<IAsset>();
+    if (ptr)
+    {
+        const std::string type = ptr->GetTypeName();
+        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::Button(("Remove" + tag).c_str()))
             {
-                target = payload_n;
+                target.Clear();
                 statusChanged = true;
             }
+            ImGui::EndPopup();
         }
-        ImGui::EndDragDropTarget();
-    }
-    if (ImGui::BeginDragDropTarget())
-    {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Entity));
-            Entity payload_n = *static_cast<Entity *>(payload->Data);
-            if (payload_n.IsValid() && payload_n.HasPrivateComponent<T>())
-            {
-                std::shared_ptr<T> received = payload_n.GetOrSetPrivateComponent<T>().lock();
-                if (!ptr || received.get() != ptr.get())
-                {
-                    target = received;
-                    statusChanged = true;
-                }
-            }
-        }
-        ImGui::EndDragDropTarget();
     }
     return statusChanged;
 }
-template <typename T> void Editor::DraggablePrivateComponent(std::shared_ptr<T> &target)
+template <typename T> bool Editor::Remove(PrivateComponentRef &target)
 {
-    const std::shared_ptr<IPrivateComponent> ptr = std::dynamic_pointer_cast<IPrivateComponent>(target);
-    const auto type = ptr->GetTypeName();
-    const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+    bool statusChanged = false;
+    auto ptr = target.Get<IPrivateComponent>();
+    if (ptr)
     {
-        ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
-        ImGui::TextColored(ImVec4(0, 0, 1, 1), (type + tag).c_str());
-        ImGui::EndDragDropSource();
+        const std::string type = ptr->GetTypeName();
+        const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
+        if (ImGui::BeginPopupContextItem(tag.c_str()))
+        {
+            if (ImGui::Button(("Remove" + tag).c_str()))
+            {
+                target.Clear();
+                statusChanged = true;
+            }
+            ImGui::EndPopup();
+        }
     }
-    return;
+    return statusChanged;
 }
-template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
-{
-    const std::shared_ptr<IAsset> ptr = std::dynamic_pointer_cast<IAsset>(target);
-    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-    {
-        GetInstance().m_inspectingAsset = ptr;
-    }
-    const auto type = ptr->GetTypeName();
-    const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
-    const auto title = ptr->GetTitle();
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-    {
-        ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
-        ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
-        ImGui::EndDragDropSource();
-    }
 
+template <typename T> bool Editor::RenameAsset(const std::shared_ptr<T> &target)
+{
+    bool statusChanged = false;
+    auto ptr = std::dynamic_pointer_cast<IAsset>(target);
+    const std::string type = ptr->GetTypeName();
+    const std::string tag = "##" + type + std::to_string(ptr->GetHandle());
     if (ImGui::BeginPopupContextItem(tag.c_str()))
     {
         if (!ptr->IsTemporary())
@@ -330,7 +327,16 @@ template <typename T> void Editor::DraggableAsset(std::shared_ptr<T> &target)
         }
         ImGui::EndPopup();
     }
-    return;
+    return statusChanged;
+}
+template <typename T> void Editor::Draggable(PrivateComponentRef &target)
+{
+    DraggablePrivateComponent(target.Get<IPrivateComponent>());
+}
+
+template <typename T> bool Editor::Droppable(PrivateComponentRef &target)
+{
+    return UnsafeDroppablePrivateComponent(target, Serialization::GetSerializableTypeName<T>());
 }
 
 } // namespace UniEngine

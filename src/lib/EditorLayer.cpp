@@ -740,33 +740,8 @@ void EditorLayer::OnInspect()
         std::string title = Entities::GetCurrentScene()->GetTitle();
         if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
         {
-            const auto type = scene->GetTypeName();
-            const std::string tag = "##" + type + (scene ? std::to_string(scene->GetHandle()) : "");
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-            {
-                ImGui::SetDragDropPayload(type.c_str(), &scene->m_handle, sizeof(Handle));
-                ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
-                ImGui::EndDragDropSource();
-            }
-            if (ImGui::BeginPopupContextItem(tag.c_str()))
-            {
-                if (!scene->IsTemporary())
-                {
-                    if (ImGui::BeginMenu(("Rename" + tag).c_str()))
-                    {
-                        static char newName[256];
-                        ImGui::InputText(("New name" + tag).c_str(), newName, 256);
-                        if (ImGui::Button(("Confirm" + tag).c_str()))
-                        {
-                            bool succeed = scene->SetPathAndSave(scene->GetProjectRelativePath().replace_filename(
-                                std::string(newName) + scene->GetAssetRecord().lock()->GetAssetExtension()));
-                            memset(newName, 0, 256);
-                        }
-                        ImGui::EndMenu();
-                    }
-                }
-                ImGui::EndPopup();
-            }
+            Editor::DraggableAsset(scene);
+            Editor::RenameAsset(scene);
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
                 editorManager.m_inspectingAsset = scene;

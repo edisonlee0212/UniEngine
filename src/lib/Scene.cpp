@@ -639,7 +639,9 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
     newScene->m_environmentSettings = source->m_environmentSettings;
     newScene->m_saved = source->m_saved;
     newScene->m_worldBound = source->m_worldBound;
-    newScene->m_sceneDataStorage.Clone(source->m_sceneDataStorage, newScene);
+    std::unordered_map<Handle, Handle> entityMap;
+
+    newScene->m_sceneDataStorage.Clone(entityMap, source->m_sceneDataStorage, newScene);
     for (const auto &i : source->m_systems)
     {
         auto systemName = i.second->GetTypeName();
@@ -653,12 +655,9 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
         system->OnCreate();
         Serialization::CloneSystem(system, i.second);
     }
-
-    auto mainCamera = source->m_mainCamera.Get();
-    if (mainCamera)
-    {
-        newScene->m_mainCamera = Entities::GetOrSetPrivateComponent<Camera>(newScene, mainCamera->GetOwner()).lock();
-    }
+    newScene->m_mainCamera.m_entityHandle = source->m_mainCamera.m_entityHandle;
+    newScene->m_mainCamera.m_privateComponentTypeName = source->m_mainCamera.m_privateComponentTypeName;
+    newScene->m_mainCamera.Relink(entityMap, newScene);
 }
 
 void EnvironmentSettings::Serialize(YAML::Emitter &out)
@@ -681,12 +680,11 @@ void EnvironmentSettings::Deserialize(const YAML::Node &in)
         m_environmentType = (EnvironmentType)in["m_environmentType"].as<unsigned>();
     m_environmentalMap.Load("m_environmentSettings", in);
 }
-void SceneDataStorage::Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene)
+void SceneDataStorage::Clone(std::unordered_map<Handle, Handle> &entityMap, const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene)
 {
     m_entities = source.m_entities;
     m_entityMetadataList.resize(source.m_entityMetadataList.size());
 
-    std::unordered_map<Handle, Handle> entityMap;
     for (const auto &i : source.m_entityMetadataList)
     {
         entityMap.insert({i.GetHandle(), i.GetHandle()});

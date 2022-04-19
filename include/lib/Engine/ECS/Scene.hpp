@@ -43,7 +43,7 @@ struct SceneDataStorage
     std::unordered_map<Handle, Entity> m_entityMap;
     PrivateComponentStorage m_entityPrivateComponentStorage;
 
-    void Clone(const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene);
+    void Clone(std::unordered_map<Handle, Handle> &entityMap, const SceneDataStorage &source, const std::shared_ptr<Scene> &newScene);
 };
 
 class UNIENGINE_API Scene : public IAsset
