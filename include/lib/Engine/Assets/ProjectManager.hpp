@@ -128,7 +128,12 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     static void DisplayDefaultResources();
     [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName);
     [[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string &typeName, const Handle& handle);
+
+    static void FolderHierarchyHelper(const std::shared_ptr<Folder>& folder);
   public:
+    std::shared_ptr<IAsset> m_inspectingAsset;
+
+
     static std::weak_ptr<Scene> GetStartScene();
     static void SetStartScene(const std::shared_ptr<Scene>& scene);
     static void OnInspect();

@@ -172,7 +172,6 @@ void Application::LateUpdateInternal()
         }
         // Post-processing happens here
         // Manager settings
-        ProjectManager::OnInspect();
         OnInspect();
         if (application.m_gameStatus == GameStatus::Step)
             application.m_gameStatus = GameStatus::Pause;

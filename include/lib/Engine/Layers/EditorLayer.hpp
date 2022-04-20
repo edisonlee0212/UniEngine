@@ -21,7 +21,6 @@ enum EntityEditorSystemConfigFlags
 class UNIENGINE_API EditorLayer : public ILayer
 {
   private:
-    bool m_enableSystemInspector = false;
 
     unsigned int m_configFlags = 0;
     EntityArchetype m_basicEntityArchetype;
@@ -49,7 +48,7 @@ class UNIENGINE_API EditorLayer : public ILayer
 #pragma region Scene Camera
     friend class Graphics;
     friend class Inputs;
-
+    friend class Scene;
     std::unique_ptr<RenderTarget> m_sceneCameraEntityRecorder;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_sceneCameraEntityRecorderTexture;
     std::unique_ptr<OpenGLUtils::GLRenderBuffer> m_sceneCameraEntityRecorderRenderBuffer;
@@ -72,7 +71,7 @@ class UNIENGINE_API EditorLayer : public ILayer
     Entity MouseEntitySelection(const glm::vec2 &mousePosition);
     void HighLightEntityPrePassHelper(const Entity &entity);
     void HighLightEntityHelper(const Entity &entity);
-    void FolderHierarchyHelper(const std::shared_ptr<Folder>& folder);
+
     void SceneCameraWindow();
     void MainCameraWindow();
 

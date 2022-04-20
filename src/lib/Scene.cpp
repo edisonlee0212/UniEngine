@@ -183,7 +183,7 @@ void Scene::OnInspect()
     if (this == Entities::GetCurrentScene().get())
         if (Editor::DragAndDropButton<Camera>(m_mainCamera, "Main Camera", true))
             m_saved = false;
-    if (ImGui::CollapsingHeader("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::TreeNodeEx("Environment Settings", ImGuiTreeNodeFlags_DefaultOpen))
     {
         static int type = (int)m_environmentSettings.m_environmentType;
         if (ImGui::Combo("Environment type", &type, EnvironmentTypes, IM_ARRAYSIZE(EnvironmentTypes)))
@@ -212,6 +212,46 @@ void Scene::OnInspect()
         {
             m_saved = false;
         }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Systems"))
+    {
+        if (ImGui::BeginPopupContextWindow("SystemInspectorPopup"))
+        {
+            ImGui::Text("Add system: ");
+            ImGui::Separator();
+            static float rank = 0.0f;
+            ImGui::DragFloat("Rank", &rank, 1.0f, 0.0f, 999.0f);
+            for (auto &i : Editor::GetInstance().m_systemMenuList)
+            {
+                i.second(rank);
+            }
+            ImGui::Separator();
+            ImGui::EndPopup();
+        }
+        for (auto &i : Entities::GetCurrentScene()->m_systems)
+        {
+            if (ImGui::CollapsingHeader(i.second->GetTypeName().c_str()))
+            {
+                bool enabled = i.second->Enabled();
+                if (ImGui::Checkbox("Enabled", &enabled))
+                {
+                    if (i.second->Enabled() != enabled)
+                    {
+                        if (enabled)
+                        {
+                            i.second->Enable();
+                        }
+                        else
+                        {
+                            i.second->Disable();
+                        }
+                    }
+                }
+                i.second->OnInspect();
+            }
+        }
+        ImGui::TreePop();
     }
 }
 

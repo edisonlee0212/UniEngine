@@ -19,6 +19,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     friend class Application;
     friend class DefaultResources;
     friend class ProjectManager;
+    friend class Scene;
     std::map<std::string, std::shared_ptr<Texture2D>> m_assetsIcons;
     bool m_enabled = false;
     std::map<size_t, std::function<bool(Entity entity, IDataComponent *data, bool isRoot)>> m_componentDataInspectorMap;
@@ -39,7 +40,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
 
   public:
     static std::map<std::string, std::shared_ptr<Texture2D>> &AssetIcons();
-    std::shared_ptr<IAsset> m_inspectingAsset = {};
+
     template <typename T1 = IDataComponent>
     static void RegisterComponentDataInspector(
         const std::function<bool(Entity entity, IDataComponent *data, bool isRoot)> &func);
@@ -66,8 +67,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     static void Draggable(EntityRef &entityRef);
 
     template <typename T = IAsset> static void DraggableAsset(const std::shared_ptr<T> &target);
-    template <typename T = IPrivateComponent>
-    static void DraggablePrivateComponent(const std::shared_ptr<T> &target);
+    template <typename T = IPrivateComponent> static void DraggablePrivateComponent(const std::shared_ptr<T> &target);
     static void DraggableEntity(const Entity &entity);
 
     static bool UnsafeDroppableAsset(AssetRef &target, const std::string &typeName);
@@ -176,7 +176,7 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
         ImGui::Button(ptr->GetTitle().c_str());
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
         {
-            GetInstance().m_inspectingAsset = ptr;
+            ProjectManager::GetInstance().m_inspectingAsset = ptr;
         }
         Draggable(target);
         if (modifiable)
@@ -218,17 +218,21 @@ bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &n
 }
 template <typename T> void Editor::DraggablePrivateComponent(const std::shared_ptr<T> &target)
 {
-    if (ImGui::BeginDragDropSource())
+    const auto ptr = std::dynamic_pointer_cast<IPrivateComponent>(target);
+    if (ptr)
     {
-        const auto ptr = std::dynamic_pointer_cast<IPrivateComponent>(target);
-        if (ptr)
+        const auto type = ptr->GetTypeName();
+        auto entity = ptr->GetOwner();
+        if (entity.IsValid())
         {
-            const auto type = ptr->GetTypeName();
-            const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
-            ImGui::SetDragDropPayload(type.c_str(), &ptr, sizeof(std::shared_ptr<IPrivateComponent>));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (type + tag).c_str());
+            if (ImGui::BeginDragDropSource())
+            {
+                auto handle = entity.GetHandle();
+                ImGui::SetDragDropPayload("PrivateComponent", &handle, sizeof(Handle));
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), type.c_str());
+                ImGui::EndDragDropSource();
+            }
         }
-        ImGui::EndDragDropSource();
     }
 }
 template <typename T> void Editor::DraggableAsset(const std::shared_ptr<T> &target)
@@ -236,7 +240,7 @@ template <typename T> void Editor::DraggableAsset(const std::shared_ptr<T> &targ
     if (ImGui::BeginDragDropSource())
     {
         const auto ptr = std::dynamic_pointer_cast<IAsset>(target);
-        if(ptr)
+        if (ptr)
         {
             const auto type = ptr->GetTypeName();
             const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
