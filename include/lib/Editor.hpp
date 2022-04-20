@@ -70,8 +70,8 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     template <typename T = IPrivateComponent> static void DraggablePrivateComponent(const std::shared_ptr<T> &target);
     static void DraggableEntity(const Entity &entity);
 
-    static bool UnsafeDroppableAsset(AssetRef &target, const std::string &typeName);
-    static bool UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::string &typeName);
+    static bool UnsafeDroppableAsset(AssetRef &target, const std::vector<std::string> &typeNames);
+    static bool UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::vector<std::string> &typeNames);
 
     template <typename T = IAsset> static bool Droppable(AssetRef &target);
     template <typename T = IPrivateComponent> static bool Droppable(PrivateComponentRef &target);
@@ -242,11 +242,9 @@ template <typename T> void Editor::DraggableAsset(const std::shared_ptr<T> &targ
         const auto ptr = std::dynamic_pointer_cast<IAsset>(target);
         if (ptr)
         {
-            const auto type = ptr->GetTypeName();
-            const std::string tag = "##" + type + (ptr ? std::to_string(ptr->GetHandle()) : "");
             const auto title = ptr->GetTitle();
-            ImGui::SetDragDropPayload(type.c_str(), &ptr->m_handle, sizeof(Handle));
-            ImGui::TextColored(ImVec4(0, 0, 1, 1), (title + tag).c_str());
+            ImGui::SetDragDropPayload("Asset", &ptr->m_handle, sizeof(Handle));
+            ImGui::TextColored(ImVec4(0, 0, 1, 1), title.c_str());
         }
         ImGui::EndDragDropSource();
     }
@@ -257,7 +255,7 @@ template <typename T> void Editor::Draggable(AssetRef &target)
 }
 template <typename T> bool Editor::Droppable(AssetRef &target)
 {
-    return UnsafeDroppableAsset(target, Serialization::GetSerializableTypeName<T>());
+    return UnsafeDroppableAsset(target, {Serialization::GetSerializableTypeName<T>()});
 }
 
 template <typename T> bool Editor::Rename(AssetRef &target)
@@ -340,7 +338,7 @@ template <typename T> void Editor::Draggable(PrivateComponentRef &target)
 
 template <typename T> bool Editor::Droppable(PrivateComponentRef &target)
 {
-    return UnsafeDroppablePrivateComponent(target, Serialization::GetSerializableTypeName<T>());
+    return UnsafeDroppablePrivateComponent(target, {Serialization::GetSerializableTypeName<T>()});
 }
 
 } // namespace UniEngine

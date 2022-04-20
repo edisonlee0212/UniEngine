@@ -17,22 +17,30 @@
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
 using namespace UniEngine;
-bool Editor::UnsafeDroppableAsset(AssetRef &target, const std::string &typeName)
+bool Editor::UnsafeDroppableAsset(AssetRef &target, const std::vector<std::string> &typeNames)
 {
     bool statusChanged = false;
     if (ImGui::BeginDragDropTarget())
     {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(typeName.c_str()))
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Asset"))
         {
             const std::shared_ptr<IAsset> ptr = target.Get<IAsset>();
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             Handle payload_n = *static_cast<Handle *>(payload->Data);
             if (!ptr || payload_n.GetValue() != target.GetAssetHandle().GetValue())
             {
-                target.Clear();
-                target.m_assetHandle = payload_n;
-                target.Update();
-                statusChanged = true;
+                auto asset = ProjectManager::GetAsset(payload_n);
+                for (const auto &typeName : typeNames)
+                {
+                    if (asset && asset->GetTypeName() == typeName)
+                    {
+                        target.Clear();
+                        target.m_assetHandle = payload_n;
+                        target.Update();
+                        statusChanged = true;
+                        break;
+                    }
+                }
             }
         }
         ImGui::EndDragDropTarget();
@@ -40,7 +48,7 @@ bool Editor::UnsafeDroppableAsset(AssetRef &target, const std::string &typeName)
     return statusChanged;
 }
 
-bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::string &typeName)
+bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const std::vector<std::string> &typeNames)
 {
     bool statusChanged = false;
     if (ImGui::BeginDragDropTarget())
@@ -51,12 +59,19 @@ bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const 
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             auto payload_n = *static_cast<Handle *>(payload->Data);
             auto entity = Entities::GetEntity(currentScene, payload_n);
-            if (entity.IsValid() && Entities::HasPrivateComponent(currentScene, entity, typeName))
+            if (entity.IsValid())
             {
-                const auto ptr = target.Get<IPrivateComponent>();
-                auto newPrivateComponent = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
-                target = newPrivateComponent;
-                statusChanged = true;
+                for (const auto &typeName : typeNames)
+                {
+                    if (Entities::HasPrivateComponent(currentScene, entity, typeName))
+                    {
+                        const auto ptr = target.Get<IPrivateComponent>();
+                        auto newPrivateComponent = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
+                        target = newPrivateComponent;
+                        statusChanged = true;
+                        break;
+                    }
+                }
             }
         }
         else if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PrivateComponent"))
@@ -65,10 +80,14 @@ bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const 
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             auto payload_n = *static_cast<Handle *>(payload->Data);
             auto entity = Entities::GetEntity(currentScene, payload_n);
-            if (Entities::HasPrivateComponent(currentScene, entity, typeName))
+            for (const auto &typeName : typeNames)
             {
-                target = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
-                statusChanged = true;
+                if (Entities::HasPrivateComponent(currentScene, entity, typeName))
+                {
+                    target = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
+                    statusChanged = true;
+                    break;
+                }
             }
         }
         ImGui::EndDragDropTarget();
@@ -219,14 +238,7 @@ bool Editor::DragAndDropButton(
     {
         ImGui::Button("none");
     }
-    for (const auto &typeName : acceptableTypeNames)
-    {
-        if (statusChanged)
-        {
-            break;
-        }
-        statusChanged = UnsafeDroppableAsset(target, typeName) || statusChanged;
-    }
+    statusChanged = UnsafeDroppableAsset(target, acceptableTypeNames) || statusChanged;
     return statusChanged;
 }
 bool Editor::DragAndDropButton(
@@ -253,14 +265,7 @@ bool Editor::DragAndDropButton(
     {
         ImGui::Button("none");
     }
-    for (const auto &typeName : acceptableTypeNames)
-    {
-        if (statusChanged)
-        {
-            break;
-        }
-        statusChanged = UnsafeDroppablePrivateComponent(target, typeName) || statusChanged;
-    }
+    statusChanged = UnsafeDroppablePrivateComponent(target, acceptableTypeNames) || statusChanged;
     return statusChanged;
 }
 

@@ -1,9 +1,9 @@
 #include "ProjectManager.hpp"
 #include "Engine/ECS/Entities.hpp"
 #include "Engine/Rendering/Graphics.hpp"
+#include "Prefab.hpp"
 #include <Application.hpp>
 #include <PhysicsLayer.hpp>
-#include "Prefab.hpp"
 using namespace UniEngine;
 
 std::shared_ptr<IAsset> AssetRecord::GetAsset()
@@ -66,7 +66,8 @@ std::filesystem::path AssetRecord::GetAbsolutePath() const
 }
 void AssetRecord::SetAssetFileName(const std::string &newName)
 {
-    if(m_assetFileName == newName) return;
+    if (m_assetFileName == newName)
+        return;
     // TODO: Check invalid filename.
     auto oldPath = GetAbsolutePath();
     auto newPath = oldPath;
@@ -302,7 +303,8 @@ std::weak_ptr<Folder> Folder::GetOrCreateChild(const std::string &folderName)
     ProjectManager::GetInstance().m_folderRegistry[newFolder->m_handle] = newFolder;
     newFolder->m_parent = m_self;
     auto newFolderPath = newFolder->GetAbsolutePath();
-    if(!std::filesystem::exists(newFolderPath)) {
+    if (!std::filesystem::exists(newFolderPath))
+    {
         std::filesystem::create_directories(newFolderPath);
     }
     newFolder->Save();
@@ -573,15 +575,18 @@ bool Folder::HasAsset(const std::string &fileName, const std::string &extension)
 }
 Folder::~Folder()
 {
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     projectManager.m_folderRegistry.erase(m_handle);
 }
-bool Folder::IsSelfOrAncestor(const Handle& handle)
+bool Folder::IsSelfOrAncestor(const Handle &handle)
 {
     std::shared_ptr<Folder> walker = m_self.lock();
-    while(true){
-        if(walker->GetHandle() == handle) return true;
-        if(walker->m_parent.expired()) return false;
+    while (true)
+    {
+        if (walker->GetHandle() == handle)
+            return true;
+        if (walker->m_parent.expired())
+            return false;
         walker = walker->m_parent.lock();
     }
     return false;
@@ -652,7 +657,8 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
     projectManager.m_currentFocusedFolder = projectManager.m_projectFolder = std::make_shared<Folder>();
     projectManager.m_folderRegistry[0] = projectManager.m_projectFolder;
     projectManager.m_projectFolder->m_self = projectManager.m_projectFolder;
-    if(!std::filesystem::exists(projectManager.m_projectFolder->GetAbsolutePath())){
+    if (!std::filesystem::exists(projectManager.m_projectFolder->GetAbsolutePath()))
+    {
         std::filesystem::create_directories(projectManager.m_projectFolder->GetAbsolutePath());
     }
     ScanProject();
@@ -853,11 +859,7 @@ bool ProjectManager::IsInProjectFolder(const std::filesystem::path &absolutePath
     }
     auto &projectManager = GetInstance();
     auto projectFolderPath = projectManager.m_projectPath.parent_path();
-    auto it = std::search(
-        absolutePath.begin(),
-        absolutePath.end(),
-        projectFolderPath.begin(),
-        projectFolderPath.end());
+    auto it = std::search(absolutePath.begin(), absolutePath.end(), projectFolderPath.begin(), projectFolderPath.end());
     return it != absolutePath.end();
 }
 bool ProjectManager::IsValidAssetFileName(const std::filesystem::path &path)
@@ -948,12 +950,12 @@ void ProjectManager::OnInspect()
             {
                 for (const auto &extension : projectManager.m_assetExtensions)
                 {
-                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
+                    if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Asset"))
                     {
                         IM_ASSERT(payload->DataSize == sizeof(Handle));
                         Handle payload_n = *(Handle *)payload->Data;
                         auto asset = projectManager.m_assetRegistry[payload_n].lock();
-                        if(asset)
+                        if (asset)
                         {
                             if (asset->IsTemporary())
                             {
@@ -979,16 +981,20 @@ void ProjectManager::OnInspect()
                 }
                 if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
                 {
-                    IM_ASSERT(payload->DataSize == sizeof(Entity));
+                    IM_ASSERT(payload->DataSize == sizeof(Handle));
                     auto prefab = std::dynamic_pointer_cast<Prefab>(ProjectManager::CreateTemporaryAsset<Prefab>());
-                    auto entity = *static_cast<Entity *>(payload->Data);
-                    prefab->FromEntity(entity);
-                    // If current folder doesn't contain file with same name
-                    auto fileName = entity.GetName();
-                    auto fileExtension = projectManager.m_assetExtensions["Prefab"].at(0);
-                    auto filePath =
-                        ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
-                    prefab->SetPathAndSave(filePath);
+                    auto entityHandle = *static_cast<Handle *>(payload->Data);
+                    auto entity = Entities::GetEntity(Entities::GetCurrentScene(), entityHandle);
+                    if (entity.IsValid())
+                    {
+                        prefab->FromEntity(entity);
+                        // If current folder doesn't contain file with same name
+                        auto fileName = entity.GetName();
+                        auto fileExtension = projectManager.m_assetExtensions["Prefab"].at(0);
+                        auto filePath =
+                            ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
+                        prefab->SetPathAndSave(filePath);
+                    }
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -1081,7 +1087,7 @@ void ProjectManager::OnInspect()
                         ImGui::TextColored(ImVec4(0, 0, 1, 1), ("Folder" + tag).c_str());
                         ImGui::EndDragDropSource();
                     }
-                    if(i.second->GetHandle() != 0)
+                    if (i.second->GetHandle() != 0)
                     {
                         if (ImGui::BeginPopupContextItem(tag.c_str()))
                         {
@@ -1114,13 +1120,15 @@ void ProjectManager::OnInspect()
                         {
                             IM_ASSERT(payload->DataSize == sizeof(Handle));
                             Handle payload_n = *(Handle *)payload->Data;
-                            if(payload_n.GetValue() != 0)
+                            if (payload_n.GetValue() != 0)
                             {
                                 auto temp = projectManager.m_folderRegistry[payload_n];
                                 if (!temp.expired())
                                 {
                                     auto actualFolder = temp.lock();
-                                    if(!i.second->IsSelfOrAncestor(actualFolder->m_handle) && actualFolder->m_parent.lock().get() != i.second.get()){
+                                    if (!i.second->IsSelfOrAncestor(actualFolder->m_handle) &&
+                                        actualFolder->m_parent.lock().get() != i.second.get())
+                                    {
                                         actualFolder->m_parent.lock()->MoveChild(actualFolder->GetHandle(), i.second);
                                     }
                                 }
@@ -1129,13 +1137,15 @@ void ProjectManager::OnInspect()
 
                         for (const auto &extension : projectManager.m_assetExtensions)
                         {
-                            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
+                            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Asset"))
                             {
                                 IM_ASSERT(payload->DataSize == sizeof(Handle));
                                 Handle payload_n = *(Handle *)payload->Data;
-                                auto asset = projectManager.m_assetRegistry[payload_n].lock();
-                                if(asset)
+                                auto assetSearch = projectManager.m_assetRegistry.find(payload_n);
+                                if (assetSearch != projectManager.m_assetRegistry.end() &&
+                                    !assetSearch->second.expired())
                                 {
+                                    auto asset = assetSearch->second.lock();
                                     if (asset->IsTemporary())
                                     {
                                         auto fileExtension =
@@ -1153,11 +1163,24 @@ void ProjectManager::OnInspect()
                                         {
                                             auto fileExtension = assetRecord->GetAssetExtension();
                                             auto fileName = assetRecord->GetAssetFileName();
-                                            int index = 0;
                                             auto filePath = ProjectManager::GenerateNewPath(
                                                 (i.second->GetProjectRelativePath() / fileName).string(),
                                                 fileExtension);
                                             asset->SetPathAndSave(filePath);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    auto assetRecordSearch = projectManager.m_assetRecordRegistry.find(payload_n);
+                                    if (assetRecordSearch != projectManager.m_assetRecordRegistry.end() &&
+                                        !assetRecordSearch->second.expired())
+                                    {
+                                        auto assetRecord = assetRecordSearch->second.lock();
+                                        auto folder = assetRecord->GetFolder().lock();
+                                        if (folder.get() != i.second.get())
+                                        {
+                                            folder->MoveAsset(assetRecord->GetAssetHandle(), i.second);
                                         }
                                     }
                                 }
@@ -1232,9 +1255,9 @@ void ProjectManager::OnInspect()
                             textureId = (ImTextureID)Editor::AssetIcons()["Binary"]->UnsafeGetGLTexture()->Id();
                         }
                     }
-                    static std::shared_ptr<IAsset> asset;
+                    static Handle focusedAssetHandle;
                     bool itemFocused = false;
-                    if (asset && asset->GetHandle().GetValue() == i.first.GetValue())
+                    if (focusedAssetHandle == i.first.GetValue())
                     {
                         itemFocused = true;
                     }
@@ -1247,7 +1270,7 @@ void ProjectManager::OnInspect()
                         if (ImGui::IsMouseDoubleClicked(0) && i.second->GetAssetTypeName() != "Binary")
                         {
                             // If it's an asset then inspect.
-                            asset = i.second->GetAsset();
+                            auto asset = i.second->GetAsset();
                             if (asset)
                                 projectManager.m_inspectingAsset = asset;
                         }
@@ -1255,8 +1278,8 @@ void ProjectManager::OnInspect()
                     const std::string tag = "##" + i.second->GetAssetTypeName() + std::to_string(i.first.GetValue());
                     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
                     {
-                        ImGui::SetDragDropPayload(i.second->GetAssetTypeName().c_str(), &i.first, sizeof(Handle));
-                        ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second->GetAssetFileName() + tag).c_str());
+                        ImGui::SetDragDropPayload("Asset", &i.first, sizeof(Handle));
+                        ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second->GetAssetFileName()).c_str());
                         ImGui::EndDragDropSource();
                     }
 
@@ -1377,13 +1400,15 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             Handle payload_n = *(Handle *)payload->Data;
-            if(payload_n.GetValue() != 0)
+            if (payload_n.GetValue() != 0)
             {
                 auto temp = projectManager.m_folderRegistry[payload_n];
                 if (!temp.expired())
                 {
                     auto actualFolder = temp.lock();
-                    if(!folder->IsSelfOrAncestor(actualFolder->m_handle) && actualFolder->m_parent.lock().get() != folder.get()){
+                    if (!folder->IsSelfOrAncestor(actualFolder->m_handle) &&
+                        actualFolder->m_parent.lock().get() != folder.get())
+                    {
                         actualFolder->m_parent.lock()->MoveChild(actualFolder->GetHandle(), folder);
                     }
                 }
@@ -1391,13 +1416,14 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
         }
         for (const auto &extension : projectManager.m_assetExtensions)
         {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(extension.first.c_str()))
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Asset"))
             {
                 IM_ASSERT(payload->DataSize == sizeof(Handle));
                 Handle payload_n = *(Handle *)payload->Data;
-                auto asset = projectManager.m_assetRegistry[payload_n].lock();
-                if(asset)
+                auto assetSearch = projectManager.m_assetRegistry.find(payload_n);
+                if (assetSearch != projectManager.m_assetRegistry.end() && !assetSearch->second.expired())
                 {
+                    auto asset = assetSearch->second.lock();
                     if (asset->IsTemporary())
                     {
                         auto fileExtension = projectManager.m_assetExtensions[asset->GetTypeName()].front();
@@ -1414,10 +1440,23 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
                         {
                             auto fileExtension = assetRecord->GetAssetExtension();
                             auto fileName = assetRecord->GetAssetFileName();
-                            int index = 0;
                             auto filePath = ProjectManager::GenerateNewPath(
                                 (folder->GetProjectRelativePath() / fileName).string(), fileExtension);
                             asset->SetPathAndSave(filePath);
+                        }
+                    }
+                }
+                else
+                {
+                    auto assetRecordSearch = projectManager.m_assetRecordRegistry.find(payload_n);
+                    if (assetRecordSearch != projectManager.m_assetRecordRegistry.end() &&
+                        !assetRecordSearch->second.expired())
+                    {
+                        auto assetRecord = assetRecordSearch->second.lock();
+                        auto previousFolder = assetRecord->GetFolder().lock();
+                        if (folder && previousFolder.get() != folder.get())
+                        {
+                            previousFolder->MoveAsset(assetRecord->GetAssetHandle(), folder);
                         }
                     }
                 }
@@ -1436,7 +1475,7 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
         ImGui::TextColored(ImVec4(0, 0, 1, 1), ("Folder" + tag).c_str());
         ImGui::EndDragDropSource();
     }
-    if(folder->GetHandle() != 0)
+    if (folder->GetHandle() != 0)
     {
         if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
@@ -1468,15 +1507,17 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
         {
             FolderHierarchyHelper(i.second);
         }
-        for(const auto & i : folder->m_assetRecords){
-            if(ImGui::TreeNodeEx((i.second->GetAssetFileName() + i.second->GetAssetExtension()).c_str(), ImGuiTreeNodeFlags_Bullet)){
+        for (const auto &i : folder->m_assetRecords)
+        {
+            if (ImGui::TreeNodeEx(
+                    (i.second->GetAssetFileName() + i.second->GetAssetExtension()).c_str(), ImGuiTreeNodeFlags_Bullet))
+            {
                 ImGui::TreePop();
             }
-            const std::string tag = "##" + i.second->GetAssetTypeName() + std::to_string(i.first.GetValue());
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
-                ImGui::SetDragDropPayload(i.second->GetAssetTypeName().c_str(), &i.first, sizeof(Handle));
-                ImGui::TextColored(ImVec4(0, 0, 1, 1), (i.second->GetAssetFileName() + tag).c_str());
+                ImGui::SetDragDropPayload("Asset", &i.first, sizeof(Handle));
+                ImGui::TextColored(ImVec4(0, 0, 1, 1), i.second->GetAssetFileName().c_str());
                 ImGui::EndDragDropSource();
             }
         }
@@ -1485,28 +1526,33 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
 }
 std::weak_ptr<Scene> ProjectManager::GetStartScene()
 {
-    auto& projectManager = ProjectManager::GetInstance();
+    auto &projectManager = ProjectManager::GetInstance();
     return projectManager.m_startScene;
 }
-void ProjectManager::SetStartScene(const std::shared_ptr<Scene>& scene){
-    auto& projectManager = ProjectManager::GetInstance();
+void ProjectManager::SetStartScene(const std::shared_ptr<Scene> &scene)
+{
+    auto &projectManager = ProjectManager::GetInstance();
     projectManager.m_startScene = scene;
     SaveProject();
 }
 std::weak_ptr<Folder> ProjectManager::GetFolder(const Handle &handle)
 {
-    auto& projectManager = GetInstance();
+    auto &projectManager = GetInstance();
     auto search = projectManager.m_folderRegistry.find(handle);
-    if(search != projectManager.m_folderRegistry.end()){
+    if (search != projectManager.m_folderRegistry.end())
+    {
         return search->second;
     }
     return {};
 }
-std::filesystem::path ProjectManager::GetPathRelativeToProject(const std::filesystem::path& absolutePath)
+std::filesystem::path ProjectManager::GetPathRelativeToProject(const std::filesystem::path &absolutePath)
 {
-    auto& projectManager = GetInstance();
-    if(!projectManager.m_projectFolder) return {};
-    if(!absolutePath.is_absolute()) return {};
-    if(!IsInProjectFolder(absolutePath)) return {};
+    auto &projectManager = GetInstance();
+    if (!projectManager.m_projectFolder)
+        return {};
+    if (!absolutePath.is_absolute())
+        return {};
+    if (!IsInProjectFolder(absolutePath))
+        return {};
     return std::filesystem::relative(absolutePath, projectManager.GetProjectPath().parent_path());
 }

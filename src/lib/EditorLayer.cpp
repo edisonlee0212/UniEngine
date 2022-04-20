@@ -1363,14 +1363,8 @@ void EditorLayer::CameraWindowDragAndDrop()
     {
         if (!Application::IsPlaying())
         {
-            const std::string sceneTypeHash = Serialization::GetSerializableTypeName<Scene>();
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(sceneTypeHash.c_str()))
-            {
-                IM_ASSERT(payload->DataSize == sizeof(Handle));
-                Handle payload_n = *(Handle *)payload->Data;
-                AssetRef assetRef;
-                assetRef.m_assetHandle = payload_n;
-                assetRef.Update();
+            AssetRef assetRef;
+            if(Editor::UnsafeDroppableAsset(assetRef, {"Scene"})){
                 auto scene = assetRef.Get<Scene>();
                 if (scene)
                 {
@@ -1379,57 +1373,40 @@ void EditorLayer::CameraWindowDragAndDrop()
                 }
             }
         }
-        const std::string modelTypeHash = Serialization::GetSerializableTypeName<Prefab>();
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(modelTypeHash.c_str()))
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Handle));
-            Handle payload_n = *(Handle *)payload->Data;
-            AssetRef assetRef;
-            assetRef.m_assetHandle = payload_n;
-            assetRef.Update();
-            EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            std::dynamic_pointer_cast<Prefab>(assetRef.m_value)->ToEntity();
-        }
-        const std::string meshTypeHash = Serialization::GetSerializableTypeName<Mesh>();
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(meshTypeHash.c_str()))
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Handle));
-            Handle payload_n = *(Handle *)payload->Data;
-            AssetRef assetRef;
-            assetRef.m_assetHandle = payload_n;
-            assetRef.Update();
-            Entity entity = Entities::CreateEntity(Entities::GetCurrentScene(), "Mesh");
-            auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
-            meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(assetRef.m_value));
-            auto material = ProjectManager::CreateTemporaryAsset<Material>();
-            material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-            meshRenderer->m_material.Set<Material>(material);
-        }
 
-        const std::string environmentalMapTypeHash = Serialization::GetSerializableTypeName<EnvironmentalMap>();
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(environmentalMapTypeHash.c_str()))
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Handle));
-            Handle payload_n = *(Handle *)payload->Data;
-            AssetRef assetRef;
-            assetRef.m_assetHandle = payload_n;
-            assetRef.Update();
-            Entities::GetCurrentScene()->m_environmentSettings.m_environmentalMap =
-                std::dynamic_pointer_cast<EnvironmentalMap>(assetRef.m_value);
-        }
-
-        const std::string cubeMapTypeHash = Serialization::GetSerializableTypeName<Cubemap>();
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(cubeMapTypeHash.c_str()))
-        {
-            auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
-            if (mainCamera)
+        AssetRef assetRef;
+        if(Editor::UnsafeDroppableAsset(assetRef, {"Prefab", "Mesh", "Cubemap"})){
+            auto prefab = assetRef.Get<Prefab>();
+            if (prefab)
             {
-                IM_ASSERT(payload->DataSize == sizeof(Handle));
-                Handle payload_n = *(Handle *)payload->Data;
-                AssetRef assetRef;
-                assetRef.m_assetHandle = payload_n;
-                assetRef.Update();
-                mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(assetRef.m_value);
+                EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
+                prefab->ToEntity();
+            }else
+            {
+                auto mesh = assetRef.Get<Mesh>();
+                if (mesh)
+                {
+                    Entity entity = Entities::CreateEntity(Entities::GetCurrentScene(), "Mesh");
+                    auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+                    meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(mesh));
+                    auto material = ProjectManager::CreateTemporaryAsset<Material>();
+                    material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+                    meshRenderer->m_material.Set<Material>(material);
+                }else{
+                    auto envMap = assetRef.Get<EnvironmentalMap>();
+                    if (envMap)
+                    {
+                        Entities::GetCurrentScene()->m_environmentSettings.m_environmentalMap =
+                            std::dynamic_pointer_cast<EnvironmentalMap>(envMap);
+                    }else{
+                        auto cubeMap = assetRef.Get<Cubemap>();
+                        if (cubeMap)
+                        {
+                            auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
+                            mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(cubeMap);
+                        }
+                    }
+                }
             }
         }
         ImGui::EndDragDropTarget();
