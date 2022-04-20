@@ -13,7 +13,7 @@ bool PrivateComponentRef::Update()
         Clear();
         return false;
     }
-    if (!m_value.has_value() || m_value->expired())
+    if (m_value.expired())
     {
         auto scene = m_scene.lock();
         auto entity = Entities::GetEntity(scene, m_entityHandle);

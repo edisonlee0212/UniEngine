@@ -10,7 +10,7 @@ class UNIENGINE_API PrivateComponentRef
 {
     friend class Prefab;
     friend class Scene;
-    std::optional<std::weak_ptr<IPrivateComponent>> m_value;
+    std::weak_ptr<IPrivateComponent> m_value;
     Handle m_entityHandle = Handle(0);
     std::weak_ptr<Scene> m_scene;
     std::string m_privateComponentTypeName;
@@ -83,7 +83,7 @@ class UNIENGINE_API PrivateComponentRef
     {
         if (Update())
         {
-            return std::dynamic_pointer_cast<T>(m_value.value().lock());
+            return std::dynamic_pointer_cast<T>(m_value.lock());
         }
         return nullptr;
     }
