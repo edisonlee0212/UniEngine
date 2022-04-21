@@ -1392,6 +1392,4 @@ void EditorLayer::CameraWindowDragAndDrop()
             mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(asset);
         }
     }
-
-    ImGui::EndDragDropTarget();
 }
