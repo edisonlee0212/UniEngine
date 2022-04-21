@@ -954,27 +954,48 @@ void ProjectManager::OnInspect()
                     {
                         IM_ASSERT(payload->DataSize == sizeof(Handle));
                         Handle payload_n = *(Handle *)payload->Data;
-                        auto asset = projectManager.m_assetRegistry[payload_n].lock();
-                        if (asset)
+
+                        auto assetSearch = projectManager.m_assetRegistry.find(payload_n);
+                        if (assetSearch != projectManager.m_assetRegistry.end() &&
+                            !assetSearch->second.expired())
                         {
+                            auto asset = assetSearch->second.lock();
                             if (asset->IsTemporary())
                             {
-                                auto fileExtension = projectManager.m_assetExtensions[asset->GetTypeName()].front();
+                                auto fileExtension =
+                                    projectManager.m_assetExtensions[asset->GetTypeName()].front();
                                 auto fileName = "New " + asset->GetTypeName();
                                 int index = 0;
                                 auto filePath = ProjectManager::GenerateNewPath(
-                                    (currentFolderPath / fileName).string(), fileExtension);
+                                    (currentFocusedFolder->GetProjectRelativePath() / fileName).string(), fileExtension);
                                 asset->SetPathAndSave(filePath);
                             }
                             else
                             {
                                 auto assetRecord = asset->m_assetRecord.lock();
-                                auto fileExtension = assetRecord->GetAssetExtension();
-                                auto fileName = assetRecord->GetAssetFileName();
-                                int index = 0;
-                                auto filePath = ProjectManager::GenerateNewPath(
-                                    (currentFolderPath / fileName).string(), fileExtension);
-                                asset->SetPathAndSave(filePath);
+                                if (assetRecord->GetFolder().lock().get() != currentFocusedFolder.get())
+                                {
+                                    auto fileExtension = assetRecord->GetAssetExtension();
+                                    auto fileName = assetRecord->GetAssetFileName();
+                                    auto filePath = ProjectManager::GenerateNewPath(
+                                        (currentFocusedFolder->GetProjectRelativePath() / fileName).string(),
+                                        fileExtension);
+                                    asset->SetPathAndSave(filePath);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            auto assetRecordSearch = projectManager.m_assetRecordRegistry.find(payload_n);
+                            if (assetRecordSearch != projectManager.m_assetRecordRegistry.end() &&
+                                !assetRecordSearch->second.expired())
+                            {
+                                auto assetRecord = assetRecordSearch->second.lock();
+                                auto folder = assetRecord->GetFolder().lock();
+                                if (folder.get() != currentFocusedFolder.get())
+                                {
+                                    folder->MoveAsset(assetRecord->GetAssetHandle(), currentFocusedFolder);
+                                }
                             }
                         }
                     }
