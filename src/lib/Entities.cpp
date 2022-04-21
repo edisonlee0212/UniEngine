@@ -96,7 +96,7 @@ void Entities::DeleteEntityInternal(const std::shared_ptr<Scene> &scene, unsigne
     entityInfo.m_version = actualEntity.m_version + 1;
     entityInfo.m_enabled = true;
 
-    scene->m_sceneDataStorage.m_entityMap[entityInfo.m_handle] = Entity();
+    scene->m_sceneDataStorage.m_entityMap.erase(entityInfo.m_handle);
     entityInfo.m_handle = Handle(0);
 
     entityInfo.m_privateComponentElements.clear();
