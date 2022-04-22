@@ -1,19 +1,19 @@
-#include "Engine/Rendering/Graphics.hpp"
+#include "Graphics.hpp"
 #include "EditorLayer.hpp"
 #include "RenderLayer.hpp"
-#include <Application.hpp>
-#include <ProjectManager.hpp>
-#include <Camera.hpp>
-#include <Cubemap.hpp>
-#include <DefaultResources.hpp>
+#include "Application.hpp"
+#include "ProjectManager.hpp"
+#include "Camera.hpp"
+#include "Cubemap.hpp"
+#include "DefaultResources.hpp"
 #include "Editor.hpp"
-#include "Engine/Core/Inputs.hpp"
-#include <LightProbe.hpp>
-#include <Lights.hpp>
-#include <MeshRenderer.hpp>
-#include <PostProcessing.hpp>
-#include <ReflectionProbe.hpp>
-#include <SkinnedMeshRenderer.hpp>
+#include "Inputs.hpp"
+#include "LightProbe.hpp"
+#include "Lights.hpp"
+#include "MeshRenderer.hpp"
+#include "PostProcessing.hpp"
+#include "ReflectionProbe.hpp"
+#include "SkinnedMeshRenderer.hpp"
 using namespace UniEngine;
 
 #pragma region Helpers

@@ -4,10 +4,10 @@
 
 #include "EntityMetadata.hpp"
 #include "Serialization.hpp"
-#include "PrivateComponentElement.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 
-void EntityMetadata::Deserialize(const YAML::Node &in)
+void EntityMetadata::Deserialize(const YAML::Node &in, const std::shared_ptr<Scene> &scene)
 {
     m_name = in["m_name"].as<std::string>();
     m_version = 1;
@@ -16,7 +16,7 @@ void EntityMetadata::Deserialize(const YAML::Node &in)
     m_handle.m_value = in["m_handle"].as<uint64_t>();
 }
 
-void EntityMetadata::Serialize(YAML::Emitter &out)
+void EntityMetadata::Serialize(YAML::Emitter &out, const std::shared_ptr<Scene> &scene)
 {
     out << YAML::BeginMap;
     {
@@ -24,8 +24,8 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
         out << YAML::Key << "m_handle" << YAML::Value << m_handle.m_value;
         out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
         out << YAML::Key << "m_static" << YAML::Value << m_static;
-        if(m_parent.GetIndex() != 0) out << YAML::Key << "Parent.Handle" << YAML::Value << m_parent.GetHandle();
-        if(m_root.GetIndex() != 0)out << YAML::Key << "Root.Handle" << YAML::Value << m_root.GetHandle();
+        if(m_parent.GetIndex() != 0) out << YAML::Key << "Parent.Handle" << YAML::Value << scene->GetEntityHandle(m_parent);
+        if(m_root.GetIndex() != 0)out << YAML::Key << "Root.Handle" << YAML::Value << scene->GetEntityHandle(m_root);
 
 #pragma region Private Components
         out << YAML::Key << "m_privateComponentElements" << YAML::Value << YAML::BeginSeq;

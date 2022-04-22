@@ -3,25 +3,26 @@
 //
 #include "EditorLayer.hpp"
 #include "Editor.hpp"
-#include "Engine/Core/Inputs.hpp"
-#include "Engine/Core/Windows.hpp"
+#include "Inputs.hpp"
+#include "Windows.hpp"
 #include "Prefab.hpp"
 #include "RenderLayer.hpp"
-#include <Application.hpp>
-#include <Camera.hpp>
-#include <ClassRegistry.hpp>
-#include <DefaultResources.hpp>
-#include <Joint.hpp>
-#include <Lights.hpp>
-#include <MeshRenderer.hpp>
-#include <Particles.hpp>
-#include <PhysicsLayer.hpp>
-#include <PlayerController.hpp>
-#include <PostProcessing.hpp>
-#include <ProjectManager.hpp>
-#include <RigidBody.hpp>
-#include <SkinnedMeshRenderer.hpp>
-#include <Utilities.hpp>
+#include "Application.hpp"
+#include "Camera.hpp"
+#include "ClassRegistry.hpp"
+#include "DefaultResources.hpp"
+#include "Joint.hpp"
+#include "Lights.hpp"
+#include "MeshRenderer.hpp"
+#include "Particles.hpp"
+#include "PhysicsLayer.hpp"
+#include "PlayerController.hpp"
+#include "PostProcessing.hpp"
+#include "ProjectManager.hpp"
+#include "RigidBody.hpp"
+#include "SkinnedMeshRenderer.hpp"
+#include "Utilities.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 
 void EditorLayer::OnCreate()
@@ -69,9 +70,10 @@ void EditorLayer::OnCreate()
         bool edited = false;
         bool reload = previousEntity != entity;
         bool readOnly = false;
-        if (Application::IsPlaying() && entity.HasPrivateComponent<RigidBody>())
+        auto scene = Application::GetActiveScene();
+        if (Application::IsPlaying() && scene->HasPrivateComponent<RigidBody>(entity))
         {
-            auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
+            auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(entity).lock();
             if (!rigidBody->IsKinematic() && rigidBody->Registered())
             {
                 reload = true;
@@ -265,31 +267,32 @@ bool EditorLayer::DrawEntityMenu(const bool &enabled, const Entity &entity)
     bool deleted = false;
     if (ImGui::BeginPopupContextItem(std::to_string(entity.GetIndex()).c_str()))
     {
-        ImGui::Text(("Handle: " + std::to_string(entity.GetHandle().GetValue())).c_str());
+        auto scene = Application::GetActiveScene();
+        ImGui::Text(("Handle: " + std::to_string(scene->GetEntityHandle(entity).GetValue())).c_str());
         if (ImGui::Button("Delete"))
         {
-            Entities::DeleteEntity(Entities::GetCurrentScene(), entity);
+            scene->DeleteEntity(entity);
             deleted = true;
         }
         if (!deleted && ImGui::Button(enabled ? "Disable" : "Enable"))
         {
             if (enabled)
             {
-                entity.SetEnabled(false);
+                scene->SetEnable(entity, false);
             }
             else
             {
-                entity.SetEnabled(true);
+                scene->SetEnable(entity, true);
             }
         }
-        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        const std::string tag = "##Entity" + std::to_string(scene->GetEntityHandle(entity));
         if (!deleted && ImGui::BeginMenu(("Rename" + tag).c_str()))
         {
             static char newName[256];
             ImGui::InputText("New name", newName, 256);
             if (ImGui::Button("Confirm"))
             {
-                Entities::SetEntityName(Entities::GetCurrentScene(), entity, std::string(newName));
+                scene->SetEntityName(entity, std::string(newName));
                 memset(newName, 0, 256);
             }
             ImGui::EndMenu();
@@ -306,7 +309,8 @@ void EditorLayer::InspectComponentData(Entity entity, IDataComponent *data, Data
     {
         if (editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot))
         {
-            Entities::GetCurrentScene()->SetUnsaved();
+            auto scene = Application::GetActiveScene();
+            scene->SetUnsaved();
         }
     }
 }
@@ -325,7 +329,8 @@ Entity EditorLayer::MouseEntitySelection(const glm::vec2 &mousePosition)
         glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
         if (entityIndex > 0)
         {
-            retVal = Entities::GetEntity(Entities::GetCurrentScene(), static_cast<unsigned>(entityIndex));
+            auto scene = Application::GetActiveScene();
+            retVal = scene->GetEntity(static_cast<unsigned>(entityIndex));
         }
     }
     return retVal;
@@ -333,45 +338,46 @@ Entity EditorLayer::MouseEntitySelection(const glm::vec2 &mousePosition)
 
 void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity)
 {
-    if (!entity.IsValid() || !entity.IsEnabled())
+    auto scene = Application::GetActiveScene();
+    if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
-    Entities::ForEachChild(Entities::GetCurrentScene(), entity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
+    scene->ForEachChild(entity, [&](Entity child) {
         HighLightEntityPrePassHelper(child);
     });
-    if (entity.HasPrivateComponent<MeshRenderer>())
+    if (scene->HasPrivateComponent<MeshRenderer>(entity))
     {
-        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        auto mmc = scene->GetOrSetPrivateComponent<MeshRenderer>(entity).lock();
         auto material = mmc->m_material.Get<Material>();
         auto mesh = mmc->m_mesh.Get<Mesh>();
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4x4(
-                "model", Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity).m_value);
+                "model", scene->GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->Draw();
         }
     }
-    if (entity.HasPrivateComponent<Particles>())
+    if (scene->HasPrivateComponent<Particles>(entity))
     {
-        auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
+        auto immc = scene->GetOrSetPrivateComponent<Particles>(entity).lock();
         auto material = immc->m_material.Get<Material>();
         auto mesh = immc->m_mesh.Get<Mesh>();
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
             DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4x4(
-                "model", Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity).m_value);
+                "model", scene->GetDataComponent<GlobalTransform>(entity).m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
     }
-    if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
+    if (scene->HasPrivateComponent<SkinnedMeshRenderer>(entity))
     {
-        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        auto smmc = scene->GetOrSetPrivateComponent<SkinnedMeshRenderer>(entity).lock();
         auto material = smmc->m_material.Get<Material>();
         auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
             if (!smmc->RagDoll())
-                ltw = Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity);
+                ltw = scene->GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4x4("model", ltw.m_value);
             skinnedMesh->Draw();
@@ -381,46 +387,47 @@ void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity)
 
 void EditorLayer::HighLightEntityHelper(const Entity &entity)
 {
-    if (!entity.IsValid() || !entity.IsEnabled())
+    auto scene = Application::GetActiveScene();
+    if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
-    Entities::ForEachChild(Entities::GetCurrentScene(), entity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
+    scene->ForEachChild(entity, [&](Entity child) {
         HighLightEntityHelper(child);
     });
-    if (entity.HasPrivateComponent<MeshRenderer>())
+    if (scene->HasPrivateComponent<MeshRenderer>(entity))
     {
-        auto mmc = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+        auto mmc = scene->GetOrSetPrivateComponent<MeshRenderer>(entity).lock();
         auto material = mmc->m_material.Get<Material>();
         auto mesh = mmc->m_mesh.Get<Mesh>();
         if (mmc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
-            auto ltw = Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity);
+            auto ltw = scene->GetDataComponent<GlobalTransform>(entity);
             DefaultResources::m_sceneHighlightProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightProgram->SetFloat3("scale", ltw.GetScale());
             mesh->Draw();
         }
     }
-    if (entity.HasPrivateComponent<Particles>())
+    if (scene->HasPrivateComponent<Particles>(entity))
     {
-        auto immc = entity.GetOrSetPrivateComponent<Particles>().lock();
+        auto immc = scene->GetOrSetPrivateComponent<Particles>(entity).lock();
         auto material = immc->m_material.Get<Material>();
         auto mesh = immc->m_mesh.Get<Mesh>();
         if (immc->IsEnabled() && material != nullptr && mesh != nullptr)
         {
-            auto ltw = Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity);
+            auto ltw = scene->GetDataComponent<GlobalTransform>(entity);
             DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4x4("model", ltw.m_value);
             mesh->DrawInstanced(immc->m_matrices);
         }
     }
-    if (entity.HasPrivateComponent<SkinnedMeshRenderer>())
+    if (scene->HasPrivateComponent<SkinnedMeshRenderer>(entity))
     {
-        auto smmc = entity.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+        auto smmc = scene->GetOrSetPrivateComponent<SkinnedMeshRenderer>(entity).lock();
         auto material = smmc->m_material.Get<Material>();
         auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
         if (smmc->IsEnabled() && material != nullptr && skinnedMesh != nullptr)
         {
             GlobalTransform ltw;
             if (!smmc->RagDoll())
-                ltw = Entities::GetDataComponent<GlobalTransform>(Entities::GetCurrentScene(), entity);
+                ltw = scene->GetDataComponent<GlobalTransform>(entity);
             smmc->m_finalResults->UploadBones(skinnedMesh);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4x4("model", ltw.m_value);
             DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat3("scale", ltw.GetScale());
@@ -446,7 +453,8 @@ void EditorLayer::MoveCamera(
 
 void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color)
 {
-    if (!entity.IsValid() || !entity.IsEnabled())
+    auto scene = Application::GetActiveScene();
+    if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
     Camera::m_cameraInfoBlock.UpdateMatrices(m_sceneCamera, m_sceneCameraPosition, m_sceneCameraRotation);
     Camera::m_cameraInfoBlock.UploadMatrices(m_sceneCamera);
@@ -650,9 +658,10 @@ void EditorLayer::RenderToSceneCamera()
 
 void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchyLevel)
 {
+    auto scene = Application::GetActiveScene();
     std::string title = std::to_string(entity.GetIndex()) + ": ";
-    title += entity.GetName();
-    const bool enabled = entity.IsEnabled();
+    title += scene->GetEntityName(entity);
+    const bool enabled = scene->IsEntityEnabled(entity);
     if (enabled)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({1, 1, 1, 1}));
@@ -669,7 +678,7 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
             (m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
     if (ImGui::BeginDragDropSource())
     {
-        auto handle = entity.GetHandle();
+        auto handle = scene->GetEntityHandle(entity);
         ImGui::SetDragDropPayload("Entity", &handle, sizeof(Handle));
         ImGui::TextColored(ImVec4(0, 0, 1, 1), title.c_str());
         ImGui::EndDragDropSource();
@@ -679,8 +688,7 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
-            auto scene = Entities::GetCurrentScene();
-            Entities::SetParent(scene, Entities::GetEntity(scene, *static_cast<Handle *>(payload->Data)), entity, true);
+            scene->SetParent(scene->GetEntity(*static_cast<Handle *>(payload->Data)), entity, true);
         }
         ImGui::EndDragDropTarget();
     }
@@ -696,8 +704,8 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
     if (opened && !deleted)
     {
         ImGui::TreePush();
-        Entities::ForEachChild(
-            Entities::GetCurrentScene(), entity, [=](const std::shared_ptr<Scene> &scene, Entity child) {
+        scene->ForEachChild(
+            entity, [=](Entity child) {
                 DrawEntityNode(child, hierarchyLevel + 1);
             });
         ImGui::TreePop();
@@ -716,7 +724,7 @@ void EditorLayer::OnInspect()
         m_startMouse = false;
     }
 
-    auto scene = Entities::GetCurrentScene();
+    auto scene = Application::GetActiveScene();
     if (scene && m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
     {
         ImGui::Begin("Entity Explorer");
@@ -724,13 +732,13 @@ void EditorLayer::OnInspect()
         {
             if (ImGui::Button("Create new entity"))
             {
-                auto newEntity = Entities::CreateEntity(Entities::GetCurrentScene(), m_basicEntityArchetype);
+                auto newEntity = scene->CreateEntity(m_basicEntityArchetype);
             }
             ImGui::EndPopup();
         }
         ImGui::Combo(
             "Display mode", &m_selectedHierarchyDisplayMode, HierarchyDisplayMode, IM_ARRAYSIZE(HierarchyDisplayMode));
-        std::string title = Entities::GetCurrentScene()->GetTitle();
+        std::string title = scene->GetTitle();
         if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
         {
             Editor::DraggableAsset(scene);
@@ -745,17 +753,16 @@ void EditorLayer::OnInspect()
                 {
                     IM_ASSERT(payload->DataSize == sizeof(Handle));
                     auto payload_n = *static_cast<Handle *>(payload->Data);
-                    auto newEntity = Entities::GetEntity(Entities::GetCurrentScene(), payload_n);
-                    auto parent = Entities::GetParent(Entities::GetCurrentScene(), newEntity);
-                    if (!parent.IsNull())
-                        Entities::RemoveChild(Entities::GetCurrentScene(), newEntity, parent);
+                    auto newEntity = scene->GetEntity(payload_n);
+                    auto parent = scene->GetParent(newEntity);
+                    if (parent.GetIndex() != 0)
+                        scene->RemoveChild(newEntity, parent);
                 }
                 ImGui::EndDragDropTarget();
             }
             if (m_selectedHierarchyDisplayMode == 0)
             {
-                Entities::UnsafeForEachEntityStorage(
-                    Entities::GetCurrentScene(),
+                scene->UnsafeForEachEntityStorage(
                     [&](int i, const std::string &name, const DataComponentStorage &storage) {
                         if (i == 0)
                             return;
@@ -770,8 +777,8 @@ void EditorLayer::OnInspect()
                             {
                                 Entity entity = storage.m_chunkArray.m_entities.at(j);
                                 std::string title = std::to_string(entity.GetIndex()) + ": ";
-                                title += entity.GetName();
-                                const bool enabled = entity.IsEnabled();
+                                title += scene->GetEntityName(entity);
+                                const bool enabled = scene->IsEntityEnabled(entity);
                                 if (enabled)
                                 {
                                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4({1, 1, 1, 1}));
@@ -804,8 +811,8 @@ void EditorLayer::OnInspect()
                 ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.2, 0.3, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.2, 0.2, 0.2, 1.0));
                 ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2, 0.2, 0.3, 1.0));
-                Entities::ForAllEntities(Entities::GetCurrentScene(), [&](int i, Entity entity) {
-                    if (Entities::GetParent(Entities::GetCurrentScene(), entity).IsNull())
+                scene->ForAllEntities([&](int i, Entity entity) {
+                    if (scene->GetParent(entity).GetIndex() == 0)
                         DrawEntityNode(entity, 0);
                 });
                 m_selectedEntityHierarchyList.clear();
@@ -819,29 +826,29 @@ void EditorLayer::OnInspect()
     if (scene && m_configFlags & EntityEditorSystem_EnableEntityInspector)
     {
         ImGui::Begin("Entity Inspector");
-        if (m_selectedEntity.IsValid())
+        if (scene->IsEntityValid(m_selectedEntity))
         {
             std::string title = std::to_string(m_selectedEntity.GetIndex()) + ": ";
-            title += m_selectedEntity.GetName();
-            bool enabled = m_selectedEntity.IsEnabled();
+            title += scene->GetEntityName(m_selectedEntity);
+            bool enabled = scene->IsEntityEnabled(m_selectedEntity);
             if (ImGui::Checkbox((title + "##EnabledCheckbox").c_str(), &enabled))
             {
-                if (m_selectedEntity.IsEnabled() != enabled)
+                if (scene->IsEntityEnabled(m_selectedEntity) != enabled)
                 {
-                    m_selectedEntity.SetEnabled(enabled);
+                    scene->SetEnable(m_selectedEntity, enabled);
                 }
             }
             ImGui::SameLine();
-            bool isStatic = m_selectedEntity.IsStatic();
+            bool isStatic = scene->IsEntityStatic(m_selectedEntity);
             if (ImGui::Checkbox("Static##StaticCheckbox", &isStatic))
             {
-                if (m_selectedEntity.IsStatic() != isStatic)
+                if (scene->IsEntityStatic(m_selectedEntity) != isStatic)
                 {
-                    m_selectedEntity.SetStatic(isStatic);
+                    scene->SetEntityStatic(m_selectedEntity, enabled);
                 }
             }
 
-            bool deleted = DrawEntityMenu(m_selectedEntity.IsEnabled(), m_selectedEntity);
+            bool deleted = DrawEntityMenu(scene->IsEntityEnabled(m_selectedEntity), m_selectedEntity);
             if (!deleted)
             {
                 if (ImGui::CollapsingHeader("Data components", ImGuiTreeNodeFlags_DefaultOpen))
@@ -859,8 +866,7 @@ void EditorLayer::OnInspect()
                     }
                     bool skip = false;
                     int i = 0;
-                    Entities::UnsafeForEachDataComponent(
-                        Entities::GetCurrentScene(), m_selectedEntity, [&](DataComponentType type, void *data) {
+                    scene->UnsafeForEachDataComponent(m_selectedEntity, [&](DataComponentType type, void *data) {
                             if (skip)
                                 return;
                             std::string info = type.m_name;
@@ -872,8 +878,7 @@ void EditorLayer::OnInspect()
                                 if (ImGui::Button("Remove"))
                                 {
                                     skip = true;
-                                    Entities::RemoveDataComponent(
-                                        Entities::GetCurrentScene(), m_selectedEntity, type.m_typeId);
+                                    scene->RemoveDataComponent(m_selectedEntity, type.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -882,7 +887,7 @@ void EditorLayer::OnInspect()
                                 m_selectedEntity,
                                 static_cast<IDataComponent *>(data),
                                 type,
-                                Entities::GetParent(Entities::GetCurrentScene(), m_selectedEntity).IsNull());
+                                scene->GetParent(m_selectedEntity).GetIndex() != 0);
                             ImGui::Separator();
                             i++;
                         });
@@ -904,8 +909,7 @@ void EditorLayer::OnInspect()
 
                     int i = 0;
                     bool skip = false;
-                    Entities::ForEachPrivateComponent(
-                        Entities::GetCurrentScene(), m_selectedEntity, [&](PrivateComponentElement &data) {
+                    scene->ForEachPrivateComponent(m_selectedEntity, [&](PrivateComponentElement &data) {
                             if (skip)
                                 return;
                             ImGui::Checkbox(
@@ -919,8 +923,7 @@ void EditorLayer::OnInspect()
                                 if (ImGui::Button(("Remove" + tag).c_str()))
                                 {
                                     skip = true;
-                                    Entities::RemovePrivateComponent(
-                                        Entities::GetCurrentScene(), m_selectedEntity, data.m_typeId);
+                                    scene->RemovePrivateComponent(m_selectedEntity, data.m_typeId);
                                 }
                                 ImGui::EndPopup();
                             }
@@ -951,7 +954,7 @@ void EditorLayer::OnInspect()
     {
         if (m_selectedEntity.IsValid())
         {
-            Entities::DeleteEntity(Entities::GetCurrentScene(), m_selectedEntity);
+            scene->DeleteEntity(scene->GetCurrentScene(), m_selectedEntity);
         }
     }
     */
@@ -965,21 +968,22 @@ void EditorLayer::SetSelectedEntity(const Entity &entity, bool openMenu)
     if (entity == m_selectedEntity)
         return;
     m_selectedEntityHierarchyList.clear();
-    if (entity.IsNull())
+    if (entity.GetIndex() == 0)
     {
         m_selectedEntity = Entity();
         return;
     }
-    if (!entity.IsValid())
+    auto scene = Application::GetActiveScene();
+    if (!scene->IsEntityValid(entity))
         return;
     m_selectedEntity = entity;
     if (!openMenu)
         return;
     auto walker = entity;
-    while (!walker.IsNull())
+    while (walker.GetIndex() != 0)
     {
         m_selectedEntityHierarchyList.push_back(walker);
-        walker = Entities::GetParent(Entities::GetCurrentScene(), walker);
+        walker = scene->GetParent(walker);
     }
 }
 
@@ -993,6 +997,7 @@ bool EditorLayer::SceneCameraWindowFocused()
 }
 void EditorLayer::SceneCameraWindow()
 {
+    auto scene = Application::GetActiveScene();
 #pragma region Scene Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -1122,7 +1127,7 @@ void EditorLayer::SceneCameraWindow()
             }
 #pragma region Gizmos and Entity Selection
             bool mouseSelectEntity = true;
-            if (m_selectedEntity.IsValid())
+            if (scene->IsEntityValid(m_selectedEntity))
             {
                 ImGuizmo::SetOrthographic(false);
                 ImGuizmo::SetDrawlist();
@@ -1134,15 +1139,14 @@ void EditorLayer::SceneCameraWindow()
                                 : m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE
                                                           : ImGuizmo::OPERATION::SCALE;
 
-                auto transform = m_selectedEntity.GetDataComponent<Transform>();
+                auto transform = scene->GetDataComponent<Transform>(m_selectedEntity);
                 GlobalTransform parentGlobalTransform;
-                Entity parentEntity = Entities::GetParent(Entities::GetCurrentScene(), m_selectedEntity);
-                if (!parentEntity.IsNull())
+                Entity parentEntity = scene->GetParent(m_selectedEntity);
+                if (parentEntity.GetIndex() != 0)
                 {
-                    parentGlobalTransform = Entities::GetParent(Entities::GetCurrentScene(), m_selectedEntity)
-                                                .GetDataComponent<GlobalTransform>();
+                    parentGlobalTransform = scene->GetDataComponent<GlobalTransform>(scene->GetParent(m_selectedEntity));
                 }
-                auto globalTransform = m_selectedEntity.GetDataComponent<GlobalTransform>();
+                auto globalTransform = scene->GetDataComponent<GlobalTransform>(m_selectedEntity);
                 ImGuizmo::Manipulate(
                     glm::value_ptr(cameraView),
                     glm::value_ptr(cameraProjection),
@@ -1152,7 +1156,7 @@ void EditorLayer::SceneCameraWindow()
                 if (ImGuizmo::IsUsing())
                 {
                     transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-                    m_selectedEntity.SetDataComponent(transform);
+                    scene->SetDataComponent(m_selectedEntity, transform);
                     transform.Decompose(
                         m_previouslyStoredPosition, m_previouslyStoredRotation, m_previouslyStoredScale);
                     mouseSelectEntity = false;
@@ -1174,19 +1178,19 @@ void EditorLayer::SceneCameraWindow()
                     {
                         Entity walker = focusedEntity;
                         bool found = false;
-                        while (!walker.IsNull())
+                        while (walker.GetIndex() != 0)
                         {
                             if (walker == m_selectedEntity)
                             {
                                 found = true;
                                 break;
                             }
-                            walker = Entities::GetParent(Entities::GetCurrentScene(), walker);
+                            walker = scene->GetParent(walker);
                         }
                         if (found)
                         {
-                            walker = Entities::GetParent(Entities::GetCurrentScene(), walker);
-                            if (walker.IsNull())
+                            walker = scene->GetParent(walker);
+                            if (walker.GetIndex() == 0)
                             {
                                 SetSelectedEntity(focusedEntity);
                             }
@@ -1238,7 +1242,7 @@ void EditorLayer::MainCameraWindow()
     if (!renderLayer)
         return;
 
-    auto scene = Entities::GetCurrentScene();
+    auto scene = Application::GetActiveScene();
 #pragma region Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -1360,22 +1364,23 @@ void EditorLayer::CameraWindowDragAndDrop()
     AssetRef assetRef;
     if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Cubemap", "EnvironmentalMap"}))
     {
+        auto scene = Application::GetActiveScene();
         auto asset = assetRef.Get<IAsset>();
         if (!Application::IsPlaying() && asset->GetTypeName() == "Scene")
         {
             auto scene = std::dynamic_pointer_cast<Scene>(asset);
             ProjectManager::SetStartScene(scene);
-            Entities::Attach(scene);
+            Application::Attach(scene);
         }
         else if (asset->GetTypeName() == "Prefab")
         {
             EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            std::dynamic_pointer_cast<Prefab>(asset)->ToEntity();
+            std::dynamic_pointer_cast<Prefab>(asset)->ToEntity(scene);
         }
         else if (asset->GetTypeName() == "Mesh")
         {
-            Entity entity = Entities::CreateEntity(Entities::GetCurrentScene(), "Mesh");
-            auto meshRenderer = entity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+            Entity entity = scene->CreateEntity("Mesh");
+            auto meshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(entity).lock();
             meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(std::dynamic_pointer_cast<Mesh>(asset)));
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
@@ -1383,12 +1388,12 @@ void EditorLayer::CameraWindowDragAndDrop()
         }
         else if (asset->GetTypeName() == "EnvironmentalMap")
         {
-            Entities::GetCurrentScene()->m_environmentSettings.m_environmentalMap =
+            scene->m_environmentSettings.m_environmentalMap =
                 std::dynamic_pointer_cast<EnvironmentalMap>(asset);
         }
         else if (asset->GetTypeName() == "Cubemap")
         {
-            auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
+            auto mainCamera = scene->m_mainCamera.Get<Camera>();
             mainCamera->m_skybox = std::dynamic_pointer_cast<Cubemap>(asset);
         }
     }

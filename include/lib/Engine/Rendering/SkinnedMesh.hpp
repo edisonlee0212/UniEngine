@@ -1,10 +1,10 @@
 #pragma once
 #include "DefaultResources.hpp"
-
-#include <Animator.hpp>
-#include <Core/OpenGLUtils.hpp>
-#include <Scene.hpp>
-#include <Transform.hpp>
+#include "Animator.hpp"
+#include "OpenGLUtils.hpp"
+#include "Scene.hpp"
+#include "Transform.hpp"
+#include "Particles.hpp"
 #include <uniengine_export.h>
 namespace UniEngine
 {

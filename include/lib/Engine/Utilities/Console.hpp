@@ -1,6 +1,6 @@
 #pragma once
 #include "uniengine_export.h"
-#include "Engine/Core/ISingleton.hpp"
+#include "ISingleton.hpp"
 #include "ConsoleLayer.hpp"
 namespace UniEngine
 {

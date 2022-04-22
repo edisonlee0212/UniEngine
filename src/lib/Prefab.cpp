@@ -15,7 +15,7 @@ void Prefab::OnCreate()
     m_name = "New Prefab";
 }
 
-Entity Prefab::ToEntity() const
+Entity Prefab::ToEntity(const std::shared_ptr<Scene>& scene) const
 {
     std::unordered_map<Handle, Handle> entityMap;
     std::vector<DataComponentType> types;
@@ -24,17 +24,16 @@ Entity Prefab::ToEntity() const
         types.emplace_back(i.m_type);
     }
     auto archetype = Entities::CreateEntityArchetype("", types);
-    const Entity entity = Entities::CreateEntity(Entities::GetCurrentScene(), archetype, m_name);
-    entityMap[m_entityHandle] = entity.GetHandle();
+    const Entity entity = scene->CreateEntity(archetype, m_name);
+    entityMap[m_entityHandle] = scene->GetEntityHandle(entity);
     for (auto &i : m_dataComponents)
     {
-        Entities::SetDataComponent(
-            Entities::GetCurrentScene(), entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
+        scene->SetDataComponent(entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
     }
     int index = 0;
     for (const auto &i : m_children)
     {
-        AttachChildren(i, entity, m_name + "_" + std::to_string(index), entityMap);
+        AttachChildren(scene, i, entity, m_name + "_" + std::to_string(index), entityMap);
         index++;
     }
 
@@ -44,21 +43,21 @@ Entity Prefab::ToEntity() const
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             Serialization::ProduceSerializable(i.m_data->GetTypeName(), id));
         Serialization::ClonePrivateComponent(ptr, i.m_data);
-        ptr->m_scene = Entities::GetCurrentScene();
-        Entities::SetPrivateComponent(Entities::GetCurrentScene(), entity, ptr);
+        ptr->m_scene = scene;
+        scene->SetPrivateComponent(entity, ptr);
     }
     for (const auto &i : m_children)
     {
-        AttachChildrenPrivateComponent(i, entity, entityMap);
+        AttachChildrenPrivateComponent(scene, i, entity, entityMap);
         index++;
     }
 
-    RelinkChildren(entity, entityMap);
+    RelinkChildren(scene, entity, entityMap);
 
-    entity.SetEnabled(m_enabled);
+    scene->SetEnable(entity, m_enabled);
     return entity;
 }
-void Prefab::AttachChildren(
+void Prefab::AttachChildren(const std::shared_ptr<Scene>& scene,
     const std::shared_ptr<Prefab> &modelNode,
     Entity parentEntity,
     const std::string &parentName,
@@ -70,37 +69,36 @@ void Prefab::AttachChildren(
         types.emplace_back(i.m_type);
     }
     auto archetype = Entities::CreateEntityArchetype("", types);
-    Entity entity = Entities::CreateEntity(Entities::GetCurrentScene(), archetype, m_name);
-    map[modelNode->m_entityHandle] = entity.GetHandle();
-    entity.SetParent(parentEntity);
+    auto entity = scene->CreateEntity(archetype, m_name);
+    map[modelNode->m_entityHandle] = scene->GetEntityHandle(entity);
+    scene->SetParent(entity, parentEntity);
     for (auto &i : modelNode->m_dataComponents)
     {
-        Entities::SetDataComponent(
-            Entities::GetCurrentScene(), entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
+        scene->SetDataComponent(entity.GetIndex(), i.m_type.m_typeId, i.m_type.m_size, i.m_data.get());
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
     {
-        AttachChildren(i, entity, (parentName + "_" + std::to_string(index)), map);
+        AttachChildren(scene, i, entity, (parentName + "_" + std::to_string(index)), map);
         index++;
     }
 }
 
-void Prefab::AttachChildrenPrivateComponent(
-    const std::shared_ptr<Prefab> &modelNode,
+void Prefab::AttachChildrenPrivateComponent(const std::shared_ptr<Scene>& scene,
+                                            const std::shared_ptr<Prefab> &modelNode,
     const Entity &parentEntity,
     const std::unordered_map<Handle, Handle> &map) const
 {
     Entity entity;
-    auto children = parentEntity.GetChildren();
+    auto children = scene->GetChildren(parentEntity);
     for (auto &i : children)
     {
-        auto a = i.GetHandle().GetValue();
+        auto a = scene->GetEntityHandle(i).GetValue();
         auto b = map.at(modelNode->m_entityHandle).GetValue();
         if (a == b)
             entity = i;
     }
-    if (entity.IsNull())
+    if (entity.GetIndex() == 0)
         return;
     for (auto &i : modelNode->m_privateComponents)
     {
@@ -108,17 +106,16 @@ void Prefab::AttachChildrenPrivateComponent(
         auto ptr = std::static_pointer_cast<IPrivateComponent>(
             Serialization::ProduceSerializable(i.m_data->GetTypeName(), id));
         Serialization::ClonePrivateComponent(ptr, i.m_data);
-        auto scene = Entities::GetCurrentScene();
         ptr->m_scene = scene;
-        Entities::SetPrivateComponent(scene, entity, ptr);
+        scene->SetPrivateComponent(entity, ptr);
     }
     int index = 0;
     for (auto &i : modelNode->m_children)
     {
-        AttachChildrenPrivateComponent(i, entity, map);
+        AttachChildrenPrivateComponent(scene, i, entity, map);
         index++;
     }
-    entity.SetEnabled(m_enabled);
+    scene->SetEnable(entity, m_enabled);
 }
 #pragma region Model Loading
 bool Prefab::LoadInternal(const std::filesystem::path &path)
@@ -722,17 +719,16 @@ void Prefab::ApplyBoneIndices(Prefab *node)
 }
 void Prefab::FromEntity(const Entity &entity)
 {
-    auto scene = Entities::GetCurrentScene();
+    auto scene = Application::GetActiveScene();
     if (!scene)
     {
         UNIENGINE_ERROR("Scene not attached!");
         return;
     }
-    m_entityHandle = entity.GetHandle();
-    m_name = entity.GetName();
-    m_enabled = entity.IsEnabled();
-    Entities::UnsafeForEachDataComponent(
-        Entities::GetCurrentScene(), entity, [&](const DataComponentType &type, void *data) {
+    m_entityHandle = scene->GetEntityHandle(entity);
+    m_name = scene->GetEntityName(entity);
+    m_enabled = scene->IsEntityEnabled(entity);
+    scene->UnsafeForEachDataComponent(entity, [&](const DataComponentType &type, void *data) {
             DataComponentHolder holder;
             holder.m_type = type;
             size_t id;
@@ -757,11 +753,11 @@ void Prefab::FromEntity(const Entity &entity)
         m_privateComponents.push_back(holder);
     }
 
-    auto children = entity.GetChildren();
+    auto children = scene->GetChildren(entity);
     for (auto &i : children)
     {
         auto temp = ProjectManager::CreateTemporaryAsset<Prefab>();
-        temp->m_name = i.GetName();
+        temp->m_name = scene->GetEntityName(i);
         m_children.push_back(temp);
         m_children.back()->FromEntity(i);
     }
@@ -940,15 +936,13 @@ bool Prefab::SaveInternal(const std::filesystem::path &path)
     }
     return true;
 }
-void Prefab::RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
+void Prefab::RelinkChildren(const std::shared_ptr<Scene>& scene, const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const
 {
-    auto currentScene = Entities::GetCurrentScene();
-    Entities::ForEachPrivateComponent(Entities::GetCurrentScene(), parentEntity, [&](PrivateComponentElement &data) {
-        data.m_privateComponentData->Relink(map, currentScene);
+    scene->ForEachPrivateComponent(parentEntity, [&](PrivateComponentElement &data) {
+        data.m_privateComponentData->Relink(map, scene);
     });
-    Entities::ForEachChild(
-        Entities::GetCurrentScene(), parentEntity, [&](const std::shared_ptr<Scene> &scene, Entity child) {
-            RelinkChildren(child, map);
+    scene->ForEachChild(parentEntity, [&](Entity child) {
+            RelinkChildren(scene, child, map);
         });
 }
 void Prefab::LoadModel(const std::filesystem::path &path, bool optimize, unsigned flags)

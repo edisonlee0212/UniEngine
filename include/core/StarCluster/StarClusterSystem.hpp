@@ -1,6 +1,7 @@
 #pragma once
 #include <Application.hpp>
 #include <Core/OpenGLUtils.hpp>
+#include "Scene.hpp"
 using namespace UniEngine;
 namespace Galaxy
 {

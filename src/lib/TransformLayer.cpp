@@ -1,7 +1,8 @@
-#include <ProfilerLayer.hpp>
-#include <RigidBody.hpp>
-#include <TransformLayer.hpp>
-using namespace UniEngine;
+#include "ProfilerLayer.hpp"
+#include "RigidBody.hpp"
+#include "TransformLayer.hpp"
+#include "Application.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 void TransformLayer::OnCreate()
 {
@@ -11,7 +12,7 @@ void TransformLayer::OnCreate()
 
 void TransformLayer::PreUpdate()
 {
-    CalculateTransformGraphs(Entities::GetCurrentScene());
+    CalculateTransformGraphs(Application::GetActiveScene());
 }
 
 void TransformLayer::CalculateTransformGraph(
@@ -24,24 +25,22 @@ void TransformLayer::CalculateTransformGraph(
     for (const auto &entity : entityInfo.m_children)
     {
         auto *transformStatus = reinterpret_cast<GlobalTransformUpdateFlag *>(
-            Entities::GetDataComponentPointer(
-            scene, entity.GetIndex(), typeid(GlobalTransformUpdateFlag).hash_code()));
+            scene->GetDataComponentPointer(entity.GetIndex(), typeid(GlobalTransformUpdateFlag).hash_code()));
         GlobalTransform ltw;
         if (transformStatus->m_value)
         {
-            ltw = entity.GetDataComponent<GlobalTransform>();
+            ltw = scene->GetDataComponent<GlobalTransform>(entity.GetIndex());
             reinterpret_cast<Transform *>(
-                Entities::GetDataComponentPointer(scene, entity.GetIndex(), typeid(Transform).hash_code()))
+                scene->GetDataComponentPointer(entity.GetIndex(), typeid(Transform).hash_code()))
                 ->m_value = glm::inverse(pltw.m_value) * ltw.m_value;
             transformStatus->m_value = false;
         }
         else
         {
-            auto ltp = Entities::GetDataComponent<Transform>(scene, entity.GetIndex());
+            auto ltp = scene->GetDataComponent<Transform>(entity.GetIndex());
             ltw.m_value = pltw.m_value * ltp.m_value;
             *reinterpret_cast<GlobalTransform *>(
-                Entities::GetDataComponentPointer(
-                scene, entity.GetIndex(), typeid(GlobalTransform).hash_code())) = ltw;
+                scene->GetDataComponentPointer(entity.GetIndex(), typeid(GlobalTransform).hash_code())) = ltw;
         }
         CalculateTransformGraph(scene, entityInfos, ltw, entity);
     }
@@ -52,8 +51,7 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scen
         return;
     auto &entityInfos = scene->m_sceneDataStorage.m_entityMetadataList;
     ProfilerLayer::StartEvent("TransformManager");
-    Entities::ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
-        scene,
+    scene->ForEach<Transform, GlobalTransform, GlobalTransformUpdateFlag>(
         Jobs::Workers(),
         m_transformQuery,
         [&](int i,
@@ -62,7 +60,7 @@ void TransformLayer::CalculateTransformGraphs(const std::shared_ptr<Scene> &scen
             GlobalTransform &globalTransform,
             GlobalTransformUpdateFlag &transformStatus) {
             EntityMetadata &entityInfo = scene->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex());
-            if (!entityInfo.m_parent.IsNull())
+            if (entityInfo.m_parent.GetIndex() != 0)
                 return;
             if (checkStatic && entityInfo.m_static)
                 return;
@@ -85,5 +83,5 @@ void TransformLayer::CalculateTransformGraphForDescendents(const std::shared_ptr
         return;
     auto &entityInfos = scene->m_sceneDataStorage.m_entityMetadataList;
     CalculateTransformGraph(
-        scene, entityInfos, Entities::GetDataComponent<GlobalTransform>(scene, entity.GetIndex()), entity);
+        scene, entityInfos, scene->GetDataComponent<GlobalTransform>(entity.GetIndex()), entity);
 }

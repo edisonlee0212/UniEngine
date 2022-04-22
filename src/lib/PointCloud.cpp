@@ -2,9 +2,13 @@
 // Created by lllll on 8/22/2021.
 //
 
-#include <PointCloud.hpp>
-
-#include <Tinyply.hpp>
+#include "PointCloud.hpp"
+#include "Particles.hpp"
+#include "Material.hpp"
+#include "Scene.hpp"
+#include "Tinyply.hpp"
+#include "ProjectManager.hpp"
+#include "DefaultResources.hpp"
 using namespace UniEngine;
 using namespace tinyply;
 void PointCloud::Load(const std::filesystem::path &path)
@@ -222,8 +226,9 @@ void PointCloud::OnInspect()
 }
 void PointCloud::ApplyCompressed()
 {
-    const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Compressed Point Cloud");
-    auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
+    auto scene = Application::GetActiveScene();
+    const auto owner = scene->CreateEntity("Compressed Point Cloud");
+    auto particles = scene->GetOrSetPrivateComponent<Particles>(owner).lock();
     particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;
@@ -366,8 +371,9 @@ void PointCloud::Deserialize(const YAML::Node &in)
 }
 void PointCloud::ApplyOriginal()
 {
-    const auto owner = Entities::CreateEntity(Entities::GetCurrentScene(), "Original Point Cloud");
-    auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
+    auto scene = Application::GetActiveScene();
+    const auto owner = scene->CreateEntity("Original Point Cloud");
+    auto particles = scene->GetOrSetPrivateComponent<Particles>(owner).lock();
     particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
     particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;

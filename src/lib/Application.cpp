@@ -1,24 +1,20 @@
 #include "AnimationLayer.hpp"
 #include "ConsoleLayer.hpp"
 #include "Editor.hpp"
-#include "Engine/Core/Inputs.hpp"
-#include "Engine/Core/Jobs.hpp"
-#include "Engine/Core/Windows.hpp"
-#include "Engine/ECS/Entities.hpp"
+#include "Inputs.hpp"
+#include "Jobs.hpp"
+#include "Windows.hpp"
+#include "Entities.hpp"
 #include "Graphics.hpp"
 #include "PhysicsLayer.hpp"
 #include "ProjectManager.hpp"
 #include "RenderLayer.hpp"
 #include "TransformLayer.hpp"
-#include <AnimationLayer.hpp>
-#include <Application.hpp>
-#include <DefaultResources.hpp>
-#include <EditorLayer.hpp>
-#include <OpenGLUtils.hpp>
-#include <PhysicsLayer.hpp>
-#include <ProfilerLayer.hpp>
-#include <ProjectManager.hpp>
-#include <TransformLayer.hpp>
+#include "Application.hpp"
+#include "DefaultResources.hpp"
+#include "EditorLayer.hpp"
+#include "OpenGLUtils.hpp"
+#include "ProfilerLayer.hpp"
 #include "Scene.hpp"
 using namespace UniEngine;
 

@@ -1,14 +1,15 @@
-#include <Application.hpp>
 #include "Editor.hpp"
-#include <PhysicsLayer.hpp>
 #include "Engine/Rendering/Graphics.hpp"
+#include <Application.hpp>
+#include <PhysicsLayer.hpp>
 #include <RigidBody.hpp>
 #include <Transform.hpp>
 using namespace UniEngine;
 
 void RigidBody::SetStatic(bool value)
 {
-    if(m_static == value) return;
+    if (m_static == value)
+        return;
     if (value)
     {
         SetKinematic(false);
@@ -39,23 +40,25 @@ void RigidBody::OnDestroy()
 void RigidBody::RecreateBody()
 {
     auto physicsLayer = Application::GetLayer<PhysicsLayer>();
-    if(!physicsLayer) return;
+    if (!physicsLayer)
+        return;
     if (m_rigidActor)
         m_rigidActor->release();
+    auto scene = GetScene();
     auto owner = GetOwner();
     GlobalTransform globalTransform;
-    if (!owner.IsNull())
+    if (owner.GetIndex() != 0)
     {
-        globalTransform = owner.GetDataComponent<GlobalTransform>();
+        globalTransform = scene->GetDataComponent<GlobalTransform>(owner);
         globalTransform.m_value = globalTransform.m_value * m_shapeTransform;
         globalTransform.SetScale(glm::vec3(1.0f));
     }
     if (m_static)
-        m_rigidActor = physicsLayer->m_physics->createRigidStatic(
-            PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+        m_rigidActor =
+            physicsLayer->m_physics->createRigidStatic(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
     else
-        m_rigidActor = physicsLayer->m_physics->createRigidDynamic(
-            PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+        m_rigidActor =
+            physicsLayer->m_physics->createRigidDynamic(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
 
     if (!m_static)
     {
@@ -151,10 +154,12 @@ void RigidBody::OnInspect()
 
             static auto applyValue = glm::vec3(0.0f);
             ImGui::DragFloat3("Value", &applyValue.x, 0.01f);
-            if(ImGui::Button("Apply force")){
+            if (ImGui::Button("Apply force"))
+            {
                 AddForce(applyValue);
             }
-            if(ImGui::Button("Apply torque")){
+            if (ImGui::Button("Apply torque"))
+            {
                 AddForce(applyValue);
             }
         }
@@ -188,7 +193,8 @@ void RigidBody::OnInspect()
                 glm::translate(trans) * glm::mat4_cast(glm::quat(glm::radians(skew))) * glm::scale(glm::vec3(1.0f));
             SetShapeTransform(newValue);
         }
-        auto ltw = GetOwner().GetDataComponent<GlobalTransform>();
+        auto scene = GetScene();
+        auto ltw = scene->GetDataComponent<GlobalTransform>(GetOwner());
         ltw.SetScale(glm::vec3(1.0f));
         for (auto &collider : m_colliders)
         {

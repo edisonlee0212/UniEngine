@@ -1,5 +1,5 @@
 #pragma once
-#include <Entity.hpp>
+#include "Entity.hpp"
 #include <utility>
 #include "Serialization.hpp"
 namespace UniEngine
@@ -14,13 +14,14 @@ struct UNIENGINE_API POwnersCollection
         m_ownersMap = std::unordered_map<Entity, size_t, Entity>();
     }
 };
+class Scene;
 class UNIENGINE_API PrivateComponentStorage
 {
     std::unordered_map<size_t, size_t> m_pOwnersCollectionsMap;
     std::vector<std::pair<size_t, POwnersCollection>> m_pOwnersCollectionsList;
     std::unordered_map<size_t, std::vector<std::shared_ptr<IPrivateComponent>>> m_privateComponentPool;
-
   public:
+    std::weak_ptr<Scene> m_scene;
     void RemovePrivateComponent(Entity entity, size_t typeID, const std::shared_ptr<IPrivateComponent> &privateComponent);
     void DeleteEntity(Entity entity);
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetOrSetPrivateComponent(Entity entity);

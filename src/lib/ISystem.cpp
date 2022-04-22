@@ -1,5 +1,7 @@
-#include <ISystem.hpp>
-#include "Engine/ECS/Entities.hpp"
+#include "ISystem.hpp"
+#include "Entities.hpp"
+#include "Application.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 
 ISystem::ISystem()
@@ -47,7 +49,7 @@ bool SystemRef::Update()
     }
     else if(!m_value.has_value() || m_value->expired())
     {
-        auto currentScene = Entities::GetCurrentScene();
+        auto currentScene = Application::GetActiveScene();
         auto system = currentScene->m_mappedSystems.find(m_systemHandle);
         if(system != currentScene->m_mappedSystems.end()){
             m_value = system->second;

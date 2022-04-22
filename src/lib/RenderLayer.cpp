@@ -75,7 +75,8 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     }
     cameraComponent->m_frameCount++;
     */
-    auto sceneBound = Entities::GetCurrentScene()->GetBound();
+    auto scene = Application::GetActiveScene();
+    auto sceneBound = scene->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
     ApplyShadowMapSettings();
     ApplyEnvironmentalSettings(cameraComponent);
@@ -264,7 +265,7 @@ void RenderLayer::PreUpdate()
 void RenderLayer::LateUpdate()
 {
     ProfilerLayer::StartEvent("Graphics");
-    auto scene = Entities::GetCurrentScene();
+    auto scene = Application::GetActiveScene();
     if (!scene)
         return;
 
@@ -286,20 +287,20 @@ void RenderLayer::LateUpdate()
             mainCamera->ResizeResolution(m_mainCameraResolutionX, m_mainCameraResolutionY);
     }
     const std::vector<Entity> *cameraEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<Camera>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<Camera>();
     if (cameraEntities != nullptr)
     {
         for (auto cameraEntity : *cameraEntities)
         {
-            assert(cameraEntity.HasPrivateComponent<Camera>());
-            auto cameraComponent = cameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+            assert(scene->HasPrivateComponent<Camera>(cameraEntity));
+            auto cameraComponent = scene->GetOrSetPrivateComponent<Camera>(cameraEntity).lock();
             cameraComponent->m_rendered = false;
             if (cameraComponent->m_requireRendering)
             {
-                auto ltw = cameraEntity.GetDataComponent<GlobalTransform>();
+                auto ltw = scene->GetDataComponent<GlobalTransform>(cameraEntity);
                 Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
                 Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
-                RenderToCamera(cameraComponent, cameraEntity.GetDataComponent<GlobalTransform>());
+                RenderToCamera(cameraComponent, scene->GetDataComponent<GlobalTransform>(cameraEntity));
             }
         }
     }
@@ -308,14 +309,14 @@ void RenderLayer::LateUpdate()
 #pragma region Post - processing
     ProfilerLayer::StartEvent("Post Processing");
     const std::vector<Entity> *postProcessingEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<PostProcessing>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<PostProcessing>();
     if (postProcessingEntities != nullptr)
     {
         for (auto postProcessingEntity : *postProcessingEntities)
         {
-            if (!postProcessingEntity.IsEnabled())
+            if (!scene->IsEntityEnabled(postProcessingEntity))
                 continue;
-            auto postProcessing = postProcessingEntity.GetOrSetPrivateComponent<PostProcessing>().lock();
+            auto postProcessing = scene->GetOrSetPrivateComponent<PostProcessing>(postProcessingEntity).lock();
             if (postProcessing->IsEnabled())
                 postProcessing->Process();
         }
@@ -448,6 +449,7 @@ void RenderLayer::OnCreate()
 }
 void RenderLayer::CollectRenderInstances(Bound &worldBound)
 {
+    auto scene = Application::GetActiveScene();
     auto &editorManager = Editor::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
     auto editorLayer = Application::GetLayer<EditorLayer>();
@@ -460,18 +462,18 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
         }
     }
     const std::vector<Entity> *cameraEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<Camera>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<Camera>();
     if (cameraEntities)
     {
         for (const auto &i : *cameraEntities)
         {
-            if (!i.IsEnabled())
+            if (!scene->IsEntityEnabled(i))
                 continue;
-            assert(i.HasPrivateComponent<Camera>());
-            auto camera = i.GetOrSetPrivateComponent<Camera>().lock();
+            assert(scene->HasPrivateComponent<Camera>(i));
+            auto camera = scene->GetOrSetPrivateComponent<Camera>(i).lock();
             if (!camera || !camera->IsEnabled())
                 continue;
-            cameraPairs.emplace_back(camera, i.GetDataComponent<GlobalTransform>().GetPosition());
+            cameraPairs.emplace_back(camera, scene->GetDataComponent<GlobalTransform>(i).GetPosition());
         }
     }
     auto &minBound = worldBound.m_min;
@@ -480,19 +482,19 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
     maxBound = glm::vec3(INT_MIN);
 
     const std::vector<Entity> *owners =
-        Entities::UnsafeGetPrivateComponentOwnersList<MeshRenderer>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<MeshRenderer>();
     if (owners)
     {
         for (auto owner : *owners)
         {
-            if (!owner.IsEnabled())
+            if (!scene->IsEntityEnabled(owner))
                 continue;
-            auto mmc = owner.GetOrSetPrivateComponent<MeshRenderer>().lock();
+            auto mmc = scene->GetOrSetPrivateComponent<MeshRenderer>(owner).lock();
             auto material = mmc->m_material.Get<Material>();
             auto mesh = mmc->m_mesh.Get<Mesh>();
             if (!mmc->IsEnabled() || material == nullptr || mesh == nullptr)
                 continue;
-            auto gt = owner.GetDataComponent<GlobalTransform>();
+            auto gt = scene->GetDataComponent<GlobalTransform>(owner);
             auto ltw = gt.m_value;
             auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
@@ -541,19 +543,19 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = Entities::UnsafeGetPrivateComponentOwnersList<Particles>(Entities::GetCurrentScene());
+    owners = scene->UnsafeGetPrivateComponentOwnersList<Particles>();
     if (owners)
     {
         for (auto owner : *owners)
         {
-            if (!owner.IsEnabled())
+            if (!scene->IsEntityEnabled(owner))
                 continue;
-            auto particles = owner.GetOrSetPrivateComponent<Particles>().lock();
+            auto particles = scene->GetOrSetPrivateComponent<Particles>(owner).lock();
             auto material = particles->m_material.Get<Material>();
             auto mesh = particles->m_mesh.Get<Mesh>();
             if (!particles->IsEnabled() || material == nullptr || mesh == nullptr)
                 continue;
-            auto gt = owner.GetDataComponent<GlobalTransform>();
+            auto gt = scene->GetDataComponent<GlobalTransform>(owner);
             auto ltw = gt.m_value;
             auto meshBound = mesh->GetBound();
             meshBound.ApplyTransform(ltw);
@@ -602,14 +604,14 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             }
         }
     }
-    owners = Entities::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(Entities::GetCurrentScene());
+    owners = scene->UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
     if (owners)
     {
         for (auto owner : *owners)
         {
-            if (!owner.IsEnabled())
+            if (!scene->IsEntityEnabled(owner))
                 continue;
-            auto smmc = owner.GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+            auto smmc = scene->GetOrSetPrivateComponent<SkinnedMeshRenderer>(owner).lock();
             auto material = smmc->m_material.Get<Material>();
             auto skinnedMesh = smmc->m_skinnedMesh.Get<SkinnedMesh>();
             if (!smmc->IsEnabled() || material == nullptr || skinnedMesh == nullptr)
@@ -622,7 +624,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
             }
             if (!smmc->m_ragDoll)
             {
-                gt = owner.GetDataComponent<GlobalTransform>();
+                gt = scene->GetDataComponent<GlobalTransform>(owner);
             }
             auto ltw = gt.m_value;
             auto meshBound = skinnedMesh->GetBound();
@@ -834,7 +836,7 @@ void RenderLayer::RenderShadows(
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-
+    auto scene = Application::GetActiveScene();
 #pragma region Shadow
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
@@ -844,7 +846,7 @@ void RenderLayer::RenderShadows(
     glm::quat mainCameraRot = ltw.GetRotation();
     m_shadowCascadeInfoBlock.SubData(0, sizeof(LightSettingsBlock), &m_lightSettings);
     const std::vector<Entity> *directionalLightEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<DirectionalLight>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<DirectionalLight>();
     size_t size = 0;
     if (directionalLightEntities && !directionalLightEntities->empty())
     {
@@ -853,12 +855,12 @@ void RenderLayer::RenderShadows(
         for (int i = 0; i < size; i++)
         {
             Entity lightEntity = directionalLightEntities->at(i);
-            if (!lightEntity.IsEnabled())
+            if (!scene->IsEntityEnabled(lightEntity))
                 continue;
-            const auto dlc = lightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
+            const auto dlc = scene->GetOrSetPrivateComponent<DirectionalLight>(lightEntity).lock();
             if (!dlc->IsEnabled())
                 continue;
-            glm::quat rotation = lightEntity.GetDataComponent<GlobalTransform>().GetRotation();
+            glm::quat rotation = scene->GetDataComponent<GlobalTransform>(lightEntity).GetRotation();
             glm::vec3 lightDir = glm::normalize(rotation * glm::vec3(0, 0, 1));
             float planeDistance = 0;
             glm::vec3 center;
@@ -1037,7 +1039,7 @@ void RenderLayer::RenderShadows(
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = directionalLightEntities->at(i);
-                if (!lightEntity.IsEnabled())
+                if (!scene->IsEntityEnabled(lightEntity))
                     continue;
                 OpenGLUtils::SetViewPort(
                     m_directionalLights[enabledSize].m_viewPort.x,
@@ -1060,7 +1062,7 @@ void RenderLayer::RenderShadows(
         m_directionalLightBlock.SubData(0, 4, &size);
     }
     const std::vector<Entity> *pointLightEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<PointLight>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<PointLight>();
     size = 0;
     if (pointLightEntities && !pointLightEntities->empty())
     {
@@ -1069,12 +1071,12 @@ void RenderLayer::RenderShadows(
         for (int i = 0; i < size; i++)
         {
             Entity lightEntity = pointLightEntities->at(i);
-            if (!lightEntity.IsEnabled())
+            if (!scene->IsEntityEnabled(lightEntity))
                 continue;
-            const auto plc = lightEntity.GetOrSetPrivateComponent<PointLight>().lock();
+            const auto plc = scene->GetOrSetPrivateComponent<PointLight>(lightEntity).lock();
             if (!plc->IsEnabled())
                 continue;
-            glm::vec3 position = lightEntity.GetDataComponent<GlobalTransform>().m_value[3];
+            glm::vec3 position = scene->GetDataComponent<GlobalTransform>(lightEntity).m_value[3];
             m_pointLights[enabledSize].m_position = glm::vec4(position, 0);
             m_pointLights[enabledSize].m_constantLinearQuadFarPlane.x = plc->m_constant;
             m_pointLights[enabledSize].m_constantLinearQuadFarPlane.y = plc->m_linear;
@@ -1150,7 +1152,7 @@ void RenderLayer::RenderShadows(
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = pointLightEntities->at(i);
-                if (!lightEntity.IsEnabled())
+                if (!scene->IsEntityEnabled(lightEntity))
                     continue;
                 OpenGLUtils::SetViewPort(
                     m_pointLights[enabledSize].m_viewPort.x,
@@ -1172,7 +1174,7 @@ void RenderLayer::RenderShadows(
         m_pointLightBlock.SubData(0, 4, &size);
     }
     const std::vector<Entity> *spotLightEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<SpotLight>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<SpotLight>();
     size = 0;
     if (spotLightEntities && !spotLightEntities->empty())
     {
@@ -1181,12 +1183,12 @@ void RenderLayer::RenderShadows(
         for (int i = 0; i < size; i++)
         {
             Entity lightEntity = spotLightEntities->at(i);
-            if (!lightEntity.IsEnabled())
+            if (!scene->IsEntityEnabled(lightEntity))
                 continue;
-            const auto slc = lightEntity.GetOrSetPrivateComponent<SpotLight>().lock();
+            const auto slc = scene->GetOrSetPrivateComponent<SpotLight>(lightEntity).lock();
             if (!slc->IsEnabled())
                 continue;
-            auto ltw = lightEntity.GetDataComponent<GlobalTransform>();
+            auto ltw = scene->GetDataComponent<GlobalTransform>(lightEntity);
             glm::vec3 position = ltw.m_value[3];
             glm::vec3 front = ltw.GetRotation() * glm::vec3(0, 0, -1);
             glm::vec3 up = ltw.GetRotation() * glm::vec3(0, 1, 0);
@@ -1254,7 +1256,7 @@ void RenderLayer::RenderShadows(
             for (int i = 0; i < size; i++)
             {
                 Entity lightEntity = spotLightEntities->at(i);
-                if (!lightEntity.IsEnabled())
+                if (!scene->IsEntityEnabled(lightEntity))
                     continue;
                 OpenGLUtils::SetViewPort(
                     m_spotLights[enabledSize].m_viewPort.x,
@@ -1294,8 +1296,7 @@ void RenderLayer::ApplyShadowMapSettings()
 
 void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
-    auto scene = Entities::GetCurrentScene();
-
+    auto scene = Application::GetActiveScene();
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
     if (!cameraSkybox || !cameraSkybox->Texture())
         cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();

@@ -1,9 +1,10 @@
 #include "ProjectManager.hpp"
-#include "Engine/ECS/Entities.hpp"
-#include "Engine/Rendering/Graphics.hpp"
+#include "Entities.hpp"
+#include "Graphics.hpp"
 #include "Prefab.hpp"
-#include <Application.hpp>
-#include <PhysicsLayer.hpp>
+#include "Application.hpp"
+#include "PhysicsLayer.hpp"
+#include "Editor.hpp"
 using namespace UniEngine;
 
 std::shared_ptr<IAsset> AssetRecord::GetAsset()
@@ -675,7 +676,7 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
         {
             scene = std::dynamic_pointer_cast<Scene>(temp);
             SetStartScene(scene);
-            Entities::Attach(scene);
+            Application::Attach(scene);
             foundScene = true;
         }
         UNIENGINE_LOG("Found and loaded project");
@@ -690,14 +691,14 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
             UNIENGINE_LOG("Created new start scene!");
         }
         SetStartScene(scene);
-        Entities::Attach(scene);
+        Application::Attach(scene);
 #pragma region Main Camera
-        const auto mainCameraEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Main Camera");
+        const auto mainCameraEntity = scene->CreateEntity("Main Camera");
         Transform cameraLtw;
         cameraLtw.SetPosition(glm::vec3(0.0f, 5.0f, 10.0f));
         cameraLtw.SetEulerRotation(glm::radians(glm::vec3(0, 0, 0)));
-        mainCameraEntity.SetDataComponent(cameraLtw);
-        auto mainCameraComponent = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
+        scene->SetDataComponent(mainCameraEntity, cameraLtw);
+        auto mainCameraComponent = scene->GetOrSetPrivateComponent<Camera>(mainCameraEntity).lock();
         scene->m_mainCamera = mainCameraComponent;
         mainCameraComponent->m_skybox = DefaultResources::Environmental::DefaultSkybox;
 #pragma endregion
@@ -1005,12 +1006,13 @@ void ProjectManager::OnInspect()
                     IM_ASSERT(payload->DataSize == sizeof(Handle));
                     auto prefab = std::dynamic_pointer_cast<Prefab>(ProjectManager::CreateTemporaryAsset<Prefab>());
                     auto entityHandle = *static_cast<Handle *>(payload->Data);
-                    auto entity = Entities::GetEntity(Entities::GetCurrentScene(), entityHandle);
-                    if (entity.IsValid())
+                    auto scene = Application::GetActiveScene();
+                    auto entity = scene->GetEntity(entityHandle);
+                    if (scene->IsEntityValid(entity))
                     {
                         prefab->FromEntity(entity);
                         // If current folder doesn't contain file with same name
-                        auto fileName = entity.GetName();
+                        auto fileName = scene->GetEntityName(entity);
                         auto fileExtension = projectManager.m_assetExtensions["Prefab"].at(0);
                         auto filePath =
                             ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);
@@ -1224,7 +1226,8 @@ void ProjectManager::OnInspect()
                             auto entity = *static_cast<Entity *>(payload->Data);
                             prefab->FromEntity(entity);
                             // If current folder doesn't contain file with same name
-                            auto fileName = entity.GetName();
+                            auto scene = Application::GetActiveScene();
+                            auto fileName = scene->GetEntityName(entity);
                             auto fileExtension = projectManager.m_assetExtensions["Prefab"].at(0);
                             auto filePath =
                                 ProjectManager::GenerateNewPath((currentFolderPath / fileName).string(), fileExtension);

@@ -1,10 +1,11 @@
-#include <Entity.hpp>
-#include "Engine/ECS/Entities.hpp"
-#include <ISerializable.hpp>
-#include <EntityMetadata.hpp>
-#include <IPrivateComponent.hpp>
-#include <ProjectManager.hpp>
+#include "Entity.hpp"
+#include "Entities.hpp"
+#include "ISerializable.hpp"
+#include "EntityMetadata.hpp"
+#include "IPrivateComponent.hpp"
+#include "ProjectManager.hpp"
 #include "Application.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
@@ -48,12 +49,6 @@ unsigned Entity::GetVersion() const
 {
     return m_version;
 }
-Handle Entity::GetHandle() const
-{
-    auto& storage = Application::GetActiveScene() ->m_sceneDataStorage.m_entityMetadataList;
-    return storage.at(m_index).GetHandle();
-}
-
 
 IDataComponent *ComponentDataChunk::GetDataPointer(const size_t &offset) const
 {
@@ -175,7 +170,8 @@ void EntityRef::Set(const Entity &target)
         Clear();
     }
     else {
-        m_entityHandle = target.GetHandle();
+        auto scene = Application::GetActiveScene();
+        m_entityHandle = scene->GetEntityHandle(target);
         m_value = target;
     }
 }

@@ -5,6 +5,7 @@
 #include <PlayerController.hpp>
 #include <PostProcessing.hpp>
 #include <StarCluster/StarClusterSystem.hpp>
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
 using namespace Galaxy;
 void LoadScene();
@@ -40,15 +41,16 @@ int main()
 }
 
 void LoadScene(){
-    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    auto scene =Application::GetActiveScene();
+    const auto mainCamera = scene->m_mainCamera.Get<Camera>();
     auto mainCameraEntity = mainCamera->GetOwner();
-    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
+    scene->GetOrSetPrivateComponent<PlayerController>(mainCameraEntity);
 #pragma region Star System
     auto starClusterSystem =
-        Entities::GetCurrentScene()->GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
+        scene->GetOrCreateSystem<StarClusterSystem>(SystemGroup::SimulationSystemGroup);
 #pragma endregion
     auto postProcessing =
-        mainCamera->GetOwner().GetOrSetPrivateComponent<PostProcessing>().lock();
+        scene->GetOrSetPrivateComponent<PostProcessing>(mainCamera->GetOwner()).lock();
     auto bloom = postProcessing->GetLayer<Bloom>().lock();
     bloom->m_intensity = 0.1f;
     bloom->m_diffusion = 8;

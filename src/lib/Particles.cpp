@@ -58,7 +58,7 @@ void Particles::OnInspect()
     {
         static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
         ImGui::ColorEdit4("Color:##Particles", (float *)(void *)&displayBoundColor);
-        const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
+        const auto transform = GetScene()->GetDataComponent<GlobalTransform>(GetOwner()).m_value;
         Graphics::DrawGizmoMesh(
             DefaultResources::Primitives::Cube,
             displayBoundColor,

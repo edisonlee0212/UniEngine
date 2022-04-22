@@ -53,20 +53,20 @@ bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const 
     bool statusChanged = false;
     if (ImGui::BeginDragDropTarget())
     {
-        const auto currentScene = Entities::GetCurrentScene();
+        const auto currentScene = Application::GetActiveScene();
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             auto payload_n = *static_cast<Handle *>(payload->Data);
-            auto entity = Entities::GetEntity(currentScene, payload_n);
-            if (entity.IsValid())
+            auto entity = currentScene->GetEntity(payload_n);
+            if (currentScene->IsEntityValid(entity))
             {
                 for (const auto &typeName : typeNames)
                 {
-                    if (Entities::HasPrivateComponent(currentScene, entity, typeName))
+                    if (currentScene->HasPrivateComponent(entity, typeName))
                     {
                         const auto ptr = target.Get<IPrivateComponent>();
-                        auto newPrivateComponent = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
+                        auto newPrivateComponent = currentScene->GetPrivateComponent(entity, typeName).lock();
                         target = newPrivateComponent;
                         statusChanged = true;
                         break;
@@ -79,12 +79,12 @@ bool Editor::UnsafeDroppablePrivateComponent(PrivateComponentRef &target, const 
 
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             auto payload_n = *static_cast<Handle *>(payload->Data);
-            auto entity = Entities::GetEntity(currentScene, payload_n);
+            auto entity = currentScene->GetEntity(payload_n);
             for (const auto &typeName : typeNames)
             {
-                if (Entities::HasPrivateComponent(currentScene, entity, typeName))
+                if (currentScene->HasPrivateComponent(entity, typeName))
                 {
-                    target = Entities::GetPrivateComponent(currentScene, entity, typeName).lock();
+                    target = currentScene->GetPrivateComponent(entity, typeName).lock();
                     statusChanged = true;
                     break;
                 }
@@ -106,9 +106,10 @@ bool Editor::DragAndDropButton(EntityRef &entityRef, const std::string &name, bo
     ImGui::SameLine();
     bool statusChanged = false;
     auto entity = entityRef.Get();
-    if (!entity.IsNull())
+    if (entity.GetIndex() != 0)
     {
-        ImGui::Button(entity.GetName().c_str());
+        auto scene = Application::GetActiveScene();
+        ImGui::Button(scene->GetEntityName(entity).c_str());
         Draggable(entityRef);
         if (modifiable)
         {
@@ -130,10 +131,11 @@ bool Editor::Droppable(EntityRef &entityRef)
     {
         if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("Entity"))
         {
+            auto scene = Application::GetActiveScene();
             IM_ASSERT(payload->DataSize == sizeof(Handle));
             auto payload_n = *static_cast<Handle *>(payload->Data);
-            auto newEntity = Entities::GetEntity(Entities::GetCurrentScene(), payload_n);
-            if (newEntity.IsValid())
+            auto newEntity = scene->GetEntity(payload_n);
+            if (scene->IsEntityValid(newEntity))
             {
                 entityRef = newEntity;
                 statusChanged = true;
@@ -146,7 +148,7 @@ bool Editor::Droppable(EntityRef &entityRef)
 void Editor::Draggable(EntityRef &entityRef)
 {
     auto entity = entityRef.Get();
-    if (!entity.IsNull())
+    if (entity.GetIndex() != 0)
     {
         DraggableEntity(entity);
     }
@@ -155,9 +157,10 @@ void Editor::DraggableEntity(const Entity &entity)
 {
     if (ImGui::BeginDragDropSource())
     {
-        auto handle = entity.GetHandle();
+        auto scene = Application::GetActiveScene();
+        auto handle = scene->GetEntityHandle(entity);
         ImGui::SetDragDropPayload("Entity", &handle, sizeof(Handle));
-        ImGui::TextColored(ImVec4(0, 0, 1, 1), entity.GetName().c_str());
+        ImGui::TextColored(ImVec4(0, 0, 1, 1), scene->GetEntityName(entity).c_str());
         ImGui::EndDragDropSource();
     }
 }
@@ -172,9 +175,10 @@ bool Editor::Remove(EntityRef &entityRef)
 {
     bool statusChanged = false;
     auto entity = entityRef.Get();
-    if (entity.IsValid())
+    auto scene = Application::GetActiveScene();
+    if (scene->IsEntityValid(entity))
     {
-        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        const std::string tag = "##Entity" + std::to_string(scene->GetEntityHandle(entity));
         if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
             if (ImGui::Button(("Remove" + tag).c_str()))
@@ -190,9 +194,10 @@ bool Editor::Remove(EntityRef &entityRef)
 bool Editor::RenameEntity(Entity &entity)
 {
     bool statusChanged = false;
-    if (entity.IsValid())
+    auto scene = Application::GetActiveScene();
+    if (scene->IsEntityValid(entity))
     {
-        const std::string tag = "##Entity" + std::to_string(entity.GetHandle());
+        const std::string tag = "##Entity" + std::to_string(scene->GetEntityHandle(entity));
         if (ImGui::BeginPopupContextItem(tag.c_str()))
         {
             if (ImGui::BeginMenu(("Rename" + tag).c_str()))
@@ -201,7 +206,7 @@ bool Editor::RenameEntity(Entity &entity)
                 ImGui::InputText(("New name" + tag).c_str(), newName, 256);
                 if (ImGui::Button(("Confirm" + tag).c_str()))
                 {
-                    entity.SetName(std::string(newName));
+                    scene->SetEntityName(entity, std::string(newName));
                     memset(newName, 0, 256);
                 }
                 ImGui::EndMenu();
@@ -253,7 +258,8 @@ bool Editor::DragAndDropButton(
     auto ptr = target.Get<IPrivateComponent>();
     if (ptr)
     {
-        ImGui::Button(ptr->GetOwner().GetName().c_str());
+        auto scene = Application::GetActiveScene();
+        ImGui::Button(scene->GetEntityName(ptr->GetOwner()).c_str());
         const std::string tag = "##" + ptr->GetTypeName() + std::to_string(ptr->GetHandle());
         DraggablePrivateComponent(ptr);
         if (modifiable)

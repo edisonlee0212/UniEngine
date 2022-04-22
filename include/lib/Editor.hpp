@@ -7,7 +7,7 @@
 #include "RigidBody.hpp"
 #include "Texture2D.hpp"
 #include "Application.hpp"
-
+#include "Scene.hpp"
 namespace UniEngine
 {
 struct Transform;
@@ -124,11 +124,12 @@ template <typename T> void Editor::RegisterPrivateComponent()
 {
     auto &editorManager = GetInstance();
     auto func = [&](Entity owner) {
-        if (owner.HasPrivateComponent<T>())
+        auto scene = Application::GetActiveScene();
+        if (scene->HasPrivateComponent<T>(owner))
             return;
         if (ImGui::Button(Serialization::GetSerializableTypeName<T>().c_str()))
         {
-            owner.GetOrSetPrivateComponent<T>();
+            scene->GetOrSetPrivateComponent<T>(owner);
         }
     };
     for (int i = 0; i < editorManager.m_privateComponentMenuList.size(); i++)
@@ -149,11 +150,12 @@ template <typename T> void Editor::RegisterDataComponent()
         id == typeid(GlobalTransformUpdateFlag).hash_code())
         return;
     auto func = [](Entity owner) {
-        if (owner.HasDataComponent<T>())
+        auto scene = Application::GetActiveScene();
+        if (scene->HasPrivateComponent<T>(owner))
             return;
         if (ImGui::Button(Serialization::GetDataComponentTypeName<T>().c_str()))
         {
-            Entities::AddDataComponent<T>(Entities::GetCurrentScene(), owner, T());
+            scene->AddDataComponent<T>(owner, T());
         }
     };
     for (int i = 0; i < GetInstance().m_componentDataMenuList.size(); i++)
@@ -204,7 +206,8 @@ bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &n
     const auto ptr = target.Get<IPrivateComponent>();
     if (ptr)
     {
-        ImGui::Button(ptr->GetOwner().GetName().c_str());
+        auto scene = Application::GetActiveScene();
+        ImGui::Button(scene->GetEntityName(ptr->GetOwner()).c_str());
         Draggable(target);
         if (modifiable)
         {
@@ -225,11 +228,12 @@ template <typename T> void Editor::DraggablePrivateComponent(const std::shared_p
     {
         const auto type = ptr->GetTypeName();
         auto entity = ptr->GetOwner();
-        if (entity.IsValid())
+        auto scene = Application::GetActiveScene();
+        if (scene->IsEntityValid(entity))
         {
             if (ImGui::BeginDragDropSource())
             {
-                auto handle = entity.GetHandle();
+                auto handle = scene->GetEntityHandle(entity);
                 ImGui::SetDragDropPayload("PrivateComponent", &handle, sizeof(Handle));
                 ImGui::TextColored(ImVec4(0, 0, 1, 1), type.c_str());
                 ImGui::EndDragDropSource();

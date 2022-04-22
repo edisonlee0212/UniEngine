@@ -1,5 +1,6 @@
-#include "Engine/ECS/Entities.hpp"
-#include <PrivateComponentStorage.hpp>
+#include "Entities.hpp"
+#include "PrivateComponentStorage.hpp"
+#include "Scene.hpp"
 using namespace UniEngine;
 void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeID, const std::shared_ptr<IPrivateComponent> &privateComponent)
 {
@@ -45,8 +46,9 @@ void PrivateComponentStorage::RemovePrivateComponent(Entity entity, size_t typeI
 
 void PrivateComponentStorage::DeleteEntity(Entity entity)
 {
+    auto scene = m_scene.lock();
     for (auto &element :
-         Entities::GetCurrentScene()->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex()).m_privateComponentElements)
+          scene->m_sceneDataStorage.m_entityMetadataList.at(entity.GetIndex()).m_privateComponentElements)
     {
         RemovePrivateComponent(entity, element.m_typeId, element.m_privateComponentData);
     }

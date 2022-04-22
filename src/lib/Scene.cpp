@@ -1,8 +1,11 @@
-#include <Application.hpp>
+#include "Scene.hpp"
+#include "Application.hpp"
+#include "Camera.hpp"
+#include "DefaultResources.hpp"
+#include "Editor.hpp"
+#include "Entities.hpp"
 #include "EntityMetadata.hpp"
-#include "Engine/ECS/Entities.hpp"
-#include <Scene.hpp>
-
+#include "EnvironmentalMap.hpp"
 using namespace UniEngine;
 
 void Scene::Purge()
@@ -292,7 +295,7 @@ void Scene::Serialize(YAML::Emitter &out)
         {
             element.m_privateComponentData->CollectAssetRef(list);
         }
-        entityMetadata.Serialize(out);
+        entityMetadata.Serialize(out, std::dynamic_pointer_cast<Scene>(m_self.lock()));
     }
     out << YAML::EndSeq;
 #pragma endregion
@@ -378,6 +381,7 @@ void Scene::Serialize(YAML::Emitter &out)
 void Scene::Deserialize(const YAML::Node &in)
 {
     UNIENGINE_LOG("Loading scene...");
+    auto scene = std::dynamic_pointer_cast<Scene>(m_self.lock());
     m_sceneDataStorage.m_entities.clear();
     m_sceneDataStorage.m_entityMetadataList.clear();
     m_sceneDataStorage.m_dataComponentStorages.clear();
@@ -391,11 +395,11 @@ void Scene::Deserialize(const YAML::Node &in)
     {
         m_sceneDataStorage.m_entityMetadataList.emplace_back();
         auto &newInfo = m_sceneDataStorage.m_entityMetadataList.back();
-        newInfo.Deserialize(inEntityMetadata);
+        newInfo.Deserialize(inEntityMetadata, scene);
         Entity entity;
         entity.m_version = 1;
         entity.m_index = currentIndex;
-        m_sceneDataStorage.m_entityMap[newInfo.GetHandle()] = entity;
+        m_sceneDataStorage.m_entityMap[newInfo.m_handle] = entity;
         m_sceneDataStorage.m_entities.push_back(entity);
         currentIndex++;
     }
@@ -524,8 +528,7 @@ void Scene::Deserialize(const YAML::Node &in)
                     ptr->m_enabled = inPrivateComponent["m_enabled"].as<bool>();
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
-                    entityMetadata.m_privateComponentElements.back().m_privateComponentData->m_scene = self;
+                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
                 else
                 {
@@ -534,8 +537,7 @@ void Scene::Deserialize(const YAML::Node &in)
                     ptr->m_enabled = false;
                     ptr->m_started = false;
                     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, hashCode);
-                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity);
-                    entityMetadata.m_privateComponentElements.back().m_privateComponentData->m_scene = self;
+                    entityMetadata.m_privateComponentElements.emplace_back(hashCode, ptr, entity, self);
                 }
             }
         }
@@ -663,6 +665,7 @@ void Scene::OnCreate()
     m_sceneDataStorage.m_entityMetadataList.emplace_back();
     m_sceneDataStorage.m_dataComponentStorages.emplace_back();
     m_environmentSettings.m_environmentalMap = DefaultResources::Environmental::DefaultEnvironmentalMap;
+    m_sceneDataStorage.m_entityPrivateComponentStorage.m_scene = std::dynamic_pointer_cast<Scene>(m_self.lock());
 }
 bool Scene::LoadInternal(const std::filesystem::path &path)
 {
@@ -694,9 +697,9 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
         newScene->m_systems.insert({i.first, system});
         newScene->m_indexedSystems[hashCode] = system;
         newScene->m_mappedSystems[i.second->GetHandle()] = system;
-        system->m_scene = source;
         system->OnCreate();
         Serialization::CloneSystem(system, i.second);
+        system->m_scene = newScene;
     }
     newScene->m_mainCamera.m_entityHandle = source->m_mainCamera.m_entityHandle;
     newScene->m_mainCamera.m_privateComponentTypeName = source->m_mainCamera.m_privateComponentTypeName;
@@ -733,16 +736,17 @@ void SceneDataStorage::Clone(
 
     for (const auto &i : source.m_entityMetadataList)
     {
-        entityMap.insert({i.GetHandle(), i.GetHandle()});
+        entityMap.insert({i.m_handle, i.m_handle});
     }
-
-    for (int i = 0; i < m_entityMetadataList.size(); i++)
-        m_entityMetadataList[i].Clone(entityMap, source.m_entityMetadataList[i], newScene);
     m_dataComponentStorages.resize(source.m_dataComponentStorages.size());
     for (int i = 0; i < m_dataComponentStorages.size(); i++)
         m_dataComponentStorages[i] = source.m_dataComponentStorages[i];
+    for (int i = 0; i < m_entityMetadataList.size(); i++)
+        m_entityMetadataList[i].Clone(entityMap, source.m_entityMetadataList[i], newScene);
+
     m_entityMap = source.m_entityMap;
     m_entityPrivateComponentStorage = source.m_entityPrivateComponentStorage;
+    m_entityPrivateComponentStorage.m_scene = newScene;
 }
 
 #pragma region Entity Management
@@ -1248,7 +1252,7 @@ void Scene::SetParent(const Entity &entity, const Entity &parent, const bool &re
     }
     m_saved = false;
     auto &childEntityInfo = m_sceneDataStorage.m_entityMetadataList.at(childIndex);
-    if (!childEntityInfo.m_parent.GetIndex() != 0)
+    if (childEntityInfo.m_parent.GetIndex() != 0)
     {
         RemoveChild(entity, childEntityInfo.m_parent);
     }
@@ -1530,8 +1534,11 @@ IDataComponent *Scene::GetDataComponentPointer(const Entity &entity, const size_
     UNIENGINE_LOG("ComponentData doesn't exist");
     return nullptr;
 }
-
-void Scene::SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr)
+Handle Scene::GetEntityHandle(const Entity &entity)
+{
+    return m_sceneDataStorage.m_entityMetadataList.at(entity.m_index).m_handle;
+}
+void Scene::SetPrivateComponent(const Entity &entity, const std::shared_ptr<IPrivateComponent> &ptr)
 {
     assert(ptr && IsEntityValid(entity));
     auto typeName = ptr->GetTypeName();
@@ -1541,22 +1548,12 @@ void Scene::SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateCo
         if (typeName == element.m_privateComponentData->GetTypeName())
         {
             return;
-            /*
-            found = true;
-            if (element.m_privateComponentData)
-            {
-                element.m_privateComponentData->OnDestroy();
-            }
-            element.m_privateComponentData = ptr;
-            element.ResetOwner(entity, scene);
-            element.m_privateComponentData->OnCreate();
-            */
         }
     }
 
     auto id = Serialization::GetSerializableTypeId(typeName);
     m_sceneDataStorage.m_entityPrivateComponentStorage.SetPrivateComponent(entity, id);
-    elements.emplace_back(id, ptr, entity, std::dynamic_pointer_cast<Scene>(m_self.lock());
+    elements.emplace_back(id, ptr, entity, std::dynamic_pointer_cast<Scene>(m_self.lock()));
     m_saved = false;
 }
 
@@ -1570,7 +1567,7 @@ Entity Scene::GetRoot(const Entity &entity)
 {
     Entity retVal = entity;
     auto parent = GetParent(retVal);
-    while (!IsEntityValid(parent))
+    while (parent.GetIndex() != 0)
     {
         retVal = parent;
         parent = GetParent(retVal);
@@ -1827,7 +1824,6 @@ std::vector<std::reference_wrapper<DataComponentStorage>> Scene::QueryDataCompon
 }
 bool Scene::IsEntityValid(const Entity &entity)
 {
-    assert(IsEntityValid(entity));
     auto &storage = m_sceneDataStorage.m_entities;
     return entity.m_index != 0 && entity.m_version != 0 && entity.m_index < storage.size() &&
            storage.at(entity.m_index).m_version == entity.m_version;

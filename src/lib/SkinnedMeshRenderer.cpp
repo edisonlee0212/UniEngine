@@ -6,7 +6,8 @@
 using namespace UniEngine;
 void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
 {
-    const auto transform = GetOwner().GetDataComponent<GlobalTransform>().m_value;
+    auto scene = GetScene();
+    const auto transform = scene->GetDataComponent<GlobalTransform>(GetOwner()).m_value;
     glm::vec3 size = m_skinnedMesh.Get<SkinnedMesh>()->m_bound.Size();
     if (size.x < 0.01f)
         size.x = 0.01f;
@@ -23,6 +24,7 @@ void SkinnedMeshRenderer::RenderBound(glm::vec4 &color)
 
 void SkinnedMeshRenderer::GetBoneMatrices()
 {
+    auto scene = GetScene();
     auto animator = m_animator.Get<Animator>();
     if (!animator)
         return;
@@ -37,9 +39,9 @@ void SkinnedMeshRenderer::GetBoneMatrices()
         for (int i = 0; i < m_boundEntities.size(); i++)
         {
             auto entity = m_boundEntities[i].Get();
-            if (!entity.IsNull())
+            if (entity.GetIndex() != 0)
             {
-                m_ragDollTransformChain[i] = entity.GetDataComponent<GlobalTransform>().m_value;
+                m_ragDollTransformChain[i] = scene->GetDataComponent<GlobalTransform>(entity).m_value;
                 m_ragDollTransformChain[i] *= animator->m_offsetMatrices[i];
             }
         }
@@ -63,7 +65,9 @@ void SkinnedMeshRenderer::GetBoneMatrices()
 
 void SkinnedMeshRenderer::DebugBoneRender(const glm::vec4 &color, const float &size)
 {
-    const auto selfScale = GetOwner().GetDataComponent<GlobalTransform>().GetScale();
+    auto scene = GetScene();
+    auto owner = GetOwner();
+    const auto selfScale = scene->GetDataComponent<GlobalTransform>(owner).GetScale();
     auto animator = m_animator.Get<Animator>();
     if (!animator) return;
     std::vector<glm::mat4> debugRenderingMatrices;
@@ -71,7 +75,7 @@ void SkinnedMeshRenderer::DebugBoneRender(const glm::vec4 &color, const float &s
     if(!m_ragDoll)
     {
         debugRenderingMatrices = animator->m_transformChain;
-        ltw = GetOwner().GetDataComponent<GlobalTransform>();
+        ltw = scene->GetDataComponent<GlobalTransform>(owner);
     }else{
         debugRenderingMatrices = m_ragDollTransformChain;
     }
@@ -247,11 +251,12 @@ void SkinnedMeshRenderer::SetRagDoll(bool value)
     m_ragDoll = value;
     if (m_ragDoll)
     {
+        auto scene = GetScene();
         // Resize entities
         m_boundEntities.resize(animator->m_transformChain.size());
         // Copy current transform chain
         m_ragDollTransformChain = animator->m_transformChain;
-        auto ltw = GetOwner().GetDataComponent<GlobalTransform>().m_value;
+        auto ltw = scene->GetDataComponent<GlobalTransform>(GetOwner()).m_value;
         for(auto& i : m_ragDollTransformChain){
             i = ltw * i;
         }
@@ -267,7 +272,8 @@ void SkinnedMeshRenderer::SetRagDollBoundEntity(int index, const Entity &entity,
         UNIENGINE_ERROR("Index exceeds limit!");
         return;
     }
-    if (entity.IsValid())
+    auto scene = GetScene();
+    if (scene->IsEntityValid(entity))
     {
         if(resetTransform)
         {
@@ -276,7 +282,7 @@ void SkinnedMeshRenderer::SetRagDollBoundEntity(int index, const Entity &entity,
             {
                 GlobalTransform globalTransform;
                 globalTransform.m_value = m_ragDollTransformChain[index] * glm::inverse(animator->m_offsetMatrices[index]);
-                entity.SetDataComponent(globalTransform);
+                scene->SetDataComponent(entity, globalTransform);
             }
         }
         m_boundEntities[index] = entity;

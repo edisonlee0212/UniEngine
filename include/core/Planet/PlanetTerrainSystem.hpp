@@ -1,6 +1,8 @@
 #pragma once
-#include <Application.hpp>
-#include <Planet/PlanetTerrain.hpp>
+#include "Application.hpp"
+#include "Planet/PlanetTerrain.hpp"
+#include "Camera.hpp"
+#include "Material.hpp"
 using namespace UniEngine;
 namespace Planet
 {

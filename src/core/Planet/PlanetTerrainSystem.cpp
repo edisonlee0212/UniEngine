@@ -1,31 +1,32 @@
 #include "ProjectManager.hpp"
-
+#include "Graphics.hpp"
 #include <Planet/PlanetTerrainSystem.hpp>
 #include <glm/gtc/noise.hpp>
-
-void Planet::PlanetTerrainSystem::OnCreate()
+using namespace Planet;
+void PlanetTerrainSystem::OnCreate()
 {
 }
 
-void Planet::PlanetTerrainSystem::Update()
+void PlanetTerrainSystem::Update()
 {
+    auto scene = GetScene();
     const std::vector<Entity> *const planetTerrainList =
-        Entities::UnsafeGetPrivateComponentOwnersList<PlanetTerrain>(Entities::GetCurrentScene());
+        scene->UnsafeGetPrivateComponentOwnersList<PlanetTerrain>();
     if (planetTerrainList == nullptr)
         return;
 
     std::mutex meshGenLock;
-    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    const auto mainCamera = scene->m_mainCamera.Get<Camera>();
     if (mainCamera)
     {
-        const auto cameraLtw = mainCamera->GetOwner().GetDataComponent<GlobalTransform>();
+        const auto cameraLtw = scene->GetDataComponent<GlobalTransform>(mainCamera->GetOwner());
         for (auto i = 0; i < planetTerrainList->size(); i++)
         {
-            auto planetTerrain = planetTerrainList->at(i).GetOrSetPrivateComponent<PlanetTerrain>().lock();
+            auto planetTerrain = scene->GetOrSetPrivateComponent<PlanetTerrain>(planetTerrainList->at(i)).lock();
             if (!planetTerrain->IsEnabled())
                 continue;
             auto &planetInfo = planetTerrain->m_info;
-            auto planetTransform = planetTerrain->GetOwner().GetDataComponent<GlobalTransform>();
+            auto planetTransform = scene->GetDataComponent<GlobalTransform>(planetTerrain->GetOwner());
             auto &planetChunks = planetTerrain->m_chunks;
             // 1. Scan and expand.
             for (auto &chunk : planetChunks)
@@ -50,11 +51,11 @@ void Planet::PlanetTerrainSystem::Update()
     }
 }
 
-void Planet::PlanetTerrainSystem::FixedUpdate()
+void PlanetTerrainSystem::FixedUpdate()
 {
 }
 
-void Planet::PlanetTerrainSystem::CheckLod(
+void PlanetTerrainSystem::CheckLod(
     std::mutex &mutex,
     std::shared_ptr<TerrainChunk> &chunk,
     const PlanetInfo &info,
@@ -90,7 +91,7 @@ void Planet::PlanetTerrainSystem::CheckLod(
     }
 }
 
-void Planet::PlanetTerrainSystem::RenderChunk(
+void PlanetTerrainSystem::RenderChunk(
     std::shared_ptr<TerrainChunk> &chunk,
     const std::shared_ptr<Material> &material,
     glm::mat4 &matrix,

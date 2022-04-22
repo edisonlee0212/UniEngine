@@ -1,9 +1,9 @@
 #pragma once
 #include "Serialization.hpp"
-#include <Entity.hpp>
-#include <IAsset.hpp>
-#include <IPrivateComponent.hpp>
-#include <ISerializable.hpp>
+#include "Entity.hpp"
+#include "IAsset.hpp"
+#include "IPrivateComponent.hpp"
+#include "ISerializable.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API PrivateComponentRef
@@ -92,37 +92,15 @@ class UNIENGINE_API PrivateComponentRef
         if (target)
         {
             auto privateComponent = std::dynamic_pointer_cast<IPrivateComponent>(target);
-            m_privateComponentTypeName = privateComponent->GetTypeName();
-            m_entityHandle = privateComponent->GetOwner().GetHandle();
-            m_value = privateComponent;
             m_scene = privateComponent->GetScene();
+            m_privateComponentTypeName = privateComponent->GetTypeName();
+            m_entityHandle = privateComponent->GetScene()->GetEntityHandle(privateComponent->GetOwner());
+            m_value = privateComponent;
+
         }
         else
         {
             Clear();
-        }
-    }
-
-    template <typename T = IPrivateComponent> void Set(const Entity &target)
-    {
-        if (!target.IsValid())
-        {
-            UNIENGINE_WARNING("Entity invalid!");
-            return;
-        }
-        if (target.HasPrivateComponent<T>())
-        {
-            auto pc = target.GetOrSetPrivateComponent<T>().lock();
-            m_privateComponentTypeName = pc->GetTypeName();
-            auto entity = std::dynamic_pointer_cast<IPrivateComponent>(pc)->GetOwner();
-            m_entityHandle = entity.GetHandle();
-            m_value = pc;
-            m_scene = pc->GetScene();
-        }
-        else
-        {
-            UNIENGINE_WARNING("Entity doesn't contain " + Serialization::GetSerializableTypeName<T>() + "!");
-            return;
         }
     }
 

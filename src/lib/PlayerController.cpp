@@ -11,10 +11,11 @@ void PlayerController::OnCreate()
 }
 void PlayerController::LateUpdate()
 {
+    auto scene = GetScene();
     if (Application::GetLayer<EditorLayer>()->MainCameraWindowFocused())
     {
 #pragma region Scene Camera Controller
-        auto transform = GetOwner().GetDataComponent<Transform>();
+        auto transform = scene->GetDataComponent<Transform>(GetOwner());
         const auto rotation = transform.GetRotation();
         auto position = transform.GetPosition();
         const auto front = rotation * glm::vec3(0, 0, -1);
@@ -90,7 +91,7 @@ void PlayerController::LateUpdate()
         }
         if (moved)
         {
-            GetOwner().SetDataComponent(transform);
+            scene->SetDataComponent(GetOwner(), transform);
         }
 #pragma endregion
     }

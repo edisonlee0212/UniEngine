@@ -360,16 +360,17 @@ case JointType::Prismatic:
 }
 void Joint::Link(const Entity &entity, bool reverse)
 {
+    auto scene = GetScene();
     const auto owner = GetOwner();
-    if (owner.HasPrivateComponent<RigidBody>())
+    if (scene->HasPrivateComponent<RigidBody>(owner) && scene->HasPrivateComponent<RigidBody>(entity))
     {
         if(!reverse)
         {
-            m_rigidBody1.Set<RigidBody>(owner);
-            m_rigidBody2.Set<RigidBody>(entity);
+            m_rigidBody1.Set(scene->GetOrSetPrivateComponent<RigidBody>(owner).lock());
+            m_rigidBody2.Set(scene->GetOrSetPrivateComponent<RigidBody>(entity).lock());
         }else{
-            m_rigidBody2.Set<RigidBody>(owner);
-            m_rigidBody1.Set<RigidBody>(entity);
+            m_rigidBody2.Set(scene->GetOrSetPrivateComponent<RigidBody>(owner).lock());
+            m_rigidBody1.Set(scene->GetOrSetPrivateComponent<RigidBody>(entity).lock());
         }
         Unlink();
     }

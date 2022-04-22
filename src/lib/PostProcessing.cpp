@@ -48,11 +48,13 @@ void PostProcessing::OnCreate()
 
 void PostProcessing::Process()
 {
-    if (!GetOwner().HasPrivateComponent<Camera>())
+    auto scene = GetScene();
+    auto owner = GetOwner();
+    if (!scene->HasPrivateComponent<Camera>(owner))
         return;
-    auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
+    auto cameraComponent = scene->GetOrSetPrivateComponent<Camera>(owner).lock();
     ResizeResolution(cameraComponent->m_resolutionX, cameraComponent->m_resolutionY);
-    auto ltw = cameraComponent->GetOwner().GetDataComponent<GlobalTransform>();
+    auto ltw = scene->GetDataComponent<GlobalTransform>(owner);
     Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
     Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
 
@@ -85,12 +87,13 @@ void PostProcessing::ResizeResolution(int x, int y)
 
 void PostProcessing::OnInspect()
 {
+    auto scene = GetScene();
     auto owner = GetOwner();
-    if(!owner.HasPrivateComponent<Camera>()){
+    if(!scene->HasPrivateComponent<Camera>(owner)){
         ImGui::Text("Camera not present!");
         return;
     }
-    auto cameraComponent = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
+    auto cameraComponent = scene->GetOrSetPrivateComponent<Camera>(owner).lock();
     for (auto &layer : m_layers)
     {
         if (layer.second)

@@ -1,7 +1,8 @@
 #include "Application.hpp"
 #include "Scene.hpp"
-#include <AnimationLayer.hpp>
-#include <Animator.hpp>
+#include "AnimationLayer.hpp"
+#include "Animator.hpp"
+#include "SkinnedMeshRenderer.hpp"
 using namespace UniEngine;
 void AnimationLayer::PreUpdate()
 {

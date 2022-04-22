@@ -56,7 +56,7 @@ void PhysicsLayer::UploadTransform(
 void PhysicsLayer::PreUpdate()
 {
     const bool playing = Application::IsPlaying();
-    auto activeScene = Entities::GetCurrentScene();
+    auto activeScene = Application::GetActiveScene();
     UploadRigidBodyShapes(activeScene);
     UploadTransforms(activeScene, !playing);
     UploadJointLinks(activeScene);
@@ -106,13 +106,13 @@ void PhysicsLayer::UploadTransforms(const std::shared_ptr<Scene> &scene, const b
 {
     if (!scene)
         return;
-    if (const std::vector<Entity> *entities = Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
+    if (const std::vector<Entity> *entities = scene->UnsafeGetPrivateComponentOwnersList<RigidBody>();
         entities != nullptr)
     {
         for (auto entity : *entities)
         {
-            auto rigidBody = entity.GetOrSetPrivateComponent<RigidBody>().lock();
-            auto globalTransform = entity.GetDataComponent<GlobalTransform>();
+            auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(entity).lock();
+            auto globalTransform = scene->GetDataComponent<GlobalTransform>(entity);
             globalTransform.m_value = globalTransform.m_value * rigidBody->m_shapeTransform;
             globalTransform.SetScale(glm::vec3(1.0f));
             if (rigidBody->m_currentRegistered)
@@ -178,7 +178,7 @@ void PhysicsScene::Simulate(float time) const
 void PhysicsSystem::Simulate(float time) const
 {
     const std::vector<Entity> *rigidBodyEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(Entities::GetCurrentScene());
+        GetScene()->UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (!rigidBodyEntities)
         return;
     m_scene->Simulate(time);
@@ -193,7 +193,7 @@ void PhysicsSystem::OnEnable()
 void PhysicsSystem::DownloadRigidBodyTransforms() const
 {
     const std::vector<Entity> *rigidBodyEntities =
-        Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(Entities::GetCurrentScene());
+        GetScene()->UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (rigidBodyEntities)
         DownloadRigidBodyTransforms(rigidBodyEntities);
 }
@@ -206,8 +206,8 @@ void PhysicsLayer::UploadRigidBodyShapes(
 #pragma region Update shape
     for (auto entity : *rigidBodyEntities)
     {
-        auto rigidBody = Entities::GetOrSetPrivateComponent<RigidBody>(scene, entity).lock();
-        bool shouldRegister = Entities::IsEntityValid(scene, entity) && Entities::IsEntityEnabled(scene, entity) && rigidBody->IsEnabled();
+        auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(entity).lock();
+        bool shouldRegister = scene->IsEntityValid(entity) && scene->IsEntityEnabled(entity) && rigidBody->IsEnabled();
         if (rigidBody->m_currentRegistered == false && shouldRegister)
         {
             rigidBody->m_currentRegistered = true;
@@ -228,7 +228,7 @@ void PhysicsLayer::UploadRigidBodyShapes(const std::shared_ptr<Scene> &scene)
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
-    const std::vector<Entity> *rigidBodyEntities = Entities::UnsafeGetPrivateComponentOwnersList<RigidBody>(scene);
+    const std::vector<Entity> *rigidBodyEntities = scene->UnsafeGetPrivateComponentOwnersList<RigidBody>();
     if (rigidBodyEntities)
     {
         auto physicsScene = physicsSystem->m_scene;
@@ -242,7 +242,7 @@ void PhysicsLayer::UploadJointLinks(const std::shared_ptr<Scene> &scene)
     auto physicsSystem = scene->GetSystem<PhysicsSystem>();
     if (!physicsSystem)
         return;
-    const std::vector<Entity> *jointEntities = Entities::UnsafeGetPrivateComponentOwnersList<Joint>(scene);
+    const std::vector<Entity> *jointEntities = scene->UnsafeGetPrivateComponentOwnersList<Joint>();
     if (jointEntities)
     {
         auto physicsScene = physicsSystem->m_scene;
@@ -259,17 +259,17 @@ void PhysicsLayer::UploadJointLinks(
 #pragma region Update shape
     for (auto entity : *jointEntities)
     {
-        auto joint = Entities::GetOrSetPrivateComponent<Joint>(scene, entity).lock();
+        auto joint = scene->GetOrSetPrivateComponent<Joint>(entity).lock();
         auto rigidBody1 = joint->m_rigidBody1.Get<RigidBody>();
         auto rigidBody2 = joint->m_rigidBody2.Get<RigidBody>();
-        bool shouldRegister = Entities::IsEntityValid(scene, entity) && Entities::IsEntityEnabled(scene, entity) && joint->IsEnabled() &&
+        bool shouldRegister = scene->IsEntityValid(entity) && scene->IsEntityEnabled(entity) && joint->IsEnabled() &&
                               (rigidBody1 && rigidBody2);
         if (!joint->m_linked && shouldRegister)
         {
             PxTransform localFrame1;
-            auto ownerGT = Entities::GetDataComponent<GlobalTransform>(scene, rigidBody1->GetOwner());
+            auto ownerGT = scene->GetDataComponent<GlobalTransform>(rigidBody1->GetOwner());
             ownerGT.SetScale(glm::vec3(1.0f));
-            auto linkerGT = Entities::GetDataComponent<GlobalTransform>(scene, rigidBody2->GetOwner());
+            auto linkerGT = scene->GetDataComponent<GlobalTransform>(rigidBody2->GetOwner());
             linkerGT.SetScale(glm::vec3(1.0f));
             Transform transform;
             transform.m_value = glm::inverse(ownerGT.m_value) * linkerGT.m_value;
@@ -410,25 +410,26 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
     auto threadSize = Jobs::Workers().Size();
     size_t capacity = rigidBodyEntities->size() / threadSize;
     size_t reminder = rigidBodyEntities->size() % threadSize;
+    auto scene = GetScene();
     for (size_t i = 0; i < threadSize; i++)
     {
         futures.push_back(Jobs::Workers()
-                              .Push([&list, i, capacity, reminder, threadSize](int id) {
+                              .Push([&list, i, capacity, reminder, threadSize, &scene](int id) {
                                   for (size_t j = 0; j < capacity; j++)
                                   {
                                       size_t index = capacity * i + j;
-                                      const auto &rigidBodyEntity = list->at(index);
-                                      auto rigidBody = rigidBodyEntity.GetOrSetPrivateComponent<RigidBody>().lock();
+                                      auto rigidBodyEntity = list->at(index);
+                                      auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(rigidBodyEntity).lock();
                                       if (rigidBody->m_currentRegistered && !rigidBody->m_kinematic)
                                       {
                                           PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
                                           glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                           glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                           glm::vec3 scale =
-                                              rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
+                                              scene->GetDataComponent<GlobalTransform>(rigidBodyEntity).GetScale();
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
-                                          rigidBodyEntity.SetDataComponent(globalTransform);
+                                          scene->SetDataComponent(rigidBodyEntity, globalTransform);
                                           if (!rigidBody->m_static)
                                           {
                                               PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);
@@ -440,18 +441,18 @@ void PhysicsSystem::DownloadRigidBodyTransforms(const std::vector<Entity> *rigid
                                   if (reminder > i)
                                   {
                                       size_t index = capacity * threadSize + i;
-                                      const auto &rigidBodyEntity = list->at(index);
-                                      auto rigidBody = rigidBodyEntity.GetOrSetPrivateComponent<RigidBody>().lock();
+                                      auto rigidBodyEntity = list->at(index);
+                                      auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(rigidBodyEntity).lock();
                                       if (rigidBody->m_currentRegistered && !rigidBody->m_kinematic)
                                       {
                                           PxTransform transform = rigidBody->m_rigidActor->getGlobalPose();
                                           glm::vec3 position = *(glm::vec3 *)(void *)&transform.p;
                                           glm::quat rotation = *(glm::quat *)(void *)&transform.q;
                                           glm::vec3 scale =
-                                              rigidBodyEntity.GetDataComponent<GlobalTransform>().GetScale();
+                                              scene->GetDataComponent<GlobalTransform>(rigidBodyEntity).GetScale();
                                           GlobalTransform globalTransform;
                                           globalTransform.SetValue(position, rotation, scale);
-                                          rigidBodyEntity.SetDataComponent(globalTransform);
+                                          scene->SetDataComponent(rigidBodyEntity, globalTransform);
                                           if (!rigidBody->m_static)
                                           {
                                               PxRigidBody *rb = static_cast<PxRigidBody *>(rigidBody->m_rigidActor);

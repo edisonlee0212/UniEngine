@@ -1,16 +1,15 @@
 #pragma once
-#include <Entity.hpp>
-#include <EntityMetadata.hpp>
-#include <IAsset.hpp>
-#include <IPrivateComponent.hpp>
-#include <ISystem.hpp>
-#include <PrivateComponentRef.hpp>
-#include <PrivateComponentStorage.hpp>
-#include <Utilities.hpp>
 #include "Entities.hpp"
+#include "Entity.hpp"
+#include "EntityMetadata.hpp"
+#include "IAsset.hpp"
+#include "IPrivateComponent.hpp"
+#include "ISystem.hpp"
+#include "PrivateComponentRef.hpp"
+#include "PrivateComponentStorage.hpp"
+#include "Utilities.hpp"
 namespace UniEngine
 {
-
 
 enum UNIENGINE_API SystemGroup
 {
@@ -88,7 +87,7 @@ class UNIENGINE_API Scene : public IAsset
     IDataComponent *GetDataComponentPointer(const Entity &entity, const size_t &id);
     IDataComponent *GetDataComponentPointer(unsigned entityIndex, const size_t &id);
 
-    void SetPrivateComponent(const Entity &entity, std::shared_ptr<IPrivateComponent> ptr);
+    void SetPrivateComponent(const Entity &entity, const std::shared_ptr<IPrivateComponent> &ptr);
 
     void ForEachDescendantHelper(const Entity &target, const std::function<void(const Entity &entity)> &func);
     void GetDescendantsHelper(const Entity &target, std::vector<Entity> &results);
@@ -180,46 +179,49 @@ class UNIENGINE_API Scene : public IAsset
 
 #pragma endregion
 
-    template <typename T = IDataComponent>
-    void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void GetComponentDataArray(
-        const EntityQuery &entityQuery,
-        std::vector<T1> &container,
-        const std::function<bool(const T2 &)> &filterFunc,
-        bool checkEnable);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
-    void GetComponentDataArray(
-        const EntityQuery &entityQuery,
-        std::vector<T1> &container,
-        const std::function<bool(const T2 &, const T3 &)> &filterFunc,
-        bool checkEnable);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void GetComponentDataArray(
-        const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable);
-    void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable);
-    template <typename T1 = IDataComponent>
-    void GetEntityArray(
-        const EntityQuery &entityQuery,
-        std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &)> &filterFunc,
-        bool checkEnable);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void GetEntityArray(
-        const EntityQuery &entityQuery,
-        std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
-        bool checkEnable);
-    template <typename T1 = IDataComponent>
-    void GetEntityArray(
-        const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable);
-    size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable);
+
 #pragma endregion
 
   protected:
     bool LoadInternal(const std::filesystem::path &path) override;
 
   public:
+    template <typename T = IDataComponent>
+    void GetComponentDataArray(const EntityQuery &entityQuery, std::vector<T> &container, bool checkEnable = true);
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
+    void GetComponentDataArray(
+        const EntityQuery &entityQuery,
+        std::vector<T1> &container,
+        const std::function<bool(const T2 &)> &filterFunc,
+        bool checkEnable = true);
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
+    void GetComponentDataArray(
+        const EntityQuery &entityQuery,
+        std::vector<T1> &container,
+        const std::function<bool(const T2 &, const T3 &)> &filterFunc,
+        bool checkEnable = true);
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
+    void GetComponentDataArray(
+        const EntityQuery &entityQuery, const T1 &filter, std::vector<T2> &container, bool checkEnable = true);
+    void GetEntityArray(const EntityQuery &entityQuery, std::vector<Entity> &container, bool checkEnable = true);
+    template <typename T1 = IDataComponent>
+    void GetEntityArray(
+        const EntityQuery &entityQuery,
+        std::vector<Entity> &container,
+        const std::function<bool(const Entity &, const T1 &)> &filterFunc,
+        bool checkEnable = true);
+    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
+    void GetEntityArray(
+        const EntityQuery &entityQuery,
+        std::vector<Entity> &container,
+        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
+        bool checkEnable = true);
+    template <typename T1 = IDataComponent>
+    void GetEntityArray(
+        const EntityQuery &entityQuery, const T1 &filter, std::vector<Entity> &container, bool checkEnable = true);
+    size_t GetEntityAmount(EntityQuery entityQuery, bool checkEnable = true);
+
+    [[nodiscard]] Handle GetEntityHandle(const Entity &entity);
     template <typename T = ISystem> std::shared_ptr<T> GetOrCreateSystem(float order);
     template <typename T = ISystem> std::shared_ptr<T> GetSystem();
     template <typename T = ISystem> bool HasSystem();
@@ -257,7 +259,7 @@ class UNIENGINE_API Scene : public IAsset
     void SetEntityName(const Entity &entity, const std::string &name);
     void SetEntityStatic(const Entity &entity, bool value);
 
-    void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform);
+    void SetParent(const Entity &entity, const Entity &parent, const bool &recalculateTransform = false);
     Entity GetParent(const Entity &entity);
     std::vector<Entity> GetChildren(const Entity &entity);
     Entity GetChild(const Entity &entity, int index);
@@ -324,8 +326,7 @@ class UNIENGINE_API Scene : public IAsset
      */
     template <typename T>
     std::vector<std::pair<T *, size_t>> UnsafeGetDataComponentArray(const EntityQuery &entityQuery);
-    template <typename T>
-    const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList();
+    template <typename T> const std::vector<Entity> *UnsafeGetPrivateComponentOwnersList();
 
 #pragma region For Each
     template <typename T1 = IDataComponent>
@@ -557,8 +558,6 @@ class UNIENGINE_API Scene : public IAsset
 #pragma endregion
 };
 
-
-
 template <typename T> std::shared_ptr<T> Scene::GetSystem()
 {
     const auto search = m_indexedSystems.find(typeid(T).hash_code());
@@ -618,8 +617,7 @@ template <typename T> void Scene::AddDataComponent(const Entity &entity, const T
     auto &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
 
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex);
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex);
     auto originalComponentTypes = dataComponentStorage.m_dataComponentTypes;
     const auto chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const auto chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
@@ -648,7 +646,8 @@ template <typename T> void Scene::AddDataComponent(const Entity &entity, const T
     // Erase duplicates
 
     std::vector<DataComponentType> copy;
-    copy.insert(copy.begin(), newArchetypeInfo.m_dataComponentTypes.begin(), newArchetypeInfo.m_dataComponentTypes.end());
+    copy.insert(
+        copy.begin(), newArchetypeInfo.m_dataComponentTypes.begin(), newArchetypeInfo.m_dataComponentTypes.end());
     newArchetypeInfo.m_dataComponentTypes.clear();
     for (const auto &i : copy)
     {
@@ -681,11 +680,7 @@ template <typename T> void Scene::AddDataComponent(const Entity &entity, const T
     // Transfer component data
     for (const auto &type : originalComponentTypes)
     {
-        SetDataComponent(
-            newEntity.m_index,
-            type.m_typeId,
-            type.m_size,
-            GetDataComponentPointer(entity, type.m_typeId));
+        SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
     SetDataComponent(newEntity, value);
     // 5. Swap entity.
@@ -716,8 +711,7 @@ template <typename T> void Scene::RemoveDataComponent(const Entity &entity)
     }
     auto &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
 #pragma region Check if componentdata already exists.If yes, go to SetComponentData
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     if (dataComponentStorage.m_dataComponentTypes.size() <= 3)
     {
         UNIENGINE_ERROR("Remove Component Data failed: Entity must have at least 1 data component besides 3 basic data "
@@ -760,11 +754,7 @@ template <typename T> void Scene::RemoveDataComponent(const Entity &entity)
     // Transfer component data
     for (const auto &type : newArchetypeInfo.m_dataComponentTypes)
     {
-        SetDataComponent(
-            newEntity.m_index,
-            type.m_typeId,
-            type.m_size,
-            GetDataComponentPointer(entity, type.m_typeId));
+        SetDataComponent(newEntity.m_index, type.m_typeId, type.m_size, GetDataComponentPointer(entity, type.m_typeId));
     }
     T retVal = GetDataComponent<T>(entity);
     // 5. Swap entity.
@@ -800,8 +790,7 @@ template <typename T> T Scene::GetDataComponent(const Entity &entity)
 {
     assert(IsEntityValid(entity));
     EntityMetadata &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
@@ -837,8 +826,7 @@ template <typename T> bool Scene::HasDataComponent(const Entity &entity)
     assert(IsEntityValid(entity));
 
     EntityMetadata &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
     {
@@ -866,12 +854,10 @@ template <typename T> T Scene::GetDataComponent(const size_t &index)
     if (index > m_sceneDataStorage.m_entityMetadataList.size())
         return T();
     EntityMetadata &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(index);
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
     const size_t chunkIndex = entityInfo.m_chunkArrayIndex / dataComponentStorage.m_chunkCapacity;
     const size_t chunkPointer = entityInfo.m_chunkArrayIndex % dataComponentStorage.m_chunkCapacity;
     ComponentDataChunk &chunk = dataComponentStorage.m_chunkArray.m_chunks[chunkIndex];
-    ;
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
     {
@@ -905,8 +891,7 @@ template <typename T> bool Scene::HasDataComponent(const size_t &index)
     if (index > m_sceneDataStorage.m_entityMetadataList.size())
         return false;
     EntityMetadata &entityInfo = m_sceneDataStorage.m_entityMetadataList.at(index);
-    auto &dataComponentStorage =
-        m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
+    auto &dataComponentStorage = m_sceneDataStorage.m_dataComponentStorages[entityInfo.m_dataComponentStorageIndex];
 
     const size_t id = typeid(T).hash_code();
     if (id == typeid(Transform).hash_code())
@@ -1766,8 +1751,7 @@ std::vector<std::pair<T *, size_t>> Scene::UnsafeGetDataComponentArray(const Ent
     return retVal;
 }
 
-template <typename T>
-const std::vector<Entity> *Scene::UnsafeGetPrivateComponentOwnersList()
+template <typename T> const std::vector<Entity> *Scene::UnsafeGetPrivateComponentOwnersList()
 {
     return m_sceneDataStorage.m_entityPrivateComponentStorage.UnsafeGetOwnersList<T>();
 }
@@ -2688,6 +2672,7 @@ void Scene::ForEachStorage(
     for (const auto &i : results)
         i.wait();
 }
+
 #pragma endregion
 
 #pragma endregion

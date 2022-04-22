@@ -80,17 +80,17 @@ class UNIENGINE_API Prefab : public IAsset
     std::shared_ptr<Mesh> ReadMesh(aiMesh *importerMesh);
     std::shared_ptr<SkinnedMesh> ReadSkinnedMesh(
         std::map<std::string, std::shared_ptr<Bone>> &bonesMap, aiMesh *importerMesh);
-    void AttachChildren(
+    void AttachChildren(const std::shared_ptr<Scene>& scene,
         const std::shared_ptr<Prefab> &modelNode,
         Entity parentEntity,
         const std::string &parentName,
         std::unordered_map<Handle, Handle> &map) const;
 
-    void AttachChildrenPrivateComponent(
-        const std::shared_ptr<Prefab> &modelNode,
+    void AttachChildrenPrivateComponent(const std::shared_ptr<Scene>& scene,
+                                        const std::shared_ptr<Prefab> &modelNode,
         const Entity &parentEntity,
         const std::unordered_map<Handle, Handle> &map) const;
-    void RelinkChildren(const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const;
+    void RelinkChildren(const std::shared_ptr<Scene>& scene, const Entity &parentEntity, const std::unordered_map<Handle, Handle> &map) const;
 #pragma endregion
 
   protected:
@@ -106,7 +106,7 @@ class UNIENGINE_API Prefab : public IAsset
     template <typename T = IPrivateComponent> std::shared_ptr<T> GetPrivateComponent();
     void OnCreate() override;
 
-    [[nodiscard]] Entity ToEntity() const;
+    [[nodiscard]] Entity ToEntity(const std::shared_ptr<Scene>& scene) const;
 
     void LoadModel(const std::filesystem::path &path, bool optimize = false, unsigned flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
 
