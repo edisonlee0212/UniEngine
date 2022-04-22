@@ -75,7 +75,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     }
     cameraComponent->m_frameCount++;
     */
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     auto sceneBound = scene->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
     ApplyShadowMapSettings();
@@ -265,7 +265,7 @@ void RenderLayer::PreUpdate()
 void RenderLayer::LateUpdate()
 {
     ProfilerLayer::StartEvent("Graphics");
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (!scene)
         return;
 
@@ -449,7 +449,7 @@ void RenderLayer::OnCreate()
 }
 void RenderLayer::CollectRenderInstances(Bound &worldBound)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     auto &editorManager = Editor::GetInstance();
     std::vector<std::pair<std::shared_ptr<Camera>, glm::vec3>> cameraPairs;
     auto editorLayer = Application::GetLayer<EditorLayer>();
@@ -836,7 +836,7 @@ void RenderLayer::RenderShadows(
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
     OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
     OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
 #pragma region Shadow
     auto &minBound = worldBound.m_min;
     auto &maxBound = worldBound.m_max;
@@ -1296,7 +1296,7 @@ void RenderLayer::ApplyShadowMapSettings()
 
 void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &cameraComponent)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     auto cameraSkybox = cameraComponent->m_skybox.Get<Cubemap>();
     if (!cameraSkybox || !cameraSkybox->Texture())
         cameraSkybox = DefaultResources::Environmental::DefaultEnvironmentalMap->m_targetCubemap.Get<Cubemap>();

@@ -267,7 +267,7 @@ bool EditorLayer::DrawEntityMenu(const bool &enabled, const Entity &entity)
     bool deleted = false;
     if (ImGui::BeginPopupContextItem(std::to_string(entity.GetIndex()).c_str()))
     {
-        auto scene = Application::GetActiveScene();
+        auto scene = GetScene();
         ImGui::Text(("Handle: " + std::to_string(scene->GetEntityHandle(entity).GetValue())).c_str());
         if (ImGui::Button("Delete"))
         {
@@ -309,7 +309,7 @@ void EditorLayer::InspectComponentData(Entity entity, IDataComponent *data, Data
     {
         if (editorManager.m_componentDataInspectorMap.at(type.m_typeId)(entity, data, isRoot))
         {
-            auto scene = Application::GetActiveScene();
+            auto scene = GetScene();
             scene->SetUnsaved();
         }
     }
@@ -329,7 +329,7 @@ Entity EditorLayer::MouseEntitySelection(const glm::vec2 &mousePosition)
         glReadPixels(point.x, point.y, 1, 1, GL_RED, GL_FLOAT, &entityIndex);
         if (entityIndex > 0)
         {
-            auto scene = Application::GetActiveScene();
+            auto scene = GetScene();
             retVal = scene->GetEntity(static_cast<unsigned>(entityIndex));
         }
     }
@@ -338,7 +338,7 @@ Entity EditorLayer::MouseEntitySelection(const glm::vec2 &mousePosition)
 
 void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
     scene->ForEachChild(entity, [&](Entity child) {
@@ -387,7 +387,7 @@ void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity)
 
 void EditorLayer::HighLightEntityHelper(const Entity &entity)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
     scene->ForEachChild(entity, [&](Entity child) {
@@ -453,7 +453,7 @@ void EditorLayer::MoveCamera(
 
 void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
     Camera::m_cameraInfoBlock.UpdateMatrices(m_sceneCamera, m_sceneCameraPosition, m_sceneCameraRotation);
@@ -658,7 +658,7 @@ void EditorLayer::RenderToSceneCamera()
 
 void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchyLevel)
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     std::string title = std::to_string(entity.GetIndex()) + ": ";
     title += scene->GetEntityName(entity);
     const bool enabled = scene->IsEntityEnabled(entity);
@@ -724,7 +724,7 @@ void EditorLayer::OnInspect()
         m_startMouse = false;
     }
 
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (scene && m_configFlags & EntityEditorSystem_EnableEntityHierarchy)
     {
         ImGui::Begin("Entity Explorer");
@@ -973,7 +973,7 @@ void EditorLayer::SetSelectedEntity(const Entity &entity, bool openMenu)
         m_selectedEntity = Entity();
         return;
     }
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     if (!scene->IsEntityValid(entity))
         return;
     m_selectedEntity = entity;
@@ -997,7 +997,7 @@ bool EditorLayer::SceneCameraWindowFocused()
 }
 void EditorLayer::SceneCameraWindow()
 {
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
 #pragma region Scene Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -1242,7 +1242,7 @@ void EditorLayer::MainCameraWindow()
     if (!renderLayer)
         return;
 
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
 #pragma region Window
     ImVec2 viewPortSize;
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
@@ -1364,7 +1364,7 @@ void EditorLayer::CameraWindowDragAndDrop()
     AssetRef assetRef;
     if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Cubemap", "EnvironmentalMap"}))
     {
-        auto scene = Application::GetActiveScene();
+        auto scene = GetScene();
         auto asset = assetRef.Get<IAsset>();
         if (!Application::IsPlaying() && asset->GetTypeName() == "Scene")
         {

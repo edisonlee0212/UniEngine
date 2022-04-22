@@ -12,7 +12,7 @@ void TransformLayer::OnCreate()
 
 void TransformLayer::PreUpdate()
 {
-    CalculateTransformGraphs(Application::GetActiveScene());
+    CalculateTransformGraphs(GetScene());
 }
 
 void TransformLayer::CalculateTransformGraph(

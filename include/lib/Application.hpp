@@ -106,6 +106,7 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     static void RegisterFixedUpdateFunction(const std::function<void()> &func);
     static void RegisterPostAttachSceneFunction(const std::function<void(const std::shared_ptr<Scene>& newScene)> &func);
 };
+
 template <typename T> std::shared_ptr<T> Application::PushLayer()
 {
     auto& application = GetInstance();

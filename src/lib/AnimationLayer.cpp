@@ -7,7 +7,7 @@ using namespace UniEngine;
 void AnimationLayer::PreUpdate()
 {
     ProfilerLayer::StartEvent("AnimationManager");
-    auto scene = Application::GetActiveScene();
+    auto scene = GetScene();
     auto *owners =
         scene->UnsafeGetPrivateComponentOwnersList<Animator>();
     if (!owners)

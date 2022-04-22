@@ -318,11 +318,14 @@ void Application::Attach(const std::shared_ptr<Scene> &scene)
     {
         UNIENGINE_ERROR("Stop Application to attach scene");
     }
-    auto &entityManager = GetInstance();
-    entityManager.m_activeScene = scene;
-    for (auto &func : Application::GetInstance().m_postAttachSceneFunctions)
+    auto &application = GetInstance();
+    application.m_activeScene = scene;
+    for (auto &func : application.m_postAttachSceneFunctions)
     {
         func(scene);
+    }
+    for(auto& layer : application.m_layers){
+        layer->m_scene = scene;
     }
 }
 

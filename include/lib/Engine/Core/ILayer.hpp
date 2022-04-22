@@ -1,10 +1,12 @@
 #pragma once
 #include <uniengine_export.h>
+
 namespace UniEngine
 {
+class Scene;
 class UNIENGINE_API ILayer
 {
-  private:
+    std::weak_ptr<Scene> m_scene;
     friend class Application;
     virtual void OnCreate()
     {
@@ -27,5 +29,8 @@ class UNIENGINE_API ILayer
     virtual void OnInspect()
     {
     }
+
+  public:
+    [[nodiscard]] std::shared_ptr<Scene> GetScene();
 };
 } // namespace UniEngine
