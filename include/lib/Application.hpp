@@ -1,15 +1,15 @@
 #pragma once
-#include <ClassRegistry.hpp>
-#include "Engine/ECS/Entities.hpp"
-#include <ILayer.hpp>
-#include <ISingleton.hpp>
-#include "Engine/Core/Inputs.hpp"
-#include <ProfilerLayer.hpp>
-#include "Engine/Rendering/Graphics.hpp"
-#include <Scene.hpp>
-#include <Utilities.hpp>
+#include "ClassRegistry.hpp"
+#include "Entities.hpp"
+#include "ILayer.hpp"
+#include "ISingleton.hpp"
+#include "Inputs.hpp"
+#include "ProfilerLayer.hpp"
+#include "Graphics.hpp"
+#include "Utilities.hpp"
 namespace UniEngine
 {
+class UNIENGINE_API Scene;
 class UNIENGINE_API ApplicationTime
 {
     friend class Scene;
@@ -78,8 +78,11 @@ class UNIENGINE_API Application final : public ISingleton<Application>
     bool m_enableSettingsMenu = false;
 
     std::vector<std::shared_ptr<ILayer>> m_layers;
-
+    std::shared_ptr<Scene> m_activeScene;
   public:
+    static void Attach(const std::shared_ptr<Scene> &scene);
+    static std::shared_ptr<Scene> GetActiveScene();
+
     template <typename T>
     static std::shared_ptr<T> PushLayer();
     template <typename T>

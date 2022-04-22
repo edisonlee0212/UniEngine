@@ -1,13 +1,14 @@
 #include "Application.hpp"
-
+#include "Scene.hpp"
 #include <AnimationLayer.hpp>
 #include <Animator.hpp>
 using namespace UniEngine;
 void AnimationLayer::PreUpdate()
 {
     ProfilerLayer::StartEvent("AnimationManager");
-    const std::vector<Entity> *owners =
-        Entities::UnsafeGetPrivateComponentOwnersList<Animator>(Entities::GetCurrentScene());
+    auto scene = Application::GetActiveScene();
+    auto *owners =
+        scene->UnsafeGetPrivateComponentOwnersList<Animator>();
     if (!owners)
     {
         ProfilerLayer::EndEvent("AnimationManager");
@@ -24,7 +25,7 @@ void AnimationLayer::PreUpdate()
                               .Push([=](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
-                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                       auto animator = scene->GetOrSetPrivateComponent<Animator>(owners->at(i)).lock();
                                       if (animator->m_animatedCurrentFrame)
                                       {
                                           animator->m_animatedCurrentFrame = false;
@@ -38,7 +39,7 @@ void AnimationLayer::PreUpdate()
                                   if (threadIndex < loadReminder)
                                   {
                                       const int i = threadIndex + threadSize * threadLoad;
-                                      auto animator = owners->at(i).GetOrSetPrivateComponent<Animator>().lock();
+                                      auto animator = scene->GetOrSetPrivateComponent<Animator>(owners->at(i)).lock();
                                       if (animator->m_animatedCurrentFrame)
                                       {
                                           animator->m_animatedCurrentFrame = false;
@@ -56,7 +57,7 @@ void AnimationLayer::PreUpdate()
         i.wait();
     results.clear();
 
-    owners = Entities::UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>(Entities::GetCurrentScene());
+    owners = scene->UnsafeGetPrivateComponentOwnersList<SkinnedMeshRenderer>();
     if (!owners)
     {
         ProfilerLayer::EndEvent("AnimationManager");
@@ -71,13 +72,13 @@ void AnimationLayer::PreUpdate()
                               .Push([=](int id) {
                                   for (int i = threadIndex * threadLoad; i < (threadIndex + 1) * threadLoad; i++)
                                   {
-                                      auto smmc = owners->at(i).GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+                                      auto smmc = scene->GetOrSetPrivateComponent<SkinnedMeshRenderer>(owners->at(i)).lock();
                                       smmc->GetBoneMatrices();
                                   }
                                   if (threadIndex < loadReminder)
                                   {
                                       const int i = threadIndex + threadSize * threadLoad;
-                                      auto smmc = owners->at(i).GetOrSetPrivateComponent<SkinnedMeshRenderer>().lock();
+                                      auto smmc = scene->GetOrSetPrivateComponent<SkinnedMeshRenderer>(owners->at(i)).lock();
                                       smmc->GetBoneMatrices();
                                   }
                               })

@@ -5,6 +5,7 @@
 namespace UniEngine
 {
 class Scene;
+
 struct EntityMetadata : public ISerializable
 {
     std::string m_name;

@@ -3,8 +3,6 @@
 #include <ISingleton.hpp>
 #include <Scene.hpp>
 #include <PostProcessing.hpp>
-
-
 namespace UniEngine
 {
 class EnvironmentalMap;

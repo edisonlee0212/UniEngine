@@ -24,6 +24,7 @@ struct UNIENGINE_API EntityArchetype final
   private:
     friend class Entities;
     friend class Serialization;
+    friend class Scene;
     size_t m_index = 0;
 
   public:
@@ -51,36 +52,6 @@ struct UNIENGINE_API Entity final
     bool operator==(const Entity &other) const;
     bool operator!=(const Entity &other) const;
     size_t operator()(Entity const &key) const;
-    [[nodiscard]] bool IsEnabled() const;
-    [[nodiscard]] bool IsStatic() const;
-    [[nodiscard]] bool IsRoot() const;
-    void SetEnabled(const bool &value) const;
-    void SetStatic(const bool &value) const;
-    void SetEnabledSingle(const bool &value) const;
-    [[nodiscard]] bool IsNull() const;
-    [[nodiscard]] bool IsValid() const;
-
-    void SetParent(const Entity &parent, const bool &recalculateTransform = false) const;
-    [[nodiscard]] Entity GetParent() const;
-    [[nodiscard]] std::vector<Entity> GetChildren() const;
-    [[nodiscard]] Entity GetChild(int index) const;
-    [[nodiscard]] size_t GetChildrenAmount() const;
-    [[nodiscard]] Entity GetRoot() const;
-    void ForEachChild(const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func) const;
-    void RemoveChild(const Entity &child) const;
-    [[nodiscard]] std::vector<Entity> GetDescendants() const;
-    void ForEachDescendant(const std::function<void(const std::shared_ptr<Scene> &, const Entity &entity)> &func, const bool &fromRoot = true) const;
-    template <typename T = IDataComponent> void SetDataComponent(const T &value) const;
-    template <typename T = IDataComponent> T GetDataComponent() const;
-    template <typename T = IDataComponent> [[nodiscard]] bool HasDataComponent() const;
-    template <typename T = IDataComponent> void RemoveDataComponent() const;
-
-    template <typename T = IPrivateComponent> std::weak_ptr<T> GetOrSetPrivateComponent() const;
-    template <typename T = IPrivateComponent> [[nodiscard]] bool HasPrivateComponent() const;
-    template <typename T = IPrivateComponent> void RemovePrivateComponent() const;
-
-    [[nodiscard]] std::string GetName() const;
-    void SetName(const std::string &name) const;
 };
 #pragma region Storage
 
@@ -215,6 +186,7 @@ struct UNIENGINE_API EntityQuery final
 {
   private:
     friend class Entities;
+    friend class Scene;
     friend class Serialization;
     size_t m_index = 0;
 
@@ -228,41 +200,6 @@ struct UNIENGINE_API EntityQuery final
     template <typename T = IDataComponent, typename... Ts> void SetAllFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetAnyFilters(T arg, Ts... args);
     template <typename T = IDataComponent, typename... Ts> void SetNoneFilters(T arg, Ts... args);
-    template <typename T1 = IDataComponent>
-    void ToComponentDataArray(const std::shared_ptr<Scene> &scene, std::vector<T1> &container, bool checkEnable = true);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(
-        const std::shared_ptr<Scene> &scene,
-        std::vector<T1> &container,
-        const std::function<bool(const T2 &)> &filterFunc,
-        bool checkEnable = true);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent, typename T3 = IDataComponent>
-    void ToComponentDataArray(
-        const std::shared_ptr<Scene> &scene,
-        std::vector<T1> &container,
-        const std::function<bool(const T2 &, const T3 &)> &filterFunc,
-        bool checkEnable = true);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToComponentDataArray(
-        const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<T2> &container, bool checkEnable = true);
-    void ToEntityArray(
-        const std::shared_ptr<Scene> &scene, std::vector<Entity> &container, bool checkEnable = true) const;
-    template <typename T1 = IDataComponent>
-    void ToEntityArray(
-        const std::shared_ptr<Scene> &scene, const T1 &filter, std::vector<Entity> &container, bool checkEnable = true);
-    template <typename T1 = IDataComponent>
-    void ToEntityArray(
-        const std::shared_ptr<Scene> &scene,
-        std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &)> &filterFunc,
-        bool checkEnable = true);
-    template <typename T1 = IDataComponent, typename T2 = IDataComponent>
-    void ToEntityArray(
-        const std::shared_ptr<Scene> &scene,
-        std::vector<Entity> &container,
-        const std::function<bool(const Entity &, const T1 &, const T2 &)> &filterFunc,
-        bool checkEnable = true);
-    [[nodiscard]] size_t GetEntityAmount(const std::shared_ptr<Scene> &scene, bool checkEnable = true) const;
 };
 struct UNIENGINE_API DataComponentStorage
 {

@@ -1,5 +1,5 @@
 #include "ProjectManager.hpp"
-
+#include "Application.hpp"
 #include <Utilities.hpp>
 
 #include <Camera.hpp>
@@ -363,18 +363,19 @@ void Camera::OnInspect()
         }
     }
     ImGui::Checkbox("Use clear color", &m_useClearColor);
-    const bool savedState = (this == Entities::GetCurrentScene()->m_mainCamera.Get<Camera>().get());
+    auto scene = GetScene();
+    const bool savedState = (this == scene->m_mainCamera.Get<Camera>().get());
     bool isMainCamera = savedState;
     ImGui::Checkbox("Main Camera", &isMainCamera);
     if (savedState != isMainCamera)
     {
         if (isMainCamera)
         {
-            Entities::GetCurrentScene()->m_mainCamera = GetOwner().GetOrSetPrivateComponent<Camera>().lock();
+            scene->m_mainCamera =  scene->GetOrSetPrivateComponent<Camera>(GetOwner()).lock();
         }
         else
         {
-            Entities::GetCurrentScene()->m_mainCamera.Clear();
+            Application::GetActiveScene()->m_mainCamera.Clear();
         }
     }
     if (m_useClearColor)

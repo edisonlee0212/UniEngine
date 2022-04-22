@@ -14,6 +14,7 @@ class UNIENGINE_API ISerializable : public IHandle
     friend class Serialization;
     friend class IAsset;
     friend class Entities;
+    friend class Scene;
     friend class Serialization;
     friend class EntityMetadata;
     friend class AssetRecord;

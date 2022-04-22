@@ -4,7 +4,9 @@
 
 #include "EntityMetadata.hpp"
 #include "Serialization.hpp"
+#include "PrivateComponentElement.hpp"
 using namespace UniEngine;
+
 void EntityMetadata::Deserialize(const YAML::Node &in)
 {
     m_name = in["m_name"].as<std::string>();
@@ -22,8 +24,8 @@ void EntityMetadata::Serialize(YAML::Emitter &out)
         out << YAML::Key << "m_handle" << YAML::Value << m_handle.m_value;
         out << YAML::Key << "m_enabled" << YAML::Value << m_enabled;
         out << YAML::Key << "m_static" << YAML::Value << m_static;
-        if(m_parent.IsValid()) out << YAML::Key << "Parent.Handle" << YAML::Value << m_parent.GetHandle();
-        if(m_root.IsValid())out << YAML::Key << "Root.Handle" << YAML::Value << m_root.GetHandle();
+        if(m_parent.GetIndex() != 0) out << YAML::Key << "Parent.Handle" << YAML::Value << m_parent.GetHandle();
+        if(m_root.GetIndex() != 0)out << YAML::Key << "Root.Handle" << YAML::Value << m_root.GetHandle();
 
 #pragma region Private Components
         out << YAML::Key << "m_privateComponentElements" << YAML::Value << YAML::BeginSeq;

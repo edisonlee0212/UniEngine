@@ -6,6 +6,7 @@
 #include "RenderTarget.hpp"
 #include "RigidBody.hpp"
 #include "Texture2D.hpp"
+#include "Application.hpp"
 
 namespace UniEngine
 {
@@ -98,13 +99,14 @@ void Editor::RegisterComponentDataInspector(
 template <typename T> void Editor::RegisterSystem()
 {
     auto &editorManager = GetInstance();
+    auto scene = Application::GetActiveScene();
     auto func = [&](float rank) {
-        if (Entities::GetCurrentScene()->GetSystem<T>())
+        if (scene->GetSystem<T>())
             return;
         auto systemName = Serialization::GetSerializableTypeName<T>();
         if (ImGui::Button(systemName.c_str()))
         {
-            Entities::GetCurrentScene()->GetOrCreateSystem(systemName, rank);
+            scene->GetOrCreateSystem(systemName, rank);
         }
     };
     for (int i = 0; i < editorManager.m_systemMenuList.size(); i++)

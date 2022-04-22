@@ -4,6 +4,7 @@
 #include <EntityMetadata.hpp>
 #include <IPrivateComponent.hpp>
 #include <ProjectManager.hpp>
+#include "Application.hpp"
 using namespace UniEngine;
 
 DataComponentType::DataComponentType(const std::string &name, const size_t &id, const size_t &size)
@@ -39,98 +40,6 @@ size_t Entity::operator()(Entity const &key) const
     return static_cast<size_t>(m_index);
 }
 
-bool Entity::IsEnabled() const
-{
-    return Entities::IsEntityEnabled(Entities::GetCurrentScene(), *this);
-}
-bool Entity::IsStatic() const
-{
-    return Entities::IsEntityStatic(Entities::GetCurrentScene(), *this);
-}
-bool Entity::IsRoot() const
-{
-    return Entities::IsEntityRoot(Entities::GetCurrentScene(), *this);
-}
-void Entity::SetEnabled(const bool &value) const
-{
-    Entities::SetEnable(Entities::GetCurrentScene(), *this, value);
-}
-void Entity::SetStatic(const bool &value) const
-{
-    Entities::SetEntityStatic(Entities::GetCurrentScene(), *this, value);
-}
-void Entity::SetEnabledSingle(const bool &value) const
-{
-    Entities::SetEnableSingle(Entities::GetCurrentScene(), *this, value);
-}
-
-bool Entity::IsNull() const
-{
-    return m_index == 0;
-}
-
-bool Entity::IsValid() const
-{
-    return Entities::IsEntityValid(Entities::GetCurrentScene(), *this);
-}
-
-void Entity::SetParent(const Entity &parent, const bool &recalculateTransform) const
-{
-    Entities::SetParent(Entities::GetCurrentScene(), *this, parent, recalculateTransform);
-}
-
-std::string Entity::GetName() const
-{
-    return Entities::GetEntityName(Entities::GetCurrentScene(), *this);
-}
-
-void Entity::SetName(const std::string &name) const
-{
-    return Entities::SetEntityName(Entities::GetCurrentScene(), *this, name);
-}
-
-Entity Entity::GetParent() const
-{
-    return Entities::GetParent(Entities::GetCurrentScene(), *this);
-}
-template <typename T> void Entity::RemoveDataComponent() const
-{
-    Entities::RemoveDataComponent(Entities::GetCurrentScene(), *this);
-}
-
-Entity Entity::GetRoot() const
-{
-    return Entities::GetRoot(Entities::GetCurrentScene(), *this);
-}
-size_t Entity::GetChildrenAmount() const
-{
-    return Entities::GetChildrenAmount(Entities::GetCurrentScene(), *this);
-}
-std::vector<Entity> Entity::GetChildren() const
-{
-    return std::move(Entities::GetChildren(Entities::GetCurrentScene(), *this));
-}
-Entity Entity::GetChild(int index) const
-{
-    return std::move(Entities::GetChild(Entities::GetCurrentScene(), *this, index));
-}
-void Entity::ForEachChild(const std::function<void(const std::shared_ptr<Scene> &scene, Entity child)> &func) const
-{
-    Entities::ForEachChild(Entities::GetCurrentScene(), *this, func);
-}
-
-void Entity::RemoveChild(const Entity &child) const
-{
-    Entities::RemoveChild(Entities::GetCurrentScene(), child, *this);
-}
-std::vector<Entity> Entity::GetDescendants() const
-{
-    return std::move(Entities::GetDescendants(Entities::GetCurrentScene(), *this));
-}
-void Entity::ForEachDescendant(const std::function<void(const std::shared_ptr<Scene> &, const Entity &)> &func, const bool &fromRoot) const
-{
-    Entities::ForEachDescendant(Entities::GetCurrentScene(), *this, func, fromRoot);
-}
 unsigned Entity::GetIndex() const
 {
     return m_index;
@@ -141,7 +50,7 @@ unsigned Entity::GetVersion() const
 }
 Handle Entity::GetHandle() const
 {
-    auto& storage = Entities::GetCurrentScene()->m_sceneDataStorage.m_entityMetadataList;
+    auto& storage = Application::GetActiveScene() ->m_sceneDataStorage.m_entityMetadataList;
     return storage.at(m_index).GetHandle();
 }
 
@@ -261,7 +170,7 @@ bool DataComponentStorage::HasType(const size_t &typeId)
 
 void EntityRef::Set(const Entity &target)
 {
-    if(target.IsNull())
+    if(target.GetIndex() == 0)
     {
         Clear();
     }
@@ -277,22 +186,22 @@ void EntityRef::Clear()
 }
 void EntityRef::Update()
 {
+    auto scene = Application::GetActiveScene();
     if(m_entityHandle.GetValue() == 0){
         Clear();
         return;
-    }else if(m_value.IsNull()){
-        auto scene = Entities::GetCurrentScene();
+    }else if(m_value.GetIndex() == 0){
         if(!scene) Clear();
         else
         {
-            m_value = Entities::GetEntity(scene, m_entityHandle);
-            if (m_value.IsNull())
+            m_value = scene->GetEntity(m_entityHandle);
+            if (m_value.GetIndex() == 0)
             {
                 Clear();
             }
         }
     }
-    if(!m_value.IsValid()){
+    if(! scene->IsEntityValid(m_value)){
         Clear();
     }
 }

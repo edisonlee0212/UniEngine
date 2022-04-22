@@ -1,10 +1,10 @@
 #pragma once
-#include "Engine/DefaultResources.hpp"
-#include "Engine/Rendering/Camera.hpp"
-#include "Engine/Rendering/Lights.hpp"
-#include "Engine/Rendering/MeshRenderer.hpp"
-#include "Engine/Rendering/Particles.hpp"
-#include "Engine/Rendering/SkinnedMeshRenderer.hpp"
+#include "DefaultResources.hpp"
+#include "Camera.hpp"
+#include "Lights.hpp"
+#include "MeshRenderer.hpp"
+#include "Particles.hpp"
+#include "SkinnedMeshRenderer.hpp"
 namespace UniEngine
 {
 class UNIENGINE_API Graphics

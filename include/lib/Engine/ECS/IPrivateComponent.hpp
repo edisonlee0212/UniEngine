@@ -45,7 +45,6 @@ class UNIENGINE_API IPrivateComponent : public ISerializable
     virtual void Relink(const std::unordered_map<Handle, Handle> &map, const std::shared_ptr<Scene> &scene){};
     virtual void PostCloneAction(const std::shared_ptr<IPrivateComponent> &target){};
 };
-
 struct UNIENGINE_API PrivateComponentElement
 {
     size_t m_typeId;

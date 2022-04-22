@@ -166,7 +166,7 @@ void Animator::Apply()
             m_currentAnimationTime = 0.0f;
         }
         auto owner = GetOwner();
-        if (!owner.IsNull())
+        if (owner.GetIndex() != 0)
         {
             animation->Animate(m_currentActivatedAnimation, m_currentAnimationTime, glm::mat4(1.0f), m_transformChain);
             ApplyOffsetMatrices();

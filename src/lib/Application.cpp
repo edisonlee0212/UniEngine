@@ -19,6 +19,7 @@
 #include <ProfilerLayer.hpp>
 #include <ProjectManager.hpp>
 #include <TransformLayer.hpp>
+#include "Scene.hpp"
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
@@ -105,7 +106,7 @@ void Application::PreUpdateInternal()
 
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            Entities::GetInstance().m_scene->Start();
+            application.m_activeScene->Start();
         }
         for (auto &i : application.m_layers)
         {
@@ -123,7 +124,7 @@ void Application::PreUpdateInternal()
             }
             if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
             {
-                Entities::GetInstance().m_scene->FixedUpdate();
+                application.m_activeScene->FixedUpdate();
             }
             application.m_time.EndFixedUpdate();
         }
@@ -144,7 +145,7 @@ void Application::UpdateInternal()
         }
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            Entities::GetInstance().m_scene->Update();
+            application.m_activeScene->Update();
         }
     }
 }
@@ -159,7 +160,7 @@ void Application::LateUpdateInternal()
 
         if (application.m_gameStatus == GameStatus::Playing || application.m_gameStatus == GameStatus::Step)
         {
-            Entities::GetInstance().m_scene->LateUpdate();
+            application.m_activeScene->LateUpdate();
         }
 
         for (auto &i : application.m_layers)
@@ -218,7 +219,7 @@ bool Application::IsInitialized()
 void Application::End()
 {
     auto &application = GetInstance();
-    Entities::GetInstance().m_scene.reset();
+    application.m_activeScene.reset();
     for (auto &i : application.m_layers)
     {
         i->OnDestroy();
@@ -308,6 +309,27 @@ void Application::OnInspect()
     }
     ImGui::End();
 }
+
+std::shared_ptr<Scene> Application::GetActiveScene()
+{
+    auto &application = GetInstance();
+    return application.m_activeScene;
+}
+
+void Application::Attach(const std::shared_ptr<Scene> &scene)
+{
+    if (Application::IsPlaying())
+    {
+        UNIENGINE_ERROR("Stop Application to attach scene");
+    }
+    auto &entityManager = GetInstance();
+    entityManager.m_activeScene = scene;
+    for (auto &func : Application::GetInstance().m_postAttachSceneFunctions)
+    {
+        func(scene);
+    }
+}
+
 void Application::Play()
 {
     auto &application = GetInstance();
@@ -318,7 +340,7 @@ void Application::Play()
     {
         auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
         Scene::Clone(projectManager.GetStartScene().lock(), copiedScene);
-        Entities::Attach(copiedScene);
+        Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Playing;
 }
@@ -329,7 +351,7 @@ void Application::Stop()
     if (application.m_gameStatus == GameStatus::Stop)
         return;
     application.m_gameStatus = GameStatus::Stop;
-    Entities::Attach(projectManager.GetStartScene().lock());
+    Attach(projectManager.GetStartScene().lock());
 }
 void Application::Pause()
 {
@@ -352,7 +374,7 @@ void Application::Step()
     {
         auto copiedScene = ProjectManager::CreateTemporaryAsset<Scene>();
         Scene::Clone(projectManager.GetStartScene().lock(), copiedScene);
-        Entities::Attach(copiedScene);
+        Attach(copiedScene);
     }
     application.m_gameStatus = GameStatus::Step;
 }
