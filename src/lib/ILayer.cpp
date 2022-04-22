@@ -6,7 +6,7 @@
 
 using namespace UniEngine;
 
-std::shared_ptr<Scene> ILayer::GetScene()
+std::shared_ptr<Scene> ILayer::GetScene() const
 {
     return m_scene.lock();
 }

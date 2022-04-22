@@ -31,6 +31,6 @@ class UNIENGINE_API ILayer
     }
 
   public:
-    [[nodiscard]] std::shared_ptr<Scene> GetScene();
+    [[nodiscard]] std::shared_ptr<Scene> GetScene() const;
 };
 } // namespace UniEngine
