@@ -5,7 +5,7 @@
 #include <IAsset.hpp>
 namespace UniEngine
 {
-class UNIENGINE_API AssetRef
+class UNIENGINE_API AssetRef final
 {
     friend class Prefab;
     friend class Editor;

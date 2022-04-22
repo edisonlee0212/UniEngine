@@ -54,7 +54,7 @@ struct UNIENGINE_API Entity final
 };
 #pragma region Storage
 
-class UNIENGINE_API EntityRef
+class UNIENGINE_API EntityRef final
 {
     Entity m_value = Entity();
     Handle m_entityHandle = Handle(0);

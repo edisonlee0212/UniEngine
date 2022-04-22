@@ -6,7 +6,7 @@
 #include "ISerializable.hpp"
 namespace UniEngine
 {
-class UNIENGINE_API PrivateComponentRef
+class UNIENGINE_API PrivateComponentRef final
 {
     friend class Prefab;
     friend class Scene;
