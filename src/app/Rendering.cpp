@@ -1,3 +1,4 @@
+#include "Graphics.hpp"
 #include "Prefab.hpp"
 #include "ProjectManager.hpp"
 #include <Application.hpp>
@@ -26,25 +27,26 @@ int main()
 }
 void LoadScene()
 {
+    auto scene = Application::GetActiveScene();
     double time = 0;
     const float sinTime = glm::sin(time / 5.0f);
     const float cosTime = glm::cos(time / 5.0f);
-    Entities::GetCurrentScene()->m_environmentSettings.m_ambientLightIntensity = 0.5f;
+    scene->m_environmentSettings.m_ambientLightIntensity = 0.5f;
 #pragma region Set main camera to correct position and rotation
-    const auto mainCamera = Entities::GetCurrentScene()->m_mainCamera.Get<Camera>();
+    const auto mainCamera = scene->m_mainCamera.Get<Camera>();
     auto mainCameraEntity = mainCamera->GetOwner();
-    auto mainCameraTransform = mainCameraEntity.GetDataComponent<Transform>();
+    auto mainCameraTransform = scene->GetDataComponent<Transform>(mainCameraEntity);
     mainCameraTransform.SetPosition(glm::vec3(0, 0, 40));
-    mainCameraEntity.SetDataComponent(mainCameraTransform);
-    mainCameraEntity.GetOrSetPrivateComponent<PostProcessing>();
-    auto camera = mainCameraEntity.GetOrSetPrivateComponent<Camera>().lock();
-    mainCameraEntity.GetOrSetPrivateComponent<PlayerController>();
+    scene->SetDataComponent(mainCameraEntity, mainCameraTransform);
+    scene->GetOrSetPrivateComponent<PostProcessing>(mainCameraEntity);
+    auto camera = scene->GetOrSetPrivateComponent<Camera>(mainCameraEntity).lock();
+    scene->GetOrSetPrivateComponent<PlayerController>(mainCameraEntity);
 #pragma endregion
 
 #pragma region Create 9 spheres in different PBR properties
     int amount = 4;
-    auto collection = Entities::CreateEntity(Entities::GetCurrentScene(), "Spheres");
-    auto spheres = Entities::CreateEntities(Entities::GetCurrentScene(), amount * amount, "Instance");
+    auto collection = scene->CreateEntity("Spheres");
+    auto spheres = scene->CreateEntities(amount * amount, "Instance");
     for (int i = 0; i < amount; i++)
     {
         for (int j = 0; j < amount; j++)
@@ -54,8 +56,8 @@ void LoadScene()
             glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
             transform.SetPosition(position * 5.0f);
             transform.SetScale(glm::vec3(2.0f));
-            sphere.SetDataComponent(transform);
-            auto meshRenderer = sphere.GetOrSetPrivateComponent<MeshRenderer>().lock();
+            scene->SetDataComponent(sphere, transform);
+            auto meshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(sphere).lock();
             meshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
             meshRenderer->m_material.Set<Material>(material);
@@ -63,61 +65,59 @@ void LoadScene()
             material->m_roughness = static_cast<float>(i) / (amount - 1);
             material->m_metallic = static_cast<float>(j) / (amount - 1);
 
-            sphere.SetParent(collection);
+            scene->SetParent(sphere, collection);
         }
     }
 #pragma endregion
 #pragma region Load models and display
 
     auto sponza = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/Sponza_FBX/Sponza.fbx"));
-    auto sponzaEntity = sponza->ToEntity();
+    auto sponzaEntity = sponza->ToEntity(scene);
     Transform sponzaTransform;
     sponzaTransform.SetValue(glm::vec3(0, -14, -60), glm::radians(glm::vec3(0, -90, 0)), glm::vec3(0.1));
-    sponzaEntity.SetDataComponent(sponzaTransform);
+    scene->SetDataComponent(sponzaEntity, sponzaTransform);
 
     auto title = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/UniEngine.obj"));
-    auto titleEntity = title->ToEntity();
-    titleEntity.SetName("Title");
+    auto titleEntity = title->ToEntity(scene);
+    scene->SetEntityName(titleEntity, "Title");
     Transform titleTransform;
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
-    titleEntity.SetDataComponent(titleTransform);
+    scene->SetDataComponent(titleEntity, titleTransform);
 
-    auto titleMaterial = titleEntity.GetChildren()[0]
-                             .GetChildren()[0]
-                             .GetOrSetPrivateComponent<MeshRenderer>()
-                             .lock()
-                             ->m_material.Get<Material>();
+    auto titleMaterial =
+        scene->GetOrSetPrivateComponent<MeshRenderer>(scene->GetChildren(scene->GetChildren(titleEntity)[0])[0])
+            .lock()
+            ->m_material.Get<Material>();
     titleMaterial->m_emission = 4;
     titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
 
 #ifdef USE_ASSIMP
 
-    auto dancingStormTrooper =
-std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset(
-        "Models/dancing-stormtrooper/silly_dancing.fbx"));
-    auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity();
-    dancingStormTrooperEntity.SetName("StormTrooper");
+    auto dancingStormTrooper = std::dynamic_pointer_cast<Prefab>(
+        ProjectManager::GetOrCreateAsset("Models/dancing-stormtrooper/silly_dancing.fbx"));
+    auto dancingStormTrooperEntity = dancingStormTrooper->ToEntity(scene);
+    scene->SetEntityName(dancingStormTrooperEntity, "StormTrooper");
     Transform dancingStormTrooperTransform;
     dancingStormTrooperTransform.SetValue(glm::vec3(12, -14, 0), glm::vec3(0), glm::vec3(4));
-    dancingStormTrooperEntity.SetDataComponent(dancingStormTrooperTransform);
+    scene->SetDataComponent(dancingStormTrooperEntity, dancingStormTrooperTransform);
 
     auto capoeira = std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset("Models/Capoeira.fbx"));
-    auto capoeiraEntity = capoeira->ToEntity();
-    capoeiraEntity.SetName("Capoeira");
+    auto capoeiraEntity = capoeira->ToEntity(scene);
+    scene->SetEntityName(capoeiraEntity, "Capoeira");
     Transform capoeiraTransform;
     capoeiraTransform.SetValue(glm::vec3(5, 27, -180), glm::vec3(0), glm::vec3(0.2));
-    capoeiraEntity.SetDataComponent(capoeiraTransform);
-    auto capoeiraBodyMaterial = capoeiraEntity.GetChildren()[1]
-                                    .GetChildren()[0]
-                                    .GetOrSetPrivateComponent<SkinnedMeshRenderer>()
+    scene->SetDataComponent(capoeiraEntity, capoeiraTransform);
+    auto capoeiraBodyMaterial = scene
+                                    ->GetOrSetPrivateComponent<SkinnedMeshRenderer>(
+                                        scene->GetChildren(scene->GetChildren(capoeiraEntity)[1])[0])
                                     .lock()
                                     ->m_material.Get<Material>();
     capoeiraBodyMaterial->m_albedoColor = glm::vec3(0, 1, 1);
     capoeiraBodyMaterial->m_metallic = 1;
     capoeiraBodyMaterial->m_roughness = 0;
-    auto capoeiraJointsMaterial = capoeiraEntity.GetChildren()[0]
-                                      .GetChildren()[0]
-                                      .GetOrSetPrivateComponent<SkinnedMeshRenderer>()
+    auto capoeiraJointsMaterial = scene
+                                      ->GetOrSetPrivateComponent<SkinnedMeshRenderer>(
+                                          scene->GetChildren(scene->GetChildren(capoeiraEntity)[0])[0])
                                       .lock()
                                       ->m_material.Get<Material>();
     capoeiraJointsMaterial->m_albedoColor = glm::vec3(0.3, 1.0, 0.5);
@@ -129,59 +129,59 @@ std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset(
 #pragma endregion
 
 #pragma region Create ground
-    auto ground = Entities::CreateEntity(Entities::GetCurrentScene(), "Ground");
-    auto groundMeshRenderer = ground.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    auto ground = scene->CreateEntity("Ground");
+    auto groundMeshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(ground).lock();
     auto groundMat = ProjectManager::CreateTemporaryAsset<Material>();
     groundMat->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material.Set<Material>(groundMat);
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
     Transform groundTransform;
     groundTransform.SetValue(glm::vec3(0, -16, -90), glm::vec3(0), glm::vec3(160, 1, 220));
-    ground.SetDataComponent(groundTransform);
+    scene->SetDataComponent(ground, groundTransform);
 #pragma endregion
 
 #pragma region Lighting
-    auto dirLightEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Directional Light");
-    auto dirLight = dirLightEntity.GetOrSetPrivateComponent<DirectionalLight>().lock();
+    auto dirLightEntity = scene->CreateEntity("Directional Light");
+    auto dirLight = scene->GetOrSetPrivateComponent<DirectionalLight>(dirLightEntity).lock();
     dirLight->m_diffuseBrightness = 3.0f;
     dirLight->m_lightSize = 0.2f;
 
-    auto pointLightLeftEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Right Point Light");
-    auto pointLightLeftRenderer = pointLightLeftEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    auto pointLightLeftEntity = scene->CreateEntity("Right Point Light");
+    auto pointLightLeftRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(pointLightLeftEntity).lock();
     auto groundMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     groundMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material.Set<Material>(groundMaterial);
     groundMaterial->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
     groundMaterial->m_emission = 10.0f;
     pointLightLeftRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
-    auto pointLightLeft = pointLightLeftEntity.GetOrSetPrivateComponent<PointLight>().lock();
+    auto pointLightLeft = scene->GetOrSetPrivateComponent<PointLight>(pointLightLeftEntity).lock();
     pointLightLeft->m_diffuseBrightness = 20;
     pointLightLeft->m_lightSize = 0.2f;
     pointLightLeft->m_linear = 0.02;
     pointLightLeft->m_quadratic = 0.0001;
     pointLightLeft->m_diffuse = glm::vec3(0.0, 0.5, 1.0);
 
-    auto pointLightRightEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Left Point Light");
-    auto pointLightRightRenderer = pointLightRightEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    auto pointLightRightEntity = scene->CreateEntity("Left Point Light");
+    auto pointLightRightRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(pointLightRightEntity).lock();
     auto pointLightRightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     pointLightRightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material.Set<Material>(pointLightRightMaterial);
     pointLightRightMaterial->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
     pointLightRightMaterial->m_emission = 10.0f;
     pointLightRightRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
-    auto pointLightRight = pointLightRightEntity.GetOrSetPrivateComponent<PointLight>().lock();
+    auto pointLightRight = scene->GetOrSetPrivateComponent<PointLight>(pointLightRightEntity).lock();
     pointLightRight->m_diffuseBrightness = 20;
     pointLightRight->m_lightSize = 0.2f;
     pointLightRight->m_linear = 0.02;
     pointLightRight->m_quadratic = 0.0001;
     pointLightRight->m_diffuse = glm::vec3(1.0, 0.8, 0.0);
 
-    auto spotLightConeEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Top Spot Light");
+    auto spotLightConeEntity = scene->CreateEntity("Top Spot Light");
     Transform spotLightConeTransform;
     spotLightConeTransform.SetPosition(glm::vec3(12, 14, 0));
-    spotLightConeEntity.SetDataComponent(spotLightConeTransform);
+    scene->SetDataComponent(spotLightConeEntity, spotLightConeTransform);
 
-    auto spotLightRenderer = spotLightConeEntity.GetOrSetPrivateComponent<MeshRenderer>().lock();
+    auto spotLightRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(spotLightConeEntity).lock();
     spotLightRenderer->m_castShadow = false;
     auto spotLightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     spotLightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
@@ -190,26 +190,26 @@ std::dynamic_pointer_cast<Prefab>(ProjectManager::GetOrCreateAsset(
     spotLightMaterial->m_emission = 10.0f;
     spotLightRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cone);
 
-    auto spotLightEntity = Entities::CreateEntity(Entities::GetCurrentScene(), "Spot Light");
+    auto spotLightEntity = scene->CreateEntity("Spot Light");
     Transform spotLightTransform;
     spotLightTransform.SetEulerRotation(glm::radians(glm::vec3(-90, 0, 0)));
-    spotLightEntity.SetDataComponent(spotLightTransform);
-    spotLightEntity.SetParent(spotLightConeEntity);
-    auto spotLight = spotLightEntity.GetOrSetPrivateComponent<SpotLight>().lock();
+    scene->SetDataComponent(spotLightEntity, spotLightTransform);
+    scene->SetParent(spotLightEntity, spotLightConeEntity);
+    auto spotLight = scene->GetOrSetPrivateComponent<SpotLight>(spotLightEntity).lock();
     spotLight->m_diffuse = glm::vec3(1, 0.7, 0.7);
     spotLight->m_diffuseBrightness = 40;
 #pragma endregion
     Transform dirLightTransform;
     dirLightTransform.SetEulerRotation(glm::radians(glm::vec3(100.0f, time * 10, 0.0f)));
-    dirLightEntity.SetDataComponent(dirLightTransform);
+    scene->SetDataComponent(dirLightEntity, dirLightTransform);
 
     Transform pointLightLeftTransform;
     pointLightLeftTransform.SetPosition(glm::vec3(-40, 12, sinTime * 50 - 50));
-    pointLightLeftEntity.SetDataComponent(pointLightLeftTransform);
+    scene->SetDataComponent(pointLightLeftEntity, pointLightLeftTransform);
 
     Transform pointLightRightTransform;
     pointLightRightTransform.SetPosition(glm::vec3(40, 12, cosTime * 50 - 50));
-    pointLightRightEntity.SetDataComponent(pointLightRightTransform);
+    scene->SetDataComponent(pointLightRightEntity, pointLightRightTransform);
     /*
     Application::RegisterUpdateFunction([=, &time]() {
         if (!Application::IsPlaying())
