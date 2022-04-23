@@ -697,6 +697,7 @@ void Scene::Clone(const std::shared_ptr<Scene> &source, const std::shared_ptr<Sc
         newScene->m_systems.insert({i.first, system});
         newScene->m_indexedSystems[hashCode] = system;
         newScene->m_mappedSystems[i.second->GetHandle()] = system;
+        system->m_scene = newScene;
         system->OnCreate();
         Serialization::CloneSystem(system, i.second);
         system->m_scene = newScene;

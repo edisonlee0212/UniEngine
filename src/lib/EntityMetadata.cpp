@@ -68,6 +68,7 @@ void EntityMetadata::Clone(const std::unordered_map<Handle, Handle> &entityMap, 
         Serialization::ClonePrivateComponent(
             m_privateComponentElements[i].m_privateComponentData,
             source.m_privateComponentElements[i].m_privateComponentData);
+        m_privateComponentElements[i].m_privateComponentData->m_scene = scene;
         m_privateComponentElements[i].m_privateComponentData->Relink(entityMap, scene);
     }
 }
