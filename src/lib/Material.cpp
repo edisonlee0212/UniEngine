@@ -27,6 +27,10 @@ void Material::OnInspect()
 {
     if (Editor::DragAndDropButton<OpenGLUtils::GLProgram>(m_program, "Program"))
         m_saved = false;
+    if(ImGui::Checkbox("Vertex color only", &m_vertexColorOnly)){
+        m_saved = false;
+    }
+
     ImGui::Separator();
     if (ImGui::TreeNodeEx("PBR##Material", ImGuiTreeNodeFlags_DefaultOpen))
     {
@@ -222,6 +226,8 @@ void Material::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_subsurfaceColor" << YAML::Value << m_subsurfaceColor;
     out << YAML::Key << "m_subsurfaceFactor" << YAML::Value << m_subsurfaceFactor;
     out << YAML::Key << "m_subsurfaceRadius" << YAML::Value << m_subsurfaceRadius;
+
+    out << YAML::Key << "m_vertexColorOnly" << YAML::Value << m_vertexColorOnly;
 }
 void Material::Deserialize(const YAML::Node &in)
 {
@@ -257,6 +263,9 @@ void Material::Deserialize(const YAML::Node &in)
         m_subsurfaceFactor = in["m_subsurfaceFactor"].as<float>();
     if (in["m_subsurfaceRadius"])
         m_subsurfaceRadius = in["m_subsurfaceRadius"].as<float>();
+
+    if (in["m_vertexColorOnly"])
+        m_vertexColorOnly = in["m_vertexColorOnly"].as<bool>();
 }
 void Material::CollectAssetRef(std::vector<AssetRef> &list)
 {

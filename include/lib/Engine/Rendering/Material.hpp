@@ -59,6 +59,8 @@ class UNIENGINE_API Material : public IAsset
     float m_subsurfaceFactor = 0.0f;
     float m_subsurfaceRadius = 0.0f;
 
+    bool m_vertexColorOnly = false;
+
     void OnCreate() override;
     void OnInspect() override;
     void SetMaterialProperty(const std::string &name, const float &value);
