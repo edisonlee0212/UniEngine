@@ -1538,6 +1538,18 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder> &folder
             {
                 ImGui::TreePop();
             }
+            bool itemHovered = false;
+            if (ImGui::IsItemHovered())
+            {
+                itemHovered = true;
+                if (ImGui::IsMouseDoubleClicked(0) && i.second->GetAssetTypeName() != "Binary")
+                {
+                    // If it's an asset then inspect.
+                    auto asset = i.second->GetAsset();
+                    if (asset)
+                        projectManager.m_inspectingAsset = asset;
+                }
+            }
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
             {
                 ImGui::SetDragDropPayload("Asset", &i.first, sizeof(Handle));
