@@ -1,21 +1,21 @@
+#include "Application.hpp"
 #include "AnimationLayer.hpp"
 #include "ConsoleLayer.hpp"
+#include "DefaultResources.hpp"
 #include "Editor.hpp"
-#include "Inputs.hpp"
-#include "Jobs.hpp"
-#include "Windows.hpp"
+#include "EditorLayer.hpp"
 #include "Entities.hpp"
 #include "Graphics.hpp"
+#include "Inputs.hpp"
+#include "Jobs.hpp"
+#include "OpenGLUtils.hpp"
 #include "PhysicsLayer.hpp"
+#include "ProfilerLayer.hpp"
 #include "ProjectManager.hpp"
 #include "RenderLayer.hpp"
-#include "TransformLayer.hpp"
-#include "Application.hpp"
-#include "DefaultResources.hpp"
-#include "EditorLayer.hpp"
-#include "OpenGLUtils.hpp"
-#include "ProfilerLayer.hpp"
 #include "Scene.hpp"
+#include "TransformLayer.hpp"
+#include "Windows.hpp"
 using namespace UniEngine;
 
 void Application::Create(const ApplicationConfigs &applicationConfigs)
@@ -29,7 +29,7 @@ void Application::Create(const ApplicationConfigs &applicationConfigs)
     Jobs::Init();
     DefaultResources::Load();
     Entities::Init();
-    Editor::InitImGui();
+    Editor::Init(applicationConfigs.m_enableDocking, applicationConfigs.m_enableViewport);
 
     PushLayer<ProfilerLayer>();
     PushLayer<TransformLayer>();
@@ -324,7 +324,8 @@ void Application::Attach(const std::shared_ptr<Scene> &scene)
     {
         func(scene);
     }
-    for(auto& layer : application.m_layers){
+    for (auto &layer : application.m_layers)
+    {
         layer->m_scene = scene;
     }
 }

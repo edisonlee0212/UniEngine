@@ -1,13 +1,13 @@
 #pragma once
+#include "Application.hpp"
 #include "Camera.hpp"
 #include "ISingleton.hpp"
 #include "OpenGLUtils.hpp"
 #include "ProjectManager.hpp"
 #include "RenderTarget.hpp"
 #include "RigidBody.hpp"
-#include "Texture2D.hpp"
-#include "Application.hpp"
 #include "Scene.hpp"
+#include "Texture2D.hpp"
 namespace UniEngine
 {
 struct Transform;
@@ -30,7 +30,7 @@ class UNIENGINE_API Editor : public ISingleton<Editor>
     template <typename T1 = IPrivateComponent> static void RegisterPrivateComponent();
     template <typename T1 = ISystem> static void RegisterSystem();
     template <typename T1 = IDataComponent> static void RegisterDataComponent();
-    static void InitImGui();
+    static void Init(bool docking, bool viewport);
     static void ImGuiPreUpdate();
     static void ImGuiLateUpdate();
 

@@ -36,6 +36,8 @@ struct UNIENGINE_API ApplicationConfigs{
     std::filesystem::path m_projectPath;
     std::string m_applicationName = "UniEngine";
     glm::ivec2 m_defaultWindowSize = {1280, 720};
+    bool m_enableDocking = true;
+    bool m_enableViewport = false;
     bool m_fullScreen = false;
 };
 enum class UNIENGINE_API ApplicationStatus{

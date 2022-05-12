@@ -346,16 +346,16 @@ void Editor::ImGuiLateUpdate()
     }
 #pragma endregion
 }
-void Editor::InitImGui()
+void Editor::Init(bool docking, bool viewport)
 {
 #pragma region ImGUI
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-#ifdef NDEBUG
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-#endif
+    if (docking)
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    if (viewport)
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     ImGui::StyleColorsDark();
     ImGuiStyle &style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
