@@ -166,9 +166,8 @@ void Editor::DraggableEntity(const Entity &entity)
 }
 bool Editor::Rename(EntityRef &entityRef)
 {
-    bool statusChanged = false;
     auto entity = entityRef.Get();
-    statusChanged = RenameEntity(entity);
+    bool statusChanged = RenameEntity(entity);
     return statusChanged;
 }
 bool Editor::Remove(EntityRef &entityRef)
@@ -183,7 +182,7 @@ bool Editor::Remove(EntityRef &entityRef)
         {
             if (ImGui::Button(("Remove" + tag).c_str()))
             {
-                entity = Entity();
+                entityRef.Clear();
                 statusChanged = true;
             }
             ImGui::EndPopup();
