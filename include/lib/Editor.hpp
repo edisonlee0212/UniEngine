@@ -178,15 +178,15 @@ template <typename T> bool Editor::DragAndDropButton(AssetRef &target, const std
     if (ptr)
     {
         ImGui::Button(ptr->GetTitle().c_str());
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-        {
-            ProjectManager::GetInstance().m_inspectingAsset = ptr;
-        }
         Draggable(target);
         if (modifiable)
         {
             statusChanged = Rename(target);
             statusChanged = Remove(target) || statusChanged;
+        }
+        if (!statusChanged && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
+            ProjectManager::GetInstance().m_inspectingAsset = ptr;
         }
     }
     else

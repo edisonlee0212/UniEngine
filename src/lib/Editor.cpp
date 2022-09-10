@@ -227,15 +227,15 @@ bool Editor::DragAndDropButton(
     {
         const auto title = ptr->GetTitle();
         ImGui::Button(title.c_str());
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-        {
-            ProjectManager::GetInstance().m_inspectingAsset = ptr;
-        }
         DraggableAsset(ptr);
         if (modifiable)
         {
             statusChanged = Rename(target);
             statusChanged = Remove(target) || statusChanged;
+        }
+        if (!statusChanged && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
+            ProjectManager::GetInstance().m_inspectingAsset = ptr;
         }
     }
     else
