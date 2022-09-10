@@ -1079,8 +1079,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 {
                     points[3] = ImClamp(
                         p,
-                        ImVec2(p_prev.x + tangent_last.x - tangent.x + 0.001f, -1),
-                        ImVec2(points[6].x + points[5].x - points[4].x - 0.001f, 1));
+                        ImVec2(p_prev.x + tangent_last.x - tangent.x + 0.001f, m_min.y),
+                        ImVec2(points[6].x + points[5].x - points[4].x - 0.001f, m_max.y));
                     changed_idx = point_idx + 1;
                 }
             }
