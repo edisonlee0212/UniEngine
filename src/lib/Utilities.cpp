@@ -134,7 +134,7 @@ bool Bezier2D::DrawGraph(const std::string &label)
         ImGui::Dummy(ImVec2(0, 3));
 
         // prepare canvas
-        const float avail = ImGui::GetContentRegionAvailWidth();
+        const float avail = ImGui::GetWindowContentRegionWidth();
         const float dim = AREA_WIDTH > 0 ? AREA_WIDTH : avail;
         ImVec2 Canvas(dim, dim);
 
@@ -775,7 +775,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         const ImGuiStyle &style = g.Style;
         ImVec2 size = editor_size;
 
-        size.x = size.x < 0 ? ImGui::GetContentRegionAvailWidth() : size.x;
+        size.x = size.x < 0 ? ImGui::GetWindowContentRegionWidth() : size.x;
         size.y = size.y < 0 ? size.x / 2.0f : size.y;
 
         ImGuiWindow *parent_window = ImGui::GetCurrentWindow();

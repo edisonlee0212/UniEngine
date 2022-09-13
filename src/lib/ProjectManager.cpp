@@ -1091,7 +1091,7 @@ void ProjectManager::OnInspect()
                 ImGui::EndPopup();
             }
 
-            float panelWidth = ImGui::GetContentRegionAvailWidth();
+            float panelWidth = ImGui::GetWindowContentRegionWidth();
             int columnCount = glm::max(1, (int)(panelWidth / cellSize));
             ImGui::Columns(columnCount, 0, false);
             if (!updated)
