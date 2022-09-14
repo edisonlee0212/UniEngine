@@ -677,6 +677,7 @@ template <typename T> void Scene::AddDataComponent(const Entity &entity, const T
 #pragma endregion
 #pragma region Create new Entity with new archetype.
     Entity newEntity = CreateEntity(archetype);
+    auto& originalEntityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     // Transfer component data
     for (const auto &type : originalComponentTypes)
     {
@@ -687,13 +688,13 @@ template <typename T> void Scene::AddDataComponent(const Entity &entity, const T
     EntityMetadata &newEntityInfo = m_sceneDataStorage.m_entityMetadataList.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
-    newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
-    newEntityInfo.m_chunkArrayIndex = entityInfo.m_chunkArrayIndex;
-    entityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
-    entityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
+    newEntityInfo.m_dataComponentStorageIndex = originalEntityInfo.m_dataComponentStorageIndex;
+    newEntityInfo.m_chunkArrayIndex = originalEntityInfo.m_chunkArrayIndex;
+    originalEntityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
+    originalEntityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
     // Apply to chunk.
-    m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex)
-        .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
+    m_sceneDataStorage.m_dataComponentStorages.at(originalEntityInfo.m_dataComponentStorageIndex)
+        .m_chunkArray.m_entities[originalEntityInfo.m_chunkArrayIndex] = entity;
     m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
@@ -751,6 +752,7 @@ template <typename T> void Scene::RemoveDataComponent(const Entity &entity)
 #pragma endregion
 #pragma region Create new Entity with new archetype
     const Entity newEntity = CreateEntity(archetype);
+    auto& originalEntityInfo = m_sceneDataStorage.m_entityMetadataList.at(entity.m_index);
     // Transfer component data
     for (const auto &type : newArchetypeInfo.m_dataComponentTypes)
     {
@@ -761,13 +763,13 @@ template <typename T> void Scene::RemoveDataComponent(const Entity &entity)
     EntityMetadata &newEntityInfo = m_sceneDataStorage.m_entityMetadataList.at(newEntity.m_index);
     const auto tempArchetypeInfoIndex = newEntityInfo.m_dataComponentStorageIndex;
     const auto tempChunkArrayIndex = newEntityInfo.m_chunkArrayIndex;
-    newEntityInfo.m_dataComponentStorageIndex = entityInfo.m_dataComponentStorageIndex;
-    newEntityInfo.m_chunkArrayIndex = entityInfo.m_chunkArrayIndex;
-    entityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
-    entityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
+    newEntityInfo.m_dataComponentStorageIndex = originalEntityInfo.m_dataComponentStorageIndex;
+    newEntityInfo.m_chunkArrayIndex = originalEntityInfo.m_chunkArrayIndex;
+    originalEntityInfo.m_dataComponentStorageIndex = tempArchetypeInfoIndex;
+    originalEntityInfo.m_chunkArrayIndex = tempChunkArrayIndex;
     // Apply to chunk.
-    m_sceneDataStorage.m_dataComponentStorages.at(entityInfo.m_dataComponentStorageIndex)
-        .m_chunkArray.m_entities[entityInfo.m_chunkArrayIndex] = entity;
+    m_sceneDataStorage.m_dataComponentStorages.at(originalEntityInfo.m_dataComponentStorageIndex)
+        .m_chunkArray.m_entities[originalEntityInfo.m_chunkArrayIndex] = entity;
     m_sceneDataStorage.m_dataComponentStorages.at(newEntityInfo.m_dataComponentStorageIndex)
         .m_chunkArray.m_entities[newEntityInfo.m_chunkArrayIndex] = newEntity;
     DeleteEntity(newEntity);
