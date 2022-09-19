@@ -510,14 +510,12 @@ std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
             vertex.m_tangent = v3;
             mask = mask | static_cast<unsigned>(VertexAttribute::Tangent);
         }
-        glm::vec4 v4;
         if (importerMesh->HasVertexColors(0))
         {
-            v4.x = importerMesh->mColors[0][i].r;
-            v4.y = importerMesh->mColors[0][i].g;
-            v4.z = importerMesh->mColors[0][i].b;
-            v4.w = importerMesh->mColors[0][i].a;
-            vertex.m_color = v4;
+            v3.x = importerMesh->mColors[0][i].r;
+            v3.y = importerMesh->mColors[0][i].g;
+            v3.z = importerMesh->mColors[0][i].b;
+            vertex.m_color = v3;
             mask = mask | static_cast<unsigned>(VertexAttribute::Color);
         }
         glm::vec2 v2;
@@ -584,14 +582,12 @@ std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
             vertex.m_tangent = v3;
             mask = mask | static_cast<unsigned>(VertexAttribute::Tangent);
         }
-        glm::vec4 v4;
         if (importerMesh->HasVertexColors(0))
         {
-            v4.x = importerMesh->mColors[0][i].r;
-            v4.y = importerMesh->mColors[0][i].g;
-            v4.z = importerMesh->mColors[0][i].b;
-            v4.w = importerMesh->mColors[0][i].a;
-            vertex.m_color = v4;
+            v3.x = importerMesh->mColors[0][i].r;
+            v3.y = importerMesh->mColors[0][i].g;
+            v3.z = importerMesh->mColors[0][i].b;
+            vertex.m_color = v3;
             mask = mask | static_cast<unsigned>(VertexAttribute::Color);
         }
         glm::vec2 v2;

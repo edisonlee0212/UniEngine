@@ -59,7 +59,7 @@ void Mesh::Upload()
     m_vao->EnableAttributeArray(2);
     m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_tangent)));
     m_vao->EnableAttributeArray(3);
-    m_vao->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_color)));
+    m_vao->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_color)));
 
     m_vao->EnableAttributeArray(4);
     m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_texCoords)));
@@ -328,12 +328,12 @@ void Mesh::Deserialize(const YAML::Node &in)
 
     if(in["m_vertices"] && in["m_triangles"])
     {
-        YAML::Binary vertexData = in["m_vertices"].as<YAML::Binary>();
+        auto vertexData = in["m_vertices"].as<YAML::Binary>();
         std::vector<Vertex> vertices;
         vertices.resize(vertexData.size() / sizeof(Vertex));
         std::memcpy(vertices.data(), vertexData.data(), vertexData.size());
 
-        YAML::Binary triangleData = in["m_triangles"].as<YAML::Binary>();
+        auto triangleData = in["m_triangles"].as<YAML::Binary>();
         std::vector<glm::uvec3> triangles;
         triangles.resize(triangleData.size() / sizeof(glm::uvec3));
         std::memcpy(triangles.data(), triangleData.data(), triangleData.size());

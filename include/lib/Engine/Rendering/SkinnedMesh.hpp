@@ -13,7 +13,7 @@ struct UNIENGINE_API SkinnedVertex
     glm::vec3 m_position;
     glm::vec3 m_normal;
     glm::vec3 m_tangent;
-    glm::vec4 m_color;
+    glm::vec3 m_color;
     glm::vec2 m_texCoords;
 
     glm::ivec4 m_bondId;

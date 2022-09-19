@@ -156,7 +156,7 @@ void SkinnedMesh::Upload()
         2, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_tangent)));
     m_vao->EnableAttributeArray(3);
     m_vao->SetAttributePointer(
-        3, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_color)));
+        3, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_color)));
     m_vao->EnableAttributeArray(4);
     m_vao->SetAttributePointer(
         4, 2, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_texCoords)));

@@ -124,46 +124,85 @@ void PointCloud::Load(const std::filesystem::path &path)
         }
         file.read(*file_stream);
         if (vertices)
-            std::cout << "\tRead " << vertices->count << " total vertices " << std::endl;
-        if (normals)
-            std::cout << "\tRead " << normals->count << " total vertex normals " << std::endl;
-        if (colors)
-            std::cout << "\tRead " << colors->count << " total vertex colors " << std::endl;
-        if (texcoords)
-            std::cout << "\tRead " << texcoords->count << " total vertex texcoords " << std::endl;
-        if (faces)
-            std::cout << "\tRead " << faces->count << " total faces (triangles) " << std::endl;
-        if (tripstrip)
-            std::cout << "\tRead " << (tripstrip->buffer.size_bytes() / tinyply::PropertyTable[tripstrip->t].stride)
-                      << " total indicies (tristrip) " << std::endl;
-
-        // Example One: converting to your own application types
-        const size_t numVerticesBytes = vertices->buffer.size_bytes();
-        if (vertices->t == tinyply::Type::FLOAT64)
         {
-            std::vector<glm::dvec3> points;
-            points.resize(vertices->count);
-            m_points.resize(vertices->count);
-            std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
-            for (int i = 0; i < vertices->count; i++)
+            m_hasPositions = true;
+            std::cout << "\tRead " << vertices->count << " total vertices " << std::endl;
+        }else{
+            m_hasPositions = false;
+        }
+        if (normals)
+        {
+            std::cout << "\tRead " << normals->count << " total vertex normals " << std::endl;
+            m_hasNormals = true;
+        }else m_hasNormals = false;
+        if (colors)
+        {
+            std::cout << "\tRead " << colors->count << " total vertex colors " << std::endl;
+            m_hasColors = true;
+        }else{
+            m_hasColors = false;
+        }
+        if(m_hasPositions)
+        {
+            // Example One: converting to your own application types
+            const size_t numVerticesBytes = vertices->buffer.size_bytes();
+            if (vertices->t == tinyply::Type::FLOAT64)
             {
-                m_points[i].x = points[i].x;
-                m_points[i].y = points[i].z;
-                m_points[i].z = points[i].y;
+                std::vector<glm::dvec3> points;
+                points.resize(vertices->count);
+                m_points.resize(vertices->count);
+                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+                for (int i = 0; i < vertices->count; i++)
+                {
+                    m_points[i].x = points[i].x;
+                    m_points[i].y = points[i].z;
+                    m_points[i].z = points[i].y;
+                }
+            }
+            else if (vertices->t == tinyply::Type::FLOAT32)
+            {
+                std::vector<glm::vec3> points;
+                points.resize(vertices->count);
+                m_points.resize(vertices->count);
+                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+
+                for (int i = 0; i < vertices->count; i++)
+                {
+                    m_points[i].x = points[i].x;
+                    m_points[i].y = points[i].z;
+                    m_points[i].z = points[i].y;
+                }
             }
         }
-        else if (vertices->t == tinyply::Type::FLOAT32)
+        if(m_hasColors)
         {
-            std::vector<glm::vec3> points;
-            points.resize(vertices->count);
-            m_points.resize(vertices->count);
-            std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
-
-            for (int i = 0; i < vertices->count; i++)
+            const size_t numVerticesBytes = colors->buffer.size_bytes();
+            if (vertices->t == tinyply::Type::UINT8)
             {
-                m_points[i].x = points[i].x;
-                m_points[i].y = points[i].z;
-                m_points[i].z = points[i].y;
+                std::vector<unsigned char> points;
+                points.resize(vertices->count * 3);
+                m_colors.resize(vertices->count);
+                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+                for (int i = 0; i < vertices->count; i++)
+                {
+                    m_colors[i].x = points[3 * i];
+                    m_colors[i].y = points[3 * i + 1];
+                    m_colors[i].z = points[3 * i + 2];
+                }
+            }
+            else if (vertices->t == tinyply::Type::FLOAT32)
+            {
+                std::vector<glm::vec3> points;
+                points.resize(vertices->count);
+                m_colors.resize(vertices->count);
+                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+
+                for (int i = 0; i < vertices->count; i++)
+                {
+                    m_colors[i].x = points[i].x;
+                    m_colors[i].y = points[i].z;
+                    m_colors[i].z = points[i].y;
+                }
             }
         }
         RecalculateBoundingBox();
@@ -351,6 +390,16 @@ void PointCloud::Serialize(YAML::Emitter &out)
         out << YAML::Key << "m_points" << YAML::Value
             << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::dvec3));
     }
+    if (!m_normals.empty())
+    {
+        out << YAML::Key << "m_normals" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_normals.data(), m_normals.size() * sizeof(glm::dvec3));
+    }
+    if (!m_colors.empty())
+    {
+        out << YAML::Key << "m_colors" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_colors.data(), m_colors.size() * sizeof(glm::vec3));
+    }
 }
 void PointCloud::Deserialize(const YAML::Node &in)
 {
@@ -364,9 +413,22 @@ void PointCloud::Deserialize(const YAML::Node &in)
         m_max = in["m_max"].as<glm::dvec3>();
     if (in["m_points"])
     {
+        m_hasPositions = true;
         auto vertexData = in["m_points"].as<YAML::Binary>();
         m_points.resize(vertexData.size() / sizeof(glm::dvec3));
         std::memcpy(m_points.data(), vertexData.data(), vertexData.size());
+    }else{
+        m_hasPositions = false;
+    }
+
+    if (in["m_colors"])
+    {
+        m_hasPositions = true;
+        auto vertexData = in["m_colors"].as<YAML::Binary>();
+        m_colors.resize(vertexData.size() / sizeof(glm::vec3));
+        std::memcpy(m_colors.data(), vertexData.data(), vertexData.size());
+    }else{
+        m_hasPositions = false;
     }
 }
 void PointCloud::ApplyOriginal()
@@ -400,15 +462,27 @@ void PointCloud::Save(const std::filesystem::path &path)
     if (outstream_ascii.fail()) throw std::runtime_error("failed to open " + filename);
     */
     PlyFile cube_file;
-
-    cube_file.add_properties_to_element(
-        "vertex",
-        {"x", "z", "y"},
-        Type::FLOAT64,
-        m_points.size(),
-        reinterpret_cast<uint8_t *>(m_points.data()),
-        Type::INVALID,
-        0);
+    if(m_hasPositions)
+    {
+        cube_file.add_properties_to_element(
+            "vertex",
+            {"x", "z", "y"},
+            Type::FLOAT64,
+            m_points.size(),
+            reinterpret_cast<uint8_t *>(m_points.data()),
+            Type::INVALID,
+            0);
+    }
+    if(m_hasColors){
+        cube_file.add_properties_to_element(
+            "vertex",
+            {"red", "green", "blue"},
+            Type::FLOAT32,
+            m_colors.size(),
+            reinterpret_cast<uint8_t *>(m_colors.data()),
+            Type::INVALID,
+            0);
+    }
     /*
     cube_file.add_properties_to_element("vertex", { "nx", "ny", "nz" },
                                         Type::FLOAT32, cube.normals.size(),

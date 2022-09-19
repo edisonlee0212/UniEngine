@@ -3,13 +3,19 @@
 #include <Entity.hpp>
 namespace UniEngine
 {
+
 class UNIENGINE_API PointCloud : public IAsset
 {
     glm::dvec3 m_min;
     glm::dvec3 m_max;
   public:
     glm::dvec3 m_offset;
+    bool m_hasPositions = false;
+    bool m_hasNormals = false;
+    bool m_hasColors = false;
     std::vector<glm::dvec3> m_points;
+    std::vector<glm::dvec3> m_normals;
+    std::vector<glm::vec3> m_colors;
     float m_pointSize = 0.01f;
     float m_compressFactor = 0.01f;
     void OnCreate() override;

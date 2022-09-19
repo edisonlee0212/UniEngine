@@ -56,6 +56,8 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> GizmoVertexColoredProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> GizmoNormalColoredProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedColoredProgram;
 

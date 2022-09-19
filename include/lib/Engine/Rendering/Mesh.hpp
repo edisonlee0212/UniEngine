@@ -11,7 +11,7 @@ struct UNIENGINE_API Vertex
     glm::vec3 m_position;
     glm::vec3 m_normal;
     glm::vec3 m_tangent;
-    glm::vec4 m_color = glm::vec4(1.0f);
+    glm::vec3 m_color = glm::vec3(1.0f);
     glm::vec2 m_texCoords = glm::vec2(0.0f);
 };
 enum class UNIENGINE_API VertexAttribute
