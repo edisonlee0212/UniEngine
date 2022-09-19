@@ -255,6 +255,16 @@ class UNIENGINE_API RenderLayer : public ILayer {
                        const glm::mat4 &model,
                        const glm::mat4 &scaleMatrix);
 
+    void DrawGizmoMeshVertexColored(bool depthTest,
+                       const std::shared_ptr<Mesh> &mesh,
+                       const glm::mat4 &model,
+                       const glm::mat4 &scaleMatrix);
+
+    void DrawGizmoMeshNormalColored(bool depthTest,
+                       const std::shared_ptr<Mesh> &mesh,
+                       const glm::mat4 &model,
+                       const glm::mat4 &scaleMatrix);
+
     void DrawGizmoMeshInstanced(bool depthTest,
                                 const std::shared_ptr<Mesh> &mesh,
                                 const glm::vec4 &color,

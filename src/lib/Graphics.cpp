@@ -444,6 +444,45 @@ void Graphics::DrawGizmoMesh(
     renderLayer->DrawGizmoMesh(true, mesh, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
 }
 
+void Graphics::DrawGizmoMeshVertexColored(
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Camera> &cameraComponent,
+    const glm::vec3 &cameraPosition,
+    const glm::quat &cameraRotation,
+    const glm::mat4 &model,
+    const float &size)
+{
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if (!renderLayer)
+        return;
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if (!editorLayer)
+        return;
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    cameraComponent->Bind();
+    renderLayer->DrawGizmoMeshVertexColored(true, mesh, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+}
+
+void Graphics::DrawGizmoMeshNormalColored(
+    const std::shared_ptr<Mesh> &mesh,
+    const std::shared_ptr<Camera> &cameraComponent,
+    const glm::vec3 &cameraPosition,
+    const glm::quat &cameraRotation,
+    const glm::mat4 &model,
+    const float &size)
+{
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if (!renderLayer)
+        return;
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if (!editorLayer)
+        return;
+    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, cameraPosition, cameraRotation);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    cameraComponent->Bind();
+    renderLayer->DrawGizmoMeshNormalColored(true, mesh, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+}
 void Graphics::DrawGizmoMeshInstanced(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Camera> &cameraComponent,
@@ -844,6 +883,44 @@ void Graphics::DrawGizmoMesh(
     }
 }
 
+void Graphics::DrawGizmoMeshVertexColored(
+    const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model, const float &size)
+{
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if (!renderLayer)
+        return;
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if (!editorLayer)
+        return;
+    auto &sceneCamera = editorLayer->m_sceneCamera;
+    if (sceneCamera && sceneCamera->IsEnabled())
+    {
+        Camera::m_cameraInfoBlock.UpdateMatrices(
+            sceneCamera, editorLayer->m_sceneCameraPosition, editorLayer->m_sceneCameraRotation);
+        Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+        sceneCamera->Bind();
+        renderLayer->DrawGizmoMeshVertexColored(true, mesh, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    }
+}
+void Graphics::DrawGizmoMeshNormalColored(
+    const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model, const float &size)
+{
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if (!renderLayer)
+        return;
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if (!editorLayer)
+        return;
+    auto &sceneCamera = editorLayer->m_sceneCamera;
+    if (sceneCamera && sceneCamera->IsEnabled())
+    {
+        Camera::m_cameraInfoBlock.UpdateMatrices(
+            sceneCamera, editorLayer->m_sceneCameraPosition, editorLayer->m_sceneCameraRotation);
+        Camera::m_cameraInfoBlock.UploadMatrices(sceneCamera);
+        sceneCamera->Bind();
+        renderLayer->DrawGizmoMeshNormalColored(true, mesh, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    }
+}
 #pragma endregion
 #pragma endregion
 

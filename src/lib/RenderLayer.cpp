@@ -1748,6 +1748,60 @@ void RenderLayer::DrawGizmoMesh(
     m_triangles += mesh->GetTriangleAmount();
     mesh->Draw();
 }
+
+void RenderLayer::DrawGizmoMeshVertexColored(
+    bool depthTest,
+    const std::shared_ptr<Mesh> &mesh,
+    const glm::mat4 &model,
+    const glm::mat4 &scaleMatrix)
+{
+    if (mesh == nullptr)
+        return;
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
+    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
+    if (!depthTest)
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
+    else
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    DefaultResources::GizmoVertexColoredProgram->Bind();
+    DefaultResources::GizmoVertexColoredProgram->SetFloat4x4("model", model);
+    DefaultResources::GizmoVertexColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+
+    m_drawCall++;
+    m_triangles += mesh->GetTriangleAmount();
+    mesh->Draw();
+}
+
+void RenderLayer::DrawGizmoMeshNormalColored(
+    bool depthTest,
+    const std::shared_ptr<Mesh> &mesh,
+    const glm::mat4 &model,
+    const glm::mat4 &scaleMatrix)
+{
+    if (mesh == nullptr)
+        return;
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
+    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
+    if (!depthTest)
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
+    else
+        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
+    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    DefaultResources::GizmoNormalColoredProgram->Bind();
+    DefaultResources::GizmoNormalColoredProgram->SetFloat4x4("model", model);
+    DefaultResources::GizmoNormalColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+
+    m_drawCall++;
+    m_triangles += mesh->GetTriangleAmount();
+    mesh->Draw();
+}
 #pragma endregion
 #pragma region Status
 

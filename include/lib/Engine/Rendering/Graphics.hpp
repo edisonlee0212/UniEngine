@@ -1,6 +1,6 @@
 #pragma once
-#include "DefaultResources.hpp"
 #include "Camera.hpp"
+#include "DefaultResources.hpp"
 #include "Lights.hpp"
 #include "MeshRenderer.hpp"
 #include "Particles.hpp"
@@ -17,6 +17,10 @@ class UNIENGINE_API Graphics
         const glm::vec4 &color = glm::vec4(1.0f),
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
+    static void DrawGizmoMeshVertexColored(
+        const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model = glm::mat4(1.0f), const float &size = 1.0f);
+    static void DrawGizmoMeshNormalColored(
+        const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model = glm::mat4(1.0f), const float &size = 1.0f);
     static void DrawGizmoMeshInstanced(
         const std::shared_ptr<Mesh> &mesh,
         const glm::vec4 &color,
@@ -36,6 +40,22 @@ class UNIENGINE_API Graphics
         const glm::vec3 &cameraPosition,
         const glm::quat &cameraRotation,
         const glm::vec4 &color = glm::vec4(1.0f),
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f);
+
+    static void DrawGizmoMeshVertexColored(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f);
+
+    static void DrawGizmoMeshNormalColored(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f);
 
