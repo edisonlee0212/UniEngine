@@ -33,6 +33,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     friend class Windows;
     friend class EditorLayer;
     friend class RenderLayer;
+    friend class Gizmos;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_2DToCubemapProgram;
 
     static std::unique_ptr<Texture2D> m_brdfLut;

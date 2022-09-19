@@ -31,7 +31,7 @@ Here lists the features that already exists in the UniEngine.
        - Basic light probe/reflection probe support
     - Instanced rendering
     - High-level rendering API - You can issue a complete render command with no glXXX command involved at all!
-       - Similiar to https://docs.unity3d.com/ScriptReference/Graphics.DrawMesh.html
+       - Similiar to https://docs.unity3d.com/ScriptReference/Graphics.DrawMeshInternal.html
  - Animation
  - Cross-platform support for Linux, Windows
  - Native high-level rendering API support (Please visit Graphics for further details)

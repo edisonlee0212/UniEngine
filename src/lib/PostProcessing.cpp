@@ -55,8 +55,7 @@ void PostProcessing::Process()
     auto cameraComponent = scene->GetOrSetPrivateComponent<Camera>(owner).lock();
     ResizeResolution(cameraComponent->m_resolutionX, cameraComponent->m_resolutionY);
     auto ltw = scene->GetDataComponent<GlobalTransform>(owner);
-    Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
 
     if (m_layers["SSAO"] && m_layers["SSAO"]->m_enabled)
     {

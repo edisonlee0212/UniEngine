@@ -1,6 +1,6 @@
 ﻿#include "Editor.hpp"
-#include "Engine/Utilities/Console.hpp"
-#include <OpenGLUtils.hpp>
+#include "Console.hpp"
+#include "OpenGLUtils.hpp"
 using namespace UniEngine;
 
 void APIENTRY glDebugOutput(
@@ -181,6 +181,18 @@ void OpenGLUtils::SetViewPort(unsigned x, unsigned y)
 {
     glViewport(0, 0, (GLint)x, (GLint)y);
 }
+
+void OpenGLUtils::SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor dstFactor)
+{
+    auto &utils = GetInstance();
+    if (utils.m_blendingSrcFactor != srcFactor || utils.m_blendingDstFactor != dstFactor)
+    {
+        utils.m_blendingSrcFactor = srcFactor;
+        utils.m_blendingDstFactor = dstFactor;
+        glBlendFunc((GLenum)utils.m_blendingSrcFactor, (GLenum)utils.m_blendingDstFactor);
+    }
+}
+
 GLuint OpenGLUtils::GLObject::Id() const
 {
     return m_id;
@@ -1520,60 +1532,59 @@ void APIENTRY glDebugOutput(
         return; // ignore these non-significant error codes
     if (severity != GL_DEBUG_SEVERITY_HIGH)
         return; // ignore non-error messages.
-    std::cout << "---------------" << std::endl;
-    std::cout << "Debug message (" << id << "): " << message << std::endl;
+
+    std::string output;
+    output += "Debug message (" + std::to_string(id) + "): " + std::string(message);
 
     switch (source)
     {
     case GL_DEBUG_SOURCE_API:
-        std::cout << "Source: API";
+        output += "\nSource: API";
         break;
     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        std::cout << "Source: Window System";
+        output += "\nSource: Window System";
         break;
     case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        std::cout << "Source: Shader Compiler";
+        output += "\nSource: Shader Compiler";
         break;
     case GL_DEBUG_SOURCE_THIRD_PARTY:
-        std::cout << "Source: Third Party";
+        output += "\nSource: Third Party";
         break;
     case GL_DEBUG_SOURCE_APPLICATION:
-        std::cout << "Source: Application";
+        output += "\nSource: Application";
         break;
     case GL_DEBUG_SOURCE_OTHER:
-        std::cout << "Source: Other";
+        output += "\nSource: Other";
         break;
     }
-    std::cout << std::endl;
-
     switch (type)
     {
     case GL_DEBUG_TYPE_ERROR:
-        std::cout << "Type: Error";
+        output += " Type: Error";
         break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        std::cout << "Type: Deprecated Behaviour";
+        output += " Type: Deprecated Behaviour";
         break;
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        std::cout << "Type: Undefined Behaviour";
+        output += " Type: Undefined Behaviour";
         break;
     case GL_DEBUG_TYPE_PORTABILITY:
-        std::cout << "Type: Portability";
+        output += " Type: Portability";
         break;
     case GL_DEBUG_TYPE_PERFORMANCE:
-        std::cout << "Type: Performance";
+        output += " Type: Performance";
         break;
     case GL_DEBUG_TYPE_MARKER:
-        std::cout << "Type: Marker";
+        output += " Type: Marker";
         break;
     case GL_DEBUG_TYPE_PUSH_GROUP:
-        std::cout << "Type: Share Group";
+        output += " Type: Share Group";
         break;
     case GL_DEBUG_TYPE_POP_GROUP:
-        std::cout << "Type: Pop Group";
+        output += " Type: Pop Group";
         break;
     case GL_DEBUG_TYPE_OTHER:
-        std::cout << "Type: Other";
+        output += " Type: Other";
         break;
     }
     std::cout << std::endl;
@@ -1581,20 +1592,23 @@ void APIENTRY glDebugOutput(
     switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
-        std::cout << "Severity: high";
+        output += " Severity: high";
+        UNIENGINE_ERROR(output);
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-        std::cout << "Severity: medium";
+        output += " Severity: medium";
+        UNIENGINE_WARNING(output);
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        std::cout << "Severity: low";
+        output += " Severity: low";
+        UNIENGINE_WARNING(output);
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        std::cout << "Severity: notification";
+        output += " Severity: notification";
+        UNIENGINE_LOG(output);
         break;
     }
-    std::cout << std::endl;
-    std::cout << std::endl;
+
 }
 
 #pragma endregion

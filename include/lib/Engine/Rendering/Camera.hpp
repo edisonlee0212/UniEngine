@@ -14,7 +14,7 @@ struct UNIENGINE_API Plane
     void Normalize();
 };
 
-struct UNIENGINE_API  CameraInfoBlock
+struct UNIENGINE_API CameraInfoBlock
 {
     glm::mat4 m_projection;
     glm::mat4 m_view;
@@ -23,8 +23,9 @@ struct UNIENGINE_API  CameraInfoBlock
     glm::vec4 m_reservedParameters;
     glm::vec4 m_clearColor;
     glm::vec4 m_position;
-    void UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation);
-    void UploadMatrices(const std::shared_ptr<Camera> &camera) const;
+    std::unique_ptr<OpenGLUtils::GLUBO>& GetBuffer();
+    void UploadMatrices(const std::shared_ptr<Camera> &camera, const glm::vec3& position, const glm::quat& rotation);
+    void UploadMatrices(const std::shared_ptr<Camera> &camera, const GlobalTransform& globalTransform);
 };
 struct Ray;
 
@@ -49,7 +50,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferAlbedo;
     std::unique_ptr<OpenGLUtils::GLTexture2D> m_gBufferMetallicRoughnessEmissionAmbient;
 
-    static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
+
     size_t m_frameCount = 0;
     bool m_rendered = false;
     bool m_requireRendering = false;
@@ -67,7 +68,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
 
     static void CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, glm::mat4 view);
     static void CalculateFrustumPoints(
-        const std::shared_ptr<Camera> &cameraComponrnt,
+        const std::shared_ptr<Camera> &cameraComponent,
         float nearPlane,
         float farPlane,
         glm::vec3 cameraPos,
@@ -86,7 +87,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     glm::vec3 GetMouseWorldPoint(GlobalTransform &ltw, glm::vec2 mousePosition) const;
     void SetClearColor(glm::vec3 color) const;
     Ray ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) const;
-    static void GenerateMatrices();
+
     void ResizeResolution(int x, int y);
     void OnCreate() override;
     void Start() override;

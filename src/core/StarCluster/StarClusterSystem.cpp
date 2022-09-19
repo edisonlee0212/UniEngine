@@ -338,7 +338,7 @@ void StarClusterSystem::Update()
 
     // Do not touch below functions.
     m_counter++;
-    Graphics::DrawGizmoMeshInstancedColored(
+    Gizmos::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
         m_useFront ? scene->GetOrSetPrivateComponent<Particles>(m_rendererFront.Get()).lock()->m_matrices->m_value

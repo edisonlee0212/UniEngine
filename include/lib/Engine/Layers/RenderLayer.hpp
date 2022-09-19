@@ -83,7 +83,6 @@ struct RenderCommands {
 
 class UNIENGINE_API RenderLayer : public ILayer {
   public:
-    RenderLayer();
 
     void RenderToCamera(const std::shared_ptr<Camera> &cameraComponent, const GlobalTransform &cameraModel);
 
@@ -226,7 +225,7 @@ class UNIENGINE_API RenderLayer : public ILayer {
     void DeferredPrepassInstancedInternal(
         const std::shared_ptr<SkinnedMesh> &skinnedMesh, const std::shared_ptr<ParticleMatrices> &matrices);
 
-    void DrawMesh(
+    void DrawMeshInternal(
         const std::shared_ptr<Mesh> &mesh,
         const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
@@ -236,7 +235,7 @@ class UNIENGINE_API RenderLayer : public ILayer {
 
     void DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh);
 
-    void DrawMeshInstanced(
+    void DrawMeshInstancedInternal(
         const std::shared_ptr<Mesh> &mesh,
         const std::shared_ptr<Material> &material,
         const glm::mat4 &model,
@@ -249,35 +248,7 @@ class UNIENGINE_API RenderLayer : public ILayer {
     void DrawMeshInstancedInternal(
         const std::shared_ptr<SkinnedMesh> &mesh, const std::vector<glm::mat4> &matrices);
 
-    void DrawGizmoMesh(bool depthTest,
-                       const std::shared_ptr<Mesh> &mesh,
-                       const glm::vec4 &color,
-                       const glm::mat4 &model,
-                       const glm::mat4 &scaleMatrix);
 
-    void DrawGizmoMeshVertexColored(bool depthTest,
-                       const std::shared_ptr<Mesh> &mesh,
-                       const glm::mat4 &model,
-                       const glm::mat4 &scaleMatrix);
-
-    void DrawGizmoMeshNormalColored(bool depthTest,
-                       const std::shared_ptr<Mesh> &mesh,
-                       const glm::mat4 &model,
-                       const glm::mat4 &scaleMatrix);
-
-    void DrawGizmoMeshInstanced(bool depthTest,
-                                const std::shared_ptr<Mesh> &mesh,
-                                const glm::vec4 &color,
-                                const glm::mat4 &model,
-                                const std::vector<glm::mat4> &matrices,
-                                const glm::mat4 &scaleMatrix);
-
-    void DrawGizmoMeshInstancedColored(bool depthTest,
-                                       const std::shared_ptr<Mesh> &mesh,
-                                       const std::vector<glm::vec4> &colors,
-                                       const std::vector<glm::mat4> &matrices,
-                                       const glm::mat4 &model,
-                                       const glm::mat4 &scaleMatrix);
 
     float Lerp(const float &a, const float &b, const float &f);
 };

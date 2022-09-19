@@ -456,8 +456,7 @@ void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color)
     auto scene = GetScene();
     if (!scene->IsEntityValid(entity) || !scene->IsEntityEnabled(entity))
         return;
-    Camera::m_cameraInfoBlock.UpdateMatrices(m_sceneCamera, m_sceneCameraPosition, m_sceneCameraRotation);
-    Camera::m_cameraInfoBlock.UploadMatrices(m_sceneCamera);
+    Camera::m_cameraInfoBlock.UploadMatrices(m_sceneCamera, m_sceneCameraPosition, m_sceneCameraRotation);
     m_sceneCamera->Bind();
     OpenGLUtils::SetEnable(OpenGLCapability::StencilTest, true);
     OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
@@ -526,8 +525,9 @@ void EditorLayer::RenderToSceneCamera()
 
     if (m_sceneCamera->m_requireRendering)
     {
-        Camera::m_cameraInfoBlock.UpdateMatrices(m_sceneCamera, m_sceneCameraPosition, m_sceneCameraRotation);
-        Camera::m_cameraInfoBlock.UploadMatrices(m_sceneCamera);
+        GlobalTransform sceneCameraGT;
+        sceneCameraGT.SetValue(m_sceneCameraPosition, m_sceneCameraRotation, glm::vec3(1.0f));
+        renderLayer->RenderToCamera(m_sceneCamera, sceneCameraGT);
 #pragma region For entity selection
         OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
         OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
@@ -644,11 +644,6 @@ void EditorLayer::RenderToSceneCamera()
                 false);
         }
 #pragma endregion
-        renderLayer->ApplyShadowMapSettings();
-        renderLayer->ApplyEnvironmentalSettings(m_sceneCamera);
-        GlobalTransform sceneCameraGT;
-        sceneCameraGT.SetValue(m_sceneCameraPosition, m_sceneCameraRotation, glm::vec3(1.0f));
-        renderLayer->RenderToCamera(m_sceneCamera, sceneCameraGT);
     }
     else
     {

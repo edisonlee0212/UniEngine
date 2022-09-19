@@ -6,7 +6,6 @@
 using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLVBO> SkinnedMesh::m_matricesBuffer;
-
 std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 
 void SkinnedMesh::OnInspect()
@@ -110,7 +109,7 @@ void SkinnedMesh::FetchIndices()
     }
 }
 
-void SkinnedMesh::GenerateMatrices()
+void SkinnedMesh::TryInitialize()
 {
     m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLSSBO>();
     m_skinnedMeshBonesUniformBufferBlock->SetData(
@@ -125,6 +124,7 @@ void SkinnedMesh::UploadBones(const std::vector<glm::mat4> &matrices)
 
 void SkinnedMesh::OnCreate()
 {
+    TryInitialize();
     m_vao = std::make_shared<OpenGLUtils::GLVAO>();
     m_bound = Bound();
 }

@@ -3,38 +3,21 @@
 #include <Texture2D.hpp>
 namespace UniEngine
 {
-enum class UNIENGINE_API MaterialPolygonMode
-{
-    Fill,
-    Line,
-    Point
+struct DrawSettings{
+    bool m_cullFace = true;
+    OpenGLCullFace m_cullFaceMode = OpenGLCullFace::Back;
+    OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Fill;
+
+    bool m_blending = false;
+    OpenGLBlendFactor m_blendingSrcFactor = OpenGLBlendFactor::SrcAlpha;
+    OpenGLBlendFactor m_blendingDstFactor = OpenGLBlendFactor::OneMinusSrcAlpha;
+    bool OnInspect();
+    void ApplySettings() const;
+
+    void Save(const std::string &name, YAML::Emitter &out);
+    void Load(const std::string &name, const YAML::Node &in);
 };
 
-enum class UNIENGINE_API MaterialCullingMode
-{
-    Back,
-    Front,
-    Off
-};
-
-enum class UNIENGINE_API MaterialBlendingMode
-{
-    Off,
-    OneMinusSrcAlpha,
-};
-
-struct MaterialFloatProperty
-{
-    std::string m_name;
-    float m_value;
-    MaterialFloatProperty(const std::string &name, const float &value);
-};
-struct MaterialMat4Property
-{
-    std::string m_name;
-    glm::mat4 m_value;
-    MaterialMat4Property(const std::string &name, const glm::mat4 &value);
-};
 class UNIENGINE_API Material : public IAsset
 {
   public:
@@ -44,11 +27,9 @@ class UNIENGINE_API Material : public IAsset
     AssetRef m_roughnessTexture;
     AssetRef m_aoTexture;
     AssetRef m_program;
-    std::vector<MaterialFloatProperty> m_floatPropertyList;
-    std::vector<MaterialMat4Property> m_float4X4PropertyList;
-    MaterialPolygonMode m_polygonMode = MaterialPolygonMode::Fill;
-    MaterialCullingMode m_cullingMode = MaterialCullingMode::Back;
-    MaterialBlendingMode m_blendingMode = MaterialBlendingMode::Off;
+    std::map<std::string, float> m_floatPropertyList;
+    std::map<std::string, glm::mat4> m_float4X4PropertyList;
+    DrawSettings m_drawSettings;
     float m_metallic = 0.3f;
     float m_roughness = 0.3f;
     float m_ambient = 1.0f;
@@ -63,8 +44,6 @@ class UNIENGINE_API Material : public IAsset
 
     void OnCreate() override;
     void OnInspect() override;
-    void SetMaterialProperty(const std::string &name, const float &value);
-    void SetMaterialProperty(const std::string &name, const glm::mat4 &value);
     void SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture);
     void RemoveTexture(TextureType type);
     void SetProgram(std::shared_ptr<OpenGLUtils::GLProgram> program);

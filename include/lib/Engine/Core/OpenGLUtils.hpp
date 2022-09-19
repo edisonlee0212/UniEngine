@@ -4,27 +4,52 @@
 #include <uniengine_export.h>
 namespace UniEngine
 {
-enum class OpenGLPolygonMode{
+enum class OpenGLPolygonMode
+{
     Point = GL_POINT,
     Line = GL_LINE,
     Fill = GL_FILL
 };
-enum class OpenGLCullFace{
+enum class OpenGLCullFace
+{
     Front = GL_FRONT,
     Back = GL_BACK,
     FrontAndBack = GL_FRONT_AND_BACK
 };
-enum class OpenGLCapability{
+enum class OpenGLCapability
+{
     DepthTest = GL_DEPTH_TEST,
     ScissorTest = GL_SCISSOR_TEST,
     StencilTest = GL_STENCIL_TEST,
     Blend = GL_BLEND,
     CullFace = GL_CULL_FACE
 };
+enum class OpenGLBlendFactor
+{
+    Zero = GL_ZERO,
+    One = GL_ONE,
+    SrcColor = GL_SRC_COLOR,
+    OneMinusSrcColor = GL_ONE_MINUS_SRC_COLOR,
+    DstColor = GL_DST_COLOR,
+    OneMinusDstColor = GL_ONE_MINUS_DST_COLOR,
+    SrcAlpha = GL_SRC_ALPHA,
+    OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
+    DstAlpha = GL_DST_ALPHA,
+    OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA,
+    ConstantColor = GL_CONSTANT_COLOR,
+    OneMinusConstantColor = GL_ONE_MINUS_CONSTANT_COLOR,
+    ConstantAlpha = GL_CONSTANT_ALPHA,
+    OneMinusConstantAlpha = GL_ONE_MINUS_CONSTANT_ALPHA,
+    SrcAlphaSaturate = GL_SRC_ALPHA_SATURATE,
+    Src1Color = GL_SRC1_COLOR,
+    OneMinusSrc1Color = GL_ONE_MINUS_SRC1_COLOR,
+    Src1Alpha = GL_SRC1_ALPHA,
+    OneMinusSrc1Alpha = GL_ONE_MINUS_SRC1_ALPHA
+};
 class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 {
     friend class DefaultResources;
-    friend class Graphics;
+    // friend class Graphics;
 
     bool m_depthTest = true;
     bool m_scissorTest = true;
@@ -32,14 +57,17 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     bool m_blend = true;
     bool m_cullFace = true;
     OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Point;
-
     OpenGLCullFace m_cullFaceMode = OpenGLCullFace::Back;
+    OpenGLBlendFactor m_blendingSrcFactor = OpenGLBlendFactor::SrcAlpha;
+    OpenGLBlendFactor m_blendingDstFactor = OpenGLBlendFactor::OneMinusSrcAlpha;
+
   public:
     static void Init();
     static void PreUpdate();
     static void SetEnable(OpenGLCapability capability, bool enable);
     static void SetPolygonMode(OpenGLPolygonMode mode);
     static void SetCullFace(OpenGLCullFace cullFace);
+    static void SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor dstFactor);
     static void SetViewPort(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
     static void SetViewPort(unsigned x, unsigned y);
 #pragma region Sub classes
@@ -47,6 +75,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     {
       protected:
         GLuint m_id = 0;
+
       public:
         [[nodiscard]] GLuint Id() const;
         virtual ~GLObject() = default;
@@ -55,9 +84,11 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     class UNIENGINE_API GLBuffer : public GLObject
     {
         friend class OpenGLUtils;
+
       protected:
         GLenum m_target;
         static std::map<GLenum, GLuint> m_boundBuffers;
+
       public:
         GLBuffer(GLenum target);
         void Bind() const;
@@ -115,6 +146,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     {
         friend class OpenGLUtils;
         static GLuint m_boundVAO;
+
       protected:
         GLVBO m_vbo;
         GLEBO m_ebo;
@@ -152,6 +184,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
     {
         friend class OpenGLUtils;
         static GLuint m_boundRenderBuffer;
+
       public:
         void Bind();
         static void BindDefault();
@@ -195,6 +228,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
       protected:
         GLenum m_type;
         GLenum m_format;
+
       public:
         static GLint GetMaxAllowedTexture();
         void Clear(const GLint &level) const;
@@ -431,6 +465,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         bool m_depth;
         bool m_stencil;
         static GLuint m_boundFrameBuffer;
+
       public:
         static void Enable(GLenum cap);
         static void Disable(GLenum cap);
@@ -438,7 +473,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void ClearColor(const glm::vec4 &value) const;
         void Check() const;
         static void DefaultFrameBufferDrawBuffer(GLenum buffer);
-        void DrawBuffers(const std::vector<GLenum>& buffers) const;
+        void DrawBuffers(const std::vector<GLenum> &buffers) const;
         static void BindDefault();
         GLFrameBuffer();
         ~GLFrameBuffer() override;
@@ -448,8 +483,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         void AttachRenderBuffer(const GLRenderBuffer *buffer, GLenum attachPoint);
         void AttachTexture(const GLTexture *texture, GLenum attachPoint);
         void AttachTextureLayer(const GLTexture *texture, GLenum attachPoint, GLint layer);
-        void AttachTexture2D(
-            const GLTexture *texture, GLenum attachPoint, GLenum texTarget, GLint level = 0);
+        void AttachTexture2D(const GLTexture *texture, GLenum attachPoint, GLenum texTarget, GLint level = 0);
         void Clear();
     };
     enum class UNIENGINE_API ShaderType
@@ -466,6 +500,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
         std::string m_code;
         ShaderType m_type;
         bool m_compiled;
+
       public:
         [[nodiscard]] std::string GetCode() const;
         void OnCreate() override;
@@ -494,6 +529,7 @@ class UNIENGINE_API OpenGLUtils : ISingleton<OpenGLUtils>
 
         static GLuint m_boundProgram;
         bool m_linked = false;
+
       public:
         GLProgram();
         ~GLProgram() override;

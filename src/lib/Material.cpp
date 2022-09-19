@@ -2,25 +2,82 @@
 #include "Editor.hpp"
 #include <Material.hpp>
 using namespace UniEngine;
-static const char *MatPolygonMode[]{"Fill", "Line", "Point"};
-static const char *MatCullingMode[]{"BACK", "FRONT", "OFF"};
-static const char *MatBlendingMode[]{"OFF", "ONE_MINUS_SRC_ALPHA"};
-
-MaterialFloatProperty::MaterialFloatProperty(const std::string &name, const float &value)
-{
-    m_name = name;
-    m_value = value;
-}
-
-MaterialMat4Property::MaterialMat4Property(const std::string &name, const glm::mat4 &value)
-{
-    m_name = name;
-    m_value = value;
-}
 
 void Material::OnCreate()
 {
     m_program = DefaultResources::GLPrograms::StandardProgram;
+}
+static const char *PolygonMode[]{"Point", "Line", "Fill"};
+static const char *CullingMode[]{"Front", "Back", "FrontAndBack"};
+static const char *BlendingFactor[]{"Zero", "One", "SrcColor", "OneMinusSrcColor", "DstColor", "OneMinusDstColor", "SrcAlpha", "OneMinusSrcAlpha",
+                                    "DstAlpha", "OneMinusDstAlpha", "ConstantColor", "OneMinusConstantColor", "ConstantAlpha", "OneMinusConstantAlpha", "SrcAlphaSaturate",
+                                    "Src1Color", "OneMinusSrc1Color", "Src1Alpha", "OneMinusSrc1Alpha"};
+bool DrawSettings::OnInspect()
+{
+    bool changed = false;
+    if (ImGui::Combo(
+            "Polygon Mode",
+            reinterpret_cast<int *>(&m_polygonMode),
+            PolygonMode,
+            IM_ARRAYSIZE(PolygonMode)))
+    {
+        changed = true;
+    }
+    if(ImGui::Checkbox("Cull Face", &m_cullFace)) changed = true;
+    if (m_cullFace && ImGui::Combo(
+            "Cull Face Mode",
+            reinterpret_cast<int *>(&m_cullFaceMode),
+                          CullingMode,
+            IM_ARRAYSIZE(CullingMode)))
+    {
+        changed = true;
+    }
+
+    if(ImGui::Checkbox("Blending", &m_blending)) changed = true;
+
+    if(m_blending){
+        if (ImGui::Combo(
+                "Blending Source Factor",
+                reinterpret_cast<int *>(&m_blendingSrcFactor),
+                BlendingFactor,
+                IM_ARRAYSIZE(BlendingFactor)))
+        {
+            changed = true;
+        }
+        if (ImGui::Combo(
+                "Blending Destination Factor",
+                reinterpret_cast<int *>(&m_blendingDstFactor),
+                BlendingFactor,
+                IM_ARRAYSIZE(BlendingFactor)))
+        {
+            changed = true;
+        }
+    }
+    return changed;
+}
+void DrawSettings::Save(const std::string &name, YAML::Emitter &out)
+{
+    out << YAML::Key << name << YAML::Value << YAML::BeginMap;
+    out << YAML::Key << "m_cullFace" << YAML::Value << m_cullFace;
+    out << YAML::Key << "m_cullFaceMode" << YAML::Value << (unsigned)m_cullFaceMode;
+    out << YAML::Key << "m_polygonMode" << YAML::Value << (unsigned)m_polygonMode;
+    out << YAML::Key << "m_blending" << YAML::Value << m_blending;
+    out << YAML::Key << "m_blendingSrcFactor" << YAML::Value << (unsigned)m_blendingSrcFactor;
+    out << YAML::Key << "m_blendingDstFactor" << YAML::Value << (unsigned)m_blendingDstFactor;
+    out << YAML::EndMap;
+}
+void DrawSettings::Load(const std::string &name, const YAML::Node &in)
+{
+    if (in[name])
+    {
+        m_cullFace = in["m_cullFace"].as<bool>();
+        m_cullFaceMode = (OpenGLCullFace)in["m_cullFaceMode"].as<unsigned>();
+        m_polygonMode = (OpenGLPolygonMode)in["m_polygonMode"].as<unsigned>();
+
+        m_blending = in["m_blending"].as<bool>();
+        m_blendingSrcFactor = (OpenGLBlendFactor)in["m_blendingSrcFactor"].as<unsigned>();
+        m_blendingDstFactor = (OpenGLBlendFactor)in["m_blendingDstFactor"].as<unsigned>();
+    }
 }
 
 void Material::OnInspect()
@@ -40,7 +97,7 @@ void Material::OnInspect()
             {
                 m_saved = false;
             }
-            if(m_blendingMode != MaterialBlendingMode::Off && ImGui::DragFloat("Transparency##Material", &m_transparency, 0.01f, 0.0f, 1.0f)){
+            if(!m_drawSettings.m_blending && ImGui::DragFloat("Transparency##Material", &m_transparency, 0.01f, 0.0f, 1.0f)){
                 m_saved = false;
             }
         }
@@ -78,30 +135,7 @@ void Material::OnInspect()
     }
     if (ImGui::TreeNodeEx("Others##Material"))
     {
-        if (ImGui::Combo(
-                "Polygon Mode##Material",
-                reinterpret_cast<int *>(&m_polygonMode),
-                MatPolygonMode,
-                IM_ARRAYSIZE(MatPolygonMode)))
-        {
-            m_saved = false;
-        }
-        if (ImGui::Combo(
-                "Culling Mode##Material",
-                reinterpret_cast<int *>(&m_cullingMode),
-                MatCullingMode,
-                IM_ARRAYSIZE(MatCullingMode)))
-        {
-            m_saved = false;
-        }
-        if (ImGui::Combo(
-                "Blending Mode##Material",
-                reinterpret_cast<int *>(&m_blendingMode),
-                MatBlendingMode,
-                IM_ARRAYSIZE(MatBlendingMode)))
-        {
-            m_saved = false;
-        }
+        if(m_drawSettings.OnInspect()) m_saved = false;
         ImGui::TreePop();
     }
     if (ImGui::TreeNode("Textures##Material"))
@@ -128,32 +162,6 @@ void Material::OnInspect()
         }
         ImGui::TreePop();
     }
-}
-
-void UniEngine::Material::SetMaterialProperty(const std::string &name, const float &value)
-{
-    for (auto &property : m_floatPropertyList)
-    {
-        if (property.m_name.compare(name) == 0)
-        {
-            property.m_value = value;
-            return;
-        }
-    }
-    m_floatPropertyList.emplace_back(name, value);
-}
-
-void UniEngine::Material::SetMaterialProperty(const std::string &name, const glm::mat4 &value)
-{
-    for (auto &property : m_float4X4PropertyList)
-    {
-        if (property.m_name.compare(name) == 0)
-        {
-            property.m_value = value;
-            return;
-        }
-    }
-    m_float4X4PropertyList.emplace_back(name, value);
 }
 
 void Material::SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture)
@@ -213,9 +221,7 @@ void Material::Serialize(YAML::Emitter &out)
     m_aoTexture.Save("m_aoTexture", out);
     m_program.Save("m_program", out);
 
-    out << YAML::Key << "m_polygonMode" << YAML::Value << (unsigned)m_polygonMode;
-    out << YAML::Key << "m_cullingMode" << YAML::Value << (unsigned)m_cullingMode;
-    out << YAML::Key << "m_blendingMode" << YAML::Value << (unsigned)m_blendingMode;
+    m_drawSettings.Save("m_drawSettings", out);
 
     out << YAML::Key << "m_metallic" << YAML::Value << m_metallic;
     out << YAML::Key << "m_roughness" << YAML::Value << m_roughness;
@@ -238,12 +244,7 @@ void Material::Deserialize(const YAML::Node &in)
     m_aoTexture.Load("m_aoTexture", in);
     m_program.Load("m_program", in);
 
-    if (in["m_polygonMode"])
-        m_polygonMode = (MaterialPolygonMode)in["m_polygonMode"].as<unsigned>();
-    if (in["m_cullingMode"])
-        m_cullingMode = (MaterialCullingMode)in["m_cullingMode"].as<unsigned>();
-    if (in["m_blendingMode"])
-        m_blendingMode = (MaterialBlendingMode)in["m_blendingMode"].as<unsigned>();
+    m_drawSettings.Load("m_drawSettings", in);
 
     if (in["m_metallic"])
         m_metallic = in["m_metallic"].as<float>();

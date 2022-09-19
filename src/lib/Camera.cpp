@@ -12,7 +12,6 @@
 using namespace UniEngine;
 
 CameraInfoBlock Camera::m_cameraInfoBlock;
-std::unique_ptr<OpenGLUtils::GLUBO> Camera::m_cameraUniformBufferBlock;
 
 Plane::Plane() : m_a(0), m_b(0), m_c(0), m_d(0)
 {
@@ -69,7 +68,7 @@ void Camera::CalculatePlanes(std::vector<Plane> &planes, glm::mat4 projection, g
 }
 
 void Camera::CalculateFrustumPoints(
-    const std::shared_ptr<Camera> &cameraComponrnt,
+    const std::shared_ptr<Camera> &cameraComponent,
     float nearPlane,
     float farPlane,
     glm::vec3 cameraPos,
@@ -82,11 +81,11 @@ void Camera::CalculateFrustumPoints(
     const glm::vec3 nearCenter = front * nearPlane;
     const glm::vec3 farCenter = front * farPlane;
 
-    const float e = tanf(glm::radians(cameraComponrnt->m_fov * 0.5f));
+    const float e = tanf(glm::radians(cameraComponent->m_fov * 0.5f));
     const float near_ext_y = e * nearPlane;
-    const float near_ext_x = near_ext_y * cameraComponrnt->GetResolutionRatio();
+    const float near_ext_x = near_ext_y * cameraComponent->GetResolutionRatio();
     const float far_ext_y = e * farPlane;
-    const float far_ext_x = far_ext_y * cameraComponrnt->GetResolutionRatio();
+    const float far_ext_x = far_ext_y * cameraComponent->GetResolutionRatio();
 
     points[0] = cameraPos + nearCenter - right * near_ext_x - up * near_ext_y;
     points[1] = cameraPos + nearCenter - right * near_ext_x + up * near_ext_y;
@@ -217,11 +216,16 @@ Ray Camera::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) cons
     return {glm::vec3(ltw.m_value[3]) + m_nearDistance * dir, glm::vec3(ltw.m_value[3]) + m_farDistance * dir};
 }
 
-void Camera::GenerateMatrices()
+std::unique_ptr<OpenGLUtils::GLUBO>& CameraInfoBlock::GetBuffer()
 {
-    m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
-    m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
-    m_cameraUniformBufferBlock->SetBase(0);
+    static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
+    if(!m_cameraUniformBufferBlock)
+    {
+        m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
+        m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
+        m_cameraUniformBufferBlock->SetBase(0);
+    }
+    return m_cameraUniformBufferBlock;
 }
 
 void Camera::ResizeResolution(int x, int y)
@@ -467,7 +471,7 @@ void Camera::SetRequireRendering(bool value)
     m_requireRendering = m_requireRendering || value;
 }
 
-void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm::vec3 position, glm::quat rotation)
+void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, const glm::vec3& position, const glm::quat& rotation)
 {
     const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
     const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
@@ -492,9 +496,34 @@ void CameraInfoBlock::UpdateMatrices(const std::shared_ptr<Camera> &camera, glm:
     {
         m_clearColor.w = 0.0f;
     }
+    GetBuffer()->SubData(0, sizeof(CameraInfoBlock), &this->m_projection);
 }
-
-void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera) const
+void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, const GlobalTransform& globalTransform)
 {
-    Camera::m_cameraUniformBufferBlock->SubData(0, sizeof(CameraInfoBlock), this);
+    const auto rotation = globalTransform.GetRotation();
+    const auto position = globalTransform.GetPosition();
+    const glm::vec3 front = rotation * glm::vec3(0, 0, -1);
+    const glm::vec3 up = rotation * glm::vec3(0, 1, 0);
+    const auto ratio = camera->GetResolutionRatio();
+    m_projection =
+        glm::perspective(glm::radians(camera->m_fov * 0.5f), ratio, camera->m_nearDistance, camera->m_farDistance);
+    m_position = glm::vec4(position, 0);
+    m_view = glm::lookAt(position, position + front, up);
+    m_inverseProjection = glm::inverse(m_projection);
+    m_inverseView = glm::inverse(m_view);
+    m_reservedParameters = glm::vec4(
+        camera->m_nearDistance,
+        camera->m_farDistance,
+        glm::tan(glm::radians(camera->m_fov * 0.5f)),
+        static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
+    m_clearColor = glm::vec4(camera->m_clearColor, 1.0f);
+    if (camera->m_useClearColor)
+    {
+        m_clearColor.w = 1.0f;
+    }
+    else
+    {
+        m_clearColor.w = 0.0f;
+    }
+    GetBuffer()->SubData(0, sizeof(CameraInfoBlock), this);
 }

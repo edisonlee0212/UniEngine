@@ -5,132 +5,25 @@
 #include "MeshRenderer.hpp"
 #include "Particles.hpp"
 #include "SkinnedMeshRenderer.hpp"
+#include "RenderLayer.hpp"
 namespace UniEngine
 {
+struct GizmoSettings{
+    DrawSettings m_drawSettings;
+    enum class ColorMode{
+        Default,
+        VertexColor,
+        NormalColor
+    } m_colorMode;
+    bool m_depthTest = true;
+};
+
 class UNIENGINE_API Graphics
 {
   public:
 #pragma region Render API
-#pragma region Gizmos
-    static void DrawGizmoMesh(
-        const std::shared_ptr<Mesh> &mesh,
-        const glm::vec4 &color = glm::vec4(1.0f),
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-    static void DrawGizmoMeshVertexColored(
-        const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model = glm::mat4(1.0f), const float &size = 1.0f);
-    static void DrawGizmoMeshNormalColored(
-        const std::shared_ptr<Mesh> &mesh, const glm::mat4 &model = glm::mat4(1.0f), const float &size = 1.0f);
-    static void DrawGizmoMeshInstanced(
-        const std::shared_ptr<Mesh> &mesh,
-        const glm::vec4 &color,
-        const std::vector<glm::mat4> &matrices,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-    static void DrawGizmoMeshInstancedColored(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::vector<glm::vec4> &colors,
-        const std::vector<glm::mat4> &matrices,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoMesh(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color = glm::vec4(1.0f),
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoMeshVertexColored(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoMeshNormalColored(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoMeshInstanced(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color,
-        const std::vector<glm::mat4> &matrices,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoMeshInstancedColored(
-        const std::shared_ptr<Mesh> &mesh,
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const std::vector<glm::vec4> &colors,
-        const std::vector<glm::mat4> &matrices,
-        const glm::mat4 &model = glm::mat4(1.0f),
-        const float &size = 1.0f);
-
-    static void DrawGizmoRay(
-        const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width = 0.01f);
-
-    static void DrawGizmoRays(
-        const glm::vec4 &color,
-        const std::vector<std::pair<glm::vec3, glm::vec3>> &startEnds,
-        const float &width = 0.01f);
-    static void DrawGizmoRays(
-        const glm::vec4 &color,
-        const std::vector<glm::vec3> &starts,
-        const std::vector<glm::vec3> &ends,
-        const float &width = 0.01f);
-
-    static void DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width = 0.01f);
-
-    static void DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width = 0.01f);
-
-    static void DrawGizmoRay(
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color,
-        const glm::vec3 &start,
-        const glm::vec3 &end,
-        const float &width = 0.01f);
-
-    static void DrawGizmoRays(
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color,
-        const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
-        const float &width = 0.01f);
-
-    static void DrawGizmoRays(
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color,
-        const std::vector<Ray> &rays,
-        const float &width = 0.01f);
-
-    static void DrawGizmoRay(
-        const std::shared_ptr<Camera> &cameraComponent,
-        const glm::vec3 &cameraPosition,
-        const glm::quat &cameraRotation,
-        const glm::vec4 &color,
-        const Ray &ray,
-        const float &width = 0.01f);
-#pragma endregion
     /**
-     * DrawMesh draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be
+     * DrawMeshInternal draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be
      * affected by Projectors - just like it was part of some game object.
      * @param mesh The Mesh to draw.
      * @param material The material to use.
@@ -196,6 +89,128 @@ class UNIENGINE_API Graphics
 
     static void RenderCube();
     static void RenderQuad();
+#pragma endregion
+};
+class UNIENGINE_API Gizmos{
+    static void DrawGizmoMeshInternal(const GizmoSettings& gizmoSettings,
+                               const std::shared_ptr<Mesh> &mesh,
+                               const glm::vec4 &color,
+                               const glm::mat4 &model,
+                               const glm::mat4 &scaleMatrix);
+
+    static void DrawGizmoMeshInstancedInternal(const GizmoSettings& gizmoSettings,
+                                        const std::shared_ptr<Mesh> &mesh,
+                                        const glm::vec4 &color,
+                                        const glm::mat4 &model,
+                                        const std::vector<glm::mat4> &matrices,
+                                        const glm::mat4 &scaleMatrix);
+
+    static void DrawGizmoMeshInstancedColoredInternal(const GizmoSettings& gizmoSettings,
+                                               const std::shared_ptr<Mesh> &mesh,
+                                               const std::vector<glm::vec4> &colors,
+                                               const std::vector<glm::mat4> &matrices,
+                                               const glm::mat4 &model,
+                                               const glm::mat4 &scaleMatrix);
+  public:
+#pragma region Gizmos
+    static void DrawGizmoMesh(
+        const std::shared_ptr<Mesh> &mesh,
+        const glm::vec4 &color = glm::vec4(1.0f),
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoMeshInstanced(
+        const std::shared_ptr<Mesh> &mesh,
+        const glm::vec4 &color,
+        const std::vector<glm::mat4> &matrices,
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoMeshInstancedColored(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::vector<glm::vec4> &colors,
+        const std::vector<glm::mat4> &matrices,
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoMesh(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color = glm::vec4(1.0f),
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoMeshInstanced(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color,
+        const std::vector<glm::mat4> &matrices,
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoMeshInstancedColored(
+        const std::shared_ptr<Mesh> &mesh,
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const std::vector<glm::vec4> &colors,
+        const std::vector<glm::mat4> &matrices,
+        const glm::mat4 &model = glm::mat4(1.0f),
+        const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRay(
+        const glm::vec4 &color, const glm::vec3 &start, const glm::vec3 &end, const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRays(
+        const glm::vec4 &color,
+        const std::vector<std::pair<glm::vec3, glm::vec3>> &startEnds,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+    static void DrawGizmoRays(
+        const glm::vec4 &color,
+        const std::vector<glm::vec3> &starts,
+        const std::vector<glm::vec3> &ends,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRay(const glm::vec4 &color, const Ray &ray, const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRay(
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color,
+        const glm::vec3 &start,
+        const glm::vec3 &end,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRays(
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color,
+        const std::vector<std::pair<glm::vec3, glm::vec3>> &connections,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRays(
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color,
+        const std::vector<Ray> &rays,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
+
+    static void DrawGizmoRay(
+        const std::shared_ptr<Camera> &cameraComponent,
+        const glm::vec3 &cameraPosition,
+        const glm::quat &cameraRotation,
+        const glm::vec4 &color,
+        const Ray &ray,
+        const float &width = 0.01f, const GizmoSettings& gizmoSettings = {});
 #pragma endregion
 };
 } // namespace UniEngine

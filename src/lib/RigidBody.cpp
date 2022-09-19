@@ -202,7 +202,7 @@ void RigidBody::OnInspect()
             {
             case ShapeType::Sphere:
                 if (m_drawBounds)
-                    Graphics::DrawGizmoMesh(
+                    Gizmos::DrawGizmoMesh(
                         DefaultResources::Primitives::Sphere,
                         displayBoundColor,
                         ltw.m_value *
@@ -211,7 +211,7 @@ void RigidBody::OnInspect()
                 break;
             case ShapeType::Box:
                 if (m_drawBounds)
-                    Graphics::DrawGizmoMesh(
+                    Gizmos::DrawGizmoMesh(
                         DefaultResources::Primitives::Cube,
                         displayBoundColor,
                         ltw.m_value *
@@ -220,7 +220,7 @@ void RigidBody::OnInspect()
                 break;
             case ShapeType::Capsule:
                 if (m_drawBounds)
-                    Graphics::DrawGizmoMesh(
+                    Gizmos::DrawGizmoMesh(
                         DefaultResources::Primitives::Cylinder,
                         displayBoundColor,
                         ltw.m_value *

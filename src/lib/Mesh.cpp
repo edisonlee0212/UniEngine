@@ -1,6 +1,10 @@
-#include "Engine/Utilities/Console.hpp"
-#include <Mesh.hpp>
-#include <Particles.hpp>
+#include "Console.hpp"
+#include "Mesh.hpp"
+#include "Particles.hpp"
+#include "Camera.hpp"
+#include "Application.hpp"
+#include "RenderLayer.hpp"
+#include "Graphics.hpp"
 using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLVBO> Mesh::m_matricesBuffer;
@@ -16,6 +20,32 @@ void Mesh::OnInspect()
             {".obj"},
             [&](const std::filesystem::path &path) { Export(path); },
             false);
+    }
+
+    static bool visualize = true;
+    static std::shared_ptr<Camera> visualizationCamera;
+    static ImVec2 visualizationCameraResolution = {200, 200};
+    if(visualize){
+        if(!visualizationCamera){
+            visualizationCamera = Serialization::ProduceSerializable<Camera>();
+            visualizationCamera->m_clearColor = glm::vec3(0.0f);
+            visualizationCamera->m_useClearColor = true;
+            visualizationCamera->OnCreate();
+        }else
+        {
+            // Show texture first;
+            // Render for next frame;
+            visualizationCamera->ResizeResolution(visualizationCameraResolution.x, visualizationCameraResolution.y);
+            visualizationCamera->Clear();
+            auto renderLayer = Application::GetLayer<RenderLayer>();
+            static GlobalTransform visCameraGT;
+            renderLayer->RenderToCamera(visualizationCamera, visCameraGT);
+            ImGui::Image(
+                reinterpret_cast<ImTextureID>(visualizationCamera->GetTexture()->UnsafeGetGLTexture()->Id()),
+                visualizationCameraResolution,
+                ImVec2(0, 1),
+                ImVec2(1, 0));
+        }
     }
 }
 

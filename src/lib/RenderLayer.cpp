@@ -19,6 +19,8 @@
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
 #include "Engine/Rendering/Graphics.hpp"
+#include "Material.hpp"
+
 #include <SkinnedMeshRenderer.hpp>
 using namespace UniEngine;
 
@@ -75,6 +77,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera> &cameraComponent,
     }
     cameraComponent->m_frameCount++;
     */
+    Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent, cameraModel);
     auto scene = GetScene();
     auto sceneBound = scene->GetBound();
     RenderShadows(sceneBound, cameraComponent, cameraModel);
@@ -297,9 +300,6 @@ void RenderLayer::LateUpdate()
             cameraComponent->m_rendered = false;
             if (cameraComponent->m_requireRendering)
             {
-                auto ltw = scene->GetDataComponent<GlobalTransform>(cameraEntity);
-                Camera::m_cameraInfoBlock.UpdateMatrices(cameraComponent, ltw.GetPosition(), ltw.GetRotation());
-                Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent);
                 RenderToCamera(cameraComponent, scene->GetDataComponent<GlobalTransform>(cameraEntity));
             }
         }
@@ -385,9 +385,7 @@ void RenderLayer::OnInspect()
 }
 void RenderLayer::OnCreate()
 {
-
     m_frameIndex = 0;
-    Camera::GenerateMatrices();
     m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
     m_materialSettingsBuffer->SetBase(6);
@@ -395,8 +393,7 @@ void RenderLayer::OnCreate()
     m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLUBO>();
     m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
     m_environmentalMapSettingsBuffer->SetBase(7);
-    SkinnedMesh::GenerateMatrices();
-
+    SkinnedMesh::TryInitialize();
     PrepareBrdfLut();
 
     Mesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLVBO>();
@@ -528,7 +525,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
                 renderInstance.m_castShadow = mmc->m_castShadow;
                 renderInstance.m_receiveShadow = mmc->m_receiveShadow;
                 renderInstance.m_meshType = RenderCommandMeshType::Default;
-                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                if (material->m_drawSettings.m_blending)
                 {
                     transparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
                 }
@@ -589,7 +586,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
                 renderInstance.m_receiveShadow = particles->m_receiveShadow;
                 renderInstance.m_matrices = particles->m_matrices;
                 renderInstance.m_meshType = RenderCommandMeshType::Default;
-                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                if (material->m_drawSettings.m_blending)
                 {
                     instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
                 }
@@ -658,7 +655,7 @@ void RenderLayer::CollectRenderInstances(Bound &worldBound)
                 renderInstance.m_receiveShadow = smmc->m_receiveShadow;
                 renderInstance.m_meshType = RenderCommandMeshType::Skinned;
                 renderInstance.m_boneMatrices = smmc->m_finalResults;
-                if (material->m_blendingMode != MaterialBlendingMode::Off)
+                if (material->m_drawSettings.m_blending)
                 {
                     transparentRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
                 }
@@ -1334,47 +1331,9 @@ void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera> &came
 
 void RenderLayer::MaterialPropertySetter(const std::shared_ptr<Material> &material, const bool &disableBlending)
 {
-    switch (material->m_polygonMode)
-    {
-    case MaterialPolygonMode::Fill:
-        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-        break;
-    case MaterialPolygonMode::Line:
-        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Line);
-        break;
-    case MaterialPolygonMode::Point:
-        OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Point);
-        break;
-    }
+    material->m_drawSettings.ApplySettings();
 
-    switch (material->m_cullingMode)
-    {
-    case MaterialCullingMode::Off:
-        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
-        break;
-    case MaterialCullingMode::Front:
-        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-        OpenGLUtils::SetCullFace(OpenGLCullFace::Front);
-        break;
-    case MaterialCullingMode::Back:
-        OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-        OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-        break;
-    }
-    if (disableBlending)
-        OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
-    else
-    {
-        switch (material->m_blendingMode)
-        {
-        case MaterialBlendingMode::Off:
-            break;
-        case MaterialBlendingMode::OneMinusSrcAlpha:
-            OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        }
-    }
+
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
 }
 
@@ -1420,7 +1379,7 @@ void RenderLayer::ApplyMaterialSettings(const std::shared_ptr<Material> &materia
     }
     m_materialSettings.m_castShadow = true;
     m_materialSettings.m_subsurfaceColorRadius = glm::vec4(material->m_subsurfaceColor, material->m_subsurfaceRadius);
-    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, material->m_blendingMode != MaterialBlendingMode::Off ? material->m_transparency : 1.0f);
+    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, material->m_drawSettings.m_blending ? material->m_transparency : 1.0f);
     m_materialSettings.m_metallicVal = material->m_metallic;
     m_materialSettings.m_roughnessVal = material->m_roughness;
     m_materialSettings.m_aoVal = material->m_ambient;
@@ -1549,7 +1508,7 @@ void RenderLayer::DeferredPrepassInstancedInternal(
     skinnedMesh->DrawInstanced(matrices);
 }
 
-void RenderLayer::DrawMeshInstanced(
+void RenderLayer::DrawMeshInstancedInternal(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
@@ -1566,14 +1525,6 @@ void RenderLayer::DrawMeshInstanced(
         program = DefaultResources::GLPrograms::StandardInstancedProgram;
     program->Bind();
     program->SetFloat4x4("model", model);
-    for (auto j : material->m_floatPropertyList)
-    {
-        program->SetFloat(j.m_name, j.m_value);
-    }
-    for (auto j : material->m_float4X4PropertyList)
-    {
-        program->SetFloat4x4(j.m_name, j.m_value);
-    }
 
     MaterialPropertySetter(material);
     m_materialSettings = MaterialSettingsBlock();
@@ -1605,7 +1556,7 @@ void RenderLayer::DrawMeshInstancedInternal(
     mesh->DrawInstanced(matrices);
 }
 
-void RenderLayer::DrawMesh(
+void RenderLayer::DrawMeshInternal(
     const std::shared_ptr<Mesh> &mesh,
     const std::shared_ptr<Material> &material,
     const glm::mat4 &model,
@@ -1620,14 +1571,7 @@ void RenderLayer::DrawMesh(
         program = DefaultResources::GLPrograms::StandardProgram;
     program->Bind();
     program->SetFloat4x4("model", model);
-    for (auto j : material->m_floatPropertyList)
-    {
-        program->SetFloat(j.m_name, j.m_value);
-    }
-    for (auto j : material->m_float4X4PropertyList)
-    {
-        program->SetFloat4x4(j.m_name, j.m_value);
-    }
+
     m_materialSettings = MaterialSettingsBlock();
     m_materialSettings.m_receiveShadow = receiveShadow;
     MaterialPropertySetter(material);
@@ -1655,153 +1599,6 @@ void RenderLayer::DrawMeshInternal(const std::shared_ptr<SkinnedMesh> &mesh)
     mesh->Draw();
 }
 
-void RenderLayer::DrawGizmoMeshInstanced(
-    bool depthTest,
-    const std::shared_ptr<Mesh> &mesh,
-    const glm::vec4 &color,
-    const glm::mat4 &model,
-    const std::vector<glm::mat4> &matrices,
-    const glm::mat4 &scaleMatrix)
-{
-    if (mesh == nullptr || matrices.empty())
-        return;
-    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-    if (!depthTest)
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    else
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    mesh->Enable();
-    DefaultResources::GizmoInstancedProgram->Bind();
-    DefaultResources::GizmoInstancedProgram->SetFloat4("surfaceColor", color);
-    DefaultResources::GizmoInstancedProgram->SetFloat4x4("model", model);
-    DefaultResources::GizmoInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-    m_drawCall++;
-    m_triangles += mesh->GetTriangleAmount() * matrices.size();
-    mesh->DrawInstanced(matrices);
-}
-
-void RenderLayer::DrawGizmoMeshInstancedColored(
-    bool depthTest,
-    const std::shared_ptr<Mesh> &mesh,
-    const std::vector<glm::vec4> &colors,
-    const std::vector<glm::mat4> &matrices,
-    const glm::mat4 &model,
-    const glm::mat4 &scaleMatrix)
-{
-    if (mesh == nullptr || matrices.empty() || colors.empty() || matrices.size() != colors.size())
-        return;
-    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-    if (!depthTest)
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    else
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    mesh->Enable();
-    const auto vao = mesh->Vao();
-    const OpenGLUtils::GLVBO colorsBuffer;
-    colorsBuffer.SetData(static_cast<GLsizei>(matrices.size()) * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
-    vao->EnableAttributeArray(11);
-    vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
-    vao->SetAttributeDivisor(11, 1);
-
-    DefaultResources::GizmoInstancedColoredProgram->Bind();
-    DefaultResources::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
-    DefaultResources::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-    m_drawCall++;
-    m_triangles += mesh->GetTriangleAmount() * matrices.size();
-    mesh->DrawInstanced(matrices);
-    OpenGLUtils::GLVAO::BindDefault();
-}
-
-void RenderLayer::DrawGizmoMesh(
-    bool depthTest,
-    const std::shared_ptr<Mesh> &mesh,
-    const glm::vec4 &color,
-    const glm::mat4 &model,
-    const glm::mat4 &scaleMatrix)
-{
-    if (mesh == nullptr)
-        return;
-    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-    if (!depthTest)
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    else
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    DefaultResources::GizmoProgram->Bind();
-    DefaultResources::GizmoProgram->SetFloat4("surfaceColor", color);
-    DefaultResources::GizmoProgram->SetFloat4x4("model", model);
-    DefaultResources::GizmoProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-
-    m_drawCall++;
-    m_triangles += mesh->GetTriangleAmount();
-    mesh->Draw();
-}
-
-void RenderLayer::DrawGizmoMeshVertexColored(
-    bool depthTest,
-    const std::shared_ptr<Mesh> &mesh,
-    const glm::mat4 &model,
-    const glm::mat4 &scaleMatrix)
-{
-    if (mesh == nullptr)
-        return;
-    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-    if (!depthTest)
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    else
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    DefaultResources::GizmoVertexColoredProgram->Bind();
-    DefaultResources::GizmoVertexColoredProgram->SetFloat4x4("model", model);
-    DefaultResources::GizmoVertexColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-
-    m_drawCall++;
-    m_triangles += mesh->GetTriangleAmount();
-    mesh->Draw();
-}
-
-void RenderLayer::DrawGizmoMeshNormalColored(
-    bool depthTest,
-    const std::shared_ptr<Mesh> &mesh,
-    const glm::mat4 &model,
-    const glm::mat4 &scaleMatrix)
-{
-    if (mesh == nullptr)
-        return;
-    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, true);
-    OpenGLUtils::SetCullFace(OpenGLCullFace::Back);
-    if (!depthTest)
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, false);
-    else
-        OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
-    OpenGLUtils::SetPolygonMode(OpenGLPolygonMode::Fill);
-    OpenGLUtils::SetEnable(OpenGLCapability::Blend, true);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    DefaultResources::GizmoNormalColoredProgram->Bind();
-    DefaultResources::GizmoNormalColoredProgram->SetFloat4x4("model", model);
-    DefaultResources::GizmoNormalColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-
-    m_drawCall++;
-    m_triangles += mesh->GetTriangleAmount();
-    mesh->Draw();
-}
 #pragma endregion
 #pragma region Status
 
@@ -1814,7 +1611,13 @@ size_t RenderLayer::DrawCall()
 {
     return m_drawCall;
 }
-RenderLayer::RenderLayer()
-{
-}
+
 #pragma endregion
+void DrawSettings::ApplySettings() const
+{
+    OpenGLUtils::SetEnable(OpenGLCapability::CullFace, m_cullFace);
+    OpenGLUtils::SetCullFace(m_cullFaceMode);
+    OpenGLUtils::SetPolygonMode(m_polygonMode);
+    OpenGLUtils::SetEnable(OpenGLCapability::Blend, m_blending);
+    OpenGLUtils::SetBlendFunc(m_blendingSrcFactor, m_blendingDstFactor);
+}

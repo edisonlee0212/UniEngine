@@ -57,7 +57,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
 
     //Need serialize
     std::vector<unsigned> m_boneAnimatorIndices;
-    static void GenerateMatrices();
+    static void TryInitialize();
     static void UploadBones(const std::vector<glm::mat4> &matrices);
     void OnInspect() override;
     [[nodiscard]] glm::vec3 GetCenter() const;
