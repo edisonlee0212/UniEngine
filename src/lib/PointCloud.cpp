@@ -9,6 +9,8 @@
 #include "Tinyply.hpp"
 #include "ProjectManager.hpp"
 #include "DefaultResources.hpp"
+#include "Graphics.hpp"
+#include "EditorLayer.hpp"
 using namespace UniEngine;
 using namespace tinyply;
 void PointCloud::Load(const std::filesystem::path &path)
@@ -76,7 +78,7 @@ void PointCloud::Load(const std::filesystem::path &path)
 
         try
         {
-            colors = file.request_properties_from_element("vertex", {"red", "green", "blue", "alpha"});
+            colors = file.request_properties_from_element("vertex", {"red", "green", "blue"});
         }
         catch (const std::exception &e)
         {
@@ -155,8 +157,8 @@ void PointCloud::Load(const std::filesystem::path &path)
                 for (int i = 0; i < vertices->count; i++)
                 {
                     m_points[i].x = points[i].x;
-                    m_points[i].y = points[i].z;
-                    m_points[i].z = points[i].y;
+                    m_points[i].y = points[i].y;
+                    m_points[i].z = points[i].z;
                 }
             }
             else if (vertices->t == tinyply::Type::FLOAT32)
@@ -169,39 +171,41 @@ void PointCloud::Load(const std::filesystem::path &path)
                 for (int i = 0; i < vertices->count; i++)
                 {
                     m_points[i].x = points[i].x;
-                    m_points[i].y = points[i].z;
-                    m_points[i].z = points[i].y;
+                    m_points[i].y = points[i].y;
+                    m_points[i].z = points[i].z;
                 }
             }
         }
         if(m_hasColors)
         {
             const size_t numVerticesBytes = colors->buffer.size_bytes();
-            if (vertices->t == tinyply::Type::UINT8)
+            if (colors->t == tinyply::Type::UINT8)
             {
                 std::vector<unsigned char> points;
-                points.resize(vertices->count * 3);
-                m_colors.resize(vertices->count);
-                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
-                for (int i = 0; i < vertices->count; i++)
+                points.resize(colors->count * 3);
+                m_colors.resize(colors->count);
+                std::memcpy(points.data(), colors->buffer.get(), numVerticesBytes);
+                for (int i = 0; i < colors->count; i++)
                 {
-                    m_colors[i].x = points[3 * i];
-                    m_colors[i].y = points[3 * i + 1];
-                    m_colors[i].z = points[3 * i + 2];
+                    m_colors[i].x = points[3 * i] / 255.0f;
+                    m_colors[i].y = points[3 * i + 1] / 255.0f;
+                    m_colors[i].z = points[3 * i + 2] / 255.0f;
+                    m_colors[i].w = 1.0f;
                 }
             }
-            else if (vertices->t == tinyply::Type::FLOAT32)
+            else if (colors->t == tinyply::Type::FLOAT32)
             {
                 std::vector<glm::vec3> points;
-                points.resize(vertices->count);
-                m_colors.resize(vertices->count);
-                std::memcpy(points.data(), vertices->buffer.get(), numVerticesBytes);
+                points.resize(colors->count);
+                m_colors.resize(colors->count);
+                std::memcpy(points.data(), colors->buffer.get(), numVerticesBytes);
 
-                for (int i = 0; i < vertices->count; i++)
+                for (int i = 0; i < colors->count; i++)
                 {
                     m_colors[i].x = points[i].x;
-                    m_colors[i].y = points[i].z;
-                    m_colors[i].z = points[i].y;
+                    m_colors[i].y = points[i].y;
+                    m_colors[i].z = points[i].z;
+                    m_colors[i].w = 1.0f;
                 }
             }
         }
@@ -220,11 +224,20 @@ void PointCloud::OnCreate()
 void PointCloud::OnInspect()
 {
     float speed = 0.1f;
-
+    ImGui::Text("Has Colors: %s", (m_hasColors ? "True" : "False"));
+    ImGui::Text("Has Positions: %s", (m_hasPositions ? "True" : "False"));
+    ImGui::Text("Has Normals: %s", (m_hasNormals ? "True" : "False"));
     ImGui::DragScalarN("Offset", ImGuiDataType_Double, &m_offset.x, 3);
     ImGui::Text(("Original amount: " + std::to_string(m_points.size())).c_str());
     ImGui::DragFloat("Point size", &m_pointSize, 0.01f, 0.01f, 100.0f);
     ImGui::DragFloat("Compress factor", &m_compressFactor, 0.001f, 0.0001f, 10.0f);
+
+    static bool debugRendering = false;
+    ImGui::Checkbox("Debug Rendering", &debugRendering);
+    if(debugRendering){
+        auto editorLayer = Application::GetLayer<EditorLayer>();
+        if(editorLayer) DebugRendering(DefaultResources::Primitives::Cube, editorLayer->m_sceneCamera, editorLayer->m_sceneCameraPosition, editorLayer->m_sceneCameraRotation, m_pointSize);
+    }
 
     if (ImGui::Button("Apply compressed"))
     {
@@ -247,7 +260,7 @@ void PointCloud::OnInspect()
             {
                 UNIENGINE_ERROR("Failed to load from " + filePath.string());
             }
-        });
+        }, false);
     FileUtils::SaveFile(
         ("Save Compressed to PLY##Particles"), "PointCloud", {".ply"}, [&](const std::filesystem::path &filePath) {
             try
@@ -259,7 +272,7 @@ void PointCloud::OnInspect()
             {
                 UNIENGINE_ERROR("Failed to save to " + filePath.string());
             }
-        });
+        }, false);
     if (ImGui::Button("Clear all points"))
         m_points.clear();
 }
@@ -423,12 +436,12 @@ void PointCloud::Deserialize(const YAML::Node &in)
 
     if (in["m_colors"])
     {
-        m_hasPositions = true;
+        m_hasColors = true;
         auto vertexData = in["m_colors"].as<YAML::Binary>();
         m_colors.resize(vertexData.size() / sizeof(glm::vec3));
         std::memcpy(m_colors.data(), vertexData.data(), vertexData.size());
     }else{
-        m_hasPositions = false;
+        m_hasColors = false;
     }
 }
 void PointCloud::ApplyOriginal()
@@ -448,6 +461,21 @@ void PointCloud::ApplyOriginal()
     }
     particleMatrices->Update();
 }
+
+void PointCloud::DebugRendering(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Camera> &camera, const glm::vec3 &cameraPosition,
+                                const glm::quat &cameraRotation, float pointSize) const
+{
+    std::vector<glm::mat4> matrices;
+    matrices.resize(m_points.size());
+    for (int i = 0; i < matrices.size(); i++)
+    {
+        matrices[i] = glm::translate(glm::vec3(m_points[i] + m_offset)) * glm::scale(glm::vec3(m_pointSize));
+
+    }
+    if(m_hasColors) Gizmos::DrawGizmoMeshInstancedColored(mesh, camera, cameraPosition, cameraRotation, m_colors, matrices, glm::mat4(1.0f), pointSize);
+    else Gizmos::DrawGizmoMeshInstanced(mesh, camera, cameraPosition, cameraRotation, glm::vec4(1.0f, 1.0f, 1.0f, 0.8f), matrices, glm::mat4(1.0f), pointSize);
+}
+
 void PointCloud::Save(const std::filesystem::path &path)
 {
     std::filebuf fb_binary;
@@ -512,3 +540,4 @@ void PointCloud::Crop(std::vector<glm::dvec3>& points, const glm::dvec3& min, co
         }
     }
 }
+

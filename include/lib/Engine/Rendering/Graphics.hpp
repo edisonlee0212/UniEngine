@@ -21,7 +21,6 @@ struct GizmoSettings{
 class UNIENGINE_API Graphics
 {
   public:
-#pragma region Render API
     /**
      * DrawMeshInternal draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be
      * affected by Projectors - just like it was part of some game object.
@@ -81,9 +80,6 @@ class UNIENGINE_API Graphics
         const glm::vec2 &size,
         const Camera &cameraComponent);
     */
-#pragma endregion
-
-#pragma region Class members
 
 #pragma region Render
 

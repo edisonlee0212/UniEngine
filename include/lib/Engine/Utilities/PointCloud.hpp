@@ -1,6 +1,8 @@
 #pragma once
-#include <Application.hpp>
-#include <Entity.hpp>
+#include "Application.hpp"
+#include "Entity.hpp"
+#include "Camera.hpp"
+#include "Mesh.hpp"
 namespace UniEngine
 {
 
@@ -15,7 +17,7 @@ class UNIENGINE_API PointCloud : public IAsset
     bool m_hasColors = false;
     std::vector<glm::dvec3> m_points;
     std::vector<glm::dvec3> m_normals;
-    std::vector<glm::vec3> m_colors;
+    std::vector<glm::vec4> m_colors;
     float m_pointSize = 0.01f;
     float m_compressFactor = 0.01f;
     void OnCreate() override;
@@ -29,6 +31,7 @@ class UNIENGINE_API PointCloud : public IAsset
     void Crop(std::vector<glm::dvec3>& points, const glm::dvec3& min, const glm::dvec3& max);
     void Serialize(YAML::Emitter &out) override;
     void Deserialize(const YAML::Node &in) override;
-
+    void DebugRendering(const std::shared_ptr<Mesh> &mesh, const std::shared_ptr<Camera>& camera, const glm::vec3 &cameraPosition,
+                        const glm::quat &cameraRotation, float pointSize = 1.0f) const;
 };
 } // namespace UniEngine
