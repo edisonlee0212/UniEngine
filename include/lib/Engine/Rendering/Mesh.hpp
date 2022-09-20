@@ -1,19 +1,11 @@
 #pragma once
-#include <Core/OpenGLUtils.hpp>
-#include <IAsset.hpp>
-#include <Scene.hpp>
-#include <Transform.hpp>
-#include <uniengine_export.h>
+#include "OpenGLUtils.hpp"
+#include "IAsset.hpp"
+#include "Scene.hpp"
+#include "Transform.hpp"
+#include "Vertex.hpp"
 namespace UniEngine
 {
-struct UNIENGINE_API Vertex
-{
-    glm::vec3 m_position;
-    glm::vec3 m_normal;
-    glm::vec3 m_tangent;
-    glm::vec3 m_color = glm::vec3(1.0f);
-    glm::vec2 m_texCoords = glm::vec2(0.0f);
-};
 enum class UNIENGINE_API VertexAttribute
 {
     Position = 1,

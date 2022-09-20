@@ -5,23 +5,9 @@
 #include "Scene.hpp"
 #include "Transform.hpp"
 #include "Particles.hpp"
-#include <uniengine_export.h>
+#include "Vertex.hpp"
 namespace UniEngine
 {
-struct UNIENGINE_API SkinnedVertex
-{
-    glm::vec3 m_position;
-    glm::vec3 m_normal;
-    glm::vec3 m_tangent;
-    glm::vec3 m_color;
-    glm::vec2 m_texCoords;
-
-    glm::ivec4 m_bondId;
-    glm::vec4 m_weight;
-    glm::ivec4 m_bondId2;
-    glm::vec4 m_weight2;
-};
-
 class UNIENGINE_API SkinnedMesh : public IAsset
 {
     static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
