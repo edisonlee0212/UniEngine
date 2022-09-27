@@ -9,6 +9,7 @@
 #include <PostProcessing.hpp>
 #include <UnknownPrivateComponent.hpp>
 #include "Prefab.hpp"
+#include "StrandsRenderer.hpp"
 using namespace UniEngine;
 
 DataComponentRegistration<Transform> TransformRegistry("Transform");
@@ -28,6 +29,7 @@ PrivateComponentRegistration<Particles> ParticlesRegistry("Particles");
 PrivateComponentRegistration<MeshRenderer> MeshRendererRegistry("MeshRenderer");
 PrivateComponentRegistration<PostProcessing> PostProcessingRegistry("PostProcessing");
 PrivateComponentRegistration<SkinnedMeshRenderer> SkinnedMeshRendererRegistry("SkinnedMeshRenderer");
+PrivateComponentRegistration<StrandsRenderer> StrandsRendererRegistry("StrandsRenderer");
 PrivateComponentRegistration<UnknownPrivateComponent> UnknownPrivateComponentRegistry("UnknownPrivateComponent");
 
 SystemRegistration<PhysicsSystem> PhysicsSystemRegistry("PhysicsSystem");
@@ -42,6 +44,7 @@ AssetRegistration<LightProbe> LightProbeReg("LightProbe", {".uelightprobe"});
 AssetRegistration<ReflectionProbe> ReflectionProbeReg("ReflectionProbe", {".uereflecprobe"});
 AssetRegistration<OpenGLUtils::GLProgram> GLProgramReg("GLProgram", {".ueglprogram"});
 AssetRegistration<OpenGLUtils::GLShader> GLShaderReg("GLShader", {".ueglshader"});
+AssetRegistration<Strands> StrandsReg("Strands", {".uestrands"});
 
 AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", {".ueenvirmap"});
 AssetRegistration<Animation> AnimationReg("Animation", {".ueanimation"});
