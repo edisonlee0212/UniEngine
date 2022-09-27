@@ -35,19 +35,21 @@ namespace UniEngine {
 
         [[nodiscard]] RadiusMode GetRadiusMode() const;
 
-        [[nodiscard]] const std::vector<int> &GetStrands() const;
+        [[nodiscard]] std::vector<int> &UnsafeGetStrands();
 
-        [[nodiscard]] const std::vector<int> &GetSegments() const;
+        [[nodiscard]] std::vector<int> &UnsafeGetSegments();
 
-        [[nodiscard]] const std::vector<glm::vec3> &GetPoints() const;
+        [[nodiscard]] std::vector<glm::vec3> &UnsafeGetPoints();
 
-        [[nodiscard]] const std::vector<float> &GetThickness() const;
+        [[nodiscard]] std::vector<float> &UnsafeGetThickness();
 
-        [[nodiscard]] const std::vector<glm::vec2> &GetStrandU() const;
+        [[nodiscard]] std::vector<glm::vec2> &UnsafeGetStrandU();
 
-        [[nodiscard]] const std::vector<int> &GetStrandIndices() const;
+        [[nodiscard]] std::vector<int> &UnsafeGetStrandIndices();
 
-        [[nodiscard]] const std::vector<glm::uvec2> &GetStrandInfos() const;
+        [[nodiscard]] std::vector<glm::uvec2> &UnsafeGetStrandInfos();
+
+        [[nodiscard]] size_t GetVersion() const;
 
     protected:
         bool LoadInternal(const std::filesystem::path &path) override;

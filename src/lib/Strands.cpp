@@ -31,31 +31,31 @@ void Strands::SetRadiusMode(Strands::RadiusMode radiusMode) { m_radiusMode = rad
 
 Strands::RadiusMode Strands::GetRadiusMode() const { return m_radiusMode; }
 
-const std::vector<int> &Strands::GetStrands() const {
+std::vector<int> &Strands::UnsafeGetStrands() {
     return m_strands;
 }
 
-const std::vector<glm::vec2> &Strands::GetStrandU() const {
+std::vector<glm::vec2> &Strands::UnsafeGetStrandU() {
     return m_strandU;
 }
 
-const std::vector<int> &Strands::GetStrandIndices() const {
+std::vector<int> &Strands::UnsafeGetStrandIndices() {
     return m_strandIndices;
 }
 
-const std::vector<glm::uvec2> &Strands::GetStrandInfos() const {
+std::vector<glm::uvec2> &Strands::UnsafeGetStrandInfos() {
     return m_strandInfos;
 }
 
-const std::vector<glm::vec3> &Strands::GetPoints() const {
+std::vector<glm::vec3> &Strands::UnsafeGetPoints() {
     return m_points;
 }
 
-const std::vector<float> &Strands::GetThickness() const {
+std::vector<float> &Strands::UnsafeGetThickness() {
     return m_thickness;
 }
 
-const std::vector<int> &Strands::GetSegments() const {
+std::vector<int> &Strands::UnsafeGetSegments() {
     return m_segments;
 }
 
@@ -92,6 +92,7 @@ void Strands::PrepareStrands() {
         firstPrimitiveIndex += info.y;                       // increment with number of primitives/segments in strand
         m_strandInfos.emplace_back(info);
     }
+    m_version++;
 }
 
 // .hair format spec here: http://www.cemyuksel.com/research/hairmodels/
@@ -207,6 +208,10 @@ bool Strands::LoadInternal(const std::filesystem::path &path) {
 
     }
     return false;
+}
+
+size_t Strands::GetVersion() const {
+    return m_version;
 }
 
 
