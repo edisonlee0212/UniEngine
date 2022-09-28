@@ -16,7 +16,7 @@ void Mesh::OnInspect()
     if(!m_vertices.empty()){
         FileUtils::SaveFile(
             "Export as OBJ",
-            "Mesh",
+            "TriangularMesh",
             {".obj"},
             [&](const std::filesystem::path &path) { Export(path); },
             false);
@@ -92,7 +92,7 @@ void Mesh::Upload()
     m_vao->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_color)));
 
     m_vao->EnableAttributeArray(4);
-    m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_texCoords)));
+    m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_texCoord)));
 #pragma endregion
     m_vao->Ebo()->SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
     m_version++;
@@ -208,9 +208,9 @@ void Mesh::RecalculateTangent()
         auto p1 = m_vertices[i1].m_position;
         auto p2 = m_vertices[i2].m_position;
         auto p3 = m_vertices[i3].m_position;
-        auto uv1 = m_vertices[i1].m_texCoords;
-        auto uv2 = m_vertices[i2].m_texCoords;
-        auto uv3 = m_vertices[i3].m_texCoords;
+        auto uv1 = m_vertices[i1].m_texCoord;
+        auto uv2 = m_vertices[i2].m_texCoord;
+        auto uv3 = m_vertices[i3].m_texCoord;
 
         auto e21 = p2 - p1;
         auto d21 = uv2 - uv1;
@@ -379,7 +379,7 @@ bool Mesh::SaveInternal(const std::filesystem::path &path)
         std::ofstream of;
         of.open(path.string(), std::ofstream::out | std::ofstream::trunc);
         if (of.is_open()) {
-            std::string start = "#Mesh exporter, by Bosheng Li";
+            std::string start = "#TriangularMesh exporter, by Bosheng Li";
             start += "\n";
             of.write(start.c_str(), start.size());
             of.flush();
@@ -409,8 +409,8 @@ bool Mesh::SaveInternal(const std::filesystem::path &path)
                 }
 
                 for (const auto &vertex : m_vertices) {
-                    data += "vt " + std::to_string(vertex.m_texCoords.x) + " " +
-                            std::to_string(vertex.m_texCoords.y) + "\n";
+                    data += "vt " + std::to_string(vertex.m_texCoord.x) + " " +
+                            std::to_string(vertex.m_texCoord.y) + "\n";
                 }
                 // data += "s off\n";
                 data += "# List of indices for faces vertices, with (x, y, z).\n";

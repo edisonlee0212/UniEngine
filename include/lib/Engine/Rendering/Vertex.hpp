@@ -10,7 +10,7 @@ namespace UniEngine
         glm::vec3 m_normal;
         glm::vec3 m_tangent;
         glm::vec3 m_color = glm::vec3(1.0f);
-        glm::vec2 m_texCoords = glm::vec2(0.0f);
+        glm::vec2 m_texCoord = glm::vec2(0.0f);
     };
     struct UNIENGINE_API SkinnedVertex
     {
@@ -18,7 +18,7 @@ namespace UniEngine
         glm::vec3 m_normal;
         glm::vec3 m_tangent;
         glm::vec3 m_color;
-        glm::vec2 m_texCoords;
+        glm::vec2 m_texCoord;
 
         glm::ivec4 m_bondId;
         glm::vec4 m_weight;

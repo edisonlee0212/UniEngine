@@ -16,7 +16,7 @@ void SkinnedMesh::OnInspect()
     if(!m_skinnedVertices.empty()){
         FileUtils::SaveFile(
             "Export as OBJ",
-            "Mesh",
+            "TriangularMesh",
             {".obj"},
             [&](const std::filesystem::path &path) { Export(path); },
             false);
@@ -30,7 +30,7 @@ bool SkinnedMesh::SaveInternal(const std::filesystem::path &path)
         std::ofstream of;
         of.open(path.string(), std::ofstream::out | std::ofstream::trunc);
         if (of.is_open()) {
-            std::string start = "#Mesh exporter, by Bosheng Li";
+            std::string start = "#TriangularMesh exporter, by Bosheng Li";
             start += "\n";
             of.write(start.c_str(), start.size());
             of.flush();
@@ -60,8 +60,8 @@ bool SkinnedMesh::SaveInternal(const std::filesystem::path &path)
                 }
 
                 for (const auto &vertex : m_skinnedVertices) {
-                    data += "vt " + std::to_string(vertex.m_texCoords.x) + " " +
-                            std::to_string(vertex.m_texCoords.y) + "\n";
+                    data += "vt " + std::to_string(vertex.m_texCoord.x) + " " +
+                            std::to_string(vertex.m_texCoord.y) + "\n";
                 }
                 // data += "s off\n";
                 data += "# List of indices for faces vertices, with (x, y, z).\n";
@@ -159,7 +159,7 @@ void SkinnedMesh::Upload()
         3, 3, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_color)));
     m_vao->EnableAttributeArray(4);
     m_vao->SetAttributePointer(
-        4, 2, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_texCoords)));
+        4, 2, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_texCoord)));
 
     m_vao->EnableAttributeArray(5);
     m_vao->SetAttributeIntPointer(5, 4, GL_INT, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_bondId)));
@@ -288,9 +288,9 @@ void SkinnedMesh::RecalculateTangent()
         auto p1 = m_skinnedVertices[i1].m_position;
         auto p2 = m_skinnedVertices[i2].m_position;
         auto p3 = m_skinnedVertices[i3].m_position;
-        auto uv1 = m_skinnedVertices[i1].m_texCoords;
-        auto uv2 = m_skinnedVertices[i2].m_texCoords;
-        auto uv3 = m_skinnedVertices[i3].m_texCoords;
+        auto uv1 = m_skinnedVertices[i1].m_texCoord;
+        auto uv2 = m_skinnedVertices[i2].m_texCoord;
+        auto uv3 = m_skinnedVertices[i3].m_texCoord;
 
         auto e21 = p2 - p1;
         auto d21 = uv2 - uv1;

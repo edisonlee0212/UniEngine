@@ -523,12 +523,12 @@ std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
         {
             v2.x = importerMesh->mTextureCoords[0][i].x;
             v2.y = importerMesh->mTextureCoords[0][i].y;
-            vertex.m_texCoords = v2;
+            vertex.m_texCoord = v2;
             mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
         else
         {
-            vertex.m_texCoords = glm::vec2(0.0f, 0.0f);
+            vertex.m_texCoord = glm::vec2(0.0f, 0.0f);
             mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
         vertices[i] = vertex;
@@ -595,12 +595,12 @@ std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
         {
             v2.x = importerMesh->mTextureCoords[0][i].x;
             v2.y = importerMesh->mTextureCoords[0][i].y;
-            vertex.m_texCoords = v2;
+            vertex.m_texCoord = v2;
             mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
         else
         {
-            vertex.m_texCoords = glm::vec2(0.0f, 0.0f);
+            vertex.m_texCoord = glm::vec2(0.0f, 0.0f);
             mask = mask | static_cast<unsigned>(VertexAttribute::TexCoord);
         }
         vertices[i] = vertex;

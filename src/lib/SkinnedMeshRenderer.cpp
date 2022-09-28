@@ -96,7 +96,7 @@ void SkinnedMeshRenderer::OnInspect()
         ImGui::Checkbox("Receive shadow##SkinnedMeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##SkinnedMeshRenderer", &m_castShadow);
     Editor::DragAndDropButton<Material>(m_material, "Material");
-    Editor::DragAndDropButton<SkinnedMesh>(m_skinnedMesh, "Skinned Mesh");
+    Editor::DragAndDropButton<SkinnedMesh>(m_skinnedMesh, "Skinned TriangularMesh");
     if (m_skinnedMesh.Get<SkinnedMesh>())
     {
         if (ImGui::TreeNode("Skinned Mesh:##SkinnedMeshRenderer"))

@@ -51,7 +51,7 @@ namespace physx
 #define PX_ENABLE_DYNAMIC_MESH_RTREE 1
 
 /**
-\brief Mesh midphase structure. This enum is used to select the desired acceleration structure for midphase queries
+\brief TriangularMesh midphase structure. This enum is used to select the desired acceleration structure for midphase queries
  (i.e. raycasts, overlaps, sweeps vs triangle meshes).
 
  The PxMeshMidPhase::eBVH33 structure is the one used in recent PhysX versions (up to PhysX 3.3). It has great performance and is
@@ -166,7 +166,7 @@ class PxTriangleMesh : public PxBase
 	\brief Refits BVH for mesh vertices.
 
 	This function will refit the mesh BVH to correctly enclose the new positions updated by getVerticesForModification.
-	Mesh BVH will not be reoptimized by this function so significantly different new positions will cause significantly reduced performance.	
+	TriangularMesh BVH will not be reoptimized by this function so significantly different new positions will cause significantly reduced performance.
 
 	\return New bounds for the entire mesh.
 

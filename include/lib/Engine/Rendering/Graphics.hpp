@@ -24,7 +24,7 @@ class UNIENGINE_API Graphics
     /**
      * DrawMeshInternal draws a mesh for one frame. The mesh will be affected by the lights, can cast and receive shadows and be
      * affected by Projectors - just like it was part of some game object.
-     * @param mesh The Mesh to draw.
+     * @param mesh The TriangularMesh to draw.
      * @param material The material to use.
      * @param model The transform of the mesh
      * @param cameraComponent The target camera to draw the mesh.
@@ -41,7 +41,7 @@ class UNIENGINE_API Graphics
     /**
      * Draws the same mesh multiple times using GPU instancing. Use this function in situations where you want to draw
      * the same mesh for a particular amount of times using an instanced shader.
-     * @param mesh The Mesh to draw.
+     * @param mesh The TriangularMesh to draw.
      * @param material The material to use. The program should contain instanced shader.
      * @param model The transform of the group
      * @param matrices The transform the each individual instances
