@@ -4,9 +4,9 @@
 
 #include "Strands.hpp"
 #include "Console.hpp"
-
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
-
+AssetRegistration<Strands> StrandsReg("Strands", {".uestrands", ".hair"});
 unsigned int Strands::CurveDegree() const {
     switch (m_splineMode) {
         case SplineMode::LINEAR_BSPLINE:

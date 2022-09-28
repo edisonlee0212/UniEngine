@@ -74,7 +74,7 @@ struct PxBVH33MidphaseDesc
 	PxF32							meshSizePerformanceTradeOff;
 
 	/**
-	\brief TriangularMesh cooking hint. Used to specify mesh hierarchy construction preference.
+	\brief Mesh cooking hint. Used to specify mesh hierarchy construction preference.
 
 	<b>Default value:</b> PxMeshCookingHint::eSIM_PERFORMANCE
 	*/

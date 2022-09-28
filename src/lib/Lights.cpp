@@ -1,5 +1,9 @@
-#include <Lights.hpp>
+#include "Lights.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
+PrivateComponentRegistration<SpotLight> SpotLightRegistry("SpotLight");
+PrivateComponentRegistration<PointLight> PointLightRegistry("PointLight");
+PrivateComponentRegistration<DirectionalLight> DirectionalLightRegistry("DirectionalLight");
 
 void SpotLight::OnInspect()
 {

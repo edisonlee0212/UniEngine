@@ -8,8 +8,9 @@
 #include <ProjectManager.hpp>
 #include <SkinnedMeshRenderer.hpp>
 #include <Utilities.hpp>
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
-
+AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab", ".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
 void Prefab::OnCreate()
 {
     m_name = "New Prefab";

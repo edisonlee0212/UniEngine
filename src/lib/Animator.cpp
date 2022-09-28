@@ -2,7 +2,10 @@
 #include "Graphics.hpp"
 #include <Animator.hpp>
 #include "Editor.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
+PrivateComponentRegistration<Animator> AnimatorRegistry("Animator");
+
 bool Animator::AnimatedCurrentFrame() const
 {
     return m_animatedCurrentFrame;

@@ -891,7 +891,7 @@ void DefaultResources::LoadIcons()
 
     texture2D = std::make_shared<Texture2D>();
     texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/mesh.png");
-    editorManager.m_assetsIcons["TriangularMesh"] = texture2D;
+    editorManager.m_assetsIcons["Mesh"] = texture2D;
 
     texture2D = std::make_shared<Texture2D>();
     texture2D->LoadInternal(std::filesystem::path("./DefaultResources") / "Editor/Assets/prefab.png");

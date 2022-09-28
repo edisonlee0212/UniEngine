@@ -3,7 +3,14 @@
 #include "TransformLayer.hpp"
 #include "Application.hpp"
 #include "Scene.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
+
+DataComponentRegistration<Transform> TransformRegistry("Transform");
+DataComponentRegistration<GlobalTransform> GlobalTransformRegistry("GlobalTransform");
+DataComponentRegistration<GlobalTransformUpdateFlag> GlobalTransformUpdateFlagRegistry("GlobalTransformUpdateFlag");
+
+
 void TransformLayer::OnCreate()
 {
     m_transformQuery = Entities::CreateEntityQuery();

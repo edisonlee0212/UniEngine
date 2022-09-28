@@ -11,8 +11,12 @@
 #include "DefaultResources.hpp"
 #include "Graphics.hpp"
 #include "EditorLayer.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
 using namespace tinyply;
+
+AssetRegistration<PointCloud> PointCloudRegistry("PointCloud", {".uepc"});
+
 void PointCloud::Load(const std::filesystem::path &path)
 {
     std::unique_ptr<std::istream> file_stream;

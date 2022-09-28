@@ -3,7 +3,9 @@
 #include <PhysicsLayer.hpp>
 #include "Engine/Rendering/Graphics.hpp"
 #include "Application.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
+AssetRegistration<Collider> ColliderReg("Collider", {"uecollider"});
 void Collider::OnCreate()
 {
     auto physicsLayer = Application::GetLayer<PhysicsLayer>();

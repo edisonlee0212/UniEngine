@@ -253,14 +253,14 @@ struct PxCookingParams
 	PxTolerancesScale scale;
 
 	/**
-	\brief TriangularMesh pre-processing parameters. Used to control options like whether the mesh cooking performs vertex welding before cooking.
+	\brief Mesh pre-processing parameters. Used to control options like whether the mesh cooking performs vertex welding before cooking.
 
 	<b>Default value:</b> 0
 	*/
 	PxMeshPreprocessingFlags	meshPreprocessParams;
 
 	/**
-	\brief TriangularMesh weld tolerance. If mesh welding is enabled, this controls the distance at which vertices are welded.
+	\brief Mesh weld tolerance. If mesh welding is enabled, this controls the distance at which vertices are welded.
 	If mesh welding is not enabled, this value defines the acceptance distance for mesh validation. Provided no two vertices are within this distance, the mesh is considered to be
 	clean. If not, a warning will be emitted. Having a clean, welded mesh is required to achieve the best possible performance.
 

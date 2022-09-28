@@ -27,7 +27,7 @@ void MeshRenderer::OnInspect()
         ImGui::Checkbox("Receive shadow##MeshRenderer", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##MeshRenderer", &m_castShadow);
     Editor::DragAndDropButton<Material>(m_material, "Material");
-    Editor::DragAndDropButton<Mesh>(m_mesh, "TriangularMesh");
+    Editor::DragAndDropButton<Mesh>(m_mesh, "Mesh");
     if (m_mesh.Get<Mesh>())
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))

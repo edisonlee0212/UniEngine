@@ -94,9 +94,9 @@ public:
 
 	/**
 	\brief Constructor.
-	\param[in] mesh		TriangularMesh pointer. May be NULL, though this will not make the object valid for shape construction.
+	\param[in] mesh		Mesh pointer. May be NULL, though this will not make the object valid for shape construction.
 	\param[in] scaling	Scale factor.
-	\param[in] flags	TriangularMesh flags.
+	\param[in] flags	Mesh flags.
 	\
 	*/
 	PX_INLINE PxConvexMeshGeometry(	PxConvexMesh* mesh, 
@@ -124,7 +124,7 @@ public:
 public:
 	PxMeshScale					scale;				//!< The scaling transformation (from vertex space to shape space).
 	PxConvexMesh*				convexMesh;			//!< A reference to the convex mesh object.
-	PxConvexMeshGeometryFlags	meshFlags;			//!< TriangularMesh flags.
+	PxConvexMeshGeometryFlags	meshFlags;			//!< Mesh flags.
 	PxPadding<3>				paddingFromFlags;	//!< padding for mesh flags
 };
 

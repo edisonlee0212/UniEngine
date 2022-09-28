@@ -2,6 +2,7 @@
 #include "Editor.hpp"
 #include "Cubemap.hpp"
 #include <EnvironmentalMap.hpp>
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
 
 bool EnvironmentalMap::IsReady() const
@@ -34,3 +35,5 @@ void EnvironmentalMap::OnInspect()
         targetTexture.Clear();
     }
 }
+
+AssetRegistration<EnvironmentalMap> EnvironmentalMapReg("EnvironmentalMap", {".ueenvirmap"});

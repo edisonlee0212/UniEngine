@@ -51,7 +51,7 @@ namespace physx
 struct PxBVH34MidphaseDesc
 {
 	/**
-	\brief TriangularMesh cooking hint for max primitives per leaf limit.
+	\brief Mesh cooking hint for max primitives per leaf limit.
 	Less primitives per leaf produces larger meshes with better runtime performance 
 	and worse cooking performance. More triangles per leaf results in faster cooking speed and
 	smaller mesh sizes, but with worse runtime performance.

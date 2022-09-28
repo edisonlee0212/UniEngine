@@ -440,7 +440,7 @@ enum aiPrimitiveType {
  *  by their ID and binds them to a time offset.
 */
 struct aiAnimMesh {
-    /**Anim TriangularMesh name */
+    /**Anim Mesh name */
     C_STRUCT aiString mName;
 
     /** Replacement for aiMesh::mVertices. If this array is non-nullptr,
@@ -583,7 +583,7 @@ enum aiMorphingMethod {
 * From C++-programs you can also use the comfort functions Has*() to
 * test for the presence of various data streams.
 *
-* A TriangularMesh uses only a single material which is referenced by a material ID.
+* A Mesh uses only a single material which is referenced by a material ID.
 * @note The mPositions member is usually not optional. However, vertex positions
 * *could* be missing if the #AI_SCENE_FLAGS_INCOMPLETE flag is set in
 * @code

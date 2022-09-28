@@ -67,7 +67,7 @@ void Particles::OnInspect()
     }
 
     Editor::DragAndDropButton<Material>(m_material, "Material");
-    Editor::DragAndDropButton<Mesh>(m_mesh, "TriangularMesh");
+    Editor::DragAndDropButton<Mesh>(m_mesh, "Mesh");
 }
 
 void Particles::Serialize(YAML::Emitter &out)

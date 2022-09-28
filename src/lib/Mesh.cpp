@@ -16,7 +16,7 @@ void Mesh::OnInspect()
     if(!m_vertices.empty()){
         FileUtils::SaveFile(
             "Export as OBJ",
-            "TriangularMesh",
+            "Mesh",
             {".obj"},
             [&](const std::filesystem::path &path) { Export(path); },
             false);
@@ -379,7 +379,7 @@ bool Mesh::SaveInternal(const std::filesystem::path &path)
         std::ofstream of;
         of.open(path.string(), std::ofstream::out | std::ofstream::trunc);
         if (of.is_open()) {
-            std::string start = "#TriangularMesh exporter, by Bosheng Li";
+            std::string start = "#Mesh exporter, by Bosheng Li";
             start += "\n";
             of.write(start.c_str(), start.size());
             of.flush();

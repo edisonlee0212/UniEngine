@@ -3,7 +3,11 @@
 #include "StrandsRenderer.hpp"
 #include "Graphics.hpp"
 #include "Strands.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
+
+PrivateComponentRegistration<StrandsRenderer> StrandsRendererRegistry("StrandsRenderer");
+
 void StrandsRenderer::RenderBound(glm::vec4 &color)
 {
     const auto transform = GetScene()->GetDataComponent<GlobalTransform>(GetOwner()).m_value;

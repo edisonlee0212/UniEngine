@@ -6,8 +6,9 @@
 #include "Entities.hpp"
 #include "EntityMetadata.hpp"
 #include "EnvironmentalMap.hpp"
+#include "ClassRegistry.hpp"
 using namespace UniEngine;
-
+AssetRegistration<Scene> SceneReg("Scene", {".uescene"});
 void Scene::Purge()
 {
     m_sceneDataStorage.m_entityPrivateComponentStorage = PrivateComponentStorage();

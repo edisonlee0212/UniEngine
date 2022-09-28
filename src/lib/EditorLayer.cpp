@@ -1357,7 +1357,7 @@ void EditorLayer::MainCameraWindow()
 void EditorLayer::CameraWindowDragAndDrop()
 {
     AssetRef assetRef;
-    if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "TriangularMesh", "Cubemap", "EnvironmentalMap"}))
+    if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Cubemap", "EnvironmentalMap"}))
     {
         auto scene = GetScene();
         auto asset = assetRef.Get<IAsset>();
@@ -1372,7 +1372,7 @@ void EditorLayer::CameraWindowDragAndDrop()
             EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
             std::dynamic_pointer_cast<Prefab>(asset)->ToEntity(scene);
         }
-        else if (asset->GetTypeName() == "TriangularMesh")
+        else if (asset->GetTypeName() == "Mesh")
         {
             Entity entity = scene->CreateEntity("Mesh");
             auto meshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(entity).lock();

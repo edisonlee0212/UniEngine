@@ -57,7 +57,7 @@ extern "C" {
 #endif
 
 // Name for default materials (2nd is used if meshes have UV coords)
-#define AI_DEFAULT_MATERIAL_NAME "SurfaceMaterial"
+#define AI_DEFAULT_MATERIAL_NAME "DefaultMaterial"
 
 // ---------------------------------------------------------------------------
 /** @brief Defines how the Nth texture of a specific type is combined with
