@@ -70,13 +70,14 @@ void DrawSettings::Load(const std::string &name, const YAML::Node &in)
 {
     if (in[name])
     {
-        m_cullFace = in["m_cullFace"].as<bool>();
-        m_cullFaceMode = (OpenGLCullFace)in["m_cullFaceMode"].as<unsigned>();
-        m_polygonMode = (OpenGLPolygonMode)in["m_polygonMode"].as<unsigned>();
+        const auto& drawSettings = in[name];
+        m_cullFace = drawSettings["m_cullFace"].as<bool>();
+        m_cullFaceMode = (OpenGLCullFace)drawSettings["m_cullFaceMode"].as<unsigned>();
+        m_polygonMode = (OpenGLPolygonMode)drawSettings["m_polygonMode"].as<unsigned>();
 
-        m_blending = in["m_blending"].as<bool>();
-        m_blendingSrcFactor = (OpenGLBlendFactor)in["m_blendingSrcFactor"].as<unsigned>();
-        m_blendingDstFactor = (OpenGLBlendFactor)in["m_blendingDstFactor"].as<unsigned>();
+        m_blending = drawSettings["m_blending"].as<bool>();
+        m_blendingSrcFactor = (OpenGLBlendFactor)drawSettings["m_blendingSrcFactor"].as<unsigned>();
+        m_blendingDstFactor = (OpenGLBlendFactor)drawSettings["m_blendingDstFactor"].as<unsigned>();
     }
 }
 
