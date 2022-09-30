@@ -9,31 +9,14 @@ namespace UniEngine {
     class UNIENGINE_API Strands : public IAsset {
     public:
         enum class SplineMode {
-            LINEAR_BSPLINE,
-            QUADRATIC_BSPLINE,
-            CUBIC_BSPLINE
-        };
-        enum class ShadeMode {
-            SEGMENT_U,
-            STRAND_U,
-            STRAND_IDX
-        };
-        enum class RadiusMode {
-            CONSTANT_R,
-            TAPERED_R
+            Linear,
+            Quadratic,
+            Cubic
         };
 
         void SetSplineMode(SplineMode splineMode);
 
         [[nodiscard]] SplineMode GetSplineMode() const;
-
-        void SetShadeMode(ShadeMode shadeMode);
-
-        [[nodiscard]] ShadeMode GetShadeMode() const;
-
-        void SetRadiusMode(RadiusMode radiusMode);
-
-        [[nodiscard]] RadiusMode GetRadiusMode() const;
 
         [[nodiscard]] std::vector<int> &UnsafeGetStrands();
 
@@ -50,6 +33,11 @@ namespace UniEngine {
         [[nodiscard]] std::vector<glm::uvec2> &UnsafeGetStrandInfos();
 
         [[nodiscard]] size_t GetVersion() const;
+
+        void OnInspect() override;
+
+        void Serialize(YAML::Emitter &out) override;
+        void Deserialize(const YAML::Node &in) override;
 
     protected:
         bool LoadInternal(const std::filesystem::path &path) override;
@@ -73,8 +61,6 @@ namespace UniEngine {
         std::vector<glm::vec3> m_points;
         std::vector<float> m_thickness;
         
-        SplineMode m_splineMode = SplineMode::CUBIC_BSPLINE;
-        ShadeMode m_shadeMode = ShadeMode::SEGMENT_U;
-        RadiusMode m_radiusMode = RadiusMode::CONSTANT_R;
+        SplineMode m_splineMode = SplineMode::Cubic;
     };
 }

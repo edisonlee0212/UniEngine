@@ -5,31 +5,29 @@
 #include "Strands.hpp"
 #include "Console.hpp"
 #include "ClassRegistry.hpp"
+
 using namespace UniEngine;
 AssetRegistration<Strands> StrandsReg("Strands", {".uestrands", ".hair"});
+
 unsigned int Strands::CurveDegree() const {
     switch (m_splineMode) {
-        case SplineMode::LINEAR_BSPLINE:
+        case SplineMode::Linear:
             return 1;
-        case SplineMode::QUADRATIC_BSPLINE:
+        case SplineMode::Quadratic:
             return 2;
-        case SplineMode::CUBIC_BSPLINE:
+        case SplineMode::Cubic:
             return 3;
         default: UNIENGINE_ERROR("Invalid spline mode.");
     }
 }
 
-void Strands::SetSplineMode(Strands::SplineMode splineMode) { m_splineMode = splineMode; }
+void Strands::SetSplineMode(Strands::SplineMode splineMode) {
+    m_splineMode = splineMode;
+    m_saved = false;
+    PrepareStrands();
+}
 
 Strands::SplineMode Strands::GetSplineMode() const { return m_splineMode; }
-
-void Strands::SetShadeMode(Strands::ShadeMode shadeMode) { m_shadeMode = shadeMode; }
-
-Strands::ShadeMode Strands::GetShadeMode() const { return m_shadeMode; }
-
-void Strands::SetRadiusMode(Strands::RadiusMode radiusMode) { m_radiusMode = radiusMode; }
-
-Strands::RadiusMode Strands::GetRadiusMode() const { return m_radiusMode; }
 
 std::vector<int> &Strands::UnsafeGetStrands() {
     return m_strands;
@@ -93,6 +91,7 @@ void Strands::PrepareStrands() {
         m_strandInfos.emplace_back(info);
     }
     m_version++;
+    m_saved = false;
 }
 
 // .hair format spec here: http://www.cemyuksel.com/research/hairmodels/
@@ -212,6 +211,56 @@ bool Strands::LoadInternal(const std::filesystem::path &path) {
 
 size_t Strands::GetVersion() const {
     return m_version;
+}
+
+static const char *SplineModes[]{"Linear", "Quadratic", "Cubic"};
+
+void Strands::OnInspect() {
+    ImGui::Text(("Point size: " + std::to_string(m_points.size())).c_str());
+    bool changed = false;
+    if (ImGui::Combo(
+            "Spline Mode",
+            reinterpret_cast<int *>(&m_splineMode),
+            SplineModes,
+            IM_ARRAYSIZE(SplineModes))) {
+        SetSplineMode(m_splineMode);
+        changed = true;
+    }
+
+    if (changed) m_saved = false;
+}
+
+void Strands::Serialize(YAML::Emitter &out) {
+    out << YAML::Key << "m_splineMode" << YAML::Value << (int) m_splineMode;
+
+    if (!m_strands.empty() && !m_points.empty() && m_thickness.size() == m_points.size()) {
+        out << YAML::Key << "m_strands" << YAML::Value
+            << YAML::Binary((const unsigned char *) m_strands.data(), m_strands.size() * sizeof(int));
+        out << YAML::Key << "m_points" << YAML::Value
+            << YAML::Binary((const unsigned char *) m_points.data(), m_points.size() * sizeof(glm::vec3));
+        out << YAML::Key << "m_thickness" << YAML::Value
+            << YAML::Binary((const unsigned char *) m_thickness.data(), m_thickness.size() * sizeof(float));
+    }
+}
+
+void Strands::Deserialize(const YAML::Node &in) {
+    if (in["m_splineMode"]) m_splineMode = (SplineMode) in["m_splineMode"].as<int>();
+    if (in["m_strands"] && in["m_points"] && in["m_thickness"]){
+        auto strandData = in["m_vertices"].as<YAML::Binary>();
+        m_strands.resize(strandData.size() / sizeof(int));
+        std::memcpy(m_strands.data(), strandData.data(), strandData.size());
+
+        auto pointData = in["m_points"].as<YAML::Binary>();
+        m_points.resize(pointData.size() / sizeof(glm::vec3));
+        std::memcpy(m_points.data(), pointData.data(), pointData.size());
+
+        auto thicknessData = in["m_thickness"].as<YAML::Binary>();
+        m_thickness.resize(thicknessData.size() / sizeof(float));
+        std::memcpy(m_thickness.data(), thicknessData.data(), thicknessData.size());
+
+        PrepareStrands();
+    }
+
 }
 
 
