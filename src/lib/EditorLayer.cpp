@@ -1,6 +1,7 @@
 //
 // Created by lllll on 11/2/2021.
 //
+#include <StrandsRenderer.hpp>
 #include "EditorLayer.hpp"
 #include "Editor.hpp"
 #include "Inputs.hpp"
@@ -1357,7 +1358,7 @@ void EditorLayer::MainCameraWindow()
 void EditorLayer::CameraWindowDragAndDrop()
 {
     AssetRef assetRef;
-    if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Cubemap", "EnvironmentalMap"}))
+    if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Strands", "Cubemap", "EnvironmentalMap"}))
     {
         auto scene = GetScene();
         auto asset = assetRef.Get<IAsset>();
@@ -1369,17 +1370,25 @@ void EditorLayer::CameraWindowDragAndDrop()
         }
         else if (asset->GetTypeName() == "Prefab")
         {
-            EntityArchetype archetype = Entities::CreateEntityArchetype("Default", Transform(), GlobalTransform());
-            std::dynamic_pointer_cast<Prefab>(asset)->ToEntity(scene);
+            auto entity = std::dynamic_pointer_cast<Prefab>(asset)->ToEntity(scene);
+            scene->SetEntityName(entity, asset->GetTitle());
         }
         else if (asset->GetTypeName() == "Mesh")
         {
-            Entity entity = scene->CreateEntity("Mesh");
+            Entity entity = scene->CreateEntity(asset->GetTitle());
             auto meshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(entity).lock();
-            meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(std::dynamic_pointer_cast<Mesh>(asset)));
+            meshRenderer->m_mesh.Set<Mesh>(std::dynamic_pointer_cast<Mesh>(asset));
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
             meshRenderer->m_material.Set<Material>(material);
+        }else if (asset->GetTypeName() == "Strands")
+        {
+            Entity entity = scene->CreateEntity(asset->GetTitle());
+            auto strandsRenderer = scene->GetOrSetPrivateComponent<StrandsRenderer>(entity).lock();
+            strandsRenderer->m_strands.Set<Strands>(std::dynamic_pointer_cast<Strands>(asset));
+            auto material = ProjectManager::CreateTemporaryAsset<Material>();
+            material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            strandsRenderer->m_material.Set<Material>(material);
         }
         else if (asset->GetTypeName() == "EnvironmentalMap")
         {

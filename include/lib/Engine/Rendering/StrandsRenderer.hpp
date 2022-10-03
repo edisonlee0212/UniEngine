@@ -1,6 +1,7 @@
 #pragma once
 #include "Material.hpp"
 #include "Strands.hpp"
+#include "IPrivateComponent.hpp"
 namespace UniEngine {
     class UNIENGINE_API StrandsRenderer : public IPrivateComponent {
         friend class Editor;
