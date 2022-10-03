@@ -45,12 +45,8 @@ std::vector<glm::uvec2> &Strands::UnsafeGetStrandInfos() {
     return m_strandInfos;
 }
 
-std::vector<glm::vec3> &Strands::UnsafeGetPoints() {
+std::vector<StrandPoint> &Strands::UnsafeGetPoints() {
     return m_points;
-}
-
-std::vector<float> &Strands::UnsafeGetThickness() {
-    return m_thickness;
 }
 
 std::vector<int> &Strands::UnsafeGetSegments() {
@@ -187,17 +183,43 @@ bool Strands::LoadInternal(const std::filesystem::path &path) {
 
             // Points array(float)
             assert(header.hasPoints());
-            m_points = std::vector<glm::vec3>(header.numPoints);
-            input.read(reinterpret_cast<char *>( m_points.data()), header.numPoints * sizeof(glm::vec3));
+            auto points = std::vector<glm::vec3>(header.numPoints);
+            input.read(reinterpret_cast<char *>( points.data()), header.numPoints * sizeof(glm::vec3));
             assert(input);
 
             // Thickness array(float)
-            m_thickness = std::vector<float>(header.numPoints);
+            auto thickness = std::vector<float>(header.numPoints);
             if (header.hasThickness()) {
-                input.read(reinterpret_cast<char *>( m_thickness.data()), header.numPoints * sizeof(float));
+                input.read(reinterpret_cast<char *>( thickness.data()), header.numPoints * sizeof(float));
                 assert(input);
             } else {
-                std::fill(m_thickness.begin(), m_thickness.end(), header.defaultThickness);
+                std::fill(thickness.begin(), thickness.end(), header.defaultThickness);
+            }
+
+            // Color array(float)
+            auto color = std::vector<glm::vec3>(header.numPoints);
+            if (header.hasColor()) {
+                input.read(reinterpret_cast<char *>( color.data()), header.numPoints * sizeof(glm::vec3));
+                assert(input);
+            } else {
+                std::fill(color.begin(), color.end(), header.defaultColor);
+            }
+
+            // Alpha array(float)
+            auto alpha = std::vector<float>(header.numPoints);
+            if (header.hasAlpha()) {
+                input.read(reinterpret_cast<char *>( alpha.data()), header.numPoints * sizeof(float));
+                assert(input);
+            } else {
+                std::fill(alpha.begin(), alpha.end(), header.defaultAlpha);
+            }
+            m_points.resize(header.numPoints);
+            for(int i = 0; i < header.numPoints; i++){
+                m_points[i].m_position = points[i];
+                m_points[i].m_thickness = thickness[i];
+                m_points[i].m_color = glm::vec3(color[i]);
+                m_points[i].m_alpha = alpha[i];
+                m_points[i].m_texCoord = glm::vec2(0.0f);
             }
             PrepareStrands();
             return true;
@@ -233,13 +255,11 @@ void Strands::OnInspect() {
 void Strands::Serialize(YAML::Emitter &out) {
     out << YAML::Key << "m_splineMode" << YAML::Value << (int) m_splineMode;
 
-    if (!m_strands.empty() && !m_points.empty() && m_thickness.size() == m_points.size()) {
+    if (!m_strands.empty() && !m_points.empty()) {
         out << YAML::Key << "m_strands" << YAML::Value
             << YAML::Binary((const unsigned char *) m_strands.data(), m_strands.size() * sizeof(int));
         out << YAML::Key << "m_points" << YAML::Value
-            << YAML::Binary((const unsigned char *) m_points.data(), m_points.size() * sizeof(glm::vec3));
-        out << YAML::Key << "m_thickness" << YAML::Value
-            << YAML::Binary((const unsigned char *) m_thickness.data(), m_thickness.size() * sizeof(float));
+            << YAML::Binary((const unsigned char *) m_points.data(), m_points.size() * sizeof(StrandPoint));
     }
 }
 
@@ -251,16 +271,19 @@ void Strands::Deserialize(const YAML::Node &in) {
         std::memcpy(m_strands.data(), strandData.data(), strandData.size());
 
         auto pointData = in["m_points"].as<YAML::Binary>();
-        m_points.resize(pointData.size() / sizeof(glm::vec3));
+        m_points.resize(pointData.size() / sizeof(StrandPoint));
         std::memcpy(m_points.data(), pointData.data(), pointData.size());
-
-        auto thicknessData = in["m_thickness"].as<YAML::Binary>();
-        m_thickness.resize(thicknessData.size() / sizeof(float));
-        std::memcpy(m_thickness.data(), thicknessData.data(), thicknessData.size());
 
         PrepareStrands();
     }
 
+}
+
+void Strands::SetPoints(const std::vector<int> &strands, const std::vector<StrandPoint> &points, SplineMode splineMode) {
+    m_strands = strands;
+    m_points = points;
+    m_splineMode = splineMode;
+    PrepareStrands();
 }
 
 

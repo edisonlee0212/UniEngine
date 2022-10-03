@@ -3,9 +3,9 @@
 #include <Utilities.hpp>
 #include "OpenGLUtils.hpp"
 #include "IAsset.hpp"
+#include "Vertex.hpp"
 
 namespace UniEngine {
-
     class UNIENGINE_API Strands : public IAsset {
     public:
         enum class SplineMode {
@@ -22,9 +22,7 @@ namespace UniEngine {
 
         [[nodiscard]] std::vector<int> &UnsafeGetSegments();
 
-        [[nodiscard]] std::vector<glm::vec3> &UnsafeGetPoints();
-
-        [[nodiscard]] std::vector<float> &UnsafeGetThickness();
+        [[nodiscard]] std::vector<StrandPoint> &UnsafeGetPoints();
 
         [[nodiscard]] std::vector<glm::vec2> &UnsafeGetStrandU();
 
@@ -37,7 +35,11 @@ namespace UniEngine {
         void OnInspect() override;
 
         void Serialize(YAML::Emitter &out) override;
+
         void Deserialize(const YAML::Node &in) override;
+
+        void SetPoints(const std::vector<int> &strands,
+                       const std::vector<StrandPoint> &points, SplineMode splineMode = SplineMode::Linear);
 
     protected:
         bool LoadInternal(const std::filesystem::path &path) override;
@@ -52,15 +54,18 @@ namespace UniEngine {
         void PrepareStrands();
 
         size_t m_version = 0;
+        //The starting index of point where this segment starts;
         std::vector<int> m_segments;
+        //The start and end's U for current segment for entire strand.
         std::vector<glm::vec2> m_strandU;
+        //The index of strand this segment belongs.
         std::vector<int> m_strandIndices;
+        //Current strand's start index and number of segment in current strand
         std::vector<glm::uvec2> m_strandInfos;
 
         std::vector<int> m_strands;
-        std::vector<glm::vec3> m_points;
-        std::vector<float> m_thickness;
-        
+        std::vector<StrandPoint> m_points;
+
         SplineMode m_splineMode = SplineMode::Cubic;
     };
 }
