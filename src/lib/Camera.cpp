@@ -179,7 +179,7 @@ glm::vec3 Camera::GetMouseWorldPoint(GlobalTransform &ltw, glm::vec2 mousePositi
     const float halfX = static_cast<float>(m_resolutionX) / 2.0f;
     const float halfY = static_cast<float>(m_resolutionY) / 2.0f;
     const glm::vec4 start =
-        glm::vec4((mousePosition.x - halfX) / halfX, -1 * (mousePosition.y - halfY) / halfY, 0.0f, 1.0f);
+        glm::vec4(-1.0f * (mousePosition.x - halfX) / halfX, -1.0f * (mousePosition.y - halfY) / halfY, 0.0f, 1.0f);
     return start / start.w;
 }
 
@@ -202,7 +202,7 @@ Ray Camera::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) cons
     const glm::mat4 inv = glm::inverse(projection * view);
     const float halfX = static_cast<float>(m_resolutionX) / 2.0f;
     const float halfY = static_cast<float>(m_resolutionY) / 2.0f;
-    const auto realX = (mousePosition.x + halfX) / halfX;
+    const auto realX = (mousePosition.x - halfX) / halfX;
     const auto realY = (mousePosition.y - halfY) / halfY;
     if (glm::abs(realX) > 1.0f || glm::abs(realY) > 1.0f)
         return {glm::vec3(FLT_MAX), glm::vec3(FLT_MAX)};
