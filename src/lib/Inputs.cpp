@@ -41,20 +41,7 @@ glm::vec2 Inputs::GetMouseAbsolutePosition()
     return glm::vec2(x, y);
 }
 
-bool Inputs::GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos)
-{
-    ImGuiIO &io = ImGui::GetIO();
-    const auto viewPortSize = window->Size;
-    const auto overlayPos = window->Pos;
-    const ImVec2 windowPos = ImVec2(overlayPos.x + viewPortSize.x, overlayPos.y);
-    if (ImGui::IsMousePosValid())
-    {
-        pos.x = io.MousePos.x - windowPos.x;
-        pos.y = io.MousePos.y - windowPos.y - 20; // In editormanager, a 20 offset is preserved for menu bar.
-        return true;
-    }
-    return false;
-}
+
 void Inputs::PreUpdate()
 {
     auto mainCamera = Application::GetActiveScene()->m_mainCamera.Get<Camera>();
@@ -68,7 +55,13 @@ void Inputs::PreUpdate()
             {
                 if (ImGui::IsWindowFocused())
                 {
-                    GetInstance().m_mousePositionValid = GetMousePositionInternal(ImGui::GetCurrentWindowRead(), GetInstance().m_mousePosition);
+                    ImVec2 viewPortSize = ImGui::GetWindowSize();
+                    auto mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
+                    auto mp = ImGui::GetMousePos();
+                    auto wp = ImGui::GetWindowPos();
+                    mousePosition = glm::vec2(mp.x - wp.x, mp.y - wp.y - 20);
+                    GetInstance().m_mousePositionValid = !(mousePosition.x < 0 || mousePosition.y < 0 || mousePosition.x > viewPortSize.x ||
+                    mousePosition.y > viewPortSize.y);
                 }
             }
             ImGui::EndChild();

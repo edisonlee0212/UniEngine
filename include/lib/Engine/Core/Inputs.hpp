@@ -16,7 +16,6 @@ class UNIENGINE_API Inputs : public ISingleton<Inputs>
     bool m_mousePositionValid = false;
   public:
     static void PreUpdate();
-    static bool GetMousePositionInternal(ImGuiWindow *window, glm::vec2 &pos);
     static bool GetKeyInternal(int key, GLFWwindow *window);
     static bool GetMouseInternal(int button, GLFWwindow *window);
     static glm::vec2 GetMouseAbsolutePositionInternal(GLFWwindow *window);
