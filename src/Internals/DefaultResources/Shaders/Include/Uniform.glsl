@@ -107,7 +107,8 @@ layout (std140, binding = 6) uniform UE_MATERIAL_BLOCK
 	bool UE_ENABLE_SHADOW;
 
 	vec4 UE_PBR_ALBEDO;
-	vec4 UE_PBR_SSS;
+	vec4 UE_PBR_SSSC;
+	vec4 UE_PBR_SSSR;
 	float UE_PBR_METALLIC;
 	float UE_PBR_ROUGHNESS;
 	float UE_PBR_AO;

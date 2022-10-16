@@ -41,7 +41,8 @@ struct MaterialSettingsBlock {
     int m_enableShadow = true;
 
     glm::vec4 m_albedoColorVal = glm::vec4(1.0f);
-    glm::vec4 m_subsurfaceColorRadius = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+    glm::vec4 m_subsurfaceColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
+    glm::vec4 m_subsurfaceRadius = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
     float m_metallicVal = 0.5f;
     float m_roughnessVal = 0.5f;
     float m_aoVal = 1.0f;

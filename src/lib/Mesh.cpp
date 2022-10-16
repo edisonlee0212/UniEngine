@@ -352,9 +352,9 @@ void Mesh::Serialize(YAML::Emitter &out)
 
 void Mesh::Deserialize(const YAML::Node &in)
 {
-    m_mask = in["m_mask"].as<unsigned>();
-    m_offset = in["m_offset"].as<size_t>();
-    m_version = in["m_version"].as<size_t>();
+    if(in["m_mask"]) m_mask = in["m_mask"].as<unsigned>();
+    if(in["m_offset"]) m_offset = in["m_offset"].as<size_t>();
+    if(in["m_version"]) m_version = in["m_version"].as<size_t>();
 
     if(in["m_vertices"] && in["m_triangles"])
     {

@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/OpenGLUtils.hpp>
 #include <Texture2D.hpp>
+#include "MaterialProperties.hpp"
 namespace UniEngine
 {
 struct DrawSettings{
@@ -30,18 +31,11 @@ class UNIENGINE_API Material : public IAsset
     std::map<std::string, float> m_floatPropertyList;
     std::map<std::string, glm::mat4> m_float4X4PropertyList;
     DrawSettings m_drawSettings;
-    float m_metallic = 0.3f;
-    float m_roughness = 0.3f;
-    float m_ambient = 1.0f;
-    float m_emission = 0.0f;
-    glm::vec3 m_albedoColor = glm::vec3(1.0f);
-    float m_transparency = 0;
-    glm::vec3 m_subsurfaceColor = glm::vec3(1.0f);
-    float m_subsurfaceFactor = 0.0f;
-    float m_subsurfaceRadius = 0.0f;
+
+    MaterialProperties m_materialProperties;
 
     bool m_vertexColorOnly = false;
-
+    unsigned m_version = 0;
     void OnCreate() override;
     void OnInspect() override;
     void SetTexture(const TextureType &type, std::shared_ptr<Texture2D> texture);

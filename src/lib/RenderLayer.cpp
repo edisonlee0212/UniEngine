@@ -1378,12 +1378,13 @@ void RenderLayer::ApplyMaterialSettings(const std::shared_ptr<Material> &materia
         DefaultResources::Textures::MissingTexture->UnsafeGetGLTexture()->Bind(3);
     }
     m_materialSettings.m_castShadow = true;
-    m_materialSettings.m_subsurfaceColorRadius = glm::vec4(material->m_subsurfaceColor, material->m_subsurfaceRadius);
-    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_albedoColor, material->m_drawSettings.m_blending ? material->m_transparency : 1.0f);
-    m_materialSettings.m_metallicVal = material->m_metallic;
-    m_materialSettings.m_roughnessVal = material->m_roughness;
-    m_materialSettings.m_aoVal = material->m_ambient;
-    m_materialSettings.m_emissionVal = material->m_emission;
+    m_materialSettings.m_subsurfaceColor = {material->m_materialProperties.m_subsurfaceColor, 0.0f};
+    m_materialSettings.m_subsurfaceRadius = {material->m_materialProperties.m_subsurfaceRadius, 0.0f};
+    m_materialSettings.m_albedoColorVal = glm::vec4(material->m_materialProperties.m_albedoColor, material->m_drawSettings.m_blending ? material->m_materialProperties.m_transmission : 1.0f);
+    m_materialSettings.m_metallicVal = material->m_materialProperties.m_metallic;
+    m_materialSettings.m_roughnessVal = material->m_materialProperties.m_roughness;
+    m_materialSettings.m_aoVal = 1.0f;
+    m_materialSettings.m_emissionVal = material->m_materialProperties.m_emission;
 
     m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
 }
