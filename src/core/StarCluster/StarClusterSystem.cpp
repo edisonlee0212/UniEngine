@@ -415,8 +415,7 @@ void StarClusterSystem::Start()
         imr->m_material.Set<Material>(material);
         imr->m_castShadow = false;
         imr->m_receiveShadow = false;
-        material->m_ambient = 0.0f;
-        material->m_emission = 3.0f;
+        material->m_materialProperties.m_emission = 3.0f;
         imr->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
         material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
 

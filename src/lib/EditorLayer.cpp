@@ -623,7 +623,7 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
     if (enabled) {
         ImGui::PopStyleColor();
     }
-    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
+    if (!m_lockEntitySelection && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
         SetSelectedEntity(entity, false);
     }
     const bool deleted = DrawEntityMenu(enabled, entity);
@@ -706,7 +706,7 @@ void EditorLayer::OnInspect() {
                                         ImGui::PopStyleColor();
                                     }
                                     DrawEntityMenu(enabled, entity);
-                                    if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+                                    if (!m_lockEntitySelection && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
                                         SetSelectedEntity(entity, false);
                                     }
                                 }
@@ -734,6 +734,16 @@ void EditorLayer::OnInspect() {
     }
     if (scene && m_configFlags & EntityEditorSystem_EnableEntityInspector) {
         ImGui::Begin("Entity Inspector");
+        ImGui::Text("Selection:");
+        ImGui::SameLine();
+        ImGui::Checkbox("Lock", &m_lockEntitySelection);
+        ImGui::SameLine();
+        ImGui::Checkbox("Highlight", &m_highlightSelection);
+        ImGui::SameLine();
+        if(ImGui::Button("Clear")){
+            SetSelectedEntity({});
+        }
+        ImGui::Separator();
         if (scene->IsEntityValid(m_selectedEntity)) {
             std::string title = std::to_string(m_selectedEntity.GetIndex()) + ": ";
             title += scene->GetEntityName(m_selectedEntity);
@@ -1023,7 +1033,7 @@ void EditorLayer::SceneCameraWindow() {
                     mouseSelectEntity = false;
                 }
             }
-            if (m_sceneCameraWindowFocused && mouseSelectEntity) {
+            if (!m_lockEntitySelection && m_sceneCameraWindowFocused && mouseSelectEntity) {
                 if (!m_leftMouseButtonHold &&
                     !(mousePosition.x < 0 || mousePosition.y < 0 || mousePosition.x > viewPortSize.x ||
                       mousePosition.y > viewPortSize.y) &&
@@ -1055,7 +1065,7 @@ void EditorLayer::SceneCameraWindow() {
                     m_leftMouseButtonHold = true;
                 }
             }
-            HighLightEntity(m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
+            if(m_highlightSelection) HighLightEntity(m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
         }
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
@@ -1238,4 +1248,8 @@ glm::vec3 &EditorLayer::UnsafeGetPreviouslyStoredRotation() {
 
 glm::vec3 &EditorLayer::UnsafeGetPreviouslyStoredScale() {
     return m_previouslyStoredScale;
+}
+Entity EditorLayer::GetSelectedEntity() const
+{
+    return m_selectedEntity;
 }
