@@ -29,8 +29,10 @@ std::shared_ptr<IAsset> AssetRecord::GetAsset()
             retVal->Save();
         }
         m_asset = retVal;
-        ProjectManager::GetInstance().m_assetRegistry[m_assetHandle] = retVal;
-        ProjectManager::GetInstance().m_assetRecordRegistry[m_assetHandle] = m_self;
+        auto& projectManager = ProjectManager::GetInstance();
+        projectManager.m_assetRegistry[m_assetHandle] = retVal;
+        projectManager.m_residentAsset[m_assetHandle] = retVal;
+        projectManager.m_assetRecordRegistry[m_assetHandle] = m_self;
         return retVal;
     }
     return nullptr;
@@ -385,6 +387,7 @@ void Folder::DeleteAsset(const Handle &assetHandle)
     auto &projectManager = ProjectManager::GetInstance();
     auto assetRecord = m_assetRecords[assetHandle];
     projectManager.m_assetRecordRegistry.erase(assetRecord->m_assetHandle);
+    projectManager.m_residentAsset.erase(assetRecord->m_assetHandle);
     auto assetPath = assetRecord->GetAbsolutePath();
     std::filesystem::remove(assetPath);
     assetRecord->DeleteMetadata();
@@ -553,6 +556,7 @@ void Folder::RegisterAsset(
     record->m_asset = asset;
     m_assetRecords[record->m_assetHandle] = record;
     projectManager.m_assetRegistry[record->m_assetHandle] = asset;
+    projectManager.m_residentAsset[record->m_assetHandle] = asset;
     projectManager.m_assetRecordRegistry[record->m_assetHandle] = record;
     asset->m_assetRecord = record;
     asset->m_saved = false;
@@ -649,6 +653,7 @@ void ProjectManager::GetOrCreateProject(const std::filesystem::path &path)
     }
     projectManager.m_projectPath = projectAbsolutePath;
     projectManager.m_assetRegistry.clear();
+    projectManager.m_residentAsset.clear();
     projectManager.m_assetRecordRegistry.clear();
     projectManager.m_folderRegistry.clear();
     Application::Reset();

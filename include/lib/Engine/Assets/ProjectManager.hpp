@@ -97,6 +97,7 @@ class UNIENGINE_API ProjectManager : public ISingleton<ProjectManager>
     std::filesystem::path m_projectPath;
     std::optional<std::function<void()>> m_newSceneCustomizer;
     std::weak_ptr<Folder> m_currentFocusedFolder;
+    std::unordered_map<Handle, std::shared_ptr<IAsset>> m_residentAsset;
     std::unordered_map<Handle, std::weak_ptr<IAsset>> m_assetRegistry;
     std::unordered_map<Handle, std::weak_ptr<AssetRecord>> m_assetRecordRegistry;
     std::unordered_map<Handle, std::weak_ptr<Folder>> m_folderRegistry;
