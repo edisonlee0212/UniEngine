@@ -867,6 +867,7 @@ void EditorLayer::SetSelectedEntity(const Entity &entity, bool openMenu) {
     m_selectedEntityHierarchyList.clear();
     if (entity.GetIndex() == 0) {
         m_selectedEntity = Entity();
+        m_lockEntitySelection = false;
         return;
     }
     auto scene = GetScene();
@@ -1252,4 +1253,12 @@ glm::vec3 &EditorLayer::UnsafeGetPreviouslyStoredScale() {
 Entity EditorLayer::GetSelectedEntity() const
 {
     return m_selectedEntity;
+}
+
+void EditorLayer::SetLockEntitySelection(bool value) {
+    m_lockEntitySelection = value;
+}
+
+bool EditorLayer::GetLockEntitySelection() {
+    return m_lockEntitySelection;
 }

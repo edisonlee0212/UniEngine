@@ -148,6 +148,10 @@ class UNIENGINE_API EditorLayer : public ILayer
     bool MainCameraWindowFocused();
 
     bool SceneCameraWindowFocused();
+
+    void SetLockEntitySelection(bool value);
+
+    bool GetLockEntitySelection();
 };
 
 } // namespace UniEngine

@@ -101,7 +101,7 @@ class UNIENGINE_API AssetRef final
         if (in[name])
         {
             Deserialize(in[name]);
-            Update();
+            //Update();
         }
     }
 };
