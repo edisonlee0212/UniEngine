@@ -24,7 +24,7 @@ class UNIENGINE_API AssetRef final
     {
         m_assetHandle = Handle(in["m_assetHandle"].as<uint64_t>());
         m_assetTypeName = in["m_assetTypeName"].as<std::string>();
-        Update();
+        //Update();
     }
     AssetRef()
     {
