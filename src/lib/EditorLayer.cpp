@@ -238,7 +238,24 @@ void EditorLayer::PreUpdate() {
         */
         ImGui::EndMainMenuBar();
     }
-
+    m_mouseScreenPosition = glm::vec2(FLT_MAX, FLT_MIN);
+#pragma region Scene Window
+    ImVec2 viewPortSize;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
+    if (ImGui::Begin("Scene")) {
+        if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
+            // Using a Child allow to fill all the space of the window.
+            // It also allows customization
+            if (m_sceneCameraWindowFocused) {
+                auto mp = ImGui::GetMousePos();
+                auto wp = ImGui::GetWindowPos();
+                m_mouseScreenPosition = glm::vec2(mp.x - wp.x, mp.y - wp.y - 20);
+            }
+        }
+        ImGui::EndChild();
+    }
+    ImGui::End();
+    ImGui::PopStyleVar();
     RenderToSceneCamera();
 }
 
@@ -422,7 +439,8 @@ void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color) 
     DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
     DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
     DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
-    DefaultResources::m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color",
+                                                                                glm::vec4(1.0, 0.5, 0.0, 0.1));
 
     HighLightEntityPrePassHelper(entity);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -502,7 +520,8 @@ void EditorLayer::RenderToSceneCamera() {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
+                                renderCommand.m_boneMatrices.lock()->UploadBones(
+                                        renderCommand.m_skinnedMesh.lock());
                                 DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
                                 renderCommand.m_skinnedMesh.lock()->Draw();
@@ -552,7 +571,8 @@ void EditorLayer::RenderToSceneCamera() {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_boneMatrices.lock()->UploadBones(renderCommand.m_skinnedMesh.lock());
+                                renderCommand.m_boneMatrices.lock()->UploadBones(
+                                        renderCommand.m_skinnedMesh.lock());
                                 DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
                                 renderCommand.m_skinnedMesh.lock()->Draw();
@@ -605,7 +625,8 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
     }
     const bool opened = ImGui::TreeNodeEx(
             title.c_str(),
-            ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_NoAutoOpenOnLog |
+            ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_NoAutoOpenOnLog |
             (m_selectedEntity == entity ? ImGuiTreeNodeFlags_Framed : ImGuiTreeNodeFlags_FramePadding));
     if (ImGui::BeginDragDropSource()) {
         auto handle = scene->GetEntityHandle(entity);
@@ -660,7 +681,8 @@ void EditorLayer::OnInspect() {
                 "Display mode", &m_selectedHierarchyDisplayMode, HierarchyDisplayMode,
                 IM_ARRAYSIZE(HierarchyDisplayMode));
         std::string title = scene->GetTitle();
-        if (ImGui::CollapsingHeader(title.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow)) {
+        if (ImGui::CollapsingHeader(title.c_str(),
+                                    ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow)) {
             Editor::DraggableAsset(scene);
             Editor::RenameAsset(scene);
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0)) {
@@ -706,7 +728,8 @@ void EditorLayer::OnInspect() {
                                         ImGui::PopStyleColor();
                                     }
                                     DrawEntityMenu(enabled, entity);
-                                    if (!m_lockEntitySelection && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) {
+                                    if (!m_lockEntitySelection && ImGui::IsItemHovered() &&
+                                        ImGui::IsMouseClicked(0)) {
                                         SetSelectedEntity(entity, false);
                                     }
                                 }
@@ -740,7 +763,7 @@ void EditorLayer::OnInspect() {
         ImGui::SameLine();
         ImGui::Checkbox("Highlight", &m_highlightSelection);
         ImGui::SameLine();
-        if(ImGui::Button("Clear")){
+        if (ImGui::Button("Clear")) {
             SetSelectedEntity({});
         }
         ImGui::Separator();
@@ -782,7 +805,8 @@ void EditorLayer::OnInspect() {
                         info += " Size: " + std::to_string(type.m_size);
                         ImGui::Text(info.c_str());
                         ImGui::PushID(i);
-                        if (ImGui::BeginPopupContextItem(("DataComponentDeletePopup" + std::to_string(i)).c_str())) {
+                        if (ImGui::BeginPopupContextItem(
+                                ("DataComponentDeletePopup" + std::to_string(i)).c_str())) {
                             if (ImGui::Button("Remove")) {
                                 skip = true;
                                 scene->RemoveDataComponent(m_selectedEntity, type.m_typeId);
@@ -934,139 +958,136 @@ void EditorLayer::SceneCameraWindow() {
             } else {
                 ImGui::Text("No active main camera!");
             }
-            auto mousePosition = glm::vec2(FLT_MAX, FLT_MIN);
             if (m_sceneCameraWindowFocused) {
-                bool valid = true;
-                auto mp = ImGui::GetMousePos();
-                auto wp = ImGui::GetWindowPos();
-                mousePosition = glm::vec2(mp.x - wp.x, mp.y - wp.y - 20);
+#pragma region Scene Camera Controller
                 float xOffset = 0;
                 float yOffset = 0;
-                if (valid) {
-                    if (!m_startMouse) {
-                        m_lastX = mousePosition.x;
-                        m_lastY = mousePosition.y;
-                        m_startMouse = true;
-                    }
-                    xOffset = mousePosition.x - m_lastX;
-                    yOffset = -mousePosition.y + m_lastY;
-                    m_lastX = mousePosition.x;
-                    m_lastY = mousePosition.y;
-#pragma region Scene Camera Controller
-                    if (!m_rightMouseButtonHold &&
-                        !(mousePosition.x < 0 || mousePosition.y < 0 || mousePosition.x > viewPortSize.x ||
-                          mousePosition.y > viewPortSize.y) &&
-                        Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, Windows::GetWindow())) {
-                        m_rightMouseButtonHold = true;
-                    }
-                    if (m_rightMouseButtonHold && !m_lockCamera) {
-                        glm::vec3 front = m_sceneCameraRotation * glm::vec3(0, 0, -1);
-                        glm::vec3 right = m_sceneCameraRotation * glm::vec3(1, 0, 0);
-                        if (Inputs::GetKeyInternal(GLFW_KEY_W, Windows::GetWindow())) {
-                            m_sceneCameraPosition +=
-                                    front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
-                        }
-                        if (Inputs::GetKeyInternal(GLFW_KEY_S, Windows::GetWindow())) {
-                            m_sceneCameraPosition -=
-                                    front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
-                        }
-                        if (Inputs::GetKeyInternal(GLFW_KEY_A, Windows::GetWindow())) {
-                            m_sceneCameraPosition -=
-                                    right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
-                        }
-                        if (Inputs::GetKeyInternal(GLFW_KEY_D, Windows::GetWindow())) {
-                            m_sceneCameraPosition +=
-                                    right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
-                        }
-                        if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, Windows::GetWindow())) {
-                            m_sceneCameraPosition.y += m_velocity * static_cast<float>(Application::Time().DeltaTime());
-                        }
-                        if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, Windows::GetWindow())) {
-                            m_sceneCameraPosition.y -= m_velocity * static_cast<float>(Application::Time().DeltaTime());
-                        }
-                        if (xOffset != 0.0f || yOffset != 0.0f) {
-                            m_sceneCameraYawAngle += xOffset * m_sensitivity;
-                            m_sceneCameraPitchAngle += yOffset * m_sensitivity;
-                            if (m_sceneCameraPitchAngle > 89.0f)
-                                m_sceneCameraPitchAngle = 89.0f;
-                            if (m_sceneCameraPitchAngle < -89.0f)
-                                m_sceneCameraPitchAngle = -89.0f;
+                if (!m_startMouse) {
+                    m_lastX = m_mouseScreenPosition.x;
+                    m_lastY = m_mouseScreenPosition.y;
+                    m_startMouse = true;
+                }
+                xOffset = m_mouseScreenPosition.x - m_lastX;
+                yOffset = -m_mouseScreenPosition.y + m_lastY;
+                m_lastX = m_mouseScreenPosition.x;
+                m_lastY = m_mouseScreenPosition.y;
 
-                            m_sceneCameraRotation =
-                                    Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false);
-                        }
+                if (!m_rightMouseButtonHold &&
+                    !(m_mouseScreenPosition.x < 0 || m_mouseScreenPosition.y < 0 ||
+                      m_mouseScreenPosition.x > viewPortSize.x ||
+                      m_mouseScreenPosition.y > viewPortSize.y) &&
+                    Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_RIGHT, Windows::GetWindow())) {
+                    m_rightMouseButtonHold = true;
+                }
+                if (m_rightMouseButtonHold && !m_lockCamera) {
+                    glm::vec3 front = m_sceneCameraRotation * glm::vec3(0, 0, -1);
+                    glm::vec3 right = m_sceneCameraRotation * glm::vec3(1, 0, 0);
+                    if (Inputs::GetKeyInternal(GLFW_KEY_W, Windows::GetWindow())) {
+                        m_sceneCameraPosition +=
+                                front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
+                    }
+                    if (Inputs::GetKeyInternal(GLFW_KEY_S, Windows::GetWindow())) {
+                        m_sceneCameraPosition -=
+                                front * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
+                    }
+                    if (Inputs::GetKeyInternal(GLFW_KEY_A, Windows::GetWindow())) {
+                        m_sceneCameraPosition -=
+                                right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
+                    }
+                    if (Inputs::GetKeyInternal(GLFW_KEY_D, Windows::GetWindow())) {
+                        m_sceneCameraPosition +=
+                                right * static_cast<float>(Application::Time().DeltaTime()) * m_velocity;
+                    }
+                    if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_SHIFT, Windows::GetWindow())) {
+                        m_sceneCameraPosition.y += m_velocity * static_cast<float>(Application::Time().DeltaTime());
+                    }
+                    if (Inputs::GetKeyInternal(GLFW_KEY_LEFT_CONTROL, Windows::GetWindow())) {
+                        m_sceneCameraPosition.y -= m_velocity * static_cast<float>(Application::Time().DeltaTime());
+                    }
+                    if (xOffset != 0.0f || yOffset != 0.0f) {
+                        m_sceneCameraYawAngle += xOffset * m_sensitivity;
+                        m_sceneCameraPitchAngle += yOffset * m_sensitivity;
+                        if (m_sceneCameraPitchAngle > 89.0f)
+                            m_sceneCameraPitchAngle = 89.0f;
+                        if (m_sceneCameraPitchAngle < -89.0f)
+                            m_sceneCameraPitchAngle = -89.0f;
+
+                        m_sceneCameraRotation =
+                                Camera::ProcessMouseMovement(m_sceneCameraYawAngle, m_sceneCameraPitchAngle, false);
                     }
 #pragma endregion
                 }
             }
+        }
 #pragma region Gizmos and Entity Selection
-            bool mouseSelectEntity = true;
-            if (scene->IsEntityValid(m_selectedEntity)) {
-                ImGuizmo::SetOrthographic(false);
-                ImGuizmo::SetDrawlist();
-                ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x, viewPortSize.y - 20);
-                glm::mat4 cameraView =
-                        glm::inverse(glm::translate(m_sceneCameraPosition) * glm::mat4_cast(m_sceneCameraRotation));
-                glm::mat4 cameraProjection = m_sceneCamera->GetProjection();
-                const auto op = m_localPositionSelected ? ImGuizmo::OPERATION::TRANSLATE
-                                                        : m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE
-                                                                                  : ImGuizmo::OPERATION::SCALE;
+        bool mouseSelectEntity = true;
+        if (scene->IsEntityValid(m_selectedEntity)) {
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, viewPortSize.x,
+                              viewPortSize.y - 20);
+            glm::mat4 cameraView =
+                    glm::inverse(glm::translate(m_sceneCameraPosition) * glm::mat4_cast(m_sceneCameraRotation));
+            glm::mat4 cameraProjection = m_sceneCamera->GetProjection();
+            const auto op = m_localPositionSelected ? ImGuizmo::OPERATION::TRANSLATE
+                                                    : m_localRotationSelected ? ImGuizmo::OPERATION::ROTATE
+                                                                              : ImGuizmo::OPERATION::SCALE;
 
-                auto transform = scene->GetDataComponent<Transform>(m_selectedEntity);
-                GlobalTransform parentGlobalTransform;
-                Entity parentEntity = scene->GetParent(m_selectedEntity);
-                if (parentEntity.GetIndex() != 0) {
-                    parentGlobalTransform = scene->GetDataComponent<GlobalTransform>(
-                            scene->GetParent(m_selectedEntity));
-                }
-                auto globalTransform = scene->GetDataComponent<GlobalTransform>(m_selectedEntity);
-                ImGuizmo::Manipulate(
-                        glm::value_ptr(cameraView),
-                        glm::value_ptr(cameraProjection),
-                        op,
-                        ImGuizmo::LOCAL,
-                        glm::value_ptr(globalTransform.m_value));
-                if (ImGuizmo::IsUsing()) {
-                    transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
-                    scene->SetDataComponent(m_selectedEntity, transform);
-                    transform.Decompose(
-                            m_previouslyStoredPosition, m_previouslyStoredRotation, m_previouslyStoredScale);
-                    mouseSelectEntity = false;
-                }
+            auto transform = scene->GetDataComponent<Transform>(m_selectedEntity);
+            GlobalTransform parentGlobalTransform;
+            Entity parentEntity = scene->GetParent(m_selectedEntity);
+            if (parentEntity.GetIndex() != 0) {
+                parentGlobalTransform = scene->GetDataComponent<GlobalTransform>(
+                        scene->GetParent(m_selectedEntity));
             }
-            if (!m_lockEntitySelection && m_sceneCameraWindowFocused && mouseSelectEntity) {
-                if (!m_leftMouseButtonHold &&
-                    !(mousePosition.x < 0 || mousePosition.y < 0 || mousePosition.x > viewPortSize.x ||
-                      mousePosition.y > viewPortSize.y) &&
-                    Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow())) {
-                    Entity focusedEntity = MouseEntitySelection(mousePosition);
-                    if (focusedEntity == Entity()) {
-                        SetSelectedEntity(Entity());
-                    } else {
-                        Entity walker = focusedEntity;
-                        bool found = false;
-                        while (walker.GetIndex() != 0) {
-                            if (walker == m_selectedEntity) {
-                                found = true;
-                                break;
-                            }
-                            walker = scene->GetParent(walker);
+            auto globalTransform = scene->GetDataComponent<GlobalTransform>(m_selectedEntity);
+            ImGuizmo::Manipulate(
+                    glm::value_ptr(cameraView),
+                    glm::value_ptr(cameraProjection),
+                    op,
+                    ImGuizmo::LOCAL,
+                    glm::value_ptr(globalTransform.m_value));
+            if (ImGuizmo::IsUsing()) {
+                transform.m_value = glm::inverse(parentGlobalTransform.m_value) * globalTransform.m_value;
+                scene->SetDataComponent(m_selectedEntity, transform);
+                transform.Decompose(
+                        m_previouslyStoredPosition, m_previouslyStoredRotation, m_previouslyStoredScale);
+                mouseSelectEntity = false;
+            }
+        }
+        if (!m_lockEntitySelection && m_sceneCameraWindowFocused && mouseSelectEntity) {
+            if (!m_leftMouseButtonHold &&
+                !(m_mouseScreenPosition.x < 0 || m_mouseScreenPosition.y < 0 ||
+                  m_mouseScreenPosition.x > viewPortSize.x ||
+                  m_mouseScreenPosition.y > viewPortSize.y) &&
+                Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow())) {
+                Entity focusedEntity = MouseEntitySelection(m_mouseScreenPosition);
+                if (focusedEntity == Entity()) {
+                    SetSelectedEntity(Entity());
+                } else {
+                    Entity walker = focusedEntity;
+                    bool found = false;
+                    while (walker.GetIndex() != 0) {
+                        if (walker == m_selectedEntity) {
+                            found = true;
+                            break;
                         }
-                        if (found) {
-                            walker = scene->GetParent(walker);
-                            if (walker.GetIndex() == 0) {
-                                SetSelectedEntity(focusedEntity);
-                            } else {
-                                SetSelectedEntity(walker);
-                            }
-                        } else {
-                            SetSelectedEntity(focusedEntity);
-                        }
+                        walker = scene->GetParent(walker);
                     }
-                    m_leftMouseButtonHold = true;
+                    if (found) {
+                        walker = scene->GetParent(walker);
+                        if (walker.GetIndex() == 0) {
+                            SetSelectedEntity(focusedEntity);
+                        } else {
+                            SetSelectedEntity(walker);
+                        }
+                    } else {
+                        SetSelectedEntity(focusedEntity);
+                    }
                 }
+                m_leftMouseButtonHold = true;
             }
-            if(m_highlightSelection) HighLightEntity(m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
+            if (m_highlightSelection) HighLightEntity(m_selectedEntity, glm::vec4(1.0, 0.5, 0.0, 0.8));
 #pragma endregion
         }
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows)) {
@@ -1084,7 +1105,9 @@ void EditorLayer::SceneCameraWindow() {
     }
     m_sceneCamera->SetRequireRendering(
             !(ImGui::GetCurrentWindowRead()->Hidden && !ImGui::GetCurrentWindowRead()->Collapsed));
+
     ImGui::End();
+
     ImGui::PopStyleVar();
 
 #pragma endregion
@@ -1125,7 +1148,8 @@ void EditorLayer::MainCameraWindow() {
             auto mainCamera = scene->m_mainCamera.Get<Camera>();
             if (mainCamera && mainCamera->m_rendered) {
                 auto id = mainCamera->GetTexture()->UnsafeGetGLTexture()->Id();
-                ImGui::Image((ImTextureID) id, ImVec2(viewPortSize.x, viewPortSize.y - 20), ImVec2(0, 1), ImVec2(1, 0));
+                ImGui::Image((ImTextureID) id, ImVec2(viewPortSize.x, viewPortSize.y - 20), ImVec2(0, 1),
+                             ImVec2(1, 0));
                 CameraWindowDragAndDrop();
             } else {
                 ImGui::Text("No active main camera!");
@@ -1139,7 +1163,8 @@ void EditorLayer::MainCameraWindow() {
                 ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
                 ImGui::SetNextWindowBgAlpha(0.35f);
                 ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
-                                                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
+                                                ImGuiWindowFlags_AlwaysAutoResize |
+                                                ImGuiWindowFlags_NoSavedSettings |
                                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
                 if (ImGui::BeginChild("Render Info", ImVec2(200, 75), false, window_flags)) {
@@ -1193,7 +1218,8 @@ void EditorLayer::MainCameraWindow() {
 
 void EditorLayer::CameraWindowDragAndDrop() {
     AssetRef assetRef;
-    if (Editor::UnsafeDroppableAsset(assetRef, {"Scene", "Prefab", "Mesh", "Strands", "Cubemap", "EnvironmentalMap"})) {
+    if (Editor::UnsafeDroppableAsset(assetRef,
+                                     {"Scene", "Prefab", "Mesh", "Strands", "Cubemap", "EnvironmentalMap"})) {
         auto scene = GetScene();
         auto asset = assetRef.Get<IAsset>();
         if (!Application::IsPlaying() && asset->GetTypeName() == "Scene") {
@@ -1250,8 +1276,8 @@ glm::vec3 &EditorLayer::UnsafeGetPreviouslyStoredRotation() {
 glm::vec3 &EditorLayer::UnsafeGetPreviouslyStoredScale() {
     return m_previouslyStoredScale;
 }
-Entity EditorLayer::GetSelectedEntity() const
-{
+
+Entity EditorLayer::GetSelectedEntity() const {
     return m_selectedEntity;
 }
 
@@ -1261,4 +1287,8 @@ void EditorLayer::SetLockEntitySelection(bool value) {
 
 bool EditorLayer::GetLockEntitySelection() {
     return m_lockEntitySelection;
+}
+
+glm::vec2 EditorLayer::GetMouseScreenPosition() const {
+    return m_mouseScreenPosition;
 }
