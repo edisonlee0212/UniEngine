@@ -1,7 +1,0 @@
----
-BasedOnStyle: Microsoft
-AlignAfterOpenBracket: AlwaysBreak
-BinPackArguments: 'false'
-BinPackParameters: 'false'
-
-...
