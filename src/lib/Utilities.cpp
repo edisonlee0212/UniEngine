@@ -742,17 +742,17 @@ void FileUtils::OpenFolder(
 // TAKEN FROM (with much cleaning + tweaking):
 // https://github.com/nem0/LumixEngine/blob/39e46c18a58111cc3c8c10a4d5ebbb614f19b1b8/external/imgui/imgui_user.inl#L505-L930
 
-bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsigned int flags)
+bool Curve2D::OnInspect(const std::string &label, const ImVec2 &editorSize, unsigned flags)
 {
     enum class StorageValues : ImGuiID
     {
-        FROM_X = 100,
-        FROM_Y,
-        WIDTH,
-        HEIGHT,
-        IS_PANNING,
-        POINT_START_X,
-        POINT_START_Y
+        FromX = 100,
+        FromY,
+        Width,
+        Height,
+        IsPanning,
+        PointStartX,
+        PointStartY
     };
     int changed_idx = -1;
     bool changed = false;
@@ -761,7 +761,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
     {
         bool noTangent = !m_tangent;
         auto &values = m_values;
-        if (noTangent && values.size() == 0 || !noTangent && values.size() < 6)
+        if (noTangent && values.empty() || !noTangent && values.size() < 6)
         {
             Clear();
         }
@@ -770,24 +770,23 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             changed = true;
             Clear();
         }
-        static ImVec2 start_pan;
+        static ImVec2 startPan;
         ImGuiContext &g = *GImGui;
         const ImGuiStyle &style = g.Style;
-        ImVec2 size = editor_size;
+        ImVec2 size = editorSize;
 
         size.x = size.x < 0 ? ImGui::GetWindowContentRegionWidth() : size.x;
         size.y = size.y < 0 ? size.x / 2.0f : size.y;
 
-        ImGuiWindow *parent_window = ImGui::GetCurrentWindow();
-        ImGuiID id = parent_window->GetID(label.c_str());
-        if (!ImGui::BeginChildFrame(id, size, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+        ImGuiWindow *parentWindow = ImGui::GetCurrentWindow();
+        if (ImGuiID id = parentWindow->GetID(label.c_str()); !ImGui::BeginChildFrame(id, size, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
             ImGui::EndChildFrame();
             ImGui::TreePop();
             return false;
         }
 
-        int hovered_idx = -1;
+        int hoveredIdx = -1;
 
         ImGuiWindow *window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
@@ -797,8 +796,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             return false;
         }
 
-        ImVec2 points_min(FLT_MAX, FLT_MAX);
-        ImVec2 points_max(-FLT_MAX, -FLT_MAX);
+        ImVec2 pointsMin(FLT_MAX, FLT_MAX);
+        ImVec2 pointsMax(-FLT_MAX, -FLT_MAX);
 
         bool allowRemoveSides = (unsigned)flags & (unsigned)CurveEditorFlags::ALLOW_REMOVE_SIDES;
 
@@ -811,91 +810,91 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
         {
             points_count = values.size() / 3;
         }
-        for (int point_idx = 0; point_idx < points_count; ++point_idx)
+        for (int pointIdx = 0; pointIdx < points_count; ++pointIdx)
         {
             ImVec2 point;
             if (noTangent)
             {
-                point = ((ImVec2 *)values.data())[point_idx];
+                point = reinterpret_cast<ImVec2*>(values.data())[pointIdx];
             }
             else
             {
-                point = ((ImVec2 *)values.data())[1 + point_idx * 3];
+                point = reinterpret_cast<ImVec2*>(values.data())[1 + pointIdx * 3];
             }
-            points_max = ImMax(points_max, point);
-            points_min = ImMin(points_min, point);
+            pointsMax = ImMax(pointsMax, point);
+            pointsMin = ImMin(pointsMin, point);
         }
-        points_max.y = ImMax(points_max.y, points_min.y + 0.0001f);
+        pointsMax.y = ImMax(pointsMax.y, pointsMin.y + 0.0001f);
 
-        float from_x = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_X, m_min.x);
-        float from_y = window->StateStorage.GetFloat((ImGuiID)StorageValues::FROM_Y, m_min.y);
-        float width = window->StateStorage.GetFloat((ImGuiID)StorageValues::WIDTH, m_max.x - m_min.x);
-        float height = window->StateStorage.GetFloat((ImGuiID)StorageValues::HEIGHT, m_max.y - m_min.y);
-        window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_X, from_x);
-        window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_Y, from_y);
-        window->StateStorage.SetFloat((ImGuiID)StorageValues::WIDTH, width);
-        window->StateStorage.SetFloat((ImGuiID)StorageValues::HEIGHT, height);
+        float fromX = window->StateStorage.GetFloat(static_cast<ImGuiID>(StorageValues::FromX), m_min.x);
+        float from_y = window->StateStorage.GetFloat(static_cast<ImGuiID>(StorageValues::FromY), m_min.y);
+        float width = window->StateStorage.GetFloat(static_cast<ImGuiID>(StorageValues::Width), m_max.x - m_min.x);
+        float height = window->StateStorage.GetFloat(static_cast<ImGuiID>(StorageValues::Height), m_max.y - m_min.y);
+        window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::FromX), fromX);
+        window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::FromY), from_y);
+        window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::Width), width);
+        window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::Height), height);
 
-        const ImRect inner_bb = window->InnerRect;
-        const ImRect frame_bb(inner_bb.Min - style.FramePadding, inner_bb.Max + style.FramePadding);
+        const ImRect innerBb = window->InnerRect;
+        const ImRect frameBb(innerBb.Min - style.FramePadding, innerBb.Max + style.FramePadding);
 
         auto transform = [&](const ImVec2 &pos) -> ImVec2 {
-            float x = (pos.x - from_x) / width;
-            float y = (pos.y - from_y) / height;
+	        const float x = (pos.x - fromX) / width;
+	        const float y = (pos.y - from_y) / height;
 
-            return ImVec2(inner_bb.Min.x * (1 - x) + inner_bb.Max.x * x, inner_bb.Min.y * y + inner_bb.Max.y * (1 - y));
+            return {innerBb.Min.x * (1 - x) + innerBb.Max.x * x, innerBb.Min.y * y + innerBb.Max.y * (1 - y)};
         };
 
         auto invTransform = [&](const ImVec2 &pos) -> ImVec2 {
-            float x = (pos.x - inner_bb.Min.x) / (inner_bb.Max.x - inner_bb.Min.x);
-            float y = (inner_bb.Max.y - pos.y) / (inner_bb.Max.y - inner_bb.Min.y);
+            float x = (pos.x - innerBb.Min.x) / (innerBb.Max.x - innerBb.Min.x);
+            float y = (innerBb.Max.y - pos.y) / (innerBb.Max.y - innerBb.Min.y);
 
-            return ImVec2(from_x + width * x, from_y + height * y);
+            return {fromX + width * x, from_y + height * y};
         };
 
-        if ((unsigned)flags & (unsigned)CurveEditorFlags::SHOW_GRID)
+        if (flags & static_cast<unsigned>(CurveEditorFlags::SHOW_GRID))
         {
             int exp;
             frexp(width / 5, &exp);
-            float step_x = (float)ldexp(1.0, exp);
-            int cell_cols = int(width / step_x);
+            auto stepX = static_cast<float>(ldexp(1.0, exp));
+            int cellCols = static_cast<int>(width / stepX);
 
-            float x = step_x * int(from_x / step_x);
-            for (int i = -1; i < cell_cols + 2; ++i)
+            float x = stepX * int(fromX / stepX);
+            for (int i = -1; i < cellCols + 2; ++i)
             {
-                ImVec2 a = transform({x + i * step_x, from_y});
-                ImVec2 b = transform({x + i * step_x, from_y + height});
+                ImVec2 a = transform({x + i * stepX, from_y});
+                ImVec2 b = transform({x + i * stepX, from_y + height});
                 window->DrawList->AddLine(a, b, 0x55000000);
                 char buf[64];
                 if (exp > 0)
                 {
-                    ImFormatString(buf, sizeof(buf), " %d", int(x + i * step_x));
+                    ImFormatString(buf, sizeof(buf), " %d", int(x + i * stepX));
                 }
                 else
                 {
-                    ImFormatString(buf, sizeof(buf), " %f", x + i * step_x);
+                    ImFormatString(buf, sizeof(buf), " %f", x + i * stepX);
                 }
                 window->DrawList->AddText(b, 0x55000000, buf);
             }
 
             frexp(height / 5, &exp);
-            float step_y = (float)ldexp(1.0, exp);
-            int cell_rows = int(height / step_y);
+            auto stepY = static_cast<float>(ldexp(1.0, exp));
+            int cellRows = static_cast<int>(height / stepY);
 
-            float y = step_y * int(from_y / step_y);
-            for (int i = -1; i < cell_rows + 2; ++i)
+            float y = stepY * static_cast<int>(from_y / stepY);
+            for (int i = -1; i < cellRows + 2; ++i)
             {
-                ImVec2 a = transform({from_x, y + i * step_y});
-                ImVec2 b = transform({from_x + width, y + i * step_y});
+                ImVec2 a = transform({fromX, y + i * stepY});
+                ImVec2 b = transform({fromX + width, y + i * stepY});
                 window->DrawList->AddLine(a, b, 0x55000000);
                 char buf[64];
                 if (exp > 0)
                 {
-                    ImFormatString(buf, sizeof(buf), " %d", int(y + i * step_y));
+                    ImFormatString(buf, sizeof(buf), " %d", static_cast<int>(y + i * stepY));
                 }
                 else
                 {
-                    ImFormatString(buf, sizeof(buf), " %f", y + i * step_y);
+                    ImFormatString(buf, sizeof(buf), " %f", y + i * stepY);
                 }
                 window->DrawList->AddText(a, 0x55000000, buf);
             }
@@ -906,28 +905,28 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             float scale = powf(2, ImGui::GetIO().MouseWheel);
             width *= scale;
             height *= scale;
-            window->StateStorage.SetFloat((ImGuiID)StorageValues::WIDTH, width);
-            window->StateStorage.SetFloat((ImGuiID)StorageValues::HEIGHT, height);
+            window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::Width), width);
+            window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::Height), height);
         }
         if (ImGui::IsMouseReleased(2))
         {
-            window->StateStorage.SetBool((ImGuiID)StorageValues::IS_PANNING, false);
+            window->StateStorage.SetBool(static_cast<ImGuiID>(StorageValues::IsPanning), false);
         }
-        if (window->StateStorage.GetBool((ImGuiID)StorageValues::IS_PANNING, false))
+        if (window->StateStorage.GetBool(static_cast<ImGuiID>(StorageValues::IsPanning), false))
         {
             ImVec2 drag_offset = ImGui::GetMouseDragDelta(2);
-            from_x = start_pan.x;
-            from_y = start_pan.y;
-            from_x -= drag_offset.x * width / (inner_bb.Max.x - inner_bb.Min.x);
-            from_y += drag_offset.y * height / (inner_bb.Max.y - inner_bb.Min.y);
-            window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_X, from_x);
-            window->StateStorage.SetFloat((ImGuiID)StorageValues::FROM_Y, from_y);
+            fromX = startPan.x;
+            from_y = startPan.y;
+            fromX -= drag_offset.x * width / (innerBb.Max.x - innerBb.Min.x);
+            from_y += drag_offset.y * height / (innerBb.Max.y - innerBb.Min.y);
+            window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::FromX), fromX);
+            window->StateStorage.SetFloat(static_cast<ImGuiID>(StorageValues::FromY), from_y);
         }
         else if (ImGui::IsMouseDragging(2) && ImGui::IsItemHovered())
         {
-            window->StateStorage.SetBool((ImGuiID)StorageValues::IS_PANNING, true);
-            start_pan.x = from_x;
-            start_pan.y = from_y;
+            window->StateStorage.SetBool(static_cast<ImGuiID>(StorageValues::IsPanning), true);
+            startPan.x = fromX;
+            startPan.y = from_y;
         }
 
         for (int point_idx = points_count - 2; point_idx >= 0; --point_idx)
@@ -935,14 +934,14 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             ImVec2 *points;
             if (noTangent)
             {
-                points = ((ImVec2 *)values.data()) + point_idx;
+                points = reinterpret_cast<ImVec2*>(values.data()) + point_idx;
             }
             else
             {
-                points = ((ImVec2 *)values.data()) + 1 + point_idx * 3;
+                points = reinterpret_cast<ImVec2*>(values.data()) + 1 + point_idx * 3;
             }
 
-            ImVec2 p_prev = points[0];
+            ImVec2 pPrev = points[0];
             ImVec2 tangent_last;
             ImVec2 tangent;
             ImVec2 p;
@@ -960,15 +959,15 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             auto handlePoint = [&](ImVec2 &p, int idx) -> bool {
                 float SIZE = size.x / 100.0f;
 
-                ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
+                const ImVec2 cursor_pos = ImGui::GetCursorScreenPos();
                 ImVec2 pos = transform(p);
 
                 ImGui::SetCursorScreenPos(pos - ImVec2(SIZE, SIZE));
                 ImGui::PushID(idx);
                 ImGui::InvisibleButton("", ImVec2(SIZE * 2, SIZE * 2));
 
-                bool is_selected = selected_point && *selected_point == point_idx + idx;
-                float thickness = is_selected ? 2.0f : 1.0f;
+                const bool isSelected = selected_point && *selected_point == point_idx + idx;
+                const float thickness = isSelected ? 2.0f : 1.0f;
                 ImU32 col = ImGui::IsItemActive() || ImGui::IsItemHovered()
                                 ? ImGui::GetColorU32(ImGuiCol_PlotLinesHovered)
                                 : ImGui::GetColorU32(ImGuiCol_PlotLines);
@@ -979,14 +978,14 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 window->DrawList->AddLine(pos + ImVec2(-SIZE, 0), pos + ImVec2(0, -SIZE), col, thickness);
 
                 if (ImGui::IsItemHovered())
-                    hovered_idx = point_idx + idx;
+                    hoveredIdx = point_idx + idx;
 
                 if (ImGui::IsItemActive() && ImGui::IsMouseClicked(0))
                 {
                     if (selected_point)
                         *selected_point = point_idx + idx;
-                    window->StateStorage.SetFloat((ImGuiID)StorageValues::POINT_START_X, pos.x);
-                    window->StateStorage.SetFloat((ImGuiID)StorageValues::POINT_START_Y, pos.y);
+                    window->StateStorage.SetFloat((ImGuiID)StorageValues::PointStartX, pos.x);
+                    window->StateStorage.SetFloat((ImGuiID)StorageValues::PointStartY, pos.y);
                 }
 
                 if (ImGui::IsItemHovered() || ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
@@ -998,8 +997,8 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 bool valueChanged = false;
                 if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
                 {
-                    pos.x = window->StateStorage.GetFloat((ImGuiID)StorageValues::POINT_START_X, pos.x);
-                    pos.y = window->StateStorage.GetFloat((ImGuiID)StorageValues::POINT_START_Y, pos.y);
+                    pos.x = window->StateStorage.GetFloat((ImGuiID)StorageValues::PointStartX, pos.x);
+                    pos.y = window->StateStorage.GetFloat((ImGuiID)StorageValues::PointStartY, pos.y);
                     pos += ImGui::GetMouseDragDelta();
                     ImVec2 v = invTransform(pos);
 
@@ -1056,22 +1055,22 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             if (!noTangent)
             {
                 window->DrawList->AddBezierCurve(
-                    transform(p_prev),
-                    transform(p_prev + tangent_last),
+                    transform(pPrev),
+                    transform(pPrev + tangent_last),
                     transform(p + tangent),
                     transform(p),
                     ImGui::GetColorU32(ImGuiCol_PlotLines),
                     1.0f,
                     20);
-                if (handleTangent(tangent_last, p_prev, 0))
+                if (handleTangent(tangent_last, pPrev, 0))
                 {
-                    auto diff = p - p_prev + tangent;
+                    auto diff = p - pPrev + tangent;
                     points[1] = ImClamp(tangent_last, ImVec2(0, -1), ImVec2(diff.x, 1));
                     changed_idx = point_idx;
                 }
                 if (handleTangent(tangent, p, 1))
                 {
-                    auto diff = p - p_prev - tangent_last;
+                    auto diff = p - pPrev - tangent_last;
                     points[2] = ImClamp(tangent, ImVec2(-diff.x, -1), ImVec2(0, 1));
                     changed_idx = point_idx + 1;
                 }
@@ -1079,7 +1078,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 {
                     points[3] = ImClamp(
                         p,
-                        ImVec2(p_prev.x + tangent_last.x - tangent.x + 0.001f, m_min.y),
+                        ImVec2(pPrev.x + tangent_last.x - tangent.x + 0.001f, m_min.y),
                         ImVec2(points[6].x + points[5].x - points[4].x - 0.001f, m_max.y));
                     changed_idx = point_idx + 1;
                 }
@@ -1087,11 +1086,11 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             else
             {
                 window->DrawList->AddLine(
-                    transform(p_prev), transform(p), ImGui::GetColorU32(ImGuiCol_PlotLines), 1.0f);
+                    transform(pPrev), transform(p), ImGui::GetColorU32(ImGuiCol_PlotLines), 1.0f);
                 if (handlePoint(p, 1))
                 {
-                    if (p.x <= p_prev.x)
-                        p.x = p_prev.x + 0.001f;
+                    if (p.x <= pPrev.x)
+                        p.x = pPrev.x + 0.001f;
                     if (point_idx < points_count - 2 && p.x >= points[2].x)
                     {
                         p.x = points[2].x - 0.001f;
@@ -1103,9 +1102,9 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
             ImGui::PopID();
         }
 
-        ImGui::SetCursorScreenPos(inner_bb.Min);
+        ImGui::SetCursorScreenPos(innerBb.Min);
 
-        ImGui::InvisibleButton("bg", inner_bb.Max - inner_bb.Min);
+        ImGui::InvisibleButton("bg", innerBb.Max - innerBb.Min);
         bool allowResize = (unsigned)flags & (unsigned)CurveEditorFlags::ALLOW_RESIZE;
         if (ImGui::IsItemActive() && ImGui::IsMouseDoubleClicked(0) && allowResize)
         {
@@ -1176,15 +1175,15 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 qsort(values.data(), points_count + 1, sizeof(ImVec2), compare);
             }
         }
-        if (hovered_idx >= 0 && ImGui::IsMouseDoubleClicked(0) && allowResize && points_count > 2)
+        if (hoveredIdx >= 0 && ImGui::IsMouseDoubleClicked(0) && allowResize && points_count > 2)
         {
-            if (allowRemoveSides || (hovered_idx > 0 && hovered_idx < points_count - 1))
+            if (allowRemoveSides || (hoveredIdx > 0 && hoveredIdx < points_count - 1))
             {
                 changed = true;
                 auto *points = (ImVec2 *)values.data();
                 if (!noTangent)
                 {
-                    for (int j = hovered_idx * 3; j < points_count * 3 - 3; j += 3)
+                    for (int j = hoveredIdx * 3; j < points_count * 3 - 3; j += 3)
                     {
                         points[j + 0] = points[j + 3];
                         points[j + 1] = points[j + 4];
@@ -1194,7 +1193,7 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
                 }
                 else
                 {
-                    for (int j = hovered_idx; j < points_count - 1; ++j)
+                    for (int j = hoveredIdx; j < points_count - 1; ++j)
                     {
                         points[j] = points[j + 1];
                     }
@@ -1239,20 +1238,20 @@ bool Curve::OnInspect(const std::string &label, const ImVec2 &editor_size, unsig
     }
     return changed_idx != -1 || changed;
 }
-std::vector<glm::vec2> &Curve::UnsafeGetValues()
+std::vector<glm::vec2> &Curve2D::UnsafeGetValues()
 {
     return m_values;
 }
-void Curve::SetTangent(bool value)
+void Curve2D::SetTangent(bool value)
 {
     m_tangent = value;
     Clear();
 }
-bool Curve::IsTangent()
+bool Curve2D::IsTangent()
 {
     return m_tangent;
 }
-float Curve::GetValue(float x, unsigned iteration) const
+float Curve2D::GetValue(float x, unsigned iteration) const
 {
     x = glm::clamp(x, 0.0f, 1.0f);
     if (m_tangent)
@@ -1314,14 +1313,14 @@ float Curve::GetValue(float x, unsigned iteration) const
         return m_values[m_values.size() - 1].y;
     }
 }
-Curve::Curve(const glm::vec2 &min, const glm::vec2 &max, bool tangent)
+Curve2D::Curve2D(const glm::vec2 &min, const glm::vec2 &max, bool tangent)
 {
     m_tangent = tangent;
     m_min = min;
     m_max = max;
     Clear();
 }
-Curve::Curve(float start, float end, const glm::vec2 &min, const glm::vec2 &max, bool tangent)
+Curve2D::Curve2D(float start, float end, const glm::vec2 &min, const glm::vec2 &max, bool tangent)
 {
     m_min = min;
     m_max = max;
@@ -1346,7 +1345,7 @@ Curve::Curve(float start, float end, const glm::vec2 &min, const glm::vec2 &max,
         m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
     }
 }
-void Curve::SetStart(float value)
+void Curve2D::SetStart(float value)
 {
     if (!m_tangent)
     {
@@ -1357,7 +1356,7 @@ void Curve::SetStart(float value)
         m_values[1].y = glm::clamp(value, m_min.y, m_max.y);
     }
 }
-void Curve::SetEnd(float value)
+void Curve2D::SetEnd(float value)
 {
     if (!m_tangent)
     {
@@ -1368,7 +1367,7 @@ void Curve::SetEnd(float value)
         m_values[m_values.size() - 2].y = glm::clamp(value, m_min.y, m_max.y);
     }
 }
-void Curve::Clear()
+void Curve2D::Clear()
 {
     if (!m_tangent)
     {
@@ -1388,7 +1387,7 @@ void Curve::Clear()
         m_values.push_back({(m_max.y - m_min.y) / 10.0f, 0.0f});
     }
 }
-void Curve::Serialize(YAML::Emitter &out)
+void Curve2D::Serialize(YAML::Emitter &out)
 {
     out << YAML::Key << "m_tangent" << m_tangent;
     out << YAML::Key << "m_min" << m_min;
@@ -1404,7 +1403,7 @@ void Curve::Serialize(YAML::Emitter &out)
         out << YAML::EndSeq;
     }
 }
-void Curve::Deserialize(const YAML::Node &in)
+void Curve2D::Deserialize(const YAML::Node &in)
 {
     m_tangent = in["m_tangent"].as<bool>();
     m_min = in["m_min"].as<glm::vec2>();
