@@ -117,13 +117,13 @@ namespace UniEngine
 				ImGui::EndTooltip();
 			}
 			if (typeid(T).hash_code() == typeid(float).hash_code()) {
-				changed = ImGui::DragFloat("Mean", static_cast<float*>(&m_mean), speed);
+				changed = ImGui::DragFloat("Mean", reinterpret_cast<float*>(&m_mean), speed);
 			}
 			else if (typeid(T).hash_code() == typeid(glm::vec2).hash_code()) {
-				changed = ImGui::DragFloat2("Mean", static_cast<float*>(&m_mean), speed);
+				changed = ImGui::DragFloat2("Mean", reinterpret_cast<float*>(&m_mean), speed);
 			}
 			else if (typeid(T).hash_code() == typeid(glm::vec3).hash_code()) {
-				changed = ImGui::DragFloat3("Mean", static_cast<float*>(&m_mean), speed);
+				changed = ImGui::DragFloat3("Mean", reinterpret_cast<float*>(&m_mean), speed);
 			}
 			if (ImGui::DragFloat("Deviation", &m_deviation, speed))
 				changed = true;
