@@ -89,9 +89,9 @@ set(UNIENGINE_INTERNALS_DEF UNIENGINE_INTERNALS_FOLDER=\"${UNIENGINE_INTERNALS_D
 set(UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL ${CMAKE_CURRENT_SOURCE_DIR}/Resources/TestingProject/)
 set(UNIENGINE_DEFAULT_PROJECT_DEF UNIENGINE_DEFAULT_PROJECT_FOLDER=\"${UNIENGINE_DEFAULT_PROJECT_DIR_LOCAL}\")
 
-if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
     set(UNIENGINE_DEBUG_STATUS NDEBUG)
-elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
     set(UNIENGINE_DEBUG_STATUS _DEBUG)
 endif ()
 target_compile_definitions(uniengine
@@ -104,13 +104,13 @@ target_compile_definitions(uniengine
         )
 if (WIN32)
     # Linker settings for Windows platform
-    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc142.mt/release/*.lib")
         set(ASSIMP_LIBS
                 ${ASSIMP_DIR}assimp-vc142-mt.lib
                 ${ASSIMP_DIR}contrib/zlib/zlibstatic.lib
                 )
-    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc142.mt/debug/*.lib")
         set(ASSIMP_LIBS
                 ${ASSIMP_DIR}assimp-vc142-mtd.lib
@@ -134,10 +134,10 @@ if (WIN32)
             )
 elseif (UNIX AND NOT APPLE)
     # Linker and compiler settings for Linux platform
-    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/release/*.a")
         set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_LIBS "3rdParty/physx/linux.clang/debug/*.a")
         set(CMAKE_CXX_FLAGS_DEBUG "-g")
     endif ()
@@ -321,10 +321,10 @@ add_custom_command(TARGET uniengine POST_BUILD
 # Copy DLLs
 # ------------------------------------------------------------------
 if (WIN32)
-    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc142.mt/release/*.dll")
         set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mt.dll)
-    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc142.mt/debug/*.dll")
         set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mtd.dll)
     endif ()
@@ -336,9 +336,9 @@ if (WIN32)
             ${CMAKE_BINARY_DIR}
     )
 elseif (UNIX AND NOT APPLE)
-    if (${CMAKE_BUILD_TYPE} STREQUAL Release)
+    if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_DLLS "3rdParty/physx/linux.clang/release/*.so")
-    elseif (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_DLLS "3rdParty/physx/linux.clang/debug/*.so")
     endif ()
 endif ()
