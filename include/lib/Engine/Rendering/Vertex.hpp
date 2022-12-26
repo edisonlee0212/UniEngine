@@ -6,11 +6,12 @@ namespace UniEngine
 {
     struct UNIENGINE_API Vertex
     {
-        glm::vec3 m_position;
-        glm::vec3 m_normal;
-        glm::vec3 m_tangent;
-        glm::vec3 m_color = glm::vec3(1.0f);
+        glm::vec3 m_position = glm::vec3(0.0f);
+        float m_positionPadding = 0.0f;
+        glm::vec3 m_normal = glm::vec3(0.0f);
+        float m_normalPadding = 0.0f;
         glm::vec3 m_tangent = glm::vec3(0.0f);
+        float m_tangentPadding = 0.0f;
         glm::vec4 m_color = glm::vec4(1.0f);
         glm::vec2 m_texCoord = glm::vec2(0.0f);
         glm::vec2 m_texCoordPadding = glm::vec2(0.0f);
