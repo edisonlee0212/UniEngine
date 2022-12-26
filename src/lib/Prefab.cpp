@@ -516,7 +516,7 @@ std::shared_ptr<Mesh> Prefab::ReadMesh(aiMesh *importerMesh)
             v3.x = importerMesh->mColors[0][i].r;
             v3.y = importerMesh->mColors[0][i].g;
             v3.z = importerMesh->mColors[0][i].b;
-            vertex.m_color = v3;
+            vertex.m_color = glm::vec4(v3, 1.0f);
             mask = mask | static_cast<unsigned>(VertexAttribute::Color);
         }
         glm::vec2 v2;
@@ -588,7 +588,7 @@ std::shared_ptr<SkinnedMesh> Prefab::ReadSkinnedMesh(
             v3.x = importerMesh->mColors[0][i].r;
             v3.y = importerMesh->mColors[0][i].g;
             v3.z = importerMesh->mColors[0][i].b;
-            vertex.m_color = v3;
+            vertex.m_color = glm::vec4(v3, 1.0f);
             mask = mask | static_cast<unsigned>(VertexAttribute::Color);
         }
         glm::vec2 v2;

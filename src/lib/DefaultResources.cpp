@@ -266,7 +266,7 @@ void DefaultResources::LoadShaders()
 void DefaultResources::LoadPrimitives()
 {
 #pragma region Models &Primitives
-
+    
     {
         Primitives::Quad = ProjectManager::CreateDefaultResource<Mesh>(GenerateNewHandle(), "Quad");
         Primitives::Quad->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/quad.uemesh");
@@ -299,6 +299,7 @@ void DefaultResources::LoadPrimitives()
         Primitives::Capsule = ProjectManager::CreateDefaultResource<Mesh>(GenerateNewHandle(), "Capsule");
         Primitives::Capsule->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/capsule.uemesh");
     }
+    
 #pragma endregion
 }
 void DefaultResources::Load()
