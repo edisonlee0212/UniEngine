@@ -5,8 +5,8 @@
 #include <SkinnedMesh.hpp>
 using namespace UniEngine;
 
-std::unique_ptr<OpenGLUtils::GLVBO> SkinnedMesh::m_matricesBuffer;
-std::unique_ptr<OpenGLUtils::GLSSBO> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
+std::unique_ptr<OpenGLUtils::GLBuffer> SkinnedMesh::m_matricesBuffer;
+std::unique_ptr<OpenGLUtils::GLBuffer> SkinnedMesh::m_skinnedMeshBonesUniformBufferBlock;
 
 void SkinnedMesh::OnInspect()
 {
@@ -111,7 +111,7 @@ void SkinnedMesh::FetchIndices()
 
 void SkinnedMesh::TryInitialize()
 {
-    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLSSBO>();
+    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::ShaderStorage);
     m_skinnedMeshBonesUniformBufferBlock->SetData(
         DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
     m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
@@ -172,7 +172,7 @@ void SkinnedMesh::Upload()
     m_vao->SetAttributePointer(
         8, 4, GL_FLOAT, GL_FALSE, sizeof(SkinnedVertex), (void *)(offsetof(SkinnedVertex, m_weight2)));
 #pragma endregion
-    m_vao->Ebo()->SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
+    m_vao->Ebo().SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
     m_version++;
 }
 

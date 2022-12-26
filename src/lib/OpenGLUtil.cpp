@@ -41,7 +41,7 @@ void OpenGLUtils::Init()
 
 GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
 std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
-std::map<GLenum, GLuint> OpenGLUtils::GLBuffer::m_boundBuffers;
+std::map<OpenGLUtils::GLBufferTarget, GLuint> OpenGLUtils::GLBuffer::m_boundBuffers;
 GLuint OpenGLUtils::GLVAO::m_boundVAO = 0;
 GLuint OpenGLUtils::GLProgram::m_boundProgram = 0;
 GLuint OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer = 0;
@@ -198,10 +198,25 @@ GLuint OpenGLUtils::GLObject::Id() const
     return m_id;
 }
 
-OpenGLUtils::GLBuffer::GLBuffer(GLenum target)
+OpenGLUtils::GLBuffer::GLBuffer()
+{
+    glGenBuffers(1, &m_id);
+}
+
+OpenGLUtils::GLBuffer::GLBuffer(GLBufferTarget target)
 {
     glGenBuffers(1, &m_id);
     m_target = target;
+}
+
+void OpenGLUtils::GLBuffer::SetTarget(GLBufferTarget newTarget)
+{
+    const auto search = m_boundBuffers.find(m_target);
+    if (search != m_boundBuffers.end() && search->second == m_id)
+    {
+        glBindBuffer(static_cast<GLenum>(m_target), 0);
+    }
+    m_target = newTarget;
 }
 
 void OpenGLUtils::GLBuffer::Bind() const
@@ -212,7 +227,22 @@ void OpenGLUtils::GLBuffer::Bind() const
         return;
     }
     m_boundBuffers[m_target] = m_id;
-    glBindBuffer(m_target, m_id);
+    glBindBuffer(static_cast<GLenum>(m_target), m_id);
+}
+
+void OpenGLUtils::GLBuffer::Unbind()
+{
+    const auto search = m_boundBuffers.find(m_target);
+    if (search != m_boundBuffers.end() && search->second == m_id)
+    {
+        m_boundBuffers[m_target] = 0;
+        glBindBuffer(static_cast<GLenum>(m_target), 0);
+    }
+}
+
+void OpenGLUtils::GLBuffer::BindDefault(GLBufferTarget target)
+{
+    glBindBuffer(static_cast<GLenum>(target), 0);
 }
 
 void OpenGLUtils::GLBuffer::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const
@@ -232,73 +262,19 @@ OpenGLUtils::GLBuffer::~GLBuffer()
     glDeleteBuffers(1, &m_id);
 }
 
-OpenGLUtils::GLSSBO::GLSSBO() : GLBuffer(GL_SHADER_STORAGE_BUFFER)
+OpenGLUtils::GLBufferTarget OpenGLUtils::GLBuffer::GetTarget()
 {
+    return m_target;
 }
 
-void OpenGLUtils::GLSSBO::SetBase(const GLuint &index) const
+void OpenGLUtils::GLBuffer::SetBase(const GLuint &index) const
 {
-    glBindBufferBase(m_target, index, m_id);
+    glBindBufferBase(static_cast<GLenum>(m_target), index, m_id);
 }
 
-void OpenGLUtils::GLSSBO::BindDefault()
+void OpenGLUtils::GLBuffer::SetRange(const GLuint &index, const GLintptr &offset, const GLsizeiptr &size) const
 {
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-}
-
-OpenGLUtils::GLPPBO::GLPPBO() : GLBuffer(GL_PIXEL_PACK_BUFFER)
-{
-}
-
-void OpenGLUtils::GLPPBO::BindDefault()
-{
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-}
-
-OpenGLUtils::GLPUBO::GLPUBO() : GLBuffer(GL_PIXEL_UNPACK_BUFFER)
-{
-}
-
-void OpenGLUtils::GLPUBO::BindDefault()
-{
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-}
-
-OpenGLUtils::GLEBO::GLEBO() : GLBuffer(GL_ELEMENT_ARRAY_BUFFER)
-{
-}
-
-void OpenGLUtils::GLEBO::BindDefault()
-{
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-OpenGLUtils::GLVBO::GLVBO() : GLBuffer(GL_ARRAY_BUFFER)
-{
-}
-
-void OpenGLUtils::GLVBO::BindDefault()
-{
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-OpenGLUtils::GLUBO::GLUBO() : GLBuffer(GL_UNIFORM_BUFFER)
-{
-}
-
-void OpenGLUtils::GLUBO::BindDefault()
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-void OpenGLUtils::GLUBO::SetBase(const GLuint &index) const
-{
-    glBindBufferBase(m_target, index, m_id);
-}
-
-void OpenGLUtils::GLUBO::SetRange(const GLuint &index, const GLintptr &offset, const GLsizeiptr &size) const
-{
-    glBindBufferRange(m_target, index, m_id, offset, size);
+    glBindBufferRange(static_cast<GLenum>(m_target), index, m_id, offset, size);
 }
 
 OpenGLUtils::GLVAO::~GLVAO()
@@ -328,14 +304,14 @@ OpenGLUtils::GLVAO::GLVAO()
     glGenVertexArrays(1, &m_id);
 }
 
-OpenGLUtils::GLVBO *OpenGLUtils::GLVAO::Vbo()
+OpenGLUtils::GLBuffer& OpenGLUtils::GLVAO::Vbo()
 {
-    return &m_vbo;
+    return m_vbo;
 }
 
-OpenGLUtils::GLEBO *OpenGLUtils::GLVAO::Ebo()
+OpenGLUtils::GLBuffer& OpenGLUtils::GLVAO::Ebo()
 {
-    return &m_ebo;
+    return m_ebo;
 }
 
 void OpenGLUtils::GLVAO::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const
@@ -1168,6 +1144,12 @@ void OpenGLUtils::GLProgram::Bind()
     glUseProgram(m_id);
 }
 
+void OpenGLUtils::GLProgram::DispatchCompute(const glm::uvec3& workGroupSize)
+{
+    Bind();
+    glDispatchCompute(workGroupSize.x, workGroupSize.y, workGroupSize.z);
+}
+
 void OpenGLUtils::GLProgram::BindDefault()
 {
     if (m_boundProgram == 0)
@@ -1222,17 +1204,21 @@ void OpenGLUtils::GLProgram::Link()
 {
     if (m_linked)
         return;
-    if (!m_vertexShader.Get<OpenGLUtils::GLShader>())
+    if(!m_computeShader.Get<OpenGLUtils::GLShader>())
     {
-        UNIENGINE_ERROR("Missing vertex shader!");
-        return;
-    }
+	    if (!m_vertexShader.Get<OpenGLUtils::GLShader>())
+	    {
+	        UNIENGINE_ERROR("Missing vertex shader!");
+	        return;
+	    }
 
-    if (!m_fragmentShader.Get<OpenGLUtils::GLShader>())
-    {
-        UNIENGINE_ERROR("Missing fragment shader!");
-        return;
+	    if (!m_fragmentShader.Get<OpenGLUtils::GLShader>())
+	    {
+	        UNIENGINE_ERROR("Missing fragment shader!");
+	        return;
+	    }
     }
+    
     auto vertexShader = GetShader(ShaderType::Vertex);
     auto tessellationShader = GetShader(ShaderType::Tessellation);
     auto geometryShader = GetShader(ShaderType::Geometry);

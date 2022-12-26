@@ -7,7 +7,7 @@
 #include "Graphics.hpp"
 using namespace UniEngine;
 
-std::unique_ptr<OpenGLUtils::GLVBO> Mesh::m_matricesBuffer;
+std::unique_ptr<OpenGLUtils::GLBuffer> Mesh::m_matricesBuffer;
 
 void Mesh::OnInspect()
 {
@@ -94,7 +94,7 @@ void Mesh::Upload()
     m_vao->EnableAttributeArray(4);
     m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(offsetof(Vertex, m_texCoord)));
 #pragma endregion
-    m_vao->Ebo()->SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
+    m_vao->Ebo().SetData((GLsizei)m_triangles.size() * sizeof(glm::uvec3), m_triangles.data(), GL_STATIC_DRAW);
     m_version++;
 }
 

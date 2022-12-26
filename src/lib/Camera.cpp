@@ -216,12 +216,12 @@ Ray Camera::ScreenPointToRay(GlobalTransform &ltw, glm::vec2 mousePosition) cons
     return {glm::vec3(ltw.m_value[3]) + m_nearDistance * dir, glm::vec3(ltw.m_value[3]) + m_farDistance * dir};
 }
 
-std::unique_ptr<OpenGLUtils::GLUBO>& CameraInfoBlock::GetBuffer()
+std::unique_ptr<OpenGLUtils::GLBuffer>& CameraInfoBlock::GetBuffer()
 {
-    static std::unique_ptr<OpenGLUtils::GLUBO> m_cameraUniformBufferBlock;
+    static std::unique_ptr<OpenGLUtils::GLBuffer> m_cameraUniformBufferBlock;
     if(!m_cameraUniformBufferBlock)
     {
-        m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLUBO>();
+        m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
         m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
         m_cameraUniformBufferBlock->SetBase(0);
     }

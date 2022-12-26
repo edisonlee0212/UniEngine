@@ -143,7 +143,7 @@ void ParticleMatrices::Update()
 }
 ParticleMatrices::ParticleMatrices()
 {
-    m_buffer = std::make_shared<OpenGLUtils::GLVBO>();
+    m_buffer = std::make_shared<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 }
 size_t &ParticleMatrices::GetVersion()
 {

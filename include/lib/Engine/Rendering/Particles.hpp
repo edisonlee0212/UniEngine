@@ -6,7 +6,7 @@ namespace UniEngine
 {
 
 class UNIENGINE_API ParticleMatrices : ISerializable{
-    std::shared_ptr<OpenGLUtils::GLVBO> m_buffer;
+    std::shared_ptr<OpenGLUtils::GLBuffer> m_buffer;
     bool m_bufferReady = false;
     friend class Mesh;
     friend class SkinnedMesh;

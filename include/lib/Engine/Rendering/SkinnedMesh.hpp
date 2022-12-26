@@ -10,7 +10,7 @@ namespace UniEngine
 {
 class UNIENGINE_API SkinnedMesh : public IAsset
 {
-    static std::unique_ptr<OpenGLUtils::GLVBO> m_matricesBuffer;
+    static std::unique_ptr<OpenGLUtils::GLBuffer> m_matricesBuffer;
 
     std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
     size_t m_offset = 0;
@@ -26,7 +26,7 @@ class UNIENGINE_API SkinnedMesh : public IAsset
     std::vector<SkinnedVertex> m_skinnedVertices;
     std::vector<glm::uvec3> m_triangles;
     friend struct SkinnedMeshBonesBlock;
-    static std::unique_ptr<OpenGLUtils::GLSSBO> m_skinnedMeshBonesUniformBufferBlock;
+    static std::unique_ptr<OpenGLUtils::GLBuffer> m_skinnedMeshBonesUniformBufferBlock;
 
     //Don't serialize.
     std::vector<std::shared_ptr<Bone>> m_bones;

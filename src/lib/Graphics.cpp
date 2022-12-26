@@ -421,7 +421,7 @@ void Gizmos::DrawGizmoMeshInstancedColoredInternal(
     gizmoSettings.m_drawSettings.ApplySettings();
     mesh->Enable();
     const auto vao = mesh->Vao();
-    const OpenGLUtils::GLVBO colorsBuffer;
+    const OpenGLUtils::GLBuffer colorsBuffer(OpenGLUtils::GLBufferTarget::Array);
     colorsBuffer.SetData(static_cast<GLsizei>(matrices.size()) * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
     vao->EnableAttributeArray(11);
     vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
