@@ -6,72 +6,76 @@
 #include "Vertex.hpp"
 namespace UniEngine
 {
-enum class UNIENGINE_API VertexAttribute
-{
-    Position = 1,
-    Normal = 1 << 1, // 2
-    Tangent = 1 << 2,
-    Color = 1 << 3,    // 8
-    TexCoord = 1 << 4, // 16
-};
+	enum class UNIENGINE_API VertexAttribute
+	{
+		Position = 1,
+		Normal = 1 << 1, // 2
+		Tangent = 1 << 2,
+		Color = 1 << 3,    // 8
+		TexCoord = 1 << 4, // 16
+	};
 
-enum class MeshStoreType{
-    //Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.
-    Persistent,
-    //Meshes here will have it's own VAO. It's relatively more lightweight to make changes here.
-    Temporal
-};
+	enum class MeshStoreType {
+		//Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.
+		Persistent,
+		//Meshes here will have it's own VAO. It's relatively more lightweight to make changes here.
+		Temporal
+	};
 
-class UNIENGINE_API MeshStorage{
-    std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
-};
-class ParticleMatrices;
-class UNIENGINE_API Mesh : public IAsset
-{
-    static std::unique_ptr<OpenGLUtils::GLBuffer> m_matricesBuffer;
+	class UNIENGINE_API MeshStorage {
+		std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
+	};
+	class ParticleMatrices;
+	class UNIENGINE_API Mesh : public IAsset
+	{
+		static std::unique_ptr<OpenGLUtils::GLBuffer> m_matricesBuffer;
 
-    std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
-    size_t m_offset = 0;
+		std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
+		size_t m_offset = 0;
 
-    unsigned m_mask = 0;
-    Bound m_bound;
-    friend class Graphics;
-    friend class RenderLayer;
-    friend class MeshRenderer;
-    friend class Particles;
-    friend class Editor;
-    size_t m_version = 0;
+		unsigned m_mask = 0;
+		Bound m_bound;
+		friend class Graphics;
+		friend class RenderLayer;
+		friend class MeshRenderer;
+		friend class Particles;
+		friend class Editor;
+		size_t m_version = 0;
 
-    std::vector<Vertex> m_vertices;
-    std::vector<glm::uvec3> m_triangles;
+		std::vector<Vertex> m_vertices;
+		std::vector<glm::uvec3> m_triangles;
+		unsigned m_verticesSize = 0;
+		unsigned m_triangleSize = 0;
+	protected:
+		bool SaveInternal(const std::filesystem::path& path) override;
 
-  protected:
-    bool SaveInternal(const std::filesystem::path &path) override;
+	public:
+		void Draw() const;
+		void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
+		void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
+		void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
 
-  public:
-    void Draw() const;
-    void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
-    void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
-    void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
+		void OnInspect() override;
+		[[nodiscard]] glm::vec3 GetCenter() const;
+		[[nodiscard]] Bound GetBound() const;
+		void OnCreate() override;
+		void Upload();
+		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
+		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<glm::uvec3>& triangles);
+		[[nodiscard]] size_t GetVerticesAmount() const;
+		[[nodiscard]] size_t GetTriangleAmount() const;
 
-    void OnInspect() override;
-    [[nodiscard]] glm::vec3 GetCenter() const;
-    [[nodiscard]] Bound GetBound() const;
-    void OnCreate() override;
-    void Upload();
-    void SetVertices(const unsigned &mask, std::vector<Vertex> &vertices, std::vector<unsigned> &indices);
-    void SetVertices(const unsigned &mask, std::vector<Vertex> &vertices, std::vector<glm::uvec3> &triangles);
-    [[nodiscard]] size_t GetVerticesAmount() const;
-    [[nodiscard]] size_t GetTriangleAmount() const;
-    void RecalculateNormal();
-    void RecalculateTangent();
-    [[nodiscard]] std::shared_ptr<OpenGLUtils::GLVAO> Vao() const;
-    void Enable() const;
-    [[nodiscard]] size_t &GetVersion();
-    [[nodiscard]] std::vector<Vertex> &UnsafeGetVertices();
-    [[nodiscard]] std::vector<glm::uvec3> &UnsafeGetTriangles();
+		void UnsafeSetVerticesAmount(unsigned size);
+		void UnsafeSetTrianglesAmount(unsigned size);
+		void RecalculateNormal();
+		void RecalculateTangent();
+		[[nodiscard]] std::shared_ptr<OpenGLUtils::GLVAO> Vao() const;
+		void Enable() const;
+		[[nodiscard]] size_t& GetVersion();
+		[[nodiscard]] std::vector<Vertex>& UnsafeGetVertices();
+		[[nodiscard]] std::vector<glm::uvec3>& UnsafeGetTriangles();
 
-    void Serialize(YAML::Emitter &out) override;
-    void Deserialize(const YAML::Node &in) override;
-};
+		void Serialize(YAML::Emitter& out) override;
+		void Deserialize(const YAML::Node& in) override;
+	};
 } // namespace UniEngine
