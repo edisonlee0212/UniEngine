@@ -52,14 +52,14 @@ namespace UniEngine
 		// friend class Graphics;
 
 		bool m_depthTest = true;
-		bool m_scissorTest = true;
-		bool m_stencilTest = true;
-		bool m_blend = true;
-		bool m_cullFace = true;
-		OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Point;
+		bool m_scissorTest = false;
+		bool m_stencilTest = false;
+		bool m_blend = false;
+		bool m_cullFace = false;
+		OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Fill;
 		OpenGLCullFace m_cullFaceMode = OpenGLCullFace::Back;
-		OpenGLBlendFactor m_blendingSrcFactor = OpenGLBlendFactor::SrcAlpha;
-		OpenGLBlendFactor m_blendingDstFactor = OpenGLBlendFactor::OneMinusSrcAlpha;
+		OpenGLBlendFactor m_blendingSrcFactor = OpenGLBlendFactor::One;
+		OpenGLBlendFactor m_blendingDstFactor = OpenGLBlendFactor::Zero;
 
 	public:
 		static void InsertMemoryBarrier(GLbitfield barriers);
