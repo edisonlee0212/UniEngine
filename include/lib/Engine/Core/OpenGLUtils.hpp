@@ -62,6 +62,8 @@ namespace UniEngine
 		OpenGLBlendFactor m_blendingDstFactor = OpenGLBlendFactor::OneMinusSrcAlpha;
 
 	public:
+		static void InsertMemoryBarrier(GLbitfield barriers);
+		static void InsertMemoryBarrierByRegion(GLbitfield barriers);
 		static void Init();
 		static void PreUpdate();
 		static void SetEnable(OpenGLCapability capability, bool enable);
@@ -135,13 +137,13 @@ namespace UniEngine
 
 		public:
 			~GLVAO() override;
-			void Bind() const;
+			void Bind();
 			static void BindDefault();
 			GLVAO();
 			GLBuffer& Vbo();
 			GLBuffer& Ebo();
-			void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage) const;
-			void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data) const;
+			void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage);
+			void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data);
 			void EnableAttributeArray(const GLuint& index);
 			void DisableAttributeArray(const GLuint& index);
 			void SetAttributePointer(
@@ -150,16 +152,16 @@ namespace UniEngine
 				const GLenum& type,
 				const GLboolean& normalized,
 				const GLsizei& stride,
-				const void* pointer) const;
+				const void* pointer);
 
 			void SetAttributeIntPointer(
 				const GLuint& index,
 				const GLint& size,
 				const GLenum& type,
 				const GLsizei& stride,
-				const void* pointer) const;
+				const void* pointer);
 
-			void SetAttributeDivisor(const GLuint& index, const GLuint& divisor) const;
+			void SetAttributeDivisor(const GLuint& index, const GLuint& divisor);
 		};
 
 		class UNIENGINE_API GLRenderBuffer : public GLObject

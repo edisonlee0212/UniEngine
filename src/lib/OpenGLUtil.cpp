@@ -12,6 +12,14 @@ void APIENTRY glDebugOutput(
     const char *message,
     const void *userParam);
 
+void OpenGLUtils::InsertMemoryBarrier(GLbitfield barriers)
+{
+    glMemoryBarrier(barriers);
+}
+void OpenGLUtils::InsertMemoryBarrierByRegion(GLbitfield barriers)
+{
+    glMemoryBarrierByRegion(barriers);
+}
 void OpenGLUtils::Init()
 {
     // glad: load all OpenGL function pointers
@@ -317,11 +325,13 @@ OpenGLUtils::GLVAO::~GLVAO()
     glDeleteVertexArrays(1, &m_id);
 }
 
-void OpenGLUtils::GLVAO::Bind() const
+void OpenGLUtils::GLVAO::Bind()
 {
     if (m_boundVAO == m_id)
         return;
     m_boundVAO = m_id;
+    m_vbo.SetTarget(GLBufferTarget::Array);
+    m_ebo.SetTarget(GLBufferTarget::ElementArray);
     glBindVertexArray(m_id);
     m_vbo.Bind();
     m_ebo.Bind();
@@ -350,13 +360,13 @@ OpenGLUtils::GLBuffer& OpenGLUtils::GLVAO::Ebo()
     return m_ebo;
 }
 
-void OpenGLUtils::GLVAO::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const
+void OpenGLUtils::GLVAO::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage)
 {
     Bind();
     m_vbo.SetData(length, data, usage);
 }
 
-void OpenGLUtils::GLVAO::SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data) const
+void OpenGLUtils::GLVAO::SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data)
 {
     Bind();
     m_vbo.SubData(offset, size, data);
@@ -378,20 +388,20 @@ void OpenGLUtils::GLVAO::SetAttributePointer(
     const GLenum &type,
     const GLboolean &normalized,
     const GLsizei &stride,
-    const void *pointer) const
+    const void *pointer)
 {
     Bind();
     glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 }
 
 void OpenGLUtils::GLVAO::SetAttributeIntPointer(
-    const GLuint &index, const GLint &size, const GLenum &type, const GLsizei &stride, const void *pointer) const
+    const GLuint &index, const GLint &size, const GLenum &type, const GLsizei &stride, const void *pointer)
 {
     Bind();
     glVertexAttribIPointer(index, size, type, stride, pointer);
 }
 
-void OpenGLUtils::GLVAO::SetAttributeDivisor(const GLuint &index, const GLuint &divisor) const
+void OpenGLUtils::GLVAO::SetAttributeDivisor(const GLuint &index, const GLuint &divisor)
 {
     Bind();
     glVertexAttribDivisor(index, divisor);
