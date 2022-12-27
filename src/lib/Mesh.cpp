@@ -271,19 +271,6 @@ std::vector<Vertex>& Mesh::UnsafeGetVertices()
 void Mesh::Draw() const
 {
 	m_vao->Bind();
-#pragma region AttributePointer
-	m_vao->EnableAttributeArray(0);
-	m_vao->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	m_vao->EnableAttributeArray(1);
-	m_vao->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_normal)));
-	m_vao->EnableAttributeArray(2);
-	m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_tangent)));
-	m_vao->EnableAttributeArray(3);
-	m_vao->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_color)));
-
-	m_vao->EnableAttributeArray(4);
-	m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_texCoord)));
-#pragma endregion
 
 	m_vao->DisableAttributeArray(12);
 	m_vao->DisableAttributeArray(13);
@@ -300,19 +287,6 @@ void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 	auto count = matrices.size();
 	m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->Bind();
-#pragma region AttributePointer
-	m_vao->EnableAttributeArray(0);
-	m_vao->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	m_vao->EnableAttributeArray(1);
-	m_vao->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_normal)));
-	m_vao->EnableAttributeArray(2);
-	m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_tangent)));
-	m_vao->EnableAttributeArray(3);
-	m_vao->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_color)));
-
-	m_vao->EnableAttributeArray(4);
-	m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_texCoord)));
-#pragma endregion
 
 	m_vao->EnableAttributeArray(12);
 	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
@@ -337,19 +311,6 @@ void Mesh::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatric
 	auto count = particleMatrices->m_value.size();
 	particleMatrices->m_buffer->Bind();
 	m_vao->Bind();
-#pragma region AttributePointer
-	m_vao->EnableAttributeArray(0);
-	m_vao->SetAttributePointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-	m_vao->EnableAttributeArray(1);
-	m_vao->SetAttributePointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_normal)));
-	m_vao->EnableAttributeArray(2);
-	m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_tangent)));
-	m_vao->EnableAttributeArray(3);
-	m_vao->SetAttributePointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_color)));
-
-	m_vao->EnableAttributeArray(4);
-	m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, m_texCoord)));
-#pragma endregion
 
 	m_vao->EnableAttributeArray(12);
 	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);

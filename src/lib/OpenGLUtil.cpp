@@ -227,6 +227,7 @@ OpenGLUtils::GLBuffer::GLBuffer(GLBufferTarget target, const GLuint& index)
 
 void OpenGLUtils::GLBuffer::SetTarget(GLBufferTarget newTarget)
 {
+    if(m_target == newTarget && m_index == 0) return;
     Unbind();
     m_target = newTarget;
     m_index = 0;
@@ -234,6 +235,7 @@ void OpenGLUtils::GLBuffer::SetTarget(GLBufferTarget newTarget)
 
 void OpenGLUtils::GLBuffer::SetTargetBase(GLBufferTarget newTarget, const GLuint& index)
 {
+    if (m_target == newTarget && m_index == index) return;
     Unbind();
     m_target = newTarget;
     m_index = index;
@@ -330,11 +332,7 @@ void OpenGLUtils::GLVAO::Bind()
     if (m_boundVAO == m_id)
         return;
     m_boundVAO = m_id;
-    m_vbo.SetTarget(GLBufferTarget::Array);
-    m_ebo.SetTarget(GLBufferTarget::ElementArray);
     glBindVertexArray(m_id);
-    m_vbo.Bind();
-    m_ebo.Bind();
 }
 
 void OpenGLUtils::GLVAO::BindDefault()
