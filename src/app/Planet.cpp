@@ -18,7 +18,7 @@ int main()
     ClassRegistry::RegisterPrivateComponent<PlanetTerrain>("PlanetTerrain");
     ClassRegistry::RegisterSystem<PlanetTerrainSystem>("PlanetTerrainSystem");
 
-    const std::filesystem::path resourceFolderPath("../Resources");
+    const std::filesystem::path resourceFolderPath("../../../Resources");
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Planet/Planet.ueproj";
 

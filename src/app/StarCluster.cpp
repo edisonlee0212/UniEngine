@@ -24,7 +24,7 @@ int main()
 
     ClassRegistry::RegisterSystem<StarClusterSystem>("StarClusterSystem");
 
-    const std::filesystem::path resourceFolderPath("../Resources");
+    const std::filesystem::path resourceFolderPath("../../../Resources");
 
     ProjectManager::SetScenePostLoadActions([](){
         LoadScene();

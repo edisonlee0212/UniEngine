@@ -83,14 +83,14 @@ void LoadScene()
     Transform titleTransform;
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
     scene->SetDataComponent(titleEntity, titleTransform);
-    /*
+    
     auto titleMaterial =
         scene->GetOrSetPrivateComponent<MeshRenderer>(scene->GetChildren(scene->GetChildren(titleEntity)[0])[0])
             .lock()
             ->m_material.Get<Material>();
     titleMaterial->m_materialProperties.m_emission = 4;
     titleMaterial->m_materialProperties.m_albedoColor = glm::vec3(1, 0.2, 0.5);
-    */
+    
 #ifdef USE_ASSIMP
 
     auto dancingStormTrooper = std::dynamic_pointer_cast<Prefab>(

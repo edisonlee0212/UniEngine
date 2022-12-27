@@ -62,7 +62,7 @@ int main()
 {
     ProjectManager::SetScenePostLoadActions([]() { LoadScene(); });
 
-    const std::filesystem::path resourceFolderPath("../Resources");
+    const std::filesystem::path resourceFolderPath("../../../Resources");
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Physics/Physics.ueproj";
     Application::Create(applicationConfigs);
@@ -107,8 +107,8 @@ void LoadScene()
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
             meshRenderer->m_material.Set<Material>(material);
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-            material->m_roughness = static_cast<float>(i) / (amount - 1);
-            material->m_metallic = static_cast<float>(j) / (amount - 1);
+            material->m_materialProperties.m_roughness = static_cast<float>(i) / (amount - 1);
+            material->m_materialProperties.m_metallic = static_cast<float>(j) / (amount - 1);
 
             auto rigidBody = scene->GetOrSetPrivateComponent<RigidBody>(sphere).lock();
             rigidBody->SetEnabled(true);
@@ -247,7 +247,7 @@ Entity CreateCube(
     auto material = ProjectManager::CreateTemporaryAsset<Material>();
     material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material.Set<Material>(material);
-    material->m_albedoColor = color;
+    material->m_materialProperties.m_albedoColor = color;
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), scale);
@@ -319,7 +319,7 @@ Entity CreateSphere(
     auto material = ProjectManager::CreateTemporaryAsset<Material>();
     material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     groundMeshRenderer->m_material.Set<Material>(material);
-    material->m_albedoColor = color;
+    material->m_materialProperties.m_albedoColor = color;
     groundMeshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     Transform groundTransform;
     groundTransform.SetValue(position, glm::radians(rotation), glm::vec3(scale));
