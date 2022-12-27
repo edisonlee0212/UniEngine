@@ -85,6 +85,9 @@ void OpenGLUtils::PreUpdate()
 
     utils.m_cullFaceMode = OpenGLCullFace::FrontAndBack;
     SetCullFace(OpenGLCullFace::Back);
+    utils.m_blendingSrcFactor = OpenGLBlendFactor::One;
+    utils.m_blendingDstFactor = OpenGLBlendFactor::Zero;
+    SetBlendFunc(OpenGLBlendFactor::SrcAlpha, OpenGLBlendFactor::OneMinusSrcAlpha);
 }
 void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
 {
