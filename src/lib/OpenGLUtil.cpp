@@ -41,7 +41,7 @@ void OpenGLUtils::Init()
 
 GLint OpenGLUtils::GLTexture::m_maxAllowedTexture = 0;
 std::vector<std::pair<GLenum, GLuint>> OpenGLUtils::GLTexture::m_currentBoundTextures;
-std::map<OpenGLUtils::GLBufferTarget, GLuint> OpenGLUtils::GLBuffer::m_boundBuffers;
+std::map<OpenGLUtils::GLBufferTarget, std::map<GLuint, GLuint>> OpenGLUtils::GLBuffer::m_boundBuffers;
 GLuint OpenGLUtils::GLVAO::m_boundVAO = 0;
 GLuint OpenGLUtils::GLProgram::m_boundProgram = 0;
 GLuint OpenGLUtils::GLFrameBuffer::m_boundFrameBuffer = 0;
@@ -207,36 +207,73 @@ OpenGLUtils::GLBuffer::GLBuffer(GLBufferTarget target)
 {
     glGenBuffers(1, &m_id);
     m_target = target;
+    m_index = 0;
+}
+
+OpenGLUtils::GLBuffer::GLBuffer(GLBufferTarget target, const GLuint& index)
+{
+    glGenBuffers(1, &m_id);
+    m_target = target;
+    m_index = index;
 }
 
 void OpenGLUtils::GLBuffer::SetTarget(GLBufferTarget newTarget)
 {
-    const auto search = m_boundBuffers.find(m_target);
-    if (search != m_boundBuffers.end() && search->second == m_id)
-    {
-        glBindBuffer(static_cast<GLenum>(m_target), 0);
-    }
+    Unbind();
     m_target = newTarget;
+    m_index = 0;
+}
+
+void OpenGLUtils::GLBuffer::SetTargetBase(GLBufferTarget newTarget, const GLuint& index)
+{
+    Unbind();
+    m_target = newTarget;
+    m_index = index;
 }
 
 void OpenGLUtils::GLBuffer::Bind() const
 {
     const auto search = m_boundBuffers.find(m_target);
-    if (search != m_boundBuffers.end() && search->second == m_id)
+    if (search != m_boundBuffers.end() && search->second[0] == m_id)
     {
-        return;
+        const auto search2 = search->second.find(m_index);
+        if (search2 != search->second.end() && search2->second == m_id) {
+            return;
+        }
     }
-    m_boundBuffers[m_target] = m_id;
-    glBindBuffer(static_cast<GLenum>(m_target), m_id);
+    m_boundBuffers[m_target][m_index] = m_id;
+    if(m_target == GLBufferTarget::ShaderStorage
+        || m_target == GLBufferTarget::Uniform
+        || m_target == GLBufferTarget::TransformFeedback
+        || m_target == GLBufferTarget::AtomicCounter)
+    {
+        glBindBufferBase(static_cast<GLenum>(m_target), m_index, m_id);
+    }
+    else {
+        glBindBuffer(static_cast<GLenum>(m_target), m_id);
+    }
 }
 
 void OpenGLUtils::GLBuffer::Unbind()
 {
     const auto search = m_boundBuffers.find(m_target);
-    if (search != m_boundBuffers.end() && search->second == m_id)
+    if (search != m_boundBuffers.end() && search->second[0] == m_id)
     {
-        m_boundBuffers[m_target] = 0;
-        glBindBuffer(static_cast<GLenum>(m_target), 0);
+        const auto search2 = search->second.find(m_index);
+        if (search2 != search->second.end() && search2->second == m_id) {
+            
+            if (m_target == GLBufferTarget::ShaderStorage
+                || m_target == GLBufferTarget::Uniform
+                || m_target == GLBufferTarget::TransformFeedback
+                || m_target == GLBufferTarget::AtomicCounter)
+            {
+                glBindBufferBase(static_cast<GLenum>(m_target), m_index, 0);
+            }
+            else {
+                glBindBuffer(static_cast<GLenum>(m_target), 0);
+            }
+            m_boundBuffers[m_target][m_index] = 0;
+        }
     }
 }
 
@@ -267,10 +304,7 @@ OpenGLUtils::GLBufferTarget OpenGLUtils::GLBuffer::GetTarget()
     return m_target;
 }
 
-void OpenGLUtils::GLBuffer::SetBase(const GLuint &index) const
-{
-    glBindBufferBase(static_cast<GLenum>(m_target), index, m_id);
-}
+
 
 void OpenGLUtils::GLBuffer::SetRange(const GLuint &index, const GLintptr &offset, const GLsizeiptr &size) const
 {
@@ -289,6 +323,8 @@ void OpenGLUtils::GLVAO::Bind() const
         return;
     m_boundVAO = m_id;
     glBindVertexArray(m_id);
+    m_vbo.Bind();
+    m_ebo.Bind();
 }
 
 void OpenGLUtils::GLVAO::BindDefault()

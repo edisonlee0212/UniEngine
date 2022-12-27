@@ -221,9 +221,9 @@ std::unique_ptr<OpenGLUtils::GLBuffer>& CameraInfoBlock::GetBuffer()
     static std::unique_ptr<OpenGLUtils::GLBuffer> m_cameraUniformBufferBlock;
     if(!m_cameraUniformBufferBlock)
     {
-        m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
+        m_cameraUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 0);
         m_cameraUniformBufferBlock->SetData(sizeof(CameraInfoBlock), nullptr, GL_STREAM_DRAW);
-        m_cameraUniformBufferBlock->SetBase(0);
+        m_cameraUniformBufferBlock->Bind();
     }
     return m_cameraUniformBufferBlock;
 }
@@ -497,6 +497,7 @@ void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, cons
         m_clearColor.w = 0.0f;
     }
     GetBuffer()->SubData(0, sizeof(CameraInfoBlock), &this->m_projection);
+    GetBuffer()->Bind();
 }
 void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, const GlobalTransform& globalTransform)
 {
@@ -526,4 +527,5 @@ void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, cons
         m_clearColor.w = 0.0f;
     }
     GetBuffer()->SubData(0, sizeof(CameraInfoBlock), this);
+    GetBuffer()->Bind();
 }

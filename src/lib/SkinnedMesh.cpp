@@ -111,10 +111,10 @@ void SkinnedMesh::FetchIndices()
 
 void SkinnedMesh::TryInitialize()
 {
-    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::ShaderStorage);
+    m_skinnedMeshBonesUniformBufferBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::ShaderStorage, 8);
     m_skinnedMeshBonesUniformBufferBlock->SetData(
         DefaultResources::ShaderIncludes::MaxBonesAmount * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
-    m_skinnedMeshBonesUniformBufferBlock->SetBase(8);
+    m_skinnedMeshBonesUniformBufferBlock->Bind();
 }
 
 void SkinnedMesh::UploadBones(const std::vector<glm::mat4> &matrices)

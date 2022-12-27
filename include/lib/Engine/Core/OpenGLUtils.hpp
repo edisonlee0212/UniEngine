@@ -105,14 +105,16 @@ namespace UniEngine
 
 		protected:
 			GLBufferTarget m_target = GLBufferTarget::Array;
-			static std::map<GLBufferTarget, GLuint> m_boundBuffers;
+			GLuint m_index = 0;
+			static std::map<OpenGLUtils::GLBufferTarget, std::map<GLuint, GLuint>> m_boundBuffers;
 
 		public:
 			[[nodiscard]] GLBufferTarget GetTarget();
 			GLBuffer();
 			GLBuffer(GLBufferTarget target);
+			GLBuffer(GLBufferTarget target, const GLuint& index);
 			void SetTarget(GLBufferTarget newTarget);
-			void SetBase(const GLuint& index) const;
+			void SetTargetBase(GLBufferTarget newTarget, const GLuint& index);
 			void Bind() const;
 			void Unbind();
 			static void BindDefault(GLBufferTarget target);

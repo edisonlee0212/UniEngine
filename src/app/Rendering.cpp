@@ -12,7 +12,7 @@ int main()
     /*
      * Please change this to the root folder.
      */
-    const std::filesystem::path resourceFolderPath("../Resources");
+    const std::filesystem::path resourceFolderPath("../../../Resources");
     ProjectManager::SetScenePostLoadActions([]() { LoadScene(); });
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Rendering/Rendering.ueproj";
@@ -62,8 +62,8 @@ void LoadScene()
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
             meshRenderer->m_material.Set<Material>(material);
             material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
-            material->m_roughness = static_cast<float>(i) / (amount - 1);
-            material->m_metallic = static_cast<float>(j) / (amount - 1);
+            material->m_materialProperties.m_roughness = static_cast<float>(i) / (amount - 1);
+            material->m_materialProperties.m_metallic = static_cast<float>(j) / (amount - 1);
 
             scene->SetParent(sphere, collection);
         }
@@ -83,14 +83,14 @@ void LoadScene()
     Transform titleTransform;
     titleTransform.SetValue(glm::vec3(3.5, 70, -160), glm::radians(glm::vec3(0, 0, 0)), glm::vec3(0.05));
     scene->SetDataComponent(titleEntity, titleTransform);
-
+    /*
     auto titleMaterial =
         scene->GetOrSetPrivateComponent<MeshRenderer>(scene->GetChildren(scene->GetChildren(titleEntity)[0])[0])
             .lock()
             ->m_material.Get<Material>();
-    titleMaterial->m_emission = 4;
-    titleMaterial->m_albedoColor = glm::vec3(1, 0.2, 0.5);
-
+    titleMaterial->m_materialProperties.m_emission = 4;
+    titleMaterial->m_materialProperties.m_albedoColor = glm::vec3(1, 0.2, 0.5);
+    */
 #ifdef USE_ASSIMP
 
     auto dancingStormTrooper = std::dynamic_pointer_cast<Prefab>(
@@ -112,18 +112,18 @@ void LoadScene()
                                         scene->GetChildren(scene->GetChildren(capoeiraEntity)[1])[0])
                                     .lock()
                                     ->m_material.Get<Material>();
-    capoeiraBodyMaterial->m_albedoColor = glm::vec3(0, 1, 1);
-    capoeiraBodyMaterial->m_metallic = 1;
-    capoeiraBodyMaterial->m_roughness = 0;
+    capoeiraBodyMaterial->m_materialProperties.m_albedoColor = glm::vec3(0, 1, 1);
+    capoeiraBodyMaterial->m_materialProperties.m_metallic = 1;
+    capoeiraBodyMaterial->m_materialProperties.m_roughness = 0;
     auto capoeiraJointsMaterial = scene
                                       ->GetOrSetPrivateComponent<SkinnedMeshRenderer>(
                                           scene->GetChildren(scene->GetChildren(capoeiraEntity)[0])[0])
                                       .lock()
                                       ->m_material.Get<Material>();
-    capoeiraJointsMaterial->m_albedoColor = glm::vec3(0.3, 1.0, 0.5);
-    capoeiraJointsMaterial->m_metallic = 1;
-    capoeiraJointsMaterial->m_roughness = 0;
-    capoeiraJointsMaterial->m_emission = 6;
+    capoeiraJointsMaterial->m_materialProperties.m_albedoColor = glm::vec3(0.3, 1.0, 0.5);
+    capoeiraJointsMaterial->m_materialProperties.m_metallic = 1;
+    capoeiraJointsMaterial->m_materialProperties.m_roughness = 0;
+    capoeiraJointsMaterial->m_materialProperties.m_emission = 6;
 
 #endif
 #pragma endregion
@@ -151,8 +151,8 @@ void LoadScene()
     auto groundMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     groundMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightLeftRenderer->m_material.Set<Material>(groundMaterial);
-    groundMaterial->m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
-    groundMaterial->m_emission = 10.0f;
+    groundMaterial->m_materialProperties.m_albedoColor = glm::vec3(0.0, 0.5, 1.0);
+    groundMaterial->m_materialProperties.m_emission = 10.0f;
     pointLightLeftRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     auto pointLightLeft = scene->GetOrSetPrivateComponent<PointLight>(pointLightLeftEntity).lock();
     pointLightLeft->m_diffuseBrightness = 20;
@@ -166,8 +166,8 @@ void LoadScene()
     auto pointLightRightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     pointLightRightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     pointLightRightRenderer->m_material.Set<Material>(pointLightRightMaterial);
-    pointLightRightMaterial->m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
-    pointLightRightMaterial->m_emission = 10.0f;
+    pointLightRightMaterial->m_materialProperties.m_albedoColor = glm::vec3(1.0, 0.8, 0.0);
+    pointLightRightMaterial->m_materialProperties.m_emission = 10.0f;
     pointLightRightRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);
     auto pointLightRight = scene->GetOrSetPrivateComponent<PointLight>(pointLightRightEntity).lock();
     pointLightRight->m_diffuseBrightness = 20;
@@ -186,8 +186,8 @@ void LoadScene()
     auto spotLightMaterial = ProjectManager::CreateTemporaryAsset<Material>();
     spotLightMaterial->SetProgram(DefaultResources::GLPrograms::StandardProgram);
     spotLightRenderer->m_material.Set<Material>(spotLightMaterial);
-    spotLightMaterial->m_albedoColor = glm::vec3(1, 0.7, 0.7);
-    spotLightMaterial->m_emission = 10.0f;
+    spotLightMaterial->m_materialProperties.m_albedoColor = glm::vec3(1, 0.7, 0.7);
+    spotLightMaterial->m_materialProperties.m_emission = 10.0f;
     spotLightRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cone);
 
     auto spotLightEntity = scene->CreateEntity("Spot Light");

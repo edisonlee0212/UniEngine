@@ -77,6 +77,10 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	}
 	cameraComponent->m_frameCount++;
 	*/
+	m_materialSettingsBuffer->Bind();
+	m_environmentalMapSettingsBuffer->Bind();
+	m_kernelBlock->Bind();
+
 	Camera::m_cameraInfoBlock.UploadMatrices(cameraComponent, cameraModel);
 	auto scene = GetScene();
 	auto sceneBound = scene->GetBound();
@@ -386,13 +390,13 @@ void RenderLayer::OnInspect()
 void RenderLayer::OnCreate()
 {
 	m_frameIndex = 0;
-	m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
+	m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 6);
 	m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
-	m_materialSettingsBuffer->SetBase(6);
+	
 
-	m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
+	m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 7);
 	m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
-	m_environmentalMapSettingsBuffer->SetBase(7);
+	
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
@@ -410,8 +414,8 @@ void RenderLayer::OnCreate()
 			glm::gaussRand(0.0f, 1.0f),
 			glm::gaussRand(0.0f, 1.0f));
 	}
-	m_kernelBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
-	m_kernelBlock->SetBase(5);
+	m_kernelBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 5);
+	
 	m_kernelBlock->SetData(
 		sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
 	m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
@@ -420,23 +424,19 @@ void RenderLayer::OnCreate()
 
 #pragma endregion
 #pragma region Shadow
-	m_shadowCascadeInfoBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
+	m_shadowCascadeInfoBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 4);
 	m_shadowCascadeInfoBlock->SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
-	m_shadowCascadeInfoBlock->SetBase(4);
 
 #pragma region LightInfoBlocks
 	size_t size = 16 + DefaultResources::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
-	m_directionalLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
-	m_pointLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
-	m_spotLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform);
+	m_directionalLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 1);
+	m_pointLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 2);
+	m_spotLightBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 3);
 	m_directionalLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_directionalLightBlock->SetBase(1);
 	size = 16 + DefaultResources::ShaderIncludes::MaxPointLightAmount * sizeof(PointLightInfo);
 	m_pointLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_pointLightBlock->SetBase(2);
 	size = 16 + DefaultResources::ShaderIncludes::MaxSpotLightAmount * sizeof(SpotLightInfo);
 	m_spotLightBlock->SetData((GLsizei)size, nullptr, (GLsizei)GL_DYNAMIC_DRAW);
-	m_spotLightBlock->SetBase(3);
 #pragma endregion
 #pragma region DirectionalLight
 	m_directionalLightShadowMap = std::make_unique<DirectionalLightShadowMap>(m_directionalLightShadowMapResolution);
@@ -833,6 +833,10 @@ void RenderLayer::ShadowMapPrePass(
 void RenderLayer::RenderShadows(
 	Bound& worldBound, const std::shared_ptr<Camera>& cameraComponent, const GlobalTransform& cameraModel)
 {
+	m_directionalLightBlock->Bind();
+	m_pointLightBlock->Bind();
+	m_spotLightBlock->Bind();
+	m_shadowCascadeInfoBlock->Bind();
 	OpenGLUtils::SetEnable(OpenGLCapability::Blend, false);
 	OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, true);
 	OpenGLUtils::SetEnable(OpenGLCapability::CullFace, false);
