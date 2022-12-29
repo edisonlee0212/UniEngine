@@ -368,6 +368,91 @@ void Graphics::RenderQuad()
     glBindVertexArray(0);
 }
 
+void Gizmos::DrawGizmoStrandsInternal(const GizmoSettings& gizmoSettings, const std::shared_ptr<Strands>& strands,
+	const glm::vec4& color, const glm::mat4& model, const glm::mat4& scaleMatrix)
+{
+    if (strands == nullptr)
+        return;
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, gizmoSettings.m_depthTest);
+    gizmoSettings.m_drawSettings.ApplySettings();
+
+    switch (gizmoSettings.m_colorMode)
+    {
+    case GizmoSettings::ColorMode::Default: {
+        DefaultResources::GizmoStrandsProgram->Bind();
+        DefaultResources::GizmoStrandsProgram->SetFloat4("surfaceColor", color);
+        DefaultResources::GizmoStrandsProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    case GizmoSettings::ColorMode::VertexColor: {
+        DefaultResources::GizmoStrandsVertexColoredProgram->Bind();
+        DefaultResources::GizmoStrandsVertexColoredProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsVertexColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    case GizmoSettings::ColorMode::NormalColor: {
+        DefaultResources::GizmoStrandsNormalColoredProgram->Bind();
+        DefaultResources::GizmoStrandsNormalColoredProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsNormalColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    }
+    strands->Draw();
+}
+
+void Gizmos::DrawGizmoStrandsInstancedInternal(const GizmoSettings& gizmoSettings, const std::shared_ptr<Strands>& strands,
+	const glm::vec4& color, const glm::mat4& model, const std::vector<glm::mat4>& matrices,
+	const glm::mat4& scaleMatrix)
+{
+    if (strands == nullptr || matrices.empty())
+        return;
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, gizmoSettings.m_depthTest);
+    gizmoSettings.m_drawSettings.ApplySettings();
+    strands->Enable();
+    switch (gizmoSettings.m_colorMode)
+    {
+    case GizmoSettings::ColorMode::Default: {
+        DefaultResources::GizmoStrandsInstancedProgram->Bind();
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4("surfaceColor", color);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    case GizmoSettings::ColorMode::VertexColor: {
+        DefaultResources::GizmoStrandsInstancedProgram->Bind();
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4("surfaceColor", color);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    case GizmoSettings::ColorMode::NormalColor: {
+        DefaultResources::GizmoStrandsInstancedProgram->Bind();
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4("surfaceColor", color);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("model", model);
+        DefaultResources::GizmoStrandsInstancedProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    }break;
+    }
+    strands->DrawInstanced(matrices);
+}
+
+void Gizmos::DrawGizmoStrandsInstancedColoredInternal(const GizmoSettings& gizmoSettings,
+	const std::shared_ptr<Strands>& strands, const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices,
+	const glm::mat4& model, const glm::mat4& scaleMatrix)
+{
+    if (strands == nullptr || matrices.empty() || colors.empty() || matrices.size() != colors.size())
+        return;
+    OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, gizmoSettings.m_depthTest);
+    gizmoSettings.m_drawSettings.ApplySettings();
+    strands->Enable();
+    const auto vao = strands->Vao();
+    const OpenGLUtils::GLBuffer colorsBuffer(OpenGLUtils::GLBufferTarget::Array);
+    colorsBuffer.SetData(static_cast<GLsizei>(matrices.size()) * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
+    vao->EnableAttributeArray(11);
+    vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+    vao->SetAttributeDivisor(11, 1);
+
+    DefaultResources::GizmoStrandsInstancedColoredProgram->Bind();
+    DefaultResources::GizmoStrandsInstancedColoredProgram->SetFloat4x4("model", model);
+    DefaultResources::GizmoStrandsInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
+    strands->DrawInstanced(matrices);
+    OpenGLUtils::GLVAO::BindDefault();
+}
 
 
 void Gizmos::DrawGizmoMeshInstancedInternal(

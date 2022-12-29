@@ -47,6 +47,13 @@ std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoVertexColoredProg
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoNormalColoredProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoInstancedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoInstancedColoredProgram;
+
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsVertexColoredProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsNormalColoredProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsInstancedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsInstancedColoredProgram;
+
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::SkyboxProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::ScreenProgram;
 std::shared_ptr<OpenGLUtils::GLVAO> DefaultResources::ScreenVAO;
@@ -105,7 +112,7 @@ Handle DefaultResources::GetMaxHandle()
 void DefaultResources::LoadShaders()
 {
     int numberOfExtensions;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &numberOfExtensions);
+    OpenGLUtils::Get(GL_NUM_EXTENSIONS, numberOfExtensions);
     for (int i = 0; i < numberOfExtensions; i++)
     {
         const GLubyte *ccc = glGetStringi(GL_EXTENSIONS, i);
@@ -708,6 +715,24 @@ void DefaultResources::LoadRenderManagerResources()
     vertShaderCode =
         std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
         FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/GizmoInstancedColored.vert");
+
+    standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoInstancedColored.vert");
+    standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+    standardFrag = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoColored.frag");
+    standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+    GizmoInstancedColoredProgram = std::make_shared<OpenGLUtils::GLProgram>();
+    GizmoInstancedColoredProgram->Attach(standardVert);
+    GizmoInstancedColoredProgram->Attach(standardFrag);
+    GizmoInstancedColoredProgram->Link();
+
+
+    vertShaderCode =
+        std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+        FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/GizmoInstancedColored.vert");
+
+    fragShaderCode =
+        std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+        FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Fragment/GizmoColored.frag");
 
     standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoInstancedColored.vert");
     standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);

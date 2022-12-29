@@ -62,6 +62,12 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoInstancedColoredProgram;
 
+    static std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsVertexColoredProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsNormalColoredProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsInstancedProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GizmoStrandsInstancedColoredProgram;
+
     static std::shared_ptr<OpenGLUtils::GLProgram> ConvolutionProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> PrefilterProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> BrdfProgram;

@@ -7,7 +7,6 @@
 #include "Graphics.hpp"
 using namespace UniEngine;
 
-std::unique_ptr<OpenGLUtils::GLBuffer> Mesh::m_matricesBuffer;
 
 void Mesh::OnInspect()
 {
@@ -285,7 +284,7 @@ void Mesh::Draw() const
 void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 {
 	auto count = matrices.size();
-	m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->Bind();
 
 	m_vao->EnableAttributeArray(12);
@@ -330,7 +329,7 @@ void Mesh::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatric
 void Mesh::DrawInstanced(const std::vector<GlobalTransform>& matrices) const
 {
 	auto count = matrices.size();
-	m_matricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->Bind();
 
 	m_vao->EnableAttributeArray(12);

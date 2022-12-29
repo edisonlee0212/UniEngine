@@ -6,6 +6,7 @@
 #include "Particles.hpp"
 #include "SkinnedMeshRenderer.hpp"
 #include "RenderLayer.hpp"
+#include "StrandsRenderer.hpp"
 namespace UniEngine
 {
 struct GizmoSettings{
@@ -88,6 +89,26 @@ class UNIENGINE_API Graphics
 #pragma endregion
 };
 class UNIENGINE_API Gizmos{
+    static void DrawGizmoStrandsInternal(const GizmoSettings& gizmoSettings,
+        const std::shared_ptr<Strands>& strands,
+        const glm::vec4& color,
+        const glm::mat4& model,
+        const glm::mat4& scaleMatrix);
+
+    static void DrawGizmoStrandsInstancedInternal(const GizmoSettings& gizmoSettings,
+        const std::shared_ptr<Strands>& strands,
+        const glm::vec4& color,
+        const glm::mat4& model,
+        const std::vector<glm::mat4>& matrices,
+        const glm::mat4& scaleMatrix);
+
+    static void DrawGizmoStrandsInstancedColoredInternal(const GizmoSettings& gizmoSettings,
+        const std::shared_ptr<Strands>& mesh,
+        const std::vector<glm::vec4>& colors,
+        const std::vector<glm::mat4>& matrices,
+        const glm::mat4& model,
+        const glm::mat4& scaleMatrix);
+
     static void DrawGizmoMeshInternal(const GizmoSettings& gizmoSettings,
                                const std::shared_ptr<Mesh> &mesh,
                                const glm::vec4 &color,

@@ -9,6 +9,7 @@ class UNIENGINE_API ParticleMatrices : ISerializable{
     std::shared_ptr<OpenGLUtils::GLBuffer> m_buffer;
     bool m_bufferReady = false;
     friend class Mesh;
+    friend class Strands;
     friend class SkinnedMesh;
     size_t m_version = 0;
   public:

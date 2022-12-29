@@ -24,18 +24,18 @@ void OpenGLUtils::Init()
 {
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
         UNIENGINE_ERROR("Failed to initialize GLAD");
         exit(-1);
     }
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &GLTexture::m_maxAllowedTexture);
+    Get(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GLTexture::m_maxAllowedTexture);
     GLTexture::m_currentBoundTextures.resize(GLTexture::m_maxAllowedTexture);
 
     // enable OpenGL debug context if context allows for debug context
 
     int flags;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    Get(GL_CONTEXT_FLAGS, flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
     {
         glEnable(GL_DEBUG_OUTPUT);
@@ -99,11 +99,11 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
         {
             if (enable)
             {
-                glEnable((GLenum)capability);
+                glEnable(static_cast<GLenum>(capability));
             }
             else
             {
-                glDisable((GLenum)capability);
+                glDisable(static_cast<GLenum>(capability));
             }
         }
         utils.m_depthTest = enable;
@@ -113,11 +113,11 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
         {
             if (enable)
             {
-                glEnable((GLenum)capability);
+                glEnable(static_cast<GLenum>(capability));
             }
             else
             {
-                glDisable((GLenum)capability);
+                glDisable(static_cast<GLenum>(capability));
             }
         }
         utils.m_scissorTest = enable;
@@ -127,11 +127,11 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
         {
             if (enable)
             {
-                glEnable((GLenum)capability);
+                glEnable(static_cast<GLenum>(capability));
             }
             else
             {
-                glDisable((GLenum)capability);
+                glDisable(static_cast<GLenum>(capability));
             }
         }
         utils.m_stencilTest = enable;
@@ -141,11 +141,11 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
         {
             if (enable)
             {
-                glEnable((GLenum)capability);
+                glEnable(static_cast<GLenum>(capability));
             }
             else
             {
-                glDisable((GLenum)capability);
+                glDisable(static_cast<GLenum>(capability));
             }
         }
         utils.m_blend = enable;
@@ -155,11 +155,11 @@ void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
         {
             if (enable)
             {
-                glEnable((GLenum)capability);
+                glEnable(static_cast<GLenum>(capability));
             }
             else
             {
-                glDisable((GLenum)capability);
+                glDisable(static_cast<GLenum>(capability));
             }
         }
         utils.m_cullFace = enable;
@@ -172,7 +172,7 @@ void OpenGLUtils::SetPolygonMode(OpenGLPolygonMode mode)
     if (utils.m_polygonMode != mode)
     {
         utils.m_polygonMode = mode;
-        glPolygonMode(GL_FRONT_AND_BACK, (GLenum)mode);
+        glPolygonMode(GL_FRONT_AND_BACK, static_cast<GLenum>(mode));
     }
 }
 void OpenGLUtils::SetCullFace(OpenGLCullFace cullFace)
@@ -181,16 +181,46 @@ void OpenGLUtils::SetCullFace(OpenGLCullFace cullFace)
     if (utils.m_cullFaceMode != cullFace)
     {
         utils.m_cullFaceMode = cullFace;
-        glCullFace((GLenum)cullFace);
+        glCullFace(static_cast<GLenum>(cullFace));
     }
 }
-void OpenGLUtils::SetViewPort(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+void OpenGLUtils::SetViewPort(int x1, int y1, int x2, int y2)
 {
-    glViewport((GLint)x1, (GLint)y1, (GLint)x2, (GLint)y2);
+    glViewport(x1, y1, x2, y2);
 }
-void OpenGLUtils::SetViewPort(unsigned x, unsigned y)
+void OpenGLUtils::SetViewPort(int x, int y)
 {
-    glViewport(0, 0, (GLint)x, (GLint)y);
+    glViewport(0, 0, x, y);
+}
+
+void OpenGLUtils::Get(GLenum param, int& data)
+{
+    glGetIntegerv(param, &data);
+}
+
+void OpenGLUtils::Get(GLenum param, float& data)
+{
+    glGetFloatv(param, &data);
+}
+
+void OpenGLUtils::Get(GLenum param, boolean& data)
+{
+    glGetBooleanv(param, &data);
+}
+
+void OpenGLUtils::Get(GLenum param, double& data)
+{
+    glGetDoublev(param, &data);
+}
+
+void OpenGLUtils::PatchParameter(GLenum param, int value)
+{
+    glPatchParameteri(param, value);
+}
+
+void OpenGLUtils::PatchParameter(GLenum param, const std::vector<float>& values)
+{
+    glPatchParameterfv(param, values.data());
 }
 
 void OpenGLUtils::SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor dstFactor)
@@ -200,7 +230,7 @@ void OpenGLUtils::SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor ds
     {
         utils.m_blendingSrcFactor = srcFactor;
         utils.m_blendingDstFactor = dstFactor;
-        glBlendFunc((GLenum)utils.m_blendingSrcFactor, (GLenum)utils.m_blendingDstFactor);
+        glBlendFunc(static_cast<GLenum>(utils.m_blendingSrcFactor), static_cast<GLenum>(utils.m_blendingDstFactor));
     }
 }
 
@@ -312,7 +342,7 @@ OpenGLUtils::GLBuffer::~GLBuffer()
     glDeleteBuffers(1, &m_id);
 }
 
-OpenGLUtils::GLBufferTarget OpenGLUtils::GLBuffer::GetTarget()
+OpenGLUtils::GLBufferTarget OpenGLUtils::GLBuffer::GetTarget() const
 {
     return m_target;
 }
@@ -330,7 +360,7 @@ OpenGLUtils::GLVAO::~GLVAO()
     glDeleteVertexArrays(1, &m_id);
 }
 
-void OpenGLUtils::GLVAO::Bind()
+void OpenGLUtils::GLVAO::Bind() const
 {
     if (m_boundVAO == m_id)
         return;
@@ -361,13 +391,13 @@ OpenGLUtils::GLBuffer& OpenGLUtils::GLVAO::Ebo()
     return m_ebo;
 }
 
-void OpenGLUtils::GLVAO::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage)
+void OpenGLUtils::GLVAO::SetData(const GLsizei &length, const GLvoid *data, const GLenum &usage) const
 {
     Bind();
     m_vbo.SetData(length, data, usage);
 }
 
-void OpenGLUtils::GLVAO::SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data)
+void OpenGLUtils::GLVAO::SubData(const GLintptr &offset, const GLsizeiptr &size, const GLvoid *data) const
 {
     Bind();
     m_vbo.SubData(offset, size, data);
@@ -1099,8 +1129,11 @@ void OpenGLUtils::GLShader::Compile()
         case ShaderType::Fragment:
             type = "Fragment";
             break;
-        case ShaderType::Tessellation:
-            type = "Tessellation";
+        case ShaderType::TessellationControl:
+            type = "Tessellation Control";
+            break;
+        case ShaderType::TessellationEvaluation:
+            type = "Tessellation Evaluation";
             break;
         case ShaderType::Compute:
             type = "Compute";
@@ -1129,8 +1162,11 @@ void OpenGLUtils::GLShader::Set(ShaderType type, const std::string &code)
     case ShaderType::Compute:
         m_id = glCreateShader(GL_COMPUTE_SHADER);
         break;
-    case ShaderType::Tessellation:
+    case ShaderType::TessellationControl:
         m_id = glCreateShader(GL_TESS_CONTROL_SHADER);
+        break;
+    case ShaderType::TessellationEvaluation:
+        m_id = glCreateShader(GL_TESS_EVALUATION_SHADER);
         break;
     case ShaderType::Geometry:
         m_id = glCreateShader(GL_GEOMETRY_SHADER);
@@ -1166,8 +1202,11 @@ void OpenGLUtils::GLShader::OnInspect()
     case ShaderType::Compute:
         ImGui::Text("Type: Compute");
         break;
-    case ShaderType::Tessellation:
-        ImGui::Text("Type: Tessellation");
+    case ShaderType::TessellationControl:
+        ImGui::Text("Type: Tessellation Control");
+        break;
+    case ShaderType::TessellationEvaluation:
+        ImGui::Text("Type: Tessellation Evaluation");
         break;
     case ShaderType::Geometry:
         ImGui::Text("Type: Geometry");
@@ -1216,15 +1255,17 @@ std::shared_ptr<OpenGLUtils::GLShader> OpenGLUtils::GLProgram::GetShader(ShaderT
     switch (type)
     {
     case ShaderType::Vertex:
-        return m_vertexShader.Get<OpenGLUtils::GLShader>();
-    case ShaderType::Tessellation:
-        return m_tessellationShader.Get<OpenGLUtils::GLShader>();
+        return m_vertexShader.Get<GLShader>();
+    case ShaderType::TessellationControl:
+        return m_tessellationControlShader.Get<GLShader>();
+    case ShaderType::TessellationEvaluation:
+        return m_tessellationEvaluationShader.Get<GLShader>();
     case ShaderType::Geometry:
-        return m_geometryShader.Get<OpenGLUtils::GLShader>();
+        return m_geometryShader.Get<GLShader>();
     case ShaderType::Fragment:
-        return m_fragmentShader.Get<OpenGLUtils::GLShader>();
+        return m_fragmentShader.Get<GLShader>();
     case ShaderType::Compute:
-        return m_computeShader.Get<OpenGLUtils::GLShader>();
+        return m_computeShader.Get<GLShader>();
     }
     return nullptr;
 }
@@ -1234,15 +1275,17 @@ bool OpenGLUtils::GLProgram::HasShader(ShaderType type)
     switch (type)
     {
     case ShaderType::Vertex:
-        return m_vertexShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
-    case ShaderType::Tessellation:
-        return m_tessellationShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+        return m_vertexShader.Get<GLShader>().get() != nullptr;
+    case ShaderType::TessellationControl:
+        return m_tessellationControlShader.Get<GLShader>().get() != nullptr;
+    case ShaderType::TessellationEvaluation:
+        return m_tessellationEvaluationShader.Get<GLShader>().get() != nullptr;
     case ShaderType::Geometry:
-        return m_geometryShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+        return m_geometryShader.Get<GLShader>().get() != nullptr;
     case ShaderType::Fragment:
-        return m_fragmentShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+        return m_fragmentShader.Get<GLShader>().get() != nullptr;
     case ShaderType::Compute:
-        return m_computeShader.Get<OpenGLUtils::GLShader>().get() != nullptr;
+        return m_computeShader.Get<GLShader>().get() != nullptr;
     }
     return false;
 }
@@ -1267,7 +1310,8 @@ void OpenGLUtils::GLProgram::Link()
     }
     
     auto vertexShader = GetShader(ShaderType::Vertex);
-    auto tessellationShader = GetShader(ShaderType::Tessellation);
+    auto tessellationControlShader = GetShader(ShaderType::TessellationControl);
+    auto tessellationEvaluationShader = GetShader(ShaderType::TessellationEvaluation);
     auto geometryShader = GetShader(ShaderType::Geometry);
     auto fragmentShader = GetShader(ShaderType::Fragment);
     auto computeShader = GetShader(ShaderType::Compute);
@@ -1276,9 +1320,13 @@ void OpenGLUtils::GLProgram::Link()
     {
         vertexShader->Compile();
     }
-    if (tessellationShader)
+    if (tessellationControlShader)
     {
-        tessellationShader->Compile();
+        tessellationControlShader->Compile();
+    }
+    if (tessellationEvaluationShader)
+    {
+        tessellationEvaluationShader->Compile();
     }
     if (geometryShader)
     {
@@ -1339,8 +1387,11 @@ void OpenGLUtils::GLProgram::Attach(const std::shared_ptr<GLShader> &shader)
     case ShaderType::Vertex:
         m_vertexShader = shader;
         break;
-    case ShaderType::Tessellation:
-        m_tessellationShader = shader;
+    case ShaderType::TessellationControl:
+        m_tessellationControlShader = shader;
+        break;
+    case ShaderType::TessellationEvaluation:
+        m_tessellationEvaluationShader = shader;
         break;
     case ShaderType::Geometry:
         m_geometryShader = shader;
@@ -1362,23 +1413,27 @@ void OpenGLUtils::GLProgram::Detach(ShaderType type)
     switch (type)
     {
     case ShaderType::Vertex:
-        m_vertexShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_vertexShader.Get<GLShader>()->Detach(m_id);
         m_vertexShader.Clear();
         break;
-    case ShaderType::Tessellation:
-        m_tessellationShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
-        m_tessellationShader.Clear();
+    case ShaderType::TessellationControl:
+        m_tessellationControlShader.Get<GLShader>()->Detach(m_id);
+        m_tessellationControlShader.Clear();
+        break;
+    case ShaderType::TessellationEvaluation:
+        m_tessellationEvaluationShader.Get<GLShader>()->Detach(m_id);
+        m_tessellationEvaluationShader.Clear();
         break;
     case ShaderType::Geometry:
-        m_geometryShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_geometryShader.Get<GLShader>()->Detach(m_id);
         m_geometryShader.Clear();
         break;
     case ShaderType::Fragment:
-        m_fragmentShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_fragmentShader.Get<GLShader>()->Detach(m_id);
         m_fragmentShader.Clear();
         break;
     case ShaderType::Compute:
-        m_computeShader.Get<OpenGLUtils::GLShader>()->Detach(m_id);
+        m_computeShader.Get<GLShader>()->Detach(m_id);
         m_computeShader.Clear();
         break;
     }
@@ -1454,50 +1509,60 @@ void OpenGLUtils::GLProgram::OnInspect()
     auto vertexShader = GetShader(ShaderType::Vertex);
     auto fragmentShader = GetShader(ShaderType::Fragment);
     auto geometryShader = GetShader(ShaderType::Geometry);
-    auto tessellationShader = GetShader(ShaderType::Tessellation);
+    auto tessellationControlShader = GetShader(ShaderType::TessellationControl);
+    auto tessellationEvaluationShader = GetShader(ShaderType::TessellationEvaluation);
     auto computeShader = GetShader(ShaderType::Compute);
 
-    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_vertexShader, "Vertex"))
+    if (Editor::DragAndDropButton<GLShader>(m_vertexShader, "Vertex"))
     {
         if (vertexShader)
             vertexShader->Detach(m_id);
-        vertexShader = m_vertexShader.Get<OpenGLUtils::GLShader>();
+        vertexShader = m_vertexShader.Get<GLShader>();
         if (vertexShader)
             vertexShader->Attach(m_id);
         m_linked = false;
     }
-    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_tessellationShader, "Tessellation"))
+    if (Editor::DragAndDropButton<GLShader>(m_tessellationControlShader, "Tessellation Control"))
     {
-        if (tessellationShader)
-            tessellationShader->Detach(m_id);
-        tessellationShader = m_tessellationShader.Get<OpenGLUtils::GLShader>();
-        if (tessellationShader)
-            tessellationShader->Attach(m_id);
+        if (tessellationControlShader)
+            tessellationControlShader->Detach(m_id);
+        tessellationControlShader = m_tessellationControlShader.Get<GLShader>();
+        if (tessellationControlShader)
+            tessellationControlShader->Attach(m_id);
         m_linked = false;
     }
-    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_geometryShader, "Geometry"))
+    if (Editor::DragAndDropButton<GLShader>(m_tessellationEvaluationShader, "Tessellation Evaluation"))
+    {
+        if (tessellationEvaluationShader)
+            tessellationEvaluationShader->Detach(m_id);
+        tessellationEvaluationShader = m_tessellationEvaluationShader.Get<GLShader>();
+        if (tessellationEvaluationShader)
+            tessellationEvaluationShader->Attach(m_id);
+        m_linked = false;
+    }
+    if (Editor::DragAndDropButton<GLShader>(m_geometryShader, "Geometry"))
     {
         if (geometryShader)
             geometryShader->Detach(m_id);
-        geometryShader = m_geometryShader.Get<OpenGLUtils::GLShader>();
+        geometryShader = m_geometryShader.Get<GLShader>();
         if (geometryShader)
             geometryShader->Attach(m_id);
         m_linked = false;
     }
-    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_fragmentShader, "Fragment"))
+    if (Editor::DragAndDropButton<GLShader>(m_fragmentShader, "Fragment"))
     {
         if (fragmentShader)
             fragmentShader->Detach(m_id);
-        fragmentShader = m_fragmentShader.Get<OpenGLUtils::GLShader>();
+        fragmentShader = m_fragmentShader.Get<GLShader>();
         if (fragmentShader)
             fragmentShader->Attach(m_id);
         m_linked = false;
     }
-    if (Editor::DragAndDropButton<OpenGLUtils::GLShader>(m_computeShader, "Compute"))
+    if (Editor::DragAndDropButton<GLShader>(m_computeShader, "Compute"))
     {
         if (computeShader)
             computeShader->Detach(m_id);
-        computeShader = m_computeShader.Get<OpenGLUtils::GLShader>();
+        computeShader = m_computeShader.Get<GLShader>();
         if (computeShader)
             computeShader->Attach(m_id);
         m_linked = false;
@@ -1510,7 +1575,7 @@ void OpenGLUtils::GLProgram::OnInspect()
 void OpenGLUtils::GLProgram::CollectAssetRef(std::vector<AssetRef> &list)
 {
     list.push_back(m_vertexShader);
-    list.push_back(m_tessellationShader);
+    list.push_back(m_tessellationControlShader);
     list.push_back(m_geometryShader);
     list.push_back(m_fragmentShader);
     list.push_back(m_computeShader);
@@ -1518,7 +1583,8 @@ void OpenGLUtils::GLProgram::CollectAssetRef(std::vector<AssetRef> &list)
 void OpenGLUtils::GLProgram::Serialize(YAML::Emitter &out)
 {
     m_vertexShader.Save("m_vertexShader", out);
-    m_tessellationShader.Save("m_tessellationShader", out);
+    m_tessellationControlShader.Save("m_tessellationControlShader", out);
+    m_tessellationEvaluationShader.Save("m_tessellationEvaluationShader", out);
     m_geometryShader.Save("m_geometryShader", out);
     m_fragmentShader.Save("m_fragmentShader", out);
     m_computeShader.Save("m_computeShader", out);
@@ -1526,20 +1592,23 @@ void OpenGLUtils::GLProgram::Serialize(YAML::Emitter &out)
 void OpenGLUtils::GLProgram::Deserialize(const YAML::Node &in)
 {
     AssetRef vertexShader;
-    AssetRef tessellationShader;
+    AssetRef tessellationControlShader;
+    AssetRef tessellationEvaluationShader;
     AssetRef geometryShader;
     AssetRef fragmentShader;
     AssetRef computeShader;
     vertexShader.Load("m_vertexShader", in);
-    tessellationShader.Load("m_tessellationShader", in);
+    tessellationControlShader.Load("m_tessellationControlShader", in);
+    tessellationEvaluationShader.Load("m_tessellationEvaluationShader", in);
     geometryShader.Load("m_geometryShader", in);
     fragmentShader.Load("m_fragmentShader", in);
     computeShader.Load("m_computeShader", in);
-    Attach(vertexShader.Get<OpenGLUtils::GLShader>());
-    Attach(tessellationShader.Get<OpenGLUtils::GLShader>());
-    Attach(geometryShader.Get<OpenGLUtils::GLShader>());
-    Attach(fragmentShader.Get<OpenGLUtils::GLShader>());
-    Attach(computeShader.Get<OpenGLUtils::GLShader>());
+    Attach(vertexShader.Get<GLShader>());
+    Attach(tessellationControlShader.Get<GLShader>());
+    Attach(tessellationEvaluationShader.Get<GLShader>());
+    Attach(geometryShader.Get<GLShader>());
+    Attach(fragmentShader.Get<GLShader>());
+    Attach(computeShader.Get<GLShader>());
     m_linked = false;
 }
 

@@ -70,8 +70,16 @@ namespace UniEngine
 		static void SetPolygonMode(OpenGLPolygonMode mode);
 		static void SetCullFace(OpenGLCullFace cullFace);
 		static void SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor dstFactor);
-		static void SetViewPort(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
-		static void SetViewPort(unsigned x, unsigned y);
+		static void SetViewPort(int x1, int y1, int x2, int y2);
+		static void SetViewPort(int x, int y);
+
+		static void Get(GLenum param, int& data);
+		static void Get(GLenum param, float& data);
+		static void Get(GLenum param, boolean& data);
+		static void Get(GLenum param, double& data);
+
+		static void PatchParameter(GLenum param, int value);
+		static void PatchParameter(GLenum param, const std::vector<float>& values);
 #pragma region Sub classes
 		class UNIENGINE_API GLObject
 		{
@@ -111,7 +119,7 @@ namespace UniEngine
 			static std::map<OpenGLUtils::GLBufferTarget, std::map<GLuint, GLuint>> m_boundBuffers;
 
 		public:
-			[[nodiscard]] GLBufferTarget GetTarget();
+			[[nodiscard]] GLBufferTarget GetTarget() const;
 			GLBuffer();
 			GLBuffer(GLBufferTarget target);
 			GLBuffer(GLBufferTarget target, const GLuint& index);
@@ -137,13 +145,13 @@ namespace UniEngine
 
 		public:
 			~GLVAO() override;
-			void Bind();
+			void Bind() const;
 			static void BindDefault();
 			GLVAO();
 			GLBuffer& Vbo();
 			GLBuffer& Ebo();
-			void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage);
-			void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data);
+			void SetData(const GLsizei& length, const GLvoid* data, const GLenum& usage) const;
+			void SubData(const GLintptr& offset, const GLsizeiptr& size, const GLvoid* data) const;
 			void EnableAttributeArray(const GLuint& index);
 			void DisableAttributeArray(const GLuint& index);
 			void SetAttributePointer(
@@ -473,7 +481,8 @@ namespace UniEngine
 		enum class UNIENGINE_API ShaderType
 		{
 			Vertex,
-			Tessellation,
+			TessellationControl,
+			TessellationEvaluation,
 			Geometry,
 			Fragment,
 			Compute
@@ -506,7 +515,8 @@ namespace UniEngine
 			friend class OpenGLUtils;
 
 			AssetRef m_vertexShader;
-			AssetRef m_tessellationShader;
+			AssetRef m_tessellationControlShader;
+			AssetRef m_tessellationEvaluationShader;
 			AssetRef m_geometryShader;
 			AssetRef m_fragmentShader;
 			AssetRef m_computeShader;

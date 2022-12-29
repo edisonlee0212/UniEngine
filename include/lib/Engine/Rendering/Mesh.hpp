@@ -28,7 +28,7 @@ namespace UniEngine
 	class ParticleMatrices;
 	class UNIENGINE_API Mesh : public IAsset
 	{
-		static std::unique_ptr<OpenGLUtils::GLBuffer> m_matricesBuffer;
+		
 
 		std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
 		size_t m_offset = 0;

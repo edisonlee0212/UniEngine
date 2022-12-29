@@ -400,7 +400,7 @@ void RenderLayer::OnCreate()
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
-	Mesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
+	m_instancedMatricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 #pragma region Kernel Setup
 	std::vector<glm::vec4> uniformKernel;

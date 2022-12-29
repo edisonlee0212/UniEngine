@@ -95,6 +95,12 @@ namespace UniEngine {
 		bool m_enableRenderMenu = false;
 		bool m_enableInfoWindow = true;
 #pragma endregion
+
+		friend class Mesh;
+		friend class Strands;
+		std::unique_ptr<OpenGLUtils::GLBuffer> m_instancedMatricesBuffer;
+
+
 		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_deferredRenderInstances;
 		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_deferredInstancedRenderInstances;
 		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_forwardRenderInstances;
