@@ -6,15 +6,6 @@
 #include "Vertex.hpp"
 namespace UniEngine
 {
-	enum class UNIENGINE_API VertexAttribute
-	{
-		Position = 1,
-		Normal = 1 << 1, // 2
-		Tangent = 1 << 2,
-		Color = 1 << 3,    // 8
-		TexCoord = 1 << 4, // 16
-	};
-
 	enum class MeshStoreType {
 		//Meshes with persistent type will be combined into a single mesh to improve performance, removing meshes will have a bigger penalty.
 		Persistent,
@@ -28,8 +19,6 @@ namespace UniEngine
 	class ParticleMatrices;
 	class UNIENGINE_API Mesh : public IAsset
 	{
-		
-
 		std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
 		size_t m_offset = 0;
 
@@ -60,8 +49,8 @@ namespace UniEngine
 		[[nodiscard]] Bound GetBound() const;
 		void OnCreate() override;
 		void Upload();
-		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices);
-		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<glm::uvec3>& triangles);
+		void SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, const std::vector<unsigned>& indices);
+		void SetVertices(const unsigned& mask, const std::vector<Vertex>& vertices, const std::vector<glm::uvec3>& triangles);
 		[[nodiscard]] size_t GetVerticesAmount() const;
 		[[nodiscard]] size_t GetTriangleAmount() const;
 

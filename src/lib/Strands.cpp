@@ -21,12 +21,6 @@ unsigned int Strands::CurveDegree() const {
 	}
 }
 
-void Strands::SetSplineMode(Strands::SplineMode splineMode) {
-	m_splineMode = splineMode;
-	m_saved = false;
-	PrepareStrands();
-}
-
 Strands::SplineMode Strands::GetSplineMode() const { return m_splineMode; }
 
 std::vector<glm::uint>& Strands::UnsafeGetStrands() {
@@ -41,7 +35,7 @@ std::vector<glm::uint>& Strands::UnsafeGetSegments() {
 	return m_segments;
 }
 
-void Strands::PrepareStrands() {
+void Strands::PrepareStrands(const unsigned& mask) {
 	m_splineMode = SplineMode::Cubic;
 	m_segmentIndices.resize(m_segments.size() * 4);
 	std::vector<std::shared_future<void>> results;
@@ -53,6 +47,8 @@ void Strands::PrepareStrands() {
 	m_segmentIndices[i].w = m_segments[i] + 3;
 		}, results);
 	for (auto& result : results) result.wait();
+
+	if (!(m_mask & static_cast<unsigned>(VertexAttribute::Normal))) RecalculateNormal();
 
 	Upload();
 	/*
@@ -229,7 +225,7 @@ bool Strands::LoadInternal(const std::filesystem::path& path) {
 				m_points[i].m_position = points[i];
 				m_points[i].m_thickness = thickness[i];
 				m_points[i].m_color = glm::vec4(color[i], alpha[i]);
-				m_points[i].m_texCoord = glm::vec2(0.0f);
+				m_points[i].m_texCoord = 0.0f;
 			}
 
 			m_segments.clear();
@@ -243,7 +239,7 @@ bool Strands::LoadInternal(const std::filesystem::path& path) {
 				}
 			}
 
-			PrepareStrands();
+			PrepareStrands(static_cast<unsigned>(StrandsAttribute::Position) | static_cast<unsigned>(StrandsAttribute::Thickness) | static_cast<unsigned>(StrandsAttribute::TexCoord) | static_cast<unsigned>(StrandsAttribute::Color));
 			return true;
 		}
 		catch (std::exception& e) {
@@ -278,6 +274,10 @@ void Strands::OnInspect() {
 }
 
 void Strands::Serialize(YAML::Emitter& out) {
+	out << YAML::Key << "m_mask" << YAML::Value << m_mask;
+	out << YAML::Key << "m_offset" << YAML::Value << m_offset;
+	out << YAML::Key << "m_version" << YAML::Value << m_version;
+
 	if (!m_strands.empty() && !m_segments.empty() && !m_points.empty()) {
 		out << YAML::Key << "m_strands" << YAML::Value
 			<< YAML::Binary((const unsigned char*)m_strands.data(), m_strands.size() * sizeof(int));
@@ -291,6 +291,10 @@ void Strands::Serialize(YAML::Emitter& out) {
 }
 
 void Strands::Deserialize(const YAML::Node& in) {
+	if (in["m_mask"]) m_mask = in["m_mask"].as<unsigned>();
+	if (in["m_offset"]) m_offset = in["m_offset"].as<size_t>();
+	if (in["m_version"]) m_version = in["m_version"].as<size_t>();
+
 	if (in["m_strands"] && in["m_segments"] && in["m_points"]) {
 		auto strandData = in["m_vertices"].as<YAML::Binary>();
 		m_strands.resize(strandData.size() / sizeof(int));
@@ -311,7 +315,7 @@ void Strands::Deserialize(const YAML::Node& in) {
 		}
 
 
-		PrepareStrands();
+		PrepareStrands(m_mask);
 	}
 
 }
@@ -436,10 +440,10 @@ void Strands::Upload()
 	m_vao->SetAttributePointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(StrandPoint), (void*)(offsetof(StrandPoint, m_normal)));
 
 	m_vao->EnableAttributeArray(3);
-	m_vao->SetAttributePointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(StrandPoint), (void*)(offsetof(StrandPoint, m_color)));
+	m_vao->SetAttributePointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(StrandPoint), (void*)(offsetof(StrandPoint, m_texCoord)));
 
 	m_vao->EnableAttributeArray(4);
-	m_vao->SetAttributePointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(StrandPoint), (void*)(offsetof(StrandPoint, m_texCoord)));
+	m_vao->SetAttributePointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(StrandPoint), (void*)(offsetof(StrandPoint, m_color)));
 #pragma endregion
 	m_vao->Ebo().SetData((GLsizei)m_segmentIndices.size() * sizeof(glm::uvec4), m_segmentIndices.data(), GL_STATIC_DRAW);
 	m_pointSize = m_points.size();
@@ -463,14 +467,14 @@ std::shared_ptr<OpenGLUtils::GLVAO> Strands::Vao() const
 	return m_vao;
 }
 
-void Strands::SetPoints(const std::vector<glm::uint>& strands, const std::vector<glm::uint>& segments, const std::vector<StrandPoint>& points) {
+void Strands::SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<glm::uint>& segments, const std::vector<StrandPoint>& points) {
 	m_strands = strands;
 	m_segments = segments;
 	m_points = points;
-	PrepareStrands();
+	PrepareStrands(mask);
 }
 
-void Strands::SetPoints(const std::vector<glm::uint>& strands, const std::vector<StrandPoint>& points)
+void Strands::SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<StrandPoint>& points)
 {
 	m_strands = strands;
 	m_segments.clear();
@@ -484,7 +488,70 @@ void Strands::SetPoints(const std::vector<glm::uint>& strands, const std::vector
 		}
 	}
 	m_points = points;
-	PrepareStrands();
+	PrepareStrands(mask);
+}
+
+void HermiteInterpolation(const glm::vec3 &p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, glm::vec3& position, glm::vec3& tangent, const float t)
+{
+	const float tension = 0.8f;
+	const float bias = 0.0f;
+
+	const float t2 = t * t;
+	const float t3 = t2 * t;
+
+	glm::vec3 m0 = (p1 - p0) * (1 + bias) * (1 - tension) / 2.0f;
+	m0 += (p2 - p1) * (1 - bias) * (1 - tension) / 2.0f;
+	glm::vec3 m1 = (p2 - p1) * (1 + bias) * (1 - tension) / 2.0f;
+	m1 += (p3 - p2) * (1 - bias) * (1 - tension) / 2.0f;
+
+	const float a0 = 2 * t3 - 3 * t2 + 1;
+	const float a1 = t3 - 2 * t2 + t;
+	const float a2 = t3 - t2;
+	const float a3 = -2 * t3 + 3 * t2;
+
+	position = glm::vec3(a0 * p1 + a1 * m0 + a2 * m1 + a3 * p2);
+
+	const glm::vec3 d1 = (6 * t2 - 6 * t) * p1 + (3 * t2 - 4 * t + 1) * m0 + (3 * t2 - 2 * t) * m1 + (-6 * t2 + 6 * t) * p2;
+	tangent = glm::normalize(d1);
+}
+
+void CubicInterpolation(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, glm::vec3& position, glm::vec3& tangent, const float t)
+{
+	const float t2 = t * t;
+
+	const glm::vec3 a0 = v3 - v2 - v0 + v1;
+	const glm::vec3 a1 = v0 - v1 - a0;
+	const glm::vec3 a2 = v2 - v0;
+	const glm::vec3 a3 = v1;
+
+	position = glm::vec3(a0 * t * t2 + a1 * t2 + a2 * t + a3);
+
+	const auto d1 = glm::vec3(3.0f * a0 * t2 + 2.0f * a1 * t + a2);
+	tangent = glm::normalize(d1);
+}
+
+void Strands::RecalculateNormal()
+{
+	for (auto strand = m_strands.begin(); strand != m_strands.end() - 1; ++strand) {
+		const int start = *(strand);                      // first vertex in first segment
+		const int end = *(strand + 1) - 1;  // second vertex of last segment
+		glm::vec3 tangent, temp;
+		HermiteInterpolation(m_points[start].m_position, m_points[start + 1].m_position, m_points[start + 2].m_position, m_points[start + 3].m_position, temp, tangent, 0.0f);
+		temp = glm::vec3(tangent.y, tangent.z, tangent.x);
+		m_points[start].m_normal = temp;
+		for (int i = start + 1; i < end - 3; ++i) {
+			HermiteInterpolation(m_points[i].m_position, m_points[i + 1].m_position, m_points[i + 2].m_position, m_points[i + 3].m_position, temp, tangent, 0.0f);
+			m_points[i].m_normal = glm::normalize(glm::cross(tangent, m_points[i - 1].m_normal));
+		}
+		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 0.25f);
+		m_points[end - 3].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 4].m_normal));
+		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 0.75f);
+		m_points[end - 2].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 3].m_normal));
+		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 1.0f);
+		m_points[end - 1].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 2].m_normal));
+
+
+	}
 }
 
 

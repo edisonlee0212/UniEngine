@@ -1028,6 +1028,25 @@ void Gizmos::DrawGizmoMesh(
     }
 }
 
+void Gizmos::DrawGizmoStrands(const std::shared_ptr<Strands>& strands, const glm::vec4& color, const glm::mat4& model,
+	const float& size, const GizmoSettings& gizmoSettings)
+{
+    auto renderLayer = Application::GetLayer<RenderLayer>();
+    if (!renderLayer)
+        return;
+    auto editorLayer = Application::GetLayer<EditorLayer>();
+    if (!editorLayer)
+        return;
+    auto& sceneCamera = editorLayer->m_sceneCamera;
+    if (sceneCamera && sceneCamera->IsEnabled())
+    {
+        Camera::m_cameraInfoBlock.UploadMatrices(
+            sceneCamera, editorLayer->m_sceneCameraPosition, editorLayer->m_sceneCameraRotation);
+        sceneCamera->Bind();
+        DrawGizmoStrandsInternal(gizmoSettings, strands, color, model, glm::scale(glm::mat4(1.0f), glm::vec3(size)));
+    }
+}
+
 #pragma endregion
 #pragma endregion
 

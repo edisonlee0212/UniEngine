@@ -47,6 +47,8 @@ void StrandsRenderer::OnInspect()
             }
             ImGui::TreePop();
         }
+
+        Gizmos::DrawGizmoStrands(m_strands.Get<Strands>());
     }
 }
 

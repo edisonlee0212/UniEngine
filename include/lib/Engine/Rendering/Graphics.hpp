@@ -136,6 +136,12 @@ class UNIENGINE_API Gizmos{
         const glm::mat4 &model = glm::mat4(1.0f),
         const float &size = 1.0f, const GizmoSettings& gizmoSettings = {});
 
+    static void DrawGizmoStrands(
+        const std::shared_ptr<Strands>& strands,
+        const glm::vec4& color = glm::vec4(1.0f),
+        const glm::mat4& model = glm::mat4(1.0f),
+        const float& size = 1.0f, const GizmoSettings& gizmoSettings = {});
+
     static void DrawGizmoMeshInstanced(
         const std::shared_ptr<Mesh> &mesh,
         const glm::vec4 &color,

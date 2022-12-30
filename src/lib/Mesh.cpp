@@ -100,7 +100,8 @@ void Mesh::Upload()
 	m_version++;
 }
 
-void Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<unsigned>& indices)
+auto Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices,
+                       const std::vector<unsigned>& indices) -> void
 {
 	if (indices.size() % 3 != 0)
 	{
@@ -113,14 +114,14 @@ void Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std:
 	SetVertices(mask, vertices, triangles);
 }
 
-void Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std::vector<glm::uvec3>& triangles)
+void Mesh::SetVertices(const unsigned& mask, const std::vector<Vertex>& vertices, const std::vector<glm::uvec3>& triangles)
 {
 	if (vertices.empty() || triangles.empty())
 	{
 		UNIENGINE_LOG("Vertices or triangles empty!");
 		return;
 	}
-	if (!(mask & (unsigned)VertexAttribute::Position))
+	if (!(mask & static_cast<unsigned>(VertexAttribute::Position)))
 	{
 		UNIENGINE_ERROR("No Position Data!");
 		return;
@@ -131,23 +132,23 @@ void Mesh::SetVertices(const unsigned& mask, std::vector<Vertex>& vertices, std:
 #pragma region Bound
 	glm::vec3 minBound = m_vertices.at(0).m_position;
 	glm::vec3 maxBound = m_vertices.at(0).m_position;
-	for (size_t i = 0; i < m_vertices.size(); i++)
+	for (auto& vertex : m_vertices)
 	{
 		minBound = glm::vec3(
-			(glm::min)(minBound.x, m_vertices[i].m_position.x),
-			(glm::min)(minBound.y, m_vertices[i].m_position.y),
-			(glm::min)(minBound.z, m_vertices[i].m_position.z));
+			(glm::min)(minBound.x, vertex.m_position.x),
+			(glm::min)(minBound.y, vertex.m_position.y),
+			(glm::min)(minBound.z, vertex.m_position.z));
 		maxBound = glm::vec3(
-			(glm::max)(maxBound.x, m_vertices[i].m_position.x),
-			(glm::max)(maxBound.y, m_vertices[i].m_position.y),
-			(glm::max)(maxBound.z, m_vertices[i].m_position.z));
+			(glm::max)(maxBound.x, vertex.m_position.x),
+			(glm::max)(maxBound.y, vertex.m_position.y),
+			(glm::max)(maxBound.z, vertex.m_position.z));
 	}
 	m_bound.m_max = maxBound;
 	m_bound.m_min = minBound;
 #pragma endregion
-	if (!(m_mask & (unsigned)VertexAttribute::Normal))
+	if (!(m_mask & static_cast<unsigned>(VertexAttribute::Normal)))
 		RecalculateNormal();
-	if (!(m_mask & (unsigned)VertexAttribute::Tangent))
+	if (!(m_mask & static_cast<unsigned>(VertexAttribute::Tangent)))
 		RecalculateTangent();
 	Upload();
 }
@@ -176,7 +177,7 @@ void Mesh::RecalculateNormal()
 	auto size = m_vertices.size();
 	for (auto i = 0; i < size; i++)
 	{
-		normalLists.push_back(std::vector<glm::vec3>());
+		normalLists.emplace_back();
 	}
 	for (size_t i = 0; i < m_triangles.size(); i++)
 	{
@@ -210,11 +211,11 @@ void Mesh::RecalculateTangent()
 	{
 		tangentLists.emplace_back();
 	}
-	for (size_t i = 0; i < m_triangles.size(); i++)
+	for (auto& triangle : m_triangles)
 	{
-		const auto i1 = m_triangles[i].x;
-		const auto i2 = m_triangles[i].y;
-		const auto i3 = m_triangles[i].z;
+		const auto i1 = triangle.x;
+		const auto i2 = triangle.y;
+		const auto i3 = triangle.z;
 		auto p1 = m_vertices[i1].m_position;
 		auto p2 = m_vertices[i2].m_position;
 		auto p3 = m_vertices[i3].m_position;
@@ -278,12 +279,12 @@ void Mesh::Draw() const
 
 
 	glDrawElements(
-		GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * m_offset));
+		GL_TRIANGLES, static_cast<GLsizei>(m_triangleSize) * 3, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * m_offset));
 	OpenGLUtils::GLVAO::BindDefault();
 }
 void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 {
-	auto count = matrices.size();
+	const auto count = matrices.size();
 	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->Bind();
 

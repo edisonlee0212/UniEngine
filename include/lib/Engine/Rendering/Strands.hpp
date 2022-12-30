@@ -15,8 +15,6 @@ namespace UniEngine {
             Cubic = 4
         };
 
-        void SetSplineMode(SplineMode splineMode);
-
         [[nodiscard]] SplineMode GetSplineMode() const;
 
         [[nodiscard]] std::vector<glm::uint> &UnsafeGetStrands();
@@ -33,12 +31,12 @@ namespace UniEngine {
 
         void Deserialize(const YAML::Node &in) override;
 
-        void SetPoints(const std::vector<glm::uint> &strands, const std::vector<glm::uint>& segments,
+        void SetPoints(const unsigned& mask, const std::vector<glm::uint> &strands, const std::vector<glm::uint>& segments,
                        const std::vector<StrandPoint> &points);
 
-        void SetPoints(const std::vector<glm::uint>& strands,
+        void SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands,
             const std::vector<StrandPoint>& points);
-
+        void RecalculateNormal();
         void Draw() const;
         void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
         void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
@@ -54,7 +52,7 @@ namespace UniEngine {
 
     private:
         size_t m_offset = 0;
-
+        unsigned m_mask = 0;
         unsigned m_segmentIndicesSize = 0;
         unsigned m_pointSize = 0;
 
@@ -64,7 +62,7 @@ namespace UniEngine {
 
         [[nodiscard]] unsigned int CurveDegree() const;
 
-        void PrepareStrands();
+        void PrepareStrands(const unsigned& mask);
 
         size_t m_version = 0;
 
