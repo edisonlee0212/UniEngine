@@ -483,7 +483,7 @@ void DefaultResources::LoadRenderManagerResources()
 	{
 		auto vertShaderCode = std::string("#version 450 core\n") +
 			FileUtils::LoadFileAsString(
-				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/DirectionalLightShadowMap.vert");
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMap.vert");
 		auto fragShaderCode =
 			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
@@ -504,7 +504,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 		vertShaderCode = std::string("#version 450 core\n") + FileUtils::LoadFileAsString(
 			std::filesystem::path("./DefaultResources") /
-			"Shaders/Vertex/DirectionalLightShadowMapInstanced.vert");
+			"Shaders/Vertex/LightShadowMapInstanced.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_directionalLightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -513,7 +513,7 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShaderCode =
 			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
-				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/DirectionalLightShadowMapSkinned.vert");
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapSkinned.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_directionalLightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -522,7 +522,7 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") /
-				"Shaders/Vertex/DirectionalLightShadowMapInstancedSkinned.vert");
+				"Shaders/Vertex/LightShadowMapInstancedSkinned.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_directionalLightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -530,7 +530,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 		vertShaderCode = std::string("#version 450 core\n") +
 			FileUtils::LoadFileAsString(
-				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/PointLightShadowMap.vert");
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMap.vert");
 		fragShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") / "Shaders/Fragment/Empty.frag");
@@ -550,7 +550,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 		vertShaderCode = std::string("#version 450 core\n") + FileUtils::LoadFileAsString(
 			std::filesystem::path("./DefaultResources") /
-			"Shaders/Vertex/PointLightShadowMapInstanced.vert");
+			"Shaders/Vertex/LightShadowMapInstanced.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_pointLightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -559,7 +559,7 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShaderCode =
 			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
-				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/PointLightShadowMapSkinned.vert");
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapSkinned.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_pointLightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
@@ -568,7 +568,7 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShaderCode =
 			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
-				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/PointLightShadowMapInstancedSkinned.vert");
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapInstancedSkinned.vert");
 		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_pointLightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
