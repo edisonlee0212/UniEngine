@@ -18,9 +18,11 @@ in TES_OUT {
 const float PI2 = 6.28318531;
 const float c = 1000.0;
 
-void main(){
-	mat4 cameraProjectionView = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW;
+uniform int index;
 
+void main(){
+
+	mat4 lightSpaceMatrix = UE_SPOT_LIGHTS[index].lightSpaceMatrix;
 	for(int i = 0; i < gl_VerticesIn - 1; ++i)
 	{
 		//Reading Data
@@ -35,7 +37,6 @@ void main(){
 
 		float thickS = tes_in[i].Thickness;
 		float thickT = tes_in[i + 1].Thickness;
-			  
 		
 		//Computing
 		vec3 v11 = normalize(vS);        
@@ -47,19 +48,10 @@ void main(){
 		float rS = max(0.001, thickS); 
 		float rT = max(0.001, thickT);
 
-		float dS = max(1, length(UE_CAMERA_POSITION - posS));
-		float dT = max(1, length(UE_CAMERA_POSITION - posT));
- 
-		int pS = 2 * int(c * rS / dS);
-		int pT = 2 * int(c * rT / dT);
+		int pS = 2 * int(c * rS);
+		int pT = 2 * int(c * rT);
 
-		//pT = 3;
-		//pS = pT;
-
-		pS = max(3, min(15, pS));
-		pT = max(3, min(15, pT));
-
-		int forMax = max(pS, pT);
+		int forMax = 3;
 
 		for(int k = 0; k <= forMax; k += 1)
 		{
@@ -79,7 +71,7 @@ void main(){
 			//gs_out.Tangent = tes_in[i].Tangent;
 			//gs_out.TexCoord = vec2(1.0 * tempIS / pS, tes_in[i].TexCoord);
 
-			gl_Position = cameraProjectionView * vec4(newPS, 1);
+			gl_Position = lightSpaceMatrix * vec4(newPS, 1);
 			EmitVertex();
 
 			//Target Vertex
@@ -89,7 +81,7 @@ void main(){
 			//gs_out.Tangent = tes_in[i + 1].Tangent;
 			//gs_out.TexCoord = vec2(1.0 * tempIT / pT, tes_in[i + 1].TexCoord);
 
-			gl_Position = cameraProjectionView * vec4(newPT, 1);
+			gl_Position = lightSpaceMatrix * vec4(newPT, 1);
 			EmitVertex();
 		}
 	}

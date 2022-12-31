@@ -1,10 +1,10 @@
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec3 inPos;
 layout (location = 5) in ivec4 inBoneIds; 
 layout (location = 6) in vec4 inWeights;
 layout (location = 7) in ivec4 inBoneIds2; 
 layout (location = 8) in vec4 inWeights2;
 
-layout (location = 12) in mat4 aInstanceMatrix;
+layout (location = 12) in mat4 inInstanceMatrix;
 
 uniform mat4 lightSpaceMatrix;
 uniform mat4 model;
@@ -33,6 +33,6 @@ void main()
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
 
-    mat4 matrix = model * boneTransform * aInstanceMatrix;
-    gl_Position = matrix * vec4(aPos, 1.0);
+    mat4 matrix = model * boneTransform * inInstanceMatrix;
+    gl_Position = matrix * vec4(inPos, 1.0);
 }

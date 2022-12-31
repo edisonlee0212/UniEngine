@@ -129,7 +129,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DeferredPrepassInternal(skinnedMesh);
 				break;
 			}
-			
+
 			case RenderCommandGeometryType::Strands: {
 				auto strands = renderCommand.m_strands.lock();
 				auto& program = DefaultResources::m_gBufferStrandsPrepass;
@@ -141,7 +141,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DeferredPrepassInternal(strands);
 				break;
 			}
-		}
+			}
 		},
 		true);
 	DispatchRenderCommands(
@@ -426,11 +426,11 @@ void RenderLayer::OnCreate()
 	m_frameIndex = 0;
 	m_materialSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 6);
 	m_materialSettingsBuffer->SetData(sizeof(MaterialSettingsBlock), nullptr, GL_STREAM_DRAW);
-	
+
 
 	m_environmentalMapSettingsBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 7);
 	m_environmentalMapSettingsBuffer->SetData(sizeof(EnvironmentalMapSettingsBlock), nullptr, GL_STREAM_DRAW);
-	
+
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
@@ -449,7 +449,7 @@ void RenderLayer::OnCreate()
 			glm::gaussRand(0.0f, 1.0f));
 	}
 	m_kernelBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 5);
-	
+
 	m_kernelBlock->SetData(
 		sizeof(glm::vec4) * uniformKernel.size() + sizeof(glm::vec4) * gaussianKernel.size(), NULL, GL_STATIC_DRAW);
 	m_kernelBlock->SubData(0, sizeof(glm::vec4) * uniformKernel.size(), uniformKernel.data());
@@ -809,7 +809,8 @@ void RenderLayer::ShadowMapPrePass(
 	std::shared_ptr<OpenGLUtils::GLProgram>& defaultProgram,
 	std::shared_ptr<OpenGLUtils::GLProgram>& defaultInstancedProgram,
 	std::shared_ptr<OpenGLUtils::GLProgram>& skinnedProgram,
-	std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedProgram)
+	std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedProgram,
+	std::shared_ptr<OpenGLUtils::GLProgram>& strandsProgram)
 {
 
 	for (auto& i : m_deferredRenderInstances)
@@ -839,6 +840,15 @@ void RenderLayer::ShadowMapPrePass(
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 			program->SetInt("index", enabledSize);
 			skinnedMesh->Draw();
+			break;
+		}
+		case RenderCommandGeometryType::Strands: {
+			auto strands = renderCommand.m_strands.lock();
+			auto& program = strandsProgram;
+			program->Bind();
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			strands->Draw();
 			break;
 		}
 		}
@@ -897,7 +907,17 @@ void RenderLayer::ShadowMapPrePass(
 			skinnedMesh->Draw();
 			break;
 		}
+		case RenderCommandGeometryType::Strands: {
+			auto strands = renderCommand.m_strands.lock();
+			auto& program = strandsProgram;
+			program->Bind();
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			strands->Draw();
+			break;
 		}
+		}
+
 			},
 			false);
 	}
@@ -1153,7 +1173,8 @@ void RenderLayer::RenderShadows(
 					DefaultResources::m_directionalLightProgram,
 					DefaultResources::m_directionalLightInstancedProgram,
 					DefaultResources::m_directionalLightSkinnedProgram,
-					DefaultResources::m_directionalLightInstancedSkinnedProgram);
+					DefaultResources::m_directionalLightInstancedSkinnedProgram, 
+					DefaultResources::m_directionalLightStrandsProgram);
 				enabledSize++;
 			}
 		}
@@ -1265,7 +1286,8 @@ void RenderLayer::RenderShadows(
 					DefaultResources::m_pointLightProgram,
 					DefaultResources::m_pointLightInstancedProgram,
 					DefaultResources::m_pointLightSkinnedProgram,
-					DefaultResources::m_pointLightInstancedSkinnedProgram);
+					DefaultResources::m_pointLightInstancedSkinnedProgram,
+					DefaultResources::m_pointLightStrandsProgram);
 				enabledSize++;
 			}
 		}
@@ -1369,7 +1391,8 @@ void RenderLayer::RenderShadows(
 					DefaultResources::m_spotLightProgram,
 					DefaultResources::m_spotLightInstancedProgram,
 					DefaultResources::m_spotLightSkinnedProgram,
-					DefaultResources::m_spotLightInstancedSkinnedProgram);
+					DefaultResources::m_spotLightInstancedSkinnedProgram,
+					DefaultResources::m_spotLightStrandsProgram);
 				enabledSize++;
 			}
 #pragma endregion

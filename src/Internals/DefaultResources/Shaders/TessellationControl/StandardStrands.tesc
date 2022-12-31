@@ -23,7 +23,7 @@ void main(){
 
 	float dist = max(1, min(dS, dT));
 	float r = vs_in[0].Thickness;
-	float p = 1;
+	float p = 0;
 
 	if(dist <= 0.01)
 		dist = 0.01;

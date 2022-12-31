@@ -16,12 +16,14 @@ void main(){
 	vec3 vSWorld = vs_in[0].FragPos; 
 	vec3 vTWorld = vs_in[3].FragPos;
 
-	float dS = length(UE_CAMERA_POSITION - vSWorld);
-	float dT = length(UE_CAMERA_POSITION - vTWorld);
+	vec3 cameraPosition = UE_CAMERA_POSITION;
+
+	float dS = length(cameraPosition - vSWorld);
+	float dT = length(cameraPosition - vTWorld);
 
 	float dist = max(1, min(dS, dT));
 	float r = vs_in[0].Thickness;
-	float p = 1;
+	float p = 0;
 
 	if(dist <= 0.01)
 		dist = 0.01;
@@ -29,7 +31,7 @@ void main(){
 	if(log((r/dist)+1) > 0.00035 || dist < 15)
 	{
 		float l = length(vs_in[0].FragPos - vs_in[3].FragPos);
-		float d = length(vs_in[0].FragPos - UE_CAMERA_POSITION);
+		float d = length(vs_in[0].FragPos - cameraPosition);
 		float c = 100;
 		float t = c * l/d;
 		p = max(1, min(3, t));

@@ -528,6 +528,43 @@ void DefaultResources::LoadRenderManagerResources()
 		m_directionalLightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
 		m_directionalLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
 
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapStrands.vert");
+
+		auto tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/DirectionalLightShadowMapStrands.tesc");
+
+		auto tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/DirectionalLightShadowMapStrands.geom");
+
+
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "LightShadowMapStrands.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		auto standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "DirectionalLightShadowMapStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		auto standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		geomShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "DirectionalLightShadowMapStrands.geom");
+		geomShader->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_directionalLightStrandsProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_directionalLightStrandsProgram->Attach(vertShader);
+		m_directionalLightStrandsProgram->Attach(standardTessCont);
+		m_directionalLightStrandsProgram->Attach(standardTessEval);
+		m_directionalLightStrandsProgram->Attach(geomShader);
+		m_directionalLightStrandsProgram->Attach(fragShader);
+		m_directionalLightStrandsProgram->Link();
+
 		vertShaderCode = std::string("#version 450 core\n") +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMap.vert");
@@ -574,6 +611,43 @@ void DefaultResources::LoadRenderManagerResources()
 		m_pointLightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
 		m_pointLightInstancedSkinnedProgram->Link(vertShader, fragShader, geomShader);
 
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapStrands.vert");
+
+		tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/PointLightShadowMapStrands.tesc");
+
+		tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/PointLightShadowMapStrands.geom");
+
+
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "LightShadowMapStrands.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "PointLightShadowMapStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		geomShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "PointLightShadowMapStrands.geom");
+		geomShader->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_pointLightStrandsProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_pointLightStrandsProgram->Attach(vertShader);
+		m_pointLightStrandsProgram->Attach(standardTessCont);
+		m_pointLightStrandsProgram->Attach(standardTessEval);
+		m_pointLightStrandsProgram->Attach(geomShader);
+		m_pointLightStrandsProgram->Attach(fragShader);
+		m_pointLightStrandsProgram->Link();
+
+
 		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/SpotLightShadowMap.vert");
@@ -613,6 +687,42 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_spotLightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
 		m_spotLightInstancedSkinnedProgram->Link(vertShader, fragShader);
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/LightShadowMapStrands.vert");
+
+		tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/SpotLightShadowMapStrands.tesc");
+
+		tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/SpotLightShadowMapStrands.geom");
+
+
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "SpotLightShadowMapStrands.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "SpotLightShadowMapStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		geomShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "SpotLightShadowMapStrands.geom");
+		geomShader->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_spotLightStrandsProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_spotLightStrandsProgram->Attach(vertShader);
+		m_spotLightStrandsProgram->Attach(standardTessCont);
+		m_spotLightStrandsProgram->Attach(standardTessEval);
+		m_spotLightStrandsProgram->Attach(geomShader);
+		m_spotLightStrandsProgram->Attach(fragShader);
+		m_spotLightStrandsProgram->Link();
 	}
 #pragma endregion
 #pragma region GBuffer
