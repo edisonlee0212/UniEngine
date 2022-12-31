@@ -25,6 +25,14 @@ bool DrawSettings::OnInspect() {
             IM_ARRAYSIZE(PolygonMode))) {
         changed = true;
     }
+    if(m_polygonMode == OpenGLPolygonMode::Line)
+    {
+        ImGui::DragFloat("Line width", &m_lineWidth, 0.1f, 0.0f, 100.0f);
+    }
+    if (m_polygonMode == OpenGLPolygonMode::Point)
+    {
+        ImGui::DragFloat("Point size", &m_pointSize, 0.1f, 0.0f, 100.0f);
+    }
     if (ImGui::Checkbox("Cull Face", &m_cullFace)) changed = true;
     if (m_cullFace && ImGui::Combo(
             "Cull Face Mode",
@@ -58,6 +66,8 @@ bool DrawSettings::OnInspect() {
 void DrawSettings::Save(const std::string &name, YAML::Emitter &out) {
     out << YAML::Key << name << YAML::Value << YAML::BeginMap;
     out << YAML::Key << "m_cullFace" << YAML::Value << m_cullFace;
+    out << YAML::Key << "m_lineWidth" << YAML::Value << m_lineWidth;
+    out << YAML::Key << "m_pointSize" << YAML::Value << m_pointSize;
     out << YAML::Key << "m_cullFaceMode" << YAML::Value << (unsigned) m_cullFaceMode;
     out << YAML::Key << "m_polygonMode" << YAML::Value << (unsigned) m_polygonMode;
     out << YAML::Key << "m_blending" << YAML::Value << m_blending;
@@ -69,13 +79,15 @@ void DrawSettings::Save(const std::string &name, YAML::Emitter &out) {
 void DrawSettings::Load(const std::string &name, const YAML::Node &in) {
     if (in[name]) {
         const auto &drawSettings = in[name];
-        m_cullFace = drawSettings["m_cullFace"].as<bool>();
-        m_cullFaceMode = (OpenGLCullFace) drawSettings["m_cullFaceMode"].as<unsigned>();
-        m_polygonMode = (OpenGLPolygonMode) drawSettings["m_polygonMode"].as<unsigned>();
+        if(drawSettings["m_cullFace"]) m_cullFace = drawSettings["m_cullFace"].as<bool>();
+        if (drawSettings["m_lineWidth"]) m_lineWidth = drawSettings["m_lineWidth"].as<float>();
+        if (drawSettings["m_pointSize"]) m_pointSize = drawSettings["m_pointSize"].as<float>();
+        if (drawSettings["m_cullFaceMode"]) m_cullFaceMode = (OpenGLCullFace) drawSettings["m_cullFaceMode"].as<unsigned>();
+        if (drawSettings["m_polygonMode"]) m_polygonMode = (OpenGLPolygonMode) drawSettings["m_polygonMode"].as<unsigned>();
 
-        m_blending = drawSettings["m_blending"].as<bool>();
-        m_blendingSrcFactor = (OpenGLBlendFactor) drawSettings["m_blendingSrcFactor"].as<unsigned>();
-        m_blendingDstFactor = (OpenGLBlendFactor) drawSettings["m_blendingDstFactor"].as<unsigned>();
+        if (drawSettings["m_blending"]) m_blending = drawSettings["m_blending"].as<bool>();
+        if (drawSettings["m_blendingSrcFactor"]) m_blendingSrcFactor = (OpenGLBlendFactor) drawSettings["m_blendingSrcFactor"].as<unsigned>();
+        if (drawSettings["m_blendingDstFactor"]) m_blendingDstFactor = (OpenGLBlendFactor) drawSettings["m_blendingDstFactor"].as<unsigned>();
     }
 }
 

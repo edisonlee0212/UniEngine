@@ -71,16 +71,19 @@ std::shared_ptr<OpenGLUtils::GLVAO> DefaultResources::ScreenVAO;
 std::shared_ptr<OpenGLUtils::GLVAO> DefaultResources::SkyboxVAO;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightPrePassProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightStrandsPrePassProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightSkinnedPrePassProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightPrePassInstancedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightPrePassInstancedSkinnedProgram;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightStrandsProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightSkinnedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightInstancedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneHighlightInstancedSkinnedProgram;
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntityRecorderProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntityStrandsRecorderProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntityInstancedSkinnedRecorderProgram;
@@ -689,7 +692,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 		auto standardGeometry = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "StandardStrands.geom");
 		standardGeometry->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
-		
+
 		m_gBufferStrandsPrepass = std::make_shared<OpenGLUtils::GLProgram>();
 		m_gBufferStrandsPrepass->Attach(standardVert);
 		m_gBufferStrandsPrepass->Attach(standardTessCont);
@@ -896,7 +899,7 @@ void DefaultResources::LoadRenderManagerResources()
 
 		standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoInstancedStrands.vert");
 		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-		
+
 		GizmoStrandsInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
 		GizmoStrandsInstancedProgram->Attach(standardVert);
 		GizmoStrandsInstancedProgram->Attach(standardTessCont);
@@ -1011,118 +1014,242 @@ void DefaultResources::PrepareBrdfLut()
 void DefaultResources::LoadEditorManagerResources()
 {
 #pragma region Recorder
-	std::string vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Empty.vert");
-	std::string fragShaderCode = std::string("#version 450 core\n") + FileUtils::LoadFileAsString(
-		std::filesystem::path("./DefaultResources") /
-		"Shaders/Fragment/EntityRecorder.frag");
+	{
+		std::string vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Empty.vert");
+		std::string fragShaderCode = std::string("#version 450 core\n") + FileUtils::LoadFileAsString(
+			std::filesystem::path("./DefaultResources") /
+			"Shaders/Fragment/EntityRecorder.frag");
 
-	auto vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Empty.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	auto fragShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EntityRecorder.frag");
-	fragShader->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+		auto vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Empty.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		auto fragShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EntityRecorder.frag");
+		fragShader->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
 
-	m_sceneCameraEntityRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
+		m_sceneCameraEntityRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneCameraEntityRecorderProgram->Link(vertShader, fragShader);
 
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstanced.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstanced.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneCameraEntityInstancedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
+		vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstanced.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstanced.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneCameraEntityInstancedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneCameraEntityInstancedRecorderProgram->Link(vertShader, fragShader);
 
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptySkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptySkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneCameraEntitySkinnedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
+		vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptySkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptySkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneCameraEntitySkinnedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneCameraEntitySkinnedRecorderProgram->Link(vertShader, fragShader);
 
-	vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(
-			std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstancedSkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstancedSkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneCameraEntityInstancedSkinnedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
+		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstancedSkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstancedSkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneCameraEntityInstancedSkinnedRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneCameraEntityInstancedSkinnedRecorderProgram->Link(vertShader, fragShader);
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyStrands.vert");
+
+		auto tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/GizmoStrands.tesc");
+
+		auto tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		auto geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/GizmoStrands.geom");
+
+
+		auto standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyStrands.vert");
+		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		auto standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		auto standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		auto standardGeometry = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.geom");
+		standardGeometry->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_sceneCameraEntityStrandsRecorderProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneCameraEntityStrandsRecorderProgram->Attach(standardVert);
+		m_sceneCameraEntityStrandsRecorderProgram->Attach(standardTessCont);
+		m_sceneCameraEntityStrandsRecorderProgram->Attach(standardTessEval);
+		m_sceneCameraEntityStrandsRecorderProgram->Attach(standardGeometry);
+		m_sceneCameraEntityStrandsRecorderProgram->Attach(fragShader);
+		m_sceneCameraEntityStrandsRecorderProgram->Link();
+	}
 #pragma endregion
 #pragma region Highlight Prepass
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Empty.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Empty.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+	{
+		auto vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Empty.vert");
+		auto vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Empty.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 
-	fragShaderCode =
-		std::string("#version 450 core\n") +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Fragment/Highlight.frag");
+		auto fragShaderCode =
+			std::string("#version 450 core\n") +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Fragment/Highlight.frag");
 
-	fragShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Highlight.frag");
-	fragShader->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+		auto fragShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Highlight.frag");
+		fragShader->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
 
-	m_sceneHighlightPrePassProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
+		m_sceneHighlightPrePassProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightPrePassProgram->Link(vertShader, fragShader);
 
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstanced.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstanced.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightPrePassInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
+		vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstanced.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstanced.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightPrePassInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightPrePassInstancedProgram->Link(vertShader, fragShader);
 
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptySkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptySkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightSkinnedPrePassProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
+		vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptySkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptySkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightSkinnedPrePassProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightSkinnedPrePassProgram->Link(vertShader, fragShader);
 
-	vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(
-			std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstancedSkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstancedSkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightPrePassInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
+		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyInstancedSkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyInstancedSkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightPrePassInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightPrePassInstancedSkinnedProgram->Link(vertShader, fragShader);
+
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyStrands.vert");
+
+		auto tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/GizmoStrands.tesc");
+
+		auto tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		auto geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/GizmoStrands.geom");
+
+
+		auto standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyStrands.vert");
+		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		auto standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		auto standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		auto standardGeometry = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.geom");
+		standardGeometry->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_sceneHighlightStrandsPrePassProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightStrandsPrePassProgram->Attach(standardVert);
+		m_sceneHighlightStrandsPrePassProgram->Attach(standardTessCont);
+		m_sceneHighlightStrandsPrePassProgram->Attach(standardTessEval);
+		m_sceneHighlightStrandsPrePassProgram->Attach(standardGeometry);
+		m_sceneHighlightStrandsPrePassProgram->Attach(fragShader);
+		m_sceneHighlightStrandsPrePassProgram->Link();
+	}
 #pragma endregion
 #pragma region Highlight
-	vertShaderCode =
-		std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Highlight.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Highlight.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightProgram->Link(vertShader, fragShader);
+	{
+		auto vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/Highlight.vert");
+		auto vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Highlight.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 
-	vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(
-			std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightInstanced.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightInstanced.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
+		auto fragShaderCode =
+			std::string("#version 450 core\n") +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Fragment/Highlight.frag");
 
-	vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(
-			std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightSkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightSkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
+		auto fragShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Highlight.frag");
+		fragShader->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
 
-	vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
-		FileUtils::LoadFileAsString(
-			std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightInstancedSkinned.vert");
-	vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightInstancedSkinned.vert");
-	vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
-	m_sceneHighlightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
-	m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
+		m_sceneHighlightProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightProgram->Link(vertShader, fragShader);
+
+		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightInstanced.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightInstanced.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightInstancedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightInstancedProgram->Link(vertShader, fragShader);
+
+		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightSkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightSkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightSkinnedProgram->Link(vertShader, fragShader);
+
+		vertShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/HighlightInstancedSkinned.vert");
+		vertShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightInstancedSkinned.vert");
+		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		m_sceneHighlightInstancedSkinnedProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightInstancedSkinnedProgram->Link(vertShader, fragShader);
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/EmptyStrands.vert");
+
+		auto tessContShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationControl/GizmoStrands.tesc");
+
+		auto tessEvalShaderCode =
+			std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/TessellationEvaluation/GizmoStrands.tese");
+
+		auto geomShaderCode = std::string("#version 450 core\n") + std::string("#extension GL_EXT_geometry_shader4 : enable\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Geometry/HighlightStrands.geom");
+
+
+		auto standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "EmptyStrands.vert");
+		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+
+		auto standardTessCont = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tesc");
+		standardTessCont->Set(OpenGLUtils::ShaderType::TessellationControl, tessContShaderCode);
+
+		auto standardTessEval = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "GizmoStrands.tese");
+		standardTessEval->Set(OpenGLUtils::ShaderType::TessellationEvaluation, tessEvalShaderCode);
+
+		auto standardGeometry = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "HighlightStrands.geom");
+		standardGeometry->Set(OpenGLUtils::ShaderType::Geometry, geomShaderCode);
+
+		m_sceneHighlightStrandsProgram = std::make_shared<OpenGLUtils::GLProgram>();
+		m_sceneHighlightStrandsProgram->Attach(standardVert);
+		m_sceneHighlightStrandsProgram->Attach(standardTessCont);
+		m_sceneHighlightStrandsProgram->Attach(standardTessEval);
+		m_sceneHighlightStrandsProgram->Attach(standardGeometry);
+		m_sceneHighlightStrandsProgram->Attach(fragShader);
+		m_sceneHighlightStrandsProgram->Link();
+		
+	}
 #pragma endregion
 
 	LoadIcons();

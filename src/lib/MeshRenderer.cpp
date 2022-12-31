@@ -13,11 +13,16 @@ void MeshRenderer::RenderBound(glm::vec4 &color)
         size.z = 0.01f;
     if (size.y < 0.01f)
         size.y = 0.01f;
+    GizmoSettings gizmoSettings;
+    gizmoSettings.m_drawSettings.m_cullFace = false;
+    gizmoSettings.m_drawSettings.m_blending = true;
+    gizmoSettings.m_drawSettings.m_polygonMode = OpenGLPolygonMode::Line;
+    gizmoSettings.m_drawSettings.m_lineWidth = 3.0f;
     Gizmos::DrawGizmoMesh(
         DefaultResources::Primitives::Cube,
         color,
         transform * (glm::translate(m_mesh.Get<Mesh>()->m_bound.Center()) * glm::scale(size)),
-        1);
+        1, gizmoSettings);
 }
 
 void MeshRenderer::OnInspect()
@@ -32,7 +37,7 @@ void MeshRenderer::OnInspect()
     {
         if (ImGui::TreeNode("Mesh##MeshRenderer"))
         {
-            static bool displayBound;
+            static bool displayBound = true;
             ImGui::Checkbox("Display bounds##MeshRenderer", &displayBound);
             if (displayBound)
             {

@@ -6,6 +6,8 @@ namespace UniEngine
 {
 struct DrawSettings{
     bool m_cullFace = true;
+    float m_lineWidth = 1.0f;
+    float m_pointSize = 1.0f;
     OpenGLCullFace m_cullFaceMode = OpenGLCullFace::Back;
     OpenGLPolygonMode m_polygonMode = OpenGLPolygonMode::Fill;
 

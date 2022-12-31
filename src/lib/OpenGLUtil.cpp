@@ -88,6 +88,10 @@ void OpenGLUtils::PreUpdate()
     utils.m_blendingSrcFactor = OpenGLBlendFactor::One;
     utils.m_blendingDstFactor = OpenGLBlendFactor::Zero;
     SetBlendFunc(OpenGLBlendFactor::SrcAlpha, OpenGLBlendFactor::OneMinusSrcAlpha);
+
+    utils.m_pointSize = utils.m_lineWidth = 10.0f;
+    SetPointSize(1.0f);
+    SetLineWidth(1.0f);
 }
 void OpenGLUtils::SetEnable(OpenGLCapability capability, bool enable)
 {
@@ -191,6 +195,26 @@ void OpenGLUtils::SetViewPort(int x1, int y1, int x2, int y2)
 void OpenGLUtils::SetViewPort(int x, int y)
 {
     glViewport(0, 0, x, y);
+}
+
+void OpenGLUtils::SetPointSize(float size)
+{
+    auto& utils = GetInstance();
+    if (utils.m_pointSize != size)
+    {
+        utils.m_pointSize = size;
+        glPointSize(size);
+    }
+}
+
+void OpenGLUtils::SetLineWidth(float width)
+{
+    auto& utils = GetInstance();
+    if (utils.m_lineWidth != width)
+    {
+        utils.m_lineWidth = width;
+        glLineWidth(width);
+    }
 }
 
 void OpenGLUtils::Get(GLenum param, int& data)

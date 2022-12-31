@@ -59,11 +59,18 @@ void Particles::OnInspect()
         static auto displayBoundColor = glm::vec4(0.0f, 1.0f, 0.0f, 0.2f);
         ImGui::ColorEdit4("Color:##Particles", (float *)(void *)&displayBoundColor);
         const auto transform = GetScene()->GetDataComponent<GlobalTransform>(GetOwner()).m_value;
+
+        GizmoSettings gizmoSettings;
+        gizmoSettings.m_drawSettings.m_cullFace = false;
+        gizmoSettings.m_drawSettings.m_blending = true;
+        gizmoSettings.m_drawSettings.m_polygonMode = OpenGLPolygonMode::Line;
+        gizmoSettings.m_drawSettings.m_lineWidth = 3.0f;
+
         Gizmos::DrawGizmoMesh(
             DefaultResources::Primitives::Cube,
             displayBoundColor,
             transform * glm::translate(m_boundingBox.Center()) * glm::scale(m_boundingBox.Size()),
-            1);
+            1, gizmoSettings);
     }
 
     Editor::DragAndDropButton<Material>(m_material, "Material");

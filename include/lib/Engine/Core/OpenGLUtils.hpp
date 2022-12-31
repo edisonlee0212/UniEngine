@@ -50,7 +50,8 @@ namespace UniEngine
 	{
 		friend class DefaultResources;
 		// friend class Graphics;
-
+		float m_lineWidth = 1.0f;
+		float m_pointSize = 1.0f;
 		bool m_depthTest = true;
 		bool m_scissorTest = false;
 		bool m_stencilTest = false;
@@ -72,7 +73,8 @@ namespace UniEngine
 		static void SetBlendFunc(OpenGLBlendFactor srcFactor, OpenGLBlendFactor dstFactor);
 		static void SetViewPort(int x1, int y1, int x2, int y2);
 		static void SetViewPort(int x, int y);
-
+		static void SetPointSize(float size);
+		static void SetLineWidth(float width);
 		static void Get(GLenum param, int& data);
 		static void Get(GLenum param, float& data);
 		static void Get(GLenum param, boolean& data);

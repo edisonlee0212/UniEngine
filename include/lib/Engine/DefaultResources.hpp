@@ -90,16 +90,19 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> SkyboxProgram;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightStrandsPrePassProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedPrePassProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightPrePassInstancedSkinnedProgram;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightStrandsProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightSkinnedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneHighlightInstancedSkinnedProgram;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityRecorderProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityStrandsRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntitySkinnedRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedRecorderProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_sceneCameraEntityInstancedSkinnedRecorderProgram;

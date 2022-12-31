@@ -362,6 +362,16 @@ void EditorLayer::HighLightEntityPrePassHelper(const Entity &entity) {
             skinnedMesh->Draw();
         }
     }
+    if (scene->HasPrivateComponent<StrandsRenderer>(entity)) {
+        auto mmc = scene->GetOrSetPrivateComponent<StrandsRenderer>(entity).lock();
+        auto material = mmc->m_material.Get<Material>();
+        auto strands = mmc->m_strands.Get<Strands>();
+        if (mmc->IsEnabled() && material != nullptr && strands != nullptr) {
+            DefaultResources::m_sceneHighlightStrandsPrePassProgram->SetFloat4x4(
+                "model", scene->GetDataComponent<GlobalTransform>(entity).m_value);
+            strands->Draw();
+        }
+    }
 }
 
 void EditorLayer::HighLightEntityHelper(const Entity &entity) {
@@ -406,6 +416,17 @@ void EditorLayer::HighLightEntityHelper(const Entity &entity) {
             skinnedMesh->Draw();
         }
     }
+    if (scene->HasPrivateComponent<StrandsRenderer>(entity)) {
+        auto mmc = scene->GetOrSetPrivateComponent<StrandsRenderer>(entity).lock();
+        auto material = mmc->m_material.Get<Material>();
+        auto strands = mmc->m_strands.Get<Strands>();
+        if (mmc->IsEnabled() && material != nullptr && strands != nullptr) {
+            auto ltw = scene->GetDataComponent<GlobalTransform>(entity);
+            DefaultResources::m_sceneHighlightStrandsProgram->SetFloat4x4("model", ltw.m_value);
+            DefaultResources::m_sceneHighlightStrandsProgram->SetFloat3("scale", ltw.GetScale());
+            strands->Draw();
+        }
+    }
 }
 
 void EditorLayer::MoveCamera(
@@ -437,7 +458,8 @@ void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color) 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     DefaultResources::m_sceneHighlightPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
-    DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+    DefaultResources::m_sceneHighlightStrandsPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
+	DefaultResources::m_sceneHighlightSkinnedPrePassProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
     DefaultResources::m_sceneHighlightPrePassInstancedProgram->SetFloat4("color", glm::vec4(1.0, 0.5, 0.0, 0.1));
     DefaultResources::m_sceneHighlightPrePassInstancedSkinnedProgram->SetFloat4("color",
                                                                                 glm::vec4(1.0, 0.5, 0.0, 0.1));
@@ -446,6 +468,7 @@ void EditorLayer::HighLightEntity(const Entity &entity, const glm::vec4 &color) 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
     DefaultResources::m_sceneHighlightProgram->SetFloat4("color", color);
+    DefaultResources::m_sceneHighlightStrandsProgram->SetFloat4("color", color);
     DefaultResources::m_sceneHighlightSkinnedProgram->SetFloat4("color", color);
     DefaultResources::m_sceneHighlightInstancedProgram->SetFloat4("color", color);
     DefaultResources::m_sceneHighlightInstancedSkinnedProgram->SetFloat4("color", color);
@@ -527,6 +550,15 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_skinnedMesh.lock()->Draw();
                                 break;
                             }
+                            case RenderCommandGeometryType::Strands: {
+                                auto& program = DefaultResources::m_sceneCameraEntityStrandsRecorderProgram;
+                                program->Bind();
+                                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                                DefaultResources::m_sceneCameraEntityStrandsRecorderProgram->SetInt(
+                                    "EntityIndex", renderCommand.m_owner.GetIndex());
+                                renderCommand.m_strands.lock()->Draw();
+                                break;
+                            }
                         }
                     },
                     false);
@@ -576,6 +608,15 @@ void EditorLayer::RenderToSceneCamera() {
                                 DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
                                 renderCommand.m_skinnedMesh.lock()->Draw();
+                                break;
+                            }
+                            case RenderCommandGeometryType::Strands: {
+                                auto& program = DefaultResources::m_sceneCameraEntityStrandsRecorderProgram;
+                                program->Bind();
+                                program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+                                DefaultResources::m_sceneCameraEntityStrandsRecorderProgram->SetInt(
+                                    "EntityIndex", renderCommand.m_owner.GetIndex());
+                                renderCommand.m_strands.lock()->Draw();
                                 break;
                             }
                         }

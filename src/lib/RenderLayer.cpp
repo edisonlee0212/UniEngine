@@ -1743,4 +1743,6 @@ void DrawSettings::ApplySettings() const
 	OpenGLUtils::SetPolygonMode(m_polygonMode);
 	OpenGLUtils::SetEnable(OpenGLCapability::Blend, m_blending);
 	OpenGLUtils::SetBlendFunc(m_blendingSrcFactor, m_blendingDstFactor);
+	OpenGLUtils::SetLineWidth(m_lineWidth);
+	OpenGLUtils::SetPointSize(m_pointSize);
 }

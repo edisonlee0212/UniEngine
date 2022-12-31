@@ -18,11 +18,16 @@ void StrandsRenderer::RenderBound(glm::vec4 &color)
         size.z = 0.01f;
     if (size.y < 0.01f)
         size.y = 0.01f;
+    GizmoSettings gizmoSettings;
+    gizmoSettings.m_drawSettings.m_cullFace = false;
+    gizmoSettings.m_drawSettings.m_blending = true;
+    gizmoSettings.m_drawSettings.m_polygonMode = OpenGLPolygonMode::Line;
+    gizmoSettings.m_drawSettings.m_lineWidth = 3.0f;
     Gizmos::DrawGizmoMesh(
             DefaultResources::Primitives::Cube,
             color,
             transform * (glm::translate(m_strands.Get<Strands>()->m_bound.Center()) * glm::scale(size)),
-            1);
+            1, gizmoSettings);
 }
 
 void StrandsRenderer::OnInspect()
@@ -37,7 +42,7 @@ void StrandsRenderer::OnInspect()
     {
         if (ImGui::TreeNode("Strands##StrandsRenderer"))
         {
-            static bool displayBound;
+            static bool displayBound = true;
             ImGui::Checkbox("Display bounds##StrandsRenderer", &displayBound);
             if (displayBound)
             {
