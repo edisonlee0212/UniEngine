@@ -17,6 +17,7 @@ in TES_OUT {
 
 const float PI2 = 6.28318531;
 const float c = 1000.0;
+uniform mat4 model;
 
 void main(){
 	mat4 cameraProjectionView = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW;
@@ -24,8 +25,8 @@ void main(){
 	for(int i = 0; i < gl_VerticesIn - 1; ++i)
 	{
 		//Reading Data
-		vec3 posS = tes_in[i].FragPos;
-		vec3 posT = tes_in[i + 1].FragPos;
+		vec3 posS = vec3(inverse(model) * vec4(tes_in[i].FragPos, 1.0));
+		vec3 posT = vec3(inverse(model) * vec4(tes_in[i + 1].FragPos, 1.0));
 
 		vec3 vS = tes_in[i].Normal;
 		vec3 vT = tes_in[i + 1].Normal;
@@ -69,8 +70,8 @@ void main(){
 			int tempIT = int(k * pT/forMax);
 			float angleT = (PI2 / pT) * tempIT;
 
-			vec3 newPS = posS.xyz + (v11 * sin(angleS) + v12 * cos(angleS)) * rS;
-			vec3 newPT = posT.xyz + (v21 * sin(angleT) + v22 * cos(angleT)) * rT;
+			vec3 newPS = vec3(model * vec4(posS.xyz + (v11 * sin(-angleS) + v12 * cos(-angleS)) * rS, 1.0));
+			vec3 newPT = vec3(model * vec4(posT.xyz + (v21 * sin(-angleT) + v22 * cos(-angleT)) * rT, 1.0));
 
 			//Source Vertex
 			//vec3 normal = normalize(posS - newPS);

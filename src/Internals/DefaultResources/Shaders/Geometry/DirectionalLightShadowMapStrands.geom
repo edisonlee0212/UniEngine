@@ -16,7 +16,7 @@ in TES_OUT {
 //} gs_out;
 
 uniform int index;
-
+uniform mat4 model;
 const float PI2 = 6.28318531;
 const float c = 1000.0;
 
@@ -28,8 +28,8 @@ void main(){
 		for(int i = 0; i < gl_VerticesIn - 1; ++i)
 		{
 			//Reading Data
-			vec3 posS = tes_in[i].FragPos;
-			vec3 posT = tes_in[i + 1].FragPos;
+			vec3 posS = vec3(inverse(model) * vec4(tes_in[i].FragPos, 1.0));
+			vec3 posT = vec3(inverse(model) * vec4(tes_in[i + 1].FragPos, 1.0));
 
 			vec3 vS = tes_in[i].Normal;
 			vec3 vT = tes_in[i + 1].Normal;
@@ -64,25 +64,11 @@ void main(){
 				int tempIT = int(k * pT/forMax);
 				float angleT = (PI2 / pT) * tempIT;
 
-				vec3 newPS = posS.xyz + (v11 * sin(angleS) + v12 * cos(angleS)) * rS;
-				vec3 newPT = posT.xyz + (v21 * sin(angleT) + v22 * cos(angleT)) * rT;
-
-				//Source Vertex
-				//vec3 normal = normalize(posS - newPS);
-				//gs_out.FragPos = tes_in[i].FragPos;
-				//gs_out.Normal = normal;
-				//gs_out.Tangent = tes_in[i].Tangent;
-				//gs_out.TexCoord = vec2(1.0 * tempIS / pS, tes_in[i].TexCoord);
+				vec3 newPS = vec3(model * vec4(posS.xyz + (v11 * sin(-angleS) + v12 * cos(-angleS)) * rS, 1.0));
+				vec3 newPT = vec3(model * vec4(posT.xyz + (v21 * sin(-angleT) + v22 * cos(-angleT)) * rT, 1.0));
 
 				gl_Position = splitMatrix * vec4(newPS, 1);
 				EmitVertex();
-
-				//Target Vertex
-				//normal = normalize(posT.xyz - newPT);
-				//gs_out.FragPos = tes_in[i + 1].FragPos;
-				//gs_out.Normal = normal;
-				//gs_out.Tangent = tes_in[i + 1].Tangent;
-				//gs_out.TexCoord = vec2(1.0 * tempIT / pT, tes_in[i + 1].TexCoord);
 
 				gl_Position = splitMatrix * vec4(newPT, 1);
 				EmitVertex();
