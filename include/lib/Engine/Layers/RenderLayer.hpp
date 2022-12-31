@@ -56,15 +56,17 @@ namespace UniEngine {
 		FromAPIInstanced
 	};
 
-	enum class RenderCommandMeshType {
+	enum class RenderCommandGeometryType {
 		Default,
-		Skinned
+		Skinned,
+		Strands
 	};
 	struct RenderCommand {
 		RenderCommandType m_commandType = RenderCommandType::FromRenderer;
-		RenderCommandMeshType m_meshType = RenderCommandMeshType::Default;
+		RenderCommandGeometryType m_meshType = RenderCommandGeometryType::Default;
 		Entity m_owner = Entity();
 		std::weak_ptr<Mesh> m_mesh;
+		std::weak_ptr<Strands> m_strands;
 		std::weak_ptr<SkinnedMesh> m_skinnedMesh;
 		bool m_castShadow = true;
 		bool m_receiveShadow = true;
@@ -76,6 +78,7 @@ namespace UniEngine {
 	struct RenderGeometryGroup {
 		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_meshes;
 		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_skinnedMeshes;
+		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_strands;
 	};
 
 	struct RenderCommands {
@@ -166,6 +169,7 @@ namespace UniEngine {
 		friend class Graphics;
 
 		size_t m_triangles = 0;
+		size_t m_strandsSegments = 0;
 		size_t m_drawCall = 0;
 		std::unique_ptr<OpenGLUtils::GLBuffer> m_materialSettingsBuffer;
 		std::unique_ptr<OpenGLUtils::GLBuffer> m_environmentalMapSettingsBuffer;
@@ -228,7 +232,7 @@ namespace UniEngine {
 			const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ParticleMatrices>& matrices);
 
 		void DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh>& skinnedMesh);
-
+		void DeferredPrepassInternal(const std::shared_ptr<Strands>& strands);
 		void DeferredPrepassInstancedInternal(
 			const std::shared_ptr<SkinnedMesh>& skinnedMesh, const std::shared_ptr<ParticleMatrices>& matrices);
 
@@ -239,8 +243,8 @@ namespace UniEngine {
 			const bool& receiveShadow);
 
 		void DrawMeshInternal(const std::shared_ptr<Mesh>& mesh);
-
-		void DrawMeshInternal(const std::shared_ptr<SkinnedMesh>& mesh);
+		void DrawStrandsInternal(const std::shared_ptr<Strands>& strands);
+		void DrawSkinnedMeshInternal(const std::shared_ptr<SkinnedMesh>& mesh);
 
 		void DrawMeshInstancedInternal(
 			const std::shared_ptr<Mesh>& mesh,

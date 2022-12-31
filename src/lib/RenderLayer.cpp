@@ -61,6 +61,15 @@ void RenderLayer::DispatchRenderCommands(
 				func(mat, renderCommand);
 			}
 		}
+		for (const auto& renderCommands : renderCollection.second.m_strands)
+		{
+			for (const auto& renderCommand : renderCommands.second)
+			{
+				if (renderCommand.m_strands.expired())
+					continue;
+				func(mat, renderCommand);
+			}
+		}
 		if (setMaterial)
 			ReleaseMaterialSettings(mat);
 	}
@@ -97,7 +106,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 			switch (renderCommand.m_meshType)
 			{
-			case RenderCommandMeshType::Default: {
+			case RenderCommandGeometryType::Default: {
 				auto mesh = renderCommand.m_mesh.lock();
 				auto& program = DefaultResources::m_gBufferPrepass;
 				program->Bind();
@@ -108,7 +117,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DeferredPrepassInternal(mesh);
 				break;
 			}
-			case RenderCommandMeshType::Skinned: {
+			case RenderCommandGeometryType::Skinned: {
 				auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
 				auto& program = DefaultResources::m_gBufferSkinnedPrepass;
 				program->Bind();
@@ -120,7 +129,19 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DeferredPrepassInternal(skinnedMesh);
 				break;
 			}
+			
+			case RenderCommandGeometryType::Strands: {
+				auto strands = renderCommand.m_strands.lock();
+				auto& program = DefaultResources::m_gBufferStrandsPrepass;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DeferredPrepassInternal(strands);
+				break;
 			}
+		}
 		},
 		true);
 	DispatchRenderCommands(
@@ -128,7 +149,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 			switch (renderCommand.m_meshType)
 			{
-			case RenderCommandMeshType::Default: {
+			case RenderCommandGeometryType::Default: {
 				if (renderCommand.m_matrices.expired())
 					break;
 				auto mesh = renderCommand.m_mesh.lock();
@@ -184,7 +205,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 			switch (renderCommand.m_meshType)
 			{
-			case RenderCommandMeshType::Default: {
+			case RenderCommandGeometryType::Default: {
 				auto mesh = renderCommand.m_mesh.lock();
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
 				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
@@ -197,7 +218,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DrawMeshInternal(mesh);
 				break;
 			}
-			case RenderCommandMeshType::Skinned: {
+			case RenderCommandGeometryType::Skinned: {
 				auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
 				renderCommand.m_boneMatrices.lock()->UploadBones(skinnedMesh);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
@@ -208,7 +229,20 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				program->Bind();
 				ApplyProgramSettings(program, material);
 				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-				DrawMeshInternal(skinnedMesh);
+				DrawSkinnedMeshInternal(skinnedMesh);
+				break;
+			}
+			case RenderCommandGeometryType::Strands: {
+				auto strands = renderCommand.m_strands.lock();
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+				if (!program)
+					break;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DrawStrandsInternal(strands);
 				break;
 			}
 			}
@@ -219,7 +253,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 			switch (renderCommand.m_meshType)
 			{
-			case RenderCommandMeshType::Default: {
+			case RenderCommandGeometryType::Default: {
 				if (renderCommand.m_matrices.expired())
 					break;
 				auto mesh = renderCommand.m_mesh.lock();
@@ -497,7 +531,7 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				continue;
 			auto gt = scene->GetDataComponent<GlobalTransform>(owner);
 			auto ltw = gt.m_value;
-			auto meshBound = mesh->GetBound();
+			auto meshBound = mesh->m_bound;
 			meshBound.ApplyTransform(ltw);
 			glm::vec3 center = meshBound.Center();
 
@@ -528,7 +562,7 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_mesh = mesh;
 				renderInstance.m_castShadow = mmc->m_castShadow;
 				renderInstance.m_receiveShadow = mmc->m_receiveShadow;
-				renderInstance.m_meshType = RenderCommandMeshType::Default;
+				renderInstance.m_meshType = RenderCommandGeometryType::Default;
 				if (material->m_drawSettings.m_blending)
 				{
 					transparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
@@ -589,7 +623,7 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_castShadow = particles->m_castShadow;
 				renderInstance.m_receiveShadow = particles->m_receiveShadow;
 				renderInstance.m_matrices = particles->m_matrices;
-				renderInstance.m_meshType = RenderCommandMeshType::Default;
+				renderInstance.m_meshType = RenderCommandGeometryType::Default;
 				if (material->m_drawSettings.m_blending)
 				{
 					instancedTransparentRenderInstances[material].m_meshes[mesh->m_vao].push_back(renderInstance);
@@ -657,7 +691,7 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_skinnedMesh = skinnedMesh;
 				renderInstance.m_castShadow = smmc->m_castShadow;
 				renderInstance.m_receiveShadow = smmc->m_receiveShadow;
-				renderInstance.m_meshType = RenderCommandMeshType::Skinned;
+				renderInstance.m_meshType = RenderCommandGeometryType::Skinned;
 				renderInstance.m_boneMatrices = smmc->m_finalResults;
 				if (material->m_drawSettings.m_blending)
 				{
@@ -670,6 +704,68 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				else
 				{
 					deferredRenderInstances[material].m_skinnedMeshes[skinnedMesh->m_vao].push_back(renderInstance);
+				}
+			}
+		}
+	}
+	owners =
+		scene->UnsafeGetPrivateComponentOwnersList<StrandsRenderer>();
+	if (owners)
+	{
+		for (auto owner : *owners)
+		{
+			if (!scene->IsEntityEnabled(owner))
+				continue;
+			auto mmc = scene->GetOrSetPrivateComponent<StrandsRenderer>(owner).lock();
+			auto material = mmc->m_material.Get<Material>();
+			auto strands = mmc->m_strands.Get<Strands>();
+			if (!mmc->IsEnabled() || material == nullptr || strands == nullptr)
+				continue;
+			auto gt = scene->GetDataComponent<GlobalTransform>(owner);
+			auto ltw = gt.m_value;
+			auto meshBound = strands->m_bound;
+			meshBound.ApplyTransform(ltw);
+			glm::vec3 center = meshBound.Center();
+
+			glm::vec3 size = meshBound.Size();
+			minBound = glm::vec3(
+				(glm::min)(minBound.x, center.x - size.x),
+				(glm::min)(minBound.y, center.y - size.y),
+				(glm::min)(minBound.z, center.z - size.z));
+			maxBound = glm::vec3(
+				(glm::max)(maxBound.x, center.x + size.x),
+				(glm::max)(maxBound.y, center.y + size.y),
+				(glm::max)(maxBound.z, center.z + size.z));
+
+			auto meshCenter = gt.m_value * glm::vec4(center, 1.0);
+			for (const auto& pair : cameraPairs)
+			{
+				auto& deferredRenderInstances = m_deferredRenderInstances[pair.first].m_value;
+				auto& deferredInstancedRenderInstances = m_deferredInstancedRenderInstances[pair.first].m_value;
+				auto& forwardRenderInstances = m_forwardRenderInstances[pair.first].m_value;
+				auto& forwardInstancedRenderInstances = m_forwardInstancedRenderInstances[pair.first].m_value;
+				auto& transparentRenderInstances = m_transparentRenderInstances[pair.first].m_value;
+				auto& instancedTransparentRenderInstances = m_instancedTransparentRenderInstances[pair.first].m_value;
+
+				float distance = glm::distance(glm::vec3(meshCenter), pair.second);
+				RenderCommand renderInstance;
+				renderInstance.m_owner = owner;
+				renderInstance.m_globalTransform = gt;
+				renderInstance.m_strands = strands;
+				renderInstance.m_castShadow = mmc->m_castShadow;
+				renderInstance.m_receiveShadow = mmc->m_receiveShadow;
+				renderInstance.m_meshType = RenderCommandGeometryType::Strands;
+				if (material->m_drawSettings.m_blending)
+				{
+					transparentRenderInstances[material].m_strands[strands->m_vao].push_back(renderInstance);
+				}
+				else if (mmc->m_forwardRendering)
+				{
+					forwardRenderInstances[material].m_strands[strands->m_vao].push_back(renderInstance);
+				}
+				else
+				{
+					deferredRenderInstances[material].m_strands[strands->m_vao].push_back(renderInstance);
 				}
 			}
 		}
@@ -726,7 +822,7 @@ void RenderLayer::ShadowMapPrePass(
 				return;
 		switch (renderCommand.m_meshType)
 		{
-		case RenderCommandMeshType::Default: {
+		case RenderCommandGeometryType::Default: {
 			auto mesh = renderCommand.m_mesh.lock();
 			auto& program = defaultProgram;
 			program->Bind();
@@ -735,7 +831,7 @@ void RenderLayer::ShadowMapPrePass(
 			mesh->Draw();
 			break;
 		}
-		case RenderCommandMeshType::Skinned: {
+		case RenderCommandGeometryType::Skinned: {
 			auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
 			auto& program = skinnedProgram;
 			program->Bind();
@@ -758,7 +854,7 @@ void RenderLayer::ShadowMapPrePass(
 				return;
 		switch (renderCommand.m_meshType)
 		{
-		case RenderCommandMeshType::Default: {
+		case RenderCommandGeometryType::Default: {
 			if (renderCommand.m_matrices.expired())
 				break;
 			auto mesh = renderCommand.m_mesh.lock();
@@ -782,7 +878,7 @@ void RenderLayer::ShadowMapPrePass(
 				return;
 		switch (renderCommand.m_meshType)
 		{
-		case RenderCommandMeshType::Default: {
+		case RenderCommandGeometryType::Default: {
 			auto mesh = renderCommand.m_mesh.lock();
 			auto& program = defaultProgram;
 			program->Bind();
@@ -791,7 +887,7 @@ void RenderLayer::ShadowMapPrePass(
 			mesh->Draw();
 			break;
 		}
-		case RenderCommandMeshType::Skinned: {
+		case RenderCommandGeometryType::Skinned: {
 			auto skinnedMesh = renderCommand.m_skinnedMesh.lock();
 			auto& program = skinnedProgram;
 			program->Bind();
@@ -814,7 +910,7 @@ void RenderLayer::ShadowMapPrePass(
 				return;
 		switch (renderCommand.m_meshType)
 		{
-		case RenderCommandMeshType::Default: {
+		case RenderCommandGeometryType::Default: {
 			if (renderCommand.m_matrices.expired())
 				break;
 			auto mesh = renderCommand.m_mesh.lock();
@@ -1506,6 +1602,15 @@ void RenderLayer::DeferredPrepassInternal(const std::shared_ptr<SkinnedMesh>& sk
 	skinnedMesh->Draw();
 }
 
+void RenderLayer::DeferredPrepassInternal(const std::shared_ptr<Strands>& strands)
+{
+	if (strands == nullptr)
+		return;
+	m_drawCall++;
+	m_strandsSegments += strands->GetSegmentAmount();
+	strands->Draw();
+}
+
 void RenderLayer::DeferredPrepassInstancedInternal(
 	const std::shared_ptr<SkinnedMesh>& skinnedMesh, const std::shared_ptr<ParticleMatrices>& matrices)
 {
@@ -1599,7 +1704,16 @@ void RenderLayer::DrawMeshInternal(const std::shared_ptr<Mesh>& mesh)
 	mesh->Draw();
 }
 
-void RenderLayer::DrawMeshInternal(const std::shared_ptr<SkinnedMesh>& mesh)
+void RenderLayer::DrawStrandsInternal(const std::shared_ptr<Strands>& strands)
+{
+	if (strands == nullptr)
+		return;
+	m_drawCall++;
+	m_strandsSegments += strands->GetSegmentAmount();
+	strands->Draw();
+}
+
+void RenderLayer::DrawSkinnedMeshInternal(const std::shared_ptr<SkinnedMesh>& mesh)
 {
 	if (mesh == nullptr)
 		return;

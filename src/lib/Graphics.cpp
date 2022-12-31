@@ -883,7 +883,7 @@ void Graphics::DrawMesh(
 
     RenderCommand renderCommand;
     renderCommand.m_commandType = RenderCommandType::FromAPI;
-    renderCommand.m_meshType = RenderCommandMeshType::Default;
+    renderCommand.m_meshType = RenderCommandGeometryType::Default;
     renderCommand.m_mesh = mesh;
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
@@ -917,7 +917,7 @@ void Graphics::DrawMeshInstanced(
 
     RenderCommand renderCommand;
     renderCommand.m_commandType = RenderCommandType::FromAPI;
-    renderCommand.m_meshType = RenderCommandMeshType::Default;
+    renderCommand.m_meshType = RenderCommandGeometryType::Default;
     renderCommand.m_mesh = mesh;
     renderCommand.m_matrices = matrices;
     renderCommand.m_receiveShadow = receiveShadow;

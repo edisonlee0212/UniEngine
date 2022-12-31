@@ -1,7 +1,7 @@
 layout (location = 0) out vec4 vFragColor;
 
 in GS_OUT {
-    vec2 TexCoords;
+    vec2 TexCoord;
 	flat int splitIndex;
 } vs_in;
 //uniform
@@ -17,8 +17,8 @@ void main()
 	for(int i = 0; i < passIndex; i++){
 		shift *= 2;
 	}
-	float color = texture(textureMapArray, vec3(vs_in.TexCoords.x, vs_in.TexCoords.y, lightIndex * 4 + vs_in.splitIndex)).r;
-	if(vs_in.TexCoords.y > shift * delta) color += texture(textureMapArray, vec3(vs_in.TexCoords.x, vs_in.TexCoords.y - shift * delta, lightIndex * 4 + vs_in.splitIndex)).r;
+	float color = texture(textureMapArray, vec3(vs_in.TexCoord.x, vs_in.TexCoord.y, lightIndex * 4 + vs_in.splitIndex)).r;
+	if(vs_in.TexCoord.y > shift * delta) color += texture(textureMapArray, vec3(vs_in.TexCoord.x, vs_in.TexCoord.y - shift * delta, lightIndex * 4 + vs_in.splitIndex)).r;
 	//return the filtered colour as fragment output
 	vFragColor = vec4(color, 0, 0, 1);
 }

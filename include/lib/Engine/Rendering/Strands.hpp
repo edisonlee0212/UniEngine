@@ -47,6 +47,11 @@ namespace UniEngine {
         void OnCreate() override;
         void Enable() const;
         [[nodiscard]] std::shared_ptr<OpenGLUtils::GLVAO> Vao() const;
+
+        [[nodiscard]] Bound GetBound();
+
+        [[nodiscard]] size_t GetSegmentAmount() const;
+        [[nodiscard]] size_t GetPointAmount() const;
     protected:
         bool LoadInternal(const std::filesystem::path &path) override;
 
@@ -57,6 +62,7 @@ namespace UniEngine {
         unsigned m_pointSize = 0;
 
         friend class StrandsRenderer;
+        friend class RenderLayer;
         std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
         Bound m_bound;
 

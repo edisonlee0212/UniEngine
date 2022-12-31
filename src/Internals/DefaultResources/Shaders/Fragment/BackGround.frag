@@ -1,6 +1,6 @@
 out vec4 FragColor;
 
-in vec3 TexCoords;
+in vec3 TexCoord;
 
 uniform vec3 clearColor;
 void main()

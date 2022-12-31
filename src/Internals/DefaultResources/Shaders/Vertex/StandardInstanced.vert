@@ -1,7 +1,7 @@
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec3 inTangent;
-layout (location = 4) in vec2 inTexCoords;
+layout (location = 4) in vec2 inTexCoord;
 layout (location = 12) in mat4 inInstanceMatrix;
 
 
@@ -9,7 +9,7 @@ out VS_OUT {
 	vec3 FragPos;
 	vec3 Normal;
 	vec3 Tangent;
-	vec2 TexCoords;
+	vec2 TexCoord;
 } vs_out;
 
 uniform mat4 model;
@@ -24,6 +24,6 @@ void main()
 	T = normalize(T - dot(T, N) * N);
 	vs_out.Normal = N;
 	vs_out.Tangent = T;
-	vs_out.TexCoords = inTexCoords;    
+	vs_out.TexCoord = inTexCoord;    
 	gl_Position =  UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * vec4(vs_out.FragPos, 1.0);
 }

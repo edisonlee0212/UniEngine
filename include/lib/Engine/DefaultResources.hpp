@@ -42,7 +42,11 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedSkinnedPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferSkinnedPrepass;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferStrandsPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferLightingPass;
+
+
+
     static std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightProgram;
@@ -56,6 +60,14 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedSkinnedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightSkinnedProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedSkinnedProgram;
+
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_directionalLightInstancedStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_pointLightInstancedStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightStrandsProgram;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_spotLightInstancedStrandsProgram;
+
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoVertexColoredProgram;
     static std::shared_ptr<OpenGLUtils::GLProgram> GizmoNormalColoredProgram;
@@ -102,6 +114,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardSkinnedProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedSkinnedProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> StandardStrandsProgram;
     };
 
     class UNIENGINE_API GLShaders

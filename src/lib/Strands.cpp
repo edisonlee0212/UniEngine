@@ -48,6 +48,25 @@ void Strands::PrepareStrands(const unsigned& mask) {
 		}, results);
 	for (auto& result : results) result.wait();
 
+
+#pragma region Bound
+	glm::vec3 minBound = m_points.at(0).m_position;
+	glm::vec3 maxBound = m_points.at(0).m_position;
+	for (auto& vertex : m_points)
+	{
+		minBound = glm::vec3(
+			(glm::min)(minBound.x, vertex.m_position.x),
+			(glm::min)(minBound.y, vertex.m_position.y),
+			(glm::min)(minBound.z, vertex.m_position.z));
+		maxBound = glm::vec3(
+			(glm::max)(maxBound.x, vertex.m_position.x),
+			(glm::max)(maxBound.y, vertex.m_position.y),
+			(glm::max)(maxBound.z, vertex.m_position.z));
+	}
+	m_bound.m_max = maxBound;
+	m_bound.m_min = minBound;
+#pragma endregion
+
 	if (!(m_mask & static_cast<unsigned>(VertexAttribute::Normal))) RecalculateNormal();
 
 	Upload();
@@ -332,7 +351,7 @@ void Strands::Draw() const
 	m_vao->DisableAttributeArray(15);
 
 
-	glDrawElements(GL_PATCHES, m_segmentIndicesSize * 4, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * m_offset));
+	glDrawElements(GL_PATCHES, (GLsizei)m_segmentIndicesSize * 4, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * m_offset));
 
 	OpenGLUtils::GLVAO::BindDefault();
 }
@@ -465,6 +484,21 @@ void Strands::Enable() const
 std::shared_ptr<OpenGLUtils::GLVAO> Strands::Vao() const
 {
 	return m_vao;
+}
+
+Bound Strands::GetBound()
+{
+	return m_bound;
+}
+
+size_t Strands::GetSegmentAmount() const
+{
+	return m_segmentIndicesSize;
+}
+
+size_t Strands::GetPointAmount() const
+{
+	return m_pointSize;
 }
 
 void Strands::SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<glm::uint>& segments, const std::vector<StrandPoint>& points) {

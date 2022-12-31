@@ -2,7 +2,7 @@ layout (location = 0) out vec3 originalColor;
 layout (location = 1) out float proximity;
 
 in VS_OUT {
-	vec2 TexCoords;
+	vec2 TexCoord;
 } fs_in;
 
 uniform sampler2D color;
@@ -20,10 +20,10 @@ uniform vec2 noiseScale;
 void main()
 {
     // get input for SSAO algorithm
-    float ndcDepth = texture(gDepth, fs_in.TexCoords).r;
-    vec3 viewPos = UE_DEPTH_TO_VIEW_POS(fs_in.TexCoords, ndcDepth);
-    vec3 normal = texture(gNormal, fs_in.TexCoords).rgb;
-    originalColor = texture(color, fs_in.TexCoords).rgb;
+    float ndcDepth = texture(gDepth, fs_in.TexCoord).r;
+    vec3 viewPos = UE_DEPTH_TO_VIEW_POS(fs_in.TexCoord, ndcDepth);
+    vec3 normal = texture(gNormal, fs_in.TexCoord).rgb;
+    originalColor = texture(color, fs_in.TexCoord).rgb;
     if(normal == vec3(0.0)) return;
     normal = normalize(mat3(UE_CAMERA_VIEW) * normal);
     vec3 randomVec = UE_UNIFORM_KERNEL[int(InterleavedGradientNoise(viewPos) * MAX_KERNEL_AMOUNT) % MAX_KERNEL_AMOUNT].xyz;

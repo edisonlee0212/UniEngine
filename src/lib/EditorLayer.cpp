@@ -507,7 +507,7 @@ void EditorLayer::RenderToSceneCamera() {
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
-                            case RenderCommandMeshType::Default: {
+                            case RenderCommandGeometryType::Default: {
                                 auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -516,7 +516,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_mesh.lock()->Draw();
                                 break;
                             }
-                            case RenderCommandMeshType::Skinned: {
+                            case RenderCommandGeometryType::Skinned: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -536,7 +536,7 @@ void EditorLayer::RenderToSceneCamera() {
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
-                            case RenderCommandMeshType::Default: {
+                            case RenderCommandGeometryType::Default: {
                                 if (renderCommand.m_matrices.expired())
                                     break;
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
@@ -558,7 +558,7 @@ void EditorLayer::RenderToSceneCamera() {
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
-                            case RenderCommandMeshType::Default: {
+                            case RenderCommandGeometryType::Default: {
                                 auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -567,7 +567,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_mesh.lock()->Draw();
                                 break;
                             }
-                            case RenderCommandMeshType::Skinned: {
+                            case RenderCommandGeometryType::Skinned: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -587,7 +587,7 @@ void EditorLayer::RenderToSceneCamera() {
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
-                            case RenderCommandMeshType::Default: {
+                            case RenderCommandGeometryType::Default: {
                                 if (renderCommand.m_matrices.expired())
                                     break;
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
@@ -1241,7 +1241,7 @@ void EditorLayer::CameraWindowDragAndDrop() {
             auto strandsRenderer = scene->GetOrSetPrivateComponent<StrandsRenderer>(entity).lock();
             strandsRenderer->m_strands.Set<Strands>(std::dynamic_pointer_cast<Strands>(asset));
             auto material = ProjectManager::CreateTemporaryAsset<Material>();
-            material->SetProgram(DefaultResources::GLPrograms::StandardProgram);
+            material->SetProgram(DefaultResources::GLPrograms::StandardStrandsProgram);
             strandsRenderer->m_material.Set<Material>(material);
         } else if (asset->GetTypeName() == "EnvironmentalMap") {
             scene->m_environmentSettings.m_environmentalMap =

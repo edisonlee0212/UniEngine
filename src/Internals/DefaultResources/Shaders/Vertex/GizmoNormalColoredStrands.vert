@@ -9,6 +9,7 @@ out VS_OUT {
 	vec3 FragPos;
 	float Thickness;
 	vec3 Normal;
+	vec4 Color;
 } vs_out;
 
 uniform mat4 model;
@@ -19,5 +20,6 @@ void main()
 	mat4 matrix = model * scaleMatrix;
 	vs_out.FragPos = vec3(matrix * vec4(inPos, 1.0));
 	vs_out.Thickness = inThickness;
+	vs_out.Color = vec4(inNormal, 1.0);
 	vs_out.Normal = vec3(matrix * vec4(inNormal, 0.0));
 }

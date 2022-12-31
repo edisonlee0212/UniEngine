@@ -47,8 +47,6 @@ void StrandsRenderer::OnInspect()
             }
             ImGui::TreePop();
         }
-
-        Gizmos::DrawGizmoStrands(m_strands.Get<Strands>());
     }
 }
 
@@ -95,3 +93,4 @@ void StrandsRenderer::OnDestroy()
     m_castShadow = true;
     m_receiveShadow = true;
 }
+

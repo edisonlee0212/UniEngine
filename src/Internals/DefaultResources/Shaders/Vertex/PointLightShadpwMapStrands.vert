@@ -12,12 +12,10 @@ out VS_OUT {
 } vs_out;
 
 uniform mat4 model;
-uniform mat4 scaleMatrix;
 
 void main()
 {
-	mat4 matrix = model * scaleMatrix;
-	vs_out.FragPos = vec3(matrix * vec4(inPos, 1.0));
+	vs_out.FragPos = vec3(model * vec4(inPos, 1.0));
 	vs_out.Thickness = inThickness;
-	vs_out.Normal = vec3(matrix * vec4(inNormal, 0.0));
+	vs_out.Normal = vec3(model * vec4(inNormal, 0.0));
 }

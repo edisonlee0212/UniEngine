@@ -4,15 +4,15 @@ in VS_OUT {
     vec3 FragPos;
     vec3 Normal;
     vec3 Tangent;
-    vec2 TexCoords;
+    vec2 TexCoord;
 } fs_in;
 
 
 void main()
 {
-    vec2 texCoords = fs_in.TexCoords;
+    vec2 texCoord = fs_in.TexCoord;
     vec4 albedo = UE_PBR_ALBEDO;
-    if (UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoords);
+    if (UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoord);
     if (albedo.a < 0.05)
         discard;
 
@@ -20,7 +20,7 @@ void main()
     mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
     vec3 normal = fs_in.Normal;
     if (UE_NORMAL_MAP_ENABLED){
-        normal = texture(UE_NORMAL_MAP, texCoords).rgb;
+        normal = texture(UE_NORMAL_MAP, texCoord).rgb;
         normal = normal * 2.0 - 1.0;
         normal = normalize(TBN * normal);
     }
@@ -30,9 +30,9 @@ void main()
     float emission = UE_PBR_EMISSION;
     float ao = UE_PBR_AO;
 
-    if (UE_ROUGHNESS_MAP_ENABLED) roughness = texture(UE_ROUGHNESS_MAP, texCoords).r;
-    if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoords).r;
-    if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoords).r;
+    if (UE_ROUGHNESS_MAP_ENABLED) roughness = texture(UE_ROUGHNESS_MAP, texCoord).r;
+    if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoord).r;
+    if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoord).r;
 
     vec3 viewDir = normalize(UE_CAMERA_POSITION - fs_in.FragPos);
     float dist = distance(fs_in.FragPos, UE_CAMERA_POSITION);

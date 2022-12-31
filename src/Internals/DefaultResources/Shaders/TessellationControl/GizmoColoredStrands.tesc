@@ -4,12 +4,14 @@ in VS_OUT {
     vec3 FragPos;
 	float Thickness;
 	vec3 Normal;
+	vec4 Color;
 } vs_in[];
 
 out TCS_OUT {
 	vec3 FragPos;
 	float Thickness;
 	vec3 Normal;
+	vec4 Color;
 } tcs_out[];
 
 void main(){
@@ -42,4 +44,5 @@ void main(){
 	tcs_out[gl_InvocationID].FragPos = vs_in[gl_InvocationID].FragPos;
 	tcs_out[gl_InvocationID].Thickness = vs_in[gl_InvocationID].Thickness;
 	tcs_out[gl_InvocationID].Normal = vs_in[gl_InvocationID].Normal;
+	tcs_out[gl_InvocationID].Color = vs_in[gl_InvocationID].Color;
 }

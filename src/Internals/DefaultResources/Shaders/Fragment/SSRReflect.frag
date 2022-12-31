@@ -2,7 +2,7 @@ layout (location = 0) out vec3 originalColor;
 layout (location = 1) out vec4 colorVisibility;
 
 in VS_OUT {
-    vec2 TexCoords;
+    vec2 TexCoord;
 } fs_in;
 
 uniform sampler2D gBufferMetallicRoughnessEmissionAmbient;
@@ -31,7 +31,7 @@ vec3 hash(vec3 a);
 void main()
 {
     vec2 texSize  = textureSize(colorTexture, 0).xy;
-    vec2 texCoord = fs_in.TexCoords;
+    vec2 texCoord = fs_in.TexCoord;
 
     vec2 uv = vec2(0.0);
 
@@ -54,8 +54,8 @@ void main()
     float dDepth;
     vec3 jittering = mix(vec3(0.0), vec3(hash(worldPos)), roughness);
     vec4 coords = RayMarch((vec3(jittering) + reflected * max(minRayStep, -viewPos.z)), hitPos, dDepth);
-    vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
-    float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+    vec2 dCoord = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
+    float screenEdgefactor = clamp(1.0 - (dCoord.x + dCoord.y), 0.0, 1.0);
     float reflectionMultiplier = pow(metallic, reflectionSpecularFalloffExponent) * screenEdgefactor * -reflected.z;
     // Get color
     colorVisibility = clamp(vec4(texture(colorTexture, coords.xy).rgb, reflectionMultiplier), vec4(0, 0, 0, 0), vec4(1, 1, 1, 1));
