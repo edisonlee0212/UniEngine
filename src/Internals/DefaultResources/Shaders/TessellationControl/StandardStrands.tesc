@@ -15,31 +15,9 @@ out TCS_OUT {
 } tcs_out[];
 
 void main(){
-	vec3 vSWorld = vs_in[0].FragPos; 
-	vec3 vTWorld = vs_in[3].FragPos;
-
-	float dS = length(UE_CAMERA_POSITION - vSWorld);
-	float dT = length(UE_CAMERA_POSITION - vTWorld);
-
-	float dist = max(1, min(dS, dT));
-	float r = vs_in[0].Thickness;
-	float p = 0;
-
-	if(dist <= 0.01)
-		dist = 0.01;
-
-	if(log((r/dist)+1) > 0.00035 || dist < 15)
-	{
-		float l = length(vs_in[0].FragPos - vs_in[3].FragPos);
-		float d = length(vs_in[0].FragPos - UE_CAMERA_POSITION);
-		float c = 100;
-		float t = c * l/d;
-		p = max(1, min(3, t));
-		
-	}
 
 	gl_TessLevelOuter[0] = 1;
-	gl_TessLevelOuter[1] = p;
+	gl_TessLevelOuter[1] = min(5, UE_PIXEL_DISTANCE(vs_in[0].FragPos, vs_in[3].FragPos) * 10);
 
 	tcs_out[gl_InvocationID].FragPos = vs_in[gl_InvocationID].FragPos;
 	tcs_out[gl_InvocationID].Thickness = vs_in[gl_InvocationID].Thickness;

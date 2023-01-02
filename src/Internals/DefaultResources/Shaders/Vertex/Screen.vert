@@ -1,5 +1,5 @@
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoord;
+layout (location = 0) in vec2 inPosition;
+layout (location = 1) in vec2 inTexCoord;
 
 out VS_OUT {
     vec2 TexCoord;
@@ -10,6 +10,6 @@ uniform vec2 size;
 uniform float depth;
 void main()
 {
-    vs_out.TexCoord = aTexCoord;
-    gl_Position = vec4(center + aPos * size, 0.0, 1.0); 
+    vs_out.TexCoord = inTexCoord;
+    gl_Position = vec4(center + inPosition * size, 0.0, 1.0); 
 }  

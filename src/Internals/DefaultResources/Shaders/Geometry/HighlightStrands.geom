@@ -21,7 +21,8 @@ const float PI2 = 6.28318531;
 const float c = 1000.0;
 uniform mat4 model;
 void main(){
-	mat4 cameraProjectionView = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW;
+	vec3 cameraPosition = UE_CAMERA_POSITION();
+	mat4 cameraProjectionView = UE_CAMERA_PROJECTION_VIEW;
 
 	for(int i = 0; i < gl_VerticesIn - 1; ++i)
 	{
@@ -49,8 +50,8 @@ void main(){
 		float rS = max(0.001, thickS); 
 		float rT = max(0.001, thickT);
 
-		float dS = max(1, length(UE_CAMERA_POSITION - posS));
-		float dT = max(1, length(UE_CAMERA_POSITION - posT));
+		float dS = max(1, length(cameraPosition - posS));
+		float dT = max(1, length(cameraPosition - posT));
  
 		int pS = 2 * int(c * rS);
 		int pT = 2 * int(c * rT);

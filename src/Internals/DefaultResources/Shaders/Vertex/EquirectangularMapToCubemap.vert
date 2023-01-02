@@ -1,4 +1,4 @@
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec3 inPosition;
 
 out vec3 WorldPos;
 
@@ -7,6 +7,6 @@ uniform mat4 view;
 
 void main()
 {
-    WorldPos = aPos;
-    gl_Position =  projection * view * vec4(WorldPos, 1.0);
+    WorldPos = inPosition;
+    gl_Position =  projection * view * vec4(inPosition, 1.0);
 }

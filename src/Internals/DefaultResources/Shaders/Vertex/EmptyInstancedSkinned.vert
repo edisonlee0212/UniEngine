@@ -1,4 +1,4 @@
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 inPosition;
 layout (location = 12) in mat4 inInstanceMatrix;
 
 layout (location = 5) in ivec4 inBoneIds; 
@@ -32,5 +32,5 @@ void main()
 	if(inBoneIds2[3] != -1){
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
-	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * model * boneTransform * inInstanceMatrix * vec4(inPos, 1.0);
+	gl_Position = UE_CAMERA_PROJECTION_VIEW * model * boneTransform * inInstanceMatrix * vec4(inPosition, 1.0);
 }

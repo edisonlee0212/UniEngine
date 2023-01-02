@@ -33,9 +33,9 @@ void main()
     if (UE_ROUGHNESS_MAP_ENABLED) roughness = texture(UE_ROUGHNESS_MAP, texCoord).r;
     if (UE_METALLIC_MAP_ENABLED) metallic = texture(UE_METALLIC_MAP, texCoord).r;
     if (UE_AO_MAP_ENABLED) ao = texture(UE_AO_MAP, texCoord).r;
-
-    vec3 viewDir = normalize(UE_CAMERA_POSITION - fs_in.FragPos);
-    float dist = distance(fs_in.FragPos, UE_CAMERA_POSITION);
+    vec3 cameraPosition = UE_CAMERA_POSITION();
+    vec3 viewDir = normalize(cameraPosition - fs_in.FragPos);
+    float dist = distance(fs_in.FragPos, cameraPosition);
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo.rgb, metallic);
     vec3 result = UE_FUNC_CALCULATE_LIGHTS(UE_ENABLE_SHADOW && UE_RECEIVE_SHADOW, albedo.rgb, 1.0, dist, normal, viewDir, fs_in.FragPos, metallic, roughness, F0);

@@ -1,8 +1,8 @@
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 inPosition;
 
 uniform mat4 model;
 
 void main()
 {
-	gl_Position = UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * model * vec4(inPos, 1.0);
+	gl_Position = UE_CAMERA_PROJECTION_VIEW * model * vec4(inPosition, 1.0);
 }

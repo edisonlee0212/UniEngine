@@ -1,4 +1,4 @@
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec3 inTangent;
 layout (location = 4) in vec2 inTexCoord;
@@ -17,7 +17,7 @@ uniform mat4 model;
 void main()
 {
 	mat4 matrix = model * inInstanceMatrix;
-	vs_out.FragPos = vec3(matrix * vec4(inPos, 1.0));
+	vs_out.FragPos = vec3(matrix * vec4(inPosition, 1.0));
 	vec3 N = normalize(vec3(matrix * vec4(inNormal,    0.0)));
 	vec3 T = normalize(vec3(matrix * vec4(inTangent,   0.0)));
 	// re-orthogonalize T with respect to N
@@ -25,5 +25,5 @@ void main()
 	vs_out.Normal = N;
 	vs_out.Tangent = T;
 	vs_out.TexCoord = inTexCoord;    
-	gl_Position =  UE_CAMERA_PROJECTION * UE_CAMERA_VIEW * vec4(vs_out.FragPos, 1.0);
+	gl_Position =  UE_CAMERA_PROJECTION_VIEW * vec4(vs_out.FragPos, 1.0);
 }

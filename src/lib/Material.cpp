@@ -18,12 +18,25 @@ static const char *BlendingFactor[]{"Zero", "One", "SrcColor", "OneMinusSrcColor
 
 bool DrawSettings::OnInspect() {
     bool changed = false;
+    int polygonMode = 0;
+    switch (m_polygonMode)
+    {
+    case OpenGLPolygonMode::Point: polygonMode = 0; break;
+    case OpenGLPolygonMode::Line: polygonMode = 1; break;
+    case OpenGLPolygonMode::Fill: polygonMode = 2; break;
+    }
     if (ImGui::Combo(
             "Polygon Mode",
-            reinterpret_cast<int *>(&m_polygonMode),
+            &polygonMode,
             PolygonMode,
             IM_ARRAYSIZE(PolygonMode))) {
         changed = true;
+        switch (polygonMode)
+        {
+        case 0: m_polygonMode = OpenGLPolygonMode::Point; break;
+        case 1: m_polygonMode = OpenGLPolygonMode::Line; break;
+        case 2: m_polygonMode = OpenGLPolygonMode::Fill; break;
+        }
     }
     if(m_polygonMode == OpenGLPolygonMode::Line)
     {
@@ -33,18 +46,31 @@ bool DrawSettings::OnInspect() {
     {
         ImGui::DragFloat("Point size", &m_pointSize, 0.1f, 0.0f, 100.0f);
     }
+    int cullFaceMode = 0;
+    switch (m_cullFaceMode)
+    {
+    case OpenGLCullFace::Front: cullFaceMode = 0; break;
+    case OpenGLCullFace::Back: cullFaceMode = 1; break;
+    case OpenGLCullFace::FrontAndBack: cullFaceMode = 2; break;
+    }
     if (ImGui::Checkbox("Cull Face", &m_cullFace)) changed = true;
     if (m_cullFace && ImGui::Combo(
             "Cull Face Mode",
-            reinterpret_cast<int *>(&m_cullFaceMode),
+            &cullFaceMode,
             CullingMode,
             IM_ARRAYSIZE(CullingMode))) {
         changed = true;
+        switch (cullFaceMode)
+        {
+        case 0: m_cullFaceMode = OpenGLCullFace::Front; break;
+        case 1: m_cullFaceMode = OpenGLCullFace::Back; break;
+        case 2: m_cullFaceMode = OpenGLCullFace::FrontAndBack; break;
+        }
     }
 
     if (ImGui::Checkbox("Blending", &m_blending)) changed = true;
 
-    if (m_blending) {
+    if (false && m_blending) {
         if (ImGui::Combo(
                 "Blending Source Factor",
                 reinterpret_cast<int *>(&m_blendingSrcFactor),

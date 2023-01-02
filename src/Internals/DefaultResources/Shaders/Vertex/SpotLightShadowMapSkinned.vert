@@ -1,4 +1,4 @@
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 inPosition;
 layout (location = 5) in ivec4 inBoneIds; 
 layout (location = 6) in vec4 inWeights;
 layout (location = 7) in ivec4 inBoneIds2; 
@@ -34,5 +34,5 @@ void main()
 	}
 
 	boneTransform = model * boneTransform;
-    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * boneTransform * vec4(inPos, 1.0);
+    gl_Position = UE_SPOT_LIGHTS[index].lightSpaceMatrix * boneTransform * vec4(inPosition, 1.0);
 }

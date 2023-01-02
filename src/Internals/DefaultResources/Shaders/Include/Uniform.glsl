@@ -51,12 +51,12 @@ layout (std140, binding = 0) uniform UE_CAMERA
 {
 	mat4 UE_CAMERA_PROJECTION;
 	mat4 UE_CAMERA_VIEW;
+	mat4 UE_CAMERA_PROJECTION_VIEW;
 	mat4 UE_CAMERA_INVERSE_PROJECTION;
 	mat4 UE_CAMERA_INVERSE_VIEW;
+	mat4 UE_CAMERA_INVERSE_PROJECTION_VIEW;
 	vec4 UE_CAMERA_RESERVED;
 	vec4 UE_CAMERA_CLEAR_COLOR;
-	vec3 UE_CAMERA_POSITION;
-
 };
 
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
@@ -156,6 +156,21 @@ float UE_LINEARIZE_DEPTH(float ndcDepth);
 vec3 UE_DEPTH_TO_CLIP_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth);
+
+vec3 UE_CAMERA_RIGHT(){
+	return UE_CAMERA_VIEW[0].xyz;
+}
+vec3 UE_CAMERA_UP(){
+	return UE_CAMERA_VIEW[1].xyz;
+}
+
+vec3 UE_CAMERA_FRONT(){
+	return -UE_CAMERA_VIEW[2].xyz;
+}
+
+vec3 UE_CAMERA_POSITION(){
+	return UE_CAMERA_VIEW[3].xyz;
+}
 
 float UE_LINEARIZE_DEPTH(float ndcDepth)
 {
@@ -570,4 +585,11 @@ float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 }
 
 
+float UE_PIXEL_DISTANCE(in vec3 worldPosA, in vec3 worldPosB){
+	vec4 coordA = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosA, 1.0);
+	vec4 coordB = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosB, 1.0);
+	coordA = coordA / coordA.w;
+	coordB = coordB / coordB.w;
+	return distance(coordA.xy, coordB.xy);
+}
 

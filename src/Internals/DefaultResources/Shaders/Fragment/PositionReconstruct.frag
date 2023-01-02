@@ -29,7 +29,7 @@ void main(){
 	float ViewY = fs_in.ViewRay.y * ViewZ;
 
 	vec3 Pos = vec3(ViewX, ViewY, ViewZ);
-	FragColor = (inverse(UE_CAMERA_PROJECTION) * inverse(UE_CAMERA_VIEW) * vec4(Pos, 1.0)).xyz;
+	FragColor = (UE_CAMERA_INVERSE_PROJECTION_VIEW * vec4(Pos, 1.0))).xyz;
 	//FragColor = (vec4(Pos, 0.0) * ).xyz;
 	//FragColor = vec3(texture(inputTex, fs_in.TexCoord).x);
 	//FragColor = vec3(ViewZ / UE_CAMERA_RESERVED[1]);

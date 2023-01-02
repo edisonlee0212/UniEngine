@@ -1,4 +1,4 @@
-layout (location = 0) in vec3 inPos;
+layout (location = 0) in vec3 inPosition;
 layout (location = 5) in ivec4 inBoneIds; 
 layout (location = 6) in vec4 inWeights;
 layout (location = 7) in ivec4 inBoneIds2; 
@@ -29,5 +29,5 @@ void main()
 		boneTransform += UE_ANIM_BONES[inBoneIds2[3]] * inWeights2[3];
 	}
 
-    gl_Position = model * boneTransform * vec4(inPos, 1.0);
+    gl_Position = model * boneTransform * vec4(inPosition, 1.0);
 }

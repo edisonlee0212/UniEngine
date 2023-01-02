@@ -23,7 +23,9 @@ void main()
 	vec3 albedo = 		texture(gAlbedo, fs_in.TexCoord).rgb;
 
 	vec3 fragPos = UE_DEPTH_TO_WORLD_POS(fs_in.TexCoord, ndcDepth);
-	vec3 viewDir = normalize(UE_CAMERA_POSITION - fragPos);
+
+	vec3 cameraPosition = UE_CAMERA_POSITION();
+	vec3 viewDir = normalize(cameraPosition - fragPos);
 	bool receiveShadow = true;
 	vec3 F0 = vec3(0.04); 
 	F0 = mix(F0, albedo, metallic);

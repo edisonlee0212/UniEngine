@@ -43,7 +43,8 @@ void main()
 
     vec3 viewPos = UE_DEPTH_TO_VIEW_POS(texCoord, texture(gBufferDepth, texCoord).x);
     vec3 worldPos = UE_DEPTH_TO_WORLD_POS(texCoord, texture(gBufferDepth, texCoord).x);
-    vec3 viewDir = normalize(UE_CAMERA_POSITION - worldPos);
+    vec3 cameraPosition = UE_CAMERA_POSITION();
+    vec3 viewDir = normalize(cameraPosition - worldPos);
     vec3 F0 = vec3(0.04);
     F0      = mix(F0, albedo, metallic);
     // ambient lighting (we now use IBL as the ambient term)
