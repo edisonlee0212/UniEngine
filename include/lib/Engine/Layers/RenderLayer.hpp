@@ -13,12 +13,17 @@
 namespace UniEngine {
 
 
-	struct UNIENGINE_API LightSettingsBlock {
+	struct UNIENGINE_API RenderingSettingsBlock {
 		float m_splitDistance[4];
 		int m_pcfSampleAmount = 64;
 		int m_blockerSearchAmount = 1;
 		float m_seamFixRatio = 0.05f;
 		float m_gamma = 2.2f;
+
+		float m_strandsSubdivisionXFactor = 500.0f;
+		float m_strandsSubdivisionYFactor = 1.0f;
+		int m_strandsSubdivisionMaxX = 8;
+		int m_strandsSubdivisionMaxY = 15;
 	};
 
 	struct EnvironmentalMapSettingsBlock {
@@ -111,7 +116,7 @@ namespace UniEngine {
 		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_transparentRenderInstances;
 		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_instancedTransparentRenderInstances;
 #pragma region Settings
-		LightSettingsBlock m_lightSettings;
+		RenderingSettingsBlock m_renderSettings;
 		bool m_stableFit = true;
 		float m_maxShadowDistance = 300;
 		float m_shadowCascadeSplit[DefaultResources::ShaderIncludes::ShadowCascadeAmount] = { 0.075f, 0.15f, 0.3f, 1.0f };

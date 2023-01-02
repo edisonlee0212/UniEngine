@@ -22,8 +22,9 @@ struct UNIENGINE_API CameraInfoBlock
     glm::mat4 m_inverseProjection;
     glm::mat4 m_inverseView;
     glm::mat4 m_inverseProjectionView;
-    glm::vec4 m_reservedParameters;
     glm::vec4 m_clearColor;
+    glm::vec4 m_reservedParameters1;
+    glm::vec4 m_reservedParameters2;
     std::unique_ptr<OpenGLUtils::GLBuffer>& GetBuffer();
     void UploadMatrices(const std::shared_ptr<Camera> &camera, const glm::vec3& position, const glm::quat& rotation);
     void UploadMatrices(const std::shared_ptr<Camera> &camera, const GlobalTransform& globalTransform);

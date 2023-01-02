@@ -10,8 +10,8 @@ uniform sampler2D inputTex;
 float LinearizeDepth(float depth)
 {
 	float z = depth;// * 2.0 - 1.0; // back to NDC
-	float near = UE_CAMERA_RESERVED[0];
-	float far = UE_CAMERA_RESERVED[1];
+	float near = UE_CAMERA_NEAR();
+	float far = UE_CAMERA_FAR();
 	return (2.0 * near * far) / (far + near - z * (far - near));
 }
 

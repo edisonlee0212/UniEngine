@@ -389,7 +389,7 @@ void RenderLayer::OnInspect()
 	if (m_enableRenderMenu)
 	{
 		ImGui::Begin("Render Settings");
-		ImGui::DragFloat("Gamma", &m_lightSettings.m_gamma, 0.01f, 1.0f, 3.0f);
+		ImGui::DragFloat("Gamma", &m_renderSettings.m_gamma, 0.01f, 1.0f, 3.0f);
 
 		bool enableShadow = m_materialSettings.m_enableShadow;
 		if (ImGui::Checkbox("Enable shadow", &enableShadow))
@@ -411,12 +411,22 @@ void RenderLayer::OnInspect()
 			}
 			if (ImGui::TreeNode("PCSS"))
 			{
-				ImGui::DragInt("Blocker search side amount", &m_lightSettings.m_blockerSearchAmount, 1, 1, 8);
-				ImGui::DragInt("PCF Sample Size", &m_lightSettings.m_pcfSampleAmount, 1, 1, 64);
+				ImGui::DragInt("Blocker search side amount", &m_renderSettings.m_blockerSearchAmount, 1, 1, 8);
+				ImGui::DragInt("PCF Sample Size", &m_renderSettings.m_pcfSampleAmount, 1, 1, 64);
 				ImGui::TreePop();
 			}
-			ImGui::DragFloat("Seam fix ratio", &m_lightSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
+			ImGui::DragFloat("Seam fix ratio", &m_renderSettings.m_seamFixRatio, 0.001f, 0.0f, 0.1f);
 			ImGui::Checkbox("Stable fit", &m_stableFit);
+		}
+
+		if(ImGui::TreeNodeEx("Strands settings", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::DragFloat("Curve subdivision factor", &m_renderSettings.m_strandsSubdivisionXFactor, 1.0f, 1.0f, 1000.0f);
+			ImGui::DragFloat("Ring subdivision factor", &m_renderSettings.m_strandsSubdivisionYFactor, 0.1f, 1.0f, 100.0f);
+			ImGui::DragInt("Max curve subdivision", &m_renderSettings.m_strandsSubdivisionMaxX, 1, 1, 8);
+			ImGui::DragInt("Max ring subdivision", &m_renderSettings.m_strandsSubdivisionMaxY, 1, 1, 15);
+
+			ImGui::TreePop();
 		}
 		ImGui::End();
 	}
@@ -459,7 +469,7 @@ void RenderLayer::OnCreate()
 #pragma endregion
 #pragma region Shadow
 	m_shadowCascadeInfoBlock = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Uniform, 4);
-	m_shadowCascadeInfoBlock->SetData(sizeof(LightSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
+	m_shadowCascadeInfoBlock->SetData(sizeof(RenderingSettingsBlock), nullptr, GL_DYNAMIC_DRAW);
 
 #pragma region LightInfoBlocks
 	size_t size = 16 + DefaultResources::ShaderIncludes::MaxDirectionalLightAmount * sizeof(DirectionalLightInfo);
@@ -965,7 +975,7 @@ void RenderLayer::RenderShadows(
 	auto ltw = cameraModel;
 	glm::vec3 mainCameraPos = ltw.GetPosition();
 	glm::quat mainCameraRot = ltw.GetRotation();
-	m_shadowCascadeInfoBlock->SubData(0, sizeof(LightSettingsBlock), &m_lightSettings);
+	m_shadowCascadeInfoBlock->SubData(0, sizeof(RenderingSettingsBlock), &m_renderSettings);
 	const std::vector<Entity>* directionalLightEntities =
 		scene->UnsafeGetPrivateComponentOwnersList<DirectionalLight>();
 	size_t size = 0;
@@ -997,7 +1007,7 @@ void RenderLayer::RenderShadows(
 					splitStart = m_maxShadowDistance * m_shadowCascadeSplit[split - 1];
 				if (split != DefaultResources::ShaderIncludes::ShadowCascadeAmount - 1)
 					splitEnd = m_maxShadowDistance * m_shadowCascadeSplit[split];
-				m_lightSettings.m_splitDistance[split] = splitEnd;
+				m_renderSettings.m_splitDistance[split] = splitEnd;
 				glm::mat4 lightProjection, lightView;
 				float max = 0;
 				glm::vec3 lightPos;

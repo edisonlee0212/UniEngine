@@ -55,8 +55,9 @@ layout (std140, binding = 0) uniform UE_CAMERA
 	mat4 UE_CAMERA_INVERSE_PROJECTION;
 	mat4 UE_CAMERA_INVERSE_VIEW;
 	mat4 UE_CAMERA_INVERSE_PROJECTION_VIEW;
-	vec4 UE_CAMERA_RESERVED;
 	vec4 UE_CAMERA_CLEAR_COLOR;
+	vec4 UE_CAMERA_RESERVED1;
+	vec4 UE_CAMERA_RESERVED2;
 };
 
 layout (std140, binding = 1) uniform UE_DIRECTIONAL_LIGHT_BLOCK
@@ -77,16 +78,22 @@ layout (std140, binding = 3) uniform UE_SPOT_LIGHT_BLOCK
 	SpotLight UE_SPOT_LIGHTS[SPOT_LIGHTS_AMOUNT];
 };
 
-layout (std140, binding = 4) uniform UE_LIGHT_SETTINGS_BLOCK
+layout (std140, binding = 4) uniform UE_RENDERING_SETTINGS_BLOCK
 {
 	float UE_SHADOW_SPLIT_0;
 	float UE_SHADOW_SPLIT_1;
 	float UE_SHADOW_SPLIT_2;
 	float UE_SHADOW_SPLIT_3;
+
 	int UE_SHADOW_SAMPLE_SIZE;
 	int UE_SHADOW_PCSS_BLOCKER_SEARCH_SIZE;
 	float UE_SHADOW_SEAM_FIX_RATIO;
 	float UE_GAMMA;
+
+	float UE_STRANDS_SUBDIVISION_X_FACTOR;
+	float UE_STRANDS_SUBDIVISION_Y_FACTOR;
+	int UE_STRANDS_SUBDIVISION_MAX_X;
+	int UE_STRANDS_SUBDIVISION_MAX_Y;
 };
 
 layout (std140, binding = 5) uniform UE_KERNEL_BLOCK
@@ -157,11 +164,26 @@ vec3 UE_DEPTH_TO_CLIP_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_WORLD_POS(vec2 texCoords, float ndcDepth);
 vec3 UE_DEPTH_TO_VIEW_POS(vec2 texCoords, float ndcDepth);
 
-vec3 UE_CAMERA_RIGHT(){
+
+
+vec3 UE_CAMERA_LEFT(){
 	return UE_CAMERA_VIEW[0].xyz;
 }
+
+vec3 UE_CAMERA_RIGHT(){
+	return -UE_CAMERA_VIEW[0].xyz;
+}
+
 vec3 UE_CAMERA_UP(){
 	return UE_CAMERA_VIEW[1].xyz;
+}
+
+vec3 UE_CAMERA_DOWN(){
+	return -UE_CAMERA_VIEW[1].xyz;
+}
+
+vec3 UE_CAMERA_BACK(){
+	return UE_CAMERA_VIEW[2].xyz;
 }
 
 vec3 UE_CAMERA_FRONT(){
@@ -169,13 +191,41 @@ vec3 UE_CAMERA_FRONT(){
 }
 
 vec3 UE_CAMERA_POSITION(){
-	return UE_CAMERA_VIEW[3].xyz;
+	return -UE_CAMERA_VIEW[3].xyz;
+}
+
+float UE_CAMERA_NEAR(){
+	return UE_CAMERA_RESERVED1.x;
+}
+
+float UE_CAMERA_FAR(){
+	return UE_CAMERA_RESERVED1.y;
+}
+
+float UE_CAMERA_TAN_FOV(){
+	return UE_CAMERA_RESERVED1.z;
+}
+
+float UE_CAMERA_TAN_HALF_FOV(){
+	return UE_CAMERA_RESERVED1.w;
+}
+
+float UE_CAMERA_RESOLUTION_X(){
+	return UE_CAMERA_RESERVED2.x;
+}
+
+float UE_CAMERA_RESOLUTION_Y(){
+	return UE_CAMERA_RESERVED2.y;
+}
+
+float UE_CAMERA_RESOLUTION_RATIO(){
+	return UE_CAMERA_RESERVED2.z;
 }
 
 float UE_LINEARIZE_DEPTH(float ndcDepth)
 {
-	float near = UE_CAMERA_RESERVED[0];
-	float far = UE_CAMERA_RESERVED[1];
+	float near = UE_CAMERA_NEAR();
+	float far = UE_CAMERA_FAR();
 	float z = ndcDepth * 2.0 - 1.0;
 	return (2.0 * near * far) / (far + near - z * (far - near));
 }
@@ -588,8 +638,65 @@ float UE_FUNC_POINT_LIGHT_SHADOW(int i, vec3 fragPos, vec3 normal)
 float UE_PIXEL_DISTANCE(in vec3 worldPosA, in vec3 worldPosB){
 	vec4 coordA = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosA, 1.0);
 	vec4 coordB = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosB, 1.0);
+	vec2 screenSize = vec2(UE_CAMERA_RESOLUTION_X(), UE_CAMERA_RESOLUTION_Y());
 	coordA = coordA / coordA.w;
 	coordB = coordB / coordB.w;
-	return distance(coordA.xy, coordB.xy);
+	return distance(coordA.xy * screenSize, coordB.xy * screenSize);
 }
 
+int UE_STRANDS_SEGMENT_SUBDIVISION(in vec3 worldPosA, in vec3 worldPosB){
+	vec4 coordA = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosA, 1.0);
+	vec4 coordB = UE_CAMERA_PROJECTION_VIEW * vec4(worldPosB, 1.0);
+	vec2 screenSize = vec2(UE_CAMERA_RESOLUTION_X(), UE_CAMERA_RESOLUTION_Y());
+	coordA = coordA / coordA.w;
+	coordB = coordB / coordB.w;
+	if(coordA.z < -1.0 && coordB.z < -1.0) return 0;
+	float pixelDistance = distance(coordA.xy * screenSize / 2.0, coordB.xy * screenSize / 2.0);
+	return max(1, min(UE_STRANDS_SUBDIVISION_MAX_X, int(pixelDistance / UE_STRANDS_SUBDIVISION_X_FACTOR)));
+}
+
+void UE_HERMITE_INTERPOLATION(in vec3 p0, in vec3 p1, in vec3 p2, in vec3 p3, out vec3 position, out vec3 tangent, float t)
+{
+	float tension = 0.8;
+	float bias = 0.0;
+
+	float t2 = t * t;
+	float t3 = t2 * t;
+
+	vec3 m0  = (p1 - p0) * (1.0 + bias) * (1.0 - tension) / 2.0;
+	m0 += (p2 - p1) * (1.0 - bias) * (1.0 - tension) / 2.0;
+	vec3 m1  = (p2 - p1) * (1.0 + bias) * (1.0 - tension) / 2.0;
+	m1 += (p3 - p2) * (1.0 - bias) * (1.0 - tension) / 2.0;
+	
+	float a0 = 2.0 * t3 - 3.0 * t2 + 1.0;
+	float a1 = t3 - 2.0 * t2 + t;
+	float a2 = t3 - t2;
+	float a3 = -2.0 * t3 + 3.0 * t2;
+
+	position = vec3(a0 * p1 + a1 * m0 + a2 * m1 + a3 * p2);
+	
+	vec3 d1 = ((6.0 * t2 - 6.0 * t) * p1) + ((3.0 * t2 - 4.0 * t + 1.0) * m0) + ((3.0 * t2 - 2.0 * t) * m1) + ((-6.0 * t2 + 6.0 * t) * p2);
+	tangent = normalize(d1);
+}
+
+void UE_CUBIC_INTERPOLATION(in vec3 v0, in vec3 v1, in vec3 v2, in vec3 v3, out vec3 position, out vec3 tangent, float t)
+{
+   float t2 = t * t;
+   vec3 a0, a1, a2, a3;
+
+   a0 = v3 - v2 - v0 + v1;
+   a1 = v0 - v1 - a0;
+   a2 = v2 - v0;
+   a3 = v1;
+
+   position = vec3(a0 * t * t2 + a1 * t2 + a2 * t + a3);  
+   vec3 d1 = vec3(3.0 * a0 * t2 + 2.0 * a1 * t + a2);
+   tangent = normalize(d1);
+}
+
+int UE_STRANDS_RING_SUBDIVISION(in vec3 modelSpaceA, in vec3 modelSpaceB, in vec3 worldPosA, in vec3 worldPosB, in float thicknessA, in float thicknessB){
+	float modelDistance = distance(modelSpaceA, modelSpaceB);
+	float pixelDistance = UE_PIXEL_DISTANCE(worldPosA, worldPosB);
+	float subdivision = max(thicknessA, thicknessB) / modelDistance * pixelDistance / UE_STRANDS_SUBDIVISION_Y_FACTOR;
+	return max(3, min(int(subdivision), UE_STRANDS_SUBDIVISION_MAX_Y));
+}

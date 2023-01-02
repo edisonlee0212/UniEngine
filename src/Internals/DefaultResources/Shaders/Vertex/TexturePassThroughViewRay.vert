@@ -10,5 +10,5 @@ void main()
 {
 	vs_out.TexCoord = inTexCoord;
 	gl_Position = vec4(inPosition.x, inPosition.y, 0.0, 1.0);
-	vs_out.ViewRay = vec2(inPosition.x * UE_CAMERA_RESERVED.w * UE_CAMERA_RESERVED.z, inPosition.y * UE_CAMERA_RESERVED.z);
+	vs_out.ViewRay = vec2(inPosition.x * UE_CAMERA_RESOLUTION_RATIO(), inPosition.y) * UE_CAMERA_TAN_HALF_FOV();
 }  

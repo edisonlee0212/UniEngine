@@ -483,12 +483,14 @@ void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, cons
 	m_inverseProjection = glm::inverse(m_projection);
     m_inverseView = glm::inverse(m_view);
     m_inverseProjectionView = glm::inverse(m_projection) * glm::inverse(m_view);
-    m_reservedParameters = glm::vec4(
+    m_reservedParameters1 = glm::vec4(
         camera->m_nearDistance,
         camera->m_farDistance,
         glm::tan(glm::radians(camera->m_fov * 0.5f)),
-        static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
+        glm::tan(glm::radians(camera->m_fov * 0.25f)));
     m_clearColor = glm::vec4(camera->m_clearColor, 1.0f);
+    m_reservedParameters2 = glm::vec4(camera->m_resolutionX, camera->m_resolutionY, static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY, 0.0f);
+
     if (camera->m_useClearColor)
     {
         m_clearColor.w = 1.0f;
@@ -513,13 +515,14 @@ void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, cons
     m_projectionView = m_projection * m_view;
     m_inverseProjection = glm::inverse(m_projection);
     m_inverseView = glm::inverse(m_view);
-    m_inverseProjectionView = glm::inverse(m_projectionView);
-    m_reservedParameters = glm::vec4(
+    m_inverseProjectionView = glm::inverse(m_projection) * glm::inverse(m_view);
+    m_reservedParameters1 = glm::vec4(
         camera->m_nearDistance,
         camera->m_farDistance,
         glm::tan(glm::radians(camera->m_fov * 0.5f)),
-        static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY);
+        glm::tan(glm::radians(camera->m_fov * 0.25f)));
     m_clearColor = glm::vec4(camera->m_clearColor, 1.0f);
+    m_reservedParameters2 = glm::vec4(camera->m_resolutionX, camera->m_resolutionY, static_cast<float>(camera->m_resolutionX) / camera->m_resolutionY, 0.0f);
     if (camera->m_useClearColor)
     {
         m_clearColor.w = 1.0f;

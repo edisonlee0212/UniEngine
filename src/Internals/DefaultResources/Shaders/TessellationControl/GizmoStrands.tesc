@@ -13,8 +13,10 @@ out TCS_OUT {
 } tcs_out[];
 
 void main(){
-	gl_TessLevelOuter[0] = 1;
-	gl_TessLevelOuter[1] = UE_PIXEL_DISTANCE(vs_in[0].FragPos, vs_in[3].FragPos) / 10.0;
+	if(gl_InvocationID == 0){
+		gl_TessLevelOuter[0] = 1;
+		gl_TessLevelOuter[1] = UE_STRANDS_SEGMENT_SUBDIVISION(vs_in[0].FragPos, vs_in[3].FragPos);
+	}
 
 	tcs_out[gl_InvocationID].FragPos = vs_in[gl_InvocationID].FragPos;
 	tcs_out[gl_InvocationID].Thickness = vs_in[gl_InvocationID].Thickness;

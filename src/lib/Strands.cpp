@@ -252,7 +252,7 @@ bool Strands::LoadInternal(const std::filesystem::path& path) {
 			// index
 			for (auto strand = m_strands.begin(); strand != m_strands.end() - 1; ++strand) {
 				const int start = *(strand);                      // first vertex in first segment
-				const int end = *(strand + 1) - CurveDegree();  // second vertex of last segment
+				const int end = *(strand + 1) - CurveDegree() - 1;  // second vertex of last segment
 				for (int i = start; i < end; ++i) {
 					m_segments.emplace_back(i);
 				}
