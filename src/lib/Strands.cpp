@@ -34,7 +34,7 @@ std::vector<glm::uint>& Strands::UnsafeGetSegments() {
 
 void Strands::PrepareStrands(const unsigned& mask) {
 	m_splineMode = SplineMode::Cubic;
-	m_segmentIndices.resize(m_segments.size() * 4);
+	m_segmentIndices.resize(m_segments.size());
 	std::vector<std::shared_future<void>> results;
 	Jobs::ParallelFor(m_segments.size(), [&](unsigned i)
 		{
@@ -286,7 +286,7 @@ void Strands::Serialize(YAML::Emitter& out) {
 
 	if (!m_segments.empty() && !m_points.empty()) {
 		out << YAML::Key << "m_segments" << YAML::Value
-			<< YAML::Binary((const unsigned char*)m_segments.data(), m_segments.size() * sizeof(int));
+			<< YAML::Binary((const unsigned char*)m_segments.data(), m_segments.size() * sizeof(glm::uint));
 
 		out << YAML::Key << "m_points" << YAML::Value
 			<< YAML::Binary((const unsigned char*)m_points.data(), m_points.size() * sizeof(StrandPoint));
@@ -300,21 +300,14 @@ void Strands::Deserialize(const YAML::Node& in) {
 
 	if (in["m_segments"] && in["m_points"]) {
 		auto segmentData = in["m_segments"].as<YAML::Binary>();
-		m_segments.resize(segmentData.size() / sizeof(int));
+		m_segments.resize(segmentData.size() / sizeof(glm::uint));
 		std::memcpy(m_segments.data(), segmentData.data(), segmentData.size());
 
 		auto pointData = in["m_points"].as<YAML::Binary>();
 		m_points.resize(pointData.size() / sizeof(StrandPoint));
 		std::memcpy(m_points.data(), pointData.data(), pointData.size());
 
-		if (m_points.size() % m_segments.size() != 0)
-		{
-			UNIENGINE_ERROR("Strands::SetPoints: Wrong segments size!");
-			return;
-		}
-
-
-		PrepareStrands(m_mask);
+		PrepareStrands(31);
 	}
 
 }
@@ -485,10 +478,10 @@ void Strands::SetSegments(const unsigned& mask, const std::vector<glm::uint>& se
 	if (points.empty() || segments.empty()) {
 		return;
 	}
-	
+
 	m_segments = segments;
 	m_points = points;
-	
+
 	PrepareStrands(mask);
 }
 
@@ -523,20 +516,21 @@ void CubicInterpolation(const glm::vec3& p0, const glm::vec3& p1, const glm::vec
 
 void Strands::RecalculateNormal()
 {
-		glm::vec3 tangent, temp;
-		CubicInterpolation(m_points[0].m_position, m_points[1].m_position, m_points[2].m_position, m_points[3].m_position, temp, tangent, 0.0f);
-		temp = glm::vec3(tangent.y, tangent.z, tangent.x);
-		m_points[0].m_normal = temp;
-		for (int i = 1; i < m_points.size() - 3; ++i) {
-			CubicInterpolation(m_points[i].m_position, m_points[i + 1].m_position, m_points[i + 2].m_position, m_points[i + 3].m_position, temp, tangent, 0.0f);
-			m_points[i].m_normal = glm::normalize(glm::cross(tangent, m_points[i - 1].m_normal));
-		}
-		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.25f);
-		m_points[m_points.size() - 3].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 4].m_normal));
-		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.75f);
-		m_points[m_points.size() - 2].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
-		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 1.0f);
-		m_points[m_points.size() - 1].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
+	glm::vec3 tangent, temp;
+	for(const auto& indices : m_segmentIndices)
+	{
+		CubicInterpolation(m_points[indices[0]].m_position, m_points[indices[1]].m_position, m_points[indices[2]].m_position, m_points[indices[3]].m_position, temp, tangent, 0.0f);
+		m_points[indices[0]].m_normal = glm::vec3(tangent.y, tangent.z, tangent.x);
+
+		CubicInterpolation(m_points[indices[0]].m_position, m_points[indices[1]].m_position, m_points[indices[2]].m_position, m_points[indices[3]].m_position, temp, tangent, 0.25f);
+		m_points[indices[1]].m_normal = glm::cross(glm::cross(tangent, m_points[indices[0]].m_normal), tangent);
+
+		CubicInterpolation(m_points[indices[0]].m_position, m_points[indices[1]].m_position, m_points[indices[2]].m_position, m_points[indices[3]].m_position, temp, tangent, 0.75f);
+		m_points[indices[2]].m_normal = glm::cross(glm::cross(tangent, m_points[indices[1]].m_normal), tangent);
+
+		CubicInterpolation(m_points[indices[0]].m_position, m_points[indices[1]].m_position, m_points[indices[2]].m_position, m_points[indices[3]].m_position, temp, tangent, 1.0f);
+		m_points[indices[3]].m_normal = glm::cross(glm::cross(tangent, m_points[indices[2]].m_normal), tangent);
+	}
 }
 
 
