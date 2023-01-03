@@ -14,13 +14,12 @@ out TES_OUT {
 } tes_out;
 
 void main(){
-	//vec3 t = vec3(gl_TessCoord.x, gl_TessCoord.y, gl_TessCoord.z);
-			
-	vec3 vS = tcs_in[0].Normal; // V of PTF
-	vec3 vT = tcs_in[3].Normal;
+	
+	vec3 vS = tcs_in[1].Normal; // V of PTF
+	vec3 vT = tcs_in[2].Normal;
 
-	float thickS = tcs_in[0].Thickness; // Thickness
-	float thickT = tcs_in[3].Thickness;    
+	float thickS = tcs_in[1].Thickness; // Thickness
+	float thickT = tcs_in[2].Thickness;    
 
 	vec3 controlPoint0 = tcs_in[0].FragPos;
 	vec3 controlPoint1 = tcs_in[1].FragPos;
@@ -29,7 +28,7 @@ void main(){
 
 	vec3 pos, tangent;
 	//cubicInterpolation(p_minus_1, pi, p_plus_1, p_plus_2, pos, tan, gl_TessCoord.x);
-	UE_BEZIER_CURVE(controlPoint0, controlPoint1, controlPoint2, controlPoint3, pos, tangent, gl_TessCoord.x);
+	UE_HERMITE_INTERPOLATION(controlPoint0, controlPoint1, controlPoint2, controlPoint3, pos, tangent, gl_TessCoord.x);
 
 	float thickness = mix(thickS, thickT, gl_TessCoord.x);
 	vec3 normal = normalize(mix(vS, vT, gl_TessCoord.x));

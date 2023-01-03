@@ -496,8 +496,8 @@ void Strands::SetStrands(const unsigned& mask, const std::vector<glm::uint>& str
 	// index
 	for (auto strand = strands.begin(); strand != strands.end() - 1; ++strand) {
 		const int start = *(strand);                      // first vertex in first segment
-		const int end = *(strand + 1);  // second vertex of last segment
-		for (int i = start; i < end - 3; i += 3) {
+		const int end = *(strand + 1) - CurveDegree();  // second vertex of last segment
+		for (int i = start; i < end; i++) {
 			m_segments.emplace_back(i);
 		}
 	}
