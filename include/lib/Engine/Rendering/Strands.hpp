@@ -55,7 +55,6 @@ namespace UniEngine {
 
     private:
         size_t m_offset = 0;
-        unsigned m_mask = 0;
         unsigned m_segmentIndicesSize = 0;
         unsigned m_pointSize = 0;
 

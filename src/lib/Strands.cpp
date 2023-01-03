@@ -64,7 +64,7 @@ void Strands::PrepareStrands(const unsigned& mask) {
 	m_bound.m_min = minBound;
 #pragma endregion
 
-	if (!(m_mask & static_cast<unsigned>(StrandPointAttribute::Normal))) RecalculateNormal();
+	if (!(mask & static_cast<unsigned>(StrandPointAttribute::Normal))) RecalculateNormal();
 
 	Upload();
 	/*
@@ -265,22 +265,10 @@ static const char* SplineModes[]{ "Linear", "Quadratic", "Cubic" };
 void Strands::OnInspect() {
 	bool changed = false;
 	ImGui::Text(("Point size: " + std::to_string(m_points.size())).c_str());
-	/*
-
-	if (ImGui::Combo(
-		"Spline Mode",
-		reinterpret_cast<int*>(&m_splineMode),
-		SplineModes,
-		IM_ARRAYSIZE(SplineModes))) {
-		SetSplineMode(m_splineMode);
-		changed = true;
-	}
-	*/
 	if (changed) m_saved = false;
 }
 
 void Strands::Serialize(YAML::Emitter& out) {
-	out << YAML::Key << "m_mask" << YAML::Value << m_mask;
 	out << YAML::Key << "m_offset" << YAML::Value << m_offset;
 	out << YAML::Key << "m_version" << YAML::Value << m_version;
 
@@ -294,7 +282,6 @@ void Strands::Serialize(YAML::Emitter& out) {
 }
 
 void Strands::Deserialize(const YAML::Node& in) {
-	if (in["m_mask"]) m_mask = in["m_mask"].as<unsigned>();
 	if (in["m_offset"]) m_offset = in["m_offset"].as<size_t>();
 	if (in["m_version"]) m_version = in["m_version"].as<size_t>();
 

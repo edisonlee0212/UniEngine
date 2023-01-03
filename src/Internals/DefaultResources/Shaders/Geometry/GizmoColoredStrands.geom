@@ -1,5 +1,5 @@
 layout(lines, invocations = 1) in;
-layout(triangle_strip, max_vertices = 42) out;
+layout(triangle_strip, max_vertices = 128) out;
 
 in TES_OUT {
 	vec3 FragPos;
