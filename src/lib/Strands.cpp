@@ -504,7 +504,7 @@ void Strands::SetStrands(const unsigned& mask, const std::vector<glm::uint>& str
 	for (auto strand = strands.begin(); strand != strands.end() - 1; ++strand) {
 		const int start = *(strand);                      // first vertex in first segment
 		const int end = *(strand + 1);  // second vertex of last segment
-		for (int i = start; i < end - 2; i += 3) {
+		for (int i = start; i < end - 3; i += 3) {
 			m_segments.emplace_back(i);
 		}
 	}
@@ -512,60 +512,30 @@ void Strands::SetStrands(const unsigned& mask, const std::vector<glm::uint>& str
 	PrepareStrands(mask);
 }
 
-void HermiteInterpolation(const glm::vec3 &p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, glm::vec3& position, glm::vec3& tangent, const float t)
+
+void CubicInterpolation(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, glm::vec3& position, glm::vec3& tangent, const float t)
 {
-	const float tension = 0.8f;
-	const float bias = 0.0f;
-
-	const float t2 = t * t;
-	const float t3 = t2 * t;
-
-	glm::vec3 m0 = (p1 - p0) * (1 + bias) * (1 - tension) / 2.0f;
-	m0 += (p2 - p1) * (1 - bias) * (1 - tension) / 2.0f;
-	glm::vec3 m1 = (p2 - p1) * (1 + bias) * (1 - tension) / 2.0f;
-	m1 += (p3 - p2) * (1 - bias) * (1 - tension) / 2.0f;
-
-	const float a0 = 2 * t3 - 3 * t2 + 1;
-	const float a1 = t3 - 2 * t2 + t;
-	const float a2 = t3 - t2;
-	const float a3 = -2 * t3 + 3 * t2;
-
-	position = glm::vec3(a0 * p1 + a1 * m0 + a2 * m1 + a3 * p2);
-
-	const glm::vec3 d1 = (6 * t2 - 6 * t) * p1 + (3 * t2 - 4 * t + 1) * m0 + (3 * t2 - 2 * t) * m1 + (-6 * t2 + 6 * t) * p2;
-	tangent = glm::normalize(d1);
-}
-
-void CubicInterpolation(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, glm::vec3& position, glm::vec3& tangent, const float t)
-{
-	const float t2 = t * t;
-
-	const glm::vec3 a0 = v3 - v2 - v0 + v1;
-	const glm::vec3 a1 = v0 - v1 - a0;
-	const glm::vec3 a2 = v2 - v0;
-	const glm::vec3 a3 = v1;
-
-	position = glm::vec3(a0 * t * t2 + a1 * t2 + a2 * t + a3);
-
-	const auto d1 = glm::vec3(3.0f * a0 * t2 + 2.0f * a1 * t + a2);
+	float t1 = 1.0f - t;
+	position = t1 * t1 * t1 * p0 + 3.0f * t1 * t1 * t * p1 + 3.0f * t1 * t * t * p2 + t * t * t * p3;
+	glm::vec3 d1 = 3.0f * t1 * t1 * (p1 - p0) + 6.0f * t1 * t * (p2 - p1) + 3.0f * t * t * (p3 - p2);
 	tangent = glm::normalize(d1);
 }
 
 void Strands::RecalculateNormal()
 {
 		glm::vec3 tangent, temp;
-		HermiteInterpolation(m_points[0].m_position, m_points[1].m_position, m_points[2].m_position, m_points[3].m_position, temp, tangent, 0.0f);
+		CubicInterpolation(m_points[0].m_position, m_points[1].m_position, m_points[2].m_position, m_points[3].m_position, temp, tangent, 0.0f);
 		temp = glm::vec3(tangent.y, tangent.z, tangent.x);
 		m_points[0].m_normal = temp;
 		for (int i = 1; i < m_points.size() - 3; ++i) {
-			HermiteInterpolation(m_points[i].m_position, m_points[i + 1].m_position, m_points[i + 2].m_position, m_points[i + 3].m_position, temp, tangent, 0.0f);
+			CubicInterpolation(m_points[i].m_position, m_points[i + 1].m_position, m_points[i + 2].m_position, m_points[i + 3].m_position, temp, tangent, 0.0f);
 			m_points[i].m_normal = glm::normalize(glm::cross(tangent, m_points[i - 1].m_normal));
 		}
-		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.25f);
+		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.25f);
 		m_points[m_points.size() - 3].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 4].m_normal));
-		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.75f);
+		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.75f);
 		m_points[m_points.size() - 2].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
-		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 1.0f);
+		CubicInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 1.0f);
 		m_points[m_points.size() - 1].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
 }
 

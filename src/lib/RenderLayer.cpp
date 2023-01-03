@@ -422,8 +422,8 @@ void RenderLayer::OnInspect()
 		if(ImGui::TreeNodeEx("Strands settings", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::DragFloat("Curve subdivision factor", &m_renderSettings.m_strandsSubdivisionXFactor, 1.0f, 1.0f, 1000.0f);
-			ImGui::DragFloat("Ring subdivision factor", &m_renderSettings.m_strandsSubdivisionYFactor, 0.1f, 1.0f, 100.0f);
-			ImGui::DragInt("Max curve subdivision", &m_renderSettings.m_strandsSubdivisionMaxX, 1, 1, 8);
+			ImGui::DragFloat("Ring subdivision factor", &m_renderSettings.m_strandsSubdivisionYFactor, 1.0f, 1.0f, 1000.0f);
+			ImGui::DragInt("Max curve subdivision", &m_renderSettings.m_strandsSubdivisionMaxX, 1, 1, 15);
 			ImGui::DragInt("Max ring subdivision", &m_renderSettings.m_strandsSubdivisionMaxY, 1, 1, 15);
 
 			ImGui::TreePop();

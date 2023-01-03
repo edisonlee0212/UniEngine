@@ -20,10 +20,10 @@ namespace UniEngine {
 		float m_seamFixRatio = 0.05f;
 		float m_gamma = 2.2f;
 
-		float m_strandsSubdivisionXFactor = 500.0f;
-		float m_strandsSubdivisionYFactor = 1.0f;
-		int m_strandsSubdivisionMaxX = 8;
-		int m_strandsSubdivisionMaxY = 15;
+		float m_strandsSubdivisionXFactor = 50.0f;
+		float m_strandsSubdivisionYFactor = 50.0f;
+		int m_strandsSubdivisionMaxX = 15;
+		int m_strandsSubdivisionMaxY = 8;
 	};
 
 	struct EnvironmentalMapSettingsBlock {

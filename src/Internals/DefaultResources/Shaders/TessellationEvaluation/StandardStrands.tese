@@ -31,7 +31,7 @@ void main(){
 
 	vec3 pos, tangent;
 	//cubicInterpolation(p_minus_1, pi, p_plus_1, p_plus_2, pos, tan, gl_TessCoord.x);
-	UE_HERMITE_INTERPOLATION(controlPoint0, controlPoint1, controlPoint2, controlPoint3, pos, tangent, gl_TessCoord.x);
+	UE_BEZIER_CURVE(controlPoint0, controlPoint1, controlPoint2, controlPoint3, pos, tangent, gl_TessCoord.x);
 
 	float thickness = mix(thickS, thickT, gl_TessCoord.x);
 	vec3 normal = normalize(mix(vS, vT, gl_TessCoord.x));

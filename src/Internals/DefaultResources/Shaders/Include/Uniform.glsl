@@ -655,43 +655,12 @@ int UE_STRANDS_SEGMENT_SUBDIVISION(in vec3 worldPosA, in vec3 worldPosB){
 	return max(1, min(UE_STRANDS_SUBDIVISION_MAX_X, int(pixelDistance / UE_STRANDS_SUBDIVISION_X_FACTOR)));
 }
 
-void UE_HERMITE_INTERPOLATION(in vec3 p0, in vec3 p1, in vec3 p2, in vec3 p3, out vec3 position, out vec3 tangent, float t)
+void UE_BEZIER_CURVE(in vec3 p0, in vec3 p1, in vec3 p2, in vec3 p3, out vec3 position, out vec3 tangent, float t)
 {
-	float tension = 0.8;
-	float bias = 0.0;
-
-	float t2 = t * t;
-	float t3 = t2 * t;
-
-	vec3 m0  = (p1 - p0) * (1.0 + bias) * (1.0 - tension) / 2.0;
-	m0 += (p2 - p1) * (1.0 - bias) * (1.0 - tension) / 2.0;
-	vec3 m1  = (p2 - p1) * (1.0 + bias) * (1.0 - tension) / 2.0;
-	m1 += (p3 - p2) * (1.0 - bias) * (1.0 - tension) / 2.0;
-	
-	float a0 = 2.0 * t3 - 3.0 * t2 + 1.0;
-	float a1 = t3 - 2.0 * t2 + t;
-	float a2 = t3 - t2;
-	float a3 = -2.0 * t3 + 3.0 * t2;
-
-	position = vec3(a0 * p1 + a1 * m0 + a2 * m1 + a3 * p2);
-	
-	vec3 d1 = ((6.0 * t2 - 6.0 * t) * p1) + ((3.0 * t2 - 4.0 * t + 1.0) * m0) + ((3.0 * t2 - 2.0 * t) * m1) + ((-6.0 * t2 + 6.0 * t) * p2);
+	float t1 = 1.0 - t;
+	position = t1 * t1 * t1 * p0 + 3.0 * t1 * t1 * t * p1 + 3.0 * t1 * t * t * p2 + t * t * t * p3;
+	vec3 d1 = 3.0 * t1 * t1 * (p1 - p0) + 6.0 * t1 * t * (p2 - p1) + 3.0 * t * t * (p3 - p2);
 	tangent = normalize(d1);
-}
-
-void UE_CUBIC_INTERPOLATION(in vec3 v0, in vec3 v1, in vec3 v2, in vec3 v3, out vec3 position, out vec3 tangent, float t)
-{
-   float t2 = t * t;
-   vec3 a0, a1, a2, a3;
-
-   a0 = v3 - v2 - v0 + v1;
-   a1 = v0 - v1 - a0;
-   a2 = v2 - v0;
-   a3 = v1;
-
-   position = vec3(a0 * t * t2 + a1 * t2 + a2 * t + a3);  
-   vec3 d1 = vec3(3.0 * a0 * t2 + 2.0 * a1 * t + a2);
-   tangent = normalize(d1);
 }
 
 int UE_STRANDS_RING_SUBDIVISION(in mat4 model, in vec3 worldPos, in vec3 modelPos, in float thickness)
