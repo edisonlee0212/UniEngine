@@ -17,8 +17,6 @@ namespace UniEngine {
 
         [[nodiscard]] SplineMode GetSplineMode() const;
 
-        [[nodiscard]] std::vector<glm::uint> &UnsafeGetStrands();
-
         [[nodiscard]] std::vector<glm::uint> &UnsafeGetSegments();
 
         [[nodiscard]] std::vector<StrandPoint> &UnsafeGetPoints();
@@ -31,10 +29,10 @@ namespace UniEngine {
 
         void Deserialize(const YAML::Node &in) override;
 
-        void SetPoints(const unsigned& mask, const std::vector<glm::uint> &strands, const std::vector<glm::uint>& segments,
+        void SetSegments(const unsigned& mask, const std::vector<glm::uint>& segments,
                        const std::vector<StrandPoint> &points);
 
-        void SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands,
+        void SetStrands(const unsigned& mask, const std::vector<glm::uint>& strands,
             const std::vector<StrandPoint>& points);
         void RecalculateNormal();
         void Draw() const;
@@ -72,8 +70,6 @@ namespace UniEngine {
 
         size_t m_version = 0;
 
-        //The starting index of the segment where this strands starts;
-        std::vector<glm::uint> m_strands;
         //The starting index of the point where this segment starts;
         std::vector<glm::uint> m_segments;
 

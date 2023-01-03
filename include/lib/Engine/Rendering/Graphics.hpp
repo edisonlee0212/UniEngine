@@ -103,11 +103,8 @@ class UNIENGINE_API Gizmos{
         const glm::mat4& scaleMatrix);
 
     static void DrawGizmoStrandsInstancedColoredInternal(const GizmoSettings& gizmoSettings,
-        const std::shared_ptr<Strands>& mesh,
-        const std::vector<glm::vec4>& colors,
-        const std::vector<glm::mat4>& matrices,
-        const glm::mat4& model,
-        const glm::mat4& scaleMatrix);
+        const std::shared_ptr<Strands>& strands, const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices,
+        const glm::mat4& model, const glm::mat4& scaleMatrix);
 
     static void DrawGizmoMeshInternal(const GizmoSettings& gizmoSettings,
                                const std::shared_ptr<Mesh> &mesh,

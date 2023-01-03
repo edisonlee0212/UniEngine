@@ -23,9 +23,6 @@ unsigned int Strands::CurveDegree() const {
 
 Strands::SplineMode Strands::GetSplineMode() const { return m_splineMode; }
 
-std::vector<glm::uint>& Strands::UnsafeGetStrands() {
-	return m_strands;
-}
 
 std::vector<StrandPoint>& Strands::UnsafeGetPoints() {
 	return m_points;
@@ -67,7 +64,7 @@ void Strands::PrepareStrands(const unsigned& mask) {
 	m_bound.m_min = minBound;
 #pragma endregion
 
-	if (!(m_mask & static_cast<unsigned>(VertexAttribute::Normal))) RecalculateNormal();
+	if (!(m_mask & static_cast<unsigned>(StrandPointAttribute::Normal))) RecalculateNormal();
 
 	Upload();
 	/*
@@ -196,8 +193,8 @@ bool Strands::LoadInternal(const std::filesystem::path& path) {
 			// Compute strands vector<unsigned int>. Each element is the index to the
 			// first point of the first segment of the strand. The last entry is the
 			// index "one beyond the last vertex".
-			m_strands = std::vector<glm::uint>(strandSegments.size() + 1);
-			auto strand = m_strands.begin();
+			auto strands = std::vector<glm::uint>(strandSegments.size() + 1);
+			auto strand = strands.begin();
 			*strand++ = 0;
 			for (auto segments : strandSegments) {
 				*strand = *(strand - 1) + 1 + segments;
@@ -239,26 +236,16 @@ bool Strands::LoadInternal(const std::filesystem::path& path) {
 			else {
 				std::fill(alpha.begin(), alpha.end(), header.defaultAlpha);
 			}
-			m_points.resize(header.numPoints);
+			std::vector<StrandPoint> strandPoints;
+			strandPoints.resize(header.numPoints);
 			for (int i = 0; i < header.numPoints; i++) {
-				m_points[i].m_position = points[i];
-				m_points[i].m_thickness = thickness[i];
-				m_points[i].m_color = glm::vec4(color[i], alpha[i]);
-				m_points[i].m_texCoord = 0.0f;
+				strandPoints[i].m_position = points[i];
+				strandPoints[i].m_thickness = thickness[i];
+				strandPoints[i].m_color = glm::vec4(color[i], alpha[i]);
+				strandPoints[i].m_texCoord = 0.0f;
 			}
 
-			m_segments.clear();
-			// loop to one before end, as last strand value is the "past last valid vertex"
-			// index
-			for (auto strand = m_strands.begin(); strand != m_strands.end() - 1; ++strand) {
-				const int start = *(strand);                      // first vertex in first segment
-				const int end = *(strand + 1) - CurveDegree() - 1;  // second vertex of last segment
-				for (int i = start; i < end; ++i) {
-					m_segments.emplace_back(i);
-				}
-			}
-
-			PrepareStrands(static_cast<unsigned>(StrandsAttribute::Position) | static_cast<unsigned>(StrandsAttribute::Thickness) | static_cast<unsigned>(StrandsAttribute::TexCoord) | static_cast<unsigned>(StrandsAttribute::Color));
+			SetStrands(1 + 2 + 16, strands, strandPoints);
 			return true;
 		}
 		catch (std::exception& e) {
@@ -297,10 +284,7 @@ void Strands::Serialize(YAML::Emitter& out) {
 	out << YAML::Key << "m_offset" << YAML::Value << m_offset;
 	out << YAML::Key << "m_version" << YAML::Value << m_version;
 
-	if (!m_strands.empty() && !m_segments.empty() && !m_points.empty()) {
-		out << YAML::Key << "m_strands" << YAML::Value
-			<< YAML::Binary((const unsigned char*)m_strands.data(), m_strands.size() * sizeof(int));
-
+	if (!m_segments.empty() && !m_points.empty()) {
 		out << YAML::Key << "m_segments" << YAML::Value
 			<< YAML::Binary((const unsigned char*)m_segments.data(), m_segments.size() * sizeof(int));
 
@@ -314,11 +298,7 @@ void Strands::Deserialize(const YAML::Node& in) {
 	if (in["m_offset"]) m_offset = in["m_offset"].as<size_t>();
 	if (in["m_version"]) m_version = in["m_version"].as<size_t>();
 
-	if (in["m_strands"] && in["m_segments"] && in["m_points"]) {
-		auto strandData = in["m_vertices"].as<YAML::Binary>();
-		m_strands.resize(strandData.size() / sizeof(int));
-		std::memcpy(m_strands.data(), strandData.data(), strandData.size());
-
+	if (in["m_segments"] && in["m_points"]) {
 		auto segmentData = in["m_segments"].as<YAML::Binary>();
 		m_segments.resize(segmentData.size() / sizeof(int));
 		std::memcpy(m_segments.data(), segmentData.data(), segmentData.size());
@@ -501,23 +481,30 @@ size_t Strands::GetPointAmount() const
 	return m_pointSize;
 }
 
-void Strands::SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<glm::uint>& segments, const std::vector<StrandPoint>& points) {
-	m_strands = strands;
+void Strands::SetSegments(const unsigned& mask, const std::vector<glm::uint>& segments, const std::vector<StrandPoint>& points) {
+	if (points.empty() || segments.empty()) {
+		return;
+	}
+	
 	m_segments = segments;
 	m_points = points;
+	
 	PrepareStrands(mask);
 }
 
-void Strands::SetPoints(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<StrandPoint>& points)
+void Strands::SetStrands(const unsigned& mask, const std::vector<glm::uint>& strands, const std::vector<StrandPoint>& points)
 {
-	m_strands = strands;
+	if (points.empty() || strands.empty()) {
+		return;
+	}
+
 	m_segments.clear();
 	// loop to one before end, as last strand value is the "past last valid vertex"
 	// index
-	for (auto strand = m_strands.begin(); strand != m_strands.end() - 1; ++strand) {
-		const int start = *strand;                      // first vertex in first segment
-		const int end = *(strand + 1) - CurveDegree();  // second vertex of last segment
-		for (int i = start; i < end; ++i) {
+	for (auto strand = strands.begin(); strand != strands.end() - 1; ++strand) {
+		const int start = *(strand);                      // first vertex in first segment
+		const int end = *(strand + 1);  // second vertex of last segment
+		for (int i = start; i < end - 2; i += 3) {
 			m_segments.emplace_back(i);
 		}
 	}
@@ -566,26 +553,20 @@ void CubicInterpolation(const glm::vec3& v0, const glm::vec3& v1, const glm::vec
 
 void Strands::RecalculateNormal()
 {
-	for (auto strand = m_strands.begin(); strand != m_strands.end() - 1; ++strand) {
-		const int start = *(strand);                      // first vertex in first segment
-		const int end = *(strand + 1) - 1;  // second vertex of last segment
 		glm::vec3 tangent, temp;
-		HermiteInterpolation(m_points[start].m_position, m_points[start + 1].m_position, m_points[start + 2].m_position, m_points[start + 3].m_position, temp, tangent, 0.0f);
+		HermiteInterpolation(m_points[0].m_position, m_points[1].m_position, m_points[2].m_position, m_points[3].m_position, temp, tangent, 0.0f);
 		temp = glm::vec3(tangent.y, tangent.z, tangent.x);
-		m_points[start].m_normal = temp;
-		for (int i = start + 1; i < end - 3; ++i) {
+		m_points[0].m_normal = temp;
+		for (int i = 1; i < m_points.size() - 3; ++i) {
 			HermiteInterpolation(m_points[i].m_position, m_points[i + 1].m_position, m_points[i + 2].m_position, m_points[i + 3].m_position, temp, tangent, 0.0f);
 			m_points[i].m_normal = glm::normalize(glm::cross(tangent, m_points[i - 1].m_normal));
 		}
-		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 0.25f);
-		m_points[end - 3].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 4].m_normal));
-		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 0.75f);
-		m_points[end - 2].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 3].m_normal));
-		HermiteInterpolation(m_points[end - 3].m_position, m_points[end - 2].m_position, m_points[end - 1].m_position, m_points[end].m_position, temp, tangent, 1.0f);
-		m_points[end - 1].m_normal = glm::normalize(glm::cross(tangent, m_points[end - 2].m_normal));
-
-
-	}
+		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.25f);
+		m_points[m_points.size() - 3].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 4].m_normal));
+		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 0.75f);
+		m_points[m_points.size() - 2].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
+		HermiteInterpolation(m_points[m_points.size() - 4].m_position, m_points[m_points.size() - 3].m_position, m_points[m_points.size() - 2].m_position, m_points[m_points.size() - 1].m_position, temp, tangent, 1.0f);
+		m_points[m_points.size() - 1].m_normal = glm::normalize(glm::cross(tangent, m_points[m_points.size() - 2].m_normal));
 }
 
 

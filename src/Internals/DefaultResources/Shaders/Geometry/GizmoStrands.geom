@@ -47,14 +47,19 @@ void main(){
 		vec3 v21 = normalize(vT);
 		vec3 v22 = normalize(cross(vT, tT)); 
 
-		int ringSubAmount = UE_STRANDS_RING_SUBDIVISION(modelPosS, modelPosT, worldPosS, worldPosT, thickS, thickT);
-
-		for(int k = 0; k <= ringSubAmount; k += 1)
+		int ringAmountS = UE_STRANDS_RING_SUBDIVISION(model, worldPosS, modelPosS, thickS);
+		int ringAmountT = UE_STRANDS_RING_SUBDIVISION(model, worldPosT, modelPosT, thickT);
+		int maxRingAmount = max(ringAmountS, ringAmountT);
+		for(int k = 0; k <= maxRingAmount; k += 1)
 		{
-			float angle = PI2 * k / ringSubAmount;
+			int tempIS = int(k * ringAmountS / maxRingAmount);
+			float angleS = PI2 / ringAmountS * tempIS;
 
-			vec3 newPS = vec3(model * vec4(modelPosS.xyz + (v11 * sin(-angle) + v12 * cos(-angle)) * thickS, 1.0));
-			vec3 newPT = vec3(model * vec4(modelPosT.xyz + (v21 * sin(-angle) + v22 * cos(-angle)) * thickT, 1.0));
+			int tempIT = int(k * ringAmountT / maxRingAmount);
+			float angleT = PI2 / ringAmountT * tempIT;
+
+			vec3 newPS = vec3(model * vec4(modelPosS.xyz + (v11 * sin(-angleS) + v12 * cos(-angleS)) * thickS, 1.0));
+			vec3 newPT = vec3(model * vec4(modelPosT.xyz + (v21 * sin(-angleT) + v22 * cos(-angleT)) * thickT, 1.0));
 
 			//Source Vertex
 			gl_Position = cameraProjectionView * vec4(newPS, 1);

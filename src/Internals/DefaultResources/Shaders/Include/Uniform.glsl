@@ -641,7 +641,7 @@ float UE_PIXEL_DISTANCE(in vec3 worldPosA, in vec3 worldPosB){
 	vec2 screenSize = vec2(UE_CAMERA_RESOLUTION_X(), UE_CAMERA_RESOLUTION_Y());
 	coordA = coordA / coordA.w;
 	coordB = coordB / coordB.w;
-	return distance(coordA.xy * screenSize, coordB.xy * screenSize);
+	return distance(coordA.xy * screenSize / 2.0, coordB.xy * screenSize / 2.0);
 }
 
 int UE_STRANDS_SEGMENT_SUBDIVISION(in vec3 worldPosA, in vec3 worldPosB){
@@ -694,9 +694,11 @@ void UE_CUBIC_INTERPOLATION(in vec3 v0, in vec3 v1, in vec3 v2, in vec3 v3, out 
    tangent = normalize(d1);
 }
 
-int UE_STRANDS_RING_SUBDIVISION(in vec3 modelSpaceA, in vec3 modelSpaceB, in vec3 worldPosA, in vec3 worldPosB, in float thicknessA, in float thicknessB){
-	float modelDistance = distance(modelSpaceA, modelSpaceB);
-	float pixelDistance = UE_PIXEL_DISTANCE(worldPosA, worldPosB);
-	float subdivision = max(thicknessA, thicknessB) / modelDistance * pixelDistance / UE_STRANDS_SUBDIVISION_Y_FACTOR;
+int UE_STRANDS_RING_SUBDIVISION(in mat4 model, in vec3 worldPos, in vec3 modelPos, in float thickness)
+{
+	vec3 modelPosB = thickness * vec3(0, 1, 0) + modelPos;
+	vec3 endPointWorldPos = (model * vec4(modelPosB, 1.0)).xyz;
+	vec3 redirectedWorldPosB = worldPos + UE_CAMERA_UP() * distance(worldPos, endPointWorldPos);
+	float subdivision = UE_PIXEL_DISTANCE(worldPos, redirectedWorldPosB);
 	return max(3, min(int(subdivision), UE_STRANDS_SUBDIVISION_MAX_Y));
 }

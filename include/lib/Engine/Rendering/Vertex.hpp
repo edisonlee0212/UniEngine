@@ -41,7 +41,7 @@ namespace UniEngine
         glm::ivec4 m_bondId2;
         glm::vec4 m_weight2;
     };
-    enum class UNIENGINE_API StrandsAttribute
+    enum class UNIENGINE_API StrandPointAttribute
     {
         Position = 1,
         Thickness = 1 << 1, // 2
