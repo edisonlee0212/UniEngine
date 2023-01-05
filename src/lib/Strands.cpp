@@ -493,12 +493,17 @@ void Strands::SetStrands(const unsigned& mask, const std::vector<glm::uint>& str
 }
 
 
-void CubicInterpolation(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, glm::vec3& position, glm::vec3& tangent, const float t)
+void CubicInterpolation(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3, glm::vec3& result, glm::vec3& tangent, const float t)
 {
-	float t1 = 1.0f - t;
-	position = t1 * t1 * t1 * p0 + 3.0f * t1 * t1 * t * p1 + 3.0f * t1 * t * t * p2 + t * t * t * p3;
-	glm::vec3 d1 = 3.0f * t1 * t1 * (p1 - p0) + 6.0f * t1 * t * (p2 - p1) + 3.0f * t * t * (p3 - p2);
-	tangent = glm::normalize(d1);
+	float t2 = t * t;
+
+	glm::vec3 a0 = -0.5f * v0 + 1.5f * v1 - 1.5f * v2 + 0.5f * v3;
+	glm::vec3 a1 = v0 - 2.5f * v1 + 2.0f * v2 - 0.5f * v3;
+	glm::vec3 a2 = -0.5f * v0 + 0.5f * v2;
+	glm::vec3 a3 = v1;
+
+	result = glm::vec3(a0 * t * t2 + a1 * t2 + a2 * t + a3);
+	tangent = normalize(glm::vec3(3.0f * a0 * t2 + 2.0f * a1 * t + a2));
 }
 
 void Strands::RecalculateNormal()

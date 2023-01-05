@@ -15,7 +15,7 @@ struct GizmoSettings{
         Default,
         VertexColor,
         NormalColor
-    } m_colorMode;
+    } m_colorMode = ColorMode::Default;
     bool m_depthTest = true;
 };
 
