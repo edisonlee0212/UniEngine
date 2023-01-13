@@ -482,7 +482,6 @@ void CameraInfoBlock::UploadMatrices(const std::shared_ptr<Camera> &camera, cons
     m_projectionView = m_projection * m_view;
 	m_inverseProjection = glm::inverse(m_projection);
     m_inverseView = glm::inverse(m_view);
-
     m_inverseProjectionView = glm::inverse(m_projection) * glm::inverse(m_view);
     m_reservedParameters1 = glm::vec4(
         camera->m_nearDistance,
