@@ -374,11 +374,10 @@ void DefaultResources::Load()
 	LoadRenderManagerResources();
 	LoadEditorManagerResources();
 
-
 #pragma region Environmental
 	Environmental::DefaultSkybox = ProjectManager::CreateDefaultResource<Cubemap>(GenerateNewHandle(), "DefaultSkybox");
 	auto defaultSkyboxEquiTex = ProjectManager::CreateTemporaryAsset<Texture2D>();
-	defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_Env.hdr");
+	defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr");
 	Environmental::DefaultSkybox->ConvertFromEquirectangularTexture(defaultSkyboxEquiTex);
 
 	Textures::MissingTexture = ProjectManager::CreateDefaultResource<Texture2D>(GenerateNewHandle(), "Missing");

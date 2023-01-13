@@ -191,7 +191,7 @@ vec3 UE_CAMERA_FRONT(){
 }
 
 vec3 UE_CAMERA_POSITION(){
-	return -UE_CAMERA_VIEW[3].xyz;
+	return UE_CAMERA_INVERSE_VIEW[3].xyz;
 }
 
 float UE_CAMERA_NEAR(){
