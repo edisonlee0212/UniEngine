@@ -964,30 +964,19 @@ void EditorLayer::SceneCameraWindow() {
     if (ImGui::Begin("Scene")) {
         // Using a Child allow to fill all the space of the window.
         // It also allows customization
+        static int corner = 1;
         if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
             if (ImGui::BeginMenuBar()) {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings")) {
-                    if (ImGui::Button("Reset camera")) {
-                        MoveCamera(m_defaultSceneCameraRotation, m_defaultSceneCameraPosition);
-                    }
-                    if (ImGui::Button("Set default")) {
-                        m_defaultSceneCameraPosition = m_sceneCameraPosition;
-                        m_defaultSceneCameraRotation = m_sceneCameraRotation;
-                    }
-                    ImGui::ColorEdit3("Background color", &m_sceneCamera->m_clearColor.x);
-                    ImGui::SliderFloat("FOV", &m_sceneCamera->m_fov, 30.0f, 120.0f);
-                    ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f);
-                    ImGui::DragFloat("Speed", &m_velocity, 0.1f);
-                    ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f);
+                    ImGui::Checkbox("Display info", &m_enableCameraInfoWindow);
                     ImGui::EndMenu();
                 }
-                ImGui::PopStyleVar();
                 ImGui::EndMenuBar();
             }
             viewPortSize = ImGui::GetWindowSize();
             m_sceneCameraResolutionX = viewPortSize.x;
             m_sceneCameraResolutionY = viewPortSize.y - 20;
+            ImVec2 overlayPos = ImGui::GetWindowPos();
             if (m_sceneCamera && m_sceneCamera->m_rendered) {
                 // Because I use the texture from OpenGL, I need to invert the V from the UV.
                 ImGui::Image(
@@ -998,6 +987,48 @@ void EditorLayer::SceneCameraWindow() {
                 CameraWindowDragAndDrop();
             } else {
                 ImGui::Text("No active main camera!");
+            }
+            ImVec2 window_pos = ImVec2(
+                (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
+                (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
+            if (m_enableSceneInfoWindow) {
+                ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
+                ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+                ImGui::SetNextWindowBgAlpha(0.35f);
+                ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking |
+                    ImGuiWindowFlags_AlwaysAutoResize |
+                    ImGuiWindowFlags_NoSavedSettings |
+                    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+                if (ImGui::BeginChild("Info", ImVec2(200, 250), false, window_flags)) {
+                    ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+                    std::string trisstr = "";
+                    if (ImGui::IsMousePosValid()) {
+                        glm::vec2 pos;
+                        Inputs::GetMousePosition(pos);
+                        ImGui::Text("Mouse Pos: (%.1f,%.1f)", pos.x, pos.y);
+                    }
+                    else {
+                        ImGui::Text("Mouse Pos: <invalid>");
+                    }
+
+                    if (ImGui::Button("Reset camera")) {
+                        MoveCamera(m_defaultSceneCameraRotation, m_defaultSceneCameraPosition);
+                    }
+                    if (ImGui::Button("Set default")) {
+                        m_defaultSceneCameraPosition = m_sceneCameraPosition;
+                        m_defaultSceneCameraRotation = m_sceneCameraRotation;
+                    }
+                    ImGui::PushItemWidth(100);
+                    ImGui::Checkbox("Use background color", &m_sceneCamera->m_useClearColor);
+                    ImGui::ColorEdit3("Bg color", &m_sceneCamera->m_clearColor.x);
+                    ImGui::SliderFloat("Fov", &m_sceneCamera->m_fov, 1.0f, 179.0f, "%.1f");
+                    ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f, 0, 0, "%.1f");
+                    ImGui::DragFloat("Speed", &m_velocity, 0.1f, 0, 0, "%.1f");
+                    ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f, 0, 0, "%.1f");
+                    Editor::DragAndDropButton<Cubemap>(m_sceneCamera->m_skybox, "Skybox", true);
+                    ImGui::PopItemWidth();
+                }
+                ImGui::EndChild();
             }
             if (m_sceneCameraWindowFocused) {
 #pragma region Scene Camera Controller
@@ -1172,7 +1203,7 @@ void EditorLayer::MainCameraWindow() {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings")) {
 #pragma region Menu
-                    ImGui::Checkbox("Display info", &renderLayer->m_enableInfoWindow);
+                    ImGui::Checkbox("Display info", &m_enableCameraInfoWindow);
 #pragma endregion
                     ImGui::EndMenu();
                 }
@@ -1182,7 +1213,6 @@ void EditorLayer::MainCameraWindow() {
             viewPortSize = ImGui::GetWindowSize();
             renderLayer->m_mainCameraResolutionX = viewPortSize.x;
             renderLayer->m_mainCameraResolutionY = viewPortSize.y - 20;
-            // UNIENGINE_LOG(std::to_string(viewPortSize.x) + ", " + std::to_string(viewPortSize.y));
             //  Get the size of the child (i.e. the whole draw size of the windows).
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
@@ -1199,7 +1229,7 @@ void EditorLayer::MainCameraWindow() {
             ImVec2 window_pos = ImVec2(
                     (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
                     (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-            if (renderLayer->m_enableInfoWindow) {
+            if (m_enableCameraInfoWindow) {
                 ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
                 ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
                 ImGui::SetNextWindowBgAlpha(0.35f);

@@ -101,7 +101,7 @@ namespace UniEngine {
 		unsigned m_frameIndex = 0;
 #pragma region GUI
 		bool m_enableRenderMenu = false;
-		bool m_enableInfoWindow = true;
+		
 #pragma endregion
 
 		friend class Mesh;

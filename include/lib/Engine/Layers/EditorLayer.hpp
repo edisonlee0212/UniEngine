@@ -100,6 +100,8 @@ namespace UniEngine {
 
         glm::vec2 m_mouseScreenPosition;
     public:
+        bool m_enableCameraInfoWindow = true;
+        bool m_enableSceneInfoWindow = true;
         [[nodiscard]] glm::vec2 GetMouseScreenPosition() const;
 
         Entity MouseEntitySelection(const glm::vec2 &mousePosition);

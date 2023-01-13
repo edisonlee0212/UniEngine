@@ -28,6 +28,8 @@ void EnvironmentalMap::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targ
 void EnvironmentalMap::OnInspect()
 {
     static AssetRef targetTexture;
+    ImGui::DragFloat("Gamma", &m_gamma);
+
     if(Editor::DragAndDropButton<Cubemap>(targetTexture, "Convert from cubemap")){
         auto tex = targetTexture.Get<Cubemap>();
         if(tex)

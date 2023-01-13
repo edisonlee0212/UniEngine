@@ -210,9 +210,9 @@ void Scene::OnInspect()
         break;
         }
         if (ImGui::DragFloat(
-                "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 2.0f))
+                "Environmental light intensity", &m_environmentSettings.m_ambientLightIntensity, 0.01f, 0.0f, 10.0f))
             m_saved = false;
-        if (ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 2.0f))
+        if (ImGui::DragFloat("Environmental light gamma", &m_environmentSettings.m_environmentGamma, 0.01f, 0.0f, 10.0f))
         {
             m_saved = false;
         }

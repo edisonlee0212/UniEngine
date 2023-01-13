@@ -12,6 +12,7 @@ std::unique_ptr<OpenGLUtils::GLTextureCubeMap> &Cubemap::Texture()
 
 void Cubemap::OnInspect()
 {
+    ImGui::DragFloat("Gamma", &m_gamma);
     static AssetRef targetTexture;
     if(Editor::DragAndDropButton<Texture2D>(targetTexture, "Convert from equirectangular texture")){
         auto tex = targetTexture.Get<Texture2D>();

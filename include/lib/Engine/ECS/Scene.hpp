@@ -28,7 +28,7 @@ struct UNIENGINE_API EnvironmentSettings
 {
     AssetRef m_environmentalMap;
     glm::vec3 m_backgroundColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    float m_environmentGamma = 1.0f;
+    float m_environmentGamma = 2.2f;
     float m_ambientLightIntensity = 0.8f;
     EnvironmentType m_environmentType = EnvironmentType::EnvironmentalMap;
 
