@@ -106,7 +106,7 @@ std::shared_ptr<Mesh> DefaultResources::Primitives::Sphere;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Cube;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Quad;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Cone;
-std::shared_ptr<Mesh> DefaultResources::Primitives::Ring;
+std::shared_ptr<Mesh> DefaultResources::Primitives::Torus;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Cylinder;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Monkey;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Capsule;
@@ -353,8 +353,8 @@ void DefaultResources::LoadPrimitives()
 		Primitives::Cylinder->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/cylinder.uemesh");
 	}
 	{
-		Primitives::Ring = ProjectManager::CreateDefaultResource<Mesh>(GenerateNewHandle(), "ring");
-		Primitives::Ring->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/ring.uemesh");
+		Primitives::Torus = ProjectManager::CreateDefaultResource<Mesh>(GenerateNewHandle(), "Torus");
+		Primitives::Torus->LoadInternal(std::filesystem::path("./DefaultResources") / "Primitives/torus.uemesh");
 	}
 	{
 		Primitives::Monkey = ProjectManager::CreateDefaultResource<Mesh>(GenerateNewHandle(), "Monkey");

@@ -153,7 +153,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
         static std::shared_ptr<Mesh> Quad;
         static std::shared_ptr<Mesh> Cylinder;
         static std::shared_ptr<Mesh> Cone;
-        static std::shared_ptr<Mesh> Ring;
+        static std::shared_ptr<Mesh> Torus;
         static std::shared_ptr<Mesh> Monkey;
         static std::shared_ptr<Mesh> Capsule;
     };

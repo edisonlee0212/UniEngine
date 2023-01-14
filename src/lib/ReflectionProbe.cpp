@@ -39,7 +39,7 @@ void ReflectionProbe::ConstructFromCubemap(const std::shared_ptr<Cubemap> &targe
     DefaultResources::PrefilterProgram->SetInt("environmentMap", 0);
     DefaultResources::PrefilterProgram->SetFloat4x4("projection", EnvironmentalMapCaptureProjection);
 
-    unsigned int maxMipLevels = 5;
+    unsigned int maxMipLevels = mipmap;
     for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
     {
         // reisze framebuffer according to mip-level size.
