@@ -161,6 +161,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     {
       public:
         static std::shared_ptr<Cubemap> DefaultSkybox;
+        static std::shared_ptr<Cubemap> DefaultBlurredSkybox;
         static std::shared_ptr<EnvironmentalMap> DefaultEnvironmentalMap;
     };
 

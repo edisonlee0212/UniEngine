@@ -310,6 +310,8 @@ void Camera::OnCreate()
     m_gBuffer->AttachTexture(m_gBufferMetallicRoughnessEmissionAmbient.get(), GL_COLOR_ATTACHMENT2);
 
     m_gBuffer->Clear();
+
+    m_skybox = DefaultResources::Environmental::DefaultBlurredSkybox;
     SetEnabled(true);
 }
 

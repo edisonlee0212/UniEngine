@@ -112,6 +112,7 @@ std::shared_ptr<Mesh> DefaultResources::Primitives::Monkey;
 std::shared_ptr<Mesh> DefaultResources::Primitives::Capsule;
 
 std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultSkybox;
+std::shared_ptr<Cubemap> DefaultResources::Environmental::DefaultBlurredSkybox;
 std::shared_ptr<EnvironmentalMap> DefaultResources::Environmental::DefaultEnvironmentalMap;
 
 Handle DefaultResources::GenerateNewHandle()
@@ -379,6 +380,11 @@ void DefaultResources::Load()
 	auto defaultSkyboxEquiTex = ProjectManager::CreateTemporaryAsset<Texture2D>();
 	defaultSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_3k.hdr");
 	Environmental::DefaultSkybox->ConvertFromEquirectangularTexture(defaultSkyboxEquiTex);
+
+	Environmental::DefaultBlurredSkybox = ProjectManager::CreateDefaultResource<Cubemap>(GenerateNewHandle(), "DefaultBlurredSkybox");
+	auto defaultBlurredSkyboxEquiTex = ProjectManager::CreateTemporaryAsset<Texture2D>();
+	defaultBlurredSkyboxEquiTex->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/Cubemaps/GrandCanyon/GCanyon_C_YumaPoint_Env.hdr");
+	Environmental::DefaultBlurredSkybox->ConvertFromEquirectangularTexture(defaultBlurredSkyboxEquiTex);
 
 	Textures::MissingTexture = ProjectManager::CreateDefaultResource<Texture2D>(GenerateNewHandle(), "Missing");
 	Textures::MissingTexture->LoadInternal(std::filesystem::path("./DefaultResources") / "Textures/texture-missing.png");
