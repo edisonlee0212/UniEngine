@@ -912,17 +912,17 @@ void EditorLayer::OnInspect() {
         }
         ImGui::End();
     }
-    /*
-    if (scene && Inputs::GetKeyInternal(GLFW_KEY_DELETE, Windows::GetWindow()))
+    
+    if (scene && SceneCameraWindowFocused() && Inputs::GetKeyInternal(GLFW_KEY_DELETE, Windows::GetWindow()))
     {
-        if (m_selectedEntity.IsValid())
+        if (scene->IsEntityValid(m_selectedEntity))
         {
-            scene->DeleteEntity(scene->GetCurrentScene(), m_selectedEntity);
+            scene->DeleteEntity(m_selectedEntity);
         }
     }
-    */
-    MainCameraWindow();
+    
     SceneCameraWindow();
+    MainCameraWindow();
     ProjectManager::OnInspect();
 }
 
