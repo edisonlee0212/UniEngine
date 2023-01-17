@@ -705,8 +705,8 @@ void EditorLayer::OnInspect() {
         {
             ImGui::Checkbox("Scene", &m_showSceneWindow);
             ImGui::Checkbox("Camera", &m_showCameraWindow);
-            ImGui::Checkbox("Entity Explorer", &m_showEntityExplorer);
-            ImGui::Checkbox("Entity Inspector", &m_showEntityInspector);
+            ImGui::Checkbox("Entity Explorer", &m_showEntityExplorerWindow);
+            ImGui::Checkbox("Entity Inspector", &m_showEntityInspectorWindow);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -723,7 +723,7 @@ void EditorLayer::OnInspect() {
     }
 
     auto scene = GetScene();
-    if (scene && m_showEntityExplorer) {
+    if (scene && m_showEntityExplorerWindow) {
         ImGui::Begin("Entity Explorer");
         if (ImGui::BeginPopupContextWindow("NewEntityPopup")) {
             if (ImGui::Button("Create new entity")) {
@@ -809,7 +809,7 @@ void EditorLayer::OnInspect() {
         }
         ImGui::End();
     }
-    if (scene && m_showEntityInspector) {
+    if (scene && m_showEntityInspectorWindow) {
         ImGui::Begin("Entity Inspector");
         ImGui::Text("Selection:");
         ImGui::SameLine();

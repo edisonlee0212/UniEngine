@@ -10,12 +10,12 @@ void ConsoleLayer::OnInspect()
     {
         if (ImGui::BeginMenu("View"))
         {
-            ImGui::Checkbox("Console", &m_showConsole);
+            ImGui::Checkbox("Console", &m_showConsoleWindow);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
-    if (m_showConsole) {
+    if (m_showConsoleWindow) {
         if (ImGui::Begin("Console")) {
             ImGui::Checkbox("Log", &m_enableConsoleLogs);
             ImGui::SameLine();

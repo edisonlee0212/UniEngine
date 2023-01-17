@@ -793,7 +793,7 @@ std::vector<std::string> ProjectManager::GetExtension(const std::string& typeNam
 void ProjectManager::DisplayDefaultResources()
 {
 	auto& projectManager = GetInstance();
-	if (projectManager.m_showDefaultResources)
+	if (projectManager.m_showDefaultResourcesWindow)
 	{
 		ImGui::Begin("Default Resources");
 		if (ImGui::BeginTabBar(
@@ -936,8 +936,8 @@ void ProjectManager::OnInspect()
 		if (ImGui::BeginMenu("View"))
 		{
 			ImGui::Checkbox("Project", &projectManager.m_showProjectWindow);
-			ImGui::Checkbox("Asset Inspector", &projectManager.m_showAssetInspector);
-			ImGui::Checkbox("Default Resources", &projectManager.m_showDefaultResources);
+			ImGui::Checkbox("Asset Inspector", &projectManager.m_showAssetInspectorWindow);
+			ImGui::Checkbox("Default Resources", &projectManager.m_showDefaultResourcesWindow);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
@@ -1356,7 +1356,7 @@ void ProjectManager::OnInspect()
 		}
 		ImGui::End();
 	}
-	if (projectManager.m_showAssetInspector) {
+	if (projectManager.m_showAssetInspectorWindow) {
 		if (ImGui::Begin("Asset Inspector"))
 		{
 			if (projectManager.m_inspectingAsset)

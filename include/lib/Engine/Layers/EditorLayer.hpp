@@ -98,8 +98,8 @@ namespace UniEngine {
 		bool m_showCameraInfo = true;
 		bool m_showSceneInfo = true;
 
-		bool m_showEntityExplorer = true;
-		bool m_showEntityInspector = true;
+		bool m_showEntityExplorerWindow = true;
+		bool m_showEntityInspectorWindow = true;
 		[[nodiscard]] glm::vec2 GetMouseScreenPosition() const;
 
 		Entity MouseEntitySelection(const glm::vec2& mousePosition);

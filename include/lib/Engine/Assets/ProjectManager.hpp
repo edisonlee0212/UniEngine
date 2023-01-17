@@ -134,8 +134,8 @@ namespace UniEngine
 	public:
 		std::shared_ptr<IAsset> m_inspectingAsset;
 		bool m_showProjectWindow = true;
-		bool m_showAssetInspector = true;
-		bool m_showDefaultResources = false;
+		bool m_showAssetInspectorWindow = true;
+		bool m_showDefaultResourcesWindow = false;
 		static std::weak_ptr<Scene> GetStartScene();
 		static void SetStartScene(const std::shared_ptr<Scene>& scene);
 		static void OnInspect();

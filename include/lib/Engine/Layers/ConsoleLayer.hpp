@@ -21,7 +21,7 @@ class ConsoleLayer : public ILayer
     std::vector<ConsoleMessage> m_consoleMessages;
     std::mutex m_consoleMessageMutex;
 
-    bool m_showConsole = true;
+    bool m_showConsoleWindow = true;
     bool m_enableConsoleLogs = true;
     bool m_enableConsoleErrors = true;
     bool m_enableConsoleWarnings = true;
