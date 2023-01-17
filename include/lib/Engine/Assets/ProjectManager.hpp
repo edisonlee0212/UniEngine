@@ -106,7 +106,7 @@ namespace UniEngine
 		std::map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
 		std::shared_ptr<Scene> m_startScene;
 		std::unordered_map<std::string, std::vector<std::string>> m_assetExtensions;
-		std::unordered_map<std::string, std::string> m_typeNames;
+		std::map<std::string, std::string> m_typeNames;
 
 		std::unordered_map<Handle, std::weak_ptr<AssetThumbnail>> m_assetThumbnails;
 		std::queue<std::shared_ptr<AssetThumbnail>> m_assetThumbnailStorage;

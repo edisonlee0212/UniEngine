@@ -252,3 +252,59 @@ void Texture2D::GetRedChannelData(std::vector<float>& dst) const
 	m_texture->Bind(0);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, (void*)dst.data());
 }
+
+void Texture2D::SetRgbaChannelData(const std::vector<glm::vec4>& src, const glm::uvec2& resolution)
+{
+	GLenum format = GL_RGBA;
+	m_textureColorType = TextureColorType::RGBA;
+	GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(resolution.x, resolution.y))) + 1;
+	m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, resolution.x, resolution.y, true);
+	m_texture->SetData(0, format, GL_FLOAT, (void*)src.data());
+	m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_texture->GenerateMipMap();
+}
+
+void Texture2D::SetRgbChannelData(const std::vector<glm::vec3>& src, const glm::uvec2& resolution)
+{
+	GLenum format = GL_RGB;
+	m_textureColorType = TextureColorType::RGB;
+	GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(resolution.x, resolution.y))) + 1;
+	m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, resolution.x, resolution.y, true);
+	m_texture->SetData(0, format, GL_FLOAT, (void*)src.data());
+	m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_texture->GenerateMipMap();
+}
+
+void Texture2D::SetRgChannelData(const std::vector<glm::vec2>& src, const glm::uvec2& resolution)
+{
+	GLenum format = GL_RG;
+	m_textureColorType = TextureColorType::RG;
+	GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(resolution.x, resolution.y))) + 1;
+	m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, resolution.x, resolution.y, true);
+	m_texture->SetData(0, format, GL_FLOAT, (void*)src.data());
+	m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_texture->GenerateMipMap();
+}
+
+void Texture2D::SetRedChannelData(const std::vector<float>& src, const glm::uvec2& resolution)
+{
+	GLenum format = GL_RED;
+	m_textureColorType = TextureColorType::Red;
+	GLsizei mipmap = static_cast<GLsizei>(log2((glm::max)(resolution.x, resolution.y))) + 1;
+	m_texture = std::make_shared<OpenGLUtils::GLTexture2D>(mipmap, GL_RGBA32F, resolution.x, resolution.y, true);
+	m_texture->SetData(0, format, GL_FLOAT, (void*)src.data());
+	m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_REPEAT);
+	m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_texture->GenerateMipMap();
+}

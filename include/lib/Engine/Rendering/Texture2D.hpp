@@ -51,6 +51,11 @@ namespace UniEngine
 		void GetRgbChannelData(std::vector<glm::vec3>& dst) const;
 		void GetRgChannelData(std::vector<glm::vec2>& dst) const;
 		void GetRedChannelData(std::vector<float>& dst) const;
+
+		void SetRgbaChannelData(const std::vector<glm::vec4>& src, const glm::uvec2& resolution);
+		void SetRgbChannelData(const std::vector<glm::vec3>& src, const glm::uvec2& resolution);
+		void SetRgChannelData(const std::vector<glm::vec2>& src, const glm::uvec2& resolution);
+		void SetRedChannelData(const std::vector<float>& src, const glm::uvec2& resolution);
 		[[nodiscard]] std::shared_ptr<OpenGLUtils::GLTexture2D>& UnsafeGetGLTexture();
 
 	};
