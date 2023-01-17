@@ -45,9 +45,7 @@ void EditorLayer::OnCreate() {
             m_sceneCameraEntityRecorderRenderBuffer.get(), GL_DEPTH_STENCIL_ATTACHMENT);
     m_sceneCameraEntityRecorder->AttachTexture(m_sceneCameraEntityRecorderTexture.get(), GL_COLOR_ATTACHMENT0);
     m_selectedEntity = Entity();
-    m_configFlags += EntityEditorSystem_EnableEntityHierarchy;
-    m_configFlags += EntityEditorSystem_EnableEntityInspector;
-
+    
     m_sceneCamera = Serialization::ProduceSerializable<Camera>();
     m_sceneCamera->m_clearColor = glm::vec3(59.0f / 255.0f, 85 / 255.0f, 143 / 255.f);
     m_sceneCamera->m_useClearColor = true;
@@ -240,23 +238,24 @@ void EditorLayer::PreUpdate() {
     }
     m_mouseScreenPosition = glm::vec2(FLT_MAX, FLT_MIN);
 #pragma region Scene Window
-    ImVec2 viewPortSize;
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-    if (ImGui::Begin("Scene")) {
-        if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
-            // Using a Child allow to fill all the space of the window.
-            // It also allows customization
-            if (m_sceneCameraWindowFocused) {
-                auto mp = ImGui::GetMousePos();
-                auto wp = ImGui::GetWindowPos();
-                m_mouseScreenPosition = glm::vec2(mp.x - wp.x, mp.y - wp.y - 20);
+    if (m_showSceneWindow) {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+        if (ImGui::Begin("Scene")) {
+            if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
+                // Using a Child allow to fill all the space of the window.
+                // It also allows customization
+                if (m_sceneCameraWindowFocused) {
+                    auto mp = ImGui::GetMousePos();
+                    auto wp = ImGui::GetWindowPos();
+                    m_mouseScreenPosition = glm::vec2(mp.x - wp.x, mp.y - wp.y - 20);
+                }
             }
+            ImGui::EndChild();
         }
-        ImGui::EndChild();
+        ImGui::End();
+        ImGui::PopStyleVar();
     }
-    ImGui::End();
-    ImGui::PopStyleVar();
-    RenderToSceneCamera();
+    if(m_showSceneWindow) RenderToSceneCamera();
 }
 
 void EditorLayer::LateUpdate() {
@@ -700,6 +699,20 @@ void EditorLayer::DrawEntityNode(const Entity &entity, const unsigned &hierarchy
 }
 
 void EditorLayer::OnInspect() {
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("View"))
+        {
+            ImGui::Checkbox("Scene", &m_showSceneWindow);
+            ImGui::Checkbox("Camera", &m_showCameraWindow);
+            ImGui::Checkbox("Entity Explorer", &m_showEntityExplorer);
+            ImGui::Checkbox("Entity Inspector", &m_showEntityInspector);
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+
+
     auto &editorManager = Editor::GetInstance();
     if (m_leftMouseButtonHold && !Inputs::GetMouseInternal(GLFW_MOUSE_BUTTON_LEFT, Windows::GetWindow())) {
         m_leftMouseButtonHold = false;
@@ -710,7 +723,7 @@ void EditorLayer::OnInspect() {
     }
 
     auto scene = GetScene();
-    if (scene && m_configFlags & EntityEditorSystem_EnableEntityHierarchy) {
+    if (scene && m_showEntityExplorer) {
         ImGui::Begin("Entity Explorer");
         if (ImGui::BeginPopupContextWindow("NewEntityPopup")) {
             if (ImGui::Button("Create new entity")) {
@@ -796,7 +809,7 @@ void EditorLayer::OnInspect() {
         }
         ImGui::End();
     }
-    if (scene && m_configFlags & EntityEditorSystem_EnableEntityInspector) {
+    if (scene && m_showEntityInspector) {
         ImGui::Begin("Entity Inspector");
         ImGui::Text("Selection:");
         ImGui::SameLine();
@@ -921,8 +934,8 @@ void EditorLayer::OnInspect() {
         }
     }
     
-    SceneCameraWindow();
-    MainCameraWindow();
+    if (m_showSceneWindow) SceneCameraWindow();
+    if (m_showCameraWindow) MainCameraWindow();
     ProjectManager::OnInspect();
 }
 
@@ -968,7 +981,7 @@ void EditorLayer::SceneCameraWindow() {
         if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("Settings")) {
-                    ImGui::Checkbox("Display info", &m_enableCameraInfoWindow);
+                    ImGui::Checkbox("Display info", &m_showCameraInfo);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenuBar();
@@ -991,7 +1004,7 @@ void EditorLayer::SceneCameraWindow() {
             ImVec2 window_pos = ImVec2(
                 (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
                 (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-            if (m_enableSceneInfoWindow) {
+            if (m_showSceneInfo) {
                 ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
                 ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
                 ImGui::SetNextWindowBgAlpha(0.35f);
@@ -1203,7 +1216,7 @@ void EditorLayer::MainCameraWindow() {
                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{5, 5});
                 if (ImGui::BeginMenu("Settings")) {
 #pragma region Menu
-                    ImGui::Checkbox("Display info", &m_enableCameraInfoWindow);
+                    ImGui::Checkbox("Display info", &m_showCameraInfo);
 #pragma endregion
                     ImGui::EndMenu();
                 }
@@ -1229,7 +1242,7 @@ void EditorLayer::MainCameraWindow() {
             ImVec2 window_pos = ImVec2(
                     (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
                     (corner & 2) ? (overlayPos.y + viewPortSize.y) : (overlayPos.y));
-            if (m_enableCameraInfoWindow) {
+            if (m_showCameraInfo) {
                 ImVec2 window_pos_pivot = ImVec2((corner & 1) ? 1.0f : 0.0f, (corner & 2) ? 1.0f : 0.0f);
                 ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
                 ImGui::SetNextWindowBgAlpha(0.35f);
