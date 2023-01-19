@@ -48,7 +48,7 @@ void EditorLayer::OnCreate() {
     
     m_sceneCamera = Serialization::ProduceSerializable<Camera>();
     m_sceneCamera->m_clearColor = glm::vec3(59.0f / 255.0f, 85 / 255.0f, 143 / 255.f);
-    m_sceneCamera->m_useClearColor = true;
+    m_sceneCamera->m_useClearColor = false;
     m_sceneCamera->OnCreate();
 
     Editor::RegisterComponentDataInspector<GlobalTransform>([](Entity entity, IDataComponent *data, bool isRoot) {
@@ -981,7 +981,7 @@ void EditorLayer::SceneCameraWindow() {
         if (ImGui::BeginChild("SceneCameraRenderer", ImVec2(0, 0), false, ImGuiWindowFlags_MenuBar)) {
             if (ImGui::BeginMenuBar()) {
                 if (ImGui::BeginMenu("Settings")) {
-                    ImGui::Checkbox("Display info", &m_showCameraInfo);
+                    ImGui::Checkbox("Display info", &m_showSceneInfo);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenuBar();
