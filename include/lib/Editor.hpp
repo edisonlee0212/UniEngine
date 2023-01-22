@@ -207,6 +207,12 @@ bool Editor::DragAndDropButton(PrivateComponentRef &target, const std::string &n
     if (ptr)
     {
         auto scene = Application::GetActiveScene();
+        if(!scene->IsEntityValid(ptr->GetOwner()))
+        {
+            target.Clear();
+            ImGui::Button("none");
+            return true;
+        }
         ImGui::Button(scene->GetEntityName(ptr->GetOwner()).c_str());
         Draggable(target);
         if (modifiable)

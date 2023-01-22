@@ -209,48 +209,113 @@ void Texture2D::StoreToHdr(const std::string& path, int resizeX, int resizeY,
 	}
 }
 
-void Texture2D::GetRgbaChannelData(std::vector<glm::vec4>& dst) const
+void Texture2D::GetRgbaChannelData(std::vector<glm::vec4>& dst, int resizeX, int resizeY) const
 {
 	if (!m_texture) {
 		UNIENGINE_ERROR("No texture data!");
 		return;
 	}
-	dst.resize(m_texture->m_width * m_texture->m_height);
-	m_texture->Bind(0);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)dst.data());
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
+	{
+		std::vector<float> pixels;
+		pixels.resize(resolutionX * resolutionY * 4);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)pixels.data());
+		std::vector<float> resizedPixels;
+		resizedPixels.resize(resizeX * resizeY * 4);
+		stbir_resize_float(pixels.data(), resolutionX, resolutionY, 0, 
+			resizedPixels.data(), resizeX, resizeY, 0, 4);
+		dst.resize(resizeX * resizeY);
+		memcpy(dst.data(), resizedPixels.data(), sizeof(glm::vec4) * resizeX * resizeY);
+	}
+	else {
+		dst.resize(resolutionX * resolutionY);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, (void*)dst.data());
+	}
 }
 
-void Texture2D::GetRgbChannelData(std::vector<glm::vec3>& dst) const
+void Texture2D::GetRgbChannelData(std::vector<glm::vec3>& dst, int resizeX, int resizeY) const
 {
 	if (!m_texture) {
 		UNIENGINE_ERROR("No texture data!");
 		return;
 	}
-	dst.resize(m_texture->m_width * m_texture->m_height);
-	m_texture->Bind(0);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
+	{
+		std::vector<float> pixels;
+		pixels.resize(resolutionX * resolutionY * 3);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)pixels.data());
+		std::vector<float> resizedPixels;
+		resizedPixels.resize(resizeX * resizeY * 3);
+		stbir_resize_float(pixels.data(), resolutionX, resolutionY, 0,
+			resizedPixels.data(), resizeX, resizeY, 0, 3);
+		dst.resize(resizeX * resizeY);
+		memcpy(dst.data(), resizedPixels.data(), sizeof(glm::vec3) * resizeX * resizeY);
+	}
+	else {
+		dst.resize(resolutionX * resolutionY);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, (void*)dst.data());
+	}
 }
 
-void Texture2D::GetRgChannelData(std::vector<glm::vec2>& dst) const
+void Texture2D::GetRgChannelData(std::vector<glm::vec2>& dst, int resizeX, int resizeY) const
 {
 	if (!m_texture) {
 		UNIENGINE_ERROR("No texture data!");
 		return;
 	}
-	dst.resize(m_texture->m_width * m_texture->m_height);
-	m_texture->Bind(0);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RG, GL_FLOAT, (void*)dst.data());
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
+	{
+		std::vector<float> pixels;
+		pixels.resize(resolutionX * resolutionY * 2);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RG, GL_FLOAT, (void*)pixels.data());
+		std::vector<float> resizedPixels;
+		resizedPixels.resize(resizeX * resizeY * 2);
+		stbir_resize_float(pixels.data(), resolutionX, resolutionY, 0,
+			resizedPixels.data(), resizeX, resizeY, 0, 2);
+		dst.resize(resizeX * resizeY);
+		memcpy(dst.data(), resizedPixels.data(), sizeof(glm::vec2) * resizeX * resizeY);
+	}
+	else {
+		dst.resize(resolutionX * resolutionY);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RG, GL_FLOAT, (void*)dst.data());
+	}
 }
 
-void Texture2D::GetRedChannelData(std::vector<float>& dst) const
+void Texture2D::GetRedChannelData(std::vector<float>& dst, int resizeX, int resizeY) const
 {
 	if (!m_texture) {
 		UNIENGINE_ERROR("No texture data!");
 		return;
 	}
-	dst.resize(m_texture->m_width * m_texture->m_height);
-	m_texture->Bind(0);
-	glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, (void*)dst.data());
+	const auto resolutionX = m_texture->m_width;
+	const auto resolutionY = m_texture->m_height;
+	if (resizeX > 0 && resizeY > 0 && (resizeX != resolutionX || resizeY != resolutionY))
+	{
+		std::vector<float> pixels;
+		pixels.resize(resolutionX * resolutionY);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, (void*)pixels.data());
+		dst.resize(resizeX * resizeY);
+		stbir_resize_float(pixels.data(), resolutionX, resolutionY, 0,
+			dst.data(), resizeX, resizeY, 0, 1);
+	}
+	else {
+		dst.resize(resolutionX * resolutionY);
+		m_texture->Bind(0);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, (void*)dst.data());
+	}
 }
 
 void Texture2D::SetRgbaChannelData(const std::vector<glm::vec4>& src, const glm::uvec2& resolution)
