@@ -282,12 +282,18 @@ void Mesh::Draw() const
 		GL_TRIANGLES, static_cast<GLsizei>(m_triangleSize) * 3, GL_UNSIGNED_INT, (GLvoid*)(sizeof(GLuint) * m_offset));
 	OpenGLUtils::GLVAO::BindDefault();
 }
-void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
+
+void Mesh::DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices) const
 {
 	const auto count = matrices.size();
-	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	if (count == 0 || colors.size() != count) return;
 	m_vao->Bind();
+	Application::GetLayer<RenderLayer>()->m_instancedColorBuffer->SetData((GLsizei)count * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
+	m_vao->EnableAttributeArray(11);
+	m_vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+	m_vao->SetAttributeDivisor(11, 1);
 
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->EnableAttributeArray(12);
 	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
 	m_vao->EnableAttributeArray(13);
@@ -305,13 +311,71 @@ void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
 	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
 }
 
+void Mesh::DrawInstancedColored(const std::vector<glm::vec4>& colors,
+	const std::vector<GlobalTransform>& matrices) const
+{
+	const auto count = matrices.size();
+	if (count == 0 || colors.size() != count) return;
+	m_vao->Bind();
+	Application::GetLayer<RenderLayer>()->m_instancedColorBuffer->SetData((GLsizei)count * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
+	m_vao->EnableAttributeArray(11);
+	m_vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+	m_vao->SetAttributeDivisor(11, 1);
+
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	m_vao->EnableAttributeArray(12);
+	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	m_vao->EnableAttributeArray(13);
+	m_vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	m_vao->EnableAttributeArray(14);
+	m_vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	m_vao->EnableAttributeArray(15);
+	m_vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	m_vao->SetAttributeDivisor(12, 1);
+	m_vao->SetAttributeDivisor(13, 1);
+	m_vao->SetAttributeDivisor(14, 1);
+	m_vao->SetAttributeDivisor(15, 1);
+
+
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+}
+
+void Mesh::DrawInstanced(const std::vector<glm::mat4>& matrices) const
+{
+	if (matrices.empty()) return;
+	const auto count = matrices.size();
+	m_vao->Bind();
+
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	m_vao->EnableAttributeArray(12);
+	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+	m_vao->EnableAttributeArray(13);
+	m_vao->SetAttributePointer(13, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+	m_vao->EnableAttributeArray(14);
+	m_vao->SetAttributePointer(14, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+	m_vao->EnableAttributeArray(15);
+	m_vao->SetAttributePointer(15, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+	m_vao->SetAttributeDivisor(12, 1);
+	m_vao->SetAttributeDivisor(13, 1);
+	m_vao->SetAttributeDivisor(14, 1);
+	m_vao->SetAttributeDivisor(15, 1);
+
+
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
+}
+
 void Mesh::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const
 {
 	if (!particleMatrices->m_bufferReady) return;
-	auto count = particleMatrices->m_value.size();
-	particleMatrices->m_buffer->Bind();
+	const auto count = particleMatrices->m_matrices.size();
+	if(count == 0 || count != particleMatrices->m_colors.size()) return;
 	m_vao->Bind();
+	particleMatrices->m_colorBuffer->Bind();
+	m_vao->EnableAttributeArray(11);
+	m_vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
+	m_vao->SetAttributeDivisor(11, 1);
 
+	particleMatrices->m_buffer->Bind();
 	m_vao->EnableAttributeArray(12);
 	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
 	m_vao->EnableAttributeArray(13);
@@ -329,10 +393,10 @@ void Mesh::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatric
 
 void Mesh::DrawInstanced(const std::vector<GlobalTransform>& matrices) const
 {
-	auto count = matrices.size();
-	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
+	const auto count = matrices.size();
+	if(count == 0) return;
 	m_vao->Bind();
-
+	Application::GetLayer<RenderLayer>()->m_instancedMatricesBuffer->SetData((GLsizei)count * sizeof(glm::mat4), matrices.data(), GL_DYNAMIC_DRAW);
 	m_vao->EnableAttributeArray(12);
 	m_vao->SetAttributePointer(12, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
 	m_vao->EnableAttributeArray(13);
@@ -347,7 +411,7 @@ void Mesh::DrawInstanced(const std::vector<GlobalTransform>& matrices) const
 	m_vao->SetAttributeDivisor(15, 1);
 
 
-	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, 0, (GLsizei)matrices.size());
+	glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)m_triangleSize * 3, GL_UNSIGNED_INT, 0, (GLsizei)count);
 }
 void Mesh::Serialize(YAML::Emitter& out)
 {

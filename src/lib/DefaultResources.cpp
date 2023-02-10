@@ -22,6 +22,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_2DToCubemapProgram;
 
 std::unique_ptr<Texture2D> DefaultResources::m_brdfLut;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferInstancedPrepass;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferInstancedColoredPrepass;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferPrepass;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferInstancedSkinnedPrepass;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_gBufferSkinnedPrepass;
@@ -92,6 +93,7 @@ std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::m_sceneCameraEntityIns
 
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedProgram;
+std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedColoredProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardSkinnedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardInstancedSkinnedProgram;
 std::shared_ptr<OpenGLUtils::GLProgram> DefaultResources::GLPrograms::StandardStrandsProgram;
@@ -159,12 +161,20 @@ void DefaultResources::LoadShaders()
 		auto fragShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") / "Shaders/Fragment/StandardForward.frag");
+		auto fragColoredShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Fragment/StandardForwardColored.frag");
 
 		auto standardVert = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "Standard.vert");
 		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		auto standardFrag =
 			ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "StandardForward.frag");
+		auto standardColoredFrag =
+			ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "StandardForwardColored.frag");
+
 		standardFrag->Set(OpenGLUtils::ShaderType::Fragment, fragShaderCode);
+		standardColoredFrag->Set(OpenGLUtils::ShaderType::Fragment, fragColoredShaderCode);
+
 		GLPrograms::StandardProgram =
 			ProjectManager::CreateDefaultResource<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard");
 		GLPrograms::StandardProgram->Link(standardVert, standardFrag);
@@ -185,6 +195,18 @@ void DefaultResources::LoadShaders()
 		GLPrograms::StandardInstancedProgram =
 			ProjectManager::CreateDefaultResource<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard Instanced");
 		GLPrograms::StandardInstancedProgram->Link(standardVert, standardFrag);
+
+		vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/StandardInstancedColored.vert");
+		standardVert =
+			ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "StandardInstancedColored.vert");
+		standardVert->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		GLPrograms::StandardInstancedColoredProgram =
+			ProjectManager::CreateDefaultResource<OpenGLUtils::GLProgram>(GenerateNewHandle(), "Standard Instanced Colored");
+		GLPrograms::StandardInstancedColoredProgram->Link(standardVert, standardColoredFrag);
+
+
 		vertShaderCode = std::string("#version 450 core\n") + *ShaderIncludes::Uniform + "\n" +
 			FileUtils::LoadFileAsString(
 				std::filesystem::path("./DefaultResources") / "Shaders/Vertex/StandardInstancedSkinned.vert");
@@ -779,6 +801,19 @@ void DefaultResources::LoadRenderManagerResources()
 		vertShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
 		m_gBufferInstancedSkinnedPrepass = std::make_shared<OpenGLUtils::GLProgram>();
 		m_gBufferInstancedSkinnedPrepass->Link(vertShader, fragShader);
+
+		vertShaderCode =
+			std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(std::filesystem::path("./DefaultResources") / "Shaders/Vertex/StandardInstancedColored.vert");
+		auto fragColoredShaderCode = std::string("#version 450 core\n") + *DefaultResources::ShaderIncludes::Uniform + "\n" +
+			FileUtils::LoadFileAsString(
+				std::filesystem::path("./DefaultResources") / "Shaders/Fragment/StandardDeferredColored.frag");
+		auto vertColoredShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
+		vertColoredShader->Set(OpenGLUtils::ShaderType::Vertex, vertShaderCode);
+		auto fragColoredShader = ProjectManager::CreateDefaultResource<OpenGLUtils::GLShader>(GenerateNewHandle(), "");
+		fragColoredShader->Set(OpenGLUtils::ShaderType::Fragment, fragColoredShaderCode);
+		m_gBufferInstancedColoredPrepass = std::make_shared<OpenGLUtils::GLProgram>();
+		m_gBufferInstancedColoredPrepass->Link(vertColoredShader, fragColoredShader);
 
 
 		vertShaderCode =

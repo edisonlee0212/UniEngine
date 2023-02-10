@@ -286,10 +286,10 @@ void PointCloud::ApplyCompressed()
     const auto owner = scene->CreateEntity("Compressed Point Cloud");
     auto particles = scene->GetOrSetPrivateComponent<Particles>(owner).lock();
     particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
-    particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedColoredProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;
     auto particleMatrices = particles->m_matrices;
-    auto &matrices = particleMatrices->m_value;
+    std::vector<glm::mat4> matrices;
     auto compressed = std::vector<glm::dvec3>();
     Compress(compressed);
     matrices.resize(compressed.size());
@@ -297,6 +297,7 @@ void PointCloud::ApplyCompressed()
     {
         matrices[i] = glm::translate((glm::vec3)(compressed[i] + m_offset)) * glm::scale(glm::vec3(m_pointSize));
     }
+    particleMatrices->SetValue(m_colors, matrices);
     particleMatrices->Update();
 }
 void PointCloud::Compress(std::vector<glm::dvec3> &points)
@@ -454,15 +455,16 @@ void PointCloud::ApplyOriginal()
     const auto owner = scene->CreateEntity("Original Point Cloud");
     auto particles = scene->GetOrSetPrivateComponent<Particles>(owner).lock();
     particles->m_material = ProjectManager::CreateTemporaryAsset<Material>();
-    particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+    particles->m_material.Get<Material>()->SetProgram(DefaultResources::GLPrograms::StandardInstancedColoredProgram);
     particles->m_mesh = DefaultResources::Primitives::Cube;
     auto particleMatrices = particles->m_matrices;
-    auto &matrices = particleMatrices->m_value;
+    std::vector<glm::mat4> matrices;
     matrices.resize(m_points.size());
     for (int i = 0; i < matrices.size(); i++)
     {
         matrices[i] = glm::translate(glm::vec3(m_points[i] + m_offset)) * glm::scale(glm::vec3(m_pointSize));
     }
+    particleMatrices->SetValue(m_colors, matrices);
     particleMatrices->Update();
 }
 

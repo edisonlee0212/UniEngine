@@ -106,6 +106,7 @@ namespace UniEngine {
 
 		friend class Mesh;
 		friend class Strands;
+		std::unique_ptr<OpenGLUtils::GLBuffer> m_instancedColorBuffer;
 		std::unique_ptr<OpenGLUtils::GLBuffer> m_instancedMatricesBuffer;
 
 

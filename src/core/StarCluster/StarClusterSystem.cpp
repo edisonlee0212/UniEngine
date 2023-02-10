@@ -308,16 +308,15 @@ void StarClusterSystem::CopyPosition(const bool &reverse)
     bool check = reverse ? !m_useFront : m_useFront;
     auto matrices = check ? scene->GetOrSetPrivateComponent<Particles>(m_rendererFront.Get()).lock()->m_matrices
                           : scene->GetOrSetPrivateComponent<Particles>(m_rendererBack.Get()).lock()->m_matrices;
-    auto &colors = check ? m_frontColors : m_backColors;
     const auto starAmount = scene->GetEntityAmount(m_starQuery);
-    matrices->m_value.resize(starAmount);
-    colors.resize(starAmount);
+    matrices->RefMatrices().resize(starAmount);
+    matrices->RefColors().resize(starAmount);
     scene->ForEach<GlobalTransform, DisplayColor>(
         Jobs::Workers(),
         m_starQuery,
         [&](int i, Entity entity, GlobalTransform &globalTransform, DisplayColor &displayColor) {
-            matrices->m_value[i] = globalTransform.m_value;
-            colors[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
+            matrices->RefMatrices()[i] = globalTransform.m_value;
+			matrices->RefColors()[i] = glm::vec4(displayColor.m_value * displayColor.m_intensity, 1.0f);
         },
         false);
     matrices->Update();
@@ -338,13 +337,15 @@ void StarClusterSystem::Update()
 
     // Do not touch below functions.
     m_counter++;
+    /*
     Gizmos::DrawGizmoMeshInstancedColored(
         DefaultResources::Primitives::Cube,
         m_useFront ? m_frontColors : m_backColors,
-        m_useFront ? scene->GetOrSetPrivateComponent<Particles>(m_rendererFront.Get()).lock()->m_matrices->m_value
-                   : scene->GetOrSetPrivateComponent<Particles>(m_rendererBack.Get()).lock()->m_matrices->m_value,
+        m_useFront ? scene->GetOrSetPrivateComponent<Particles>(m_rendererFront.Get()).lock()->m_matrices->m_matrices
+                   : scene->GetOrSetPrivateComponent<Particles>(m_rendererBack.Get()).lock()->m_matrices->m_matrices,
         glm::mat4(1.0f),
         1.0f);
+        */
 }
 
 void StarClusterSystem::PushStars(StarClusterPattern &pattern, const size_t &amount)
@@ -417,7 +418,7 @@ void StarClusterSystem::Start()
         imr->m_receiveShadow = false;
         material->m_materialProperties.m_emission = 3.0f;
         imr->m_mesh.Set<Mesh>(DefaultResources::Primitives::Cube);
-        material->SetProgram(DefaultResources::GLPrograms::StandardInstancedProgram);
+        material->SetProgram(DefaultResources::GLPrograms::StandardInstancedColoredProgram);
 
         scene->SetDataComponent(m_rendererFront.Get(), ltw);
 

@@ -14,7 +14,7 @@ void Particles::OnCreate()
 
 void Particles::RecalculateBoundingBox()
 {
-    if (m_matrices->m_value.empty())
+    if (m_matrices->PeekMatrices().empty())
     {
         m_boundingBox.m_min = glm::vec3(0.0f);
         m_boundingBox.m_max = glm::vec3(0.0f);
@@ -23,7 +23,7 @@ void Particles::RecalculateBoundingBox()
     glm::vec3 minBound = glm::vec3(static_cast<int>(INT_MAX));
     glm::vec3 maxBound = glm::vec3(static_cast<int>(INT_MIN));
     auto meshBound = m_mesh.Get<Mesh>()->GetBound();
-    for (auto &i : m_matrices->m_value)
+    for (const auto &i : m_matrices->PeekMatrices())
     {
         glm::vec3 center = i * glm::vec4(meshBound.Center(), 1.0f);
         glm::vec3 size = glm::vec4(meshBound.Size(), 0) * i / 2.0f;
@@ -47,7 +47,7 @@ void Particles::OnInspect()
     if (!m_forwardRendering)
         ImGui::Checkbox("Receive shadow##Particles", &m_receiveShadow);
     ImGui::Checkbox("Cast shadow##Particles", &m_castShadow);
-    ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices->m_value.size())).c_str());
+    ImGui::Text(("Instance count##Particles" + std::to_string(m_matrices->PeekMatrices().size())).c_str());
     if (ImGui::Button("Calculate bounds##Particles"))
     {
         RecalculateBoundingBox();
@@ -122,37 +122,81 @@ void Particles::OnDestroy()
 }
 void ParticleMatrices::Serialize(YAML::Emitter &out)
 {
-    if (!m_value.empty())
+    if (!m_matrices.empty())
     {
-        out << YAML::Key << "m_value" << YAML::Value
-            << YAML::Binary((const unsigned char *)m_value.data(), m_value.size() * sizeof(glm::mat4));
+        out << YAML::Key << "m_matrices" << YAML::Value
+            << YAML::Binary((const unsigned char *)m_matrices.data(), m_matrices.size() * sizeof(glm::mat4));
+        out << YAML::Key << "m_colors" << YAML::Value
+            << YAML::Binary((const unsigned char*)m_colors.data(), m_colors.size() * sizeof(glm::vec4));
     }
 }
 void ParticleMatrices::Deserialize(const YAML::Node &in)
 {
-    if (in["m_value"])
+    if (in["m_matrices"])
     {
-        YAML::Binary vertexData = in["m_value"].as<YAML::Binary>();
-        m_value.resize(vertexData.size() / sizeof(glm::mat4));
-        std::memcpy(m_value.data(), vertexData.data(), vertexData.size());
+        const auto& vertexData = in["m_matrices"].as<YAML::Binary>();
+        m_matrices.resize(vertexData.size() / sizeof(glm::mat4));
+        std::memcpy(m_matrices.data(), vertexData.data(), vertexData.size());
+    }
+    if (in["m_colors"])
+    {
+        const auto& vertexData = in["m_colors"].as<YAML::Binary>();
+        m_colors.resize(vertexData.size() / sizeof(glm::vec4));
+        std::memcpy(m_colors.data(), vertexData.data(), vertexData.size());
     }
     Update();
 }
 void ParticleMatrices::Update()
 {
-    if(m_value.empty()){
+    if(m_matrices.empty() || m_matrices.size() != m_colors.size()){
         m_bufferReady = false;
         return;
     }
-    m_buffer->SetData((GLsizei)m_value.size() * sizeof(glm::mat4), m_value.data(), GL_DYNAMIC_DRAW);
+    m_buffer->SetData((GLsizei)m_matrices.size() * sizeof(glm::mat4), m_matrices.data(), GL_DYNAMIC_DRAW);
+    m_colorBuffer->SetData((GLsizei)m_colors.size() * sizeof(glm::vec4), m_colors.data(), GL_DYNAMIC_DRAW);
     m_bufferReady = true;
     m_version++;
 }
 ParticleMatrices::ParticleMatrices()
 {
     m_buffer = std::make_shared<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
+    m_colorBuffer = std::make_shared<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 }
-size_t &ParticleMatrices::GetVersion()
+
+std::vector<glm::vec4>& ParticleMatrices::RefColors()
+{
+    return m_colors;
+}
+
+std::vector<glm::mat4>& ParticleMatrices::RefMatrices()
+{
+    return m_matrices;
+}
+
+const std::vector<glm::vec4>& ParticleMatrices::PeekColors() const
+{
+    return m_colors;
+}
+
+const std::vector<glm::mat4>& ParticleMatrices::PeekMatrices() const
+{
+    return m_matrices;
+}
+
+void ParticleMatrices::SetValue(const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices)
+{
+    m_colors = colors;
+    m_matrices = matrices;
+}
+
+void ParticleMatrices::Reset()
+{
+    m_colors.clear();
+    m_matrices.clear();
+    m_version = 0;
+}
+
+size_t ParticleMatrices::GetVersion() const
 {
     return m_version;
 }

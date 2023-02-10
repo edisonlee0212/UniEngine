@@ -274,10 +274,6 @@ class StarClusterSystem : public ISystem
     EntityArchetype m_starArchetype;
     std::vector<StarClusterPattern> m_starClusterPatterns;
     bool m_useFront = true;
-#pragma region Rendering
-    std::vector<glm::vec4> m_frontColors;
-    std::vector<glm::vec4> m_backColors;
-#pragma endregion
     int m_counter = 0;
 
     float m_applyPositionTimer = 0;

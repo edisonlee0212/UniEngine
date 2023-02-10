@@ -40,6 +40,9 @@ namespace UniEngine
 
 	public:
 		void Draw() const;
+		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices) const;
+		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<GlobalTransform>& matrices) const;
+
 		void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
 		void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
 		void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;

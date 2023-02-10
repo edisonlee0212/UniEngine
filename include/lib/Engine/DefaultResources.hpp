@@ -39,6 +39,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     static std::unique_ptr<Texture2D> m_brdfLut;
 
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedPrepass;
+    static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedColoredPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferInstancedSkinnedPrepass;
     static std::shared_ptr<OpenGLUtils::GLProgram> m_gBufferSkinnedPrepass;
@@ -115,6 +116,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
       public:
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedProgram;
+        static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedColoredProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardSkinnedProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardInstancedSkinnedProgram;
         static std::shared_ptr<OpenGLUtils::GLProgram> StandardStrandsProgram;

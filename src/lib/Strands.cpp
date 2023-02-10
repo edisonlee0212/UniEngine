@@ -347,7 +347,7 @@ void Strands::DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMat
 	OpenGLUtils::PatchParameter(GL_PATCH_VERTICES, 4);
 
 	if (!particleMatrices->m_bufferReady) return;
-	auto count = particleMatrices->m_value.size();
+	auto count = particleMatrices->m_matrices.size();
 	particleMatrices->m_buffer->Bind();
 	m_vao->Bind();
 

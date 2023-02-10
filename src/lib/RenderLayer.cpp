@@ -153,7 +153,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				if (renderCommand.m_matrices.expired())
 					break;
 				auto mesh = renderCommand.m_mesh.lock();
-				auto& program = DefaultResources::m_gBufferInstancedPrepass;
+				auto& program = DefaultResources::m_gBufferInstancedColoredPrepass;
 				program->Bind();
 				ApplyProgramSettings(program, material);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
@@ -444,6 +444,7 @@ void RenderLayer::OnCreate()
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
+	m_instancedColorBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	m_instancedMatricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 #pragma region Kernel Setup
@@ -1619,10 +1620,10 @@ void RenderLayer::DeferredPrepassInternal(const std::shared_ptr<Mesh>& mesh)
 void RenderLayer::DeferredPrepassInstancedInternal(
 	const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ParticleMatrices>& matrices)
 {
-	if (mesh == nullptr || matrices->m_value.empty())
+	if (mesh == nullptr || matrices->PeekMatrices().empty())
 		return;
 	m_drawCall++;
-	m_triangles += mesh->GetTriangleAmount() * matrices->m_value.size();
+	m_triangles += mesh->GetTriangleAmount() * matrices->PeekMatrices().size();
 	mesh->DrawInstanced(matrices);
 }
 
@@ -1647,11 +1648,11 @@ void RenderLayer::DeferredPrepassInternal(const std::shared_ptr<Strands>& strand
 void RenderLayer::DeferredPrepassInstancedInternal(
 	const std::shared_ptr<SkinnedMesh>& skinnedMesh, const std::shared_ptr<ParticleMatrices>& matrices)
 {
-	if (skinnedMesh == nullptr || matrices->m_value.empty())
+	if (skinnedMesh == nullptr || matrices->PeekMatrices().empty())
 		return;
 	m_drawCall++;
-	m_triangles += skinnedMesh->GetTriangleAmount() * matrices->m_value.size();
-	auto& program = DefaultResources::m_gBufferInstancedPrepass;
+	m_triangles += skinnedMesh->GetTriangleAmount() * matrices->PeekMatrices().size();
+	auto& program = DefaultResources::m_gBufferInstancedColoredPrepass;
 	skinnedMesh->DrawInstanced(matrices);
 }
 
@@ -1686,10 +1687,10 @@ void RenderLayer::DrawMeshInstancedInternal(
 void RenderLayer::DrawMeshInstancedInternal(
 	const std::shared_ptr<Mesh>& mesh, const std::shared_ptr<ParticleMatrices>& matrices)
 {
-	if (mesh == nullptr || matrices->m_value.empty())
+	if (mesh == nullptr || matrices->PeekMatrices().empty())
 		return;
 	m_drawCall++;
-	m_triangles += mesh->GetTriangleAmount() * matrices->m_value.size();
+	m_triangles += mesh->GetTriangleAmount() * matrices->PeekMatrices().size();
 	mesh->DrawInstanced(matrices);
 }
 

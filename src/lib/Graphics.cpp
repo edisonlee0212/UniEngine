@@ -504,18 +504,11 @@ void Gizmos::DrawGizmoMeshInstancedColoredInternal(
         return;
     OpenGLUtils::SetEnable(OpenGLCapability::DepthTest, gizmoSettings.m_depthTest);
     gizmoSettings.m_drawSettings.ApplySettings();
-    mesh->Enable();
-    const auto vao = mesh->Vao();
-    const OpenGLUtils::GLBuffer colorsBuffer(OpenGLUtils::GLBufferTarget::Array);
-    colorsBuffer.SetData(static_cast<GLsizei>(matrices.size()) * sizeof(glm::vec4), colors.data(), GL_STATIC_DRAW);
-    vao->EnableAttributeArray(11);
-    vao->SetAttributePointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
-    vao->SetAttributeDivisor(11, 1);
-
+    
     DefaultResources::GizmoInstancedColoredProgram->Bind();
     DefaultResources::GizmoInstancedColoredProgram->SetFloat4x4("model", model);
     DefaultResources::GizmoInstancedColoredProgram->SetFloat4x4("scaleMatrix", scaleMatrix);
-    mesh->DrawInstanced(matrices);
+    mesh->DrawInstancedColored(colors, matrices);
     OpenGLUtils::GLVAO::BindDefault();
 }
 
