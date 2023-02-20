@@ -256,9 +256,22 @@ void EditorLayer::PreUpdate() {
         ImGui::PopStyleVar();
     }
     if(m_showSceneWindow) RenderToSceneCamera();
+
+    if (m_applyTransformToMainCamera && !Application::IsPlaying())
+    {
+        const auto scene = Application::GetActiveScene();
+        if(const auto camera = scene->m_mainCamera.Get<Camera>(); camera && scene->IsEntityValid(camera->GetOwner()))
+        {
+            GlobalTransform globalTransform;
+            globalTransform.SetPosition(m_sceneCameraPosition);
+            globalTransform.SetRotation(m_sceneCameraRotation);
+            scene->SetDataComponent(camera->GetOwner(), globalTransform);
+        }
+    }
 }
 
 void EditorLayer::LateUpdate() {
+    
 }
 
 bool EditorLayer::DrawEntityMenu(const bool &enabled, const Entity &entity) {
@@ -999,7 +1012,7 @@ void EditorLayer::SceneCameraWindow() {
                         ImVec2(1, 0));
                 CameraWindowDragAndDrop();
             } else {
-                ImGui::Text("No active main camera!");
+                ImGui::Text("No active scene camera!");
             }
             ImVec2 window_pos = ImVec2(
                 (corner & 1) ? (overlayPos.x + viewPortSize.x) : (overlayPos.x),
@@ -1012,7 +1025,7 @@ void EditorLayer::SceneCameraWindow() {
                     ImGuiWindowFlags_AlwaysAutoResize |
                     ImGuiWindowFlags_NoSavedSettings |
                     ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-                if (ImGui::BeginChild("Info", ImVec2(200, 250), false, window_flags)) {
+                if (ImGui::BeginChild("Info", ImVec2(200, 300), false, window_flags)) {
                     ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
                     std::string trisstr = "";
                     if (ImGui::IsMousePosValid()) {
@@ -1038,6 +1051,7 @@ void EditorLayer::SceneCameraWindow() {
                     ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f, 0, 0, "%.1f");
                     ImGui::DragFloat("Speed", &m_velocity, 0.1f, 0, 0, "%.1f");
                     ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f, 0, 0, "%.1f");
+                    ImGui::Checkbox("Apply transform to main camera", &m_applyTransformToMainCamera);
                     Editor::DragAndDropButton<Cubemap>(m_sceneCamera->m_skybox, "Skybox", true);
                     ImGui::PopItemWidth();
                 }

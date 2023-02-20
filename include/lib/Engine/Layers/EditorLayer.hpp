@@ -133,6 +133,7 @@ namespace UniEngine {
 		float m_sceneCameraPitchAngle = 0;
 		float m_velocity = 5.0f;
 		float m_sensitivity = 0.1f;
+		bool m_applyTransformToMainCamera = false;
 		bool m_lockCamera;
 
 		std::shared_ptr<Camera> m_sceneCamera;
