@@ -1267,7 +1267,7 @@ void EditorLayer::MainCameraWindow() {
                                                 ImGuiWindowFlags_NoSavedSettings |
                                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
-                if (ImGui::BeginChild("Render Info", ImVec2(200, 100), true, window_flags)) {
+                if (ImGui::BeginChild("Render Info", ImVec2(200, 150), true, window_flags)) {
                     ImGui::Text("_");
                 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
                     ImGui::PushItemWidth(100);
