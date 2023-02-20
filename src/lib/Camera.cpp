@@ -324,6 +324,8 @@ void Camera::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_nearDistance" << YAML::Value << m_nearDistance;
     out << YAML::Key << "m_farDistance" << YAML::Value << m_farDistance;
     out << YAML::Key << "m_fov" << YAML::Value << m_fov;
+
+    out << YAML::Key << "m_backgroundIntensity" << YAML::Value << m_backgroundIntensity;
     m_skybox.Save("m_skybox", out);
 }
 
@@ -337,7 +339,7 @@ void Camera::Deserialize(const YAML::Node &in)
     m_farDistance = in["m_farDistance"].as<float>();
     m_fov = in["m_fov"].as<float>();
     ResizeResolution(resolutionX, resolutionY);
-
+    if (in["m_backgroundIntensity"]) m_backgroundIntensity = in["m_backgroundIntensity"].as<float>();
     m_skybox.Load("m_skybox", in);
     m_rendered = false;
     m_requireRendering = false;
@@ -365,6 +367,7 @@ void Camera::OnInspect()
             ResizeResolution(resolution.x, resolution.y);
         }
     }
+    ImGui::DragFloat("Background intensity", &m_backgroundIntensity, 0.1f, 0.0f, 1.0f);
     ImGui::Checkbox("Use clear color", &m_useClearColor);
     auto scene = GetScene();
     const bool savedState = (this == scene->m_mainCamera.Get<Camera>().get());

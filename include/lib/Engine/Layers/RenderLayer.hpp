@@ -30,7 +30,7 @@ namespace UniEngine {
 		glm::vec4 m_backgroundColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		float m_environmentalMapGamma = 1.0f;
 		float m_environmentalLightingIntensity = 1.0f;
-		float m_environmentalPadding1 = 0.0f;
+		float m_backgroundIntensity = 1.0f;
 		float m_environmentalPadding2 = 0.0f;
 	};
 

@@ -1459,6 +1459,7 @@ void RenderLayer::ApplyEnvironmentalSettings(const std::shared_ptr<Camera>& came
 	}
 	m_environmentalMapSettings.m_environmentalMapGamma = scene->m_environmentSettings.m_environmentGamma;
 	m_environmentalMapSettings.m_environmentalLightingIntensity = scene->m_environmentSettings.m_ambientLightIntensity;
+	m_environmentalMapSettings.m_backgroundIntensity = cameraComponent->m_backgroundIntensity;
 	cameraSkybox->Texture()->Bind(8);
 	DefaultResources::m_brdfLut->UnsafeGetGLTexture()->Bind(11);
 	environmentalMap->m_lightProbe.Get<LightProbe>()->m_irradianceMap->Texture()->Bind(9);
