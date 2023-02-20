@@ -256,8 +256,8 @@ void Camera::OnCreate()
     m_colorTexture->m_texture =
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_RGBA16F, m_resolutionX, m_resolutionY, false);
     m_colorTexture->m_texture->SetData(0, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 0);
-    m_colorTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_colorTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_colorTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_colorTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_colorTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     AttachTexture(m_colorTexture->m_texture.get(), GL_COLOR_ATTACHMENT0);
@@ -267,8 +267,8 @@ void Camera::OnCreate()
         std::make_shared<OpenGLUtils::GLTexture2D>(0, GL_DEPTH32F_STENCIL8, m_resolutionX, m_resolutionY, false);
     m_depthStencilTexture->m_texture->SetData(
         0, GL_DEPTH32F_STENCIL8, GL_DEPTH_STENCIL, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, 0);
-    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     m_depthStencilTexture->m_texture->SetInt(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     AttachTexture(m_depthStencilTexture->m_texture.get(), GL_DEPTH_STENCIL_ATTACHMENT);
@@ -321,7 +321,6 @@ void Camera::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_resolutionY" << YAML::Value << m_resolutionY;
     out << YAML::Key << "m_useClearColor" << YAML::Value << m_useClearColor;
     out << YAML::Key << "m_clearColor" << YAML::Value << m_clearColor;
-    out << YAML::Key << "m_allowAutoResize" << YAML::Value << m_allowAutoResize;
     out << YAML::Key << "m_nearDistance" << YAML::Value << m_nearDistance;
     out << YAML::Key << "m_farDistance" << YAML::Value << m_farDistance;
     out << YAML::Key << "m_fov" << YAML::Value << m_fov;
@@ -334,7 +333,6 @@ void Camera::Deserialize(const YAML::Node &in)
     int resolutionY = in["m_resolutionY"].as<int>();
     m_useClearColor = in["m_useClearColor"].as<bool>();
     m_clearColor = in["m_clearColor"].as<glm::vec3>();
-    m_allowAutoResize = in["m_allowAutoResize"].as<bool>();
     m_nearDistance = in["m_nearDistance"].as<float>();
     m_farDistance = in["m_farDistance"].as<float>();
     m_fov = in["m_fov"].as<float>();
@@ -359,8 +357,7 @@ void Camera::OnDestroy()
 
 void Camera::OnInspect()
 {
-    ImGui::Checkbox("Allow auto resize", &m_allowAutoResize);
-    if (!m_allowAutoResize)
+    if (!Application::GetLayer<RenderLayer>()->m_allowAutoResize)
     {
         glm::ivec2 resolution = {m_resolutionX, m_resolutionY};
         if (ImGui::DragInt2("Resolution", &resolution.x))
@@ -451,7 +448,6 @@ std::shared_ptr<Texture2D> Camera::GetDepthStencil() const
 }
 Camera &Camera::operator=(const Camera &source)
 {
-    m_allowAutoResize = source.m_allowAutoResize;
     m_nearDistance = source.m_nearDistance;
     m_farDistance = source.m_farDistance;
     m_fov = source.m_fov;

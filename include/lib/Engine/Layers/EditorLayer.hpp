@@ -15,7 +15,6 @@ namespace UniEngine {
 	class Folder;
 
 	class UNIENGINE_API EditorLayer : public ILayer {
-	private:
 		EntityArchetype m_basicEntityArchetype;
 
 		glm::vec3 m_previouslyStoredPosition;
@@ -51,6 +50,7 @@ namespace UniEngine {
 
 		std::vector<Entity> m_selectedEntityHierarchyList;
 
+		
 		int m_sceneCameraResolutionX = 1;
 		int m_sceneCameraResolutionY = 1;
 		float m_lastX = 0;
@@ -93,6 +93,8 @@ namespace UniEngine {
 
 		glm::vec2 m_mouseScreenPosition;
 	public:
+		float m_sceneCameraResolutionMultiplier = 1.0f;
+
 		bool m_showSceneWindow = true;
 		bool m_showCameraWindow = true;
 		bool m_showCameraInfo = true;

@@ -97,6 +97,10 @@ namespace UniEngine {
 
 		void ApplyEnvironmentalSettings(const std::shared_ptr<Camera>& cameraComponent);
 
+		int m_mainCameraResolutionX = 1;
+		int m_mainCameraResolutionY = 1;
+		bool m_allowAutoResize = true;
+		float m_mainCameraResolutionMultiplier = 1.0f;
 	private:
 		unsigned m_frameIndex = 0;
 #pragma region GUI
@@ -153,8 +157,7 @@ namespace UniEngine {
 
 		std::unique_ptr<OpenGLUtils::GLBuffer> m_kernelBlock;
 
-		int m_mainCameraResolutionX = 1;
-		int m_mainCameraResolutionY = 1;
+		
 
 		friend class RenderTarget;
 

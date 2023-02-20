@@ -324,7 +324,7 @@ void RenderLayer::LateUpdate()
 	m_drawCall = 0;
 	if (mainCamera)
 	{
-		if (mainCamera->m_allowAutoResize)
+		if (m_allowAutoResize)
 			mainCamera->ResizeResolution(m_mainCameraResolutionX, m_mainCameraResolutionY);
 	}
 	const std::vector<Entity>* cameraEntities =

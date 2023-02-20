@@ -63,7 +63,7 @@ class UNIENGINE_API Camera final : public IPrivateComponent, public RenderTarget
     void PostCloneAction(const std::shared_ptr<IPrivateComponent>& target) override;
 
     static CameraInfoBlock m_cameraInfoBlock;
-    bool m_allowAutoResize = true;
+    
     float m_nearDistance = 0.1f;
     float m_farDistance = 500.0f;
     float m_fov = 120;

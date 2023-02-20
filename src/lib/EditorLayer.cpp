@@ -1000,8 +1000,8 @@ void EditorLayer::SceneCameraWindow() {
                 ImGui::EndMenuBar();
             }
             viewPortSize = ImGui::GetWindowSize();
-            m_sceneCameraResolutionX = viewPortSize.x;
-            m_sceneCameraResolutionY = viewPortSize.y - 20;
+            m_sceneCameraResolutionX = viewPortSize.x * m_sceneCameraResolutionMultiplier;
+            m_sceneCameraResolutionY = (viewPortSize.y - 20) * m_sceneCameraResolutionMultiplier;
             ImVec2 overlayPos = ImGui::GetWindowPos();
             if (m_sceneCamera && m_sceneCamera->m_rendered) {
                 // Because I use the texture from OpenGL, I need to invert the V from the UV.
@@ -1025,7 +1025,8 @@ void EditorLayer::SceneCameraWindow() {
                     ImGuiWindowFlags_AlwaysAutoResize |
                     ImGuiWindowFlags_NoSavedSettings |
                     ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-                if (ImGui::BeginChild("Info", ImVec2(200, 300), false, window_flags)) {
+                if (ImGui::BeginChild("Info", ImVec2(200, 300), true, window_flags)) {
+                    ImGui::Text("_");
                     ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
                     std::string trisstr = "";
                     if (ImGui::IsMousePosValid()) {
@@ -1052,6 +1053,7 @@ void EditorLayer::SceneCameraWindow() {
                     ImGui::DragFloat("Speed", &m_velocity, 0.1f, 0, 0, "%.1f");
                     ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f, 0, 0, "%.1f");
                     ImGui::Checkbox("Apply transform to main camera", &m_applyTransformToMainCamera);
+                    ImGui::DragFloat("Resolution multiplier", &m_sceneCameraResolutionMultiplier, 0.1f, 0.1f, 4.0f);
                     Editor::DragAndDropButton<Cubemap>(m_sceneCamera->m_skybox, "Skybox", true);
                     ImGui::PopItemWidth();
                 }
@@ -1238,8 +1240,8 @@ void EditorLayer::MainCameraWindow() {
                 ImGui::EndMenuBar();
             }
             viewPortSize = ImGui::GetWindowSize();
-            renderLayer->m_mainCameraResolutionX = viewPortSize.x;
-            renderLayer->m_mainCameraResolutionY = viewPortSize.y - 20;
+            renderLayer->m_mainCameraResolutionX = viewPortSize.x * renderLayer->m_mainCameraResolutionMultiplier;
+            renderLayer->m_mainCameraResolutionY = (viewPortSize.y - 20) * renderLayer->m_mainCameraResolutionMultiplier;
             //  Get the size of the child (i.e. the whole draw size of the windows).
             ImVec2 overlayPos = ImGui::GetWindowPos();
             // Because I use the texture from OpenGL, I need to invert the V from the UV.
@@ -1265,8 +1267,16 @@ void EditorLayer::MainCameraWindow() {
                                                 ImGuiWindowFlags_NoSavedSettings |
                                                 ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
-                if (ImGui::BeginChild("Render Info", ImVec2(200, 75), false, window_flags)) {
-                    ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+                if (ImGui::BeginChild("Render Info", ImVec2(200, 100), true, window_flags)) {
+                    ImGui::Text("_");
+                	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+                    ImGui::PushItemWidth(100);
+                    ImGui::Checkbox("Auto resize", &renderLayer->m_allowAutoResize);
+                    if(renderLayer->m_allowAutoResize)
+                    {
+                        ImGui::DragFloat("Resolution multiplier", &renderLayer->m_mainCameraResolutionMultiplier, 0.1f, 0.1f, 4.0f);
+                    }
+                    ImGui::PopItemWidth();
                     std::string trisstr = "";
                     if (renderLayer->m_triangles < 999)
                         trisstr += std::to_string(renderLayer->m_triangles);
