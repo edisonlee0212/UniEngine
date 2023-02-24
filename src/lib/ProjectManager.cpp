@@ -917,7 +917,7 @@ void ProjectManager::OnInspect()
 				[](const std::filesystem::path& filePath) {
 					try
 			{
-				ProjectManager::GetOrCreateProject(filePath);
+				GetOrCreateProject(filePath);
 			}
 			catch (std::exception& e)
 			{
@@ -1312,6 +1312,11 @@ void ProjectManager::OnInspect()
 
 						if (ImGui::BeginPopupContextItem(tag.c_str()))
 						{
+							if (ImGui::Button("Duplicate"))
+							{
+								auto ptr = i.second->GetAsset();
+								auto newAsset = DuplicateAsset(ptr);
+							}
 							if (i.second->GetAssetTypeName() != "Binary" && ImGui::BeginMenu(("Rename" + tag).c_str()))
 							{
 								static char newName[256] = { 0 };
@@ -1325,7 +1330,7 @@ void ProjectManager::OnInspect()
 								}
 								ImGui::EndMenu();
 							}
-							if (ImGui::Button(("Remove" + tag).c_str()))
+							if (ImGui::Button(("Delete" + tag).c_str()))
 							{
 								currentFocusedFolder->DeleteAsset(i.first);
 								ImGui::EndPopup();
@@ -1417,7 +1422,7 @@ void ProjectManager::OnInspect()
 
 void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder>& folder)
 {
-	auto& projectManager = ProjectManager::GetInstance();
+	auto& projectManager = GetInstance();
 	auto focusFolder = projectManager.m_currentFocusedFolder.lock();
 	const bool opened = ImGui::TreeNodeEx(
 		folder->m_name.c_str(),
@@ -1565,6 +1570,20 @@ void ProjectManager::FolderHierarchyHelper(const std::shared_ptr<Folder>& folder
 		ImGui::TreePop();
 	}
 }
+
+std::shared_ptr<IAsset> ProjectManager::DuplicateAsset(const std::shared_ptr<IAsset>& target)
+{
+	auto folder = target->GetAssetRecord().lock()->GetFolder().lock();
+	auto path = target->GetProjectRelativePath();
+	auto prefix = (folder->GetProjectRelativePath() / path.stem()).string();
+	auto postfix = path.extension().string();
+	std::filesystem::path newPath = prefix + "_copy" + postfix;
+	auto newAsset = folder->GetOrCreateAsset(
+		newPath.stem().string(), newPath.extension().string());
+	std::filesystem::copy_file(target->GetAbsolutePath(), newAsset->GetAbsolutePath());
+	return newAsset;
+}
+
 std::weak_ptr<Scene> ProjectManager::GetStartScene()
 {
 	auto& projectManager = ProjectManager::GetInstance();

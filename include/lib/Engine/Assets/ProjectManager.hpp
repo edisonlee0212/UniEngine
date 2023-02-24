@@ -110,7 +110,7 @@ namespace UniEngine
 
 		std::unordered_map<Handle, std::weak_ptr<AssetThumbnail>> m_assetThumbnails;
 		std::queue<std::shared_ptr<AssetThumbnail>> m_assetThumbnailStorage;
-
+		int m_maxThumbnailSize = 256;
 		friend class DefaultResources;
 		friend class AssetRegistry;
 		friend class ProjectManager;
@@ -131,7 +131,9 @@ namespace UniEngine
 		[[nodiscard]] static std::shared_ptr<IAsset> CreateTemporaryAsset(const std::string& typeName, const Handle& handle);
 
 		static void FolderHierarchyHelper(const std::shared_ptr<Folder>& folder);
+
 	public:
+		static std::shared_ptr<IAsset> DuplicateAsset(const std::shared_ptr<IAsset>& target);
 		std::shared_ptr<IAsset> m_inspectingAsset;
 		bool m_showProjectWindow = true;
 		bool m_showAssetInspectorWindow = true;
