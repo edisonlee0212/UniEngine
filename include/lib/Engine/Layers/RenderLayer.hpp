@@ -70,24 +70,24 @@ namespace UniEngine {
 		RenderCommandType m_commandType = RenderCommandType::FromRenderer;
 		RenderCommandGeometryType m_meshType = RenderCommandGeometryType::Default;
 		Entity m_owner = Entity();
-		std::weak_ptr<Mesh> m_mesh;
-		std::weak_ptr<Strands> m_strands;
-		std::weak_ptr<SkinnedMesh> m_skinnedMesh;
+		std::shared_ptr<RenderGeometry> m_renderGeometry;
 		bool m_castShadow = true;
 		bool m_receiveShadow = true;
-		std::weak_ptr<ParticleMatrices> m_matrices;
-		std::weak_ptr<BoneMatrices> m_boneMatrices; // We require the skinned mesh renderer to provide bones.
+		std::shared_ptr<ParticleMatrices> m_matrices;
+		std::shared_ptr<BoneMatrices> m_boneMatrices; // We require the skinned mesh renderer to provide bones.
 		GlobalTransform m_globalTransform;
 	};
 
-	struct RenderGeometryGroup {
-		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_meshes;
-		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_skinnedMeshes;
-		std::map<std::weak_ptr<OpenGLUtils::GLVAO>, std::vector<RenderCommand>, std::owner_less<>> m_strands;
+	struct RenderCommands {
+		std::shared_ptr<Material> m_material;
+		std::unordered_map<Handle, std::vector<RenderCommand>> m_meshes;
+		std::unordered_map<Handle, std::vector<RenderCommand>> m_skinnedMeshes;
+		std::unordered_map<Handle, std::vector<RenderCommand>> m_strands;
 	};
 
-	struct RenderCommands {
-		std::map<std::weak_ptr<Material>, RenderGeometryGroup, std::owner_less<>> m_value;
+	struct RenderInstances {
+		std::shared_ptr<Camera> m_camera;
+		std::unordered_map<Handle, RenderCommands> m_renderCommandsGroup;
 	};
 
 	class UNIENGINE_API RenderLayer : public ILayer {
@@ -114,12 +114,12 @@ namespace UniEngine {
 		std::unique_ptr<OpenGLUtils::GLBuffer> m_instancedMatricesBuffer;
 
 
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_deferredRenderInstances;
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_deferredInstancedRenderInstances;
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_forwardRenderInstances;
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_forwardInstancedRenderInstances;
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_transparentRenderInstances;
-		std::map<std::weak_ptr<Camera>, RenderCommands, std::owner_less<>> m_instancedTransparentRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_deferredRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_deferredInstancedRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_forwardRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_forwardInstancedRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_transparentRenderInstances;
+		std::unordered_map<Handle, RenderInstances> m_instancedTransparentRenderInstances;
 #pragma region Settings
 		RenderingSettingsBlock m_renderSettings;
 		bool m_stableFit = true;
@@ -149,7 +149,7 @@ namespace UniEngine {
 		size_t DrawCall();
 
 		void DispatchRenderCommands(
-			const RenderCommands& renderCommands,
+			const RenderInstances& renderCommands,
 			const std::function<void(const std::shared_ptr<Material>&, const RenderCommand& renderCommand)>& func,
 			const bool& setMaterial);
 

@@ -1,14 +1,15 @@
 #pragma once
-#include "DefaultResources.hpp"
+
 #include "Animator.hpp"
 #include "OpenGLUtils.hpp"
 #include "Scene.hpp"
 #include "Transform.hpp"
 #include "Particles.hpp"
 #include "Vertex.hpp"
+#include "RenderGeometry.hpp"
 namespace UniEngine
 {
-class UNIENGINE_API SkinnedMesh : public IAsset
+class UNIENGINE_API SkinnedMesh : public IAsset, public RenderGeometry
 {
     static std::unique_ptr<OpenGLUtils::GLBuffer> m_matricesBuffer;
 
@@ -34,10 +35,10 @@ class UNIENGINE_API SkinnedMesh : public IAsset
   protected:
     bool SaveInternal(const std::filesystem::path &path) override;
   public:
-    void Draw() const;
-    void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
-    void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
-    void DrawInstanced(const std::shared_ptr<ParticleMatrices>& matrices) const;
+    void Draw() const override;
+    void DrawInstanced(const std::vector<glm::mat4>& matrices) const override;
+    void DrawInstanced(const std::vector<GlobalTransform>& matrices) const override;
+    void DrawInstanced(const std::shared_ptr<ParticleMatrices>& matrices) const override;
     void OnCreate() override;
     void FetchIndices();
 

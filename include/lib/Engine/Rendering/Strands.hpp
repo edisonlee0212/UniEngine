@@ -5,9 +5,9 @@
 #include "IAsset.hpp"
 #include "Particles.hpp"
 #include "Vertex.hpp"
-
+#include "RenderGeometry.hpp"
 namespace UniEngine {
-    class UNIENGINE_API Strands : public IAsset {
+    class UNIENGINE_API Strands : public IAsset, public RenderGeometry {
     public:
         enum class SplineMode {
             Linear = 2,
@@ -35,10 +35,10 @@ namespace UniEngine {
         void SetStrands(const unsigned& mask, const std::vector<glm::uint>& strands,
             const std::vector<StrandPoint>& points);
         void RecalculateNormal();
-        void Draw() const;
-        void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
-        void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
-        void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
+        void Draw() const override;
+        void DrawInstanced(const std::vector<glm::mat4>& matrices) const override;
+        void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const override;
+        void DrawInstanced(const std::vector<GlobalTransform>& matrices) const override;
 
         void Upload();
 

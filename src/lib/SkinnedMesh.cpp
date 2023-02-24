@@ -3,6 +3,7 @@
 #include <Mesh.hpp>
 #include <Particles.hpp>
 #include <SkinnedMesh.hpp>
+#include "DefaultResources.hpp"
 using namespace UniEngine;
 
 std::unique_ptr<OpenGLUtils::GLBuffer> SkinnedMesh::m_matricesBuffer;

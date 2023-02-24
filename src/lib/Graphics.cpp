@@ -877,11 +877,15 @@ void Graphics::DrawMesh(
     RenderCommand renderCommand;
     renderCommand.m_commandType = RenderCommandType::FromAPI;
     renderCommand.m_meshType = RenderCommandGeometryType::Default;
-    renderCommand.m_mesh = mesh;
+    renderCommand.m_renderGeometry = mesh;
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    renderLayer->m_forwardRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
+    auto& group = renderLayer->m_forwardRenderInstances[cameraComponent->GetHandle()];
+    group.m_camera = cameraComponent;
+    auto& commands = group.m_renderCommandsGroup[material->GetHandle()];
+    commands.m_material = material;
+    commands.m_meshes[mesh->GetHandle()].push_back(
         renderCommand);
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (editorLayer)
@@ -889,7 +893,11 @@ void Graphics::DrawMesh(
         auto &sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())
         {
-            renderLayer->m_forwardRenderInstances[sceneCamera].m_value[material].m_meshes[mesh->m_vao].push_back(
+            auto& group = renderLayer->m_forwardRenderInstances[sceneCamera->GetHandle()];
+            group.m_camera = sceneCamera;
+            auto& commands = group.m_renderCommandsGroup[material->GetHandle()];
+            commands.m_material = material;
+            commands.m_meshes[mesh->GetHandle()].push_back(
                 renderCommand);
         }
     }
@@ -911,12 +919,12 @@ void Graphics::DrawMeshInstanced(
     RenderCommand renderCommand;
     renderCommand.m_commandType = RenderCommandType::FromAPI;
     renderCommand.m_meshType = RenderCommandGeometryType::Default;
-    renderCommand.m_mesh = mesh;
+    renderCommand.m_renderGeometry = mesh;
     renderCommand.m_matrices = matrices;
     renderCommand.m_receiveShadow = receiveShadow;
     renderCommand.m_castShadow = castShadow;
     renderCommand.m_globalTransform.m_value = model;
-    renderLayer->m_forwardInstancedRenderInstances[cameraComponent].m_value[material].m_meshes[mesh->m_vao].push_back(
+    renderLayer->m_forwardInstancedRenderInstances[cameraComponent->GetHandle()].m_renderCommandsGroup[material->GetHandle()].m_meshes[mesh->GetHandle()].push_back(
         renderCommand);
     auto editorLayer = Application::GetLayer<EditorLayer>();
     if (editorLayer)
@@ -924,9 +932,9 @@ void Graphics::DrawMeshInstanced(
         auto &sceneCamera = editorLayer->m_sceneCamera;
         if (sceneCamera && sceneCamera->IsEnabled())
         {
-            renderLayer->m_forwardInstancedRenderInstances[sceneCamera]
-                .m_value[material]
-                .m_meshes[mesh->m_vao]
+            renderLayer->m_forwardInstancedRenderInstances[sceneCamera->GetHandle()]
+                .m_renderCommandsGroup[material->GetHandle()]
+                .m_meshes[mesh->GetHandle()]
                 .push_back(renderCommand);
         }
     }

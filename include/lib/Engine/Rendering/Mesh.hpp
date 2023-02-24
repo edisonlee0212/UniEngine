@@ -4,6 +4,7 @@
 #include "Scene.hpp"
 #include "Transform.hpp"
 #include "Vertex.hpp"
+#include "RenderGeometry.hpp"
 namespace UniEngine
 {
 	enum class MeshStoreType {
@@ -17,7 +18,7 @@ namespace UniEngine
 		std::unique_ptr<OpenGLUtils::GLVAO> m_persistentMeshesVAO;
 	};
 	class ParticleMatrices;
-	class UNIENGINE_API Mesh : public IAsset
+	class UNIENGINE_API Mesh : public IAsset, public RenderGeometry
 	{
 		std::shared_ptr<OpenGLUtils::GLVAO> m_vao;
 		size_t m_offset = 0;
@@ -39,13 +40,13 @@ namespace UniEngine
 		bool SaveInternal(const std::filesystem::path& path) override;
 
 	public:
-		void Draw() const;
-		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices) const;
-		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<GlobalTransform>& matrices) const;
+		void Draw() const override;
+		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<glm::mat4>& matrices) const override;
+		void DrawInstancedColored(const std::vector<glm::vec4>& colors, const std::vector<GlobalTransform>& matrices) const override;
 
-		void DrawInstanced(const std::vector<glm::mat4>& matrices) const;
-		void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const;
-		void DrawInstanced(const std::vector<GlobalTransform>& matrices) const;
+		void DrawInstanced(const std::vector<glm::mat4>& matrices) const override;
+		void DrawInstanced(const std::shared_ptr<ParticleMatrices>& particleMatrices) const override;
+		void DrawInstanced(const std::vector<GlobalTransform>& matrices) const override;
 
 		void OnInspect() override;
 		[[nodiscard]] glm::vec3 GetCenter() const;

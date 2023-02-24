@@ -548,18 +548,18 @@ void EditorLayer::RenderToSceneCamera() {
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                                 DefaultResources::m_sceneCameraEntityRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_mesh.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                             case RenderCommandGeometryType::Skinned: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_boneMatrices.lock()->UploadBones(
-                                        renderCommand.m_skinnedMesh.lock());
+                                renderCommand.m_boneMatrices->UploadBones(
+                                    std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry));
                                 DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_skinnedMesh.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                             case RenderCommandGeometryType::Strands: {
@@ -568,7 +568,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                                 DefaultResources::m_sceneCameraEntityStrandsRecorderProgram->SetInt(
                                     "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_strands.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                         }
@@ -581,8 +581,6 @@ void EditorLayer::RenderToSceneCamera() {
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
                             case RenderCommandGeometryType::Default: {
-                                if (renderCommand.m_matrices.expired())
-                                    break;
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -590,7 +588,7 @@ void EditorLayer::RenderToSceneCamera() {
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
                                 DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                                         "model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock());
+                                renderCommand.m_renderGeometry->DrawInstanced(renderCommand.m_matrices);
                                 break;
                             }
                         }
@@ -608,18 +606,18 @@ void EditorLayer::RenderToSceneCamera() {
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                                 DefaultResources::m_sceneCameraEntityRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_mesh.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                             case RenderCommandGeometryType::Skinned: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_boneMatrices.lock()->UploadBones(
-                                        renderCommand.m_skinnedMesh.lock());
+                                renderCommand.m_boneMatrices->UploadBones(
+                                        std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry));
                                 DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram->SetInt(
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_skinnedMesh.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                             case RenderCommandGeometryType::Strands: {
@@ -628,7 +626,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
                                 DefaultResources::m_sceneCameraEntityStrandsRecorderProgram->SetInt(
                                     "EntityIndex", renderCommand.m_owner.GetIndex());
-                                renderCommand.m_strands.lock()->Draw();
+                                renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
                         }
@@ -641,8 +639,6 @@ void EditorLayer::RenderToSceneCamera() {
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
                         switch (renderCommand.m_meshType) {
                             case RenderCommandGeometryType::Default: {
-                                if (renderCommand.m_matrices.expired())
-                                    break;
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -650,7 +646,7 @@ void EditorLayer::RenderToSceneCamera() {
                                         "EntityIndex", renderCommand.m_owner.GetIndex());
                                 DefaultResources::m_sceneCameraEntityInstancedRecorderProgram->SetFloat4x4(
                                         "model", renderCommand.m_globalTransform.m_value);
-                                renderCommand.m_mesh.lock()->DrawInstanced(renderCommand.m_matrices.lock());
+                                renderCommand.m_renderGeometry->DrawInstanced(renderCommand.m_matrices);
                                 break;
                             }
                         }
