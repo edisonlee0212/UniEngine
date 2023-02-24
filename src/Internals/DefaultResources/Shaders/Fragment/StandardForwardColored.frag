@@ -13,7 +13,10 @@ void main()
 {
     vec2 texCoord = fs_in.TexCoord;
     vec4 albedo = UE_PBR_ALBEDO;
-    if (UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoord);
+    if (UE_ALBEDO_MAP_ENABLED) {
+        albedo = texture(UE_ALBEDO_MAP, texCoord);
+        albedo.a = albedo.a * albedoAlpha;
+    }
     if (albedo.a < 0.05)
         discard;
 

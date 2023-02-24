@@ -273,7 +273,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DrawMeshInternal(mesh);
 				break;
 			}
-				case RenderGeometryType::SkinnedMesh: {
+			case RenderGeometryType::SkinnedMesh: {
 				auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
 				renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
@@ -458,7 +458,7 @@ void RenderLayer::OnInspect()
 			ImGui::Checkbox("Stable fit", &m_stableFit);
 		}
 
-		if(ImGui::TreeNodeEx("Strands settings", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Strands settings", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::DragFloat("Curve subdivision factor", &m_renderSettings.m_strandsSubdivisionXFactor, 1.0f, 1.0f, 1000.0f);
 			ImGui::DragFloat("Ring subdivision factor", &m_renderSettings.m_strandsSubdivisionYFactor, 1.0f, 1.0f, 1000.0f);
@@ -483,7 +483,7 @@ void RenderLayer::OnCreate()
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
-	 m_instancedColorBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
+	m_instancedColorBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	m_instancedMatricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 #pragma region Kernel Setup
@@ -903,16 +903,15 @@ void RenderLayer::SetSpotLightShadowMapResolution(const size_t& value)
 }
 void RenderLayer::ShadowMapPrePass(
 	const int& enabledSize,
-	std::shared_ptr<OpenGLUtils::GLProgram>& defaultProgram,
-	std::shared_ptr<OpenGLUtils::GLProgram>& defaultInstancedProgram,
-	std::shared_ptr<OpenGLUtils::GLProgram>& skinnedProgram,
-	std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedProgram,
+	std::shared_ptr<OpenGLUtils::GLProgram>& meshProgram,
+	std::shared_ptr<OpenGLUtils::GLProgram>& meshInstancedProgram,
+	std::shared_ptr<OpenGLUtils::GLProgram>& skinnedMeshProgram,
+	std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedMeshProgram,
 	std::shared_ptr<OpenGLUtils::GLProgram>& strandsProgram)
 {
 
 	for (auto& i : m_deferredRenderInstances)
 	{
-		const auto& cameraComponent = i.first;
 		DispatchRenderCommands(
 			i.second,
 			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
@@ -922,7 +921,7 @@ void RenderLayer::ShadowMapPrePass(
 		{
 		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
-			auto& program = defaultProgram;
+			auto& program = meshProgram;
 			program->Bind();
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 			program->SetInt("index", enabledSize);
@@ -931,7 +930,7 @@ void RenderLayer::ShadowMapPrePass(
 		}
 		case RenderGeometryType::SkinnedMesh: {
 			auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
-			auto& program = skinnedProgram;
+			auto& program = skinnedMeshProgram;
 			program->Bind();
 			renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -963,7 +962,7 @@ void RenderLayer::ShadowMapPrePass(
 		{
 		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
-			auto& program = defaultInstancedProgram;
+			auto& program = meshInstancedProgram;
 			program->Bind();
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 			program->SetInt("index", enabledSize);
@@ -985,7 +984,7 @@ void RenderLayer::ShadowMapPrePass(
 		{
 		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
-			auto& program = defaultProgram;
+			auto& program = meshProgram;
 			program->Bind();
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 			program->SetInt("index", enabledSize);
@@ -994,7 +993,7 @@ void RenderLayer::ShadowMapPrePass(
 		}
 		case RenderGeometryType::SkinnedMesh: {
 			auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
-			auto& program = skinnedProgram;
+			auto& program = skinnedMeshProgram;
 			program->Bind();
 			renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -1027,7 +1026,72 @@ void RenderLayer::ShadowMapPrePass(
 		{
 		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
-			auto& program = defaultInstancedProgram;
+			auto& program = meshInstancedProgram;
+			program->Bind();
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			mesh->DrawInstanced(renderCommand.m_matrices);
+			break;
+		}
+		}
+			},
+			false);
+	}
+
+	for (auto& i : m_transparentRenderInstances)
+	{
+		DispatchRenderCommands(
+			i.second,
+			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
+				if (!renderCommand.m_castShadow)
+				return;
+		switch (renderCommand.m_geometryType)
+		{
+		case RenderGeometryType::Mesh: {
+			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
+			auto& program = meshProgram;
+			program->Bind();
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			mesh->Draw();
+			break;
+		}
+		case RenderGeometryType::SkinnedMesh: {
+			auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
+			auto& program = skinnedMeshProgram;
+			program->Bind();
+			renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			skinnedMesh->Draw();
+			break;
+		}
+		case RenderGeometryType::Strands: {
+			auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
+			auto& program = strandsProgram;
+			program->Bind();
+			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+			program->SetInt("index", enabledSize);
+			strands->Draw();
+			break;
+		}
+		}
+
+			},
+			false);
+	}
+	for (auto& i : m_instancedTransparentRenderInstances)
+	{
+		DispatchRenderCommands(
+			i.second,
+			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
+				if (!renderCommand.m_castShadow)
+				return;
+		switch (renderCommand.m_geometryType)
+		{
+		case RenderGeometryType::Mesh: {
+			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
+			auto& program = meshInstancedProgram;
 			program->Bind();
 			program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 			program->SetInt("index", enabledSize);
@@ -1266,7 +1330,7 @@ void RenderLayer::RenderShadows(
 					DefaultResources::m_directionalLightProgram,
 					DefaultResources::m_directionalLightInstancedProgram,
 					DefaultResources::m_directionalLightSkinnedProgram,
-					DefaultResources::m_directionalLightInstancedSkinnedProgram, 
+					DefaultResources::m_directionalLightInstancedSkinnedProgram,
 					DefaultResources::m_directionalLightStrandsProgram);
 				enabledSize++;
 			}

@@ -12,10 +12,14 @@ void main()
 {
     vec2 texCoord = fs_in.TexCoord;
     vec4 albedo = UE_PBR_ALBEDO;
-    if (UE_ALBEDO_MAP_ENABLED) albedo = texture(UE_ALBEDO_MAP, texCoord);
+    float albedoAlpha = albedo.a;
+    if (UE_ALBEDO_MAP_ENABLED) {
+        albedo = texture(UE_ALBEDO_MAP, texCoord);
+        albedo.a = albedo.a * albedoAlpha;
+    }
     if (albedo.a < 0.05)
         discard;
-
+    
     vec3 B = cross(fs_in.Normal, fs_in.Tangent);
     mat3 TBN = mat3(fs_in.Tangent, B, fs_in.Normal);
     vec3 normal = fs_in.Normal;

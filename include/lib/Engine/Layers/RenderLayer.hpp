@@ -223,10 +223,10 @@ namespace UniEngine {
 
 		void ShadowMapPrePass(
 			const int& enabledSize,
-			std::shared_ptr<OpenGLUtils::GLProgram>& defaultProgram,
-			std::shared_ptr<OpenGLUtils::GLProgram>& defaultInstancedProgram,
-			std::shared_ptr<OpenGLUtils::GLProgram>& skinnedProgram,
-			std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedProgram,
+			std::shared_ptr<OpenGLUtils::GLProgram>& meshProgram,
+			std::shared_ptr<OpenGLUtils::GLProgram>& meshInstancedProgram,
+			std::shared_ptr<OpenGLUtils::GLProgram>& skinnedMeshProgram,
+			std::shared_ptr<OpenGLUtils::GLProgram>& instancedSkinnedMeshProgram,
 			std::shared_ptr<OpenGLUtils::GLProgram>& strandsProgram);
 
 		void RenderShadows(
