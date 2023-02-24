@@ -55,7 +55,7 @@ void LoadScene()
             Transform transform;
             glm::vec3 position = glm::vec3(i - amount / 2.0f, j - amount / 2.0f, 0);
             transform.SetPosition(position * 5.0f);
-            transform.SetScale(glm::vec3(2.0f));
+            transform.SetScale(glm::vec3(5.0f));
             scene->SetDataComponent(sphere, transform);
             auto meshRenderer = scene->GetOrSetPrivateComponent<MeshRenderer>(sphere).lock();
             meshRenderer->m_mesh.Set<Mesh>(DefaultResources::Primitives::Sphere);

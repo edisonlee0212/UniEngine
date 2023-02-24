@@ -541,8 +541,8 @@ void EditorLayer::RenderToSceneCamera() {
             renderLayer->DispatchRenderCommands(
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
-                        switch (renderCommand.m_meshType) {
-                            case RenderCommandGeometryType::Default: {
+                        switch (renderCommand.m_geometryType) {
+                            case RenderGeometryType::Mesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -551,7 +551,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
-                            case RenderCommandGeometryType::Skinned: {
+                            case RenderGeometryType::SkinnedMesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -562,7 +562,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
-                            case RenderCommandGeometryType::Strands: {
+                            case RenderGeometryType::Strands: {
                                 auto& program = DefaultResources::m_sceneCameraEntityStrandsRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -579,8 +579,8 @@ void EditorLayer::RenderToSceneCamera() {
             renderLayer->DispatchRenderCommands(
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
-                        switch (renderCommand.m_meshType) {
-                            case RenderCommandGeometryType::Default: {
+                        switch (renderCommand.m_geometryType) {
+                            case RenderGeometryType::Mesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -599,8 +599,8 @@ void EditorLayer::RenderToSceneCamera() {
             renderLayer->DispatchRenderCommands(
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
-                        switch (renderCommand.m_meshType) {
-                            case RenderCommandGeometryType::Default: {
+                        switch (renderCommand.m_geometryType) {
+                            case RenderGeometryType::Mesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntityRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -609,7 +609,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
-                            case RenderCommandGeometryType::Skinned: {
+                            case RenderGeometryType::SkinnedMesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntitySkinnedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -620,7 +620,7 @@ void EditorLayer::RenderToSceneCamera() {
                                 renderCommand.m_renderGeometry->Draw();
                                 break;
                             }
-                            case RenderCommandGeometryType::Strands: {
+                            case RenderGeometryType::Strands: {
                                 auto& program = DefaultResources::m_sceneCameraEntityStrandsRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
@@ -637,8 +637,8 @@ void EditorLayer::RenderToSceneCamera() {
             renderLayer->DispatchRenderCommands(
                     i.second,
                     [&](const std::shared_ptr<Material> &material, const RenderCommand &renderCommand) {
-                        switch (renderCommand.m_meshType) {
-                            case RenderCommandGeometryType::Default: {
+                        switch (renderCommand.m_geometryType) {
+                            case RenderGeometryType::Mesh: {
                                 auto &program = DefaultResources::m_sceneCameraEntityInstancedRecorderProgram;
                                 program->Bind();
                                 program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);

@@ -56,19 +56,21 @@ namespace UniEngine {
 
 
 	enum class RenderCommandType {
+		None,
 		FromRenderer,
 		FromAPI,
 		FromAPIInstanced
 	};
 
-	enum class RenderCommandGeometryType {
-		Default,
-		Skinned,
+	enum class RenderGeometryType {
+		None,
+		Mesh,
+		SkinnedMesh,
 		Strands
 	};
 	struct RenderCommand {
-		RenderCommandType m_commandType = RenderCommandType::FromRenderer;
-		RenderCommandGeometryType m_meshType = RenderCommandGeometryType::Default;
+		RenderCommandType m_commandType = RenderCommandType::None;
+		RenderGeometryType m_geometryType = RenderGeometryType::None;
 		Entity m_owner = Entity();
 		std::shared_ptr<RenderGeometry> m_renderGeometry;
 		bool m_castShadow = true;
@@ -78,16 +80,14 @@ namespace UniEngine {
 		GlobalTransform m_globalTransform;
 	};
 
-	struct RenderCommands {
+	struct RenderCommandGroup {
 		std::shared_ptr<Material> m_material;
-		std::unordered_map<Handle, std::vector<RenderCommand>> m_meshes;
-		std::unordered_map<Handle, std::vector<RenderCommand>> m_skinnedMeshes;
-		std::unordered_map<Handle, std::vector<RenderCommand>> m_strands;
+		std::unordered_map<Handle, std::vector<RenderCommand>> m_renderCommands;
 	};
 
 	struct RenderInstances {
 		std::shared_ptr<Camera> m_camera;
-		std::unordered_map<Handle, RenderCommands> m_renderCommandsGroup;
+		std::unordered_map<Handle, RenderCommandGroup> m_renderCommandsGroups;
 	};
 
 	class UNIENGINE_API RenderLayer : public ILayer {

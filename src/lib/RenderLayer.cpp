@@ -31,7 +31,7 @@ void RenderLayer::DispatchRenderCommands(
 	const bool& setMaterial)
 {
 
-	for (const auto& renderCollection : renderCommands.m_renderCommandsGroup)
+	for (const auto& renderCollection : renderCommands.m_renderCommandsGroups)
 	{
 		const auto& material = renderCollection.second.m_material;
 		if (setMaterial)
@@ -40,21 +40,7 @@ void RenderLayer::DispatchRenderCommands(
 			m_materialSettings = MaterialSettingsBlock();
 			ApplyMaterialSettings(material);
 		}
-		for (const auto& renderCommands : renderCollection.second.m_meshes)
-		{
-			for (const auto& renderCommand : renderCommands.second)
-			{
-				func(material, renderCommand);
-			}
-		}
-		for (const auto& renderCommands : renderCollection.second.m_skinnedMeshes)
-		{
-			for (const auto& renderCommand : renderCommands.second)
-			{
-				func(material, renderCommand);
-			}
-		}
-		for (const auto& renderCommands : renderCollection.second.m_strands)
+		for (const auto& renderCommands : renderCollection.second.m_renderCommands)
 		{
 			for (const auto& renderCommand : renderCommands.second)
 			{
@@ -95,9 +81,9 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	DispatchRenderCommands(
 		m_deferredRenderInstances[cameraComponent->GetHandle()],
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
-			switch (renderCommand.m_meshType)
+			switch (renderCommand.m_geometryType)
 			{
-			case RenderCommandGeometryType::Default: {
+			case RenderGeometryType::Mesh: {
 				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 				auto& program = DefaultResources::m_gBufferPrepass;
 				program->Bind();
@@ -108,7 +94,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DeferredPrepassInternal(mesh);
 				break;
 			}
-			case RenderCommandGeometryType::Skinned: {
+			case RenderGeometryType::SkinnedMesh: {
 				auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
 				auto& program = DefaultResources::m_gBufferSkinnedPrepass;
 				program->Bind();
@@ -121,7 +107,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				break;
 			}
 
-			case RenderCommandGeometryType::Strands: {
+			case RenderGeometryType::Strands: {
 				auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
 				auto& program = DefaultResources::m_gBufferStrandsPrepass;
 				program->Bind();
@@ -138,9 +124,9 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	DispatchRenderCommands(
 		m_deferredInstancedRenderInstances[cameraComponent->GetHandle()],
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
-			switch (renderCommand.m_meshType)
+			switch (renderCommand.m_geometryType)
 			{
-			case RenderCommandGeometryType::Default: {
+			case RenderGeometryType::Mesh: {
 				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 				auto& program = DefaultResources::m_gBufferInstancedColoredPrepass;
 				program->Bind();
@@ -192,9 +178,9 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	DispatchRenderCommands(
 		m_forwardRenderInstances[cameraComponent->GetHandle()],
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
-			switch (renderCommand.m_meshType)
+			switch (renderCommand.m_geometryType)
 			{
-			case RenderCommandGeometryType::Default: {
+			case RenderGeometryType::Mesh: {
 				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
 				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
@@ -207,7 +193,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DrawMeshInternal(mesh);
 				break;
 			}
-			case RenderCommandGeometryType::Skinned: {
+			case RenderGeometryType::SkinnedMesh: {
 				auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
 				renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
@@ -221,7 +207,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				DrawSkinnedMeshInternal(skinnedMesh);
 				break;
 			}
-			case RenderCommandGeometryType::Strands: {
+			case RenderGeometryType::Strands: {
 				auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
 				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
@@ -240,9 +226,9 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	DispatchRenderCommands(
 		m_forwardInstancedRenderInstances[cameraComponent->GetHandle()],
 		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
-			switch (renderCommand.m_meshType)
+			switch (renderCommand.m_geometryType)
 			{
-			case RenderCommandGeometryType::Default: {
+			case RenderGeometryType::Mesh: {
 				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
 				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
@@ -431,7 +417,7 @@ void RenderLayer::OnCreate()
 	SkinnedMesh::TryInitialize();
 	PrepareBrdfLut();
 
-	m_instancedColorBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
+	 m_instancedColorBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	m_instancedMatricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 	SkinnedMesh::m_matricesBuffer = std::make_unique<OpenGLUtils::GLBuffer>(OpenGLUtils::GLBufferTarget::Array);
 #pragma region Kernel Setup
@@ -565,24 +551,24 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_renderGeometry = mesh;
 				renderInstance.m_castShadow = mmc->m_castShadow;
 				renderInstance.m_receiveShadow = mmc->m_receiveShadow;
-				renderInstance.m_meshType = RenderCommandGeometryType::Default;
+				renderInstance.m_geometryType = RenderGeometryType::Mesh;
 				if (material->m_drawSettings.m_blending)
 				{
-					auto& group = transparentRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = transparentRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 				else if (mmc->m_forwardRendering)
 				{
-					auto& group = forwardRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = forwardRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 				else
 				{
-					auto& group = deferredRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = deferredRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 			}
 		}
@@ -638,24 +624,24 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_castShadow = particles->m_castShadow;
 				renderInstance.m_receiveShadow = particles->m_receiveShadow;
 				renderInstance.m_matrices = particles->m_matrices;
-				renderInstance.m_meshType = RenderCommandGeometryType::Default;
+				renderInstance.m_geometryType = RenderGeometryType::Mesh;
 				if (material->m_drawSettings.m_blending)
 				{
-					auto& group = instancedTransparentRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = instancedTransparentRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 				else if (particles->m_forwardRendering)
 				{
-					auto& group = forwardInstancedRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = forwardInstancedRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 				else
 				{
-					auto& group = deferredInstancedRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = deferredInstancedRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_meshes[mesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[mesh->GetHandle()].push_back(renderInstance);
 				}
 			}
 		}
@@ -718,25 +704,25 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_renderGeometry = skinnedMesh;
 				renderInstance.m_castShadow = smmc->m_castShadow;
 				renderInstance.m_receiveShadow = smmc->m_receiveShadow;
-				renderInstance.m_meshType = RenderCommandGeometryType::Skinned;
+				renderInstance.m_geometryType = RenderGeometryType::SkinnedMesh;
 				renderInstance.m_boneMatrices = smmc->m_finalResults;
 				if (material->m_drawSettings.m_blending)
 				{
-					auto& group = transparentRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = transparentRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_skinnedMeshes[skinnedMesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[skinnedMesh->GetHandle()].push_back(renderInstance);
 				}
 				else if (smmc->m_forwardRendering)
 				{
-					auto& group = forwardRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = forwardRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_skinnedMeshes[skinnedMesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[skinnedMesh->GetHandle()].push_back(renderInstance);
 				}
 				else
 				{
-					auto& group = deferredRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = deferredRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_skinnedMeshes[skinnedMesh->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[skinnedMesh->GetHandle()].push_back(renderInstance);
 				}
 			}
 		}
@@ -793,24 +779,24 @@ void RenderLayer::CollectRenderInstances(Bound& worldBound)
 				renderInstance.m_renderGeometry = strands;
 				renderInstance.m_castShadow = mmc->m_castShadow;
 				renderInstance.m_receiveShadow = mmc->m_receiveShadow;
-				renderInstance.m_meshType = RenderCommandGeometryType::Strands;
+				renderInstance.m_geometryType = RenderGeometryType::Strands;
 				if (material->m_drawSettings.m_blending)
 				{
-					auto& group = transparentRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = transparentRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_strands[strands->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[strands->GetHandle()].push_back(renderInstance);
 				}
 				else if (mmc->m_forwardRendering)
 				{
-					auto& group = forwardRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = forwardRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_strands[strands->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[strands->GetHandle()].push_back(renderInstance);
 				}
 				else
 				{
-					auto& group = deferredRenderInstances.m_renderCommandsGroup[material->GetHandle()];
+					auto& group = deferredRenderInstances.m_renderCommandsGroups[material->GetHandle()];
 					group.m_material = material;
-					group.m_strands[strands->GetHandle()].push_back(renderInstance);
+					group.m_renderCommands[strands->GetHandle()].push_back(renderInstance);
 				}
 			}
 		}
@@ -866,9 +852,9 @@ void RenderLayer::ShadowMapPrePass(
 			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 				if (!renderCommand.m_castShadow)
 				return;
-		switch (renderCommand.m_meshType)
+		switch (renderCommand.m_geometryType)
 		{
-		case RenderCommandGeometryType::Default: {
+		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 			auto& program = defaultProgram;
 			program->Bind();
@@ -877,7 +863,7 @@ void RenderLayer::ShadowMapPrePass(
 			mesh->Draw();
 			break;
 		}
-		case RenderCommandGeometryType::Skinned: {
+		case RenderGeometryType::SkinnedMesh: {
 			auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
 			auto& program = skinnedProgram;
 			program->Bind();
@@ -887,7 +873,7 @@ void RenderLayer::ShadowMapPrePass(
 			skinnedMesh->Draw();
 			break;
 		}
-		case RenderCommandGeometryType::Strands: {
+		case RenderGeometryType::Strands: {
 			auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
 			auto& program = strandsProgram;
 			program->Bind();
@@ -907,9 +893,9 @@ void RenderLayer::ShadowMapPrePass(
 			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 				if (!renderCommand.m_castShadow)
 				return;
-		switch (renderCommand.m_meshType)
+		switch (renderCommand.m_geometryType)
 		{
-		case RenderCommandGeometryType::Default: {
+		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 			auto& program = defaultInstancedProgram;
 			program->Bind();
@@ -929,9 +915,9 @@ void RenderLayer::ShadowMapPrePass(
 			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 				if (!renderCommand.m_castShadow)
 				return;
-		switch (renderCommand.m_meshType)
+		switch (renderCommand.m_geometryType)
 		{
-		case RenderCommandGeometryType::Default: {
+		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 			auto& program = defaultProgram;
 			program->Bind();
@@ -940,7 +926,7 @@ void RenderLayer::ShadowMapPrePass(
 			mesh->Draw();
 			break;
 		}
-		case RenderCommandGeometryType::Skinned: {
+		case RenderGeometryType::SkinnedMesh: {
 			auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
 			auto& program = skinnedProgram;
 			program->Bind();
@@ -950,7 +936,7 @@ void RenderLayer::ShadowMapPrePass(
 			skinnedMesh->Draw();
 			break;
 		}
-		case RenderCommandGeometryType::Strands: {
+		case RenderGeometryType::Strands: {
 			auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
 			auto& program = strandsProgram;
 			program->Bind();
@@ -971,9 +957,9 @@ void RenderLayer::ShadowMapPrePass(
 			[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
 				if (!renderCommand.m_castShadow)
 				return;
-		switch (renderCommand.m_meshType)
+		switch (renderCommand.m_geometryType)
 		{
-		case RenderCommandGeometryType::Default: {
+		case RenderGeometryType::Mesh: {
 			auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
 			auto& program = defaultInstancedProgram;
 			program->Bind();
