@@ -7,18 +7,15 @@
 #include "ProfilerLayer.hpp"
 #include "Graphics.hpp"
 #include <Application.hpp>
-#include <ProjectManager.hpp>
 #include <Camera.hpp>
 #include <Cubemap.hpp>
 #include <DefaultResources.hpp>
 #include "Editor.hpp"
-#include "Engine/Core/Inputs.hpp"
 #include <LightProbe.hpp>
 #include <Lights.hpp>
 #include <MeshRenderer.hpp>
 #include <PostProcessing.hpp>
 #include <ReflectionProbe.hpp>
-#include "Engine/Rendering/Graphics.hpp"
 #include "Material.hpp"
 
 #include <SkinnedMeshRenderer.hpp>
@@ -274,6 +271,33 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 				ApplyProgramSettings(program, material);
 				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
 				DrawMeshInternal(mesh);
+				break;
+			}
+				case RenderGeometryType::SkinnedMesh: {
+				auto skinnedMesh = std::dynamic_pointer_cast<SkinnedMesh>(renderCommand.m_renderGeometry);
+				renderCommand.m_boneMatrices->UploadBones(skinnedMesh);
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+				if (!program)
+					break;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DrawSkinnedMeshInternal(skinnedMesh);
+				break;
+			}
+			case RenderGeometryType::Strands: {
+				auto strands = std::dynamic_pointer_cast<Strands>(renderCommand.m_renderGeometry);
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+				if (!program)
+					break;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DrawStrandsInternal(strands);
 				break;
 			}
 			}
