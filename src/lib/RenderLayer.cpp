@@ -245,8 +245,7 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 		},
 		true);
 #pragma endregion
-#pragma region Transparent
-#pragma endregion
+
 #pragma region Environment
 	glDepthFunc(
 		GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
@@ -258,7 +257,50 @@ void RenderLayer::RenderToCamera(const std::shared_ptr<Camera>& cameraComponent,
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDepthFunc(GL_LESS); // set depth function back to default
 #pragma endregion
-
+#pragma region Transparent
+	DispatchRenderCommands(
+		m_transparentRenderInstances[cameraComponent->GetHandle()],
+		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
+			switch (renderCommand.m_geometryType)
+			{
+			case RenderGeometryType::Mesh: {
+				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+				if (!program)
+					break;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DrawMeshInternal(mesh);
+				break;
+			}
+			}
+		},
+		true);
+	DispatchRenderCommands(
+		m_instancedTransparentRenderInstances[cameraComponent->GetHandle()],
+		[&](const std::shared_ptr<Material>& material, const RenderCommand& renderCommand) {
+			switch (renderCommand.m_geometryType)
+			{
+			case RenderGeometryType::Mesh: {
+				auto mesh = std::dynamic_pointer_cast<Mesh>(renderCommand.m_renderGeometry);
+				m_materialSettings.m_receiveShadow = renderCommand.m_receiveShadow;
+				m_materialSettingsBuffer->SubData(0, sizeof(MaterialSettingsBlock), &m_materialSettings);
+				auto program = material->m_program.Get<OpenGLUtils::GLProgram>();
+				if (!program)
+					break;
+				program->Bind();
+				ApplyProgramSettings(program, material);
+				program->SetFloat4x4("model", renderCommand.m_globalTransform.m_value);
+				DrawMeshInstancedInternal(mesh, renderCommand.m_matrices);
+				break;
+			}
+			}
+		},
+		true);
+#pragma endregion
 	cameraComponent->m_rendered = true;
 	cameraComponent->m_requireRendering = false;
 }
