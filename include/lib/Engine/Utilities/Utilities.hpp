@@ -80,4 +80,5 @@ namespace ImGui
 		float splitter_long_axis_size = -1.0f);
 
 	IMGUI_API bool Combo(const std::string& label, const std::vector<std::string>& items, unsigned& currentSelection, ImGuiComboFlags flags = 0);
+	IMGUI_API bool Combo(const std::string& label, const std::vector<std::string>& items, int& currentSelection, ImGuiComboFlags flags = 0);
 }

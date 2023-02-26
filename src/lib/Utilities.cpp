@@ -772,7 +772,7 @@ bool ImGui::Combo(const std::string& label, const std::vector<std::string>& item
         items[currentSelection]
         .c_str(), flags)) // The second parameter is the label previewed before opening the combo.
     {
-        for(size_t i = 0; i < items.size(); i++)
+        for(unsigned i = 0; i < items.size(); i++)
         {
             const bool selected = currentSelection == i;
             if (ImGui::Selectable(items[i].c_str(), selected))
@@ -784,6 +784,34 @@ bool ImGui::Combo(const std::string& label, const std::vector<std::string>& item
             {
                 ImGui::SetItemDefaultFocus();           // You may set the initial focus when opening the combo (scrolling
                                                       // + for keyboard navigation support)
+            }
+        }
+        ImGui::EndCombo();
+    }
+    return modified;
+}
+
+bool ImGui::Combo(const std::string& label, const std::vector<std::string>& items, int& currentSelection, ImGuiComboFlags flags)
+{
+    bool modified = false;
+    currentSelection = glm::clamp(currentSelection, 0, static_cast<int>(items.size()));
+    if (ImGui::BeginCombo(
+        label.c_str(),
+        items[currentSelection]
+        .c_str(), flags)) // The second parameter is the label previewed before opening the combo.
+    {
+        for (int i = 0; i < items.size(); i++)
+        {
+            const bool selected = currentSelection == i;
+            if (ImGui::Selectable(items[i].c_str(), selected))
+            {
+                currentSelection = i;
+                modified = true;
+            }
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();           // You may set the initial focus when opening the combo (scrolling
+                // + for keyboard navigation support)
             }
         }
         ImGui::EndCombo();
