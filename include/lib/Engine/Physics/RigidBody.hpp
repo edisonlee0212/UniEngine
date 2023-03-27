@@ -1,8 +1,8 @@
 #pragma once
-#include <Collider.hpp>
-#include "Engine/ECS/Entities.hpp"
-#include <PhysicsMaterial.hpp>
-#include <uniengine_export.h>
+#include "Collider.hpp"
+#include "Entities.hpp"
+#include "PhysicsMaterial.hpp"
+#include "uniengine_export.h"
 using namespace physx;
 namespace UniEngine
 {
@@ -39,7 +39,7 @@ class UNIENGINE_API RigidBody : public IPrivateComponent
     [[nodiscard]] bool Registered() const;
     void AttachCollider(std::shared_ptr<Collider> &collider);
     void DetachCollider(size_t index);
-    [[nodiscard]] bool IsKinematic();
+    [[nodiscard]] bool IsKinematic() const;
     void SetSolverIterations(unsigned position = 4, unsigned velocity = 1);
     void SetEnableGravity(bool value);
     void SetLinearDamping(float value);

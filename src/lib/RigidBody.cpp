@@ -39,7 +39,7 @@ void RigidBody::OnDestroy()
 
 void RigidBody::RecreateBody()
 {
-    auto physicsLayer = Application::GetLayer<PhysicsLayer>();
+	const auto physicsLayer = Application::GetLayer<PhysicsLayer>();
     if (!physicsLayer)
         return;
     if (m_rigidActor)
@@ -55,24 +55,23 @@ void RigidBody::RecreateBody()
     }
     if (m_static)
         m_rigidActor =
-            physicsLayer->m_physics->createRigidStatic(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+            physicsLayer->m_physics->createRigidStatic(PxTransform(*static_cast<PxMat44*>(static_cast<void*>(&globalTransform.m_value))));
     else
         m_rigidActor =
-            physicsLayer->m_physics->createRigidDynamic(PxTransform(*(PxMat44 *)(void *)&globalTransform.m_value));
+            physicsLayer->m_physics->createRigidDynamic(PxTransform(*static_cast<PxMat44*>(static_cast<void*>(&globalTransform.m_value))));
 
     if (!m_static)
     {
-        auto rigidDynamic = static_cast<PxRigidDynamic *>(m_rigidActor);
+	    const auto rigidDynamic = dynamic_cast<PxRigidDynamic *>(m_rigidActor);
         rigidDynamic->setSolverIterationCounts(m_minPositionIterations, m_minVelocityIterations);
         PxRigidBodyExt::updateMassAndInertia(*rigidDynamic, m_density, &m_massCenter);
-        PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
-        static_cast<PxRigidBody *>(m_rigidActor)->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
+        rigidDynamic->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
         if (!m_kinematic)
         {
-            rigidBody->setLinearDamping(m_linearDamping);
-            rigidBody->setAngularDamping(m_angularDamping);
-            rigidBody->setLinearVelocity(m_linearVelocity);
-            rigidBody->setAngularVelocity(m_angularVelocity);
+            rigidDynamic->setLinearDamping(m_linearDamping);
+            rigidDynamic->setAngularDamping(m_angularDamping);
+            rigidDynamic->setLinearVelocity(m_linearVelocity);
+            rigidDynamic->setAngularVelocity(m_angularVelocity);
             m_rigidActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !m_gravity);
         }
     }
@@ -110,6 +109,7 @@ void RigidBody::OnInspect()
     }
     if (!m_static)
     {
+        const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
         if (ImGui::Checkbox("Kinematic", &m_kinematic))
         {
             const bool newVal = m_kinematic;
@@ -120,36 +120,35 @@ void RigidBody::OnInspect()
         {
             m_density = glm::max(0.001f, m_density);
             PxRigidBodyExt::updateMassAndInertia(
-                *reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
+                *rigidDynamic, m_density, &m_massCenter);
         }
         if (ImGui::DragFloat3("Center", &m_massCenter.x, 0.1f, 0.001f))
         {
             PxRigidBodyExt::updateMassAndInertia(
-                *reinterpret_cast<PxRigidDynamic *>(m_rigidActor), m_density, &m_massCenter);
+                *rigidDynamic, m_density, &m_massCenter);
         }
         if (!m_kinematic)
         {
-            auto *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
             if (Application::IsPlaying())
             {
-                m_linearVelocity = rigidBody->getLinearVelocity();
-                m_angularVelocity = rigidBody->getAngularVelocity();
+                m_linearVelocity = rigidDynamic->getLinearVelocity();
+                m_angularVelocity = rigidDynamic->getAngularVelocity();
             }
             if (ImGui::DragFloat3("Linear Velocity", &m_linearVelocity.x, 0.01f))
             {
-                rigidBody->setLinearVelocity(m_linearVelocity);
+                rigidDynamic->setLinearVelocity(m_linearVelocity);
             }
             if (ImGui::DragFloat("Linear Damping", &m_linearDamping, 0.01f))
             {
-                rigidBody->setLinearDamping(m_linearDamping);
+                rigidDynamic->setLinearDamping(m_linearDamping);
             }
             if (ImGui::DragFloat3("Angular Velocity", &m_angularVelocity.x, 0.01f))
             {
-                rigidBody->setAngularVelocity(m_angularVelocity);
+                rigidDynamic->setAngularVelocity(m_angularVelocity);
             }
             if (ImGui::DragFloat("Angular Damping", &m_angularDamping, 0.01f))
             {
-                rigidBody->setAngularDamping(m_angularDamping);
+                rigidDynamic->setAngularDamping(m_angularDamping);
             }
 
             static auto applyValue = glm::vec3(0.0f);
@@ -255,9 +254,9 @@ void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
         UNIENGINE_ERROR("RigidBody is static!");
         return;
     }
-    PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+    const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
     m_angularVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
-    rigidBody->setAngularVelocity(m_angularVelocity);
+    rigidDynamic->setAngularVelocity(m_angularVelocity);
 }
 void RigidBody::SetLinearVelocity(const glm::vec3 &velocity)
 {
@@ -266,12 +265,12 @@ void RigidBody::SetLinearVelocity(const glm::vec3 &velocity)
         UNIENGINE_ERROR("RigidBody is static!");
         return;
     }
-    PxRigidBody *rigidBody = static_cast<PxRigidBody *>(m_rigidActor);
+    const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
     m_linearVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
-    rigidBody->setLinearVelocity(m_linearVelocity);
+    rigidDynamic->setLinearVelocity(m_linearVelocity);
 }
 
-bool RigidBody::IsKinematic()
+bool RigidBody::IsKinematic() const
 {
     return m_kinematic;
 }

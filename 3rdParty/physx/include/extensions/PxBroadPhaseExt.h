@@ -1,4 +1,3 @@
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -23,13 +22,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
-
-#ifndef PX_PHYSICS_EXTENSIONS_BROAD_PHASE_H
-#define PX_PHYSICS_EXTENSIONS_BROAD_PHASE_H
+#ifndef PX_BROAD_PHASE_EXT_H
+#define PX_BROAD_PHASE_EXT_H
 /** \addtogroup extensions
   @{
 */
@@ -57,7 +55,7 @@ public:
 	the game world with a non-uniform set of regions (i.e. not just a grid).
 
 	\param[out]	regions			Regions computed from the input global box
-	\param[in]	globalBounds	Scene-space box covering the game world
+	\param[in]	globalBounds	World-space box covering the game world
 	\param[in]	nbSubdiv		Grid subdivision level. The function will create nbSubdiv*nbSubdiv regions.
 	\param[in]	upAxis			Up axis (0 for X, 1 for Y, 2 for Z).
 	\return		number of regions written out to the 'regions' array

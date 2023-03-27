@@ -1,4 +1,3 @@
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -23,12 +22,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
-#ifndef PXFOUNDATION_PXERRORS_H
-#define PXFOUNDATION_PXERRORS_H
+#ifndef PX_ERRORS_H
+#define PX_ERRORS_H
 /** \addtogroup foundation
 @{
 */
@@ -47,7 +46,6 @@ These error codes are passed to #PxErrorCallback
 
 @see PxErrorCallback
 */
-
 struct PxErrorCode
 {
 	enum Enum
@@ -85,9 +83,50 @@ struct PxErrorCode
 	};
 };
 
+#if PX_CHECKED
+	#define PX_CHECK_MSG(exp, msg)					(!!(exp) || (PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg), 0) )
+	#define PX_CHECK_AND_RETURN(exp, msg)			{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return; } }
+	#define PX_CHECK_AND_RETURN_NULL(exp, msg)		{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return 0; } }
+	#define PX_CHECK_AND_RETURN_VAL(exp, msg, r)	{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return r; } }
+#else
+	#define PX_CHECK_MSG(exp, msg)
+	#define PX_CHECK_AND_RETURN(exp, msg)
+	#define PX_CHECK_AND_RETURN_NULL(exp, msg)
+	#define PX_CHECK_AND_RETURN_VAL(exp, msg, r)
+#endif
+
+// shortcut macros:
+// usage: PxGetFoundation().error(PX_WARN, "static friction %f is is lower than dynamic friction %d", sfr, dfr);
+#define PX_WARN ::physx::PxErrorCode::eDEBUG_WARNING, PX_FL
+#define PX_INFO ::physx::PxErrorCode::eDEBUG_INFO, PX_FL
+
+#if PX_DEBUG || PX_CHECKED
+	#define PX_WARN_ONCE(string)							\
+		{													\
+			static PxU32 timestamp = 0;						\
+			const PxU32 ts = PxGetWarnOnceTimeStamp();		\
+			if(timestamp != ts)								\
+			{                                               \
+				timestamp = ts;								\
+				PxGetFoundation().error(PX_WARN, string);   \
+			}                                               \
+		}
+	#define PX_WARN_ONCE_IF(condition, string)	\
+		{                                       \
+			if(condition)                       \
+			{                                   \
+				PX_WARN_ONCE(string)            \
+			}                                   \
+		}
+#else
+	#define PX_WARN_ONCE(string) ((void)0)
+	#define PX_WARN_ONCE_IF(condition, string) ((void)0)
+#endif
+
 #if !PX_DOXYGEN
 } // namespace physx
 #endif
 
 /** @} */
-#endif // #ifndef PXFOUNDATION_PXERRORS_H
+#endif
+

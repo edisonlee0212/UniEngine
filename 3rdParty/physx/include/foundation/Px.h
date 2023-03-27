@@ -1,4 +1,3 @@
-//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -23,12 +22,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2021 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
-#ifndef PXFOUNDATION_PX_H
-#define PXFOUNDATION_PX_H
+#ifndef PX_H
+#define PX_H
 
 /** \addtogroup foundation
 @{
@@ -56,14 +55,31 @@ class PxInputStream;
 class PxInputData;
 class PxOutputStream;
 
-class PxVec2;
-class PxVec3;
-class PxVec4;
-class PxMat33;
-class PxMat44;
+template<class Type>	class PxVec2T;
+typedef PxVec2T<float>	PxVec2;
+
+template<class Type>	class PxVec3T;
+typedef PxVec3T<float>	PxVec3;
+
+template<class Type>	class PxVec4T;
+typedef PxVec4T<float>	PxVec4;
+
+template<class Type>	class PxQuatT;
+typedef PxQuatT<float>	PxQuat;
+
+template<class Type>	class PxMat33T;
+typedef PxMat33T<float>	PxMat33;
+
+template<class Type>	class PxMat34T;
+typedef PxMat34T<float>	PxMat34;
+
+template<class Type>	class PxMat44T;
+typedef PxMat44T<float>	PxMat44;
+
+template<class Type>	class PxTransformT;
+typedef PxTransformT<float>	PxTransform;
+
 class PxPlane;
-class PxQuat;
-class PxTransform;
 class PxBounds3;
 
 /** enum for empty constructor tag*/
@@ -89,4 +105,5 @@ enum PxIDENTITY
 #endif
 
 /** @} */
-#endif // #ifndef PXFOUNDATION_PX_H
+#endif
+
