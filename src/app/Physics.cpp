@@ -63,6 +63,16 @@ int main()
     ProjectManager::SetScenePostLoadActions([]() { LoadScene(); });
 
     const std::filesystem::path resourceFolderPath("../../../Resources");
+
+    for(const auto i : std::filesystem::recursive_directory_iterator(resourceFolderPath))
+    {
+        if(i.is_directory()) continue;
+	    if(i.path().extension().string() == ".uescene" || i.path().extension().string() == ".umeta" || i.path().extension().string() == ".ueproj")
+	    {
+            std::filesystem::remove(i.path());
+	    }
+    }
+
     ApplicationConfigs applicationConfigs;
     applicationConfigs.m_projectPath = resourceFolderPath / "Example Projects/Physics/Physics.ueproj";
     Application::Create(applicationConfigs);

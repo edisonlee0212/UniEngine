@@ -12,6 +12,9 @@ docs/
 # Exclude Temp projects folder
 Resources/Temp Projects/
 
+# Exclude Temp projects folder
+#Resources/Example Projects/
+
 # Prerequisites
 *.d
 
