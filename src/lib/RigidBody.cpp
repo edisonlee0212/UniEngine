@@ -62,7 +62,7 @@ void RigidBody::RecreateBody()
 
     if (!m_static)
     {
-	    const auto rigidDynamic = dynamic_cast<PxRigidDynamic *>(m_rigidActor);
+	    const auto rigidDynamic = static_cast<PxRigidDynamic *>(m_rigidActor);
         rigidDynamic->setSolverIterationCounts(m_minPositionIterations, m_minVelocityIterations);
         PxRigidBodyExt::updateMassAndInertia(*rigidDynamic, m_density, &m_massCenter);
         rigidDynamic->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_kinematic);
@@ -109,7 +109,7 @@ void RigidBody::OnInspect()
     }
     if (!m_static)
     {
-        const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
+        const auto rigidDynamic = static_cast<PxRigidDynamic*>(m_rigidActor);
         if (ImGui::Checkbox("Kinematic", &m_kinematic))
         {
             const bool newVal = m_kinematic;
@@ -254,7 +254,7 @@ void RigidBody::SetAngularVelocity(const glm::vec3 &velocity)
         UNIENGINE_ERROR("RigidBody is static!");
         return;
     }
-    const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
+    const auto rigidDynamic = static_cast<PxRigidDynamic*>(m_rigidActor);
     m_angularVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidDynamic->setAngularVelocity(m_angularVelocity);
 }
@@ -265,7 +265,7 @@ void RigidBody::SetLinearVelocity(const glm::vec3 &velocity)
         UNIENGINE_ERROR("RigidBody is static!");
         return;
     }
-    const auto rigidDynamic = dynamic_cast<PxRigidDynamic*>(m_rigidActor);
+    const auto rigidDynamic = static_cast<PxRigidDynamic*>(m_rigidActor);
     m_linearVelocity = PxVec3(velocity.x, velocity.y, velocity.z);
     rigidDynamic->setLinearVelocity(m_linearVelocity);
 }
