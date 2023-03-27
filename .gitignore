@@ -1,6 +1,9 @@
 #Docs
 docs/
 
+# Exclude PhysX binaries
+3rdParty/physx/
+
 # Include Resource folder
 !Resources/
 
