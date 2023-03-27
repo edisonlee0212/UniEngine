@@ -3,6 +3,8 @@ docs/
 
 # Exclude PhysX binaries
 3rdParty/physx/
+3rdParty/flow/
+3rdParty/blast/
 
 # Include Resource folder
 !Resources/
