@@ -103,7 +103,7 @@ namespace UniEngine
 		std::unordered_map<Handle, std::weak_ptr<Folder>> m_folderRegistry;
 
 		friend class ClassRegistry;
-		std::map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
+		std::unordered_map<std::string, std::unordered_map<Handle, DefaultResource>> m_defaultResources;
 		std::shared_ptr<Scene> m_startScene;
 		std::unordered_map<std::string, std::vector<std::string>> m_assetExtensions;
 		std::map<std::string, std::string> m_typeNames;
