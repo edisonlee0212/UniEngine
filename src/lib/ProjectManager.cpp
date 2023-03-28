@@ -901,6 +901,28 @@ void ProjectManager::ScanProject()
 	projectManager.m_projectFolder->m_name = projectManager.m_projectPath.parent_path().stem().string();
 	projectManager.m_projectFolder->Refresh(directory);
 }
+
+void ProjectManager::OnDestroy()
+{
+	auto& projectManager = GetInstance();
+	
+	projectManager.m_projectFolder.reset();
+	projectManager.m_newSceneCustomizer.reset();
+
+	projectManager.m_currentFocusedFolder.reset();
+	projectManager.m_residentAsset.clear();
+	projectManager.m_assetRegistry.clear();
+	projectManager.m_assetRecordRegistry.clear();
+	projectManager.m_folderRegistry.clear();
+	projectManager.m_defaultResources.clear();
+	projectManager.m_startScene.reset();
+
+	projectManager.m_assetThumbnails.clear();
+	projectManager.m_assetThumbnailStorage.clear();
+
+	projectManager.m_inspectingAsset.reset();
+}
+
 void ProjectManager::OnInspect()
 {
 	auto& projectManager = GetInstance();

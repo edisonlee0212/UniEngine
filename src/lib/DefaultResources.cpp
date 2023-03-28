@@ -417,6 +417,11 @@ void DefaultResources::Load()
 #pragma endregion
 }
 
+void DefaultResources::OnDestroy()
+{
+	GetInstance() = {};
+}
+
 void DefaultResources::LoadRenderManagerResources()
 {
 #pragma region Skybox

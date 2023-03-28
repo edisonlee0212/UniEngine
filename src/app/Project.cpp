@@ -31,7 +31,7 @@ int main()
     ApplicationConfigs applicationConfigs;
     Application::Create(applicationConfigs);
     Application::Start();
-
+    Application::End();
 
     return 0;
 }

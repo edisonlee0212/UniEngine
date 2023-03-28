@@ -215,12 +215,14 @@ bool Application::IsInitialized()
 void Application::End()
 {
     auto &application = GetInstance();
-    application.m_activeScene.reset();
+	application.m_activeScene.reset();
+    ProjectManager::OnDestroy();
+    DefaultResources::OnDestroy();
     for (auto &i : application.m_layers)
     {
         i->OnDestroy();
     }
-    // glfwTerminate();
+    glfwTerminate();
 }
 
 void Application::Start()

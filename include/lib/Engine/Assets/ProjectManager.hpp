@@ -109,7 +109,7 @@ namespace UniEngine
 		std::map<std::string, std::string> m_typeNames;
 
 		std::unordered_map<Handle, std::weak_ptr<AssetThumbnail>> m_assetThumbnails;
-		std::queue<std::shared_ptr<AssetThumbnail>> m_assetThumbnailStorage;
+		std::vector<std::shared_ptr<AssetThumbnail>> m_assetThumbnailStorage;
 		int m_maxThumbnailSize = 256;
 		friend class DefaultResources;
 		friend class AssetRegistry;
@@ -160,7 +160,7 @@ namespace UniEngine
 		[[nodiscard]] static std::string GetTypeName(const std::string& extension);
 		[[nodiscard]] static bool IsAsset(const std::string& typeName);
 		static void ScanProject();
-
+		static void OnDestroy();
 		[[nodiscard]] static std::filesystem::path GetPathRelativeToProject(const std::filesystem::path& absolutePath);
 	};
 	template <typename T> std::shared_ptr<T> ProjectManager::CreateTemporaryAsset()

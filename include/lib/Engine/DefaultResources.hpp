@@ -168,6 +168,7 @@ class UNIENGINE_API DefaultResources : ISingleton<DefaultResources>
     };
 
     static void Load();
+    static void OnDestroy();
 };
 
 } // namespace UniEngine
