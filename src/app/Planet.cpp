@@ -23,7 +23,7 @@ int main()
     for (const auto i : std::filesystem::recursive_directory_iterator(resourceFolderPath))
     {
         if (i.is_directory()) continue;
-        if (i.path().extension().string() == ".uescene" || i.path().extension().string() == ".umeta" || i.path().extension().string() == ".ueproj")
+        if (i.path().extension().string() == ".uescene" || i.path().extension().string() == ".umeta" || i.path().extension().string() == ".ueproj" || i.path().extension().string() == ".ufmeta")
         {
             std::filesystem::remove(i.path());
         }
@@ -39,6 +39,7 @@ int main()
     Application::Create(applicationConfigs);
     Application::Start();
     Application::End();
+
 #pragma endregion
     return 0;
 }
