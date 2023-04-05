@@ -1044,7 +1044,7 @@ void EditorLayer::SceneCameraWindow() {
                     ImGui::PushItemWidth(100);
                     ImGui::Checkbox("Use background color", &m_sceneCamera->m_useClearColor);
                     ImGui::ColorEdit3("Bg color", &m_sceneCamera->m_clearColor.x);
-                    ImGui::SliderFloat("Fov", &m_sceneCamera->m_fov, 1.0f, 179.0f, "%.1f");
+                    ImGui::SliderFloat("Fov", &m_sceneCamera->m_fov, 1.0f, 359.f, "%.1f");
                     ImGui::DragFloat3("Position", &m_sceneCameraPosition.x, 0.1f, 0, 0, "%.1f");
                     ImGui::DragFloat("Speed", &m_velocity, 0.1f, 0, 0, "%.1f");
                     ImGui::DragFloat("Sensitivity", &m_sensitivity, 0.1f, 0, 0, "%.1f");
