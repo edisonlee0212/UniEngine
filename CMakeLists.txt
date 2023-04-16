@@ -107,14 +107,14 @@ if (WIN32)
     if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc143.mt/release/*.lib")
         set(ASSIMP_LIBS
-                ${ASSIMP_DIR}assimp-vc142-mt.lib
-                ${ASSIMP_DIR}contrib/zlib/zlibstatic.lib
+                ${ASSIMP_DIR}assimp-vc143-mt.lib
+                ${ASSIMP_DIR}zlibstatic.lib
                 )
     elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_LIBS "3rdParty/physx/win.x86_64.vc143.mt/debug/*.lib")
         set(ASSIMP_LIBS
-                ${ASSIMP_DIR}assimp-vc142-mtd.lib
-                ${ASSIMP_DIR}contrib/zlib/zlibstaticd.lib
+                ${ASSIMP_DIR}assimp-vc143-mtd.lib
+                ${ASSIMP_DIR}zlibstaticd.lib
                 )
     endif ()
     target_link_libraries(uniengine
@@ -323,10 +323,10 @@ add_custom_command(TARGET uniengine POST_BUILD
 if (WIN32)
     if (CMAKE_BUILD_TYPE MATCHES "^[Rr]elease")
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc143.mt/release/*.dll")
-        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mt.dll)
+        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc143-mt.dll)
     elseif (CMAKE_BUILD_TYPE MATCHES "[Dd]ebug")
         file(GLOB PHYSX_DLLS "3rdParty/physx/win.x86_64.vc143.mt/debug/*.dll")
-        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc142-mtd.dll)
+        set(ASSIMP_DLL ${3RD_PARTY_DIR}/assimp/assimp-vc143-mtd.dll)
     endif ()
     add_custom_command(
             TARGET uniengine

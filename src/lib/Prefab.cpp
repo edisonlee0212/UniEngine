@@ -10,7 +10,7 @@
 #include <Utilities.hpp>
 #include "ClassRegistry.hpp"
 using namespace UniEngine;
-AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab", ".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae"});
+AssetRegistration<Prefab> PrefabReg("Prefab", {".ueprefab", ".obj", ".gltf", ".glb", ".blend", ".ply", ".fbx", ".dae", ".x3d"});
 void Prefab::OnCreate()
 {
     m_name = "New Prefab";
@@ -366,6 +366,27 @@ std::shared_ptr<Material> Prefab::ReadMaterial(
             aiString str;
             importerMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
             targetMaterial->SetTexture(TextureType::Normal, CollectTexture(directory, str.C_Str(), texture2DsLoaded));
+        }
+        aiColor3D color;
+        if(importerMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color) == aiReturn_SUCCESS)
+        {
+            targetMaterial->m_materialProperties.m_albedoColor = glm::vec3(color.r, color.g, color.b);
+        }else if(importerMaterial->Get(AI_MATKEY_BASE_COLOR, color) == aiReturn_SUCCESS)
+        {
+            targetMaterial->m_materialProperties.m_albedoColor = glm::vec3(color.r, color.g, color.b);
+        }
+        ai_real factor;
+        if (importerMaterial->Get(AI_MATKEY_METALLIC_FACTOR, factor) == aiReturn_SUCCESS)
+        {
+            targetMaterial->m_materialProperties.m_metallic = factor;
+        }
+        if (importerMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, factor) == aiReturn_SUCCESS)
+        {
+            targetMaterial->m_materialProperties.m_roughness = factor;
+        }
+        if (importerMaterial->Get(AI_MATKEY_SPECULAR_FACTOR, factor) == aiReturn_SUCCESS)
+        {
+            targetMaterial->m_materialProperties.m_specular = factor;
         }
     }
     return targetMaterial;

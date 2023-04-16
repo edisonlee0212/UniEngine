@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2021, assimp team
+Copyright (c) 2006-2022, assimp team
 
 
 
@@ -246,6 +246,12 @@ public:
     bool SetPropertyMatrix(const char *szName, const aiMatrix4x4 &sValue);
 
     // -------------------------------------------------------------------
+    /** Set a pointer configuration property.
+     * @see SetPropertyInteger()
+     */
+    bool SetPropertyPointer(const char *szName, void *sValue);
+
+    // -------------------------------------------------------------------
     /** Get a configuration property.
      * @param szName Name of the property. All supported properties
      *   are defined in the aiConfig.g header (all constants share the
@@ -298,6 +304,15 @@ public:
             const aiMatrix4x4 &sErrorReturn = aiMatrix4x4()) const;
 
     // -------------------------------------------------------------------
+    /** Get a pointer configuration property
+     *
+     *  The return value remains valid until the property is modified.
+     * @see GetPropertyInteger()
+     */
+    void* GetPropertyPointer(const char *szName,
+        void *sErrorReturn = nullptr) const;
+
+    // -------------------------------------------------------------------
     /** Supplies a custom IO handler to the importer to use to open and
      * access files. If you need the importer to use custom IO logic to
      * access the files, you need to provide a custom implementation of
@@ -334,7 +349,7 @@ public:
 
     // -------------------------------------------------------------------
     /** Supplies a custom progress handler to the importer. This
-     *  interface exposes an #Set() callback, which is called
+     *  interface exposes an #Update() callback, which is called
      *  more or less periodically (please don't sue us if it
      *  isn't as periodically as you'd like it to have ...).
      *  This can be used to implement progress bars and loading
