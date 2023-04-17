@@ -70,6 +70,11 @@ void ParticleMatrices::SetValue(const std::vector<glm::vec4>& colors, const std:
 {
     m_colors = colors;
     m_matrices = matrices;
+    if(m_colors.size() != m_matrices.size())
+    {
+        m_colors.resize(m_matrices.size());
+        if(!m_colors.empty()) std::fill(m_colors.begin(), m_colors.end(), glm::vec4(1.0f));
+    }
 }
 
 void ParticleMatrices::Reset()
