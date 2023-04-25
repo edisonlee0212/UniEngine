@@ -57,6 +57,7 @@ template <typename T> std::shared_ptr<T> PrivateComponentStorage::GetOrSetPrivat
     if(pSearch != m_privateComponentPool.end() && !pSearch->second.empty()){
         auto back = pSearch->second.back();
         pSearch->second.pop_back();
+        back->m_handle = Handle();
         return std::dynamic_pointer_cast<T>(back);
     }
     return Serialization::ProduceSerializable<T>();

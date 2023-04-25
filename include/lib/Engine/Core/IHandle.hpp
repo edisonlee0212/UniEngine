@@ -48,6 +48,7 @@ class UNIENGINE_API IHandle{
     friend class Scene;
     friend class AssetRecord;
     friend class Folder;
+    friend class PrivateComponentStorage;
     Handle m_handle;
   public:
     Handle GetHandle() const
