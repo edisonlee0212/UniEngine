@@ -214,6 +214,12 @@ namespace UniEngine {
 						const std::vector<glm::vec3> &ends,
 						const float &width = 0.01f, const GizmoSettings &gizmoSettings = {});
 
+		static void DrawGizmoRays(
+						const std::vector<glm::vec4> &colors,
+						const std::vector<glm::vec3> &starts,
+						const std::vector<glm::vec3> &ends,
+						const float &width = 0.01f, const GizmoSettings &gizmoSettings = {});
+
 		static void DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width = 0.01f,
 															const GizmoSettings &gizmoSettings = {});
 

@@ -405,7 +405,7 @@ void PointCloud::Serialize(YAML::Emitter &out)
     out << YAML::Key << "m_max" << m_max;
     if (!m_points.empty())
     {
-        out << YAML::Key << "m_points" << YAML::Value
+        out << YAML::Key << "m_scatteredPoints" << YAML::Value
             << YAML::Binary((const unsigned char *)m_points.data(), m_points.size() * sizeof(glm::dvec3));
     }
     if (!m_normals.empty())
@@ -429,10 +429,10 @@ void PointCloud::Deserialize(const YAML::Node &in)
         m_min = in["m_min"].as<glm::dvec3>();
     if (in["m_max"])
         m_max = in["m_max"].as<glm::dvec3>();
-    if (in["m_points"])
+    if (in["m_scatteredPoints"])
     {
         m_hasPositions = true;
-        auto vertexData = in["m_points"].as<YAML::Binary>();
+        auto vertexData = in["m_scatteredPoints"].as<YAML::Binary>();
         m_points.resize(vertexData.size() / sizeof(glm::dvec3));
         std::memcpy(m_points.data(), vertexData.data(), vertexData.size());
     }else{

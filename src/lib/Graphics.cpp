@@ -674,7 +674,7 @@ void Gizmos::DrawGizmoRay(const glm::vec4 &color, const glm::vec3 &start, const 
 		const glm::mat4 rotationMat = glm::mat4_cast(rotation);
 		const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
 											 glm::scale(glm::vec3(width, glm::distance(end, start), width));
-		DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model);
+		DrawGizmoMesh(DefaultResources::Primitives::Cylinder, color, model, 1.0f, gizmoSettings);
 }
 
 void Gizmos::DrawGizmoRays(const glm::vec4 &color,
@@ -703,7 +703,36 @@ void Gizmos::DrawGizmoRays(const glm::vec4 &color,
 		for (const auto &i: results)
 				i.wait();
 
-		DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models);
+		DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models, glm::mat4(1.0f), 1.0f, gizmoSettings);
+}
+
+void Gizmos::DrawGizmoRays(const std::vector<glm::vec4> &colors,
+													 const std::vector<glm::vec3> &starts,
+													 const std::vector<glm::vec3> &ends,
+													 const float &width, const GizmoSettings &gizmoSettings) {
+		if (starts.empty() || ends.empty() || starts.size() != ends.size())
+				return;
+		std::vector<glm::mat4> models;
+		models.resize(starts.size());
+		std::vector<std::shared_future<void>> results;
+		Jobs::ParallelFor(
+						starts.size(),
+						[&](unsigned i) {
+							auto start = starts[i];
+							auto end = ends[i];
+							auto direction = glm::normalize(end - start);
+							glm::quat rotation = glm::quatLookAt(direction, glm::vec3(direction.y, direction.z, direction.x));
+							rotation *= glm::quat(glm::vec3(glm::radians(90.0f), 0.0f, 0.0f));
+							glm::mat4 rotationMat = glm::mat4_cast(rotation);
+							const auto model = glm::translate((start + end) / 2.0f) * rotationMat *
+																 glm::scale(glm::vec3(width, glm::distance(end, start), width));
+							models[i] = model;
+						},
+						results);
+		for (const auto &i: results)
+				i.wait();
+
+		DrawGizmoMeshInstancedColored(DefaultResources::Primitives::Cylinder, colors, models, glm::mat4(1.0f), 1.0f, gizmoSettings);
 }
 
 void Gizmos::DrawGizmoRays(
@@ -733,6 +762,7 @@ void Gizmos::DrawGizmoRays(
 
 		DrawGizmoMeshInstanced(DefaultResources::Primitives::Cylinder, color, models, glm::mat4(1.0f), 1.0f, gizmoSettings);
 }
+
 
 void Gizmos::DrawGizmoRays(const glm::vec4 &color, const std::vector<Ray> &rays, const float &width,
 													 const GizmoSettings &gizmoSettings) {

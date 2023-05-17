@@ -276,7 +276,7 @@ void Strands::Serialize(YAML::Emitter& out) {
 		out << YAML::Key << "m_segments" << YAML::Value
 			<< YAML::Binary((const unsigned char*)m_segments.data(), m_segments.size() * sizeof(glm::uint));
 
-		out << YAML::Key << "m_points" << YAML::Value
+		out << YAML::Key << "m_scatteredPoints" << YAML::Value
 			<< YAML::Binary((const unsigned char*)m_points.data(), m_points.size() * sizeof(StrandPoint));
 	}
 }
@@ -285,12 +285,12 @@ void Strands::Deserialize(const YAML::Node& in) {
 	if (in["m_offset"]) m_offset = in["m_offset"].as<size_t>();
 	if (in["m_version"]) m_version = in["m_version"].as<size_t>();
 
-	if (in["m_segments"] && in["m_points"]) {
+	if (in["m_segments"] && in["m_scatteredPoints"]) {
 		auto segmentData = in["m_segments"].as<YAML::Binary>();
 		m_segments.resize(segmentData.size() / sizeof(glm::uint));
 		std::memcpy(m_segments.data(), segmentData.data(), segmentData.size());
 
-		auto pointData = in["m_points"].as<YAML::Binary>();
+		auto pointData = in["m_scatteredPoints"].as<YAML::Binary>();
 		m_points.resize(pointData.size() / sizeof(StrandPoint));
 		std::memcpy(m_points.data(), pointData.data(), pointData.size());
 
